@@ -1826,7 +1826,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
-PACKAGE=helloworld
+PACKAGE=heresyrl
 VERSION=0.1.0
 
 am__api_version='1.13'
@@ -3434,6 +3434,180 @@ if test "$ac_res" != no; then :
 
 else
   as_fn_error $? "Unable to find ncurses" "$LINENO" 5
+fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing new_panel" >&5
+$as_echo_n "checking for library containing new_panel... " >&6; }
+if ${ac_cv_search_new_panel+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_func_search_save_LIBS=$LIBS
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char new_panel ();
+int
+main ()
+{
+return new_panel ();
+  ;
+  return 0;
+}
+_ACEOF
+for ac_lib in '' panel; do
+  if test -z "$ac_lib"; then
+    ac_res="none required"
+  else
+    ac_res=-l$ac_lib
+    LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
+  fi
+  if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_search_new_panel=$ac_res
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext
+  if ${ac_cv_search_new_panel+:} false; then :
+  break
+fi
+done
+if ${ac_cv_search_new_panel+:} false; then :
+
+else
+  ac_cv_search_new_panel=no
+fi
+rm conftest.$ac_ext
+LIBS=$ac_func_search_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_search_new_panel" >&5
+$as_echo "$ac_cv_search_new_panel" >&6; }
+ac_res=$ac_cv_search_new_panel
+if test "$ac_res" != no; then :
+  test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
+
+else
+  as_fn_error $? "Unable to find ncurses panel" "$LINENO" 5
+fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing new_menu" >&5
+$as_echo_n "checking for library containing new_menu... " >&6; }
+if ${ac_cv_search_new_menu+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_func_search_save_LIBS=$LIBS
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char new_menu ();
+int
+main ()
+{
+return new_menu ();
+  ;
+  return 0;
+}
+_ACEOF
+for ac_lib in '' menu; do
+  if test -z "$ac_lib"; then
+    ac_res="none required"
+  else
+    ac_res=-l$ac_lib
+    LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
+  fi
+  if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_search_new_menu=$ac_res
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext
+  if ${ac_cv_search_new_menu+:} false; then :
+  break
+fi
+done
+if ${ac_cv_search_new_menu+:} false; then :
+
+else
+  ac_cv_search_new_menu=no
+fi
+rm conftest.$ac_ext
+LIBS=$ac_func_search_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_search_new_menu" >&5
+$as_echo "$ac_cv_search_new_menu" >&6; }
+ac_res=$ac_cv_search_new_menu
+if test "$ac_res" != no; then :
+  test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
+
+else
+  as_fn_error $? "Unable to find ncurses menu" "$LINENO" 5
+fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing new_form" >&5
+$as_echo_n "checking for library containing new_form... " >&6; }
+if ${ac_cv_search_new_form+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_func_search_save_LIBS=$LIBS
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char new_form ();
+int
+main ()
+{
+return new_form ();
+  ;
+  return 0;
+}
+_ACEOF
+for ac_lib in '' form; do
+  if test -z "$ac_lib"; then
+    ac_res="none required"
+  else
+    ac_res=-l$ac_lib
+    LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
+  fi
+  if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_search_new_form=$ac_res
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext
+  if ${ac_cv_search_new_form+:} false; then :
+  break
+fi
+done
+if ${ac_cv_search_new_form+:} false; then :
+
+else
+  ac_cv_search_new_form=no
+fi
+rm conftest.$ac_ext
+LIBS=$ac_func_search_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_search_new_form" >&5
+$as_echo "$ac_cv_search_new_form" >&6; }
+ac_res=$ac_cv_search_new_form
+if test "$ac_res" != no; then :
+  test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
+
+else
+  as_fn_error $? "Unable to find ncurses form" "$LINENO" 5
 fi
 
 

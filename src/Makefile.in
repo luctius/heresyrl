@@ -76,7 +76,7 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-bin_PROGRAMS = helloworld$(EXEEXT)
+bin_PROGRAMS = heresyrl$(EXEEXT)
 subdir = src
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/depcomp
@@ -89,9 +89,11 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
-am_helloworld_OBJECTS = main.$(OBJEXT)
-helloworld_OBJECTS = $(am_helloworld_OBJECTS)
-helloworld_DEPENDENCIES =
+am_heresyrl_OBJECTS = main.$(OBJEXT) simple_dungeon.$(OBJEXT) \
+	map_display.$(OBJEXT) char_display.$(OBJEXT) \
+	msg_display.$(OBJEXT)
+heresyrl_OBJECTS = $(am_heresyrl_OBJECTS)
+heresyrl_DEPENDENCIES =
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -120,8 +122,8 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(helloworld_SOURCES)
-DIST_SOURCES = $(helloworld_SOURCES)
+SOURCES = $(heresyrl_SOURCES)
+DIST_SOURCES = $(heresyrl_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -232,8 +234,8 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AM_CXXFLAGS = $(INTI_CFLAGS)
-helloworld_SOURCES = main.c
-helloworld_LDADD = $(INTI_LIBS)
+heresyrl_SOURCES = main.c simple_dungeon.c map_display.c char_display.c msg_display.c
+heresyrl_LDADD = $(INTI_LIBS)
 all: all-am
 
 .SUFFIXES:
@@ -311,9 +313,9 @@ uninstall-binPROGRAMS:
 clean-binPROGRAMS:
 	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
 
-helloworld$(EXEEXT): $(helloworld_OBJECTS) $(helloworld_DEPENDENCIES) $(EXTRA_helloworld_DEPENDENCIES) 
-	@rm -f helloworld$(EXEEXT)
-	$(AM_V_CCLD)$(LINK) $(helloworld_OBJECTS) $(helloworld_LDADD) $(LIBS)
+heresyrl$(EXEEXT): $(heresyrl_OBJECTS) $(heresyrl_DEPENDENCIES) $(EXTRA_heresyrl_DEPENDENCIES) 
+	@rm -f heresyrl$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(heresyrl_OBJECTS) $(heresyrl_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -321,7 +323,11 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/char_display.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/map_display.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/msg_display.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/simple_dungeon.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
