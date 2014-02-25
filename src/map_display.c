@@ -150,7 +150,6 @@ bool create_ui(int cols, int lines, struct hrl_window **map_win, struct hrl_wind
                 return true;
             }
             else {
-                lg_printf("Refresh!");
                 lg_set_callback(gbl_log, NULL, NULL);
                 destroy_ui(*map_win, *char_win, *msg_win);
                 *map_win = NULL;
@@ -196,9 +195,6 @@ void win_destroy(struct hrl_window *window) {
     wrefresh(window->win);
     delwin(window->win);
     free(window);
-
-    clear();
-    refresh();
 }
 
 void win_display_map(struct hrl_window *window, struct sd_map *map, int player_x, int player_y) {
@@ -232,11 +228,12 @@ void win_display_map(struct hrl_window *window, struct sd_map *map, int player_x
 void win_log_refresh(struct hrl_window *window, struct logging *log) {
     struct queue *q = lg_logging_queue(log);
     int log_sz = queue_size(q);
+    int win_sz = window->lines;
 
     if (window == NULL) return;
 
-    int max = (window->lines < log_sz) ? window->lines : log_sz;
-    int log_start = log_sz - window->lines;
+    int max = (win_sz < log_sz) ? win_sz : log_sz;
+    int log_start = log_sz - win_sz;
     if (log_start < 0) log_start = 0;
 
     for (int i = 0; i < max; i++) {

@@ -100,17 +100,17 @@ static void lg_print_to_file(struct logging *log, enum lg_debug_levels dbg_lvl, 
 static void lg_print_to_queue(struct logging *log, enum lg_debug_levels dbg_lvl, const char* module, const char* format, va_list args) {
     if (log == NULL) return;
     int tstring_sz = 100;
-    char tstring[tstring_sz +10];
+    char tstring[tstring_sz +1];
+    memset(tstring, 0x0, sizeof(tstring));
 
     struct log_entry *entry = malloc(sizeof(struct log_entry) );
     if (entry != NULL) {
         vsnprintf(tstring, tstring_sz-1, format, args);
         int len = strlen(tstring);
-        if (tstring[len] != '\n') { tstring[len] = '\n'; len++; }
 
-        entry->string = malloc(len +1);
+        entry->string = malloc(len +2);
         if (entry->string != NULL) {
-            memset(entry->string, 0x0, len);
+            memset(entry->string, 0x0, len+2);
             entry->level = dbg_lvl;
             entry->module = module;
             strncpy(entry->string, tstring, len);
