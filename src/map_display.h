@@ -27,11 +27,53 @@
 #define CHAR_LINES_FACTOR 1.00f
 
 #include "simple_dungeon.h"
+#include "logging.h"
 
 enum window_type {
     HRL_WINDOW_TYPE_MAP,
     HRL_WINDOW_TYPE_CHARACTER,
     HRL_WINDOW_TYPE_MESSAGE,
+};
+
+enum dpl_colours {
+    DPL_COLOUR_NORMAL  =1, /*FG_WHITE,BG_BLACK*/
+    DPL_COLOUR_FG_RED,      /* FG_RED,BG_BLACK */
+    DPL_COLOUR_FG_GREEN,    /* FG_GREEN,BG_BLACK */
+    DPL_COLOUR_FG_YELLOW,   /* FG_YELLOW,BG_BLACK */
+    DPL_COLOUR_FG_BLUE,     /* FG_BLUE,BG_BLACK */
+    DPL_COLOUR_FG_MAGENTA,  /* FG_MAGENTA,BG_BLACK */
+    DPL_COLOUR_FG_CYAN,     /* FG_CYAN,BG_BLACK */
+
+    DPL_COLOUR_FGW_INVERSE, /* BG_WHITE,FG_BLACK */
+    DPL_COLOUR_FGW_RED, /* BG_RED,FG_WHITE */
+    DPL_COLOUR_FGW_GREEN, /* BG_GREEN,FG_WHITE */
+    DPL_COLOUR_FGW_YELLOW, /* BG_YELLOW,FG_WHITE */
+    DPL_COLOUR_FGW_BLUE, /* BG_BLUE,FG_WHITE */
+    DPL_COLOUR_FGW_MAGENTA, /* BG_MAGENTA,FG_WHITE */
+    DPL_COLOUR_FGW_CYAN, /* BG_CYAN,FG_WHITE */
+
+    DPL_COLOUR_BGB_RED, /* BG_RED,FG_BLACK */
+    DPL_COLOUR_BGB_GREEN, /* BG_GREEN,FG_BLACK */
+    DPL_COLOUR_BGB_YELLOW, /* BG_YELLOW,FG_BLACK */
+    DPL_COLOUR_BGB_BLUE, /* BG_BLUE,FG_BLACK */
+    DPL_COLOUR_BGB_MAGENTA, /* BG_MAGENTA,FG_BLAC */
+    DPL_COLOUR_BGB_CYAN, /* BG_CYAN,FG_BLACK */
+
+    DPL_COLOUR_BGW_RED, /* BG_RED,FG_WHITE */
+    DPL_COLOUR_BGW_GREEN, /* BG_GREEN,FG_WHITE */
+    DPL_COLOUR_BGW_YELLOW, /* BG_YELLOW,FG_WHITE */
+    DPL_COLOUR_BGW_BLUE, /* BG_BLUE,FG_WHITE */
+    DPL_COLOUR_BGW_MAGENTA, /* BG_MAGENTA,FG_BLAC */
+    DPL_COLOUR_BGW_CYAN, /* BG_CYAN,FG_WHITE */
+
+    DPL_COLOUR_ALL_RED, /* BG_RED,FG_RED */
+    DPL_COLOUR_ALL_GREEN, /* BG_GREEN,FG_GREEN */
+    DPL_COLOUR_ALL_YELLOW, /* BG_YELLOW,FG_YELLOW */
+    DPL_COLOUR_ALL_BLUE, /* BG_BLUE,FG_BLUE */
+    DPL_COLOUR_ALL_MAGENTA, /* BG_MAGENTA,FG_MAGENTA */
+    DPL_COLOUR_ALL_CYAN, /* BG_CYAN,FG_CYAN */
+    DPL_COLOUR_ALL_BLACK, /* BG_CYAN,FG_CYAN */
+    DPL_COLOUR_ALL_WHITE, /* BG_CYAN,FG_CYAN */
 };
 
 struct hrl_window;
@@ -40,4 +82,5 @@ struct hrl_window *win_create(int height, int width, int starty, int startx, enu
 void win_destroy(struct hrl_window *window);
 
 void win_display_map(struct hrl_window *window, struct sd_map *map, int player_x, int player_y);
+void win_log_callback(struct logging *log, struct log_entry *entry, void *priv);
 #endif /*MAP_DISPLAY_H_*/
