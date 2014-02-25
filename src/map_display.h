@@ -78,6 +78,7 @@ enum dpl_colours {
 
 struct hrl_window;
 
+void create_ui(int cols, int lines, struct hrl_window **map_win, struct hrl_window **char_win, struct hrl_window **msg_win);
 struct hrl_window *win_create(int height, int width, int starty, int startx, enum window_type type);
 void win_destroy(struct hrl_window *window);
 

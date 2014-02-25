@@ -97,6 +97,49 @@ static void win_generate_colours(void) {
     }
 }
 
+void create_ui(int cols, int lines, struct hrl_window **map_win, struct hrl_window **char_win, struct hrl_window **msg_win) {
+    if ( (map_win == NULL) || (char_win == NULL) ||(msg_win == NULL)  ) return;
+    if (*map_win != NULL) win_destroy(*map_win);
+    if (*char_win != NULL) win_destroy(*char_win);
+    if (*msg_win != NULL) win_destroy(*msg_win);
+    cols -=1;
+    lines -=1;
+
+    /* Calculate 3 windows sizes */
+    int map_cols = cols - CHAR_MIN_COLS;
+    if (map_cols > MAP_MIN_COLS) map_cols *= MAP_COLS_FACTOR;
+    if ( (map_cols > MAP_MAX_COLS) && (MAP_MAX_COLS != 0) ) map_cols = MAP_MAX_COLS;
+    int map_lines = lines - MSG_MIN_LINES;
+    if (map_lines > MAP_MIN_LINES) map_lines = (lines - MSG_MIN_LINES) * MAP_LINES_FACTOR;
+    if ( (map_lines > MAP_MAX_LINES) && (MAP_MAX_LINES != 0) ) map_lines = MAP_MAX_LINES;
+
+    int char_cols = cols - map_cols;
+    if (char_cols < CHAR_MIN_COLS) char_cols = CHAR_MIN_COLS;
+    if ( (char_cols > CHAR_MAX_COLS) && (CHAR_MAX_COLS != 0) ) char_cols = CHAR_MAX_COLS;
+    int char_lines = lines * CHAR_LINES_FACTOR;
+    if ( (char_lines > CHAR_MAX_LINES) && (CHAR_MAX_LINES != 0) ) char_lines = CHAR_MAX_LINES;
+
+    int msg_cols = cols;
+    if ( (msg_cols > MSG_MAX_COLS) && (MSG_MAX_COLS != 0) ) msg_cols = MSG_MAX_COLS;
+    int msg_lines = lines - map_lines;
+    if (msg_lines < MSG_MIN_LINES) msg_lines = MSG_MIN_LINES;
+    if ( (msg_lines > MSG_MAX_LINES) && (MSG_MAX_LINES != 0) ) msg_lines = MSG_MAX_LINES;
+
+    int total_lines = map_lines + msg_lines;
+    if (total_lines < char_lines) total_lines = char_lines;
+    int total_cols = map_cols + char_cols;
+    if (total_cols < msg_cols) total_cols = msg_cols;
+
+    if (total_lines > lines) { fprintf(stderr, "Too many lines used!\n"); exit(1); }
+    if (total_cols > cols) { fprintf(stderr, "Too many cols used!\n"); exit(1); }
+
+    *map_win = win_create(map_lines, map_cols, 0, 0, HRL_WINDOW_TYPE_MAP);
+    *char_win = win_create(char_lines, char_cols, 0, map_cols+1, HRL_WINDOW_TYPE_CHARACTER);
+    *msg_win = win_create(msg_lines, msg_cols, map_lines+1, 0, HRL_WINDOW_TYPE_MESSAGE);
+}
+
+
+
 struct hrl_window *win_create(int height, int width, int starty, int startx, enum window_type type) {
     struct hrl_window *retval = malloc(sizeof(struct hrl_window) );
 

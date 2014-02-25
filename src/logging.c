@@ -35,6 +35,13 @@ struct logging *lg_init(enum lg_debug_levels lvl, int max_size) {
     return log;
 }
 
+void lg_exit(struct logging *log) {
+    if (log == NULL) return NULL;
+    queue_exit(log->logging_q);
+    close(log->log_file);
+    free(log);
+}
+
 void lg_set_callback(struct logging *log, void *priv, callback_event ce) {
     if (log == NULL) return;
 
@@ -99,8 +106,8 @@ static void lg_print_to_queue(struct logging *log, enum lg_debug_levels dbg_lvl,
         if (tstring[len] != '\n') { tstring[len] = '\n'; tstring[len+1] = '\0'; len++; }
 
         entry->string = malloc(len +1);
-
         if (entry->string != NULL) {
+            memset(entry->string, 0x0, len+1);
             entry->level = dbg_lvl;
             entry->module = module;
             strncpy(entry->string, tstring, len+1);
