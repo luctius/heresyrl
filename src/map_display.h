@@ -78,10 +78,13 @@ enum dpl_colours {
 
 struct hrl_window;
 
-void create_ui(int cols, int lines, struct hrl_window **map_win, struct hrl_window **char_win, struct hrl_window **msg_win);
+bool create_ui(int cols, int lines, struct hrl_window **map_win, struct hrl_window **char_win, struct hrl_window **msg_win);
+void destroy_ui(struct hrl_window *map_win, struct hrl_window *char_win, struct hrl_window *msg_win);
+
 struct hrl_window *win_create(int height, int width, int starty, int startx, enum window_type type);
 void win_destroy(struct hrl_window *window);
 
 void win_display_map(struct hrl_window *window, struct sd_map *map, int player_x, int player_y);
 void win_log_callback(struct logging *log, struct log_entry *entry, void *priv);
+void win_log_refresh(struct hrl_window *window, struct logging *log);
 #endif /*MAP_DISPLAY_H_*/

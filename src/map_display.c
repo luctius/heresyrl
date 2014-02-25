@@ -97,53 +97,87 @@ static void win_generate_colours(void) {
     }
 }
 
-void create_ui(int cols, int lines, struct hrl_window **map_win, struct hrl_window **char_win, struct hrl_window **msg_win) {
-    if ( (map_win == NULL) || (char_win == NULL) ||(msg_win == NULL)  ) return;
-    if (*map_win != NULL) win_destroy(*map_win);
-    if (*char_win != NULL) win_destroy(*char_win);
-    if (*msg_win != NULL) win_destroy(*msg_win);
-    cols -=1;
-    lines -=1;
+static int hdr_lines = 0;
+static int hdr_cols = 0;
+bool create_ui(int cols, int lines, struct hrl_window **map_win, struct hrl_window **char_win, struct hrl_window **msg_win) {
+    if ( (map_win != NULL) && (char_win != NULL) && (msg_win != NULL)  )
+    {
+        if ( (hdr_lines != lines) || (hdr_cols != cols) ) {
+            hdr_lines = lines;
+            hdr_cols = cols;
 
-    /* Calculate 3 windows sizes */
-    int map_cols = cols - CHAR_MIN_COLS;
-    if (map_cols > MAP_MIN_COLS) map_cols *= MAP_COLS_FACTOR;
-    if ( (map_cols > MAP_MAX_COLS) && (MAP_MAX_COLS != 0) ) map_cols = MAP_MAX_COLS;
-    int map_lines = lines - MSG_MIN_LINES;
-    if (map_lines > MAP_MIN_LINES) map_lines = (lines - MSG_MIN_LINES) * MAP_LINES_FACTOR;
-    if ( (map_lines > MAP_MAX_LINES) && (MAP_MAX_LINES != 0) ) map_lines = MAP_MAX_LINES;
+            if ( (lines < 25) || (cols < 40) ) {
+                endwin();           /*  End curses mode       */
+                fprintf(stderr, "Terminal is too small, minimum is 40x25, this terminal is %dx%d.\n", cols, lines);
+                lg_exit(gbl_log);
+                exit(1);
+            }
 
-    int char_cols = cols - map_cols;
-    if (char_cols < CHAR_MIN_COLS) char_cols = CHAR_MIN_COLS;
-    if ( (char_cols > CHAR_MAX_COLS) && (CHAR_MAX_COLS != 0) ) char_cols = CHAR_MAX_COLS;
-    int char_lines = lines * CHAR_LINES_FACTOR;
-    if ( (char_lines > CHAR_MAX_LINES) && (CHAR_MAX_LINES != 0) ) char_lines = CHAR_MAX_LINES;
+            /* Calculate 3 windows sizes */
+            int map_cols = cols - CHAR_MIN_COLS;
+            if (map_cols > MAP_MIN_COLS) map_cols *= MAP_COLS_FACTOR;
+            if ( (map_cols > MAP_MAX_COLS) && (MAP_MAX_COLS != 0) ) map_cols = MAP_MAX_COLS;
+            int map_lines = lines - MSG_MIN_LINES;
+            if (map_lines > MAP_MIN_LINES) map_lines = (lines - MSG_MIN_LINES) * MAP_LINES_FACTOR;
+            if ( (map_lines > MAP_MAX_LINES) && (MAP_MAX_LINES != 0) ) map_lines = MAP_MAX_LINES;
 
-    int msg_cols = cols;
-    if ( (msg_cols > MSG_MAX_COLS) && (MSG_MAX_COLS != 0) ) msg_cols = MSG_MAX_COLS;
-    int msg_lines = lines - map_lines;
-    if (msg_lines < MSG_MIN_LINES) msg_lines = MSG_MIN_LINES;
-    if ( (msg_lines > MSG_MAX_LINES) && (MSG_MAX_LINES != 0) ) msg_lines = MSG_MAX_LINES;
+            int char_cols = cols - map_cols;
+            if (char_cols < CHAR_MIN_COLS) char_cols = CHAR_MIN_COLS;
+            if ( (char_cols > CHAR_MAX_COLS) && (CHAR_MAX_COLS != 0) ) char_cols = CHAR_MAX_COLS;
+            int char_lines = lines * CHAR_LINES_FACTOR;
+            if ( (char_lines > CHAR_MAX_LINES) && (CHAR_MAX_LINES != 0) ) char_lines = CHAR_MAX_LINES;
 
-    int total_lines = map_lines + msg_lines;
-    if (total_lines < char_lines) total_lines = char_lines;
-    int total_cols = map_cols + char_cols;
-    if (total_cols < msg_cols) total_cols = msg_cols;
+            int msg_cols = cols;
+            if ( (msg_cols > MSG_MAX_COLS) && (MSG_MAX_COLS != 0) ) msg_cols = MSG_MAX_COLS;
+            int msg_lines = lines - map_lines;
+            if (msg_lines < MSG_MIN_LINES) msg_lines = MSG_MIN_LINES;
+            if ( (msg_lines > MSG_MAX_LINES) && (MSG_MAX_LINES != 0) ) msg_lines = MSG_MAX_LINES;
 
-    if (total_lines > lines) { fprintf(stderr, "Too many lines used!\n"); exit(1); }
-    if (total_cols > cols) { fprintf(stderr, "Too many cols used!\n"); exit(1); }
+            int total_lines = map_lines + msg_lines;
+            if (total_lines < char_lines) total_lines = char_lines;
+            int total_cols = map_cols + char_cols;
+            if (total_cols < msg_cols) total_cols = msg_cols;
 
-    *map_win = win_create(map_lines, map_cols, 0, 0, HRL_WINDOW_TYPE_MAP);
-    *char_win = win_create(char_lines, char_cols, 0, map_cols+1, HRL_WINDOW_TYPE_CHARACTER);
-    *msg_win = win_create(msg_lines, msg_cols, map_lines+1, 0, HRL_WINDOW_TYPE_MESSAGE);
+            if (total_lines > lines) { fprintf(stderr, "Too many lines used!\n"); exit(1); }
+            if (total_cols > cols) { fprintf(stderr, "Too many cols used!\n"); exit(1); }
+
+            if ( (*map_win == NULL) || (*char_win == NULL) ||(*msg_win == NULL)  ) {
+                *map_win = win_create(map_lines, map_cols, 0, 0, HRL_WINDOW_TYPE_MAP);
+                *char_win = win_create(char_lines, char_cols, 0, map_cols+1, HRL_WINDOW_TYPE_CHARACTER);
+                *msg_win = win_create(msg_lines, msg_cols, map_lines+1, 0, HRL_WINDOW_TYPE_MESSAGE);
+                lg_set_callback(gbl_log, *msg_win, win_log_callback);
+                win_log_refresh(*msg_win, gbl_log);
+                return true;
+            }
+            else {
+                lg_printf("Refresh!");
+                lg_set_callback(gbl_log, NULL, NULL);
+                destroy_ui(*map_win, *char_win, *msg_win);
+                *map_win = NULL;
+                *char_win = NULL;
+                *msg_win = NULL;
+                hdr_lines = 0;
+                hdr_cols = 0;
+                return create_ui(cols, lines, map_win, char_win, msg_win);
+            }
+        }
+    }
+    return false;
 }
 
-
+void destroy_ui(struct hrl_window *map_win, struct hrl_window *char_win, struct hrl_window *msg_win) {
+    if (map_win != NULL) win_destroy(map_win);
+    if (char_win != NULL) win_destroy(char_win);
+    if (msg_win != NULL) win_destroy(msg_win);
+}
 
 struct hrl_window *win_create(int height, int width, int starty, int startx, enum window_type type) {
     struct hrl_window *retval = malloc(sizeof(struct hrl_window) );
 
     if (retval != NULL) {
+        clear();
+        refresh();
+
         retval->cols = width;
         retval->lines =height;
         retval->y = starty;
@@ -162,6 +196,9 @@ void win_destroy(struct hrl_window *window) {
     wrefresh(window->win);
     delwin(window->win);
     free(window);
+
+    clear();
+    refresh();
 }
 
 void win_display_map(struct hrl_window *window, struct sd_map *map, int player_x, int player_y) {
@@ -192,10 +229,11 @@ void win_display_map(struct hrl_window *window, struct sd_map *map, int player_x
     wrefresh(window->win);
 }
 
-void win_log_callback(struct logging *log, struct log_entry *entry, void *priv) {
-    struct hrl_window *window = priv;
+void win_log_refresh(struct hrl_window *window, struct logging *log) {
     struct queue *q = lg_logging_queue(log);
     int log_sz = queue_size(q);
+
+    if (window == NULL) return;
 
     int max = (window->lines < log_sz) ? window->lines : log_sz;
     int log_start = log_sz - window->lines;
@@ -208,5 +246,10 @@ void win_log_callback(struct logging *log, struct log_entry *entry, void *priv) 
         }
     }
     wrefresh(window->win);
+}
+
+void win_log_callback(struct logging *log, struct log_entry *entry, void *priv) {
+    struct hrl_window *window = priv;
+    if (window != NULL) win_log_refresh(window, log);
 }
 

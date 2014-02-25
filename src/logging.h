@@ -27,6 +27,7 @@
 #define LG_COLOUR_BG_CYAN         "\033[46m"
 
 struct logging;
+extern struct logging *gbl_log;
 
 enum lg_debug_levels {
     LG_DEBUG_LEVEL_ERROR,
@@ -52,7 +53,7 @@ void lg_change_debug_lvl(struct logging *log, enum lg_debug_levels lvl);
 
 struct queue *lg_logging_queue(struct logging *log);
 
-void lg_printf(struct logging *log, const char* format, ... );
+void lg_printf(const char* format, ... );
 void lg_printf_l(struct logging *log, int lvl, const char *module, const char* format, ... );
 void lg_printf_basic(struct logging *log, enum lg_debug_levels dbg_lvl, const char* module, const char* format, va_list args);
 

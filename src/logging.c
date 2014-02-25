@@ -9,6 +9,8 @@
 
 #include "logging.h"
 
+struct logging *gbl_log;
+
 struct logging {
     FILE *log_file;
     enum lg_debug_levels level;
@@ -38,7 +40,7 @@ struct logging *lg_init(enum lg_debug_levels lvl, int max_size) {
 void lg_exit(struct logging *log) {
     if (log == NULL) return NULL;
     queue_exit(log->logging_q);
-    close(log->log_file);
+    fclose(log->log_file);
     free(log);
 }
 
@@ -97,20 +99,21 @@ static void lg_print_to_file(struct logging *log, enum lg_debug_levels dbg_lvl, 
 
 static void lg_print_to_queue(struct logging *log, enum lg_debug_levels dbg_lvl, const char* module, const char* format, va_list args) {
     if (log == NULL) return;
-    char tstring[100];
+    int tstring_sz = 100;
+    char tstring[tstring_sz +10];
 
     struct log_entry *entry = malloc(sizeof(struct log_entry) );
     if (entry != NULL) {
-        vsnprintf(tstring, sizeof(tstring)-2, format, args);
+        vsnprintf(tstring, tstring_sz-1, format, args);
         int len = strlen(tstring);
-        if (tstring[len] != '\n') { tstring[len] = '\n'; tstring[len+1] = '\0'; len++; }
+        if (tstring[len] != '\n') { tstring[len] = '\n'; len++; }
 
         entry->string = malloc(len +1);
         if (entry->string != NULL) {
-            memset(entry->string, 0x0, len+1);
+            memset(entry->string, 0x0, len);
             entry->level = dbg_lvl;
             entry->module = module;
-            strncpy(entry->string, tstring, len+1);
+            strncpy(entry->string, tstring, len);
             queue_push_tail(log->logging_q, (intptr_t) entry);
 
             if (log->callback != NULL) log->callback(log, entry, log->priv);
@@ -131,10 +134,10 @@ void lg_printf_basic(struct logging *log, enum lg_debug_levels dbg_lvl, const ch
     lg_print_to_queue(log, dbg_lvl, module, format, args);
 }
 
-void lg_printf(struct logging *log, const char* format, ... ) {
+void lg_printf(const char* format, ... ) {
     va_list args;
     va_start(args, format);
-    lg_printf_basic(log, LG_DEBUG_LEVEL_GAME, "Heresyrl", format, args);
+    lg_printf_basic(gbl_log, LG_DEBUG_LEVEL_GAME, "Heresyrl", format, args);
     va_end(args);
 }
 

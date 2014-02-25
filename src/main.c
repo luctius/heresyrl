@@ -17,35 +17,19 @@ struct hrl_window *msg_win = NULL;
 int main(int argc, char *argv[])
 {
     int ch;
-    int cols, lines;
-
-    initscr();          /*  Start curses mode         */
-
-    cols = COLS;
-    lines = LINES;
-    if ( (lines < 25) || (cols < 40) ) {
-        endwin();           /*  End curses mode       */
-        fprintf(stderr, "Terminal is too small, minimum is 40x25.\n");
-        exit(1);
-    }
-
-    refresh();          /*  Print it on to the real screen */
-
-    create_ui(cols, lines, &map_win, &char_win, &msg_win);
-    struct logging *log = lg_init(LG_DEBUG_LEVEL_DEBUG, 100);
-    lg_set_callback(log, msg_win, win_log_callback);
-
-
     int x = 120;
     int y = 100;
     struct sd_map *map = NULL;
-
-    map = sd_alloc_map(x,y);
-
-    sd_generate_map(map);
-
     int xpos = 0;
     int ypos = 0;
+
+    gbl_log = lg_init(LG_DEBUG_LEVEL_DEBUG, 100);
+    map = sd_alloc_map(x,y);
+    sd_generate_map(map);
+
+    initscr(); /*  Start curses mode         */
+    refresh(); /*  Print it on to the real screen */
+    create_ui(COLS, LINES, &map_win, &char_win, &msg_win);
 
     cbreak();
     noecho();
@@ -53,16 +37,12 @@ int main(int argc, char *argv[])
     keypad(stdscr, TRUE);
 
     do {
-        if (ch == KEY_UP && ypos > 0) { ypos--; lg_printf(log, "key up"); }
-        if (ch == KEY_RIGHT && xpos < map->x_sz-1) { xpos++;  lg_printf(log, "key right"); }
-        if (ch == KEY_DOWN && ypos < map->y_sz-1) { ypos++;  lg_printf(log, "key down"); }
-        if (ch == KEY_LEFT && xpos > 0) { xpos--;  lg_printf(log, "key left"); }
+        if (ch == KEY_UP && ypos > 0) { ypos--; lg_printf("key up"); }
+        if (ch == KEY_RIGHT && xpos < map->x_sz-1) { xpos++; lg_printf("key right"); }
+        if (ch == KEY_DOWN && ypos < map->y_sz-1) { ypos++; lg_printf("key down"); }
+        if (ch == KEY_LEFT && xpos > 0) { xpos--; lg_printf("key left"); }
 
-        if (cols != COLS || lines != LINES) {
-            cols = COLS;
-            lines = LINES;
-            create_ui(cols, lines, &map_win, &char_win, &msg_win);
-        }
+        create_ui(COLS, LINES, &map_win, &char_win, &msg_win);
 
         SD_GET_INDEX(xpos, ypos, map).has_player = true;
         win_display_map(map_win, map, xpos, ypos);
@@ -70,11 +50,14 @@ int main(int argc, char *argv[])
     }
     while((ch = getch()) != 27 && ch != 'q');
 
+    destroy_ui(map_win, char_win, msg_win);
+    map_win = char_win = msg_win = NULL;
+    lg_set_callback(gbl_log, NULL, NULL);
     refresh();          /*  Print it on to the real screen */
     endwin();           /*  End curses mode       */
 
-    lg_printf(log, "Goodbye :) \n ");
-    lg_exit(log);
+    lg_printf("Goodbye :)");
+    lg_exit(gbl_log);
     sd_free_map(map);
 
     return 0;
