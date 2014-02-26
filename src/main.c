@@ -3,12 +3,13 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <ncurses.h>
-#include "simple_dungeon.h"
+#include <time.h>
 
 #include "heresyrl_def.h"
 #include "logging.h"
 #include "map_display.h"
 #include "monster.h"
+#include "simple_dungeon.h"
 
 struct hrl_window *map_win = NULL;
 struct hrl_window *char_win = NULL;
