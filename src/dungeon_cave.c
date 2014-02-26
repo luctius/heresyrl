@@ -1,105 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <stddef.h>
-#include "simple_dungeon.h"
-
-struct sd_map *sd_alloc_map(int x_sz, int y_sz) {
-    if (x_sz < 2) return NULL;
-    if (y_sz < 2) return NULL;
-
-    int sz = sizeof(struct sd_map) + ( (x_sz) * y_sz * sizeof(*(((struct sd_map*)0)->map)) ) ;
-    struct sd_map *map = malloc(sz);
-    if (map == NULL) return NULL;
-
-    map->x_sz = x_sz;
-    map->y_sz = y_sz;
-    return map;
-}
-
-int sd_free_map(struct sd_map *map) {
-    if (map == NULL) return EXIT_SUCCESS;
-    free(map);
-    return EXIT_SUCCESS;
-}
-
-int sd_print_map(struct sd_map *map) {
-    if (map == NULL) return EXIT_FAILURE;
-    if (map->x_sz < 2) return EXIT_FAILURE;
-    if (map->y_sz < 2) return EXIT_FAILURE;
-    if (map->map == NULL) return EXIT_FAILURE;
-
-    for (int y = 0; y < map->y_sz; y++) {
-        for (int x = 0; x < map->x_sz; x++) {
-            putchar(SD_GET_INDEX_TYPE(x,y,map));
-        }
-        putchar('\n');
-    }
-    putchar('\n');
-
-    return EXIT_SUCCESS;
-}
-
-bool sd_tile_instance(struct sd_map *map, enum tile_types tt, int instance, int *xpos, int *ypos) {
-    for (int x = 0; x < map->x_sz; x++) {
-        for (int y = 0; y < map->y_sz; y++) {
-            if (SD_GET_INDEX_TYPE(x,y,map) == tt ) {
-                instance--;
-                if (instance <= 0) {
-                    *xpos = x;
-                    *ypos = y;
-                    return true;
-                }
-            }
-        }
-    }
-    return false;
-}
-
-int sd_generate_map(struct sd_map *map) {
-    if (map == NULL) return EXIT_FAILURE;
-    if (map->x_sz < 2) return EXIT_FAILURE;
-    if (map->y_sz < 2) return EXIT_FAILURE;
-    if (map->map == NULL) return EXIT_FAILURE;
-
-    bool has_stairs_up = false;
-    bool has_stairs_down = false;
-
-    for (int x = 0; x < map->x_sz; x++) {
-        for (int y = 0; y < map->y_sz; y++) {
-            if (y == 0 || y == map->y_sz -1) SD_GET_INDEX(x,y,map).tile = ts_get_tile_type(TILE_TYPE_WALL);
-            else if (x == 0 || x == map->x_sz -1) SD_GET_INDEX(x,y,map).tile = ts_get_tile_type(TILE_TYPE_WALL);
-            else SD_GET_INDEX(x,y,map).tile = ts_get_tile_type(TILE_TYPE_FLOOR);
-
-            SD_GET_INDEX(x,y,map).in_sight = false;
-            SD_GET_INDEX(x,y,map).light_level = false;
-            SD_GET_INDEX(x,y,map).monster = NULL;
-        }
-    }
-    while (has_stairs_up == false || has_stairs_down == false) {
-        int x = rand() % map->x_sz;
-        int y = rand() % map->y_sz;
-
-        if (SD_GET_INDEX_TYPE(x,y,map) == TILE_TYPE_FLOOR ) {
-            if (has_stairs_up == false) {
-                SD_GET_INDEX(x,y,map).tile = ts_get_tile_type(TILE_TYPE_STAIRS_UP);
-                has_stairs_up = true;
-            }
-            else if (has_stairs_down == false) {
-                SD_GET_INDEX(x,y,map).tile = ts_get_tile_type(TILE_TYPE_STAIRS_DOWN);
-                has_stairs_down = true;
-            }
-        }
-    }
-
-    return EXIT_SUCCESS;
-}
-
-#if FALSE
-#include <stdio.h>
-#include <stdlib.h>
+#include <assert.h>
  
+#include "dungeon_cave.h"
+#include "tiles.h"
+
 #define TILE_FLOOR 0
 #define TILE_WALL 1
  
@@ -108,26 +13,27 @@ typedef struct {
     int reps;
 } generation_params; 
  
-int **grid;
-int **grid2; 
+static int **grid;
+static int **grid2; 
  
-int fillprob = 40;
-int r1_cutoff = 5, r2_cutoff = 2;
-int size_x = 64, size_y = 20;
-generation_params *params;  
+static int fillprob = 40;
+static int size_x = 64, size_y = 20;
+static generation_params *params;  
  
-generation_params *params_set;
-int generations;
+static generation_params *params_set;
+static int generations;
+
+static struct random *cave_random = NULL;
  
-int randpick(void)
+static int randpick(void)
 {
-    if(rand()%100 < fillprob)
+    if(random_genrand_int31(cave_random)%100 < fillprob)
         return TILE_WALL;
     else
         return TILE_FLOOR;
 }
  
-void initmap(void)
+static void initmap(void)
 {
     int xi, yi;
 
@@ -153,8 +59,21 @@ void initmap(void)
     for(xi=0; xi<size_x; xi++)
         grid[0][xi] = grid[size_y-1][xi] = TILE_WALL;
 }
+
+static void exitmap(void)
+{
+    int yi;
+
+    for(yi=0; yi<size_y; yi++)
+    {
+        free(grid[yi]);
+        free(grid2[yi]);
+    }
+    free(grid);
+    free(grid2);
+}
  
-void generation(void)
+static void generation(void)
 {
     int xi, yi, ii, jj;
 
@@ -190,7 +109,8 @@ void generation(void)
             grid[yi][xi] = grid2[yi][xi];
 } 
 
-void printfunc(void)
+/*
+static void printfunc(void)
 {
     int ii;
 
@@ -208,7 +128,7 @@ void printfunc(void)
     }
 }
 
-void printmap(void)
+static void printmap(void)
 {
     int xi, yi;
 
@@ -218,14 +138,14 @@ void printmap(void)
         {
             switch(grid[yi][xi]) {
                 case TILE_WALL:  putchar('#'); break;
+                default:
                 case TILE_FLOOR: putchar('.'); break;
             }
         }
         putchar('\n');
     }
 }
-
-int main(int argc, char **argv)
+static int generate(int argc, char **argv)
 {
     int ii, jj;
 
@@ -249,8 +169,6 @@ int main(int argc, char **argv)
         params++;
     }
 
-    srand(time(NULL));
-
     initmap();
 
     for(ii=0; ii<generations; ii++)
@@ -263,4 +181,54 @@ int main(int argc, char **argv)
     printmap();
     return 0;
 }
-#endif
+*/
+
+bool cave_generate_map(struct dc_map *map, struct random *r, enum dc_dungeon_type type, int level) {
+    int ii, jj, yi, xi;
+
+    if (type != DC_DUNGEON_TYPE_CAVE) return -1;
+
+    size_x     = map->x_sz;
+    size_y     = map->y_sz;
+    fillprob   = 45;
+
+    cave_random = r;
+
+    generations = 1;
+    params = params_set = (generation_params*)malloc( sizeof(generation_params) * generations );
+
+    uint8_t arg_array[] = {5, 1, 3}; /* Should be 3 * generations */
+    assert(ARRAY_SZ(arg_array) == generations * 3);
+
+    for(ii=0; ii < (generations *3); ii+=3)
+    {
+        params->r1_cutoff  = arg_array[ii];
+        params->r2_cutoff  = arg_array[ii+1];
+        params->reps = arg_array[ii+2];
+        params++;
+    }
+
+    initmap();
+
+    for(ii=0; ii<generations; ii++)
+    {
+        params = &params_set[ii];
+        for(jj=0; jj<params->reps; jj++)
+            generation();
+    }
+
+    for(yi=0; yi<size_y; yi++)
+    {
+        for(xi=0; xi<size_x; xi++)
+        {
+            switch(grid[yi][xi]) {
+                case TILE_WALL:  SD_GET_INDEX(xi,yi,map).tile = ts_get_tile_type(TILE_TYPE_WALL); break;
+                default:
+                case TILE_FLOOR: SD_GET_INDEX(xi,yi,map).tile = ts_get_tile_type(TILE_TYPE_FLOOR); break;
+            }
+        }
+    }
+
+    exitmap();
+    return 0;
+}

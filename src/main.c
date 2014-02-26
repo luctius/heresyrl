@@ -9,7 +9,7 @@
 #include "logging.h"
 #include "map_display.h"
 #include "monster.h"
-#include "simple_dungeon.h"
+#include "dungeon_creator.h"
 
 struct hrl_window *map_win = NULL;
 struct hrl_window *char_win = NULL;
@@ -20,23 +20,24 @@ int main(int argc, char *argv[])
     int ch;
     int x = 120;
     int y = 100;
-    struct sd_map *map = NULL;
+    struct dc_map *map = NULL;
     int xpos = 0;
     int ypos = 0;
     struct msr_monster *player = NULL;
 
  	srand(time(NULL));
+    gbl_random = random_init_genrand(rand());
     gbl_log = lg_init(LG_DEBUG_LEVEL_DEBUG, 100);
     msr_monster_list_init();
 
-    map = sd_alloc_map(x,y);
-    sd_generate_map(map);
+    map = dc_alloc_map(x,y);
+    dc_generate_map(map, DC_DUNGEON_TYPE_CAVE, 1);
 
     player = msr_create();
     player->icon = '@';
     player->colour = DPL_COLOUR_NORMAL;
 
-    if (sd_tile_instance(map, TILE_TYPE_STAIRS_UP, 0, &xpos, &ypos) == false) exit(1);
+    if (dc_tile_instance(map, TILE_TYPE_STAIRS_UP, 0, &xpos, &ypos) == false) exit(1);
     if (msr_insert_monster(player, map, xpos, ypos) == false) exit(1);
 
     initscr(); /*  Start curses mode         */
@@ -74,7 +75,7 @@ int main(int argc, char *argv[])
 
     lg_printf("Goodbye :)");
     lg_exit(gbl_log);
-    sd_free_map(map);
+    dc_free_map(map);
     msr_monster_list_exit();
 
     return 0;

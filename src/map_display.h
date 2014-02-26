@@ -27,7 +27,7 @@
 #define CHAR_LINES_FACTOR 1.00f
 
 #include "heresyrl_def.h"
-#include "simple_dungeon.h"
+#include "dungeon_creator.h"
 #include "logging.h"
 
 enum window_type {
@@ -44,7 +44,7 @@ void destroy_ui(struct hrl_window *map_win, struct hrl_window *char_win, struct 
 struct hrl_window *win_create(int height, int width, int starty, int startx, enum window_type type);
 void win_destroy(struct hrl_window *window);
 
-void win_display_map(struct hrl_window *window, struct sd_map *map, int player_x, int player_y);
+void win_display_map(struct hrl_window *window, struct dc_map *map, int player_x, int player_y);
 void win_log_callback(struct logging *log, struct log_entry *entry, void *priv);
 void win_log_refresh(struct hrl_window *window, struct logging *log);
 #endif /*MAP_DISPLAY_H_*/

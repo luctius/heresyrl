@@ -7,6 +7,10 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#include "random.h"
+
+#define ARRAY_SZ(a) (sizeof(a) / sizeof(a[0]))
+
 struct tl_tile {
     uint8_t attributes;
     uint8_t type;
@@ -21,7 +25,7 @@ struct msr_monster {
     uint8_t colour;
 };
 
-struct sd_map_entity {
+struct dc_map_entity {
     char type;
     bool in_sight;
     bool discovered;
@@ -30,10 +34,12 @@ struct sd_map_entity {
     struct msr_monster *monster;
 };
 
-struct sd_map {
+struct dc_map {
     int x_sz;
     int y_sz;
-    struct sd_map_entity map[];
+    unsigned int seed;
+
+    struct dc_map_entity map[];
 };
 
 enum dpl_colours {
@@ -87,7 +93,11 @@ enum lg_debug_levels {
 };
 
 extern struct logging *gbl_log;
+extern struct random *gbl_random;
+
 void lg_printf(const char* format, ... );
 void lg_printf_l(int lvl, const char *module, const char* format, ... );
+
+double pyth(double side1, double side2);
 
 #endif /*HERESYRL_DEF_H_*/

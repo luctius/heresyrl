@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 
-#include "simple_dungeon.h"
+#include "dungeon_creator.h"
 #include "monster.h"
 
 #define container_of(ptr, type, member) ({ \
@@ -46,11 +46,11 @@ void msr_die(struct msr_monster *monster) {
     free(target_mle);
 }
 
-bool msr_insert_monster(struct msr_monster *monster, struct sd_map *map, int x_togo, int y_togo) {
+bool msr_insert_monster(struct msr_monster *monster, struct dc_map *map, int x_togo, int y_togo) {
     bool retval = false;
     if (x_togo >= map->x_sz || y_togo >= map->y_sz) return false;
 
-    struct sd_map_entity *me_future = &SD_GET_INDEX(x_togo, y_togo, map);
+    struct dc_map_entity *me_future = &SD_GET_INDEX(x_togo, y_togo, map);
     if (TILE_HAS_ATTRIBUTE(me_future->tile, TILE_ATTR_TRAVERSABLE) ) {
         if (me_future->monster == NULL) {
             me_future->monster = monster;
@@ -64,12 +64,12 @@ bool msr_insert_monster(struct msr_monster *monster, struct sd_map *map, int x_t
     return retval;
 }
 
-bool msr_move_monster(struct msr_monster *monster, struct sd_map *map, int x_togo, int y_togo) {
+bool msr_move_monster(struct msr_monster *monster, struct dc_map *map, int x_togo, int y_togo) {
     bool retval = false;
     if ( (monster->x_pos == x_togo) && (monster->y_pos == y_togo) ) return false;
 
-    struct sd_map_entity *me_current = &SD_GET_INDEX(monster->x_pos, monster->y_pos, map);
-    struct sd_map_entity *me_future = &SD_GET_INDEX(x_togo, y_togo, map);
+    struct dc_map_entity *me_current = &SD_GET_INDEX(monster->x_pos, monster->y_pos, map);
+    struct dc_map_entity *me_future = &SD_GET_INDEX(x_togo, y_togo, map);
 
     if (TILE_HAS_ATTRIBUTE(me_future->tile, TILE_ATTR_TRAVERSABLE) ) {
         int x_diff = monster->x_pos - x_togo;

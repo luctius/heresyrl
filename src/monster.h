@@ -21,7 +21,7 @@ void msr_monster_list_exit(void);
 
 struct msr_monster *msr_create(void);
 void msr_die(struct msr_monster *monster);
-bool msr_insert_monster(struct msr_monster *monster, struct sd_map *map, int x_togo, int y_togo);
-bool msr_move_monster(struct msr_monster *monster, struct sd_map *map, int x_togo, int y_togo);
+bool msr_insert_monster(struct msr_monster *monster, struct dc_map *map, int x_togo, int y_togo);
+bool msr_move_monster(struct msr_monster *monster, struct dc_map *map, int x_togo, int y_togo);
 
 #endif /*MONSTER_H_*/

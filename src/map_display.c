@@ -23,6 +23,8 @@ static void win_generate_colours(void) {
         generated_colours = true;
         int i = 1;
 
+        lg_printf("generating colours");
+
         start_color();
         init_pair(i++, COLOR_WHITE, COLOR_BLACK);
         assert(i-1 == DPL_COLOUR_NORMAL);
@@ -199,7 +201,10 @@ void win_destroy(struct hrl_window *window) {
     free(window);
 }
 
-void win_display_map(struct hrl_window *window, struct sd_map *map, int player_x, int player_y) {
+void win_display_map(struct hrl_window *window, struct dc_map *map, int player_x, int player_y) {
+
+    static int last_x = 0;
+    static int last_y = 0;
 
     // Calculate top left of camera position
     int cx = 0;
@@ -217,6 +222,15 @@ void win_display_map(struct hrl_window *window, struct sd_map *map, int player_x
         cy = player_y - (window->lines / 2);
         if (cy < 0) cy = 0;
         if (cy + window->lines > map->y_sz) cy = map->y_sz - window->lines;
+    }
+
+    if (pyth(abs(last_x - cx), abs(last_y - cy) ) > 10) {
+        last_x = cx;
+        last_y = cy;
+    }
+    else {
+        cx = last_x;
+        cy = last_y;
     }
 
     for (int xi = 0; xi < x_max; xi++) {
