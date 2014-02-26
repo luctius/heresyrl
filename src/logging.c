@@ -4,7 +4,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <unistd.h>
-#include <stdarg.h>
 #include <string.h>
 
 #include "logging.h"
@@ -38,7 +37,7 @@ struct logging *lg_init(enum lg_debug_levels lvl, int max_size) {
 }
 
 void lg_exit(struct logging *log) {
-    if (log == NULL) return NULL;
+    if (log == NULL) return;
     queue_exit(log->logging_q);
     fclose(log->log_file);
     free(log);
@@ -105,8 +104,7 @@ static void lg_print_to_queue(struct logging *log, enum lg_debug_levels dbg_lvl,
 
     struct log_entry *entry = malloc(sizeof(struct log_entry) );
     if (entry != NULL) {
-        vsnprintf(tstring, tstring_sz-1, format, args);
-        int len = strlen(tstring);
+        int len = vsnprintf(tstring, tstring_sz-1, format, args);
 
         entry->string = malloc(len +2);
         if (entry->string != NULL) {
@@ -130,8 +128,10 @@ static void lg_print_to_queue(struct logging *log, enum lg_debug_levels dbg_lvl,
 void lg_printf_basic(struct logging *log, enum lg_debug_levels dbg_lvl, const char* module, const char* format, va_list args) {
 
     if ( (log != NULL) && (dbg_lvl > log->level) ) return;
+    va_list cpy;
+    va_copy(cpy, args);
     lg_print_to_file(log, dbg_lvl, module, format, args);
-    lg_print_to_queue(log, dbg_lvl, module, format, args);
+    lg_print_to_queue(log, dbg_lvl, module, format, cpy);
 }
 
 void lg_printf(const char* format, ... ) {
@@ -141,10 +141,10 @@ void lg_printf(const char* format, ... ) {
     va_end(args);
 }
 
-void lg_printf_l(struct logging *log, int lvl, const char *module, const char* format, ... ) {
+void lg_printf_l(int lvl, const char *module, const char* format, ... ) {
     va_list args;
     va_start(args, format);
-    lg_printf_basic(log, lvl, module , format, args);
+    lg_printf_basic(gbl_log, lvl, module , format, args);
     va_end(args);
 }
 

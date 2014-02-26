@@ -22,6 +22,8 @@ static void win_generate_colours(void) {
     if (generated_colours == false) {
         generated_colours = true;
         int i = 1;
+
+        start_color();
         init_pair(i++, COLOR_WHITE, COLOR_BLACK);
         assert(i-1 == DPL_COLOUR_NORMAL);
         init_pair(i++, COLOR_RED, COLOR_BLACK);
@@ -129,7 +131,7 @@ bool create_ui(int cols, int lines, struct hrl_window **map_win, struct hrl_wind
 
             int msg_cols = cols;
             if ( (msg_cols > MSG_MAX_COLS) && (MSG_MAX_COLS != 0) ) msg_cols = MSG_MAX_COLS;
-            int msg_lines = lines - map_lines;
+            int msg_lines = lines - map_lines -1;
             if (msg_lines < MSG_MIN_LINES) msg_lines = MSG_MIN_LINES;
             if ( (msg_lines > MSG_MAX_LINES) && (MSG_MAX_LINES != 0) ) msg_lines = MSG_MAX_LINES;
 
@@ -185,7 +187,7 @@ struct hrl_window *win_create(int height, int width, int starty, int startx, enu
         retval->win = newwin(retval->lines, retval->cols, starty, startx);
         wrefresh(retval->win);
 
-        win_generate_colours();
+        if (has_colors() == TRUE) win_generate_colours();
     }
 
     return retval;
@@ -204,6 +206,7 @@ void win_display_map(struct hrl_window *window, struct sd_map *map, int player_x
     int cy = 0;
     int x_max = (window->cols < map->x_sz) ? window->cols : map->x_sz;
     int y_max = (window->lines < map->y_sz) ? window->lines : map->y_sz;
+    werase(window->win);
 
     if (window->cols < map->x_sz) {
         cx = player_x - (window->cols / 2);
@@ -218,8 +221,16 @@ void win_display_map(struct hrl_window *window, struct sd_map *map, int player_x
 
     for (int xi = 0; xi < x_max; xi++) {
         for (int yi = 0; yi < y_max; yi++) {
-            if (SD_GET_INDEX(xi+cx, yi+cy, map).has_player) mvwprintw(window->win, yi, xi, "@", SD_GET_INDEX(xi+cx, yi+cy, map).type );
-            else mvwprintw(window->win, yi, xi, "%c", SD_GET_INDEX(xi+cx, yi+cy, map).type );
+            if (SD_GET_INDEX(xi+cx, yi+cy, map).monster != NULL) {
+                if (has_colors() == TRUE) attron(COLOR_PAIR(SD_GET_INDEX(xi+cx, yi+cy, map).monster->colour ) );
+                mvwprintw(window->win, yi, xi, "%c", SD_GET_INDEX(xi+cx, yi+cy, map).monster->icon);
+                if (has_colors() == TRUE) attroff(COLOR_PAIR(SD_GET_INDEX(xi+cx, yi+cy, map).monster->colour ) );
+            }
+            else {
+                if (has_colors() == TRUE) attron(COLOR_PAIR(SD_GET_INDEX(xi+cx, yi+cy, map).tile.colour ) );
+                mvwprintw(window->win, yi, xi, "%c", SD_GET_INDEX_TYPE(xi+cx, yi+cy, map) );
+                if (has_colors() == TRUE) attroff(COLOR_PAIR(SD_GET_INDEX(xi+cx, yi+cy, map).tile.colour ) );
+            }
         }
     }
     wrefresh(window->win);
@@ -231,6 +242,7 @@ void win_log_refresh(struct hrl_window *window, struct logging *log) {
     int win_sz = window->lines;
 
     if (window == NULL) return;
+    werase(window->win);
 
     int max = (win_sz < log_sz) ? win_sz : log_sz;
     int log_start = log_sz - win_sz;

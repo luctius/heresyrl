@@ -2,6 +2,9 @@
 #ifndef LOGGING_H_
 #define LOGGING_H_
 
+#include <stdarg.h>
+
+#include "heresyrl_def.h"
 #include "queue.h"
 
 #define LG_COLOUR_NORMAL          ""
@@ -27,16 +30,6 @@
 #define LG_COLOUR_BG_CYAN         "\033[46m"
 
 struct logging;
-extern struct logging *gbl_log;
-
-enum lg_debug_levels {
-    LG_DEBUG_LEVEL_ERROR,
-    LG_DEBUG_LEVEL_WARNING,
-    LG_DEBUG_LEVEL_GAME,
-    LG_DEBUG_LEVEL_INFORMATIONAL,
-    LG_DEBUG_LEVEL_DEBUG,
-    LG_DEBUG_LEVEL_MAX,
-};
 
 struct log_entry {
     char *module;
@@ -53,8 +46,6 @@ void lg_change_debug_lvl(struct logging *log, enum lg_debug_levels lvl);
 
 struct queue *lg_logging_queue(struct logging *log);
 
-void lg_printf(const char* format, ... );
-void lg_printf_l(struct logging *log, int lvl, const char *module, const char* format, ... );
 void lg_printf_basic(struct logging *log, enum lg_debug_levels dbg_lvl, const char* module, const char* format, va_list args);
 
 #endif /*LOGGING_H_*/

@@ -5,10 +5,10 @@
 #include <ncurses.h>
 #include "simple_dungeon.h"
 
+#include "heresyrl_def.h"
 #include "logging.h"
 #include "map_display.h"
-//#include "char_display.h"
-//#include "msg_display.h"
+#include "monster.h"
 
 struct hrl_window *map_win = NULL;
 struct hrl_window *char_win = NULL;
@@ -22,10 +22,21 @@ int main(int argc, char *argv[])
     struct sd_map *map = NULL;
     int xpos = 0;
     int ypos = 0;
+    struct msr_monster *player = NULL;
 
+ 	srand(time(NULL));
     gbl_log = lg_init(LG_DEBUG_LEVEL_DEBUG, 100);
+    msr_monster_list_init();
+
     map = sd_alloc_map(x,y);
     sd_generate_map(map);
+
+    player = msr_create();
+    player->icon = '@';
+    player->colour = DPL_COLOUR_NORMAL;
+
+    if (sd_tile_instance(map, TILE_TYPE_STAIRS_UP, 0, &xpos, &ypos) == false) exit(1);
+    if (msr_insert_monster(player, map, xpos, ypos) == false) exit(1);
 
     initscr(); /*  Start curses mode         */
     refresh(); /*  Print it on to the real screen */
@@ -33,20 +44,24 @@ int main(int argc, char *argv[])
 
     cbreak();
     noecho();
-    timeout(1);
+    //timeout(1);
     keypad(stdscr, TRUE);
 
     do {
-        if (ch == KEY_UP && ypos > 0) { ypos--; lg_printf("key up"); }
-        if (ch == KEY_RIGHT && xpos < map->x_sz-1) { xpos++; lg_printf("key right"); }
-        if (ch == KEY_DOWN && ypos < map->y_sz-1) { ypos++; lg_printf("key down"); }
-        if (ch == KEY_LEFT && xpos > 0) { xpos--; lg_printf("key left"); }
+        int new_xpos = xpos;
+        int new_ypos = ypos;
+        if (ch == KEY_UP) { new_ypos--; }
+        if (ch == KEY_RIGHT) { new_xpos++; }
+        if (ch == KEY_DOWN) { new_ypos++; }
+        if (ch == KEY_LEFT) { new_xpos--; }
+
+        if (msr_move_monster(player, map, new_xpos, new_ypos) == true) {
+            xpos = new_xpos;
+            ypos = new_ypos;
+        }
 
         create_ui(COLS, LINES, &map_win, &char_win, &msg_win);
-
-        SD_GET_INDEX(xpos, ypos, map).has_player = true;
         win_display_map(map_win, map, xpos, ypos);
-        SD_GET_INDEX(xpos, ypos, map).has_player = false;
     }
     while((ch = getch()) != 27 && ch != 'q');
 
@@ -59,6 +74,7 @@ int main(int argc, char *argv[])
     lg_printf("Goodbye :)");
     lg_exit(gbl_log);
     sd_free_map(map);
+    msr_monster_list_exit();
 
     return 0;
 }

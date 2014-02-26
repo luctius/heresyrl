@@ -3,7 +3,7 @@
 #define QUEUE_H
 
 #include <errno.h>
-#include <stdint.h>
+#include <stddef.h>
 
 #define QUEUE_SUCCESS (0)
 

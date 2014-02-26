@@ -32,7 +32,7 @@ int sd_print_map(struct sd_map *map) {
 
     for (int y = 0; y < map->y_sz; y++) {
         for (int x = 0; x < map->x_sz; x++) {
-            putchar(SD_GET_INDEX(x,y,map).type);
+            putchar(SD_GET_INDEX_TYPE(x,y,map));
         }
         putchar('\n');
     }
@@ -41,18 +41,55 @@ int sd_print_map(struct sd_map *map) {
     return EXIT_SUCCESS;
 }
 
+bool sd_tile_instance(struct sd_map *map, enum tile_types tt, int instance, int *xpos, int *ypos) {
+    for (int x = 0; x < map->x_sz; x++) {
+        for (int y = 0; y < map->y_sz; y++) {
+            if (SD_GET_INDEX_TYPE(x,y,map) == tt ) {
+                instance--;
+                if (instance <= 0) {
+                    *xpos = x;
+                    *ypos = y;
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
 int sd_generate_map(struct sd_map *map) {
     if (map == NULL) return EXIT_FAILURE;
     if (map->x_sz < 2) return EXIT_FAILURE;
     if (map->y_sz < 2) return EXIT_FAILURE;
     if (map->map == NULL) return EXIT_FAILURE;
 
+    bool has_stairs_up = false;
+    bool has_stairs_down = false;
+
     for (int x = 0; x < map->x_sz; x++) {
         for (int y = 0; y < map->y_sz; y++) {
-            if (y == 0 || y == map->y_sz -1) SD_GET_INDEX(x,y,map).type = SD_WALL;
-            else if (x == 0 || x == map->x_sz -1) SD_GET_INDEX(x,y,map).type = SD_WALL;
-            else SD_GET_INDEX(x,y,map).type = SD_FLOOR;
-            SD_GET_INDEX(x,y,map).has_player = false;
+            if (y == 0 || y == map->y_sz -1) SD_GET_INDEX(x,y,map).tile = ts_get_tile_type(TILE_TYPE_WALL);
+            else if (x == 0 || x == map->x_sz -1) SD_GET_INDEX(x,y,map).tile = ts_get_tile_type(TILE_TYPE_WALL);
+            else SD_GET_INDEX(x,y,map).tile = ts_get_tile_type(TILE_TYPE_FLOOR);
+
+            SD_GET_INDEX(x,y,map).in_sight = false;
+            SD_GET_INDEX(x,y,map).light_level = false;
+            SD_GET_INDEX(x,y,map).monster = NULL;
+        }
+    }
+    while (has_stairs_up == false || has_stairs_down == false) {
+        int x = rand() % map->x_sz;
+        int y = rand() % map->y_sz;
+
+        if (SD_GET_INDEX_TYPE(x,y,map) == TILE_TYPE_FLOOR ) {
+            if (has_stairs_up == false) {
+                SD_GET_INDEX(x,y,map).tile = ts_get_tile_type(TILE_TYPE_STAIRS_UP);
+                has_stairs_up = true;
+            }
+            else if (has_stairs_down == false) {
+                SD_GET_INDEX(x,y,map).tile = ts_get_tile_type(TILE_TYPE_STAIRS_DOWN);
+                has_stairs_down = true;
+            }
         }
     }
 
