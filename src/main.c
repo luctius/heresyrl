@@ -18,8 +18,8 @@ struct hrl_window *msg_win = NULL;
 int main(int argc, char *argv[])
 {
     int ch;
-    int x = 120;
-    int y = 100;
+    int x = 80;
+    int y = 50;
     struct dc_map *map = NULL;
     int xpos = 0;
     int ypos = 0;

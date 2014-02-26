@@ -121,7 +121,7 @@ bool create_ui(int cols, int lines, struct hrl_window **map_win, struct hrl_wind
             int map_cols = cols - CHAR_MIN_COLS;
             if (map_cols > MAP_MIN_COLS) map_cols *= MAP_COLS_FACTOR;
             if ( (map_cols > MAP_MAX_COLS) && (MAP_MAX_COLS != 0) ) map_cols = MAP_MAX_COLS;
-            int map_lines = lines - MSG_MIN_LINES;
+            int map_lines = (lines -1) - MSG_MIN_LINES;
             if (map_lines > MAP_MIN_LINES) map_lines = (lines - MSG_MIN_LINES) * MAP_LINES_FACTOR;
             if ( (map_lines > MAP_MAX_LINES) && (MAP_MAX_LINES != 0) ) map_lines = MAP_MAX_LINES;
 
@@ -133,7 +133,7 @@ bool create_ui(int cols, int lines, struct hrl_window **map_win, struct hrl_wind
 
             int msg_cols = cols;
             if ( (msg_cols > MSG_MAX_COLS) && (MSG_MAX_COLS != 0) ) msg_cols = MSG_MAX_COLS;
-            int msg_lines = lines - map_lines -1;
+            int msg_lines = (lines -1) - map_lines;
             if (msg_lines < MSG_MIN_LINES) msg_lines = MSG_MIN_LINES;
             if ( (msg_lines > MSG_MAX_LINES) && (MSG_MAX_LINES != 0) ) msg_lines = MSG_MAX_LINES;
 
@@ -202,10 +202,6 @@ void win_destroy(struct hrl_window *window) {
 }
 
 void win_display_map(struct hrl_window *window, struct dc_map *map, int player_x, int player_y) {
-
-    static int last_x = 0;
-    static int last_y = 0;
-
     // Calculate top left of camera position
     int cx = 0;
     int cy = 0;
@@ -222,15 +218,6 @@ void win_display_map(struct hrl_window *window, struct dc_map *map, int player_x
         cy = player_y - (window->lines / 2);
         if (cy < 0) cy = 0;
         if (cy + window->lines > map->y_sz) cy = map->y_sz - window->lines;
-    }
-
-    if (pyth(abs(last_x - cx), abs(last_y - cy) ) > 10) {
-        last_x = cx;
-        last_y = cy;
-    }
-    else {
-        cx = last_x;
-        cy = last_y;
     }
 
     for (int xi = 0; xi < x_max; xi++) {
