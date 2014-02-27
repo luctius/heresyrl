@@ -7,6 +7,7 @@
 # Libraries
 *.lib
 *.la
+*.lo
 *.a
 *.Plo
 
@@ -39,3 +40,12 @@ install-sh
 missing
 stamp-h1
 Makefile
+*.status
+*.sub
+*.guess
+libtool
+ltmain.sh
+.deps
+
+*.log
+
