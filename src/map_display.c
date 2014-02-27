@@ -6,6 +6,8 @@
 #include <ncurses.h>
 
 #include "map_display.h"
+#include "tiles.h"
+#include "monster.h"
 
 static bool generated_colours = false;
 

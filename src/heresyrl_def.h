@@ -11,36 +11,9 @@
 
 #define ARRAY_SZ(a) (sizeof(a) / sizeof(a[0]))
 
-struct tl_tile {
-    uint8_t attributes;
-    uint8_t type;
-    uint8_t colour;
-};
-
-struct msr_monster {
-    int hp;
-    int x_pos;
-    int y_pos;
-    char icon;
-    uint8_t colour;
-};
-
-struct dc_map_entity {
-    char type;
-    bool in_sight;
-    bool discovered;
-    int light_level;
-    struct tl_tile tile;
-    struct msr_monster *monster;
-};
-
-struct dc_map {
-    int x_sz;
-    int y_sz;
-    unsigned int seed;
-
-    struct dc_map_entity map[];
-};
+struct tl_tile;
+struct msr_monster;
+struct dc_map_entity;
 
 enum dpl_colours {
     DPL_COLOUR_NORMAL  =1, /*FG_WHITE,BG_BLACK*/

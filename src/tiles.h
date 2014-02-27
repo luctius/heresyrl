@@ -14,6 +14,12 @@
 #define TILE_ATTR_STAIRS_DOWN (1<<5)
 #define TILE_ATTR_HAZARDOUS (1<<6)
 
+struct tl_tile {
+    uint8_t attributes;
+    uint8_t type;
+    uint8_t colour;
+};
+
 enum tile_types {
     TILE_TYPE_NONE          = ' ',
     TILE_TYPE_WALL          = '#',

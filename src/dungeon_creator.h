@@ -16,6 +16,23 @@ enum dc_dungeon_type {
     DC_DUNGEON_TYPE_CAVE,
 };
 
+struct dc_map_entity {
+    char type;
+    bool in_sight;
+    bool discovered;
+    int light_level;
+    struct tl_tile tile;
+    struct msr_monster *monster;
+};
+
+struct dc_map {
+    int x_sz;
+    int y_sz;
+    unsigned int seed;
+
+    struct dc_map_entity map[];
+};
+
 struct dc_map *dc_alloc_map(int x_sz, int y_sz);
 int dc_free_map(struct dc_map *map);
 

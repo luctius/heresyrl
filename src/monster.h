@@ -11,6 +11,14 @@
 struct monster_list;
 extern struct monster_list *monster_list_head;
 
+struct msr_monster {
+    int hp;
+    int x_pos;
+    int y_pos;
+    char icon;
+    uint8_t colour;
+};
+
 struct msr_monster_list_entry {
     struct msr_monster monster;
     LIST_ENTRY(msr_monster_list_entry) entries;
