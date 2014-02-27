@@ -4,6 +4,7 @@
  
 #include "dungeon_cave.h"
 #include "tiles.h"
+#include "random.h"
 
 #define TILE_FLOOR 0
 #define TILE_WALL 1
@@ -16,7 +17,7 @@ typedef struct {
 static int **grid;
 static int **grid2; 
  
-static int fillprob = 40;
+static unsigned int fillprob = 40;
 static int size_x = 64, size_y = 20;
 static generation_params *params;  
  
@@ -27,7 +28,7 @@ static struct random *cave_random = NULL;
  
 static int randpick(void)
 {
-    if(random_genrand_int31(cave_random)%100 < fillprob)
+    if(random_genrand_int32(cave_random)%100 < fillprob)
         return TILE_WALL;
     else
         return TILE_FLOOR;

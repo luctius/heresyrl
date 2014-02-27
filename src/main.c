@@ -6,39 +6,24 @@
 #include <time.h>
 
 #include "heresyrl_def.h"
-#include "logging.h"
 #include "map_display.h"
+#include "logging.h"
 #include "monster.h"
-#include "dungeon_creator.h"
+#include "game.h"
 
 struct hrl_window *map_win = NULL;
 struct hrl_window *char_win = NULL;
 struct hrl_window *msg_win = NULL;
 
-int main(int argc, char *argv[])
+//int main(int argc, char *argv[])
+int main(void)
 {
     int ch;
-    int x = 80;
-    int y = 50;
-    struct dc_map *map = NULL;
     int xpos = 0;
     int ypos = 0;
-    struct msr_monster *player = NULL;
 
- 	srand(time(NULL));
-    gbl_random = random_init_genrand(rand());
     gbl_log = lg_init(LG_DEBUG_LEVEL_DEBUG, 100);
-    msr_monster_list_init();
-
-    map = dc_alloc_map(x,y);
-    dc_generate_map(map, DC_DUNGEON_TYPE_CAVE, 1);
-
-    player = msr_create();
-    player->icon = '@';
-    player->colour = DPL_COLOUR_NORMAL;
-
-    if (dc_tile_instance(map, TILE_TYPE_STAIRS_UP, 0, &xpos, &ypos) == false) exit(1);
-    if (msr_insert_monster(player, map, xpos, ypos) == false) exit(1);
+ 	srand(time(NULL));
 
     initscr(); /*  Start curses mode         */
     refresh(); /*  Print it on to the real screen */
@@ -49,6 +34,14 @@ int main(int argc, char *argv[])
     //timeout(1);
     keypad(stdscr, TRUE);
 
+    game_init(rand());
+
+
+    xpos = game->player_data.player->x_pos;
+    ypos = game->player_data.player->y_pos;
+    struct itm_items *item = itm_create_specific(0);
+    if (item != NULL) itm_insert_item(item, game->current_map, xpos, ypos);
+
     do {
         int new_xpos = xpos;
         int new_ypos = ypos;
@@ -57,26 +50,22 @@ int main(int argc, char *argv[])
         if (ch == KEY_DOWN) { new_ypos++; }
         if (ch == KEY_LEFT) { new_xpos--; }
 
-        if (msr_move_monster(player, map, new_xpos, new_ypos) == true) {
+        if (msr_move_monster(game->player_data.player, game->current_map, new_xpos, new_ypos) == true) {
             xpos = new_xpos;
             ypos = new_ypos;
         }
 
         create_ui(COLS, LINES, &map_win, &char_win, &msg_win);
-        win_display_map(map_win, map, xpos, ypos);
+        win_display_map(map_win, game->current_map, xpos, ypos);
     }
     while((ch = getch()) != 27 && ch != 'q');
 
     destroy_ui(map_win, char_win, msg_win);
     map_win = char_win = msg_win = NULL;
-    lg_set_callback(gbl_log, NULL, NULL);
     refresh();          /*  Print it on to the real screen */
     endwin();           /*  End curses mode       */
 
     lg_printf("Goodbye :)");
     lg_exit(gbl_log);
-    dc_free_map(map);
-    msr_monster_list_exit();
-
     return 0;
 }

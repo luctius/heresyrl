@@ -115,7 +115,6 @@ bool create_ui(int cols, int lines, struct hrl_window **map_win, struct hrl_wind
             if ( (lines < 25) || (cols < 40) ) {
                 endwin();           /*  End curses mode       */
                 fprintf(stderr, "Terminal is too small, minimum is 40x25, this terminal is %dx%d.\n", cols, lines);
-                lg_exit(gbl_log);
                 exit(1);
             }
 
@@ -171,6 +170,7 @@ bool create_ui(int cols, int lines, struct hrl_window **map_win, struct hrl_wind
 }
 
 void destroy_ui(struct hrl_window *map_win, struct hrl_window *char_win, struct hrl_window *msg_win) {
+    lg_set_callback(gbl_log, NULL, NULL);
     if (map_win != NULL) win_destroy(map_win);
     if (char_win != NULL) win_destroy(char_win);
     if (msg_win != NULL) win_destroy(msg_win);
@@ -228,6 +228,11 @@ void win_display_map(struct hrl_window *window, struct dc_map *map, int player_x
                 if (has_colors() == TRUE) attron(COLOR_PAIR(SD_GET_INDEX(xi+cx, yi+cy, map).monster->colour ) );
                 mvwprintw(window->win, yi, xi, "%c", SD_GET_INDEX(xi+cx, yi+cy, map).monster->icon);
                 if (has_colors() == TRUE) attroff(COLOR_PAIR(SD_GET_INDEX(xi+cx, yi+cy, map).monster->colour ) );
+            }
+            else if (SD_GET_INDEX(xi+cx, yi+cy, map).item != NULL) {
+                if (has_colors() == TRUE) attron(COLOR_PAIR(SD_GET_INDEX(xi+cx, yi+cy, map).item->colour ) );
+                mvwprintw(window->win, yi, xi, "%c", SD_GET_INDEX(xi+cx, yi+cy, map).item->icon);
+                if (has_colors() == TRUE) attroff(COLOR_PAIR(SD_GET_INDEX(xi+cx, yi+cy, map).item->colour ) );
             }
             else {
                 if (has_colors() == TRUE) attron(COLOR_PAIR(SD_GET_INDEX(xi+cx, yi+cy, map).tile.colour ) );

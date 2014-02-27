@@ -4,11 +4,6 @@
 #include "dungeon_creator.h"
 #include "monster.h"
 
-#define container_of(ptr, type, member) ({ \
-        typeof( ((type *)0)->member ) *__mptr = (ptr); \
-        (type *)( (char *)__mptr - offsetof(type,member) );})
-
-
 static LIST_HEAD(monster_list, msr_monster_list_entry) head;
 struct monster_list *monster_list_head = NULL;
 static bool monster_list_initialised = false;
@@ -34,9 +29,11 @@ struct msr_monster *msr_create(void) {
     if (monster_list_initialised == false) msr_monster_list_init();
 
     struct msr_monster_list_entry *m = malloc(sizeof(struct msr_monster_list_entry) );
-    if (m != NULL) LIST_INSERT_HEAD(&head, m, entries);
-
-    return &m->monster;
+    if (m != NULL) {
+        LIST_INSERT_HEAD(&head, m, entries);
+        return &m->monster;
+    }
+    return NULL;
 }
 
 void msr_die(struct msr_monster *monster, struct dc_map *map) {

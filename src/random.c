@@ -51,6 +51,8 @@
 #define LOWER_MASK 0x7fffffffUL /* least significant r bits */
 
 struct random {
+    unsigned long seed;
+    unsigned long called;
     unsigned long mt[N]; /* the array for the state vector  */
     int mti; //=N+1; /* r->mti==N+1 means r->mt[N] is not initialized */
 };
@@ -62,6 +64,8 @@ struct random *random_init_genrand(unsigned long s)
 {
     struct random *r = malloc(sizeof(struct random) );
     if (r != NULL) {
+        r->called = 0;
+        r->seed = s;
         r->mti = N+1;
 
         r->mt[0]= s & 0xffffffffUL;
@@ -149,6 +153,8 @@ unsigned long random_genrand_int32(struct random *r)
     y ^= (y << 7) & 0x9d2c5680UL;
     y ^= (y << 15) & 0xefc60000UL;
     y ^= (y >> 18);
+
+    r->called++;
 
     return y;
 }

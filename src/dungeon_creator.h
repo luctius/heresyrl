@@ -23,6 +23,7 @@ struct dc_map_entity {
     uint8_t light_level;
     struct tl_tile tile;
     struct msr_monster *monster;
+    struct itm_items *item;
 };
 
 struct dc_map {
@@ -37,7 +38,7 @@ struct dc_map *dc_alloc_map(int x_sz, int y_sz);
 int dc_free_map(struct dc_map *map);
 
 int dc_print_map(struct dc_map *map);
-bool dc_generate_map(struct dc_map *map, enum dc_dungeon_type type, int level);
+bool dc_generate_map(struct dc_map *map, enum dc_dungeon_type type, int level, unsigned long seed);
 bool dc_tile_instance(struct dc_map *map, enum tile_types tt, int instance, int *xpos, int *ypos);
 
 #endif /*DUNGEON_CREATOR_H_*/

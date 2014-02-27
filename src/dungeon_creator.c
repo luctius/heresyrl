@@ -76,6 +76,7 @@ static bool dc_generate_map_simple(struct dc_map *map, struct random *r, enum dc
             SD_GET_INDEX(x,y,map).in_sight = false;
             SD_GET_INDEX(x,y,map).light_level = false;
             SD_GET_INDEX(x,y,map).monster = NULL;
+            SD_GET_INDEX(x,y,map).item = NULL;
         }
     }
     return true;
@@ -127,10 +128,9 @@ static void dc_add_stairs(struct dc_map *map, struct random *r) {
     *tile_down = ts_get_tile_type(TILE_TYPE_STAIRS_DOWN);
 }
 
-bool dc_generate_map(struct dc_map *map, enum dc_dungeon_type type, int level) {
+bool dc_generate_map(struct dc_map *map, enum dc_dungeon_type type, int level, unsigned long seed) {
     if (map == NULL) return false;
 
-    unsigned long seed = (map->seed == 0) ? random_genrand_int32(gbl_random) : map->seed;
     struct random *r = random_init_genrand(seed);
     switch(type) {
         case DC_DUNGEON_TYPE_CAVE:

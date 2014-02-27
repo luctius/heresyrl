@@ -3,7 +3,6 @@
 #define TILES_H_
 
 #include <stdint.h>
-#include "heresyrl_def.h"
 
 #define TILE_HAS_ATTRIBUTE(tile, attr) ((tile.attributes & attr) > 0)
 

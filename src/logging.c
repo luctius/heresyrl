@@ -8,7 +8,7 @@
 
 #include "logging.h"
 
-struct logging *gbl_log;
+struct logging *gbl_log = NULL;
 
 struct logging {
     FILE *log_file;

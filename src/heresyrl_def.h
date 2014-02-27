@@ -7,13 +7,18 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "random.h"
+#include "logging.h"
+
+#define container_of(ptr, type, member) ({ \
+        typeof( ((type *)0)->member ) *__mptr = (ptr); \
+        (type *)( (char *)__mptr - offsetof(type,member) );})
 
 #define ARRAY_SZ(a) (sizeof(a) / sizeof(a[0]))
 
 struct tl_tile;
 struct msr_monster;
 struct dc_map_entity;
+struct random;
 
 enum dpl_colours {
     DPL_COLOUR_NORMAL  =1, /*FG_WHITE,BG_BLACK*/
@@ -56,21 +61,6 @@ enum dpl_colours {
     DPL_COLOUR_ALL_WHITE, /* BG_CYAN,FG_CYAN */
     DPL_COLOUR_MAX,
 };
-
-enum lg_debug_levels {
-    LG_DEBUG_LEVEL_ERROR,
-    LG_DEBUG_LEVEL_WARNING,
-    LG_DEBUG_LEVEL_GAME,
-    LG_DEBUG_LEVEL_INFORMATIONAL,
-    LG_DEBUG_LEVEL_DEBUG,
-    LG_DEBUG_LEVEL_MAX,
-};
-
-extern struct logging *gbl_log;
-extern struct random *gbl_random;
-
-void lg_printf(const char* format, ... );
-void lg_printf_l(int lvl, const char *module, const char* format, ... );
 
 double pyth(double side1, double side2);
 
