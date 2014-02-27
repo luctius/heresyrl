@@ -54,6 +54,7 @@ enum dpl_colours {
     DPL_COLOUR_ALL_CYAN, /* BG_CYAN,FG_CYAN */
     DPL_COLOUR_ALL_BLACK, /* BG_CYAN,FG_CYAN */
     DPL_COLOUR_ALL_WHITE, /* BG_CYAN,FG_CYAN */
+    DPL_COLOUR_MAX,
 };
 
 enum lg_debug_levels {

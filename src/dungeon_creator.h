@@ -20,7 +20,7 @@ struct dc_map_entity {
     char type;
     bool in_sight;
     bool discovered;
-    int light_level;
+    uint8_t light_level;
     struct tl_tile tile;
     struct msr_monster *monster;
 };

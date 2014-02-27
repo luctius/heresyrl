@@ -39,8 +39,10 @@ struct msr_monster *msr_create(void) {
     return &m->monster;
 }
 
-void msr_die(struct msr_monster *monster) {
+void msr_die(struct msr_monster *monster, struct dc_map *map) {
     struct msr_monster_list_entry *target_mle = container_of(monster, struct msr_monster_list_entry, monster);
+
+    msr_remove_monster(monster, map);
 
     LIST_REMOVE(target_mle, entries);
     free(target_mle);
@@ -83,6 +85,21 @@ bool msr_move_monster(struct msr_monster *monster, struct dc_map *map, int x_tog
         else if (msr_move_monster(me_future->monster, map, x_togo +x_diff, y_togo + y_diff) ) {
             retval = msr_move_monster(monster, map, x_togo, y_togo);
         }
+    }
+
+    return retval;
+}
+
+bool msr_remove_monster(struct msr_monster *monster, struct dc_map *map) {
+    bool retval = false;
+
+    struct dc_map_entity *me_current = &SD_GET_INDEX(monster->x_pos, monster->y_pos, map);
+    if (me_current->monster == monster) {
+        lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "Monster", "removed (%d,%d)", monster->x_pos, monster->y_pos);
+        me_current->monster = NULL;
+        monster->x_pos = 0;
+        monster->y_pos = 0;
+        retval = true;
     }
 
     return retval;

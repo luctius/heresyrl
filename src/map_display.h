@@ -34,6 +34,7 @@ enum window_type {
     HRL_WINDOW_TYPE_MAP,
     HRL_WINDOW_TYPE_CHARACTER,
     HRL_WINDOW_TYPE_MESSAGE,
+    HRL_WINDOW_TYPE_MAX,
 };
 
 struct hrl_window;
