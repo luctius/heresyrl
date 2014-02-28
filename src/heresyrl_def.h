@@ -62,6 +62,6 @@ enum dpl_colours {
     DPL_COLOUR_MAX,
 };
 
-double pyth(double side1, double side2);
+int pyth(int side1, int side2);
 
 #endif /*HERESYRL_DEF_H_*/

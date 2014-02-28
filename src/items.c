@@ -3,8 +3,7 @@
 #include "items.h"
 #include "random.h"
 
-static LIST_HEAD(items_list, itm_items_list_entry) head;
-struct items_list *items_list_head = NULL;
+static LIST_HEAD(items_list, itm_items_list_entry) items_list_head;
 static bool items_list_initialised = false;
 static uint64_t id = 1;
 
@@ -39,18 +38,24 @@ struct itm_items static_item_list[] = {
 void itm_items_list_init(void) {
     if (items_list_initialised == false) {
         items_list_initialised = true;
-        LIST_INIT(&head);
-        items_list_head = &head;
+        LIST_INIT(&items_list_head);
     }
 }
 
 void itm_items_list_exit(void) {
     struct itm_items_list_entry *e = NULL;
-    while (head.lh_first != NULL) {
-        e = head.lh_first;
-        LIST_REMOVE(head.lh_first, entries);
+    while (items_list_head.lh_first != NULL) {
+        e = items_list_head.lh_first;
+        LIST_REMOVE(items_list_head.lh_first, entries);
         free(e);
     }
+}
+
+struct itm_items *itm_get_item_from_list(struct itm_items *prev) {
+    if (prev == NULL) return &items_list_head.lh_first->item;
+    struct itm_items_list_entry *ile = container_of(prev, struct itm_items_list_entry, item);
+    if (ile == NULL) return NULL;
+    return &ile->entries.le_next->item;
 }
 
 struct itm_items *itm_generate(enum item_types type) {
@@ -64,8 +69,8 @@ struct itm_items *itm_create_specific(int idx) {
     struct itm_items_list_entry *i = malloc(sizeof(struct itm_items_list_entry) );
     if (i == NULL) return NULL;
 
-    memcpy(i, &static_item_list[idx], sizeof(static_item_list[0]));
-    LIST_INSERT_HEAD(&head, i, entries);
+    memcpy(&i->item, &static_item_list[idx], sizeof(static_item_list[0]));
+    LIST_INSERT_HEAD(&items_list_head, i, entries);
     i->item.id = id++;
     i->item.owner_type = ITEM_OWNER_NONE;
 
@@ -98,7 +103,7 @@ static bool itm_drop_item(struct itm_items *item, struct dc_map *map, int x, int
             item->owner_type = ITEM_OWNER_MAP;
             item->owner.owner_map_entity = target;
             retval = true;
-            lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "Item", "insert (%d,%d)", x, y);
+            lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "Item", "You dropped %s.", item->ld_name);
         }
     }
 

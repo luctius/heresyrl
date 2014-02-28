@@ -4,7 +4,6 @@
 
 #include <stdint.h>
 #include "heresyrl_def.h"
-#include "dungeon_creator.h"
 
 struct sgt_sight;
 

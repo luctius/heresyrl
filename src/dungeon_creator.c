@@ -149,10 +149,10 @@ bool dc_clear_map_visibility(struct dc_map *map, int sx, int sy, int ex, int ey)
     if (map->x_sz < 2) return false;
     if (map->y_sz < 2) return false;
     if (map->map == NULL) return false;
-    if (sx < 0 || sx >= map->x_sz) return false;
-    if (sy < 0 || sy >= map->y_sz) return false;
-    if (sx+ex < 0 || sx+ex >= map->x_sz) return false;
-    if (sy+ey < 0 || sy+ey >= map->y_sz) return false;
+    if (sx < 0 || sx > map->x_sz) return false;
+    if (sy < 0 || sy > map->y_sz) return false;
+    if (sx+ex < 0 || sx+ex > map->x_sz) return false;
+    if (sy+ey < 0 || sy+ey > map->y_sz) return false;
 
     for (int x = sx; x < ex; x++) {
         for (int y = sy; y < ey; y++) {

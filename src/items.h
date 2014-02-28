@@ -9,9 +9,6 @@
 #include "heresyrl_def.h"
 #include "dungeon_creator.h"
 
-struct items_list;
-extern struct items_list *items_list_head;
-
 enum item_types {
     ITEM_TYPE_WEARABLE,
     ITEM_TYPE_WEAPON,
@@ -220,7 +217,7 @@ struct itm_items {
     enum item_owner owner_type;
     union owner_union {
         struct dc_map_entity *owner_map_entity;
-        struct monster *owner_monster;
+        struct msr_monster *owner_monster;
     } owner;
 
     union item_specific {
@@ -239,6 +236,8 @@ struct itm_items_list_entry {
 
 void itm_items_list_init(void);
 void itm_items_list_exit(void);
+
+struct itm_items *itm_get_item_from_list(struct itm_items *prev);
 
 struct itm_items *itm_generate(enum item_types type);
 struct itm_items *itm_create_specific(int idx);

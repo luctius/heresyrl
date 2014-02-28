@@ -10,6 +10,7 @@
 #include "logging.h"
 #include "monster.h"
 #include "game.h"
+#include "items.h"
 
 struct hrl_window *map_win = NULL;
 struct hrl_window *char_win = NULL;
@@ -26,7 +27,11 @@ int main(void)
  	srand(time(NULL));
 
     initscr(); /*  Start curses mode         */
+    if (has_colors() == FALSE) exit(1);
+    if (start_color() == ERR) exit(1);
+    win_generate_colours();
     refresh(); /*  Print it on to the real screen */
+
     create_ui(COLS, LINES, &map_win, &char_win, &msg_win);
 
     cbreak();
@@ -36,18 +41,16 @@ int main(void)
 
     game_init(rand());
 
-
     xpos = game->player_data.player->x_pos;
     ypos = game->player_data.player->y_pos;
     struct itm_items *item = itm_create_specific(0);
     if (item != NULL) itm_insert_item(item, game->current_map, xpos, ypos);
 
+    game_new_turn();
     do {
         int new_xpos = xpos;
         int new_ypos = ypos;
     
-        game_new_turn();
-
         if (ch == KEY_UP) { new_ypos--; }
         if (ch == KEY_RIGHT) { new_xpos++; }
         if (ch == KEY_DOWN) { new_ypos++; }
@@ -63,12 +66,19 @@ int main(void)
         if (ch == 'u') {
             msr_use_item(game->player_data.player, game->player_data.player->inventory);
         }
+        if (ch == 'd') {
+            item = game->player_data.player->inventory;
+            msr_remove_item(game->player_data.player, item);
+            itm_insert_item(item, game->current_map, 
+                    game->player_data.player->x_pos,game->player_data.player->y_pos);
+        }
 
         if (msr_move_monster(game->player_data.player, game->current_map, new_xpos, new_ypos) == true) {
             xpos = new_xpos;
             ypos = new_ypos;
         }
 
+        game_new_turn();
         create_ui(COLS, LINES, &map_win, &char_win, &msg_win);
         win_display_map(map_win, game->current_map, xpos, ypos);
     }
@@ -76,7 +86,7 @@ int main(void)
 
     destroy_ui(map_win, char_win, msg_win);
     map_win = char_win = msg_win = NULL;
-    clear();
+    //clear();
     refresh();          /*  Print it on to the real screen */
     endwin();           /*  End curses mode       */
 

@@ -7,7 +7,6 @@
 #include <sys/queue.h>
 
 #include "heresyrl_def.h"
-#include "items.h"
 
 struct monster_list;
 extern struct monster_list *monster_list_head;
@@ -70,6 +69,7 @@ bool msr_remove_item(struct msr_monster *monster, struct itm_items *item);
 bool msr_use_item(struct msr_monster *monster, struct itm_items *item);
 
 int msr_calculate_characteristic(struct msr_monster *monster, enum msr_characteristic chr);
-int msr_get_sight_range(struct msr_monster *monster);
+int msr_get_near_sight_range(struct msr_monster *monster);
+int msr_get_far_sight_range(struct msr_monster *monster);
 
 #endif /*MONSTER_H_*/

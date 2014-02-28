@@ -11,7 +11,7 @@ struct sgt_sight {
 static bool check_opaque(void *vmap, int x, int y) {
     struct dc_map *map = (struct dc_map *) vmap;
     if (map == NULL) return false;
-    return TILE_HAS_ATTRIBUTE(SD_GET_INDEX(x,y,map).tile, TILE_ATTR_OPAGUE);
+    return !( (SD_GET_INDEX(x,y,map).tile->attributes & TILE_ATTR_OPAGUE) > 0);
 }
 
 static void apply_light_source(void *vmap, int x, int y, int dx, int dy, void *isrc) {
@@ -25,6 +25,19 @@ static void apply_light_source(void *vmap, int x, int y, int dx, int dy, void *i
 
 static void apply_player_sight(void *vmap, int x, int y, int dx, int dy, void *isrc) {
     struct dc_map *map = (struct dc_map *) vmap;
+    struct msr_monsters *monster = (struct msr_monsters *) isrc;
+
+    /* Do some checks against monster on location to see if it is visible, later...*/
+    SD_GET_INDEX(x,y,map).discovered = true;
+    SD_GET_INDEX(x,y,map).in_sight = true;
+
+    int radius = msr_get_near_sight_range(monster) +msr_get_far_sight_range(monster);
+    if (pyth(dx, dy) < radius) {
+        SD_GET_INDEX(x,y,map).visible = true;
+    }
+    else if (SD_GET_INDEX(x,y,map).light_level > 0) {
+        SD_GET_INDEX(x,y,map).visible = true;
+    }
 }
 
 struct sgt_sight *sgt_init(void) {
@@ -70,8 +83,29 @@ bool sgt_calculate_light_source(struct sgt_sight *sight, struct dc_map *map, str
 }
 
 bool sgt_calculate_all_light_sources(struct sgt_sight *sight, struct dc_map *map) {
+    if (sight == NULL) return false;
+    if (map == NULL) return false;
 
+    struct itm_items *item = itm_get_item_from_list(NULL);
+    while (item != NULL) {
+        sgt_calculate_light_source(sight,  map, item);
+        item = itm_get_item_from_list(item);
+    }
+    return true;
 }
 
-bool sgt_calculate_player_sight(struct sgt_sight *sight, struct dc_map *map, struct msr_monster *monster) {}
+bool sgt_calculate_player_sight(struct sgt_sight *sight, struct dc_map *map, struct msr_monster *monster) {
+    if (sight == NULL) return false;
+    if (map == NULL) return false;
+    if (monster == NULL) return false;
+
+    fov_settings_set_opacity_test_function(&sight->fov_settings, check_opaque);
+    fov_settings_set_apply_lighting_function(&sight->fov_settings, apply_player_sight);
+
+    int radius = msr_get_near_sight_range(monster) +msr_get_far_sight_range(monster);
+    fov_circle(&sight->fov_settings, map, monster, monster->x_pos, monster->y_pos, radius);
+    check_opaque(map, monster->x_pos, monster->y_pos);
+    apply_player_sight(map, monster->x_pos, monster->y_pos, 0, 0, monster);
+    return true;
+}
 

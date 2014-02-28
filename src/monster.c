@@ -3,6 +3,7 @@
 
 #include "dungeon_creator.h"
 #include "monster.h"
+#include "items.h"
 
 static LIST_HEAD(monster_list, msr_monster_list_entry) head;
 struct monster_list *monster_list_head = NULL;
@@ -134,8 +135,12 @@ bool msr_remove_item(struct msr_monster *monster, struct itm_items *item) {
     return true;
 }
 
-int msr_get_sight_range(struct msr_monster *monster) {
-    return 8;
+int msr_get_near_sight_range(struct msr_monster *monster) {
+    return 4;
+}
+
+int msr_get_far_sight_range(struct msr_monster *monster) {
+    return 4;
 }
 
 bool msr_remove_monster(struct msr_monster *monster, struct dc_map *map) {

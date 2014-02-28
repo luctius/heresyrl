@@ -42,6 +42,7 @@ struct hrl_window;
 bool create_ui(int cols, int lines, struct hrl_window **map_win, struct hrl_window **char_win, struct hrl_window **msg_win);
 void destroy_ui(struct hrl_window *map_win, struct hrl_window *char_win, struct hrl_window *msg_win);
 
+void win_generate_colours(void);
 struct hrl_window *win_create(int height, int width, int starty, int startx, enum window_type type);
 void win_destroy(struct hrl_window *window);
 

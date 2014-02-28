@@ -29,7 +29,7 @@ void game_init(unsigned long initial_seed) {
             game->player_data.age = 0;
             game->player_data.player = msr_create();
             game->player_data.player->icon = '@';
-            game->player_data.player->colour = DPL_COLOUR_FG_RED;
+            game->player_data.player->colour = DPL_COLOUR_NORMAL;
 
             int xpos, ypos;
             if (dc_tile_instance(game->current_map, TILE_TYPE_STAIRS_UP, 0, &xpos, &ypos) == false) exit(1);
@@ -41,16 +41,19 @@ void game_init(unsigned long initial_seed) {
 void game_new_turn(void) {
     game->player_data.age++;
 
-    int sight_range = msr_get_sight_range(game->player_data.player);
+    int sight_range = msr_get_near_sight_range(game->player_data.player) + msr_get_far_sight_range(game->player_data.player);
     int xs = game->player_data.player->x_pos - sight_range;
     int ys = game->player_data.player->y_pos - sight_range;
     int xe = game->player_data.player->x_pos + sight_range;
     int ye = game->player_data.player->y_pos + sight_range;
-    xs = (xs > 0) ? xs : 0;
-    ys = (ys > 0) ? ys : 0;
-    xe = (xe < game->current_map->x_sz) ? xe : game->current_map->x_sz;
-    ye = (ye < game->current_map->y_sz) ? ye : game->current_map->y_sz;
-    dc_clear_map_visibility(game->current_map, xs, ys, xe, ye);
+    xs = (xs >= 0) ? xs : 0;
+    ys = (ys >= 0) ? ys : 0;
+    xe = (xe <= game->current_map->x_sz) ? xe : game->current_map->x_sz;
+    ye = (ye <= game->current_map->y_sz) ? ye : game->current_map->y_sz;
+    //dc_clear_map_visibility(game->current_map, xs, ys, xe, ye);
+    dc_clear_map_visibility(game->current_map, 0,0, game->current_map->x_sz, game->current_map->y_sz);
+    sgt_calculate_all_light_sources(game->sight, game->current_map);
+    sgt_calculate_player_sight(game->sight, game->current_map, game->player_data.player);
 }
 
 void game_exit() {
