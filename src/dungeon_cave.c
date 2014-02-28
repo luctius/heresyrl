@@ -219,8 +219,13 @@ bool cave_generate_map(struct dc_map *map, struct random *r, enum dc_dungeon_typ
     }
 
     for(yi=0; yi<size_y; yi++)
+        SD_GET_INDEX(0,yi,map).tile = ts_get_tile_specific(TILE_ID_BORDER_WALL);
+    for(xi=0; xi<size_x; xi++)
+        SD_GET_INDEX(xi,0,map).tile = ts_get_tile_specific(TILE_ID_BORDER_WALL);
+
+    for(yi=1; yi<size_y; yi++)
     {
-        for(xi=0; xi<size_x; xi++)
+        for(xi=1; xi<size_x; xi++)
         {
             switch(grid[yi][xi]) {
                 case TILE_WALL:  SD_GET_INDEX(xi,yi,map).tile = ts_get_tile_type(TILE_TYPE_WALL); break;

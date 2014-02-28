@@ -8,33 +8,32 @@ struct items_list *items_list_head = NULL;
 static bool items_list_initialised = false;
 static uint64_t id = 1;
 
-#define CLOTHING(nme,cloth_typ,dr,avail,wght,cst,delay) \
-    { .id=0, .item_type=ITEM_TYPE_WEARABLE, .availability=avail, .quality=ITEM_QUALITY_AVERAGE, \
-    .attributes=ITEM_ATTRIBUTE_NONE, .age=0, .weight=wght, .cost=cst, .name=nme, .icon=']', .colour=DPL_COLOUR_NORMAL, \
-    .use_delay=delay, .stacked_quantity=0, .specific.wearable = { .wearable_type=cloth_typ, .damage_reduction=dr, }, }
+#define CLOTHING(item_id,item_sd_name,item_ld_name,cloth_typ,dr,avail,item_quality,item_weight,item_cost,delay) \
+    [item_id] = { .id=0, .item_type=ITEM_TYPE_WEARABLE, .availability=avail, .quality=item_quality, \
+    .attributes=ITEM_ATTRIBUTE_NONE, .age=0, .weight=item_weight, .cost=item_cost, .sd_name=item_sd_name, .ld_name=item_ld_name, .icon=']', \ 
+    .colour=DPL_COLOUR_NORMAL, .use_delay=delay, .stacked_quantity=0, .specific.wearable = { .wearable_type=cloth_typ, .damage_reduction=dr, }, }
 
-#define MELEE(nme,wpn_typ,dmg_die,dmg_add,dmg_tp,pen,avail,wght,cst,delay,special) \
-    { .id=0, .item_type=ITEM_TYPE_WEAPON, .availability=avail, .quality=ITEM_QUALITY_AVERAGE, \
-    .attributes=ITEM_ATTRIBUTE_NONE, .age=0, .weight=wght, .cost=cst, .name=nme, .icon='|', .colour=DPL_COLOUR_NORMAL, \
-    .use_delay=delay, .stacked_quantity=0, .specific.weapon = { .weapon_type=wpn_typ, .dmg_type=dmg_tp, \
-    .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=0, .rof = { .rof_single=0, .rof_semi=0, .rof_auto=0, }, \
-    .penetration=pen, .special_quality=special, .jammed=false, }, }
+#define MELEE(item_id,item_sd_name,item_ld_name,wpn_typ,dmg_die,dmg_add,dmg_tp,pen,avail,item_quality,item_weight,item_cost,delay,special) \
+    [item_id] = { .id=0, .item_type=ITEM_TYPE_WEAPON, .availability=avail, .quality=item_quality, \
+    .attributes=ITEM_ATTRIBUTE_NONE, .age=0, .weight=item_weight, .cost=item_cost, .sd_name=item_sd_name, .ld_name=item_ld_name, .icon='|', \
+    .colour=DPL_COLOUR_NORMAL, .use_delay=delay, .stacked_quantity=0, .specific.weapon = { .weapon_type=wpn_typ, \
+    .dmg_type=dmg_tp, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=0, .rof = { .rof_single=0, .rof_semi=0, .rof_auto=0, }, \
+    .magazine_sz=0, .magazine_left=0, .penetration=pen, .special_quality=special, .jammed=false, }, }
 
-#define LIGHT(nme,lumin,dur,avail,wght,cst,delay) \
-    { .id=0, .item_type=ITEM_TYPE_TOOL, .availability=avail, .quality=ITEM_QUALITY_AVERAGE, \
-    .attributes=ITEM_ATTRIBUTE_NONE, .age=0, .weight=wght, .cost=cst, .name=nme, .icon='(', .colour=DPL_COLOUR_NORMAL, \
-    .use_delay=delay, .stacked_quantity=1, .specific.tool = { .tool_type=ITEM_TOOL_TYPE_LIGHT, \
-    .energy=dur, .energy_left=dur, .light_luminem=lumin, .lit=false, }, }
+#define LIGHT(item_id,item_sd_name,item_ld_name,lumin,dur,avail,item_quality,item_weight,item_cost,delay) \
+    [item_id] = { .id=0, .item_type=ITEM_TYPE_TOOL, .availability=avail, .quality=item_quality, \
+    .attributes=ITEM_ATTRIBUTE_NONE, .age=0, .weight=item_weight, .cost=item_cost, .sd_name=item_sd_name, .ld_name=item_ld_name, .icon='(', \
+    .colour=DPL_COLOUR_NORMAL, .use_delay=delay, .stacked_quantity=1, .specific.tool = { \
+    .tool_type=ITEM_TOOL_TYPE_LIGHT, .energy=dur, .energy_left=dur, .light_luminem=lumin, .lit=false, }, }
 
-#define AMMO(nme,ammo_typ,energ,avail,wght,cst,delay) \
-    { .id=0, .item_type=ITEM_TYPE_AMMO, .availability=avail, .quality=ITEM_QUALITY_AVERAGE, \
-    .attributes=ITEM_ATTRIBUTE_NONE, .age=0, .weight=wght, .cost=cst, .name=nme, .icon='\'', .colour=DPL_COLOUR_NORMAL, \
-    .use_delay=delay, .stacked_quantity=1, .specific.ammo = { .ammo_type=ammo_typ, \
-    .energy=energ, energy_left=energ, }, }
+#define AMMO(item_id,item_sd_name,item_ld_name,ammo_typ,energ,avail,item_quality,item_weight,item_cost,delay) \
+    [item_id] = { .id=0, .item_type=ITEM_TYPE_AMMO, .availability=avail, .quality=item_quality, \
+    .attributes=ITEM_ATTRIBUTE_NONE, .age=0, .weight=item_weight, .cost=item_cost, .sd_name=item_sd_name, .ld_name=item_ld_name, \
+    .icon='\'', .colour=DPL_COLOUR_NORMAL, .use_delay=delay, .stacked_quantity=1, \
+    .specific.ammo = { .ammo_type=ammo_typ, .energy=energ, energy_left=energ, }, }
 
 struct itm_items static_item_list[] = {
-    LIGHT("torch",10,100,ITEM_AVAILABILITY_PLENTIFUL,1,1,0),
-
+    LIGHT(ITEM_ID_AVERAGE_TORCH,"torch","a torch",10,100,ITEM_AVAILABILITY_PLENTIFUL,ITEM_QUALITY_AVERAGE,1,1,0),
 };
 
 void itm_items_list_init(void) {

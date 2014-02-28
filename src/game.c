@@ -24,15 +24,31 @@ void game_init(unsigned long initial_seed) {
             game->current_map = dc_alloc_map(x,y);
             dc_generate_map(game->current_map, DC_DUNGEON_TYPE_CAVE, 1, random_genrand_int32(game->map_random) );
 
+            game->player_data.age = 0;
             game->player_data.player = msr_create();
             game->player_data.player->icon = '@';
-            game->player_data.player->colour = DPL_COLOUR_NORMAL;
+            game->player_data.player->colour = DPL_COLOUR_FG_RED;
 
             int xpos, ypos;
             if (dc_tile_instance(game->current_map, TILE_TYPE_STAIRS_UP, 0, &xpos, &ypos) == false) exit(1);
             if (msr_insert_monster(game->player_data.player, game->current_map, xpos, ypos) == false) exit(1);
         }
     }
+}
+
+void game_new_turn(void) {
+    game->player_data.age++;
+
+    int sight_range = msr_get_sight_range(game->player_data.player);
+    int xs = game->player_data.player->x_pos - sight_range;
+    int ys = game->player_data.player->y_pos - sight_range;
+    int xe = game->player_data.player->x_pos + sight_range;
+    int ye = game->player_data.player->y_pos + sight_range;
+    xs = (xs > 0) ? xs : 0;
+    ys = (ys > 0) ? ys : 0;
+    xe = (xe < game->current_map->x_sz) ? xe : game->current_map->x_sz;
+    ye = (ye < game->current_map->y_sz) ? ye : game->current_map->y_sz;
+    dc_clear_map_visibility(game->current_map, xs, ys, xe, ye);
 }
 
 void game_exit() {

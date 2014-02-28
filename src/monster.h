@@ -47,6 +47,8 @@ struct msr_monster {
     bool is_player;
     enum msr_gender gender;
 
+    struct itm_items *inventory;
+
     struct msr_char characteristic[MSR_CHAR_MAX];
 };
 
@@ -63,7 +65,11 @@ void msr_die(struct msr_monster *monster, struct dc_map *map);
 bool msr_insert_monster(struct msr_monster *monster, struct dc_map *map, int x_togo, int y_togo);
 bool msr_move_monster(struct msr_monster *monster, struct dc_map *map, int x_togo, int y_togo);
 bool msr_remove_monster(struct msr_monster *monster, struct dc_map *map);
+bool msr_give_item(struct msr_monster *monster, struct itm_items *item);
+bool msr_remove_item(struct msr_monster *monster, struct itm_items *item);
+bool msr_use_item(struct msr_monster *monster, struct itm_items *item);
 
 int msr_calculate_characteristic(struct msr_monster *monster, enum msr_characteristic chr);
+int msr_get_sight_range(struct msr_monster *monster);
 
 #endif /*MONSTER_H_*/

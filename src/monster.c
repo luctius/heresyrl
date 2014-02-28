@@ -31,6 +31,15 @@ struct msr_monster *msr_create(void) {
     struct msr_monster_list_entry *m = malloc(sizeof(struct msr_monster_list_entry) );
     if (m != NULL) {
         LIST_INSERT_HEAD(&head, m, entries);
+
+        m->monster.x_pos = 0;
+        m->monster.y_pos = 0;
+        m->monster.icon = 'm';
+        m->monster.colour = DPL_COLOUR_NORMAL;
+        m->monster.visibility = 100;
+        m->monster.is_player = false;
+        m->monster.inventory = NULL;
+
         return &m->monster;
     }
     return NULL;
@@ -56,7 +65,6 @@ bool msr_insert_monster(struct msr_monster *monster, struct dc_map *map, int x_t
             monster->x_pos = x_togo;
             monster->y_pos = y_togo;
             retval = true;
-            lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "Monster", "insert (%d,%d)", monster->x_pos, monster->y_pos);
         }
     }
 
@@ -85,6 +93,45 @@ bool msr_move_monster(struct msr_monster *monster, struct dc_map *map, int x_tog
     }
 
     return retval;
+}
+bool msr_give_item(struct msr_monster *monster, struct itm_items *item) {
+    if (monster == NULL) return false;
+    if (item == NULL) return false;
+    if (monster->inventory != NULL) {
+        lg_printf("Your inventory is full.");
+        return false;
+    }
+
+    monster->inventory = item;
+    lg_printf("You picked up %s.", item->ld_name);
+    return true;
+}
+
+bool msr_use_item(struct msr_monster *monster, struct itm_items *item) {
+    if (monster == NULL) return false;
+    if (item == NULL) return false;
+    if (monster->inventory == NULL) {
+        lg_printf("Your inventory is empty.");
+        return false;
+    }
+
+    if (item->item_type == ITEM_TYPE_TOOL && item->specific.tool.tool_type == ITEM_TOOL_TYPE_LIGHT) {
+        item->specific.tool.lit = true;
+        lg_printf("You light %s.", item->ld_name);
+    }
+    return true;
+}
+
+bool msr_remove_item(struct msr_monster *monster, struct itm_items *item) {
+    if (monster == NULL) return false;
+    if (item == NULL) return false;
+
+    monster->inventory = NULL;
+    return true;
+}
+
+int msr_get_sight_range(struct msr_monster *monster) {
+    return 8;
 }
 
 bool msr_remove_monster(struct msr_monster *monster, struct dc_map *map) {

@@ -22,13 +22,17 @@ enum item_types {
     ITEM_TYPE_RANDOM,
 };
 
+enum item_ids {
+    ITEM_ID_AVERAGE_TORCH,
+    ITEM_ID_MAX,
+};
+
 enum item_attributes {
     ITEM_ATTRIBUTE_NONE         = (0),
     ITEM_ATTRIBUTE_STACKABLE    = (1<<0),
     ITEM_ATTRIBUTE_WARPED       = (1<<1),
     ITEM_ATTRIBUTE_EXPLOSIVE    = (1<<2),
     ITEM_ATTRIBUTE_UNSTABLE     = (1<<3),
-    ITEM_ATTRIBUTE_MAX,
 };
 
 /*
@@ -141,6 +145,10 @@ enum weapon_dmg_type {
     WEAPON_DMG_TYPE_MAX,
     WEAPON_DMG_TYPE_RANDOM,
 };
+enum weapon_special_quality {
+    WEAPON_SPEC_QUALITY_NONE        = (0<<0),
+    WEAPON_SPEC_QUALITY_RELIABLE    = (1<<0),
+};
 
 struct item_weapon_specific {
     enum item_weapon_type weapon_type;
@@ -153,8 +161,10 @@ struct item_weapon_specific {
         uint8_t rof_semi;
         uint8_t rof_auto;
     } rof;
+    uint8_t magazine_sz;
+    uint8_t magazine_left;
     uint8_t penetration;
-    uint8_t special_quality;
+    enum weapon_special_quality special_quality;
     bool jammed;
 };
 
@@ -193,7 +203,8 @@ struct itm_items {
     unsigned long age;
     int weight;
     int cost;
-    const char *name;
+    const char *sd_name;
+    const char *ld_name;
     char icon;
     uint8_t colour;
     uint8_t use_delay;

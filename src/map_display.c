@@ -224,20 +224,22 @@ void win_display_map(struct hrl_window *window, struct dc_map *map, int player_x
 
     for (int xi = 0; xi < x_max; xi++) {
         for (int yi = 0; yi < y_max; yi++) {
-            if (SD_GET_INDEX(xi+cx, yi+cy, map).monster != NULL) {
-                if (has_colors() == TRUE) attron(COLOR_PAIR(SD_GET_INDEX(xi+cx, yi+cy, map).monster->colour ) );
-                mvwprintw(window->win, yi, xi, "%c", SD_GET_INDEX(xi+cx, yi+cy, map).monster->icon);
-                if (has_colors() == TRUE) attroff(COLOR_PAIR(SD_GET_INDEX(xi+cx, yi+cy, map).monster->colour ) );
-            }
-            else if (SD_GET_INDEX(xi+cx, yi+cy, map).item != NULL) {
-                if (has_colors() == TRUE) attron(COLOR_PAIR(SD_GET_INDEX(xi+cx, yi+cy, map).item->colour ) );
-                mvwprintw(window->win, yi, xi, "%c", SD_GET_INDEX(xi+cx, yi+cy, map).item->icon);
-                if (has_colors() == TRUE) attroff(COLOR_PAIR(SD_GET_INDEX(xi+cx, yi+cy, map).item->colour ) );
-            }
-            else {
-                if (has_colors() == TRUE) attron(COLOR_PAIR(SD_GET_INDEX(xi+cx, yi+cy, map).tile.colour ) );
-                mvwprintw(window->win, yi, xi, "%c", SD_GET_INDEX_TYPE(xi+cx, yi+cy, map) );
-                if (has_colors() == TRUE) attroff(COLOR_PAIR(SD_GET_INDEX(xi+cx, yi+cy, map).tile.colour ) );
+            if (SD_GET_INDEX(xi+cx, yi+cy, map).visible == true) {
+                if (SD_GET_INDEX(xi+cx, yi+cy, map).monster != NULL) {
+                    if (has_colors() == TRUE) attron(COLOR_PAIR(SD_GET_INDEX(xi+cx, yi+cy, map).monster->colour ) );
+                    mvwprintw(window->win, yi, xi, "%c", SD_GET_INDEX(xi+cx, yi+cy, map).monster->icon);
+                    if (has_colors() == TRUE) attroff(COLOR_PAIR(SD_GET_INDEX(xi+cx, yi+cy, map).monster->colour ) );
+                }
+                else if (SD_GET_INDEX(xi+cx, yi+cy, map).item != NULL) {
+                    if (has_colors() == TRUE) attron(COLOR_PAIR(SD_GET_INDEX(xi+cx, yi+cy, map).item->colour ) );
+                    mvwprintw(window->win, yi, xi, "%c", SD_GET_INDEX(xi+cx, yi+cy, map).item->icon);
+                    if (has_colors() == TRUE) attroff(COLOR_PAIR(SD_GET_INDEX(xi+cx, yi+cy, map).item->colour ) );
+                }
+                else {
+                    if (has_colors() == TRUE) attron(COLOR_PAIR(SD_GET_INDEX(xi+cx, yi+cy, map).tile->colour ) );
+                    mvwprintw(window->win, yi, xi, "%c", SD_GET_INDEX_ICON(xi+cx, yi+cy, map) );
+                    if (has_colors() == TRUE) attroff(COLOR_PAIR(SD_GET_INDEX(xi+cx, yi+cy, map).tile->colour ) );
+                }
             }
         }
     }

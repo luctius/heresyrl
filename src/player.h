@@ -6,6 +6,7 @@
 
 struct pl_player {
     struct msr_monster *player;
+    unsigned long age;
 };
 
 #endif /*PLAYER_H_*/
