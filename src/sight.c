@@ -5,12 +5,23 @@ struct sgt_sight {
 };
 
 static bool check_opaque(void *vmap, int x, int y) {
-    struct 
+    struct dc_map *map = (struct dc_map *) vmap;
+    if (map == NULL) return false;
+    return TILE_HAS_ATTRIBUTE(SD_GET_INDEX_(x,y,map).tile, TILE_ATTR_OPAGUE);
 }
 
-static void apply_light_source(void *vmap, int x, int y, int dx, int dy, void *src) {
+static void apply_light_source(void *vmap, int x, int y, int dx, int dy, void *isrc) {
+    struct dc_map *map = (struct dc_map *) vmap;
+    struct itm_items *item = (struct itm_items *) isrc;
+    if (map == NULL) return;
+    if (item == NULL) return;
+
+    SD_GET_INDEX_(x,y,map).light_level = item->specific.tool.light_luminem - pyth(dx,dy);
 }
 
+static void apply_player_sight(void *vmap, int x, int y, int dx, int dy, void *isrc) {
+    struct dc_map *map = (struct dc_map *) vmap;
+}
 
 struct sgt_sight *sgt_init(void) {
     struct sgt_sight *retval = malloc(sizeof(struct sgt_sight) );
