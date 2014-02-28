@@ -18,6 +18,8 @@ enum dc_dungeon_type {
 };
 
 struct dc_map_entity {
+    int x_pos;
+    int y_pos;
     char type;
     bool in_sight;
     bool visible;

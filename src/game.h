@@ -9,6 +9,7 @@
 
 #include "player.h"
 struct dc_map;
+struct sgt_sight;
 struct logging;
 
 struct gm_game {
@@ -17,6 +18,8 @@ struct gm_game {
     struct random *item_random;
     struct random *monster_random;
     struct random *ai_random;
+
+    struct sgt_sight *sight;
 
     struct dc_map *current_map;
     struct pl_player player_data;

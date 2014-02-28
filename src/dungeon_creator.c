@@ -131,6 +131,8 @@ static void dc_clear_map(struct dc_map *map) {
 
     for (int x = 0; x < map->x_sz; x++) {
         for (int y = 0; y < map->y_sz; y++) {
+            SD_GET_INDEX(x,y,map).x_pos = x;
+            SD_GET_INDEX(x,y,map).y_pos = y;
             SD_GET_INDEX(x,y,map).in_sight = false;
             SD_GET_INDEX(x,y,map).visible = false;
             SD_GET_INDEX(x,y,map).discovered = false;

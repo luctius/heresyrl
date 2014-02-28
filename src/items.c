@@ -33,7 +33,7 @@ static uint64_t id = 1;
     .specific.ammo = { .ammo_type=ammo_typ, .energy=energ, energy_left=energ, }, }
 
 struct itm_items static_item_list[] = {
-    LIGHT(ITEM_ID_AVERAGE_TORCH,"torch","a torch",10,100,ITEM_AVAILABILITY_PLENTIFUL,ITEM_QUALITY_AVERAGE,1,1,0),
+    LIGHT(ITEM_ID_AVERAGE_TORCH,"torch","a torch",3,100,ITEM_AVAILABILITY_PLENTIFUL,ITEM_QUALITY_AVERAGE,1,1,0),
 };
 
 void itm_items_list_init(void) {
@@ -67,6 +67,7 @@ struct itm_items *itm_create_specific(int idx) {
     memcpy(i, &static_item_list[idx], sizeof(static_item_list[0]));
     LIST_INSERT_HEAD(&head, i, entries);
     i->item.id = id++;
+    i->item.owner_type = ITEM_OWNER_NONE;
 
     lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "Item", "creating: %c", i->item.icon);
 
@@ -94,6 +95,8 @@ static bool itm_drop_item(struct itm_items *item, struct dc_map *map, int x, int
     if (TILE_HAS_ATTRIBUTE(target->tile, TILE_ATTR_TRAVERSABLE) ) {
         if (target->item == NULL) {
             target->item = item;
+            item->owner_type = ITEM_OWNER_MAP;
+            item->owner.owner_map_entity = target;
             retval = true;
             lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "Item", "insert (%d,%d)", x, y);
         }
@@ -123,6 +126,8 @@ bool itm_remove_item(struct itm_items *item, struct dc_map *map, int x_pos, int 
     if (target->item == item) {
         lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "Item", "removed (%d,%d)", x_pos, y_pos);
         target->item = NULL;
+        item->owner_type = ITEM_OWNER_NONE;
+        item->owner.owner_map_entity = NULL;
         retval = true;
     }
 

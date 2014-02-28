@@ -103,6 +103,8 @@ bool msr_give_item(struct msr_monster *monster, struct itm_items *item) {
     }
 
     monster->inventory = item;
+    item->owner_type = ITEM_OWNER_MONSTER;
+    item->owner.owner_monster = monster;
     lg_printf("You picked up %s.", item->ld_name);
     return true;
 }
@@ -127,6 +129,8 @@ bool msr_remove_item(struct msr_monster *monster, struct itm_items *item) {
     if (item == NULL) return false;
 
     monster->inventory = NULL;
+    item->owner_type = ITEM_OWNER_NONE;
+    item->owner.owner_monster = NULL;
     return true;
 }
 

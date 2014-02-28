@@ -2,6 +2,7 @@
 #include "items.h"
 #include "monster.h"
 #include "random.h"
+#include "sight.h"
 
 struct gm_game *game = NULL;
 
@@ -17,6 +18,7 @@ void game_init(unsigned long initial_seed) {
             game->map_random = random_init_genrand(random_genrand_int32(game->game_random));
             game->ai_random = random_init_genrand(random_genrand_int32(game->game_random));
 
+            game->sight = sgt_init();
 
             msr_monster_list_init();
             itm_items_list_init();
@@ -58,11 +60,13 @@ void game_exit() {
     msr_monster_list_exit();
     itm_items_list_exit();
 
-    free(game->game_random);
-    free(game->ai_random);
-    free(game->item_random);
-    free(game->monster_random);
-    free(game->map_random);
+    sgt_exit(game->sight);
+
+    random_exit(game->game_random);
+    random_exit(game->ai_random);
+    random_exit(game->item_random);
+    random_exit(game->monster_random);
+    random_exit(game->map_random);
 
     free(game);
 }

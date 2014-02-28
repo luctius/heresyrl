@@ -193,6 +193,13 @@ struct item_ammo_specific {
     uint8_t energy_left;
 };
 
+enum item_owner {
+    ITEM_OWNER_NONE,
+    ITEM_OWNER_MAP,
+    ITEM_OWNER_MONSTER,
+    ITEM_OWNER_MAX,
+};
+
 struct itm_items {
     uint32_t id;
     enum item_types item_type;
@@ -209,6 +216,12 @@ struct itm_items {
     uint8_t colour;
     uint8_t use_delay;
     uint8_t stacked_quantity;
+
+    enum item_owner owner_type;
+    union owner {
+        struct dc_map_entity *owner_map_entity;
+        struct monster *owner_monster;
+    };
 
     union item_specific {
         struct item_weapon_specific weapon;
