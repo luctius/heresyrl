@@ -45,6 +45,6 @@ int dc_free_map(struct dc_map *map);
 int dc_print_map(struct dc_map *map);
 bool dc_generate_map(struct dc_map *map, enum dc_dungeon_type type, int level, unsigned long seed);
 bool dc_tile_instance(struct dc_map *map, enum tile_types tt, int instance, int *xpos, int *ypos);
-void dc_clear_map_visibility(struct dc_map *map, int sx, int sy, int ex, int ey);
+bool dc_clear_map_visibility(struct dc_map *map, int sx, int sy, int ex, int ey);
 
 #endif /*DUNGEON_CREATOR_H_*/

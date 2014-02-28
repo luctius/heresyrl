@@ -1,4 +1,8 @@
 #include "fov.h"
+#include "tiles.h"
+#include "dungeon_creator.h"
+#include "items.h"
+#include "monster.h"
 
 struct sgt_sight {
     fov_settings_type fov_settings;
@@ -7,7 +11,7 @@ struct sgt_sight {
 static bool check_opaque(void *vmap, int x, int y) {
     struct dc_map *map = (struct dc_map *) vmap;
     if (map == NULL) return false;
-    return TILE_HAS_ATTRIBUTE(SD_GET_INDEX_(x,y,map).tile, TILE_ATTR_OPAGUE);
+    return TILE_HAS_ATTRIBUTE(SD_GET_INDEX(x,y,map).tile, TILE_ATTR_OPAGUE);
 }
 
 static void apply_light_source(void *vmap, int x, int y, int dx, int dy, void *isrc) {
@@ -16,7 +20,7 @@ static void apply_light_source(void *vmap, int x, int y, int dx, int dy, void *i
     if (map == NULL) return;
     if (item == NULL) return;
 
-    SD_GET_INDEX_(x,y,map).light_level = item->specific.tool.light_luminem - pyth(dx,dy);
+    SD_GET_INDEX(x,y,map).light_level = item->specific.tool.light_luminem - pyth(dx,dy);
 }
 
 static void apply_player_sight(void *vmap, int x, int y, int dx, int dy, void *isrc) {
@@ -52,12 +56,12 @@ bool sgt_calculate_light_source(struct sgt_sight *sight, struct dc_map *map, str
     int x = 0;
     int y = 0;
     if (item->owner_type == ITEM_OWNER_MAP) {
-        x = item->owner.owner_map_entity.x_pos;
-        y = item->owner.owner_map_entity.y_pos;
+        x = item->owner.owner_map_entity->x_pos;
+        y = item->owner.owner_map_entity->y_pos;
     }
     else if (item->owner_type == ITEM_OWNER_MONSTER) {
-        x = item->owner.owner_monster.x_pos;
-        y = item->owner.owner_monster.y_pos;
+        x = item->owner.owner_monster->x_pos;
+        y = item->owner.owner_monster->y_pos;
     }
     else return false;
 

@@ -218,10 +218,10 @@ struct itm_items {
     uint8_t stacked_quantity;
 
     enum item_owner owner_type;
-    union owner {
+    union owner_union {
         struct dc_map_entity *owner_map_entity;
         struct monster *owner_monster;
-    };
+    } owner;
 
     union item_specific {
         struct item_weapon_specific weapon;

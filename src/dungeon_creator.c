@@ -123,7 +123,7 @@ static void dc_add_stairs(struct dc_map *map, struct random *r) {
     *tile_down = ts_get_tile_type(TILE_TYPE_STAIRS_DOWN);
 }
 
-static void dc_clear_map(struct dc_map *map) {
+static bool dc_clear_map(struct dc_map *map) {
     if (map == NULL) return false;
     if (map->x_sz < 2) return false;
     if (map->y_sz < 2) return false;
@@ -144,7 +144,7 @@ static void dc_clear_map(struct dc_map *map) {
     return true;
 }
 
-void dc_clear_map_visibility(struct dc_map *map, int sx, int sy, int ex, int ey) {
+bool dc_clear_map_visibility(struct dc_map *map, int sx, int sy, int ex, int ey) {
     if (map == NULL) return false;
     if (map->x_sz < 2) return false;
     if (map->y_sz < 2) return false;
