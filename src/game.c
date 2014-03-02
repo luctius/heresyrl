@@ -1,3 +1,5 @@
+#include <ncurses.h>
+
 #include "game.h"
 #include "items.h"
 #include "monster.h"
@@ -29,7 +31,7 @@ void game_init(unsigned long initial_seed) {
             game->player_data.age = 0;
             game->player_data.player = msr_create();
             game->player_data.player->icon = '@';
-            game->player_data.player->colour = DPL_COLOUR_NORMAL;
+            game->player_data.player->icon_attr = COLOR_PAIR(DPL_COLOUR_NORMAL) | A_BOLD;
 
             int xpos, ypos;
             if (dc_tile_instance(game->current_map, TILE_TYPE_STAIRS_UP, 0, &xpos, &ypos) == false) exit(1);

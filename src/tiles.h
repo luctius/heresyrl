@@ -5,6 +5,7 @@
 #include <stdint.h>
 
 #define TILE_HAS_ATTRIBUTE(tile, attr) ((tile->attributes & attr) > 0)
+#define TILE_MOVEMENT_MAX (UINT8_MAX)
 
 enum tile_attributes {
     TILE_ATTR_TRAVERSABLE   = (1<<0),
@@ -45,7 +46,7 @@ struct tl_tile {
     uint8_t attributes;
     enum tile_types type;
     char icon;
-    uint8_t colour;
+    int icon_attr;
     uint8_t movement_cost;
 };
 

@@ -36,7 +36,7 @@ struct msr_monster *msr_create(void) {
         m->monster.x_pos = 0;
         m->monster.y_pos = 0;
         m->monster.icon = 'm';
-        m->monster.colour = DPL_COLOUR_NORMAL;
+        m->monster.icon_attr = COLOR_PAIR(DPL_COLOUR_NORMAL);
         m->monster.visibility = 100;
         m->monster.is_player = false;
         m->monster.inventory = NULL;

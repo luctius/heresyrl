@@ -41,7 +41,7 @@ struct msr_monster {
     int x_pos;
     int y_pos;
     char icon;
-    uint8_t colour;
+    int icon_attr;
     uint8_t visibility;
     bool is_player;
     enum msr_gender gender;

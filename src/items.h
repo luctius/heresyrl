@@ -210,7 +210,7 @@ struct itm_items {
     const char *sd_name;
     const char *ld_name;
     char icon;
-    uint8_t colour;
+    int icon_attr;
     uint8_t use_delay;
     uint8_t stacked_quantity;
 

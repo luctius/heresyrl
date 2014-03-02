@@ -1,4 +1,5 @@
 #include <string.h>
+#include <ncurses.h>
 
 #include "items.h"
 #include "random.h"
@@ -9,27 +10,30 @@ static uint64_t id = 1;
 
 #define CLOTHING(item_id,item_sd_name,item_ld_name,cloth_typ,dr,avail,item_quality,item_weight,item_cost,delay) \
     [item_id] = { .id=0, .item_type=ITEM_TYPE_WEARABLE, .availability=avail, .quality=item_quality, \
-    .attributes=ITEM_ATTRIBUTE_NONE, .age=0, .weight=item_weight, .cost=item_cost, .sd_name=item_sd_name, .ld_name=item_ld_name, .icon=']', \ 
-    .colour=DPL_COLOUR_NORMAL, .use_delay=delay, .stacked_quantity=0, .specific.wearable = { .wearable_type=cloth_typ, .damage_reduction=dr, }, }
+    .attributes=ITEM_ATTRIBUTE_NONE, .age=0, .weight=item_weight, .cost=item_cost, .sd_name=item_sd_name, \
+    .ld_name=item_ld_name, .icon=']', .icon_attr=COLOR_PAIR(DPL_COLOUR_NORMAL), .use_delay=delay, \
+    .stacked_quantity=0, .specific.wearable = { .wearable_type=cloth_typ, .damage_reduction=dr, }, }
 
 #define MELEE(item_id,item_sd_name,item_ld_name,wpn_typ,dmg_die,dmg_add,dmg_tp,pen,avail,item_quality,item_weight,item_cost,delay,special) \
     [item_id] = { .id=0, .item_type=ITEM_TYPE_WEAPON, .availability=avail, .quality=item_quality, \
-    .attributes=ITEM_ATTRIBUTE_NONE, .age=0, .weight=item_weight, .cost=item_cost, .sd_name=item_sd_name, .ld_name=item_ld_name, .icon='|', \
-    .colour=DPL_COLOUR_NORMAL, .use_delay=delay, .stacked_quantity=0, .specific.weapon = { .weapon_type=wpn_typ, \
-    .dmg_type=dmg_tp, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=0, .rof = { .rof_single=0, .rof_semi=0, .rof_auto=0, }, \
-    .magazine_sz=0, .magazine_left=0, .penetration=pen, .special_quality=special, .jammed=false, }, }
+    .attributes=ITEM_ATTRIBUTE_NONE, .age=0, .weight=item_weight, .cost=item_cost, .sd_name=item_sd_name, \
+    .ld_name=item_ld_name, .icon='|', .icon_attr=COLOR_PAIR(DPL_COLOUR_NORMAL), .use_delay=delay, \
+    .stacked_quantity=0, .specific.weapon = { .weapon_type=wpn_typ, .dmg_type=dmg_tp, .nr_dmg_die=dmg_die, \
+    .dmg_addition=dmg_add, .range=0, .rof = { .rof_single=0, .rof_semi=0, .rof_auto=0, }, .magazine_sz=0, \
+    .magazine_left=0, .penetration=pen, .special_quality=special, .jammed=false, }, }
 
 #define LIGHT(item_id,item_sd_name,item_ld_name,lumin,dur,avail,item_quality,item_weight,item_cost,delay) \
     [item_id] = { .id=0, .item_type=ITEM_TYPE_TOOL, .availability=avail, .quality=item_quality, \
-    .attributes=ITEM_ATTRIBUTE_NONE, .age=0, .weight=item_weight, .cost=item_cost, .sd_name=item_sd_name, .ld_name=item_ld_name, .icon='(', \
-    .colour=DPL_COLOUR_NORMAL, .use_delay=delay, .stacked_quantity=1, .specific.tool = { \
-    .tool_type=ITEM_TOOL_TYPE_LIGHT, .energy=dur, .energy_left=dur, .light_luminem=lumin, .lit=false, }, }
+    .attributes=ITEM_ATTRIBUTE_NONE, .age=0, .weight=item_weight, .cost=item_cost, .sd_name=item_sd_name, \
+    .ld_name=item_ld_name, .icon='(', .icon_attr=COLOR_PAIR(DPL_COLOUR_NORMAL), .use_delay=delay, \
+    .stacked_quantity=1, .specific.tool = { .tool_type=ITEM_TOOL_TYPE_LIGHT, .energy=dur, .energy_left=dur, \
+    .light_luminem=lumin, .lit=false, }, }
 
 #define AMMO(item_id,item_sd_name,item_ld_name,ammo_typ,energ,avail,item_quality,item_weight,item_cost,delay) \
     [item_id] = { .id=0, .item_type=ITEM_TYPE_AMMO, .availability=avail, .quality=item_quality, \
-    .attributes=ITEM_ATTRIBUTE_NONE, .age=0, .weight=item_weight, .cost=item_cost, .sd_name=item_sd_name, .ld_name=item_ld_name, \
-    .icon='\'', .colour=DPL_COLOUR_NORMAL, .use_delay=delay, .stacked_quantity=1, \
-    .specific.ammo = { .ammo_type=ammo_typ, .energy=energ, energy_left=energ, }, }
+    .attributes=ITEM_ATTRIBUTE_NONE, .age=0, .weight=item_weight, .cost=item_cost, .sd_name=item_sd_name, \
+    .ld_name=item_ld_name, .icon='\'', .icon_attr=COLOR_PAIR(DPL_COLOUR_NORMAL), .use_delay=delay, \
+    .stacked_quantity=1, .specific.ammo = { .ammo_type=ammo_typ, .energy=energ, energy_left=energ, }, }
 
 struct itm_items static_item_list[] = {
     LIGHT(ITEM_ID_AVERAGE_TORCH,"torch","a torch",3,100,ITEM_AVAILABILITY_PLENTIFUL,ITEM_QUALITY_AVERAGE,1,1,0),

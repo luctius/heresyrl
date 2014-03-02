@@ -7,6 +7,7 @@
 #include "random.h"
 #include "dungeon_creator.h"
 #include "dungeon_cave.h"
+#include "pathfinding.h"
 
 struct dc_map *dc_alloc_map(int x_sz, int y_sz) {
     if (x_sz < 2) return NULL;
@@ -137,6 +138,7 @@ static bool dc_clear_map(struct dc_map *map) {
             SD_GET_INDEX(x,y,map).visible = false;
             SD_GET_INDEX(x,y,map).discovered = false;
             SD_GET_INDEX(x,y,map).light_level = 0;
+            SD_GET_INDEX(x,y,map).general_var = 0;
             SD_GET_INDEX(x,y,map).monster = NULL;
             SD_GET_INDEX(x,y,map).item = NULL;
         }
@@ -164,8 +166,41 @@ bool dc_clear_map_visibility(struct dc_map *map, int sx, int sy, int ex, int ey)
     return true;
 }
 
+static unsigned int dc_traversable_callback(void *vmap, struct pf_coord *coord) {
+    if (vmap == NULL) return PF_BLOCKED;
+    if (coord == NULL) return PF_BLOCKED;
+    struct dc_map *map = (struct dc_map *) vmap;
+
+    unsigned int cost = PF_BLOCKED;
+    if (TILE_HAS_ATTRIBUTE(SD_GET_INDEX(coord->x, coord->y, map).tile,TILE_ATTR_BORDER) == true) return cost;
+
+    if (TILE_HAS_ATTRIBUTE(SD_GET_INDEX(coord->x, coord->y, map).tile,TILE_ATTR_TRAVERSABLE) == true) {
+        cost = SD_GET_INDEX(coord->x, coord->y, map).tile->movement_cost;
+        SD_GET_INDEX(coord->x, coord->y, map).general_var = 1;
+    }
+    return cost;
+}
+
+static bool dc_check_map_reachable(struct dc_map *map) {
+    struct pf_settings set = { 
+        .max_traversable_cost = 2,
+        .map_start = { 
+            .x = 0, 
+            .y = 0, 
+        }, 
+        .map_end = {
+            .x = map->x_sz,
+            .y = map->y_sz,
+        },
+        .map = map,
+        .pf_traversable_callback = dc_traversable_callback,
+    };
+    return pf_calculate_reachability(&set);
+}
+
 bool dc_generate_map(struct dc_map *map, enum dc_dungeon_type type, int level, unsigned long seed) {
     if (map == NULL) return false;
+    map->seed = seed;
 
     struct random *r = random_init_genrand(seed);
     switch(type) {
@@ -181,8 +216,15 @@ bool dc_generate_map(struct dc_map *map, enum dc_dungeon_type type, int level, u
     dc_add_stairs(map, r);
     dc_clear_map(map);
 
+    if (dc_check_map_reachable(map) == false) {
+        lg_printf("Map is not good.");
+        //dc_generate_map(map, type, level, random_genrand_int32(r) );
+    }
+    else {
+        lg_printf("Map is good.");
+    }
+
     random_exit(r);
-    map->seed = seed;
     return true;
 }
 
