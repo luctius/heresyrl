@@ -25,7 +25,7 @@ static void apply_light_source(void *vmap, int x, int y, int dx, int dy, void *i
 
 static void apply_player_sight(void *vmap, int x, int y, int dx, int dy, void *isrc) {
     struct dc_map *map = (struct dc_map *) vmap;
-    struct msr_monsters *monster = (struct msr_monsters *) isrc;
+    struct msr_monster *monster = (struct msr_monster *) isrc;
 
     /* Do some checks against monster on location to see if it is visible, later...*/
     SD_GET_INDEX(x,y,map).discovered = true;

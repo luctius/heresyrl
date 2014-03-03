@@ -111,6 +111,8 @@ bool create_ui(int cols, int lines, struct hrl_window **map_win, struct hrl_wind
                 exit(1);
             }
 
+            curs_set(0);
+
             /* Calculate 3 windows sizes */
             int map_cols = cols - CHAR_MIN_COLS;
             if (map_cols > MAP_MIN_COLS) map_cols *= MAP_COLS_FACTOR;
@@ -201,6 +203,7 @@ void win_display_map(struct hrl_window *window, struct dc_map *map, int player_x
     int x_max = (window->cols < map->x_sz) ? window->cols : map->x_sz;
     int y_max = (window->lines < map->y_sz) ? window->lines : map->y_sz;
     werase(window->win);
+    curs_set(0);
 
     if (window->cols < map->x_sz) {
         cx = player_x - (window->cols / 2);
@@ -218,13 +221,21 @@ void win_display_map(struct hrl_window *window, struct dc_map *map, int player_x
             if ( (SD_GET_INDEX(xi+cx, yi+cy, map).visible == true) || (SD_GET_INDEX(xi+cx, yi+cy, map).discovered == true) ) {
                 int attr_mod = SD_GET_INDEX(xi+cx, yi+cy, map).tile->icon_attr;
                 char icon = SD_GET_INDEX_ICON(xi+cx, yi+cy, map);
-                if (SD_GET_INDEX(xi+cx, yi+cy, map).monster != NULL) icon = SD_GET_INDEX(xi+cx, yi+cy, map).monster->icon;
-                else if (SD_GET_INDEX(xi+cx, yi+cy, map).item != NULL) icon = SD_GET_INDEX(xi+cx, yi+cy, map).item->icon;
-                else if ( (SD_GET_INDEX(xi+cx, yi+cy, map).tile->type == TILE_TYPE_WALL) && 
-                        (SD_GET_INDEX(xi+cx, yi+cy, map).visible == true) ) {
-                    attr_mod = COLOR_PAIR(DPL_COLOUR_FG_YELLOW);
+
+                if (SD_GET_INDEX(xi+cx, yi+cy, map).monster != NULL) {
+                    icon = SD_GET_INDEX(xi+cx, yi+cy, map).monster->icon;
+                    attr_mod = SD_GET_INDEX(xi+cx, yi+cy, map).monster->icon_attr;
                 }
-                else if (SD_GET_INDEX(xi+cx, yi+cy, map).tile->type == TILE_TYPE_FLOOR) {
+                else if (SD_GET_INDEX(xi+cx, yi+cy, map).item != NULL) {
+                    icon = SD_GET_INDEX(xi+cx, yi+cy, map).item->icon;
+                    attr_mod = SD_GET_INDEX(xi+cx, yi+cy, map).item->icon_attr;
+                }
+                else if (TILE_HAS_ATTRIBUTE(SD_GET_INDEX(xi+cx, yi+cy, map).tile, TILE_ATTR_TRAVERSABLE) == false) {
+                    if (SD_GET_INDEX(xi+cx, yi+cy, map).visible == true) {
+                        attr_mod = COLOR_PAIR(DPL_COLOUR_FG_YELLOW);
+                    }
+                }
+                else if (TILE_HAS_ATTRIBUTE(SD_GET_INDEX(xi+cx, yi+cy, map).tile, TILE_ATTR_TRAVERSABLE) ){
                     if (SD_GET_INDEX(xi+cx, yi+cy, map).visible == false) attr_mod |= A_DIM;
                     else if (SD_GET_INDEX(xi+cx, yi+cy, map).visible == true) attr_mod |= A_BOLD;
                 }
@@ -235,6 +246,69 @@ void win_display_map(struct hrl_window *window, struct dc_map *map, int player_x
         }
     }
     wrefresh(window->win);
+}
+
+void win_overlay_examine_cursor(struct hrl_window *window, struct dc_map *map, int pos_x, int pos_y) {
+    int ch = '0';
+    bool examine_mode = true;
+
+    do {
+        switch (ch) {
+            case KEY_UP: pos_y--; break;
+            case KEY_RIGHT: pos_x++; break;
+            case KEY_DOWN: pos_y++; break;
+            case KEY_LEFT: pos_x--; break;
+            case '\n':
+                lg_printf("You see...");
+                examine_mode=false;
+                break;
+            default: break;
+        }
+        if (examine_mode == false) break;
+
+        if (pos_y < 0 ) pos_y = 0;
+        if (pos_y >= window->lines -1) pos_y = window->lines -1;
+        if (pos_x < 0 ) pos_x = 0;
+        if (pos_x >= window->cols -1) pos_x = window->cols -1;
+
+        chtype oldch = mvwinch(window->win, pos_y, pos_x);
+        mvwchgat(window->win, pos_y, pos_x, 1, A_NORMAL, DPL_COLOUR_BGB_RED, NULL);
+        wrefresh(window->win);
+        mvwaddch(window->win, pos_y, pos_x, oldch);
+    }
+    while((ch = getch()) != 27 && ch != 'q' && examine_mode);
+}
+
+void win_overlay_firemode_cursor(struct hrl_window *window, struct dc_map *map, int pos_x, int pos_y) {
+    int ch = '0';
+    bool examine_mode = true;
+    int player_x = pos_x;
+    int player_y = pos_y;
+
+    do {
+        switch (ch) {
+            case KEY_UP: pos_y--; break;
+            case KEY_RIGHT: pos_x++; break;
+            case KEY_DOWN: pos_y++; break;
+            case KEY_LEFT: pos_x--; break;
+            case 'f':
+                lg_printf("You fire at (%d,%d)", pos_x, pos_y);
+                examine_mode=false;
+                break;
+            default: break;
+        }
+        if (examine_mode == false) break;
+
+        if (pos_y < 0 ) pos_y = 0;
+        if (pos_y >= window->lines -1) pos_y = window->lines -1;
+        if (pos_x < 0 ) pos_x = 0;
+        if (pos_x >= window->cols -1) pos_x = window->cols -1;
+
+        mvwchgat(window->win, pos_y, pos_x, 1, A_NORMAL, DPL_COLOUR_BGB_RED, NULL);
+        wrefresh(window->win);
+        win_display_map(window->win, map, player_x, player_y);
+    }
+    while((ch = getch()) != 27 && ch != 'q' && examine_mode);
 }
 
 void win_log_refresh(struct hrl_window *window, struct logging *log) {
@@ -252,7 +326,8 @@ void win_log_refresh(struct hrl_window *window, struct logging *log) {
     for (int i = 0; i < max; i++) {
         struct log_entry *tmp_entry = (struct log_entry *) queue_peek_nr(q, log_start +i);
         if (tmp_entry != NULL) {
-            mvwprintw(window->win, i, 0, tmp_entry->string);
+            //mvwprintw(window->win, i, 0, tmp_entry->string);
+            waddstr(window->win, tmp_entry->string);
         }
     }
     wrefresh(window->win);

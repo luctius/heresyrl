@@ -47,6 +47,7 @@ struct hrl_window *win_create(int height, int width, int starty, int startx, enu
 void win_destroy(struct hrl_window *window);
 
 void win_display_map(struct hrl_window *window, struct dc_map *map, int player_x, int player_y);
+void win_overlay_examine_cursor(struct hrl_window *window, struct dc_map *map, int pos_x, int pos_y);
 void win_log_callback(struct logging *log, struct log_entry *entry, void *priv);
 void win_log_refresh(struct hrl_window *window, struct logging *log);
 #endif /*MAP_DISPLAY_H_*/

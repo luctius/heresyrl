@@ -4,7 +4,7 @@
 
 static struct tl_tile tile_array[] = {
     [TILE_ID_NONE] = {
-        .attributes = 0,
+        .attributes = TILE_ATTR_BORDER,
         .type = TILE_TYPE_NONE,
         .icon = ' ',
         .icon_attr = COLOR_PAIR(DPL_COLOUR_NORMAL),
@@ -18,7 +18,7 @@ static struct tl_tile tile_array[] = {
         .movement_cost = TILE_MOVEMENT_MAX,
     },
     [TILE_ID_STONE_WALL] = {
-        .attributes = 0,
+        .attributes =  0,
         .type = TILE_TYPE_WALL,
         .icon = '#',
         .icon_attr = COLOR_PAIR(DPL_COLOUR_NORMAL),

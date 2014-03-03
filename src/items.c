@@ -98,6 +98,8 @@ void itm_destroy(struct itm_items *item) {
 
 static bool itm_drop_item(struct itm_items *item, struct dc_map *map, int x, int y) {
     bool retval = false;
+    if (item == NULL) return false;
+    if (map == NULL) return false;
     if (x >= map->x_sz || y >= map->y_sz) return false;
 
     struct dc_map_entity *target = &SD_GET_INDEX(x, y, map);
@@ -116,6 +118,9 @@ static bool itm_drop_item(struct itm_items *item, struct dc_map *map, int x, int
 
 bool itm_insert_item(struct itm_items *item, struct dc_map *map, int x, int y) {
     bool retval = false;
+    if (item == NULL) return false;
+    if (map == NULL) return false;
+
     if ( (retval = itm_drop_item(item, map, x, y) ) == false) {
         for (int xt = x-1; x < map->x_sz; xt++) {
             for (int yt = y-1; y < map->y_sz; xt++) {
@@ -130,6 +135,8 @@ bool itm_insert_item(struct itm_items *item, struct dc_map *map, int x, int y) {
 
 bool itm_remove_item(struct itm_items *item, struct dc_map *map, int x_pos, int y_pos) {
     bool retval = false;
+    if (item == NULL) return false;
+    if (map == NULL) return false;
 
     struct dc_map_entity *target = &SD_GET_INDEX(x_pos, y_pos, map);
     if (target->item == item) {

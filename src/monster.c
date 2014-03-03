@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stddef.h>
+#include <ncurses.h>
 
 #include "dungeon_creator.h"
 #include "monster.h"
@@ -47,6 +48,8 @@ struct msr_monster *msr_create(void) {
 }
 
 void msr_die(struct msr_monster *monster, struct dc_map *map) {
+    if (monster == NULL) return;
+    if (map == NULL) return;
     struct msr_monster_list_entry *target_mle = container_of(monster, struct msr_monster_list_entry, monster);
 
     msr_remove_monster(monster, map);
@@ -57,6 +60,8 @@ void msr_die(struct msr_monster *monster, struct dc_map *map) {
 
 bool msr_insert_monster(struct msr_monster *monster, struct dc_map *map, int x_togo, int y_togo) {
     bool retval = false;
+    if (monster == NULL) return false;
+    if (map == NULL) return false;
     if (x_togo >= map->x_sz || y_togo >= map->y_sz) return false;
 
     struct dc_map_entity *me_future = &SD_GET_INDEX(x_togo, y_togo, map);
@@ -74,6 +79,8 @@ bool msr_insert_monster(struct msr_monster *monster, struct dc_map *map, int x_t
 
 bool msr_move_monster(struct msr_monster *monster, struct dc_map *map, int x_togo, int y_togo) {
     bool retval = false;
+    if (monster == NULL) return false;
+    if (map == NULL) return false;
     if ( (monster->x_pos == x_togo) && (monster->y_pos == y_togo) ) return false;
 
     struct dc_map_entity *me_current = &SD_GET_INDEX(monster->x_pos, monster->y_pos, map);
@@ -136,7 +143,7 @@ bool msr_remove_item(struct msr_monster *monster, struct itm_items *item) {
 }
 
 int msr_get_near_sight_range(struct msr_monster *monster) {
-    return 4;
+    return 2;
 }
 
 int msr_get_far_sight_range(struct msr_monster *monster) {
@@ -145,6 +152,8 @@ int msr_get_far_sight_range(struct msr_monster *monster) {
 
 bool msr_remove_monster(struct msr_monster *monster, struct dc_map *map) {
     bool retval = false;
+    if (monster == NULL) return false;
+    if (map == NULL) return false;
 
     struct dc_map_entity *me_current = &SD_GET_INDEX(monster->x_pos, monster->y_pos, map);
     if (me_current->monster == monster) {

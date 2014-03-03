@@ -48,10 +48,11 @@ void game_new_turn(void) {
     int ys = game->player_data.player->y_pos - sight_range;
     int xe = game->player_data.player->x_pos + sight_range;
     int ye = game->player_data.player->y_pos + sight_range;
-    xs = (xs >= 0) ? xs : 0;
+    xs = (xs <= 0) ? xs : 0;
     ys = (ys >= 0) ? ys : 0;
-    xe = (xe <= game->current_map->x_sz) ? xe : game->current_map->x_sz;
-    ye = (ye <= game->current_map->y_sz) ? ye : game->current_map->y_sz;
+    xe = (xe >= game->current_map->x_sz -1) ? xe : game->current_map->x_sz -1;
+    ye = (ye >= game->current_map->y_sz -1) ? ye : game->current_map->y_sz -1;
+
     //dc_clear_map_visibility(game->current_map, xs, ys, xe, ye);
     dc_clear_map_visibility(game->current_map, 0,0, game->current_map->x_sz, game->current_map->y_sz);
     sgt_calculate_all_light_sources(game->sight, game->current_map);

@@ -105,7 +105,7 @@ static void lg_print_to_queue(struct logging *log, enum lg_debug_levels dbg_lvl,
 
     struct log_entry *entry = malloc(sizeof(struct log_entry) );
     if (entry != NULL) {
-        int len = vsnprintf(tstring, tstring_sz-1, format, args);
+        int len = vsnprintf(tstring, tstring_sz, format, args);
 
         entry->string = malloc(len +2);
         if (entry->string != NULL) {
@@ -113,6 +113,7 @@ static void lg_print_to_queue(struct logging *log, enum lg_debug_levels dbg_lvl,
             entry->level = dbg_lvl;
             entry->module = module;
             strncpy(entry->string, tstring, len);
+            if (entry->string[len-1] != '\n') entry->string[len] = '\n';
             queue_push_tail(log->logging_q, (intptr_t) entry);
 
             if (log->callback != NULL) log->callback(log, entry, log->priv);

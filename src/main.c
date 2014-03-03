@@ -51,27 +51,38 @@ int main(void)
         int new_xpos = xpos;
         int new_ypos = ypos;
     
-        if (ch == KEY_UP) { new_ypos--; }
-        if (ch == KEY_RIGHT) { new_xpos++; }
-        if (ch == KEY_DOWN) { new_ypos++; }
-        if (ch == KEY_LEFT) { new_xpos--; }
-        if (ch == 'g') {
-            if ( (item = SD_GET_INDEX(game->player_data.player->x_pos, game->player_data.player->y_pos, game->current_map).item) != NULL ) {
-                if (msr_give_item(game->player_data.player, item) == true) {
-                    SD_GET_INDEX(game->player_data.player->x_pos, game->player_data.player->y_pos, game->current_map).item = NULL;
+        switch (ch) { 
+            case KEY_UP: new_ypos--; break;
+            case KEY_RIGHT: new_xpos++; break;
+            case KEY_DOWN: new_ypos++; break;
+            case KEY_LEFT: new_xpos--; break;
+            
+            case 'g':
+                if ( (item = SD_GET_INDEX(game->player_data.player->x_pos, game->player_data.player->y_pos, game->current_map).item) != NULL ) {
+                    if (msr_give_item(game->player_data.player, item) == true) {
+                        SD_GET_INDEX(game->player_data.player->x_pos, game->player_data.player->y_pos, game->current_map).item = NULL;
+                    }
                 }
-            }
-            else lg_printf("There is nothing there");
+                else lg_printf("There is nothing there");
+                break;
+            case 'u':
+                msr_use_item(game->player_data.player, game->player_data.player->inventory);
+                break;
+            case 'd':
+                item = game->player_data.player->inventory;
+                msr_remove_item(game->player_data.player, item);
+                itm_insert_item(item, game->current_map, game->player_data.player->x_pos,game->player_data.player->y_pos);
+                break;
+            case 'f':
+                {
+                    win_overlay_examine_cursor(map_win, game->current_map, xpos, ypos);
+                }
+                break;
+            default:
+                break;
         }
-        if (ch == 'u') {
-            msr_use_item(game->player_data.player, game->player_data.player->inventory);
-        }
-        if (ch == 'd') {
-            item = game->player_data.player->inventory;
-            msr_remove_item(game->player_data.player, item);
-            itm_insert_item(item, game->current_map, 
-                    game->player_data.player->x_pos,game->player_data.player->y_pos);
-        }
+
+
 
         if (msr_move_monster(game->player_data.player, game->current_map, new_xpos, new_ypos) == true) {
             xpos = new_xpos;
