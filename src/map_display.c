@@ -142,9 +142,9 @@ bool create_ui(int cols, int lines, struct hrl_window **map_win, struct hrl_wind
             if (total_cols > cols) { fprintf(stderr, "Too many cols used!\n"); exit(1); }
 
             if ( (*map_win == NULL) || (*char_win == NULL) ||(*msg_win == NULL)  ) {
-                *map_win = win_create(map_lines, map_cols, 0, 0, HRL_WINDOW_TYPE_MAP);
-                *char_win = win_create(char_lines, char_cols, 0, map_cols+1, HRL_WINDOW_TYPE_CHARACTER);
-                *msg_win = win_create(msg_lines, msg_cols, map_lines+1, 0, HRL_WINDOW_TYPE_MESSAGE);
+                *map_win = win_create(map_lines-1, map_cols-1, 1, 1, HRL_WINDOW_TYPE_MAP);
+                *char_win = win_create(char_lines-1, char_cols, 1, map_cols+1, HRL_WINDOW_TYPE_CHARACTER);
+                *msg_win = win_create(msg_lines, msg_cols-1, map_lines+1, 1, HRL_WINDOW_TYPE_MESSAGE);
                 lg_set_callback(gbl_log, *msg_win, win_log_callback);
                 win_log_refresh(*msg_win, gbl_log);
                 return true;
@@ -210,6 +210,7 @@ void win_display_map(struct hrl_window *window, struct dc_map *map, int player_x
         if (cx < 0) cx = 0;
         if (cx + window->cols > map->x_sz) cx = map->x_sz - window->cols;
     }
+
     if (window->lines < map->y_sz) {
         cy = player_y - (window->lines / 2);
         if (cy < 0) cy = 0;
@@ -259,7 +260,7 @@ void win_overlay_examine_cursor(struct hrl_window *window, struct dc_map *map, i
             case KEY_DOWN: pos_y++; break;
             case KEY_LEFT: pos_x--; break;
             case '\n':
-                lg_printf("You see...");
+                You("see...");
                 examine_mode=false;
                 break;
             default: break;
@@ -270,6 +271,8 @@ void win_overlay_examine_cursor(struct hrl_window *window, struct dc_map *map, i
         if (pos_y >= window->lines -1) pos_y = window->lines -1;
         if (pos_x < 0 ) pos_x = 0;
         if (pos_x >= window->cols -1) pos_x = window->cols -1;
+
+        You("examine (%d,%d)", pos_x, pos_y);
 
         chtype oldch = mvwinch(window->win, pos_y, pos_x);
         mvwchgat(window->win, pos_y, pos_x, 1, A_NORMAL, DPL_COLOUR_BGB_RED, NULL);
@@ -292,7 +295,7 @@ void win_overlay_firemode_cursor(struct hrl_window *window, struct dc_map *map, 
             case KEY_DOWN: pos_y++; break;
             case KEY_LEFT: pos_x--; break;
             case 'f':
-                lg_printf("You fire at (%d,%d)", pos_x, pos_y);
+                You("fire at (%d,%d)", pos_x, pos_y);
                 examine_mode=false;
                 break;
             default: break;
@@ -306,7 +309,7 @@ void win_overlay_firemode_cursor(struct hrl_window *window, struct dc_map *map, 
 
         mvwchgat(window->win, pos_y, pos_x, 1, A_NORMAL, DPL_COLOUR_BGB_RED, NULL);
         wrefresh(window->win);
-        win_display_map(window->win, map, player_x, player_y);
+        win_display_map(window, map, player_x, player_y);
     }
     while((ch = getch()) != 27 && ch != 'q' && examine_mode);
 }

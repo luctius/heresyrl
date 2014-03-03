@@ -63,7 +63,7 @@ int main(void)
                         SD_GET_INDEX(game->player_data.player->x_pos, game->player_data.player->y_pos, game->current_map).item = NULL;
                     }
                 }
-                else lg_printf("There is nothing there");
+                else You("see nothing there.");
                 break;
             case 'u':
                 msr_use_item(game->player_data.player, game->player_data.player->inventory);
@@ -74,15 +74,19 @@ int main(void)
                 itm_insert_item(item, game->current_map, game->player_data.player->x_pos,game->player_data.player->y_pos);
                 break;
             case 'f':
-                {
-                    win_overlay_examine_cursor(map_win, game->current_map, xpos, ypos);
+                win_overlay_examine_cursor(map_win, game->current_map, xpos, ypos);
+                break;
+            case '<':
+                if (SD_GET_INDEX(game->player_data.player->x_pos, game->player_data.player->y_pos, game->current_map).tile->type == TILE_TYPE_STAIRS_DOWN) {
+                }
+                break;
+            case '>':
+                if (SD_GET_INDEX(game->player_data.player->x_pos, game->player_data.player->y_pos, game->current_map).tile->type == TILE_TYPE_STAIRS_UP) {
                 }
                 break;
             default:
                 break;
         }
-
-
 
         if (msr_move_monster(game->player_data.player, game->current_map, new_xpos, new_ypos) == true) {
             xpos = new_xpos;

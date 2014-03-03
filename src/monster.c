@@ -106,14 +106,14 @@ bool msr_give_item(struct msr_monster *monster, struct itm_items *item) {
     if (monster == NULL) return false;
     if (item == NULL) return false;
     if (monster->inventory != NULL) {
-        lg_printf("Your inventory is full.");
+        Your("inventory is full.");
         return false;
     }
 
     monster->inventory = item;
     item->owner_type = ITEM_OWNER_MONSTER;
     item->owner.owner_monster = monster;
-    lg_printf("You picked up %s.", item->ld_name);
+    You("picked up %s.", item->ld_name);
     return true;
 }
 
@@ -121,13 +121,13 @@ bool msr_use_item(struct msr_monster *monster, struct itm_items *item) {
     if (monster == NULL) return false;
     if (item == NULL) return false;
     if (monster->inventory == NULL) {
-        lg_printf("Your inventory is empty.");
+        Your("inventory is empty.");
         return false;
     }
 
     if (item->item_type == ITEM_TYPE_TOOL && item->specific.tool.tool_type == ITEM_TOOL_TYPE_LIGHT) {
         item->specific.tool.lit = true;
-        lg_printf("You light %s.", item->ld_name);
+        You("light %s.", item->ld_name);
     }
     return true;
 }
