@@ -89,6 +89,10 @@ static void dc_add_stairs(struct dc_map *map, struct random *r) {
     int last_distance = 0;
     int up_x = 0;
     int up_y = 0;
+    int down_x = 0;
+    int down_y = 0;
+    int down_x_temp = 0;
+    int down_y_temp = 0;
 
     while (tile_up == NULL || tile_down == NULL) {
         int x = random_genrand_int32(r) % map->x_sz;
@@ -107,10 +111,14 @@ static void dc_add_stairs(struct dc_map *map, struct random *r) {
                 int dist = 0;
                 if ( (dist = pyth(xdiff, ydiff)) > target_distance) {
                     tile_down = &SD_GET_INDEX(x,y,map).tile;
+                    down_x = x;
+                    down_y = y;
                 }
                 else if (dist > last_distance) {
                     tile_down_temp = &SD_GET_INDEX(x,y,map).tile;
                     last_distance = dist;
+                    down_x_temp = x;
+                    down_y_temp = y;
                 }
             }
         }
@@ -118,10 +126,17 @@ static void dc_add_stairs(struct dc_map *map, struct random *r) {
         if ( (tile_down == NULL) && (i > large_num) ) {
             tile_down = tile_down_temp;
             i = 0;
+            down_x = down_x_temp;
+            down_y = down_y_temp;
         }
     }
     *tile_up = ts_get_tile_type(TILE_TYPE_STAIRS_UP);
     *tile_down = ts_get_tile_type(TILE_TYPE_STAIRS_DOWN);
+
+    map->stair_up_x = up_x;
+    map->stair_up_y = up_y;
+    map->stair_down_x = down_x;
+    map->stair_down_y = down_y;
 }
 
 static bool dc_clear_map(struct dc_map *map) {
@@ -172,30 +187,12 @@ static unsigned int dc_traversable_callback(void *vmap, struct pf_coord *coord) 
     struct dc_map *map = (struct dc_map *) vmap;
 
     unsigned int cost = PF_BLOCKED;
-    if (TILE_HAS_ATTRIBUTE(SD_GET_INDEX(coord->x, coord->y, map).tile,TILE_ATTR_BORDER) == true) return cost;
-
     if (TILE_HAS_ATTRIBUTE(SD_GET_INDEX(coord->x, coord->y, map).tile,TILE_ATTR_TRAVERSABLE) == true) {
         cost = SD_GET_INDEX(coord->x, coord->y, map).tile->movement_cost;
-        SD_GET_INDEX(coord->x, coord->y, map).general_var = 1;
     }
-    return cost;
-}
+    if (TILE_HAS_ATTRIBUTE(SD_GET_INDEX(coord->x, coord->y, map).tile,TILE_ATTR_BORDER) == true) cost = PF_BLOCKED;
 
-static bool dc_check_map_reachable(struct dc_map *map) {
-    struct pf_settings set = { 
-        .max_traversable_cost = 2,
-        .map_start = { 
-            .x = 0, 
-            .y = 0, 
-        }, 
-        .map_end = {
-            .x = map->x_sz,
-            .y = map->y_sz,
-        },
-        .map = map,
-        .pf_traversable_callback = dc_traversable_callback,
-    };
-    return pf_calculate_reachability(&set);
+    return cost;
 }
 
 bool dc_generate_map(struct dc_map *map, enum dc_dungeon_type type, int level, unsigned long seed) {
@@ -212,18 +209,40 @@ bool dc_generate_map(struct dc_map *map, enum dc_dungeon_type type, int level, u
             break;
     }
 
-    /* Check map with flooding... */
     dc_add_stairs(map, r);
     dc_clear_map(map);
 
-    if (dc_check_map_reachable(map) == false) {
-        lg_printf("Map is not good.");
-        //dc_generate_map(map, type, level, random_genrand_int32(r) );
-    }
-    else {
-        lg_printf("Map is good.");
+    struct pf_context *pf_ctx = pf_init();
+
+    struct pf_settings pf_set = { 
+        .max_traversable_cost = 2,
+        .map_start = { 
+            .x = 0, 
+            .y = 0, 
+        }, 
+        .map_end = {
+            .x = map->x_sz,
+            .y = map->y_sz,
+        },
+        .map = map,
+        .pf_traversable_callback = dc_traversable_callback,
+    };
+    struct pf_coord start = { .x = map->stair_up_x, .y = map->stair_up_y};
+    struct pf_coord end = { .x = map->stair_down_x, .y = map->stair_down_y};
+
+    if (pf_flood_map(pf_ctx, &pf_set, &start) ) {
+        pf_calculate_reachability(pf_ctx);
+
+        if (pf_calculate_path(pf_ctx, &start, &end, NULL) > 1) {
+            lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "dc", "Stairs reachable.");
+        }
+        else {
+            lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "dc", "Stairs not reachable.");
+            dc_generate_map(map, type, level, random_genrand_int32(r) );
+        }
     }
 
+    pf_exit(pf_ctx);
     random_exit(r);
     return true;
 }

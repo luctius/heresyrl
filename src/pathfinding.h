@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define PF_BLOCKED (UINT_MAX)
+#define PF_BLOCKED (UINT_MAX / 2)
 
 struct pf_coord {
     int x;
@@ -25,7 +25,13 @@ struct pf_settings {
     unsigned int (*pf_traversable_callback)(void *map, struct pf_coord *coord);
 };
 
-bool pf_calculate_reachability(struct pf_settings *pf_set);
-int pf_calculate_path(struct pf_settings *pf_set, struct pf_coord *start, struct pf_coord *end, struct pf_coord **coord_lst);
+struct pf_context;
+
+struct pf_context *pf_init(void);
+void pf_exit(struct pf_context *ctx);
+
+bool pf_flood_map(struct pf_context *ctx, struct pf_settings *pf_set, struct pf_coord *start);
+bool pf_calculate_reachability(struct pf_context *ctx);
+int pf_calculate_path(struct pf_context *ctx, struct pf_coord *start, struct pf_coord *end, struct pf_coord **coord_lst);
 
 #endif /* PATHFINDING_H */

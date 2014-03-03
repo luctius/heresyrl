@@ -36,6 +36,11 @@ struct dc_map {
     int y_sz;
     unsigned int seed;
 
+    int stair_up_x;
+    int stair_up_y;
+    int stair_down_x;
+    int stair_down_y;
+
     struct dc_map_entity map[];
 };
 

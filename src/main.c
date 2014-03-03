@@ -86,7 +86,7 @@ int main(void)
 
     destroy_ui(map_win, char_win, msg_win);
     map_win = char_win = msg_win = NULL;
-    //clear();
+    clear();
     refresh();          /*  Print it on to the real screen */
     endwin();           /*  End curses mode       */
 

@@ -215,7 +215,7 @@ void win_display_map(struct hrl_window *window, struct dc_map *map, int player_x
 
     for (int xi = 0; xi < x_max; xi++) {
         for (int yi = 0; yi < y_max; yi++) {
-            {//if ( (SD_GET_INDEX(xi+cx, yi+cy, map).visible == true) || (SD_GET_INDEX(xi+cx, yi+cy, map).discovered == true) ) {
+            if ( (SD_GET_INDEX(xi+cx, yi+cy, map).visible == true) || (SD_GET_INDEX(xi+cx, yi+cy, map).discovered == true) ) {
                 int attr_mod = SD_GET_INDEX(xi+cx, yi+cy, map).tile->icon_attr;
                 char icon = SD_GET_INDEX_ICON(xi+cx, yi+cy, map);
                 if (SD_GET_INDEX(xi+cx, yi+cy, map).monster != NULL) icon = SD_GET_INDEX(xi+cx, yi+cy, map).monster->icon;
@@ -227,8 +227,6 @@ void win_display_map(struct hrl_window *window, struct dc_map *map, int player_x
                 else if (SD_GET_INDEX(xi+cx, yi+cy, map).tile->type == TILE_TYPE_FLOOR) {
                     if (SD_GET_INDEX(xi+cx, yi+cy, map).visible == false) attr_mod |= A_DIM;
                     else if (SD_GET_INDEX(xi+cx, yi+cy, map).visible == true) attr_mod |= A_BOLD;
-
-                    if (SD_GET_INDEX(xi+cx, yi+cy, map).general_var != 0) attr_mod = COLOR_PAIR(DPL_COLOUR_FG_RED);
                 }
                 if (has_colors() == TRUE) wattron(window->win, attr_mod);
                 mvwprintw(window->win, yi, xi, "%c", icon);

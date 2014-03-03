@@ -94,6 +94,7 @@ static void lg_print_to_file(struct logging *log, enum lg_debug_levels dbg_lvl, 
     fprintf(fd, pre_format, module);
     vfprintf(fd, format, args);
     fprintf(fd, "\n");
+    fsync(fd);
 }
 
 static void lg_print_to_queue(struct logging *log, enum lg_debug_levels dbg_lvl, const char* module, const char* format, va_list args) {
