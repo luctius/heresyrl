@@ -63,7 +63,7 @@ bool msr_insert_monster(struct msr_monster *monster, struct dc_map *map, coord_t
     if (map == NULL) return false;
     if (cd_within_bound(pos, &map->size) == false) return false;
 
-    struct dc_map_entity *me_future = &SD_GET_INDEX(pos, map);
+    struct dc_map_entity *me_future = sd_get_map_me(pos, map);
     if (TILE_HAS_ATTRIBUTE(me_future->tile, TILE_ATTR_TRAVERSABLE) ) {
         if (me_future->monster == NULL) {
             me_future->monster = monster;
@@ -82,8 +82,8 @@ bool msr_move_monster(struct msr_monster *monster, struct dc_map *map, coord_t *
     if (cd_within_bound(pos, &map->size) == false) return false;
     if (cd_equal(&monster->pos, pos) == true ) return false;
 
-    struct dc_map_entity *me_current = &SD_GET_INDEX(&monster->pos, map);
-    struct dc_map_entity *me_future = &SD_GET_INDEX(pos, map);
+    struct dc_map_entity *me_current = sd_get_map_me(&monster->pos, map);
+    struct dc_map_entity *me_future = sd_get_map_me(pos, map);
 
     if (TILE_HAS_ATTRIBUTE(me_future->tile, TILE_ATTR_TRAVERSABLE) ) {
         int x_diff = monster->pos.x - pos->x;
@@ -155,7 +155,7 @@ bool msr_remove_monster(struct msr_monster *monster, struct dc_map *map) {
     if (monster == NULL) return false;
     if (map == NULL) return false;
 
-    struct dc_map_entity *me_current = &SD_GET_INDEX(&monster->pos, map);
+    struct dc_map_entity *me_current = sd_get_map_me(&monster->pos, map);
     if (me_current->monster == monster) {
         lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "Monster", "removed (%d,%d)", monster->pos.x, monster->pos.y);
         me_current->monster = NULL;

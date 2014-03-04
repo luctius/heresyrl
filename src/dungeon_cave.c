@@ -221,11 +221,11 @@ bool cave_generate_map(struct dc_map *map, struct random *r, enum dc_dungeon_typ
 
     for(yi=0; yi<size_y; yi++) {
         coord_t c = cd_create(0,yi);
-        SD_GET_INDEX(&c,map).tile = ts_get_tile_specific(TILE_ID_BORDER_WALL);
+        sd_get_map_me(&c,map)->tile = ts_get_tile_specific(TILE_ID_BORDER_WALL);
     }
     for(xi=0; xi<size_x; xi++) {
         coord_t c = cd_create(xi,0);
-        SD_GET_INDEX(&c,map).tile = ts_get_tile_specific(TILE_ID_BORDER_WALL);
+        sd_get_map_me(&c,map)->tile = ts_get_tile_specific(TILE_ID_BORDER_WALL);
     }
 
     for(yi=1; yi<size_y; yi++)
@@ -234,9 +234,9 @@ bool cave_generate_map(struct dc_map *map, struct random *r, enum dc_dungeon_typ
         {
             coord_t c = cd_create(xi,yi);
             switch(grid[yi][xi]) {
-                case TILE_WALL:  SD_GET_INDEX(&c,map).tile = ts_get_tile_type(TILE_TYPE_WALL); break;
+                case TILE_WALL:  sd_get_map_me(&c,map)->tile = ts_get_tile_type(TILE_TYPE_WALL); break;
                 default:
-                case TILE_FLOOR: SD_GET_INDEX(&c,map).tile = ts_get_tile_type(TILE_TYPE_FLOOR); break;
+                case TILE_FLOOR: sd_get_map_me(&c,map)->tile = ts_get_tile_type(TILE_TYPE_FLOOR); break;
             }
         }
     }

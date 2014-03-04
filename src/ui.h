@@ -1,6 +1,6 @@
 #pragma once
-#ifndef MAP_DISPLAY_H_
-#define MAP_DISPLAY_H_
+#ifndef UI_H
+#define UI_H
 
 #define MAP_MIN_COLS 20
 #define MAP_MAX_COLS 100
@@ -51,4 +51,5 @@ void win_overlay_examine_cursor(struct hrl_window *window, struct dc_map *map, c
 void win_overlay_fire_cursor(struct hrl_window *window, struct dc_map *map, coord_t *p_pos);
 void win_log_callback(struct logging *log, struct log_entry *entry, void *priv);
 void win_log_refresh(struct hrl_window *window, struct logging *log);
-#endif /*MAP_DISPLAY_H_*/
+
+#endif /* UI_H */

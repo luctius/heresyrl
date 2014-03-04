@@ -9,10 +9,6 @@
 #include "coord.h"
 #include "tiles.h"
 
-#define SD_GET_INDEX(p, map_ptr) map_ptr->map[(((p)->x) * (map_ptr)->size.y) + ((p)->y)]
-#define SD_GET_INDEX_TYPE(p, map_ptr) SD_GET_INDEX(p,map_ptr).tile->type
-#define SD_GET_INDEX_ICON(p, map_ptr) SD_GET_INDEX(p,map_ptr).tile->icon
-
 enum dc_dungeon_type {
     DC_DUNGEON_TYPE_SIMPLE,
     DC_DUNGEON_TYPE_CAVE,
@@ -40,6 +36,14 @@ struct dc_map {
 
     struct dc_map_entity map[];
 };
+
+inline struct dc_map_entity *sd_get_map_me(coord_t *c, struct dc_map *map) {
+    return &map->map[((c->x) * (map)->size.y) + (c->y)];
+}
+
+inline struct tl_tile *sd_get_map_tile(coord_t *c, struct dc_map *map) {
+    return map->map[((c->x) * (map)->size.y) + (c->y)].tile;
+}
 
 struct dc_map *dc_alloc_map(int x_sz, int y_sz);
 int dc_free_map(struct dc_map *map);

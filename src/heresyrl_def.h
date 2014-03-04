@@ -17,6 +17,7 @@
 
 struct tl_tile;
 struct msr_monster;
+struct itm_items;
 struct dc_map_entity;
 struct random;
 
@@ -63,7 +64,13 @@ enum dpl_colours {
 };
 
 inline int pyth(int side1, int side2) {
-    //return sqrt(pow(side1, 2) + pow(side2, 2) );
+    //return hypot(side1, side2);
+
+    /* 
+       This isn't Pythagoras, I know. He would turn around in his grave.
+       However we don't really need that, this'll do.
+       But we could if we wanted to...
+     */
     int a = abs(side1);
     int b = abs(side2);
     return (a > b) ? a : b;

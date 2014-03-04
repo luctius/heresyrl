@@ -3,7 +3,7 @@
 #include <assert.h>
 #include <ncurses.h>
 
-#include "map_display.h"
+#include "ui.h"
 #include "tiles.h"
 #include "monster.h"
 #include "items.h"
@@ -197,49 +197,48 @@ void win_destroy(struct hrl_window *window) {
     free(window);
 }
 
+static int get_viewport(int p, int vps, int mps) {
+    int hvps = vps / 2;
+    if (mps < vps) return 0;
+    if (p < hvps) return 0;
+    if (p > (mps - hvps) ) return mps - vps;
+    return p - hvps;
+}
+
 static void win_display_map_noref(struct hrl_window *window, struct dc_map *map, coord_t *player) {
     // Calculate top left of camera position
     coord_t scr_c = cd_create(0,0);
     int x_max = (window->cols < map->size.x) ? window->cols : map->size.x;
-    int y_max = (window->lines < map->size.x) ? window->lines : map->size.y;
+    int y_max = (window->lines < map->size.y) ? window->lines : map->size.y;
     werase(window->win);
     curs_set(0);
 
-    if (window->cols < map->size.x) {
-        scr_c.x = player->x - (window->cols / 2);
-        if (scr_c.x < 0) scr_c.x = 0;
-        if (scr_c.x + window->cols > map->size.x) scr_c.x = map->size.x - window->cols;
-    }
-
-    if (window->lines < map->size.y) {
-        scr_c.y = player->y - (window->lines / 2);
-        if (scr_c.y < 0) scr_c.y = 0;
-        if (scr_c.y + window->lines > map->size.y) scr_c.y = map->size.y - window->lines;
-    }
+    scr_c.x = get_viewport(player->x, window->cols, map->size.x);
+    scr_c.y = get_viewport(player->y, window->lines, map->size.y);
 
     for (int xi = 0; xi < x_max; xi++) {
         for (int yi = 0; yi < y_max; yi++) {
             coord_t map_c = cd_create(xi+scr_c.x, yi+scr_c.y);
-            if ( (SD_GET_INDEX(&map_c, map).visible == true) || (SD_GET_INDEX(&map_c, map).discovered == true) ) {
-                int attr_mod = SD_GET_INDEX(&map_c, map).tile->icon_attr;
-                char icon = SD_GET_INDEX_ICON(&map_c, map);
+            if ( (sd_get_map_me(&map_c, map)->visible == true) || (sd_get_map_me(&map_c, map)->discovered == true) ) {
+                int attr_mod = sd_get_map_tile(&map_c, map)->icon_attr;
+                char icon = sd_get_map_tile(&map_c, map)->icon;
 
-                if (SD_GET_INDEX(&map_c, map).monster != NULL) {
-                    icon = SD_GET_INDEX(&map_c, map).monster->icon;
-                    attr_mod = SD_GET_INDEX(&map_c, map).monster->icon_attr;
+                if (sd_get_map_me(&map_c, map)->monster != NULL) {
+                    icon = sd_get_map_me(&map_c, map)->monster->icon;
+                    attr_mod = sd_get_map_me(&map_c, map)->monster->icon_attr;
                 }
-                else if (SD_GET_INDEX(&map_c, map).item != NULL) {
-                    icon = SD_GET_INDEX(&map_c, map).item->icon;
-                    attr_mod = SD_GET_INDEX(&map_c, map).item->icon_attr;
+                else if (sd_get_map_me(&map_c, map)->item != NULL) {
+                    icon = sd_get_map_me(&map_c, map)->item->icon;
+                    attr_mod = sd_get_map_me(&map_c, map)->item->icon_attr;
                 }
-                else if (TILE_HAS_ATTRIBUTE(SD_GET_INDEX(&map_c, map).tile, TILE_ATTR_TRAVERSABLE) == false) {
-                    if (SD_GET_INDEX(&map_c, map).visible == true) {
+                else if (TILE_HAS_ATTRIBUTE(sd_get_map_tile(&map_c, map), TILE_ATTR_TRAVERSABLE) == false) {
+                    if (sd_get_map_me(&map_c, map)->visible == true) {
                         attr_mod = COLOR_PAIR(DPL_COLOUR_FG_YELLOW);
                     }
                 }
-                else if (TILE_HAS_ATTRIBUTE(SD_GET_INDEX(&map_c, map).tile, TILE_ATTR_TRAVERSABLE) ){
-                    if (SD_GET_INDEX(&map_c, map).visible == false) attr_mod |= A_DIM;
-                    else if (SD_GET_INDEX(&map_c, map).visible == true) attr_mod |= A_BOLD;
+                else if (TILE_HAS_ATTRIBUTE(sd_get_map_tile(&map_c, map), TILE_ATTR_TRAVERSABLE) ){
+                    if (sd_get_map_me(&map_c, map)->visible == false) attr_mod |= A_DIM;
+                    else if (sd_get_map_me(&map_c, map)->visible == true) attr_mod |= A_BOLD;
                 }
                 if (has_colors() == TRUE) wattron(window->win, attr_mod);
                 mvwprintw(window->win, yi, xi, "%c", icon);
@@ -259,6 +258,8 @@ void win_overlay_examine_cursor(struct hrl_window *window, struct dc_map *map, c
     bool examine_mode = true;
 
     coord_t e_pos = *p_pos;
+    int scr_x = get_viewport(p_pos->x, window->cols, map->size.x);
+    int scr_y = get_viewport(p_pos->y, window->lines, map->size.y);
 
     do {
         switch (ch) {
@@ -280,10 +281,10 @@ void win_overlay_examine_cursor(struct hrl_window *window, struct dc_map *map, c
         if (e_pos.x < 0) e_pos.x = 0;
         if (e_pos.x >= window->cols -1) e_pos.x = window->cols -1;
 
-        chtype oldch = mvwinch(window->win, e_pos.y, e_pos.x);
-        mvwchgat(window->win, e_pos.y, e_pos.x, 1, A_NORMAL, DPL_COLOUR_BGB_RED, NULL);
+        chtype oldch = mvwinch(window->win, e_pos.y - scr_y, e_pos.x - scr_x);
+        mvwchgat(window->win, e_pos.y - scr_y, e_pos.x - scr_x, 1, A_NORMAL, DPL_COLOUR_BGB_RED, NULL);
         wrefresh(window->win);
-        mvwaddch(window->win, e_pos.y, e_pos.x, oldch);
+        mvwaddch(window->win, e_pos.y - scr_y, e_pos.x - scr_x, oldch);
     }
     while((ch = getch()) != 27 && ch != 'q' && examine_mode);
 }
@@ -331,8 +332,8 @@ void win_overlay_fire_cursor(struct hrl_window *window, struct dc_map *map, coor
     while((ch = getch()) != 27 && ch != 'q' && fire_mode);
 }
 
-void win_log_refresh(struct hrl_window *window, struct logging *log) {
-    struct queue *q = lg_logging_queue(log);
+void win_log_refresh(struct hrl_window *window, struct logging *lg) {
+    struct queue *q = lg_logging_queue(lg);
     int log_sz = queue_size(q);
     int win_sz = window->lines;
 
@@ -346,15 +347,14 @@ void win_log_refresh(struct hrl_window *window, struct logging *log) {
     for (int i = 0; i < max; i++) {
         struct log_entry *tmp_entry = (struct log_entry *) queue_peek_nr(q, log_start +i);
         if (tmp_entry != NULL) {
-            //mvwprintw(window->win, i, 0, tmp_entry->string);
             waddstr(window->win, tmp_entry->string);
         }
     }
     wrefresh(window->win);
 }
 
-void win_log_callback(struct logging *log, struct log_entry *entry, void *priv) {
+void win_log_callback(struct logging *lg, struct log_entry *entry, void *priv) {
     struct hrl_window *window = priv;
-    if (window != NULL) win_log_refresh(window, log);
+    if (window != NULL) win_log_refresh(window, lg);
 }
 

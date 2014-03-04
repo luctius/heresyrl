@@ -6,7 +6,7 @@
 #include <time.h>
 
 #include "heresyrl_def.h"
-#include "map_display.h"
+#include "ui.h"
 #include "logging.h"
 #include "monster.h"
 #include "game.h"
@@ -58,9 +58,9 @@ int main(void)
             case KEY_RIGHT: pos.x++; break;
             
             case 'g':
-                if ( (item = SD_GET_INDEX(player_pos, game->current_map).item) != NULL ) {
+                if ( (item = sd_get_map_me(player_pos, game->current_map)->item) != NULL ) {
                     if (msr_give_item(game->player_data.player, item) == true) {
-                        SD_GET_INDEX(player_pos, game->current_map).item = NULL;
+                        sd_get_map_me(player_pos, game->current_map)->item = NULL;
                     }
                 }
                 else You("see nothing there.");
@@ -80,12 +80,12 @@ int main(void)
                 win_overlay_fire_cursor(map_win, game->current_map, player_pos);
                 break;
             case '<':
-                if (SD_GET_INDEX(player_pos, game->current_map).tile->type == TILE_TYPE_STAIRS_DOWN) {
+                if (sd_get_map_tile(player_pos, game->current_map)->type == TILE_TYPE_STAIRS_DOWN) {
                     You("see a broken stairway.");
                 }
                 break;
             case '>':
-                if (SD_GET_INDEX(player_pos, game->current_map).tile->type == TILE_TYPE_STAIRS_UP) {
+                if (sd_get_map_tile(player_pos, game->current_map)->type == TILE_TYPE_STAIRS_UP) {
                     You("see a broken stairway.");
                 }
                 break;
@@ -103,7 +103,7 @@ int main(void)
 
     destroy_ui(map_win, char_win, msg_win);
     map_win = char_win = msg_win = NULL;
-    //clear();
+    clear();
     refresh();          /*  Print it on to the real screen */
     endwin();           /*  End curses mode       */
 

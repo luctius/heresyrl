@@ -209,6 +209,7 @@ struct itm_items {
     int cost;
     const char *sd_name;
     const char *ld_name;
+    const char *description;
     char icon;
     int icon_attr;
     uint8_t use_delay;
@@ -245,6 +246,7 @@ struct itm_items *itm_create_type(enum item_types type, int specific_id);
 void itm_destroy(struct itm_items *item);
 bool itm_insert_item(struct itm_items *item, struct dc_map *map, coord_t *pos);
 bool itm_remove_item(struct itm_items *item, struct dc_map *map, coord_t *pos);
+coord_t itm_get_pos(struct itm_items *item);
 
 #endif /*ITEMS_H_*/
 

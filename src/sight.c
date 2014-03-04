@@ -13,7 +13,7 @@ static bool check_opaque(void *vmap, int x, int y) {
     if (map == NULL) return false;
 
     coord_t c = cd_create(x,y);
-    return !( (SD_GET_INDEX(&c,map).tile->attributes & TILE_ATTR_OPAGUE) > 0);
+    return !( (sd_get_map_tile(&c,map)->attributes & TILE_ATTR_OPAGUE) > 0);
 }
 
 static void apply_light_source(void *vmap, int x, int y, int dx, int dy, void *isrc) {
@@ -23,7 +23,7 @@ static void apply_light_source(void *vmap, int x, int y, int dx, int dy, void *i
     if (item == NULL) return;
 
     coord_t c = cd_create(x,y);
-    SD_GET_INDEX(&c,map).light_level = item->specific.tool.light_luminem - pyth(dx,dy);
+    sd_get_map_me(&c,map)->light_level = item->specific.tool.light_luminem - pyth(dx,dy);
 }
 
 static void apply_player_sight(void *vmap, int x, int y, int dx, int dy, void *isrc) {
@@ -32,15 +32,15 @@ static void apply_player_sight(void *vmap, int x, int y, int dx, int dy, void *i
 
     coord_t c = cd_create(x,y);
     /* Do some checks against monster on location to see if it is visible, later...*/
-    SD_GET_INDEX(&c,map).discovered = true;
-    SD_GET_INDEX(&c,map).in_sight = true;
+    sd_get_map_me(&c,map)->discovered = true;
+    sd_get_map_me(&c,map)->in_sight = true;
 
     int radius = msr_get_near_sight_range(monster) +msr_get_far_sight_range(monster);
     if (pyth(dx, dy) < radius) {
-        SD_GET_INDEX(&c,map).visible = true;
+        sd_get_map_me(&c,map)->visible = true;
     }
-    else if (SD_GET_INDEX(&c,map).light_level > 0) {
-        SD_GET_INDEX(&c,map).visible = true;
+    else if (sd_get_map_me(&c,map)->light_level > 0) {
+        sd_get_map_me(&c,map)->visible = true;
     }
 }
 
@@ -70,19 +70,9 @@ bool sgt_calculate_light_source(struct sgt_sight *sight, struct dc_map *map, str
     fov_settings_set_opacity_test_function(&sight->fov_settings, check_opaque);
     fov_settings_set_apply_lighting_function(&sight->fov_settings, apply_light_source);
 
-    int x = 0;
-    int y = 0;
-    if (item->owner_type == ITEM_OWNER_MAP) {
-        x = item->owner.owner_map_entity->pos.x;
-        y = item->owner.owner_map_entity->pos.y;
-    }
-    else if (item->owner_type == ITEM_OWNER_MONSTER) {
-        x = item->owner.owner_monster->pos.x;
-        y = item->owner.owner_monster->pos.y;
-    }
-    else return false;
+    coord_t c = itm_get_pos(item);
 
-    fov_circle(&sight->fov_settings, map, item, x, y, item->specific.tool.light_luminem);
+    fov_circle(&sight->fov_settings, map, item, c.x, c.y, item->specific.tool.light_luminem);
     return true;
 }
 
@@ -90,10 +80,10 @@ bool sgt_calculate_all_light_sources(struct sgt_sight *sight, struct dc_map *map
     if (sight == NULL) return false;
     if (map == NULL) return false;
 
-    struct itm_items *item = itm_get_item_from_list(NULL);
-    while (item != NULL) {
-        sgt_calculate_light_source(sight,  map, item);
-        item = itm_get_item_from_list(item);
+    struct itm_items *item = NULL;
+    while ( (item = itm_get_item_from_list(item) ) != NULL){
+        sgt_calculate_light_source(sight, map, item);
+        lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "sight", "processing light source %s.", item->ld_name);
     }
     return true;
 }

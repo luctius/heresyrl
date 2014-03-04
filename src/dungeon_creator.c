@@ -10,6 +10,9 @@
 #include "dungeon_cave.h"
 #include "pathfinding.h"
 
+extern inline struct dc_map_entity *sd_get_map_me(coord_t *c, struct dc_map *map);
+extern inline struct tl_tile *sd_get_map_tile(coord_t *c, struct dc_map *map);
+
 struct dc_map *dc_alloc_map(int x_sz, int y_sz) {
     if (x_sz < 2) return NULL;
     if (y_sz < 2) return NULL;
@@ -38,7 +41,7 @@ int dc_print_map(struct dc_map *map) {
     coord_t c;
     for (c.y = 0; c.y < map->size.y; c.y++) {
         for (c.x = 0; c.x < map->size.x; c.x++) {
-            putchar(SD_GET_INDEX_ICON(&c,map));
+            putchar(sd_get_map_tile(&c,map)->icon);
         }
         putchar('\n');
     }
@@ -46,12 +49,11 @@ int dc_print_map(struct dc_map *map) {
 
     return EXIT_SUCCESS;
 }
-
 bool dc_tile_instance(struct dc_map *map, enum tile_types tt, int instance, coord_t *pos) {
     coord_t c;
     for (c.x = 0; c.x < map->size.x; c.x++) {
         for (c.y = 0; c.y < map->size.y; c.y++) {
-            if (SD_GET_INDEX_TYPE(&c,map) == tt ) {
+            if (sd_get_map_tile(&c,map)->type == tt ) {
                 instance--;
                 if (instance <= 0) {
                     *pos = c;
@@ -72,9 +74,9 @@ static bool dc_generate_map_simple(struct dc_map *map, struct random *r, enum dc
     coord_t c;
     for (c.x = 0; c.x < map->size.x; c.x++) {
         for (c.y = 0; c.y < map->size.y; c.y++) {
-            if (c.y == 0 || c.y == map->size.y -1) SD_GET_INDEX(&c,map).tile = ts_get_tile_specific(TILE_ID_BORDER_WALL);
-            else if (c.x == 0 || c.x == map->size.y -1) SD_GET_INDEX(&c,map).tile = ts_get_tile_specific(TILE_ID_BORDER_WALL);
-            else SD_GET_INDEX(&c,map).tile = ts_get_tile_type(TILE_TYPE_FLOOR);
+            if (c.y == 0 || c.y == map->size.y -1) sd_get_map_me(&c,map)->tile = ts_get_tile_specific(TILE_ID_BORDER_WALL);
+            else if (c.x == 0 || c.x == map->size.y -1) sd_get_map_me(&c,map)->tile = ts_get_tile_specific(TILE_ID_BORDER_WALL);
+            else sd_get_map_me(&c,map)->tile = ts_get_tile_type(TILE_TYPE_FLOOR);
         }
     }
     return true;
@@ -99,9 +101,9 @@ static void dc_add_stairs(struct dc_map *map, struct random *r) {
         c. y = random_genrand_int32(r) % map->size.y;
         i++;
 
-        if (SD_GET_INDEX_TYPE(&c,map) == TILE_TYPE_FLOOR ) {
+        if (sd_get_map_tile(&c,map)->type == TILE_TYPE_FLOOR ) {
             if (tile_up == NULL) {
-                tile_up = &SD_GET_INDEX(&c,map).tile;
+                tile_up = &sd_get_map_me(&c,map)->tile;
                 up = c;
             }
             else if (tile_down == NULL) {
@@ -109,11 +111,11 @@ static void dc_add_stairs(struct dc_map *map, struct random *r) {
                 int ydiff = (abs(c.y - up.y) );
                 int dist = 0;
                 if ( (dist = pyth(xdiff, ydiff)) > target_distance) {
-                    tile_down = &SD_GET_INDEX(&c,map).tile;
+                    tile_down = &sd_get_map_me(&c,map)->tile;
                     down = c;
                 }
                 else if (dist > last_distance) {
-                    tile_down_temp = &SD_GET_INDEX(&c,map).tile;
+                    tile_down_temp = &sd_get_map_me(&c,map)->tile;
                     last_distance = dist;
                     down_temp = c;
                 }
@@ -142,14 +144,14 @@ static bool dc_clear_map(struct dc_map *map) {
     coord_t c = cd_create(0,0);
     for (c.x = 0; c.x < map->size.x; c.x++) {
         for (c.y = 0; c.y < map->size.y; c.y++) {
-            SD_GET_INDEX(&c,map).pos = c;
-            SD_GET_INDEX(&c,map).in_sight = false;
-            SD_GET_INDEX(&c,map).visible = false;
-            SD_GET_INDEX(&c,map).discovered = false;
-            SD_GET_INDEX(&c,map).light_level = 0;
-            SD_GET_INDEX(&c,map).general_var = 0;
-            SD_GET_INDEX(&c,map).monster = NULL;
-            SD_GET_INDEX(&c,map).item = NULL;
+            sd_get_map_me(&c,map)->pos = c;
+            sd_get_map_me(&c,map)->in_sight = false;
+            sd_get_map_me(&c,map)->visible = false;
+            sd_get_map_me(&c,map)->discovered = false;
+            sd_get_map_me(&c,map)->light_level = 0;
+            sd_get_map_me(&c,map)->general_var = 0;
+            sd_get_map_me(&c,map)->monster = NULL;
+            sd_get_map_me(&c,map)->item = NULL;
         }
     }
     return true;
@@ -168,9 +170,9 @@ bool dc_clear_map_visibility(struct dc_map *map, coord_t *start, coord_t *end) {
 
     for (c.x = start->x; c.x < end->x; c.x++) {
         for (c.y = start->y; c.y < end->y; c.y++) {
-            SD_GET_INDEX(&c,map).in_sight = false;
-            SD_GET_INDEX(&c,map).visible = false;
-            SD_GET_INDEX(&c,map).light_level = 0;
+            sd_get_map_me(&c,map)->in_sight = false;
+            sd_get_map_me(&c,map)->visible = false;
+            sd_get_map_me(&c,map)->light_level = 0;
         }
     }
     return true;
@@ -183,10 +185,10 @@ static unsigned int dc_traversable_callback(void *vmap, struct pf_coord *coord) 
 
     unsigned int cost = PF_BLOCKED;
     coord_t c = cd_create(coord->x, coord->y);
-    if (TILE_HAS_ATTRIBUTE(SD_GET_INDEX(&c, map).tile,TILE_ATTR_TRAVERSABLE) == true) {
-        cost = SD_GET_INDEX(&c, map).tile->movement_cost;
+    if (TILE_HAS_ATTRIBUTE(sd_get_map_tile(&c, map),TILE_ATTR_TRAVERSABLE) == true) {
+        cost = sd_get_map_tile(&c, map)->movement_cost;
     }
-    if (TILE_HAS_ATTRIBUTE(SD_GET_INDEX(&c, map).tile,TILE_ATTR_BORDER) == true) cost = PF_BLOCKED;
+    if (TILE_HAS_ATTRIBUTE(sd_get_map_tile(&c, map),TILE_ATTR_BORDER) == true) cost = PF_BLOCKED;
 
     return cost;
 }
@@ -211,7 +213,7 @@ bool dc_generate_map(struct dc_map *map, enum dc_dungeon_type type, int level, u
     struct pf_context *pf_ctx = pf_init();
 
     struct pf_settings pf_set = { 
-        .max_traversable_cost = 2,
+        .max_traversable_cost = ts_get_movement_cost_max(),
         .map_start = { 
             .x = 0, 
             .y = 0, 

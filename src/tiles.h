@@ -43,14 +43,18 @@ enum tile_types {
 };
 
 struct tl_tile {
-    uint8_t attributes;
+    uint16_t attributes;
     enum tile_types type;
     char icon;
     int icon_attr;
     uint8_t movement_cost;
+    const char *sd_name;
+    const char *ld_name;
+    const char *description;
 };
 
 struct tl_tile *ts_get_tile_specific(enum tile_ids ti);
 struct tl_tile *ts_get_tile_type(enum tile_types tt);
+int ts_get_movement_cost_max(void);
 
 #endif /*TILES_H_*/

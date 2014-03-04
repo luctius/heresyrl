@@ -44,10 +44,16 @@ struct msr_monster {
     uint8_t visibility;
     bool is_player;
     enum msr_gender gender;
+    const char *sd_name;
+    const char *ld_name;
+    const char *description;
 
     struct itm_items *inventory;
 
     struct msr_char characteristic[MSR_CHAR_MAX];
+    uint64_t race_traits;
+    uint64_t combat_traits;
+    uint64_t career_traits;
 };
 
 struct msr_monster_list_entry {
