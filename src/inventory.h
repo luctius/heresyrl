@@ -1,11 +1,11 @@
 #ifndef INVENTORY_H
 #define INVENTORY_H
 
-#include <sys/queue.h>
-
-#include "inventory.h"
 #include "items.h"
 
-void inv_init();
+struct inventory;
+
+struct inventory *inv_init(void);
+void inv_exit(struct inventory *inv);
 
 #endif /* INVENTORY_H */
