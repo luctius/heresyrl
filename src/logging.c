@@ -99,6 +99,8 @@ static void lg_print_to_file(struct logging *log, enum lg_debug_levels dbg_lvl, 
 
 static void lg_print_to_queue(struct logging *log, enum lg_debug_levels dbg_lvl, const char* module, const char* format, va_list args) {
     if (log == NULL) return;
+    if (dbg_lvl > LG_DEBUG_LEVEL_GAME) return;
+
     int tstring_sz = 100;
     char tstring[tstring_sz +1];
     memset(tstring, 0x0, sizeof(tstring));

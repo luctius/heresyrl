@@ -1,8 +1,11 @@
 #include <string.h>
 #include <ncurses.h>
 
+#include "dungeon_creator.h"
 #include "items.h"
 #include "random.h"
+#include "monster.h"
+#include "tiles.h"
 
 static LIST_HEAD(items_list, itm_items_list_entry) items_list_head;
 static bool items_list_initialised = false;
@@ -41,36 +44,41 @@ struct itm_items static_item_list[] = {
     LIGHT(ITEM_ID_AVERAGE_TORCH,"torch","a torch",AVERAGE_TORCH_DESC,3,100,ITEM_AVAILABILITY_PLENTIFUL,ITEM_QUALITY_AVERAGE,1,1,0),
 };
 
-void itm_items_list_init(void) {
+void itmlst_items_list_init(void) {
     if (items_list_initialised == false) {
         items_list_initialised = true;
         LIST_INIT(&items_list_head);
     }
 }
 
-void itm_items_list_exit(void) {
+void itmlst_items_list_exit(void) {
     struct itm_items_list_entry *e = NULL;
     while (items_list_head.lh_first != NULL) {
         e = items_list_head.lh_first;
         LIST_REMOVE(items_list_head.lh_first, entries);
         free(e);
     }
+        items_list_initialised = false;
 }
 
-struct itm_items *itm_get_item_from_list(struct itm_items *prev) {
-    if (prev == NULL) return &items_list_head.lh_first->item;
+struct itm_items *itmlst_get_next_item(struct itm_items *prev) {
+    if (prev == NULL) {
+        if (items_list_head.lh_first != NULL) return &items_list_head.lh_first->item;
+        return NULL;
+    }
     struct itm_items_list_entry *ile = container_of(prev, struct itm_items_list_entry, item);
     if (ile == NULL) return NULL;
     return &ile->entries.le_next->item;
 }
 
 struct itm_items *itm_generate(enum item_types type) {
-    if (items_list_initialised == false) itm_items_list_init();
+    if (items_list_initialised == false) itmlst_items_list_init();
     return NULL;
 }
 
 struct itm_items *itm_create_specific(int idx) {
     if (idx >= (int) ARRAY_SZ(static_item_list)) return NULL;
+    if (items_list_initialised == false) itmlst_items_list_init();
 
     struct itm_items_list_entry *i = malloc(sizeof(struct itm_items_list_entry) );
     if (i == NULL) return NULL;
@@ -86,7 +94,7 @@ struct itm_items *itm_create_specific(int idx) {
 }
 
 struct itm_items *itm_create_type(enum item_types type, int specific_id) {
-    if (items_list_initialised == false) itm_items_list_init();
+    if (items_list_initialised == false) itmlst_items_list_init();
     return NULL;
 
 }
@@ -160,8 +168,9 @@ coord_t itm_get_pos(struct itm_items *item) {
 
     switch (item->owner_type) {
         case ITEM_OWNER_MAP:        return item->owner.owner_map_entity->pos;
-        case ITEM_OWNER_MONSTER:    return item->owner.owner_map_entity->pos;
+        case ITEM_OWNER_MONSTER:    return item->owner.owner_monster->pos;
         default:
             return cd_create(0,0);
     }
 }
+

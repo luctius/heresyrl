@@ -1,10 +1,9 @@
-#pragma once
 #ifndef LOGGING_H_
 #define LOGGING_H_
 
 #include <stdarg.h>
 
-#include "heresyrl_def.h"
+//#include "heresyrl_def.h"
 #include "queue.h"
 
 #define You(format, args...) lg_printf("You " format, ##args);

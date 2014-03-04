@@ -1,19 +1,20 @@
-#include <ncurses.h>
-
 #include "game.h"
+#include "dungeon_creator.h"
 #include "items.h"
 #include "monster.h"
 #include "random.h"
 #include "sight.h"
+#include "player.h"
+#include "tiles.h"
 
 struct gm_game *game = NULL;
 
-void game_init(unsigned long initial_seed) {
+void game_init(struct pl_player *plr, unsigned long initial_seed) {
     if (game == NULL) {
         game = malloc(sizeof(game));
         if (game != NULL) {
-            int x = 80;
-            int y = 50;
+            int x = 100;
+            int y = 100;
             game->game_random = random_init_genrand(initial_seed);
             game->item_random = random_init_genrand(random_genrand_int32(game->game_random));
             game->monster_random = random_init_genrand(random_genrand_int32(game->game_random));
@@ -22,16 +23,13 @@ void game_init(unsigned long initial_seed) {
 
             game->sight = sgt_init();
 
-            msr_monster_list_init();
-            itm_items_list_init();
+            msrlst_monster_list_init();
+            itmlst_items_list_init();
 
             game->current_map = dc_alloc_map(x,y);
             dc_generate_map(game->current_map, DC_DUNGEON_TYPE_CAVE, 1, random_genrand_int32(game->map_random) );
 
-            game->player_data.age = 0;
-            game->player_data.player = msr_create();
-            game->player_data.player->icon = '@';
-            game->player_data.player->icon_attr = COLOR_PAIR(DPL_COLOUR_NORMAL) | A_BOLD;
+            if (plr == NULL) plr_init(&game->player_data, "Tester", MSR_RACE_HUMAN, MSR_GENDER_MALE);
 
             coord_t c;
             if (dc_tile_instance(game->current_map, TILE_TYPE_STAIRS_UP, 0, &c) == false) exit(1);
@@ -53,8 +51,8 @@ void game_exit() {
     msr_die(game->player_data.player, game->current_map);
     dc_free_map(game->current_map);
 
-    msr_monster_list_exit();
-    itm_items_list_exit();
+    msrlst_monster_list_exit();
+    itmlst_items_list_exit();
 
     sgt_exit(game->sight);
 

@@ -8,6 +8,9 @@
 #include "monster.h"
 #include "items.h"
 #include "fight.h"
+#include "dungeon_creator.h"
+#include "logging.h"
+#include "player.h"
 
 struct hrl_window {
     WINDOW *win;
@@ -99,7 +102,7 @@ void win_generate_colours(void) {
 
 static int hdr_lines = 0;
 static int hdr_cols = 0;
-bool create_ui(int cols, int lines, struct hrl_window **map_win, struct hrl_window **char_win, struct hrl_window **msg_win) {
+bool ui_create(int cols, int lines, struct hrl_window **map_win, struct hrl_window **char_win, struct hrl_window **msg_win) {
     if ( (map_win != NULL) && (char_win != NULL) && (msg_win != NULL)  )
     {
         if ( (hdr_lines != lines) || (hdr_cols != cols) ) {
@@ -122,17 +125,17 @@ bool create_ui(int cols, int lines, struct hrl_window **map_win, struct hrl_wind
             if (map_lines > MAP_MIN_LINES) map_lines = (lines - MSG_MIN_LINES) * MAP_LINES_FACTOR;
             if ( (map_lines > MAP_MAX_LINES) && (MAP_MAX_LINES != 0) ) map_lines = MAP_MAX_LINES;
 
-            int char_cols = cols - map_cols;
-            if (char_cols < CHAR_MIN_COLS) char_cols = CHAR_MIN_COLS;
-            if ( (char_cols > CHAR_MAX_COLS) && (CHAR_MAX_COLS != 0) ) char_cols = CHAR_MAX_COLS;
-            int char_lines = lines * CHAR_LINES_FACTOR;
-            if ( (char_lines > CHAR_MAX_LINES) && (CHAR_MAX_LINES != 0) ) char_lines = CHAR_MAX_LINES;
-
             int msg_cols = cols;
             if ( (msg_cols > MSG_MAX_COLS) && (MSG_MAX_COLS != 0) ) msg_cols = MSG_MAX_COLS;
             int msg_lines = (lines -1) - map_lines;
             if (msg_lines < MSG_MIN_LINES) msg_lines = MSG_MIN_LINES;
             if ( (msg_lines > MSG_MAX_LINES) && (MSG_MAX_LINES != 0) ) msg_lines = MSG_MAX_LINES;
+
+            int char_cols = cols - map_cols;
+            if (char_cols < CHAR_MIN_COLS) char_cols = CHAR_MIN_COLS;
+            if ( (char_cols > CHAR_MAX_COLS) && (CHAR_MAX_COLS != 0) ) char_cols = CHAR_MAX_COLS;
+            int char_lines = lines - msg_lines;
+            if ( (char_lines > CHAR_MAX_LINES) && (CHAR_MAX_LINES != 0) ) char_lines = CHAR_MAX_LINES;
 
             int total_lines = map_lines + msg_lines;
             if (total_lines < char_lines) total_lines = char_lines;
@@ -143,29 +146,29 @@ bool create_ui(int cols, int lines, struct hrl_window **map_win, struct hrl_wind
             if (total_cols > cols) { fprintf(stderr, "Too many cols used!\n"); exit(1); }
 
             if ( (*map_win == NULL) || (*char_win == NULL) ||(*msg_win == NULL)  ) {
-                *map_win = win_create(map_lines-1, map_cols-1, 1, 1, HRL_WINDOW_TYPE_MAP);
-                *char_win = win_create(char_lines-1, char_cols, 1, map_cols+1, HRL_WINDOW_TYPE_CHARACTER);
-                *msg_win = win_create(msg_lines, msg_cols-1, map_lines+1, 1, HRL_WINDOW_TYPE_MESSAGE);
-                lg_set_callback(gbl_log, *msg_win, win_log_callback);
-                win_log_refresh(*msg_win, gbl_log);
+                *map_win = win_create(map_lines-2, map_cols-2, 1, 1, HRL_WINDOW_TYPE_MAP);
+                *char_win = win_create(char_lines, char_cols, 1, map_cols+1, HRL_WINDOW_TYPE_CHARACTER);
+                *msg_win = win_create(msg_lines, msg_cols-1, map_lines, 1, HRL_WINDOW_TYPE_MESSAGE);
+                lg_set_callback(gbl_log, *msg_win, msgwin_log_callback);
+                msgwin_log_refresh(*msg_win, gbl_log);
                 return true;
             }
             else {
                 lg_set_callback(gbl_log, NULL, NULL);
-                destroy_ui(*map_win, *char_win, *msg_win);
+                ui_destroy(*map_win, *char_win, *msg_win);
                 *map_win = NULL;
                 *char_win = NULL;
                 *msg_win = NULL;
                 hdr_lines = 0;
                 hdr_cols = 0;
-                return create_ui(cols, lines, map_win, char_win, msg_win);
+                return ui_create(cols, lines, map_win, char_win, msg_win);
             }
         }
     }
     return false;
 }
 
-void destroy_ui(struct hrl_window *map_win, struct hrl_window *char_win, struct hrl_window *msg_win) {
+void ui_destroy(struct hrl_window *map_win, struct hrl_window *char_win, struct hrl_window *msg_win) {
     lg_set_callback(gbl_log, NULL, NULL);
     if (map_win != NULL) win_destroy(map_win);
     if (char_win != NULL) win_destroy(char_win);
@@ -205,9 +208,15 @@ static int get_viewport(int p, int vps, int mps) {
     return p - hvps;
 }
 
-static void win_display_map_noref(struct hrl_window *window, struct dc_map *map, coord_t *player) {
+static void mapwin_display_map_noref(struct hrl_window *window, struct dc_map *map, coord_t *player) {
     // Calculate top left of camera position
     coord_t scr_c = cd_create(0,0);
+
+    if (window == NULL) return;
+    if (map == NULL) return;
+    if (player == NULL) return;
+    if (window->type != HRL_WINDOW_TYPE_MAP) return;
+
     int x_max = (window->cols < map->size.x) ? window->cols : map->size.x;
     int y_max = (window->lines < map->size.y) ? window->lines : map->size.y;
     werase(window->win);
@@ -248,14 +257,24 @@ static void win_display_map_noref(struct hrl_window *window, struct dc_map *map,
     }
 }
 
-void win_display_map(struct hrl_window *window, struct dc_map *map, coord_t *player) {
-    win_display_map_noref(window, map, player);
+void mapwin_display_map(struct hrl_window *window, struct dc_map *map, coord_t *player) {
+    if (window == NULL) return;
+    if (map == NULL) return;
+    if (player == NULL) return;
+    if (window->type != HRL_WINDOW_TYPE_MAP) return;
+
+    mapwin_display_map_noref(window, map, player);
     wrefresh(window->win);
 }
 
-void win_overlay_examine_cursor(struct hrl_window *window, struct dc_map *map, coord_t *p_pos) {
+void mapwin_overlay_examine_cursor(struct hrl_window *window, struct dc_map *map, coord_t *p_pos) {
     int ch = '0';
     bool examine_mode = true;
+
+    if (window == NULL) return;
+    if (map == NULL) return;
+    if (p_pos == NULL) return;
+    if (window->type != HRL_WINDOW_TYPE_MAP) return;
 
     coord_t e_pos = *p_pos;
     int scr_x = get_viewport(p_pos->x, window->cols, map->size.x);
@@ -289,12 +308,19 @@ void win_overlay_examine_cursor(struct hrl_window *window, struct dc_map *map, c
     while((ch = getch()) != 27 && ch != 'q' && examine_mode);
 }
 
-void win_overlay_fire_cursor(struct hrl_window *window, struct dc_map *map, coord_t *p_pos) {
+void mapwin_overlay_fire_cursor(struct hrl_window *window, struct dc_map *map, coord_t *p_pos) {
     int ch = '0';
     bool fire_mode = true;
+    if (window == NULL) return;
+    if (map == NULL) return;
+    if (p_pos == NULL) return;
+    if (window->type != HRL_WINDOW_TYPE_MAP) return;
 
     coord_t e_pos = *p_pos;
     /*find nearest enemy....*/
+
+    int scr_x = get_viewport(p_pos->x, window->cols, map->size.x);
+    int scr_y = get_viewport(p_pos->y, window->lines, map->size.y);
 
     do {
         lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "mapwin", "entering fire_mode (%d,%d) -> (%d,%d)", p_pos->x, p_pos->y, e_pos.x, e_pos.y);
@@ -321,23 +347,24 @@ void win_overlay_fire_cursor(struct hrl_window *window, struct dc_map *map, coor
         coord_t path[length];
         int path_len = fght_calc_lof_path(p_pos, &e_pos, path, length);
         for (int i = 0; i < path_len; i++) {
-            mvwchgat(window->win, path[i].y, path[i].x, 1, A_NORMAL, DPL_COLOUR_BGB_RED, NULL);
+            mvwchgat(window->win, path[i].y - scr_y, path[i].x - scr_x, 1, A_NORMAL, DPL_COLOUR_BGB_RED, NULL);
             lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "mapwin", "fire_mode: [%d/%d] c (%d,%d)", i, path_len, path[i].x, path[i].y);
         }
-        mvwchgat(window->win, e_pos.y, e_pos.x, 1, A_NORMAL, DPL_COLOUR_BGB_RED, NULL);
+        mvwchgat(window->win, e_pos.y -scr_y, e_pos.x -scr_x, 1, A_NORMAL, DPL_COLOUR_BGB_RED, NULL);
 
         wrefresh(window->win);
-        win_display_map_noref(window, map, p_pos);
+        mapwin_display_map_noref(window, map, p_pos);
     }
     while((ch = getch()) != 27 && ch != 'q' && fire_mode);
 }
 
-void win_log_refresh(struct hrl_window *window, struct logging *lg) {
+void msgwin_log_refresh(struct hrl_window *window, struct logging *lg) {
     struct queue *q = lg_logging_queue(lg);
     int log_sz = queue_size(q);
     int win_sz = window->lines;
 
     if (window == NULL) return;
+    if (window->type != HRL_WINDOW_TYPE_MESSAGE) return;
     werase(window->win);
 
     int max = (win_sz < log_sz) ? win_sz : log_sz;
@@ -353,8 +380,55 @@ void win_log_refresh(struct hrl_window *window, struct logging *lg) {
     wrefresh(window->win);
 }
 
-void win_log_callback(struct logging *lg, struct log_entry *entry, void *priv) {
+void msgwin_log_callback(struct logging *lg, struct log_entry *entry, void *priv) {
     struct hrl_window *window = priv;
-    if (window != NULL) win_log_refresh(window, lg);
+    if (window != NULL) msgwin_log_refresh(window, lg);
+}
+
+void charwin_refresh(struct hrl_window *window, struct pl_player *plr) {
+    if (window == NULL) return;
+    if (plr == NULL) return;
+    if (window->type != HRL_WINDOW_TYPE_CHARACTER) return;
+    werase(window->win);
+
+    struct msr_monster *player = plr->player;
+
+    int y = 0;
+    int x = 0;
+    mvwprintw(window->win, y++,x, "Name      %s", plr->name);
+    mvwprintw(window->win, y++,x, "Gender    %s", msr_gender_string(player) );
+    mvwprintw(window->win, y++,x, "Homeworld %s", "Void Born");
+    mvwprintw(window->win, y++,x, "Career    %s", "Thug");
+
+    y++;
+    int chr = msr_calculate_characteristic(player, MSR_CHAR_WEAPON_SKILL);
+    mvwprintw(window->win, y++,x, "WS             %d", chr);
+    chr = msr_calculate_characteristic(player, MSR_CHAR_BALISTIC_SKILL);
+    mvwprintw(window->win, y++,x, "BS             %d", chr);
+    chr = msr_calculate_characteristic(player, MSR_CHAR_STRENGTH);
+    mvwprintw(window->win, y++,x, "Strength     [%d]%d", chr/10, chr%10);
+    chr = msr_calculate_characteristic(player, MSR_CHAR_TOUCHNESS);
+    mvwprintw(window->win, y++,x, "Toughness    [%d]%d", chr/10, chr%10);
+    chr = msr_calculate_characteristic(player, MSR_CHAR_AGILITY);
+    mvwprintw(window->win, y++,x, "Agility      [%d]%d", chr/10, chr%10);
+    chr = msr_calculate_characteristic(player, MSR_CHAR_INTELLIGENCE);
+    mvwprintw(window->win, y++,x, "Intelligence [%d]%d", chr/10, chr%10);
+    chr = msr_calculate_characteristic(player, MSR_CHAR_PERCEPTION);
+    mvwprintw(window->win, y++,x, "Perception   [%d]%d", chr/10, chr%10);
+    chr = msr_calculate_characteristic(player, MSR_CHAR_WILLPOWER);
+    mvwprintw(window->win, y++,x, "Willpower    [%d]%d", chr/10, chr%10);
+    chr = msr_calculate_characteristic(player, MSR_CHAR_FELLOWSHIP);
+    mvwprintw(window->win, y++,x, "Fellowship   [%d]%d", chr/10, chr%10);
+
+    y++;
+    mvwprintw(window->win, y++,x, "Wounds    [%2d/%2d]", player->cur_wounds, player->max_wounds);
+
+    y++;
+    mvwprintw(window->win, y++,x, "Armour [%2d]", 1);
+    mvwprintw(window->win, y++,x, "       [%2d]", 1);
+    mvwprintw(window->win, y++,x, "   [%2d]    [%2d]", 1, 1);
+    mvwprintw(window->win, y++,x, "     [%2d][%2d]", 1, 1);
+
+    wrefresh(window->win);
 }
 

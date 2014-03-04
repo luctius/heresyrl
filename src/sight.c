@@ -1,7 +1,8 @@
+#include "sight.h"
+#include "items.h"
 #include "fov.h"
 #include "tiles.h"
 #include "dungeon_creator.h"
-#include "items.h"
 #include "monster.h"
 
 struct sgt_sight {
@@ -81,7 +82,7 @@ bool sgt_calculate_all_light_sources(struct sgt_sight *sight, struct dc_map *map
     if (map == NULL) return false;
 
     struct itm_items *item = NULL;
-    while ( (item = itm_get_item_from_list(item) ) != NULL){
+    while ( (item = itmlst_get_next_item(item) ) != NULL){
         sgt_calculate_light_source(sight, map, item);
         lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "sight", "processing light source %s.", item->ld_name);
     }

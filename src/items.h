@@ -1,4 +1,3 @@
-#pragma once
 #ifndef ITEMS_H_
 #define ITEMS_H_
 
@@ -7,7 +6,7 @@
 #include <sys/queue.h>
 
 #include "heresyrl_def.h"
-#include "dungeon_creator.h"
+#include "coord.h"
 
 enum item_types {
     ITEM_TYPE_WEARABLE,
@@ -235,10 +234,9 @@ struct itm_items_list_entry {
     LIST_ENTRY(itm_items_list_entry) entries;
 };
 
-void itm_items_list_init(void);
-void itm_items_list_exit(void);
-
-struct itm_items *itm_get_item_from_list(struct itm_items *prev);
+void itmlst_items_list_init(void);
+void itmlst_items_list_exit(void);
+struct itm_items *itmlst_get_next_item(struct itm_items *prev);
 
 struct itm_items *itm_generate(enum item_types type);
 struct itm_items *itm_create_specific(int idx);

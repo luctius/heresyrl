@@ -1,4 +1,3 @@
-#pragma once
 #ifndef TILES_H_
 #define TILES_H_
 

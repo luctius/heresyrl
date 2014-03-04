@@ -7,11 +7,14 @@
 
 #include "heresyrl_def.h"
 #include "ui.h"
+#include "dungeon_creator.h"
 #include "logging.h"
 #include "monster.h"
 #include "game.h"
 #include "items.h"
 #include "coord.h"
+#include "tiles.h"
+#include "inventory.h"
 
 struct hrl_window *map_win = NULL;
 struct hrl_window *char_win = NULL;
@@ -32,14 +35,14 @@ int main(void)
     win_generate_colours();
     refresh(); /*  Print it on to the real screen */
 
-    create_ui(COLS, LINES, &map_win, &char_win, &msg_win);
+    ui_create(COLS, LINES, &map_win, &char_win, &msg_win);
 
     cbreak();
     noecho();
     //timeout(1);
     keypad(stdscr, TRUE);
 
-    game_init(rand());
+    game_init(NULL, rand());
 
     pos = game->player_data.player->pos;
     struct itm_items *item = itm_create_specific(0);
@@ -48,6 +51,9 @@ int main(void)
     game_new_turn();
 
     coord_t *player_pos = &game->player_data.player->pos;
+    mapwin_display_map(map_win, game->current_map, player_pos);
+    charwin_refresh(char_win, &game->player_data);
+
     do {
         pos = *player_pos;
     
@@ -66,18 +72,19 @@ int main(void)
                 else You("see nothing there.");
                 break;
             case 'u':
-                msr_use_item(game->player_data.player, game->player_data.player->inventory);
+                item = inv_get_next_item(game->player_data.player->inventory, NULL);
+                msr_use_item(game->player_data.player, item);
                 break;
             case 'd':
-                item = game->player_data.player->inventory;
+                item = inv_get_next_item(game->player_data.player->inventory, NULL);
                 msr_remove_item(game->player_data.player, item);
                 itm_insert_item(item, game->current_map, player_pos);
                 break;
             case 'x':
-                win_overlay_examine_cursor(map_win, game->current_map, player_pos);
+                mapwin_overlay_examine_cursor(map_win, game->current_map, player_pos);
                 break;
             case 'f':
-                win_overlay_fire_cursor(map_win, game->current_map, player_pos);
+                mapwin_overlay_fire_cursor(map_win, game->current_map, player_pos);
                 break;
             case '<':
                 if (sd_get_map_tile(player_pos, game->current_map)->type == TILE_TYPE_STAIRS_DOWN) {
@@ -96,12 +103,12 @@ int main(void)
         msr_move_monster(game->player_data.player, game->current_map, &pos);
 
         game_new_turn();
-        create_ui(COLS, LINES, &map_win, &char_win, &msg_win);
-        win_display_map(map_win, game->current_map, player_pos);
+        ui_create(COLS, LINES, &map_win, &char_win, &msg_win);
+        mapwin_display_map(map_win, game->current_map, player_pos);
     }
     while((ch = getch()) != 27 && ch != 'q');
 
-    destroy_ui(map_win, char_win, msg_win);
+    ui_destroy(map_win, char_win, msg_win);
     map_win = char_win = msg_win = NULL;
     clear();
     refresh();          /*  Print it on to the real screen */

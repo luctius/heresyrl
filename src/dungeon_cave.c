@@ -3,6 +3,7 @@
 #include <assert.h>
  
 #include "dungeon_cave.h"
+#include "dungeon_creator.h"
 #include "tiles.h"
 #include "random.h"
 #include "coord.h"

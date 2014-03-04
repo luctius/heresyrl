@@ -1,4 +1,3 @@
-#pragma once
 #ifndef SIGHT_H_
 #define SIGHT_H_
 

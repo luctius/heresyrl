@@ -1,4 +1,3 @@
-#pragma once
 #ifndef MONSTER_H_
 #define MONSTER_H_
 
@@ -7,9 +6,7 @@
 #include <sys/queue.h>
 
 #include "heresyrl_def.h"
-
-struct monster_list;
-extern struct monster_list *monster_list_head;
+#include "coord.h"
 
 enum msr_gender {
     MSR_GENDER_MALE,
@@ -19,13 +16,17 @@ enum msr_gender {
     MSR_GENDER_RANDOM,
 };
 
+enum msr_race {
+    MSR_RACE_HUMAN,
+};
+
 enum msr_characteristic {
     MSR_CHAR_WEAPON_SKILL,
     MSR_CHAR_BALISTIC_SKILL,
     MSR_CHAR_STRENGTH,
     MSR_CHAR_TOUCHNESS,
     MSR_CHAR_AGILITY,
-    MSR_CHAR_INTELLIGIENCE,
+    MSR_CHAR_INTELLIGENCE,
     MSR_CHAR_PERCEPTION,
     MSR_CHAR_WILLPOWER,
     MSR_CHAR_FELLOWSHIP,
@@ -48,23 +49,27 @@ struct msr_monster {
     const char *ld_name;
     const char *description;
 
-    struct itm_items *inventory;
+    enum msr_race race;
 
-    struct msr_char characteristic[MSR_CHAR_MAX];
+    uint8_t cur_wounds;
+    uint8_t max_wounds;
+    uint8_t mov_speed;
+    uint8_t fatepoints;
+
     uint64_t race_traits;
     uint64_t combat_traits;
     uint64_t career_traits;
+
+    struct msr_char characteristic[MSR_CHAR_MAX];
+
+    struct inv_inventory *inventory;
 };
 
-struct msr_monster_list_entry {
-    struct msr_monster monster;
-    LIST_ENTRY(msr_monster_list_entry) entries;
-};
+void msrlst_monster_list_init(void);
+void msrlst_monster_list_exit(void);
+struct msr_monster *msrlst_get_next_monster(struct msr_monster *prev);
 
-void msr_monster_list_init(void);
-void msr_monster_list_exit(void);
-
-struct msr_monster *msr_create(void);
+struct msr_monster *msr_create(enum msr_race race);
 void msr_die(struct msr_monster *monster, struct dc_map *map);
 bool msr_insert_monster(struct msr_monster *monster, struct dc_map *map, coord_t *pos);
 bool msr_move_monster(struct msr_monster *monster, struct dc_map *map, coord_t *pos);
@@ -76,5 +81,6 @@ bool msr_use_item(struct msr_monster *monster, struct itm_items *item);
 int msr_calculate_characteristic(struct msr_monster *monster, enum msr_characteristic chr);
 int msr_get_near_sight_range(struct msr_monster *monster);
 int msr_get_far_sight_range(struct msr_monster *monster);
+char *msr_gender_string(struct msr_monster *monster);
 
 #endif /*MONSTER_H_*/

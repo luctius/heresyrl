@@ -1,10 +1,9 @@
-#pragma once
 #ifndef UI_H
 #define UI_H
 
 #define MAP_MIN_COLS 20
 #define MAP_MAX_COLS 100
-#define MAP_COLS_FACTOR 0.95f
+#define MAP_COLS_FACTOR 0.90f
 
 #define MAP_MIN_LINES 22
 #define MAP_MAX_LINES 0
@@ -22,13 +21,12 @@
 #define CHAR_MAX_COLS 20
 #define CHAR_COLS_FACTOR 0.05f
 
-#define CHAR_MIN_LINES 20
-#define CHAR_MAX_LINES 20
+#define CHAR_MIN_LINES 21
+#define CHAR_MAX_LINES 21
 #define CHAR_LINES_FACTOR 1.00f
 
 #include "heresyrl_def.h"
-#include "dungeon_creator.h"
-#include "logging.h"
+#include "coord.h"
 
 enum window_type {
     HRL_WINDOW_TYPE_MAP,
@@ -39,17 +37,20 @@ enum window_type {
 
 struct hrl_window;
 
-bool create_ui(int cols, int lines, struct hrl_window **map_win, struct hrl_window **char_win, struct hrl_window **msg_win);
-void destroy_ui(struct hrl_window *map_win, struct hrl_window *char_win, struct hrl_window *msg_win);
+bool ui_create(int cols, int lines, struct hrl_window **map_win, struct hrl_window **char_win, struct hrl_window **msg_win);
+void ui_destroy(struct hrl_window *map_win, struct hrl_window *char_win, struct hrl_window *msg_win);
 
 void win_generate_colours(void);
 struct hrl_window *win_create(int height, int width, int starty, int startx, enum window_type type);
 void win_destroy(struct hrl_window *window);
 
-void win_display_map(struct hrl_window *window, struct dc_map *map, coord_t *player);
-void win_overlay_examine_cursor(struct hrl_window *window, struct dc_map *map, coord_t *pos);
-void win_overlay_fire_cursor(struct hrl_window *window, struct dc_map *map, coord_t *p_pos);
-void win_log_callback(struct logging *log, struct log_entry *entry, void *priv);
-void win_log_refresh(struct hrl_window *window, struct logging *log);
+void mapwin_display_map(struct hrl_window *window, struct dc_map *map, coord_t *player);
+void mapwin_overlay_examine_cursor(struct hrl_window *window, struct dc_map *map, coord_t *pos);
+void mapwin_overlay_fire_cursor(struct hrl_window *window, struct dc_map *map, coord_t *p_pos);
+
+void msgwin_log_callback(struct logging *log, struct log_entry *entry, void *priv);
+void msgwin_log_refresh(struct hrl_window *window, struct logging *log);
+
+void charwin_refresh(struct hrl_window *window, struct pl_player *plr);
 
 #endif /* UI_H */

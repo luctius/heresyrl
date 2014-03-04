@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#include "tiles.h"
 #include "random.h"
 #include "heresyrl_def.h"
 #include "dungeon_creator.h"
@@ -49,6 +50,7 @@ int dc_print_map(struct dc_map *map) {
 
     return EXIT_SUCCESS;
 }
+
 bool dc_tile_instance(struct dc_map *map, enum tile_types tt, int instance, coord_t *pos) {
     coord_t c;
     for (c.x = 0; c.x < map->size.x; c.x++) {
@@ -163,11 +165,12 @@ bool dc_clear_map_visibility(struct dc_map *map, coord_t *start, coord_t *end) {
     if (map->size.y < 2) return false;
     if (map->map == NULL) return false;
     if (cd_within_bound(start, &map->size) == false) return false;
-    if (cd_within_bound(end, &map->size) == false) return false;
+    if (end->x > map->size.x) return false;
+    if (end->y > map->size.y) return false;
+    if (end->x+start->x > map->size.x) return false;
+    if (end->y+start->y > map->size.y) return false;
 
     coord_t c = cd_add(start, end);
-    if (cd_within_bound(&c, &map->size) == false) return false;
-
     for (c.x = start->x; c.x < end->x; c.x++) {
         for (c.y = start->y; c.y < end->y; c.y++) {
             sd_get_map_me(&c,map)->in_sight = false;

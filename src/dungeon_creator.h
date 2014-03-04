@@ -1,4 +1,3 @@
-#pragma once
 #ifndef DUNGEON_CREATOR_H_
 #define DUNGEON_CREATOR_H_
 
@@ -7,7 +6,6 @@
 
 #include "heresyrl_def.h"
 #include "coord.h"
-#include "tiles.h"
 
 enum dc_dungeon_type {
     DC_DUNGEON_TYPE_SIMPLE,

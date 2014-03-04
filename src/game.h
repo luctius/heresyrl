@@ -8,6 +8,7 @@
 #include <stddef.h>
 
 #include "player.h"
+
 struct dc_map;
 struct sgt_sight;
 struct logging;
@@ -27,7 +28,7 @@ struct gm_game {
 
 extern struct gm_game *game;
 
-void game_init(unsigned long initial_seed);
+void game_init(struct pl_player *plr, unsigned long initial_seed);
 void game_new_turn(void);
 void game_exit(void);
 
