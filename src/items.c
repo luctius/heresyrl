@@ -96,13 +96,13 @@ void itm_destroy(struct itm_items *item) {
     free(ile);
 }
 
-static bool itm_drop_item(struct itm_items *item, struct dc_map *map, int x, int y) {
+static bool itm_drop_item(struct itm_items *item, struct dc_map *map, coord_t *pos) {
     bool retval = false;
     if (item == NULL) return false;
     if (map == NULL) return false;
-    if (x >= map->x_sz || y >= map->y_sz) return false;
+    if (cd_within_bound(pos, &map->size) == false) return false;
 
-    struct dc_map_entity *target = &SD_GET_INDEX(x, y, map);
+    struct dc_map_entity *target = &SD_GET_INDEX(pos, map);
     if (TILE_HAS_ATTRIBUTE(target->tile, TILE_ATTR_TRAVERSABLE) ) {
         if (target->item == NULL) {
             target->item = item;
@@ -116,15 +116,17 @@ static bool itm_drop_item(struct itm_items *item, struct dc_map *map, int x, int
     return retval;
 }
 
-bool itm_insert_item(struct itm_items *item, struct dc_map *map, int x, int y) {
+bool itm_insert_item(struct itm_items *item, struct dc_map *map, coord_t *pos) {
     bool retval = false;
     if (item == NULL) return false;
     if (map == NULL) return false;
+    if (cd_within_bound(pos, &map->size) == false) return false;
 
-    if ( (retval = itm_drop_item(item, map, x, y) ) == false) {
-        for (int xt = x-1; x < map->x_sz; xt++) {
-            for (int yt = y-1; y < map->y_sz; xt++) {
-                if (itm_drop_item(item, map, xt, yt) ) {
+    if ( (retval = itm_drop_item(item, map, pos) ) == false) {
+        for (int xt = -1; xt < 2; xt++) {
+            for (int yt = -1; yt < 2; xt++) {
+                coord_t c = cd_create(pos->x +xt, pos->y +yt);
+                if (itm_drop_item(item, map, &c) ) {
                     return true;
                 }
             }
@@ -133,14 +135,15 @@ bool itm_insert_item(struct itm_items *item, struct dc_map *map, int x, int y) {
     return retval;
 }
 
-bool itm_remove_item(struct itm_items *item, struct dc_map *map, int x_pos, int y_pos) {
+bool itm_remove_item(struct itm_items *item, struct dc_map *map, coord_t *pos) {
     bool retval = false;
     if (item == NULL) return false;
     if (map == NULL) return false;
+    if (cd_within_bound(pos, &map->size) == false) return false;
 
-    struct dc_map_entity *target = &SD_GET_INDEX(x_pos, y_pos, map);
+    struct dc_map_entity *target = &SD_GET_INDEX(pos, map);
     if (target->item == item) {
-        lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "Item", "removed (%d,%d)", x_pos, y_pos);
+        lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "Item", "removed (%d,%d)", pos->x, pos->y);
         target->item = NULL;
         item->owner_type = ITEM_OWNER_NONE;
         item->owner.owner_map_entity = NULL;

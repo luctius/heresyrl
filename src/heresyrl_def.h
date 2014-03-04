@@ -62,6 +62,11 @@ enum dpl_colours {
     DPL_COLOUR_MAX,
 };
 
-int pyth(int side1, int side2);
+inline int pyth(int side1, int side2) {
+    //return sqrt(pow(side1, 2) + pow(side2, 2) );
+    int a = abs(side1);
+    int b = abs(side2);
+    return (a > b) ? a : b;
+}
 
 #endif /*HERESYRL_DEF_H_*/

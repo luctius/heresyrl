@@ -33,9 +33,9 @@ void game_init(unsigned long initial_seed) {
             game->player_data.player->icon = '@';
             game->player_data.player->icon_attr = COLOR_PAIR(DPL_COLOUR_NORMAL) | A_BOLD;
 
-            int xpos, ypos;
-            if (dc_tile_instance(game->current_map, TILE_TYPE_STAIRS_UP, 0, &xpos, &ypos) == false) exit(1);
-            if (msr_insert_monster(game->player_data.player, game->current_map, xpos, ypos) == false) exit(1);
+            coord_t c;
+            if (dc_tile_instance(game->current_map, TILE_TYPE_STAIRS_UP, 0, &c) == false) exit(1);
+            if (msr_insert_monster(game->player_data.player, game->current_map, &c) == false) exit(1);
         }
     }
 }
@@ -43,18 +43,8 @@ void game_init(unsigned long initial_seed) {
 void game_new_turn(void) {
     game->player_data.age++;
 
-    int sight_range = msr_get_near_sight_range(game->player_data.player) + msr_get_far_sight_range(game->player_data.player);
-    int xs = game->player_data.player->x_pos - sight_range;
-    int ys = game->player_data.player->y_pos - sight_range;
-    int xe = game->player_data.player->x_pos + sight_range;
-    int ye = game->player_data.player->y_pos + sight_range;
-    xs = (xs <= 0) ? xs : 0;
-    ys = (ys >= 0) ? ys : 0;
-    xe = (xe >= game->current_map->x_sz -1) ? xe : game->current_map->x_sz -1;
-    ye = (ye >= game->current_map->y_sz -1) ? ye : game->current_map->y_sz -1;
-
-    //dc_clear_map_visibility(game->current_map, xs, ys, xe, ye);
-    dc_clear_map_visibility(game->current_map, 0,0, game->current_map->x_sz, game->current_map->y_sz);
+    coord_t zero = cd_create(0,0);
+    dc_clear_map_visibility(game->current_map, &zero, &game->current_map->size);
     sgt_calculate_all_light_sources(game->sight, game->current_map);
     sgt_calculate_player_sight(game->sight, game->current_map, game->player_data.player);
 }

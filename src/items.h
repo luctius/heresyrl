@@ -243,8 +243,8 @@ struct itm_items *itm_generate(enum item_types type);
 struct itm_items *itm_create_specific(int idx);
 struct itm_items *itm_create_type(enum item_types type, int specific_id);
 void itm_destroy(struct itm_items *item);
-bool itm_insert_item(struct itm_items *item, struct dc_map *map, int x_togo, int y_togo);
-bool itm_remove_item(struct itm_items *item, struct dc_map *map, int x_pos, int y_pos);
+bool itm_insert_item(struct itm_items *item, struct dc_map *map, coord_t *pos);
+bool itm_remove_item(struct itm_items *item, struct dc_map *map, coord_t *pos);
 
 #endif /*ITEMS_H_*/
 

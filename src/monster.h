@@ -38,8 +38,7 @@ struct msr_char {
 };
 
 struct msr_monster {
-    int x_pos;
-    int y_pos;
+    coord_t pos;
     char icon;
     int icon_attr;
     uint8_t visibility;
@@ -61,8 +60,8 @@ void msr_monster_list_exit(void);
 
 struct msr_monster *msr_create(void);
 void msr_die(struct msr_monster *monster, struct dc_map *map);
-bool msr_insert_monster(struct msr_monster *monster, struct dc_map *map, int x_togo, int y_togo);
-bool msr_move_monster(struct msr_monster *monster, struct dc_map *map, int x_togo, int y_togo);
+bool msr_insert_monster(struct msr_monster *monster, struct dc_map *map, coord_t *pos);
+bool msr_move_monster(struct msr_monster *monster, struct dc_map *map, coord_t *pos);
 bool msr_remove_monster(struct msr_monster *monster, struct dc_map *map);
 bool msr_give_item(struct msr_monster *monster, struct itm_items *item);
 bool msr_remove_item(struct msr_monster *monster, struct itm_items *item);

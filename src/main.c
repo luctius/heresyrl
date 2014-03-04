@@ -11,6 +11,7 @@
 #include "monster.h"
 #include "game.h"
 #include "items.h"
+#include "coord.h"
 
 struct hrl_window *map_win = NULL;
 struct hrl_window *char_win = NULL;
@@ -20,8 +21,7 @@ struct hrl_window *msg_win = NULL;
 int main(void)
 {
     int ch;
-    int xpos = 0;
-    int ypos = 0;
+    coord_t pos = cd_create(0,0);
 
     gbl_log = lg_init(LG_DEBUG_LEVEL_DEBUG, 100);
  	srand(time(NULL));
@@ -41,26 +41,26 @@ int main(void)
 
     game_init(rand());
 
-    xpos = game->player_data.player->x_pos;
-    ypos = game->player_data.player->y_pos;
+    pos = game->player_data.player->pos;
     struct itm_items *item = itm_create_specific(0);
-    if (item != NULL) itm_insert_item(item, game->current_map, xpos, ypos);
+    if (item != NULL) itm_insert_item(item, game->current_map, &pos);
 
     game_new_turn();
+
+    coord_t *player_pos = &game->player_data.player->pos;
     do {
-        int new_xpos = xpos;
-        int new_ypos = ypos;
+        pos = *player_pos;
     
         switch (ch) { 
-            case KEY_UP: new_ypos--; break;
-            case KEY_RIGHT: new_xpos++; break;
-            case KEY_DOWN: new_ypos++; break;
-            case KEY_LEFT: new_xpos--; break;
+            case KEY_UP: pos.y--; break;
+            case KEY_DOWN: pos.y++; break;
+            case KEY_LEFT: pos.x--; break;
+            case KEY_RIGHT: pos.x++; break;
             
             case 'g':
-                if ( (item = SD_GET_INDEX(game->player_data.player->x_pos, game->player_data.player->y_pos, game->current_map).item) != NULL ) {
+                if ( (item = SD_GET_INDEX(player_pos, game->current_map).item) != NULL ) {
                     if (msr_give_item(game->player_data.player, item) == true) {
-                        SD_GET_INDEX(game->player_data.player->x_pos, game->player_data.player->y_pos, game->current_map).item = NULL;
+                        SD_GET_INDEX(player_pos, game->current_map).item = NULL;
                     }
                 }
                 else You("see nothing there.");
@@ -71,37 +71,39 @@ int main(void)
             case 'd':
                 item = game->player_data.player->inventory;
                 msr_remove_item(game->player_data.player, item);
-                itm_insert_item(item, game->current_map, game->player_data.player->x_pos,game->player_data.player->y_pos);
+                itm_insert_item(item, game->current_map, player_pos);
+                break;
+            case 'x':
+                win_overlay_examine_cursor(map_win, game->current_map, player_pos);
                 break;
             case 'f':
-                win_overlay_examine_cursor(map_win, game->current_map, xpos, ypos);
+                win_overlay_fire_cursor(map_win, game->current_map, player_pos);
                 break;
             case '<':
-                if (SD_GET_INDEX(game->player_data.player->x_pos, game->player_data.player->y_pos, game->current_map).tile->type == TILE_TYPE_STAIRS_DOWN) {
+                if (SD_GET_INDEX(player_pos, game->current_map).tile->type == TILE_TYPE_STAIRS_DOWN) {
+                    You("see a broken stairway.");
                 }
                 break;
             case '>':
-                if (SD_GET_INDEX(game->player_data.player->x_pos, game->player_data.player->y_pos, game->current_map).tile->type == TILE_TYPE_STAIRS_UP) {
+                if (SD_GET_INDEX(player_pos, game->current_map).tile->type == TILE_TYPE_STAIRS_UP) {
+                    You("see a broken stairway.");
                 }
                 break;
             default:
                 break;
         }
 
-        if (msr_move_monster(game->player_data.player, game->current_map, new_xpos, new_ypos) == true) {
-            xpos = new_xpos;
-            ypos = new_ypos;
-        }
+        msr_move_monster(game->player_data.player, game->current_map, &pos);
 
         game_new_turn();
         create_ui(COLS, LINES, &map_win, &char_win, &msg_win);
-        win_display_map(map_win, game->current_map, xpos, ypos);
+        win_display_map(map_win, game->current_map, player_pos);
     }
     while((ch = getch()) != 27 && ch != 'q');
 
     destroy_ui(map_win, char_win, msg_win);
     map_win = char_win = msg_win = NULL;
-    clear();
+    //clear();
     refresh();          /*  Print it on to the real screen */
     endwin();           /*  End curses mode       */
 

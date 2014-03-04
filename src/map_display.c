@@ -7,6 +7,7 @@
 #include "tiles.h"
 #include "monster.h"
 #include "items.h"
+#include "fight.h"
 
 struct hrl_window {
     WINDOW *win;
@@ -196,49 +197,49 @@ void win_destroy(struct hrl_window *window) {
     free(window);
 }
 
-void win_display_map(struct hrl_window *window, struct dc_map *map, int player_x, int player_y) {
+static void win_display_map_noref(struct hrl_window *window, struct dc_map *map, coord_t *player) {
     // Calculate top left of camera position
-    int cx = 0;
-    int cy = 0;
-    int x_max = (window->cols < map->x_sz) ? window->cols : map->x_sz;
-    int y_max = (window->lines < map->y_sz) ? window->lines : map->y_sz;
+    coord_t scr_c = cd_create(0,0);
+    int x_max = (window->cols < map->size.x) ? window->cols : map->size.x;
+    int y_max = (window->lines < map->size.x) ? window->lines : map->size.y;
     werase(window->win);
     curs_set(0);
 
-    if (window->cols < map->x_sz) {
-        cx = player_x - (window->cols / 2);
-        if (cx < 0) cx = 0;
-        if (cx + window->cols > map->x_sz) cx = map->x_sz - window->cols;
+    if (window->cols < map->size.x) {
+        scr_c.x = player->x - (window->cols / 2);
+        if (scr_c.x < 0) scr_c.x = 0;
+        if (scr_c.x + window->cols > map->size.x) scr_c.x = map->size.x - window->cols;
     }
 
-    if (window->lines < map->y_sz) {
-        cy = player_y - (window->lines / 2);
-        if (cy < 0) cy = 0;
-        if (cy + window->lines > map->y_sz) cy = map->y_sz - window->lines;
+    if (window->lines < map->size.y) {
+        scr_c.y = player->y - (window->lines / 2);
+        if (scr_c.y < 0) scr_c.y = 0;
+        if (scr_c.y + window->lines > map->size.y) scr_c.y = map->size.y - window->lines;
     }
 
     for (int xi = 0; xi < x_max; xi++) {
         for (int yi = 0; yi < y_max; yi++) {
-            if ( (SD_GET_INDEX(xi+cx, yi+cy, map).visible == true) || (SD_GET_INDEX(xi+cx, yi+cy, map).discovered == true) ) {
-                int attr_mod = SD_GET_INDEX(xi+cx, yi+cy, map).tile->icon_attr;
-                char icon = SD_GET_INDEX_ICON(xi+cx, yi+cy, map);
+            coord_t map_c = cd_create(xi+scr_c.x, yi+scr_c.y);
+            if ( (SD_GET_INDEX(&map_c, map).visible == true) || (SD_GET_INDEX(&map_c, map).discovered == true) ) {
+                int attr_mod = SD_GET_INDEX(&map_c, map).tile->icon_attr;
+                char icon = SD_GET_INDEX_ICON(&map_c, map);
 
-                if (SD_GET_INDEX(xi+cx, yi+cy, map).monster != NULL) {
-                    icon = SD_GET_INDEX(xi+cx, yi+cy, map).monster->icon;
-                    attr_mod = SD_GET_INDEX(xi+cx, yi+cy, map).monster->icon_attr;
+                if (SD_GET_INDEX(&map_c, map).monster != NULL) {
+                    icon = SD_GET_INDEX(&map_c, map).monster->icon;
+                    attr_mod = SD_GET_INDEX(&map_c, map).monster->icon_attr;
                 }
-                else if (SD_GET_INDEX(xi+cx, yi+cy, map).item != NULL) {
-                    icon = SD_GET_INDEX(xi+cx, yi+cy, map).item->icon;
-                    attr_mod = SD_GET_INDEX(xi+cx, yi+cy, map).item->icon_attr;
+                else if (SD_GET_INDEX(&map_c, map).item != NULL) {
+                    icon = SD_GET_INDEX(&map_c, map).item->icon;
+                    attr_mod = SD_GET_INDEX(&map_c, map).item->icon_attr;
                 }
-                else if (TILE_HAS_ATTRIBUTE(SD_GET_INDEX(xi+cx, yi+cy, map).tile, TILE_ATTR_TRAVERSABLE) == false) {
-                    if (SD_GET_INDEX(xi+cx, yi+cy, map).visible == true) {
+                else if (TILE_HAS_ATTRIBUTE(SD_GET_INDEX(&map_c, map).tile, TILE_ATTR_TRAVERSABLE) == false) {
+                    if (SD_GET_INDEX(&map_c, map).visible == true) {
                         attr_mod = COLOR_PAIR(DPL_COLOUR_FG_YELLOW);
                     }
                 }
-                else if (TILE_HAS_ATTRIBUTE(SD_GET_INDEX(xi+cx, yi+cy, map).tile, TILE_ATTR_TRAVERSABLE) ){
-                    if (SD_GET_INDEX(xi+cx, yi+cy, map).visible == false) attr_mod |= A_DIM;
-                    else if (SD_GET_INDEX(xi+cx, yi+cy, map).visible == true) attr_mod |= A_BOLD;
+                else if (TILE_HAS_ATTRIBUTE(SD_GET_INDEX(&map_c, map).tile, TILE_ATTR_TRAVERSABLE) ){
+                    if (SD_GET_INDEX(&map_c, map).visible == false) attr_mod |= A_DIM;
+                    else if (SD_GET_INDEX(&map_c, map).visible == true) attr_mod |= A_BOLD;
                 }
                 if (has_colors() == TRUE) wattron(window->win, attr_mod);
                 mvwprintw(window->win, yi, xi, "%c", icon);
@@ -246,72 +247,88 @@ void win_display_map(struct hrl_window *window, struct dc_map *map, int player_x
             }
         }
     }
+}
+
+void win_display_map(struct hrl_window *window, struct dc_map *map, coord_t *player) {
+    win_display_map_noref(window, map, player);
     wrefresh(window->win);
 }
 
-void win_overlay_examine_cursor(struct hrl_window *window, struct dc_map *map, int pos_x, int pos_y) {
+void win_overlay_examine_cursor(struct hrl_window *window, struct dc_map *map, coord_t *p_pos) {
     int ch = '0';
     bool examine_mode = true;
 
+    coord_t e_pos = *p_pos;
+
     do {
         switch (ch) {
-            case KEY_UP: pos_y--; break;
-            case KEY_RIGHT: pos_x++; break;
-            case KEY_DOWN: pos_y++; break;
-            case KEY_LEFT: pos_x--; break;
+            case KEY_UP: e_pos.y--; break;
+            case KEY_RIGHT: e_pos.x++; break;
+            case KEY_DOWN: e_pos.y++; break;
+            case KEY_LEFT: e_pos.x--; break;
             case '\n':
-                You("see...");
+            case 'x':
+                You("examine (%d,%d)", e_pos.x, e_pos.y);
                 examine_mode=false;
                 break;
             default: break;
         }
         if (examine_mode == false) break;
 
-        if (pos_y < 0 ) pos_y = 0;
-        if (pos_y >= window->lines -1) pos_y = window->lines -1;
-        if (pos_x < 0 ) pos_x = 0;
-        if (pos_x >= window->cols -1) pos_x = window->cols -1;
+        if (e_pos.y < 0) e_pos.y = 0;
+        if (e_pos.y >= window->lines -1) e_pos.y = window->lines -1;
+        if (e_pos.x < 0) e_pos.x = 0;
+        if (e_pos.x >= window->cols -1) e_pos.x = window->cols -1;
 
-        You("examine (%d,%d)", pos_x, pos_y);
-
-        chtype oldch = mvwinch(window->win, pos_y, pos_x);
-        mvwchgat(window->win, pos_y, pos_x, 1, A_NORMAL, DPL_COLOUR_BGB_RED, NULL);
+        chtype oldch = mvwinch(window->win, e_pos.y, e_pos.x);
+        mvwchgat(window->win, e_pos.y, e_pos.x, 1, A_NORMAL, DPL_COLOUR_BGB_RED, NULL);
         wrefresh(window->win);
-        mvwaddch(window->win, pos_y, pos_x, oldch);
+        mvwaddch(window->win, e_pos.y, e_pos.x, oldch);
     }
     while((ch = getch()) != 27 && ch != 'q' && examine_mode);
 }
 
-void win_overlay_firemode_cursor(struct hrl_window *window, struct dc_map *map, int pos_x, int pos_y) {
+void win_overlay_fire_cursor(struct hrl_window *window, struct dc_map *map, coord_t *p_pos) {
     int ch = '0';
-    bool examine_mode = true;
-    int player_x = pos_x;
-    int player_y = pos_y;
+    bool fire_mode = true;
+
+    coord_t e_pos = *p_pos;
+    /*find nearest enemy....*/
 
     do {
+        lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "mapwin", "entering fire_mode (%d,%d) -> (%d,%d)", p_pos->x, p_pos->y, e_pos.x, e_pos.y);
         switch (ch) {
-            case KEY_UP: pos_y--; break;
-            case KEY_RIGHT: pos_x++; break;
-            case KEY_DOWN: pos_y++; break;
-            case KEY_LEFT: pos_x--; break;
+            case KEY_UP: e_pos.y--; break;
+            case KEY_RIGHT: e_pos.x++; break;
+            case KEY_DOWN: e_pos.y++; break;
+            case KEY_LEFT: e_pos.x--; break;
+            case '\n':
             case 'f':
-                You("fire at (%d,%d)", pos_x, pos_y);
-                examine_mode=false;
+                You("fire (%d,%d)", e_pos.x, e_pos.y);
+                fire_mode=false;
                 break;
             default: break;
         }
-        if (examine_mode == false) break;
+        if (fire_mode == false) break;
 
-        if (pos_y < 0 ) pos_y = 0;
-        if (pos_y >= window->lines -1) pos_y = window->lines -1;
-        if (pos_x < 0 ) pos_x = 0;
-        if (pos_x >= window->cols -1) pos_x = window->cols -1;
+        if (e_pos.y < 0) e_pos.y = 0;
+        if (e_pos.y >= window->lines -1) e_pos.y = window->lines -1;
+        if (e_pos.x < 0) e_pos.x = 0;
+        if (e_pos.x >= window->cols -1) e_pos.x = window->cols -1;
 
-        mvwchgat(window->win, pos_y, pos_x, 1, A_NORMAL, DPL_COLOUR_BGB_RED, NULL);
+        int length = cd_pyth(p_pos, &e_pos) +1;
+        coord_t path[length];
+        int path_len = fght_calc_lof_path(p_pos, &e_pos, path, length);
+        for (int i = 0; i < path_len; i++) {
+            mvwchgat(window->win, path[i].y, path[i].x, 1, A_NORMAL, DPL_COLOUR_BGB_RED, NULL);
+            lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "mapwin", "fire_mode: [%d/%d] c (%d,%d)", i, path_len, path[i].x, path[i].y);
+        }
+        mvwchgat(window->win, e_pos.y, e_pos.x, 1, A_NORMAL, DPL_COLOUR_BGB_RED, NULL);
+
         wrefresh(window->win);
-        win_display_map(window, map, player_x, player_y);
+        win_display_map_noref(window, map, p_pos);
     }
-    while((ch = getch()) != 27 && ch != 'q' && examine_mode);
+    while((ch = getch()) != 27 && ch != 'q' && fire_mode);
 }
 
 void win_log_refresh(struct hrl_window *window, struct logging *log) {
