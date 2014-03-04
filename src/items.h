@@ -196,7 +196,7 @@ enum item_owner {
     ITEM_OWNER_MAX,
 };
 
-struct itm_items {
+struct itm_item {
     uint32_t id;
     enum item_types item_type;
     /*enum item_material material;*/
@@ -229,22 +229,22 @@ struct itm_items {
     } specific;
 };
 
-struct itm_items_list_entry {
-    struct itm_items item;
-    LIST_ENTRY(itm_items_list_entry) entries;
+struct itm_item_list_entry {
+    struct itm_item item;
+    LIST_ENTRY(itm_item_list_entry) entries;
 };
 
 void itmlst_items_list_init(void);
 void itmlst_items_list_exit(void);
-struct itm_items *itmlst_get_next_item(struct itm_items *prev);
+struct itm_item *itmlst_get_next_item(struct itm_item *prev);
 
-struct itm_items *itm_generate(enum item_types type);
-struct itm_items *itm_create_specific(int idx);
-struct itm_items *itm_create_type(enum item_types type, int specific_id);
-void itm_destroy(struct itm_items *item);
-bool itm_insert_item(struct itm_items *item, struct dc_map *map, coord_t *pos);
-bool itm_remove_item(struct itm_items *item, struct dc_map *map, coord_t *pos);
-coord_t itm_get_pos(struct itm_items *item);
+struct itm_item *itm_generate(enum item_types type);
+struct itm_item *itm_create_specific(int idx);
+struct itm_item *itm_create_type(enum item_types type, int specific_id);
+void itm_destroy(struct itm_item *item);
+bool itm_insert_item(struct itm_item *item, struct dc_map *map, coord_t *pos);
+bool itm_remove_item(struct itm_item *item, struct dc_map *map, coord_t *pos);
+coord_t itm_get_pos(struct itm_item *item);
 
 #endif /*ITEMS_H_*/
 

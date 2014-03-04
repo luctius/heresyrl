@@ -19,7 +19,7 @@ static bool check_opaque(void *vmap, int x, int y) {
 
 static void apply_light_source(void *vmap, int x, int y, int dx, int dy, void *isrc) {
     struct dc_map *map = (struct dc_map *) vmap;
-    struct itm_items *item = (struct itm_items *) isrc;
+    struct itm_item *item = (struct itm_item *) isrc;
     if (map == NULL) return;
     if (item == NULL) return;
 
@@ -60,7 +60,7 @@ void sgt_exit(struct sgt_sight *sight) {
     }
 }
 
-bool sgt_calculate_light_source(struct sgt_sight *sight, struct dc_map *map, struct itm_items *item) {
+bool sgt_calculate_light_source(struct sgt_sight *sight, struct dc_map *map, struct itm_item *item) {
     if (sight == NULL) return false;
     if (map == NULL) return false;
     if (item == NULL) return false;
@@ -81,7 +81,7 @@ bool sgt_calculate_all_light_sources(struct sgt_sight *sight, struct dc_map *map
     if (sight == NULL) return false;
     if (map == NULL) return false;
 
-    struct itm_items *item = NULL;
+    struct itm_item *item = NULL;
     while ( (item = itmlst_get_next_item(item) ) != NULL){
         sgt_calculate_light_source(sight, map, item);
         lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "sight", "processing light source %s.", item->ld_name);

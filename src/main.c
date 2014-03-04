@@ -45,7 +45,7 @@ int main(void)
     game_init(NULL, rand());
 
     pos = game->player_data.player->pos;
-    struct itm_items *item = itm_create_specific(0);
+    struct itm_item *item = itm_create_specific(0);
     if (item != NULL) itm_insert_item(item, game->current_map, &pos);
 
     game_new_turn();

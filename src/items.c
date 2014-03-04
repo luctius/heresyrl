@@ -7,7 +7,7 @@
 #include "monster.h"
 #include "tiles.h"
 
-static LIST_HEAD(items_list, itm_items_list_entry) items_list_head;
+static LIST_HEAD(items_list, itm_item_list_entry) items_list_head;
 static bool items_list_initialised = false;
 static uint64_t id = 1;
 
@@ -40,7 +40,7 @@ static uint64_t id = 1;
 
 #define AVERAGE_TORCH_DESC "This a generic torch."
 
-struct itm_items static_item_list[] = {
+struct itm_item static_item_list[] = {
     LIGHT(ITEM_ID_AVERAGE_TORCH,"torch","a torch",AVERAGE_TORCH_DESC,3,100,ITEM_AVAILABILITY_PLENTIFUL,ITEM_QUALITY_AVERAGE,1,1,0),
 };
 
@@ -52,7 +52,7 @@ void itmlst_items_list_init(void) {
 }
 
 void itmlst_items_list_exit(void) {
-    struct itm_items_list_entry *e = NULL;
+    struct itm_item_list_entry *e = NULL;
     while (items_list_head.lh_first != NULL) {
         e = items_list_head.lh_first;
         LIST_REMOVE(items_list_head.lh_first, entries);
@@ -61,26 +61,26 @@ void itmlst_items_list_exit(void) {
         items_list_initialised = false;
 }
 
-struct itm_items *itmlst_get_next_item(struct itm_items *prev) {
+struct itm_item *itmlst_get_next_item(struct itm_item *prev) {
     if (prev == NULL) {
         if (items_list_head.lh_first != NULL) return &items_list_head.lh_first->item;
         return NULL;
     }
-    struct itm_items_list_entry *ile = container_of(prev, struct itm_items_list_entry, item);
+    struct itm_item_list_entry *ile = container_of(prev, struct itm_item_list_entry, item);
     if (ile == NULL) return NULL;
     return &ile->entries.le_next->item;
 }
 
-struct itm_items *itm_generate(enum item_types type) {
+struct itm_item *itm_generate(enum item_types type) {
     if (items_list_initialised == false) itmlst_items_list_init();
     return NULL;
 }
 
-struct itm_items *itm_create_specific(int idx) {
+struct itm_item *itm_create_specific(int idx) {
     if (idx >= (int) ARRAY_SZ(static_item_list)) return NULL;
     if (items_list_initialised == false) itmlst_items_list_init();
 
-    struct itm_items_list_entry *i = malloc(sizeof(struct itm_items_list_entry) );
+    struct itm_item_list_entry *i = malloc(sizeof(struct itm_item_list_entry) );
     if (i == NULL) return NULL;
 
     memcpy(&i->item, &static_item_list[idx], sizeof(static_item_list[idx]));
@@ -93,20 +93,20 @@ struct itm_items *itm_create_specific(int idx) {
     return &i->item;
 }
 
-struct itm_items *itm_create_type(enum item_types type, int specific_id) {
+struct itm_item *itm_create_type(enum item_types type, int specific_id) {
     if (items_list_initialised == false) itmlst_items_list_init();
     return NULL;
 
 }
 
-void itm_destroy(struct itm_items *item) {
-    struct itm_items_list_entry *ile = container_of(item, struct itm_items_list_entry, item);
+void itm_destroy(struct itm_item *item) {
+    struct itm_item_list_entry *ile = container_of(item, struct itm_item_list_entry, item);
 
     LIST_REMOVE(ile, entries);
     free(ile);
 }
 
-static bool itm_drop_item(struct itm_items *item, struct dc_map *map, coord_t *pos) {
+static bool itm_drop_item(struct itm_item *item, struct dc_map *map, coord_t *pos) {
     bool retval = false;
     if (item == NULL) return false;
     if (map == NULL) return false;
@@ -126,7 +126,7 @@ static bool itm_drop_item(struct itm_items *item, struct dc_map *map, coord_t *p
     return retval;
 }
 
-bool itm_insert_item(struct itm_items *item, struct dc_map *map, coord_t *pos) {
+bool itm_insert_item(struct itm_item *item, struct dc_map *map, coord_t *pos) {
     bool retval = false;
     if (item == NULL) return false;
     if (map == NULL) return false;
@@ -145,7 +145,7 @@ bool itm_insert_item(struct itm_items *item, struct dc_map *map, coord_t *pos) {
     return retval;
 }
 
-bool itm_remove_item(struct itm_items *item, struct dc_map *map, coord_t *pos) {
+bool itm_remove_item(struct itm_item *item, struct dc_map *map, coord_t *pos) {
     bool retval = false;
     if (item == NULL) return false;
     if (map == NULL) return false;
@@ -163,7 +163,7 @@ bool itm_remove_item(struct itm_items *item, struct dc_map *map, coord_t *pos) {
     return retval;
 }
 
-coord_t itm_get_pos(struct itm_items *item) {
+coord_t itm_get_pos(struct itm_item *item) {
     if (item == NULL) return cd_create(0,0);
 
     switch (item->owner_type) {

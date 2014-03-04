@@ -6,7 +6,7 @@
 
 struct inv_entry {
     enum inv_locations location;
-    struct itm_items *item;
+    struct itm_item *item;
     LIST_ENTRY(inv_entry) entries;
 };
 
@@ -35,7 +35,7 @@ void inv_exit(struct inv_inventory *inv) {
     free(inv);
 }
 
-struct itm_items *inv_get_next_item(struct inv_inventory *inv, struct itm_items *prev) {
+struct itm_item *inv_get_next_item(struct inv_inventory *inv, struct itm_item *prev) {
     if (inv == NULL) return NULL;
     if (prev == NULL) {
         if (inv->head.lh_first != NULL) return inv->head.lh_first->item;
@@ -50,11 +50,11 @@ struct itm_items *inv_get_next_item(struct inv_inventory *inv, struct itm_items 
     return NULL;
 }
 
-bool inv_has_item(struct inv_inventory *inv, struct itm_items *item) {
+bool inv_has_item(struct inv_inventory *inv, struct itm_item *item) {
     if (inv == NULL) return NULL;
     if (item == NULL) return NULL;
 
-    struct itm_items *i = NULL;
+    struct itm_item *i = NULL;
     while ( (i = inv_get_next_item(inv, i) ) != NULL ) {
         if (i == item) return true;
     }
@@ -62,7 +62,7 @@ bool inv_has_item(struct inv_inventory *inv, struct itm_items *item) {
     return false;
 }
 
-bool inv_add_item(struct inv_inventory *inv, struct itm_items *item) {
+bool inv_add_item(struct inv_inventory *inv, struct itm_item *item) {
     if (inv == NULL) return NULL;
     if (item == NULL) return NULL;
     if (inv_has_item(inv, item) == true ) return false;
@@ -77,7 +77,7 @@ bool inv_add_item(struct inv_inventory *inv, struct itm_items *item) {
     return true;
 }
 
-bool inv_remove_item(struct inv_inventory *inv, struct itm_items *item) {
+bool inv_remove_item(struct inv_inventory *inv, struct itm_item *item) {
     if (inv == NULL) return NULL;
     if (item == NULL) return NULL;
     if (inv_has_item(inv, item) == false) return false;
@@ -103,7 +103,7 @@ bool inv_support_location(struct inv_inventory *inv, enum inv_locations location
     return false;
 }
 
-bool inv_move_item_to_location(struct inv_inventory *inv, struct itm_items *item, enum inv_locations location) {
+bool inv_move_item_to_location(struct inv_inventory *inv, struct itm_item *item, enum inv_locations location) {
     if (inv == NULL) return false;
     if (item == NULL) return false;
     if (inv_support_location(inv, location) == false) return false;
@@ -121,7 +121,7 @@ bool inv_move_item_to_location(struct inv_inventory *inv, struct itm_items *item
     return false;
 }
 
-struct itm_items *inv_get_item_from_location(struct inv_inventory *inv, enum inv_locations location) {
+struct itm_item *inv_get_item_from_location(struct inv_inventory *inv, enum inv_locations location) {
     if (inv == NULL) return NULL;
     if (inv_support_location(inv, location) == false) return NULL;
 

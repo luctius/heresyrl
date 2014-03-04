@@ -16,7 +16,7 @@
 
 struct tl_tile;
 struct msr_monster;
-struct itm_items;
+struct itm_item;
 struct inv_inventory;
 struct dc_map_entity;
 struct dc_map;

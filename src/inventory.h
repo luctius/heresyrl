@@ -28,14 +28,14 @@ enum inv_locations {
 
 struct inv_inventory *inv_init(uint32_t locations);
 void inv_exit(struct inv_inventory *inv);
-bool inv_has_item(struct inv_inventory *inv, struct itm_items *item);
-bool inv_add_item(struct inv_inventory *inv, struct itm_items *item);
-bool inv_remove_item(struct inv_inventory *inv, struct itm_items *item);
-struct itm_items *inv_get_next_item(struct inv_inventory *inv, struct itm_items *prev);
+bool inv_has_item(struct inv_inventory *inv, struct itm_item *item);
+bool inv_add_item(struct inv_inventory *inv, struct itm_item *item);
+bool inv_remove_item(struct inv_inventory *inv, struct itm_item *item);
+struct itm_item *inv_get_next_item(struct inv_inventory *inv, struct itm_item *prev);
 
 bool inv_support_location(struct inv_inventory *inv, enum inv_locations location);
-bool inv_move_item_to_location(struct inv_inventory *inv, struct itm_items *item, enum inv_locations location);
-struct itm_items *inv_get_item_from_location(struct inv_inventory *inv, enum inv_locations location);
+bool inv_move_item_to_location(struct inv_inventory *inv, struct itm_item *item, enum inv_locations location);
+struct itm_item *inv_get_item_from_location(struct inv_inventory *inv, enum inv_locations location);
 
 #define inv_loc_human \
     ( inv_loc(INV_LOC_FEET)       | inv_loc(INV_LOC_LEGS)         | \

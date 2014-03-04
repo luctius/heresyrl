@@ -133,7 +133,7 @@ bool msr_move_monster(struct msr_monster *monster, struct dc_map *map, coord_t *
 
     return retval;
 }
-bool msr_give_item(struct msr_monster *monster, struct itm_items *item) {
+bool msr_give_item(struct msr_monster *monster, struct itm_item *item) {
     if (monster == NULL) return false;
     if (item == NULL) return false;
     if (inv_has_item(monster->inventory, item) == true) return false;
@@ -146,7 +146,7 @@ bool msr_give_item(struct msr_monster *monster, struct itm_items *item) {
     return true;
 }
 
-bool msr_use_item(struct msr_monster *monster, struct itm_items *item) {
+bool msr_use_item(struct msr_monster *monster, struct itm_item *item) {
     if (monster == NULL) return false;
     if (item == NULL) return false;
     if (monster->inventory == NULL) {
@@ -162,7 +162,7 @@ bool msr_use_item(struct msr_monster *monster, struct itm_items *item) {
     return true;
 }
 
-bool msr_remove_item(struct msr_monster *monster, struct itm_items *item) {
+bool msr_remove_item(struct msr_monster *monster, struct itm_item *item) {
     if (monster == NULL) return false;
     if (item == NULL) return false;
     if (inv_has_item(monster->inventory, item) == false) return false;
@@ -211,6 +211,7 @@ char *msr_gender_string(struct msr_monster *monster) {
         case MSR_GENDER_MALE: return "Male";
         case MSR_GENDER_FEMALE: return "Female";
         case MSR_GENDER_IT: return "None";
+        default: break;
     }
     return "";
 }
