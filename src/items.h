@@ -14,6 +14,7 @@ enum item_types {
     ITEM_TYPE_FOOD,
     ITEM_TYPE_AMMO,
     ITEM_TYPE_TOOL,
+    /*ITEM_TYPE_CREATURE,*/
     ITEM_TYPE_MAX,
     ITEM_TYPE_RANDOM,
 };
@@ -161,6 +162,7 @@ struct item_weapon_specific {
     uint8_t magazine_left;
     uint8_t penetration;
     enum weapon_special_quality special_quality;
+    enum item_ammo_type ammo_type;
     bool jammed;
 };
 
@@ -198,6 +200,7 @@ enum item_owner {
 
 struct itm_item {
     uint32_t id;
+    uint32_t list_id;
     enum item_types item_type;
     /*enum item_material material;*/
     enum item_availability availability;
@@ -213,6 +216,7 @@ struct itm_item {
     int icon_attr;
     uint8_t use_delay;
     uint8_t stacked_quantity;
+    uint8_t max_quantity;
 
     enum item_owner owner_type;
     union owner_union {

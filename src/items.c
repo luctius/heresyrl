@@ -12,31 +12,31 @@ static bool items_list_initialised = false;
 static uint64_t id = 1;
 
 #define CLOTHING(item_id,item_sd_name,item_ld_name,item_desc,cloth_typ,dr,avail,item_quality,item_weight,item_cost,delay) \
-    [item_id] = { .id=0, .item_type=ITEM_TYPE_WEARABLE, .availability=avail, .quality=item_quality, \
+    [item_id] = { .id=0, .list_id=item_id, .item_type=ITEM_TYPE_WEARABLE, .availability=avail, .quality=item_quality, \
     .attributes=ITEM_ATTRIBUTE_NONE, .age=0, .weight=item_weight, .cost=item_cost, .sd_name=item_sd_name, \
     .ld_name=item_ld_name, .description=item_desc, .icon=']', .icon_attr=COLOR_PAIR(DPL_COLOUR_NORMAL), .use_delay=delay, \
-    .stacked_quantity=0, .specific.wearable = { .wearable_type=cloth_typ, .damage_reduction=dr, }, }
+    .stacked_quantity=0, .max_quantity=1, .specific.wearable = { .wearable_type=cloth_typ, .damage_reduction=dr, }, }
 
 #define MELEE(item_id,item_sd_name,item_ld_name,item_desc,wpn_typ,dmg_die,dmg_add,dmg_tp,pen,avail,item_quality,item_weight,item_cost,delay,special) \
-    [item_id] = { .id=0, .item_type=ITEM_TYPE_WEAPON, .availability=avail, .quality=item_quality, \
+    [item_id] = { .id=0, .list_id=item_id, .item_type=ITEM_TYPE_WEAPON, .availability=avail, .quality=item_quality, \
     .attributes=ITEM_ATTRIBUTE_NONE, .age=0, .weight=item_weight, .cost=item_cost, .sd_name=item_sd_name, \
     .ld_name=item_ld_name, .description=item_desc, .icon='|', .icon_attr=COLOR_PAIR(DPL_COLOUR_NORMAL), .use_delay=delay, \
-    .stacked_quantity=0, .specific.weapon = { .weapon_type=wpn_typ, .dmg_type=dmg_tp, .nr_dmg_die=dmg_die, \
+    .stacked_quantity=0, .max_quantity=1, .specific.weapon = { .weapon_type=wpn_typ, .dmg_type=dmg_tp, .nr_dmg_die=dmg_die, \
     .dmg_addition=dmg_add, .range=0, .rof = { .rof_single=0, .rof_semi=0, .rof_auto=0, }, .magazine_sz=0, \
     .magazine_left=0, .penetration=pen, .special_quality=special, .jammed=false, }, }
 
 #define LIGHT(item_id,item_sd_name,item_ld_name,item_desc,lumin,dur,avail,item_quality,item_weight,item_cost,delay) \
-    [item_id] = { .id=0, .item_type=ITEM_TYPE_TOOL, .availability=avail, .quality=item_quality, \
+    [item_id] = { .id=0, .list_id=item_id, .item_type=ITEM_TYPE_TOOL, .availability=avail, .quality=item_quality, \
     .attributes=ITEM_ATTRIBUTE_NONE, .age=0, .weight=item_weight, .cost=item_cost, .sd_name=item_sd_name, \
     .ld_name=item_ld_name, .description=item_desc, .icon='(', .icon_attr=COLOR_PAIR(DPL_COLOUR_NORMAL), .use_delay=delay, \
-    .stacked_quantity=1, .specific.tool = { .tool_type=ITEM_TOOL_TYPE_LIGHT, .energy=dur, .energy_left=dur, \
+    .stacked_quantity=1, .max_quantity=100, .specific.tool = { .tool_type=ITEM_TOOL_TYPE_LIGHT, .energy=dur, .energy_left=dur, \
     .light_luminem=lumin, .lit=false, }, }
 
 #define AMMO(item_id,item_sd_name,item_ld_name,item_desc,ammo_typ,energ,avail,item_quality,item_weight,item_cost,delay) \
-    [item_id] = { .id=0, .item_type=ITEM_TYPE_AMMO, .availability=avail, .quality=item_quality, \
+    [item_id] = { .id=0, .list_id=item_id, .item_type=ITEM_TYPE_AMMO, .availability=avail, .quality=item_quality, \
     .attributes=ITEM_ATTRIBUTE_NONE, .age=0, .weight=item_weight, .cost=item_cost, .sd_name=item_sd_name, \
     .ld_name=item_ld_name, .description=item_desc, .icon='\'', .icon_attr=COLOR_PAIR(DPL_COLOUR_NORMAL), .use_delay=delay, \
-    .stacked_quantity=1, .specific.ammo = { .ammo_type=ammo_typ, .energy=energ, energy_left=energ, }, }
+    .stacked_quantity=1, .max_quantity=100, .specific.ammo = { .ammo_type=ammo_typ, .energy=energ, energy_left=energ, }, }
 
 #define AVERAGE_TORCH_DESC "This a generic torch."
 

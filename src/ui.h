@@ -53,4 +53,5 @@ void msgwin_log_refresh(struct hrl_window *window, struct logging *log);
 
 void charwin_refresh(struct hrl_window *window, struct pl_player *plr);
 
+void invwin_inventory(struct hrl_window *window, struct dc_map *map, struct pl_player *plr);
 #endif /* UI_H */

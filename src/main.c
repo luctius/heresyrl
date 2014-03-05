@@ -71,14 +71,12 @@ int main(void)
                 }
                 else You("see nothing there.");
                 break;
+            case 'i':
+                invwin_inventory(map_win, game->current_map, &game->player_data);
+                break;
             case 'u':
                 item = inv_get_next_item(game->player_data.player->inventory, NULL);
                 msr_use_item(game->player_data.player, item);
-                break;
-            case 'd':
-                item = inv_get_next_item(game->player_data.player->inventory, NULL);
-                msr_remove_item(game->player_data.player, item);
-                itm_insert_item(item, game->current_map, player_pos);
                 break;
             case 'x':
                 mapwin_overlay_examine_cursor(map_win, game->current_map, player_pos);

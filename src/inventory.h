@@ -6,6 +6,7 @@
 struct inv_inventory;
 
 enum inv_locations {
+    INV_LOC_NONE,
     INV_LOC_INVENTORY,
     INV_LOC_FEET,
     INV_LOC_LEGS,
@@ -32,10 +33,14 @@ bool inv_has_item(struct inv_inventory *inv, struct itm_item *item);
 bool inv_add_item(struct inv_inventory *inv, struct itm_item *item);
 bool inv_remove_item(struct inv_inventory *inv, struct itm_item *item);
 struct itm_item *inv_get_next_item(struct inv_inventory *inv, struct itm_item *prev);
+int inv_inventory_size(struct inv_inventory *inv);
 
 bool inv_support_location(struct inv_inventory *inv, enum inv_locations location);
 bool inv_move_item_to_location(struct inv_inventory *inv, struct itm_item *item, enum inv_locations location);
 struct itm_item *inv_get_item_from_location(struct inv_inventory *inv, enum inv_locations location);
+enum inv_locations inv_get_item_location(struct inv_inventory *inv, struct itm_item *item);
+
+const char *inv_location_name(enum inv_locations loc);
 
 #define inv_loc_human \
     ( inv_loc(INV_LOC_FEET)       | inv_loc(INV_LOC_LEGS)         | \

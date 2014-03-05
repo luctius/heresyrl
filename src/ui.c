@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <assert.h>
 #include <ncurses.h>
+#include <sys/param.h>
 
 #include "ui.h"
 #include "tiles.h"
@@ -11,6 +12,8 @@
 #include "dungeon_creator.h"
 #include "logging.h"
 #include "player.h"
+#include "inventory.h"
+#include "linewrap.h"
 
 struct hrl_window {
     WINDOW *win;
@@ -429,6 +432,142 @@ void charwin_refresh(struct hrl_window *window, struct pl_player *plr) {
     mvwprintw(window->win, y++,x, "   [%2d]    [%2d]", 1, 1);
     mvwprintw(window->win, y++,x, "     [%2d][%2d]", 1, 1);
 
+    wrefresh(window->win);
+}
+
+/* Beware of dragons here..... */
+
+struct inv_show_item {
+    char *location;
+    struct itm_item *item;
+};
+static char invid[] = {'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','0','1','2','3','4','5','6','7','8','9'};
+static int get_invid(char c) {
+    unsigned int i = 0;
+    while (invid[i] != c && i < ARRAY_SZ(invid) ) {
+        i++;
+    }
+    if (invid[i] == c) return i;
+    return -1;
+}
+
+static int invwin_printlist(WINDOW *win, struct inv_show_item list[], int list_sz, int start, int end) {
+    int max = MIN(list_sz, end);
+    max = MIN(max, (int) ARRAY_SZ(invid) );
+    if (start >= max) return -1;
+
+    for (int i = 0; i < max; i++) {
+        mvwprintw(win, i, 1, "%c  %c%s", invid[i], list[i+start].location[0], list[i+start].item->sd_name);
+    }
+    return max;
+}
+
+static void inv_create_list(struct inv_inventory *inventory, struct inv_show_item invlist[], int list_sz) {
+    if (inventory == NULL) return;
+
+    struct itm_item *item = NULL;
+    for (int i = 0; i < list_sz; i++) {
+         item = inv_get_next_item(inventory, item);
+         if (item != NULL) {
+            invlist[i].item = item;
+            invlist[i].location = " ";
+            if (inv_get_item_location(inventory, item) != INV_LOC_INVENTORY) {
+                invlist[i].location = "*";
+            }
+         }
+    }
+}
+
+WINDOW *invwin_examine(struct hrl_window *window, struct itm_item *item) {
+    if (window == NULL) return NULL;
+    if (item == NULL) return NULL;
+    if (window->type != HRL_WINDOW_TYPE_MAP) return NULL;
+
+    char **desc;
+    int *len_lines;
+    int len = strwrap(item->description, (window->cols / 2) -2, &desc, &len_lines);
+    if (len > 0) {
+        WINDOW *invwin_ex = derwin(window->win, window->lines, window->cols / 2, 0, window->cols / 2);
+        touchwin(window->win);
+        wclear(invwin_ex);
+
+        mvwprintw(invwin_ex, 0, 1, "Description of %s.", item->ld_name);
+        for (int i = 0; i < len; i++) {
+            mvwprintw(invwin_ex, 2+i, 1, desc[i]);
+        }
+        free(desc);
+        free(len_lines);
+        wrefresh(invwin_ex);
+        return invwin_ex;
+    }
+    return NULL;
+}
+
+void invwin_inventory(struct hrl_window *window, struct dc_map *map, struct pl_player *plr) {
+    if (window == NULL) return;
+    if (plr == NULL) return;
+    if (window->type != HRL_WINDOW_TYPE_MAP) return;
+    int invstart = 0;
+    char ch;
+
+    WINDOW *invwin = derwin(window->win, window->lines, window->cols / 2, 0, 0);
+    WINDOW *invwin_ex = NULL;
+
+    int winsz = window->lines -3;
+
+    int dislen = winsz;
+    do {
+        int invsz = inv_inventory_size(plr->player->inventory);
+        struct inv_show_item *invlist = calloc(invsz, sizeof(struct inv_show_item) );
+        inv_create_list(plr->player->inventory, invlist, invsz);
+
+        switch (ch) {
+            case ' ': invstart += dislen; break;
+            case 'x': {
+                    int item_idx;
+                    delwin(invwin_ex);
+                    ch = getch();
+                    if (ch == 'q' || ch == 27) break;
+                    if ( (item_idx = get_invid(ch) ) != -1) {
+                        if ((item_idx + invstart) >= invsz) break;
+                        invwin_ex = invwin_examine(window, invlist[item_idx +invstart].item);
+                    }
+                } 
+                break;
+            case 'd': {
+                    int item_idx;
+                    ch = getch();
+                    if (ch == 'q' || ch == 27) break;
+                    if ( (item_idx = get_invid(ch) ) != -1) {
+                        if ((item_idx + invstart) >= invsz) break;
+                        if (msr_remove_item(plr->player, invlist[item_idx +invstart].item ) == true) {
+                            itm_insert_item(invlist[item_idx +invstart].item, map, &plr->player->pos);
+                            free(invlist);
+                            invsz = inv_inventory_size(plr->player->inventory);
+                            invlist = calloc(invsz, sizeof(struct inv_show_item) );
+                            inv_create_list(plr->player->inventory, invlist, invsz);
+                        }
+                    }
+                }
+                break;
+            default: break;
+        }
+
+        touchwin(window->win);
+        wclear(invwin);
+        if ( (dislen = invwin_printlist(invwin, invlist, invsz, invstart, invstart +winsz) ) == -1) {
+            invstart = 0;
+            dislen = invwin_printlist(invwin, invlist, invsz, invstart, invstart +winsz);
+        }
+        mvwprintw(invwin, winsz +1, 1, "[q] exit, [space] next screen.");
+        mvwprintw(invwin, winsz +2, 1, "[x] examine item, [d] drop item.");
+        wrefresh(invwin);
+        free(invlist);
+    }
+    while((ch = getch()) != 27 && ch != 'q');
+
+    delwin(invwin_ex);
+    delwin(invwin);
     wrefresh(window->win);
 }
 
