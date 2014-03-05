@@ -23,6 +23,7 @@ enum inv_locations {
     INV_LOC_BACK,
     INV_LOC_ARMOUR_CHEST,
     INV_LOC_MAX,
+    INV_LOC_BOTH_WIELD,
 };
 
 #define inv_loc(loc) (1<<loc)

@@ -19,8 +19,8 @@ static struct tl_tile tile_array[] = {
         .icon = '#',
         .icon_attr = COLOR_PAIR(DPL_COLOUR_NORMAL),
         .movement_cost = TILE_MOVEMENT_MAX,
-        .sd_name = "",
-        .ld_name = "",
+        .sd_name = "stone wall",
+        .ld_name = "a stone wall",
         .description = "",
     },
     [TILE_ID_STONE_WALL] = {
@@ -29,8 +29,8 @@ static struct tl_tile tile_array[] = {
         .icon = '#',
         .icon_attr = COLOR_PAIR(DPL_COLOUR_NORMAL),
         .movement_cost = 3,
-        .sd_name = "",
-        .ld_name = "",
+        .sd_name = "stone wall",
+        .ld_name = "a stone wall",
         .description = "",
     },
     [TILE_ID_STONE_FLOOR] = {
@@ -39,8 +39,8 @@ static struct tl_tile tile_array[] = {
         .icon = '.',
         .icon_attr = COLOR_PAIR(DPL_COLOUR_NORMAL),
         .movement_cost = 1,
-        .sd_name = "",
-        .ld_name = "",
+        .sd_name = "stone floor",
+        .ld_name = "a stone floor",
         .description = "",
     },
     [TILE_ID_WOODEN_CLOSED_DOOR] = {
@@ -49,8 +49,8 @@ static struct tl_tile tile_array[] = {
         .icon = '+',
         .icon_attr = COLOR_PAIR(DPL_COLOUR_NORMAL),
         .movement_cost = 2,
-        .sd_name = "",
-        .ld_name = "",
+        .sd_name = "wooden door",
+        .ld_name = "a wooden door",
         .description = "",
     },
     [TILE_ID_WOODEN_OPEN_DOOR] = {
@@ -59,8 +59,8 @@ static struct tl_tile tile_array[] = {
         .icon = '/',
         .icon_attr = COLOR_PAIR(DPL_COLOUR_NORMAL),
         .movement_cost = 1,
-        .sd_name = "",
-        .ld_name = "",
+        .sd_name = "wooden door",
+        .ld_name = "a wooden door",
         .description = "",
     },
     [TILE_ID_STONE_STAIRS_UP] = {
@@ -69,8 +69,8 @@ static struct tl_tile tile_array[] = {
         .icon = '<',
         .icon_attr = COLOR_PAIR(DPL_COLOUR_NORMAL),
         .movement_cost = 1,
-        .sd_name = "",
-        .ld_name = "",
+        .sd_name = "stone stairs",
+        .ld_name = "stone stairs, going up",
         .description = "",
     },
     [TILE_ID_STONE_STAIRS_DOWN] = {
@@ -79,8 +79,8 @@ static struct tl_tile tile_array[] = {
         .icon = '>',
         .icon_attr = COLOR_PAIR(DPL_COLOUR_NORMAL),
         .movement_cost = 1,
-        .sd_name = "",
-        .ld_name = "",
+        .sd_name = "stone stairs",
+        .ld_name = "stone stairs, going down",
         .description = "",
     }
 };

@@ -15,6 +15,7 @@
 #include "player.h"
 #include "inventory.h"
 #include "linewrap.h"
+#include "input.h"
 
 struct hrl_window {
     WINDOW *win;
@@ -240,10 +241,12 @@ static void mapwin_display_map_noref(struct hrl_window *window, struct dc_map *m
                     icon = sd_get_map_me(&map_c, map)->monster->icon;
                     attr_mod = sd_get_map_me(&map_c, map)->monster->icon_attr;
                 }
+                /*
                 else if (sd_get_map_me(&map_c, map)->item != NULL) {
                     icon = sd_get_map_me(&map_c, map)->item->icon;
                     attr_mod = sd_get_map_me(&map_c, map)->item->icon_attr;
                 }
+                */
                 else if (TILE_HAS_ATTRIBUTE(sd_get_map_tile(&map_c, map), TILE_ATTR_TRAVERSABLE) == false) {
                     if (sd_get_map_me(&map_c, map)->visible == true) {
                         attr_mod = COLOR_PAIR(DPL_COLOUR_FG_YELLOW);
@@ -275,27 +278,45 @@ static WINDOW *mapwin_examine(struct hrl_window *window, struct dc_map_entity *m
     if (window == NULL) return NULL;
     if (me == NULL) return NULL;
     if (window->type != HRL_WINDOW_TYPE_CHARACTER) return NULL;
+    int y_ctr = 0;
 
-    /*
-    char **desc;
-    int *len_lines;
-    int len = strwrap(item->description, window->cols, &desc, &len_lines);
-    if (len > 0) {
-        WINDOW *invwin_ex = derwin(window->win, 0,0,0,0);
-        touchwin(window->win);
-        wclear(invwin_ex);
+    WINDOW *mapwin_ex = derwin(window->win, 0,0,0,0);
+    touchwin(window->win);
+    wclear(mapwin_ex);
 
-        mvwprintw(invwin_ex, 0, 1, "Description of %s.", item->ld_name);
-        for (int i = 0; i < len; i++) {
-            mvwprintw(invwin_ex, 2+i, 0, desc[i]);
+    mvwprintw(mapwin_ex, y_ctr++, 1, "Upon a %s.", me->tile->ld_name);
+
+    if (me->monster != NULL) {
+        y_ctr++;
+
+        if (me->monster->is_player == true) {
+            mvwprintw(mapwin_ex, y_ctr++, 1, "You see yourself.");
+        } else {
+            mvwprintw(mapwin_ex, y_ctr++, 1, "You see %s.", me->monster->ld_name);
+            y_ctr++;
+
+            char **desc;
+            int *len_lines;
+            int len = strwrap(me->monster->description, window->cols, &desc, &len_lines);
+            for (int i = 0; i < len; i++) {
+                mvwprintw(mapwin_ex, y_ctr++, 0, desc[i]);
+            }
+            free(desc);
+            free(len_lines);
         }
-        free(desc);
-        free(len_lines);
-        wrefresh(invwin_ex);
-        return invwin_ex;
     }
-    */
-    return NULL;
+
+    if (inv_inventory_size(me->inventory) > 0) {
+        y_ctr++;
+        mvwprintw(mapwin_ex, y_ctr++, 1, "The %s contains:", me->tile->sd_name);
+        struct itm_item *i = NULL;
+        while ( (i = inv_get_next_item(me->inventory, i) ) != NULL) {
+            mvwprintw(mapwin_ex, y_ctr++, 1, " - %s", i->ld_name);
+        }
+    }
+
+    wrefresh(mapwin_ex);
+    return mapwin_ex;
 }
 
 void mapwin_overlay_examine_cursor(struct hrl_window *mapwin, struct hrl_window *charwin, struct dc_map *map, coord_t *p_pos) {
@@ -317,14 +338,14 @@ void mapwin_overlay_examine_cursor(struct hrl_window *mapwin, struct hrl_window 
 
     do {
         switch (ch) {
-            case KEY_A1: e_pos.y--; e_pos.x--; break;
-            case KEY_UP: e_pos.y--; break;
-            case KEY_A3: e_pos.y--; e_pos.x++; break;
-            case KEY_RIGHT: e_pos.x++; break;
-            case KEY_C3: e_pos.y++; e_pos.x++; break;
-            case KEY_DOWN: e_pos.y++; break;
-            case KEY_C1: e_pos.y++; e_pos.x--; break;
-            case KEY_LEFT: e_pos.x--; break;
+            case INP_KEY_UP_LEFT:    e_pos.y--; e_pos.x--; break;
+            case INP_KEY_UP:         e_pos.y--; break;
+            case INP_KEY_UP_RIGHT:   e_pos.y--; e_pos.x++; break;
+            case INP_KEY_RIGHT:      e_pos.x++; break;
+            case INP_KEY_DOWN_RIGHT: e_pos.y++; e_pos.x++; break;
+            case INP_KEY_DOWN:       e_pos.y++; break;
+            case INP_KEY_DOWN_LEFT:  e_pos.y++; e_pos.x--; break;
+            case INP_KEY_LEFT:       e_pos.x--; break;
             default: break;
         }
         if (examine_mode == false) break;
@@ -342,7 +363,7 @@ void mapwin_overlay_examine_cursor(struct hrl_window *mapwin, struct hrl_window 
         wrefresh(mapwin->win);
         mvwaddch(mapwin->win, e_pos.y - scr_y, e_pos.x - scr_x, oldch);
     }
-    while((ch = getch()) != 27 && ch != 'q' && examine_mode);
+    while((ch = inp_get_input()) != INP_KEY_ESCAPE && examine_mode);
 
     delwin(mapwin_ex);
     wrefresh(mapwin->win);
@@ -369,12 +390,16 @@ void mapwin_overlay_fire_cursor(struct hrl_window *window, struct pl_player *plr
     do {
         lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "mapwin", "entering fire_mode (%d,%d) -> (%d,%d)", p_pos->x, p_pos->y, e_pos.x, e_pos.y);
         switch (ch) {
-            case KEY_UP: e_pos.y--; break;
-            case KEY_RIGHT: e_pos.x++; break;
-            case KEY_DOWN: e_pos.y++; break;
-            case KEY_LEFT: e_pos.x--; break;
-            case '\n':
-            case 'f': {
+            case INP_KEY_UP_LEFT:    e_pos.y--; e_pos.x--; break;
+            case INP_KEY_UP:         e_pos.y--; break;
+            case INP_KEY_UP_RIGHT:   e_pos.y--; e_pos.x++; break;
+            case INP_KEY_RIGHT:      e_pos.x++; break;
+            case INP_KEY_DOWN_RIGHT: e_pos.y++; e_pos.x++; break;
+            case INP_KEY_DOWN:       e_pos.y++; break;
+            case INP_KEY_DOWN_LEFT:  e_pos.y++; e_pos.x--; break;
+            case INP_KEY_LEFT:       e_pos.x--; break;
+            case INP_KEY_YES:
+            case INP_KEY_FIRE: {
                 bool blocked = false;
                 You("fire (%d,%d)", e_pos.x, e_pos.y);
                 path_len = fght_shoot(plr->player, map, FGHT_WEAPON_SELECT_LHAND, FGHT_WEAPON_SETTING_SINGLE, p_pos, &e_pos, path, ARRAY_SZ(path) );
@@ -407,7 +432,7 @@ void mapwin_overlay_fire_cursor(struct hrl_window *window, struct pl_player *plr
         wrefresh(window->win);
         mapwin_display_map_noref(window, map, p_pos);
     }
-    while((ch = getch()) != 27 && ch != 'q' && fire_mode);
+    while((ch = inp_get_input()) != INP_KEY_ESCAPE && fire_mode);
 }
 
 void msgwin_log_refresh(struct hrl_window *window, struct logging *lg) {
@@ -417,7 +442,7 @@ void msgwin_log_refresh(struct hrl_window *window, struct logging *lg) {
 
     if (window == NULL) return;
     if (window->type != HRL_WINDOW_TYPE_MESSAGE) return;
-    werase(window->win);
+    wclear(window->win);
 
     int max = (win_sz < log_sz) ? win_sz : log_sz;
     int log_start = log_sz - win_sz;
@@ -482,12 +507,43 @@ void charwin_refresh(struct hrl_window *window, struct pl_player *plr) {
     mvwprintw(window->win, y++,x, "     [%2d][%2d]", 1, 1);
 
     y++;
-    mvwprintw(window->win, y++,x, "Weapon 1: %s", "revolver");
-    mvwprintw(window->win, y++,x, "  Ammo: %d/%d", 5,6);
-    mvwprintw(window->win, y++,x, "Weapon 2: %s", "autopistol");
-    mvwprintw(window->win, y++,x, "  Ammo: %d/%d", 15,20);
+    struct itm_item *item;
+    if ( (item = inv_get_item_from_location(player->inventory, INV_LOC_RIGHT_WIELD) ) != NULL) {
+        mvwprintw(window->win, y++,x, "Right Wpn: %s", item->sd_name);
+        if (item->item_type == ITEM_TYPE_WEAPON) {
+            if (item->specific.weapon.weapon_type == ITEM_WEAPON_TYPE_RANGED) {
+                mvwprintw(window->win, y++,x, "  Ammo: %d/%d", 5,6);
+                int single = item->specific.weapon.rof.rof_single;
+                int semi = item->specific.weapon.rof.rof_semi;
+                int aut = item->specific.weapon.rof.rof_auto;
+                char *set = (plr->weapon_setting_rhand == FGHT_WEAPON_SETTING_SINGLE) ? "single" : 
+                            (plr->weapon_setting_rhand == FGHT_WEAPON_SETTING_SEMI) ? "semi": "auto";
+                char semi_str[4]; snprintf(semi_str, 3, "%d", semi);
+                char auto_str[4]; snprintf(auto_str, 3, "%d", aut);
+                mvwprintw(window->win, y++,x, "  Setting: %s (%s/%s/%s)", set, 
+                        (single > 0) ? "S" : "-",
+                        (semi > 0) ? semi_str : "-",
+                        (aut > 0) ? auto_str : "-");
+            }
+        }
+    }
 
-    y++;
+    if ( ( (item = inv_get_item_from_location(player->inventory, INV_LOC_RIGHT_WIELD) ) != NULL) ||
+         ( (item = inv_get_item_from_location(player->inventory, INV_LOC_RIGHT_WIELD) ) != NULL) ) {
+        switch (plr->weapon_selection) {
+            case FGHT_WEAPON_SELECT_LHAND:
+                mvwprintw(window->win, y++,x, "Using left hand.");
+                break;
+            case FGHT_WEAPON_SELECT_RHAND:
+                mvwprintw(window->win, y++,x, "Using right hand.");
+                break;
+            case FGHT_WEAPON_SELECT_BHAND:
+                mvwprintw(window->win, y++,x, "Using both hands.");
+                break;
+            default: break;
+        }
+        y++;
+    }
 
     wrefresh(window->win);
 }
@@ -498,23 +554,19 @@ struct inv_show_item {
     char *location;
     struct itm_item *item;
 };
-static char invid[] = {'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','0','1','2','3','4','5','6','7','8','9'};
-static int get_invid(char c) {
-    unsigned int i = 0;
-    while (invid[i] != c && i < ARRAY_SZ(invid) ) {
-        i++;
-    }
-    if (invid[i] == c) return i;
-    return -1;
-}
 
 static int invwin_printlist(WINDOW *win, struct inv_show_item list[], int list_sz, int start, int end) {
     int max = MIN(list_sz, end);
-    max = MIN(max, (int) ARRAY_SZ(invid) );
+    if (list_sz == 0) {
+        mvwprintw(win, 1, 1, "%s", "Your inventory is empty");
+        return 0;
+    }
+
+    max = MIN(max, INP_KEY_MAX_IDX);
     if (start >= max) return -1;
 
     for (int i = 0; i < max; i++) {
-        mvwprintw(win, i, 1, "%c  %c%s", invid[i], list[i+start].location[0], list[i+start].item->sd_name);
+        mvwprintw(win, i, 1, "%c  %c%s", inp_key_translate_idx(i), list[i+start].location[0], list[i+start].item->sd_name);
     }
     return max;
 }
@@ -565,7 +617,7 @@ void invwin_inventory(struct hrl_window *mapwin, struct hrl_window *charwin, str
     if (plr == NULL) return;
     if (mapwin->type != HRL_WINDOW_TYPE_MAP) return;
     int invstart = 0;
-    char ch;
+    int ch = 0;
 
     WINDOW *invwin = derwin(mapwin->win, mapwin->lines, mapwin->cols / 2, 0, 0);
     WINDOW *invwin_ex = NULL;
@@ -580,41 +632,41 @@ void invwin_inventory(struct hrl_window *mapwin, struct hrl_window *charwin, str
 
         /* TODO clean this shit up */
         switch (ch) {
-            case ' ': invstart += dislen; break;
-            case 'u': {
-                    int item_idx;
-                    ch = getch();
-                    if (ch == 'q' || ch == 27) break;
-                    if ( (item_idx = get_invid(ch) ) != -1) {
-                        if ((item_idx + invstart) >= invsz) break;
-                        msr_use_item(plr->player, invlist[item_idx +invstart].item);
-                    }
+            case INP_KEY_YES: invstart += dislen; break;
+            case INP_KEY_USE: {
+                    int item_idx = inp_get_input_idx();
+                    if (item_idx == INP_KEY_ESCAPE) break;
+                    if ((item_idx + invstart) >= invsz) break;
+
+                    msr_use_item(plr->player, invlist[item_idx +invstart].item);
                 }
                 break;
-            case 'x': {
-                    int item_idx;
-                    ch = getch();
-                    if (ch == 'q' || ch == 27) break;
-                    if ( (item_idx = get_invid(ch) ) != -1) {
-                        if ((item_idx + invstart) >= invsz) break;
-                        delwin(invwin_ex);
-                        invwin_ex = invwin_examine(charwin, invlist[item_idx +invstart].item);
-                    }
+            case INP_KEY_WEAR: {
+                    int item_idx = inp_get_input_idx();
+                    if (item_idx == INP_KEY_ESCAPE) break;
+                    if ((item_idx + invstart) >= invsz) break;
                 } 
                 break;
-            case 'd': {
-                    int item_idx;
-                    ch = getch();
-                    if (ch == 'q' || ch == 27) break;
-                    if ( (item_idx = get_invid(ch) ) != -1) {
-                        if ((item_idx + invstart) >= invsz) break;
-                        if (msr_remove_item(plr->player, invlist[item_idx +invstart].item ) == true) {
-                            itm_insert_item(invlist[item_idx +invstart].item, map, &plr->player->pos);
-                            free(invlist);
-                            invsz = inv_inventory_size(plr->player->inventory);
-                            invlist = calloc(invsz, sizeof(struct inv_show_item) );
-                            inv_create_list(plr->player->inventory, invlist, invsz);
-                        }
+            case INP_KEY_EXAMINE: {
+                    int item_idx = inp_get_input_idx();
+                    if (item_idx == INP_KEY_ESCAPE) break;
+                    if ((item_idx + invstart) >= invsz) break;
+
+                    delwin(invwin_ex);
+                    invwin_ex = invwin_examine(charwin, invlist[item_idx +invstart].item);
+                } 
+                break;
+            case INP_KEY_DROP: {
+                    int item_idx = inp_get_input_idx();
+                    if (item_idx == INP_KEY_ESCAPE) break;
+                    if ((item_idx + invstart) >= invsz) break;
+
+                    if (msr_remove_item(plr->player, invlist[item_idx +invstart].item ) == true) {
+                        itm_insert_item(invlist[item_idx +invstart].item, map, &plr->player->pos);
+                        free(invlist);
+                        invsz = inv_inventory_size(plr->player->inventory);
+                        invlist = calloc(invsz, sizeof(struct inv_show_item) );
+                        inv_create_list(plr->player->inventory, invlist, invsz);
                     }
                 }
                 break;
@@ -634,7 +686,7 @@ void invwin_inventory(struct hrl_window *mapwin, struct hrl_window *charwin, str
         wrefresh(invwin);
         free(invlist);
     }
-    while((ch = getch()) != 27 && ch != 'q');
+    while((ch = inp_get_input() ) != INP_KEY_ESCAPE);
 
     delwin(invwin_ex);
     delwin(invwin);

@@ -82,6 +82,7 @@ void msr_die(struct msr_monster *monster, struct dc_map *map) {
     if (map == NULL) return;
     struct msr_monster_list_entry *target_mle = container_of(monster, struct msr_monster_list_entry, monster);
 
+    inv_exit(monster->inventory);
     msr_remove_monster(monster, map);
 
     LIST_REMOVE(target_mle, entries);

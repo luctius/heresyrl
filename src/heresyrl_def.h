@@ -28,6 +28,8 @@ enum tile_types;
 enum dc_dungeon_type;
 enum msr_gender;
 enum msr_race;
+enum fght_weapon_selection;
+enum fght_weapon_setting;
 
 enum dpl_colours {
     DPL_COLOUR_NORMAL  =1, /*FG_WHITE,BG_BLACK*/

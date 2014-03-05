@@ -30,6 +30,7 @@ void game_init(struct pl_player *plr, unsigned long initial_seed) {
             dc_generate_map(game->current_map, DC_DUNGEON_TYPE_CAVE, 1, random_genrand_int32(game->map_random) );
 
             if (plr == NULL) plr_init(&game->player_data, "Tester", MSR_RACE_HUMAN, MSR_GENDER_MALE);
+            game->player_data.player->is_player = true;
 
             coord_t c;
             if (dc_tile_instance(game->current_map, TILE_TYPE_STAIRS_UP, 0, &c) == false) exit(1);

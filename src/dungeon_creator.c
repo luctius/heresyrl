@@ -10,6 +10,7 @@
 #include "dungeon_creator.h"
 #include "dungeon_cave.h"
 #include "pathfinding.h"
+#include "inventory.h"
 
 extern inline struct dc_map_entity *sd_get_map_me(coord_t *c, struct dc_map *map);
 extern inline struct tl_tile *sd_get_map_tile(coord_t *c, struct dc_map *map);
@@ -29,6 +30,14 @@ struct dc_map *dc_alloc_map(int x_sz, int y_sz) {
 
 int dc_free_map(struct dc_map *map) {
     if (map == NULL) return EXIT_SUCCESS;
+
+    coord_t c = cd_create(0,0);
+    for (c.x = 0; c.x < map->size.x; c.x++) {
+        for (c.y = 0; c.y < map->size.y; c.y++) {
+            inv_exit(sd_get_map_me(&c,map)->inventory);
+        }
+    }
+
     free(map);
     return EXIT_SUCCESS;
 }
@@ -153,7 +162,7 @@ static bool dc_clear_map(struct dc_map *map) {
             sd_get_map_me(&c,map)->light_level = 0;
             sd_get_map_me(&c,map)->general_var = 0;
             sd_get_map_me(&c,map)->monster = NULL;
-            sd_get_map_me(&c,map)->item = NULL;
+            sd_get_map_me(&c,map)->inventory = inv_init(inv_loc_human);
         }
     }
     return true;

@@ -22,7 +22,7 @@ struct dc_map_entity {
     uint8_t general_var;
     struct tl_tile *tile;
     struct msr_monster *monster;
-    struct itm_item *item;
+    struct inv_inventory *inventory;
 };
 
 struct dc_map {

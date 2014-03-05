@@ -137,6 +137,10 @@ int inv_inventory_size(struct inv_inventory *inv) {
 bool inv_support_location(struct inv_inventory *inv, enum inv_locations location) {
     if (inv == NULL) return false;
     if (location > INV_LOC_MAX) return false;
+    if (location == INV_LOC_BOTH_WIELD) {
+        if ( ( (inv->available_locations & inv_loc(INV_LOC_RIGHT_WIELD) ) > 0) && 
+             ( (inv->available_locations & inv_loc(INV_LOC_LEFT_WIELD) ) > 0) ) return true;
+    }
     if ( (inv->available_locations & inv_loc(location) ) > 0) return true;
     return false;
 }
@@ -146,6 +150,7 @@ bool inv_move_item_to_location(struct inv_inventory *inv, struct itm_item *item,
     if (item == NULL) return false;
     if (inv_support_location(inv, location) == false) return false;
     if (inv_has_item(inv, item) == false) return false;
+    if (location == INV_LOC_BOTH_WIELD) location = INV_LOC_RIGHT_WIELD;
 
     struct inv_entry *ie = inv->head.lh_first;
 
@@ -162,6 +167,7 @@ bool inv_move_item_to_location(struct inv_inventory *inv, struct itm_item *item,
 struct itm_item *inv_get_item_from_location(struct inv_inventory *inv, enum inv_locations location) {
     if (inv == NULL) return NULL;
     if (inv_support_location(inv, location) == false) return NULL;
+    if (location == INV_LOC_BOTH_WIELD) location = INV_LOC_RIGHT_WIELD;
 
     struct inv_entry *ie = inv->head.lh_first;
 

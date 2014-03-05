@@ -21,6 +21,7 @@ enum item_types {
 
 enum item_ids {
     ITEM_ID_AVERAGE_TORCH,
+    ITEM_ID_AVERAGE_STUB_AUTOMATIC,
     ITEM_ID_MAX,
 };
 
@@ -60,12 +61,9 @@ enum item_material {
 */
 
 enum item_weapon_type {
-    ITEM_WEAPON_TYPE_HANDGUN,
-    ITEM_WEAPON_TYPE_PISTOL,
-    ITEM_WEAPON_TYPE_BASIC,
+    ITEM_WEAPON_TYPE_RANGED,
     ITEM_WEAPON_TYPE_MELEE,
     ITEM_WEAPON_TYPE_THROWN,
-    ITEM_WEAPON_TYPE_MELEE_THROWN,
     ITEM_WEAPON_TYPE_MAX,
     ITEM_WEAPON_TYPE_RANDOM,
 };
@@ -147,8 +145,20 @@ enum weapon_special_quality {
     WEAPON_SPEC_QUALITY_RELIABLE    = (1<<0),
 };
 
+enum item_weapon_category {
+    ITEM_WEAPON_CATEGORY_PISTOL,
+    ITEM_WEAPON_CATEGORY_BASIC,
+    ITEM_WEAPON_CATEGORY_HEAVY,
+    ITEM_WEAPON_CATEGORY_MELEE,
+    ITEM_WEAPON_CATEGORY_THROWN,
+    ITEM_WEAPON_CATEGORY_MELEE_THROWN,
+    ITEM_WEAPON_CATEGORY_MAX,
+    ITEM_WEAPON_CATEGORY_RANDOM,
+};
+
 struct item_weapon_specific {
     enum item_weapon_type weapon_type;
+    enum item_weapon_category weapon_category;
     enum weapon_dmg_type dmg_type;
     uint8_t nr_dmg_die; /*0 is 1d5*/
     uint8_t dmg_addition;
