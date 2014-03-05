@@ -156,7 +156,7 @@ bool msr_use_item(struct msr_monster *monster, struct itm_item *item) {
     }
     if (inv_has_item(monster->inventory, item) == false) return false;
 
-    if (item->item_type == ITEM_TYPE_TOOL && item->specific.tool.tool_type == ITEM_TOOL_TYPE_LIGHT) {
+    if (item->item_type == ITEM_TYPE_TOOL && item->specific.tool.tool_type == TOOL_TYPE_LIGHT) {
         item->specific.tool.lit = true;
         You("light %s.", item->ld_name);
     }

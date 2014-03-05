@@ -6,15 +6,52 @@
 #include "monster.h"
 #include "items.h"
 #include "tiles.h"
+#include "inventory.h"
 
-int fght_shoot(struct msr_monster *monster, struct dc_map *map, enum fght_weapon_selection sel, enum fght_weapon_setting set, coord_t *s, coord_t *e, coord_t path_list[], int path_list_sz) {
+int fght_shoot(struct msr_monster *monster, struct dc_map *map, enum fght_weapon_selection sel, enum wpn_rof_setting set1, 
+                    enum wpn_rof_setting set2, coord_t *s, coord_t *e, coord_t path_list[], int path_list_sz) {
     if (monster == NULL) return -1;
     if (map == NULL) return -1;
     if (s == NULL) return -1;
     if (e == NULL) return -1;
     if (path_list == NULL) return -1;
     if (sel >= FGHT_WEAPON_SELECT_MAX) return -1;
-    if (set >= FGHT_WEAPON_SETTING_MAX) return -1;
+    if (set1 >= WPN_ROF_SETTING_MAX) return -1;
+    if (set2 >= WPN_ROF_SETTING_MAX) return -1;
+
+    struct item_weapon_specific *wpn1 = NULL;
+    struct item_weapon_specific *wpn2 = NULL;
+    struct itm_item *item1 = NULL;
+    struct itm_item *item2 = NULL;
+    int ammo1 = 1;
+    int ammo2 = 1;
+    /*
+       Check monster for weapon.
+     */
+    if (sel == FGHT_WEAPON_SELECT_BHAND) {
+        if (inv_loc_empty(monster->inventory, INV_LOC_BOTH_WIELD) ) return false;
+        if (wpn_is_type(inv_get_item_from_location(monster->inventory, INV_LOC_BOTH_WIELD), WEAPON_TYPE_RANGED) == false) return false;
+        item1 = inv_get_item_from_location(monster->inventory, INV_LOC_BOTH_WIELD);
+    }
+    else if (sel == FGHT_WEAPON_SELECT_RHAND) {
+        if (inv_loc_empty(monster->inventory, INV_LOC_RIGHT_WIELD) ) return false;
+        if (wpn_is_type(inv_get_item_from_location(monster->inventory, INV_LOC_RIGHT_WIELD), WEAPON_TYPE_RANGED) == false) return false;
+        item1 = inv_get_item_from_location(monster->inventory, INV_LOC_RIGHT_WIELD);
+    }
+    else if (sel == FGHT_WEAPON_SELECT_LHAND) {
+        if (inv_loc_empty(monster->inventory, INV_LOC_LEFT_WIELD) ) return false;
+        if (wpn_is_type(inv_get_item_from_location(monster->inventory, INV_LOC_LEFT_WIELD), WEAPON_TYPE_RANGED) == false) return false;
+        item1 = inv_get_item_from_location(monster->inventory, INV_LOC_LEFT_WIELD);
+    }
+
+    if (item1 == NULL) return false;
+    wpn1 = &item1->specific.weapon;
+    ammo1 = MIN(wpn1->magazine_left, wpn1->rof[set1]);
+
+    if (item2 != NULL) {
+        wpn2 = &item2->specific.weapon;
+        ammo2 = MIN(wpn2->magazine_left, wpn2->rof[set2]);
+    }
 
     coord_t path[MAX(map->size.x, map->size.y)];
     int path_len = fght_calc_lof_path(s, e, path, ARRAY_SZ(path));

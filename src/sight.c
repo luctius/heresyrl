@@ -65,7 +65,7 @@ bool sgt_calculate_light_source(struct sgt_sight *sight, struct dc_map *map, str
     if (map == NULL) return false;
     if (item == NULL) return false;
     if (item->item_type != ITEM_TYPE_TOOL) return false;
-    if (item->specific.tool.tool_type != ITEM_TOOL_TYPE_LIGHT) return false;
+    if (item->specific.tool.tool_type != TOOL_TYPE_LIGHT) return false;
     if (item->specific.tool.lit != true) return false;
 
     fov_settings_set_opacity_test_function(&sight->fov_settings, check_opaque);

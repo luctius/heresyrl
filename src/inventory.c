@@ -180,6 +180,14 @@ struct itm_item *inv_get_item_from_location(struct inv_inventory *inv, enum inv_
     return NULL;
 }
 
+bool inv_loc_empty(struct inv_inventory *inv, enum inv_locations location) {
+    if (inv == NULL) return false;
+    if (inv_support_location(inv, location) == false) return false;
+    if (location == INV_LOC_BOTH_WIELD) location = INV_LOC_RIGHT_WIELD;
+
+    return (inv_get_item_from_location(inv, location) == NULL);
+}
+
 enum inv_locations inv_get_item_location(struct inv_inventory *inv, struct itm_item *item) {
     if (inv == NULL) return INV_LOC_NONE;
     if (item == NULL) return INV_LOC_NONE;

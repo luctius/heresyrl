@@ -6,8 +6,8 @@
 //#include "heresyrl_def.h"
 #include "queue.h"
 
-#define You(format, args...) lg_printf("You " format, ##args);
-#define Your(format, args...) lg_printf("Your " format, ##args);
+#define You(format, args...) lg_printf("You " format "\n", ##args);
+#define Your(format, args...) lg_printf("Your " format "\n", ##args);
 
 #define LG_COLOUR_NORMAL          ""
 #define LG_COLOUR_RESET           "\033[m"

@@ -22,6 +22,7 @@ enum inv_locations {
     INV_LOC_FACE,
     INV_LOC_BACK,
     INV_LOC_ARMOUR_CHEST,
+    INV_LOC_CREATURE_WIELD,
     INV_LOC_MAX,
     INV_LOC_BOTH_WIELD,
 };
@@ -40,6 +41,7 @@ bool inv_support_location(struct inv_inventory *inv, enum inv_locations location
 bool inv_move_item_to_location(struct inv_inventory *inv, struct itm_item *item, enum inv_locations location);
 struct itm_item *inv_get_item_from_location(struct inv_inventory *inv, enum inv_locations location);
 enum inv_locations inv_get_item_location(struct inv_inventory *inv, struct itm_item *item);
+bool inv_loc_empty(struct inv_inventory *inv, enum inv_locations location);
 
 const char *inv_location_name(enum inv_locations loc);
 

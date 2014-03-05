@@ -12,6 +12,7 @@
 #include "monster.h"
 #include "game.h"
 #include "items.h"
+#include "items_static.h"
 #include "coord.h"
 #include "tiles.h"
 #include "inventory.h"
@@ -120,24 +121,26 @@ int main(void)
                 break;
             case INP_KEY_RELOAD: break;
             case INP_KEY_WEAPON_SETTING: 
-                if (inv_get_item_from_location(game->player_data.player->inventory, INV_LOC_RIGHT_WIELD) != NULL) {
-                    game->player_data.weapon_setting_rhand++;
+                if (inv_loc_empty(game->player_data.player->inventory, INV_LOC_RIGHT_WIELD) == false) {
+                    game->player_data.rof_setting_rhand++;
                     /*check if valid here, else ++*/
-                    game->player_data.weapon_setting_rhand %= FGHT_WEAPON_SETTING_MAX;
+                    game->player_data.rof_setting_rhand %= WPN_ROF_SETTING_MAX;
                 }
-                if (inv_get_item_from_location(game->player_data.player->inventory, INV_LOC_LEFT_WIELD) != NULL) {
-                    game->player_data.weapon_setting_lhand++;
+                if (inv_loc_empty(game->player_data.player->inventory, INV_LOC_LEFT_WIELD) == false) {
+                    game->player_data.rof_setting_lhand++;
                     /*check if valid here, else ++*/
-                    game->player_data.weapon_setting_lhand %= FGHT_WEAPON_SETTING_MAX;
+                    game->player_data.rof_setting_lhand %= WPN_ROF_SETTING_MAX;
                 }
                 break;
             case INP_KEY_WEAPON_SELECT: 
                 game->player_data.weapon_selection++;
                 game->player_data.weapon_selection %= FGHT_WEAPON_SELECT_MAX;
-                if (inv_get_item_from_location(game->player_data.player->inventory, INV_LOC_RIGHT_WIELD) == NULL)
+                if (inv_loc_empty(game->player_data.player->inventory, INV_LOC_RIGHT_WIELD) == true) {
                     game->player_data.weapon_selection = FGHT_WEAPON_SELECT_LHAND;
-                if (inv_get_item_from_location(game->player_data.player->inventory, INV_LOC_LEFT_WIELD) == NULL)
+                }
+                if (inv_loc_empty(game->player_data.player->inventory, INV_LOC_LEFT_WIELD) == true) {
                     game->player_data.weapon_selection = FGHT_WEAPON_SELECT_RHAND;
+                }
                 break;
             default:
                 lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "main", "key pressed: %d.", ch);

@@ -14,15 +14,8 @@ enum item_types {
     ITEM_TYPE_FOOD,
     ITEM_TYPE_AMMO,
     ITEM_TYPE_TOOL,
-    /*ITEM_TYPE_CREATURE,*/
     ITEM_TYPE_MAX,
     ITEM_TYPE_RANDOM,
-};
-
-enum item_ids {
-    ITEM_ID_AVERAGE_TORCH,
-    ITEM_ID_AVERAGE_STUB_AUTOMATIC,
-    ITEM_ID_MAX,
 };
 
 enum item_attributes {
@@ -61,54 +54,55 @@ enum item_material {
 */
 
 enum item_weapon_type {
-    ITEM_WEAPON_TYPE_RANGED,
-    ITEM_WEAPON_TYPE_MELEE,
-    ITEM_WEAPON_TYPE_THROWN,
-    ITEM_WEAPON_TYPE_MAX,
-    ITEM_WEAPON_TYPE_RANDOM,
+    WEAPON_TYPE_RANGED,
+    WEAPON_TYPE_MELEE,
+    WEAPON_TYPE_THROWN,
+    WEAPON_TYPE_CREATURE,
+    WEAPON_TYPE_MAX,
+    WEAPON_TYPE_RANDOM,
 };
 
 enum item_food_type {
-    ITEM_FOOD_TYPE_SOLID,
-    ITEM_FOOD_TYPE_LIQUID,
-    ITEM_FOOD_TYPE_MAX,
-    ITEM_FOOD_TYPE_RANDOM,
+    FOOD_TYPE_SOLID,
+    FOOD_TYPE_LIQUID,
+    FOOD_TYPE_MAX,
+    FOOD_TYPE_RANDOM,
 };
 
 enum item_tool_type {
-    ITEM_TOOL_TYPE_LIGHT,
-    ITEM_TOOL_TYPE_CONTAINER,
-    ITEM_TOOL_TYPE_MAX,
-    ITEM_TOOL_TYPE_RANDOM,
+    TOOL_TYPE_LIGHT,
+    TOOL_TYPE_CONTAINER,
+    TOOL_TYPE_MAX,
+    TOOL_TYPE_RANDOM,
 };
 
 enum item_ammo_type {
-    ITEM_AMMO_TYPE_ARROW,
-    ITEM_AMMO_TYPE_PISTOL,
-    ITEM_AMMO_TYPE_BASIC,
-    ITEM_AMMO_TYPE_ROCKET,
-    ITEM_AMMO_TYPE_FLAMER,
-    ITEM_AMMO_TYPE_SHOTGUN,
-    ITEM_AMMO_TYPE_LAS_PACK,
-    ITEM_AMMO_TYPE_PLASMA_PACK,
-    ITEM_AMMO_TYPE_MAX,
-    ITEM_AMMO_TYPE_RANDOM,
+    AMMO_TYPE_ARROW,
+    AMMO_TYPE_PISTOL,
+    AMMO_TYPE_BASIC,
+    AMMO_TYPE_ROCKET,
+    AMMO_TYPE_FLAMER,
+    AMMO_TYPE_SHOTGUN,
+    AMMO_TYPE_LAS_PACK,
+    AMMO_TYPE_PLASMA_PACK,
+    AMMO_TYPE_MAX,
+    AMMO_TYPE_RANDOM,
 };
 
 enum item_wearable_type {
-    ITEM_WEARABLE_TYPE_FEET,
-    ITEM_WEARABLE_TYPE_LEGS,
-    ITEM_WEARABLE_TYPE_CHEST,
-    ITEM_WEARABLE_TYPE_SHOULDERS,
-    ITEM_WEARABLE_TYPE_ARMS,
-    ITEM_WEARABLE_TYPE_HANDS,
-    ITEM_WEARABLE_TYPE_FINGERS,
-    ITEM_WEARABLE_TYPE_HEAD,
-    ITEM_WEARABLE_TYPE_FACE,
-    ITEM_WEARABLE_TYPE_BACK,
-    ITEM_WEARABLE_TYPE_ARMOUR_CHEST,
-    ITEM_WEARABLE_TYPE_MAX,
-    ITEM_WEARABLE_TYPE_RANDOM,
+    WEARABLE_TYPE_FEET,
+    WEARABLE_TYPE_LEGS,
+    WEARABLE_TYPE_CHEST,
+    WEARABLE_TYPE_SHOULDERS,
+    WEARABLE_TYPE_ARMS,
+    WEARABLE_TYPE_HANDS,
+    WEARABLE_TYPE_FINGERS,
+    WEARABLE_TYPE_HEAD,
+    WEARABLE_TYPE_FACE,
+    WEARABLE_TYPE_BACK,
+    WEARABLE_TYPE_ARMOUR_CHEST,
+    WEARABLE_TYPE_MAX,
+    WEARABLE_TYPE_RANDOM,
 };
 
 enum item_quality {
@@ -146,15 +140,24 @@ enum weapon_special_quality {
 };
 
 enum item_weapon_category {
-    ITEM_WEAPON_CATEGORY_PISTOL,
-    ITEM_WEAPON_CATEGORY_BASIC,
-    ITEM_WEAPON_CATEGORY_HEAVY,
-    ITEM_WEAPON_CATEGORY_MELEE,
-    ITEM_WEAPON_CATEGORY_THROWN,
-    ITEM_WEAPON_CATEGORY_MELEE_THROWN,
-    ITEM_WEAPON_CATEGORY_MAX,
-    ITEM_WEAPON_CATEGORY_RANDOM,
+    WEAPON_CATEGORY_PISTOL,
+    WEAPON_CATEGORY_BASIC,
+    WEAPON_CATEGORY_HEAVY,
+    WEAPON_CATEGORY_1H_MELEE,
+    WEAPON_CATEGORY_2H_MELEE,
+    WEAPON_CATEGORY_THROWN,
+    WEAPON_CATEGORY_MELEE_THROWN,
+    WEAPON_CATEGORY_MAX,
+    WEAPON_CATEGORY_RANDOM,
 };
+
+enum wpn_rof_setting {
+    WPN_ROF_SETTING_SINGLE,
+    WPN_ROF_SETTING_SEMI,
+    WPN_ROF_SETTING_AUTO,
+    WPN_ROF_SETTING_MAX,
+};
+
 
 struct item_weapon_specific {
     enum item_weapon_type weapon_type;
@@ -163,11 +166,7 @@ struct item_weapon_specific {
     uint8_t nr_dmg_die; /*0 is 1d5*/
     uint8_t dmg_addition;
     uint8_t range;
-    struct rate_of_fire {
-        uint8_t rof_single;
-        uint8_t rof_semi;
-        uint8_t rof_auto;
-    } rof;
+    uint8_t rof[WPN_ROF_SETTING_MAX];
     uint8_t magazine_sz;
     uint8_t magazine_left;
     uint8_t reload_delay;
@@ -228,6 +227,7 @@ struct itm_item {
     uint8_t use_delay;
     uint8_t stacked_quantity;
     uint8_t max_quantity;
+    bool dropable;
 
     enum item_owner owner_type;
     union owner_union {
@@ -260,6 +260,9 @@ void itm_destroy(struct itm_item *item);
 bool itm_insert_item(struct itm_item *item, struct dc_map *map, coord_t *pos);
 bool itm_remove_item(struct itm_item *item, struct dc_map *map, coord_t *pos);
 coord_t itm_get_pos(struct itm_item *item);
+
+bool wpn_is_type(struct itm_item *item, enum item_weapon_type type);
+bool wpn_is_catergory(struct itm_item *item, enum item_weapon_category cat);
 
 #endif /*ITEMS_H_*/
 

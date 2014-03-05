@@ -376,9 +376,14 @@ void mapwin_overlay_fire_cursor(struct hrl_window *window, struct pl_player *plr
     if (map == NULL) return;
     if (p_pos == NULL) return;
     if (window->type != HRL_WINDOW_TYPE_MAP) return;
+    if (plr_ranged_weapons_check(plr) == false) {
+        You("wield no ranged weapon.");
+        return;
+    }
 
     coord_t e_pos = *p_pos;
     /*find nearest enemy....*/
+
 
     int scr_x = get_viewport(p_pos->x, window->cols, map->size.x);
     int scr_y = get_viewport(p_pos->y, window->lines, map->size.y);
@@ -402,7 +407,7 @@ void mapwin_overlay_fire_cursor(struct hrl_window *window, struct pl_player *plr
             case INP_KEY_FIRE: {
                 bool blocked = false;
                 You("fire (%d,%d)", e_pos.x, e_pos.y);
-                path_len = fght_shoot(plr->player, map, FGHT_WEAPON_SELECT_LHAND, FGHT_WEAPON_SETTING_SINGLE, p_pos, &e_pos, path, ARRAY_SZ(path) );
+                path_len = fght_shoot(plr->player, map, plr->rof_setting_rhand, plr->rof_setting_lhand, plr->weapon_selection, p_pos, &e_pos, path, ARRAY_SZ(path) );
                 for (int i = 1; (i < path_len) && (blocked == false); i++) {
                     chtype oldch = mvwinch(window->win, path[i].y - scr_y, path[i].x - scr_x);
                     mvwaddch(window->win, path[i].y - scr_y, path[i].x - scr_x, '*');
@@ -511,13 +516,34 @@ void charwin_refresh(struct hrl_window *window, struct pl_player *plr) {
     if ( (item = inv_get_item_from_location(player->inventory, INV_LOC_RIGHT_WIELD) ) != NULL) {
         mvwprintw(window->win, y++,x, "Right Wpn: %s", item->sd_name);
         if (item->item_type == ITEM_TYPE_WEAPON) {
-            if (item->specific.weapon.weapon_type == ITEM_WEAPON_TYPE_RANGED) {
+            if (item->specific.weapon.weapon_type == WEAPON_TYPE_RANGED) {
                 mvwprintw(window->win, y++,x, "  Ammo: %d/%d", 5,6);
-                int single = item->specific.weapon.rof.rof_single;
-                int semi = item->specific.weapon.rof.rof_semi;
-                int aut = item->specific.weapon.rof.rof_auto;
-                char *set = (plr->weapon_setting_rhand == FGHT_WEAPON_SETTING_SINGLE) ? "single" : 
-                            (plr->weapon_setting_rhand == FGHT_WEAPON_SETTING_SEMI) ? "semi": "auto";
+                int single = item->specific.weapon.rof[WPN_ROF_SETTING_SINGLE];
+                int semi = item->specific.weapon.rof[WPN_ROF_SETTING_SEMI];
+                int aut = item->specific.weapon.rof[WPN_ROF_SETTING_AUTO];
+                char *set = (plr->rof_setting_rhand == WPN_ROF_SETTING_SINGLE) ? "single" : 
+                            (plr->rof_setting_rhand == WPN_ROF_SETTING_SEMI) ? "semi": "auto";
+                char semi_str[4]; snprintf(semi_str, 3, "%d", semi);
+                char auto_str[4]; snprintf(auto_str, 3, "%d", aut);
+                mvwprintw(window->win, y++,x, "  Setting: %s (%s/%s/%s)", set, 
+                        (single > 0) ? "S" : "-",
+                        (semi > 0) ? semi_str : "-",
+                        (aut > 0) ? auto_str : "-");
+            }
+        }
+    }
+
+    y++;
+    if ( (item = inv_get_item_from_location(player->inventory, INV_LOC_LEFT_WIELD) ) != NULL) {
+        mvwprintw(window->win, y++,x, "Left Wpn: %s", item->sd_name);
+        if (item->item_type == ITEM_TYPE_WEAPON) {
+            if (item->specific.weapon.weapon_type == WEAPON_TYPE_RANGED) {
+                mvwprintw(window->win, y++,x, "  Ammo: %d/%d", 5,6);
+                int single = item->specific.weapon.rof[WPN_ROF_SETTING_SINGLE];
+                int semi = item->specific.weapon.rof[WPN_ROF_SETTING_SEMI];
+                int aut = item->specific.weapon.rof[WPN_ROF_SETTING_AUTO];
+                char *set = (plr->rof_setting_lhand == WPN_ROF_SETTING_SINGLE) ? "single" : 
+                            (plr->rof_setting_lhand == WPN_ROF_SETTING_SEMI) ? "semi": "auto";
                 char semi_str[4]; snprintf(semi_str, 3, "%d", semi);
                 char auto_str[4]; snprintf(auto_str, 3, "%d", aut);
                 mvwprintw(window->win, y++,x, "  Setting: %s (%s/%s/%s)", set, 
@@ -530,6 +556,7 @@ void charwin_refresh(struct hrl_window *window, struct pl_player *plr) {
 
     if ( ( (item = inv_get_item_from_location(player->inventory, INV_LOC_RIGHT_WIELD) ) != NULL) ||
          ( (item = inv_get_item_from_location(player->inventory, INV_LOC_RIGHT_WIELD) ) != NULL) ) {
+        y++;
         switch (plr->weapon_selection) {
             case FGHT_WEAPON_SELECT_LHAND:
                 mvwprintw(window->win, y++,x, "Using left hand.");
@@ -645,6 +672,7 @@ void invwin_inventory(struct hrl_window *mapwin, struct hrl_window *charwin, str
                     int item_idx = inp_get_input_idx();
                     if (item_idx == INP_KEY_ESCAPE) break;
                     if ((item_idx + invstart) >= invsz) break;
+                    dw_wear_item(plr->player, invlist[item_idx+invstart].item);
                 } 
                 break;
             case INP_KEY_EXAMINE: {
