@@ -2,30 +2,39 @@
 #include <sys/param.h>
 #include "fight.h"
 #include "heresyrl_def.h"
+#include "dungeon_creator.h"
+#include "monster.h"
+#include "items.h"
+#include "tiles.h"
 
-/*
-int fght_calc_lof_path(coord_t *s, coord_t *e, coord_t path_list[], int path_list_sz) {
-    int length = cd_pyth(s, e);
-    float px = s->x;
-    float py = s->y;
+int fght_shoot(struct msr_monster *monster, struct dc_map *map, enum fght_weapon_selection sel, enum fght_weapon_setting set, coord_t *s, coord_t *e, coord_t path_list[], int path_list_sz) {
+    if (monster == NULL) return -1;
+    if (map == NULL) return -1;
+    if (s == NULL) return -1;
+    if (e == NULL) return -1;
+    if (path_list == NULL) return -1;
+    if (sel >= FGHT_WEAPON_SELECT_MAX) return -1;
+    if (set >= FGHT_WEAPON_SETTING_MAX) return -1;
 
-    int i = 0;
-    for (i = 0; i < MIN(path_list_sz, length); i++) {
-        px += ( (e->x - px) / (length - i) );
-        py += ( (e->y - py) / (length - i) );
-        path_list[i].x = round(px);
-        path_list[i].y = round(py);
+    coord_t path[MAX(map->size.x, map->size.y)];
+    int path_len = fght_calc_lof_path(s, e, path, ARRAY_SZ(path));
+    bool blocked = false;
+    int unblocked_length = 0;
+
+    for (int i = 1; (i < path_len) && (blocked == false); i++) {
+        if ( (sd_get_map_me(&path[i], map)->monster != NULL) || 
+                (TILE_HAS_ATTRIBUTE(sd_get_map_tile(&path[i], map), TILE_ATTR_TRAVERSABLE) == false) ) {
+            blocked = true;
+            /* Do damage */
+        } else if (sd_get_map_me(&path[i], map)->visible == true) {
+            if (i-1 < path_list_sz) {
+                path_list[i-1] = path[i];
+                unblocked_length++;
+            }
+        }
     }
-    if ( (i+1) < path_list_sz) {
-        path_list[i+1].x = e->x;
-        path_list[i+1].y = e->y;
-        return (i+1);
-    }
-    return MIN(path_list_sz, length);
+    return unblocked_length;
 }
-*/
-
-#define LOS_DISTANCE (10)
 
 /* Adapted from the code displayed at RogueBasin's "Bresenham's Line
  * Algorithm" article, this function checks for an unobstructed line

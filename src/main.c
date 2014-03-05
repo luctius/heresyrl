@@ -72,13 +72,13 @@ int main(void)
                 else You("see nothing there.");
                 break;
             case 'i':
-                invwin_inventory(map_win, game->current_map, &game->player_data);
+                invwin_inventory(map_win, char_win, game->current_map, &game->player_data);
                 break;
             case 'x':
-                mapwin_overlay_examine_cursor(map_win, game->current_map, player_pos);
+                mapwin_overlay_examine_cursor(map_win, char_win, game->current_map, player_pos);
                 break;
             case 'f':
-                mapwin_overlay_fire_cursor(map_win, game->current_map, player_pos);
+                mapwin_overlay_fire_cursor(map_win, &game->player_data, game->current_map, player_pos);
                 break;
             case '<':
                 if (sd_get_map_tile(player_pos, game->current_map)->type == TILE_TYPE_STAIRS_DOWN) {
@@ -98,6 +98,7 @@ int main(void)
 
         game_new_turn();
         ui_create(COLS, LINES, &map_win, &char_win, &msg_win);
+        charwin_refresh(char_win, &game->player_data);
         mapwin_display_map(map_win, game->current_map, player_pos);
     }
     while((ch = getch()) != 27 && ch != 'q');

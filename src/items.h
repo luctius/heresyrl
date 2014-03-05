@@ -160,6 +160,7 @@ struct item_weapon_specific {
     } rof;
     uint8_t magazine_sz;
     uint8_t magazine_left;
+    uint8_t reload_delay;
     uint8_t penetration;
     enum weapon_special_quality special_quality;
     enum item_ammo_type ammo_type;

@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <assert.h>
 #include <ncurses.h>
+#include <unistd.h>
 #include <sys/param.h>
 
 #include "ui.h"
@@ -270,18 +271,49 @@ void mapwin_display_map(struct hrl_window *window, struct dc_map *map, coord_t *
     wrefresh(window->win);
 }
 
-void mapwin_overlay_examine_cursor(struct hrl_window *window, struct dc_map *map, coord_t *p_pos) {
+static WINDOW *mapwin_examine(struct hrl_window *window, struct dc_map_entity *me) {
+    if (window == NULL) return NULL;
+    if (me == NULL) return NULL;
+    if (window->type != HRL_WINDOW_TYPE_CHARACTER) return NULL;
+
+    /*
+    char **desc;
+    int *len_lines;
+    int len = strwrap(item->description, window->cols, &desc, &len_lines);
+    if (len > 0) {
+        WINDOW *invwin_ex = derwin(window->win, 0,0,0,0);
+        touchwin(window->win);
+        wclear(invwin_ex);
+
+        mvwprintw(invwin_ex, 0, 1, "Description of %s.", item->ld_name);
+        for (int i = 0; i < len; i++) {
+            mvwprintw(invwin_ex, 2+i, 0, desc[i]);
+        }
+        free(desc);
+        free(len_lines);
+        wrefresh(invwin_ex);
+        return invwin_ex;
+    }
+    */
+    return NULL;
+}
+
+void mapwin_overlay_examine_cursor(struct hrl_window *mapwin, struct hrl_window *charwin, struct dc_map *map, coord_t *p_pos) {
     int ch = '0';
     bool examine_mode = true;
 
-    if (window == NULL) return;
+    if (mapwin == NULL) return;
+    if (charwin == NULL) return;
     if (map == NULL) return;
     if (p_pos == NULL) return;
-    if (window->type != HRL_WINDOW_TYPE_MAP) return;
+    if (mapwin->type != HRL_WINDOW_TYPE_MAP) return;
+    if (charwin->type != HRL_WINDOW_TYPE_CHARACTER) return;
 
     coord_t e_pos = *p_pos;
-    int scr_x = get_viewport(p_pos->x, window->cols, map->size.x);
-    int scr_y = get_viewport(p_pos->y, window->lines, map->size.y);
+    int scr_x = get_viewport(p_pos->x, mapwin->cols, map->size.x);
+    int scr_y = get_viewport(p_pos->y, mapwin->lines, map->size.y);
+
+    WINDOW *mapwin_ex = NULL;
 
     do {
         switch (ch) {
@@ -289,11 +321,6 @@ void mapwin_overlay_examine_cursor(struct hrl_window *window, struct dc_map *map
             case KEY_RIGHT: e_pos.x++; break;
             case KEY_DOWN: e_pos.y++; break;
             case KEY_LEFT: e_pos.x--; break;
-            case '\n':
-            case 'x':
-                You("examine (%d,%d)", e_pos.x, e_pos.y);
-                examine_mode=false;
-                break;
             default: break;
         }
         if (examine_mode == false) break;
@@ -303,15 +330,21 @@ void mapwin_overlay_examine_cursor(struct hrl_window *window, struct dc_map *map
         if (e_pos.x < 0) e_pos.x = 0;
         if (e_pos.x >= map->size.y -1) e_pos.x = map->size.x;
 
-        chtype oldch = mvwinch(window->win, e_pos.y - scr_y, e_pos.x - scr_x);
-        mvwchgat(window->win, e_pos.y - scr_y, e_pos.x - scr_x, 1, A_NORMAL, DPL_COLOUR_BGB_RED, NULL);
-        wrefresh(window->win);
-        mvwaddch(window->win, e_pos.y - scr_y, e_pos.x - scr_x, oldch);
+        delwin(mapwin_ex);
+        mapwin_ex = mapwin_examine(charwin, sd_get_map_me(&e_pos, map) );
+
+        chtype oldch = mvwinch(mapwin->win, e_pos.y - scr_y, e_pos.x - scr_x);
+        mvwchgat(mapwin->win, e_pos.y - scr_y, e_pos.x - scr_x, 1, A_NORMAL, DPL_COLOUR_BGB_RED, NULL);
+        wrefresh(mapwin->win);
+        mvwaddch(mapwin->win, e_pos.y - scr_y, e_pos.x - scr_x, oldch);
     }
     while((ch = getch()) != 27 && ch != 'q' && examine_mode);
+
+    delwin(mapwin_ex);
+    wrefresh(mapwin->win);
 }
 
-void mapwin_overlay_fire_cursor(struct hrl_window *window, struct dc_map *map, coord_t *p_pos) {
+void mapwin_overlay_fire_cursor(struct hrl_window *window, struct pl_player *plr, struct dc_map *map, coord_t *p_pos) {
     int ch = '0';
     bool fire_mode = true;
     if (window == NULL) return;
@@ -325,6 +358,10 @@ void mapwin_overlay_fire_cursor(struct hrl_window *window, struct dc_map *map, c
     int scr_x = get_viewport(p_pos->x, window->cols, map->size.x);
     int scr_y = get_viewport(p_pos->y, window->lines, map->size.y);
 
+    int length = 0;
+    coord_t path[MAX(map->size.x, map->size.y)];
+    int path_len = 0;
+
     do {
         lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "mapwin", "entering fire_mode (%d,%d) -> (%d,%d)", p_pos->x, p_pos->y, e_pos.x, e_pos.y);
         switch (ch) {
@@ -333,10 +370,20 @@ void mapwin_overlay_fire_cursor(struct hrl_window *window, struct dc_map *map, c
             case KEY_DOWN: e_pos.y++; break;
             case KEY_LEFT: e_pos.x--; break;
             case '\n':
-            case 'f':
+            case 'f': {
+                bool blocked = false;
                 You("fire (%d,%d)", e_pos.x, e_pos.y);
+                path_len = fght_shoot(plr->player, map, FGHT_WEAPON_SELECT_LHAND, FGHT_WEAPON_SETTING_SINGLE, p_pos, &e_pos, path, ARRAY_SZ(path) );
+                for (int i = 1; (i < path_len) && (blocked == false); i++) {
+                    chtype oldch = mvwinch(window->win, path[i].y - scr_y, path[i].x - scr_x);
+                    mvwaddch(window->win, path[i].y - scr_y, path[i].x - scr_x, '*');
+                    wrefresh(window->win);
+                    mvwaddch(window->win, path[i].y - scr_y, path[i].x - scr_x, oldch);
+                    usleep(50000);
+                }
                 fire_mode=false;
-                break;
+            }
+            break;
             default: break;
         }
         if (fire_mode == false) break;
@@ -346,14 +393,12 @@ void mapwin_overlay_fire_cursor(struct hrl_window *window, struct dc_map *map, c
         if (e_pos.x < 0) e_pos.x = 0;
         if (e_pos.x >= map->size.y -1) e_pos.x = map->size.x;
 
-        int length = cd_pyth(p_pos, &e_pos);
-        coord_t path[length+1];
-        int path_len = fght_calc_lof_path(p_pos, &e_pos, path, ARRAY_SZ(path) );
-        for (int i = 0; i < path_len; i++) {
+        length = cd_pyth(p_pos, &e_pos) +1;
+        path_len = fght_calc_lof_path(p_pos, &e_pos, path, ARRAY_SZ(path));
+        for (int i = 0; i < MIN(path_len, length); i++) {
             mvwchgat(window->win, path[i].y - scr_y, path[i].x - scr_x, 1, A_NORMAL, DPL_COLOUR_BGB_RED, NULL);
             lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "mapwin", "fire_mode: [%d/%d] c (%d,%d) -> (%d,%d)", i, path_len, path[i].x, path[i].y, path[i].x - scr_x, path[i].y - scr_y);
         }
-        mvwchgat(window->win, e_pos.y -scr_y, e_pos.x -scr_x, 1, A_NORMAL, DPL_COLOUR_BGB_RED, NULL);
 
         wrefresh(window->win);
         mapwin_display_map_noref(window, map, p_pos);
@@ -432,6 +477,14 @@ void charwin_refresh(struct hrl_window *window, struct pl_player *plr) {
     mvwprintw(window->win, y++,x, "   [%2d]    [%2d]", 1, 1);
     mvwprintw(window->win, y++,x, "     [%2d][%2d]", 1, 1);
 
+    y++;
+    mvwprintw(window->win, y++,x, "Weapon 1: %s", "revolver");
+    mvwprintw(window->win, y++,x, "  Ammo: %d/%d", 5,6);
+    mvwprintw(window->win, y++,x, "Weapon 2: %s", "autopistol");
+    mvwprintw(window->win, y++,x, "  Ammo: %d/%d", 15,20);
+
+    y++;
+
     wrefresh(window->win);
 }
 
@@ -478,22 +531,22 @@ static void inv_create_list(struct inv_inventory *inventory, struct inv_show_ite
     }
 }
 
-WINDOW *invwin_examine(struct hrl_window *window, struct itm_item *item) {
+static WINDOW *invwin_examine(struct hrl_window *window, struct itm_item *item) {
     if (window == NULL) return NULL;
     if (item == NULL) return NULL;
-    if (window->type != HRL_WINDOW_TYPE_MAP) return NULL;
+    if (window->type != HRL_WINDOW_TYPE_CHARACTER) return NULL;
 
     char **desc;
     int *len_lines;
-    int len = strwrap(item->description, (window->cols / 2) -2, &desc, &len_lines);
+    int len = strwrap(item->description, window->cols, &desc, &len_lines);
     if (len > 0) {
-        WINDOW *invwin_ex = derwin(window->win, window->lines, window->cols / 2, 0, window->cols / 2);
+        WINDOW *invwin_ex = derwin(window->win, 0,0,0,0);
         touchwin(window->win);
         wclear(invwin_ex);
 
         mvwprintw(invwin_ex, 0, 1, "Description of %s.", item->ld_name);
         for (int i = 0; i < len; i++) {
-            mvwprintw(invwin_ex, 2+i, 1, desc[i]);
+            mvwprintw(invwin_ex, 2+i, 0, desc[i]);
         }
         free(desc);
         free(len_lines);
@@ -503,17 +556,17 @@ WINDOW *invwin_examine(struct hrl_window *window, struct itm_item *item) {
     return NULL;
 }
 
-void invwin_inventory(struct hrl_window *window, struct dc_map *map, struct pl_player *plr) {
-    if (window == NULL) return;
+void invwin_inventory(struct hrl_window *mapwin, struct hrl_window *charwin, struct dc_map *map, struct pl_player *plr) {
+    if (mapwin == NULL) return;
     if (plr == NULL) return;
-    if (window->type != HRL_WINDOW_TYPE_MAP) return;
+    if (mapwin->type != HRL_WINDOW_TYPE_MAP) return;
     int invstart = 0;
     char ch;
 
-    WINDOW *invwin = derwin(window->win, window->lines, window->cols / 2, 0, 0);
+    WINDOW *invwin = derwin(mapwin->win, mapwin->lines, mapwin->cols / 2, 0, 0);
     WINDOW *invwin_ex = NULL;
 
-    int winsz = window->lines -4;
+    int winsz = mapwin->lines -4;
 
     int dislen = winsz;
     do {
@@ -536,12 +589,12 @@ void invwin_inventory(struct hrl_window *window, struct dc_map *map, struct pl_p
                 break;
             case 'x': {
                     int item_idx;
-                    delwin(invwin_ex);
                     ch = getch();
                     if (ch == 'q' || ch == 27) break;
                     if ( (item_idx = get_invid(ch) ) != -1) {
                         if ((item_idx + invstart) >= invsz) break;
-                        invwin_ex = invwin_examine(window, invlist[item_idx +invstart].item);
+                        delwin(invwin_ex);
+                        invwin_ex = invwin_examine(charwin, invlist[item_idx +invstart].item);
                     }
                 } 
                 break;
@@ -564,7 +617,8 @@ void invwin_inventory(struct hrl_window *window, struct dc_map *map, struct pl_p
             default: break;
         }
 
-        touchwin(window->win);
+        mapwin_display_map_noref(mapwin, map, &plr->player->pos);
+        touchwin(mapwin->win);
         wclear(invwin);
         if ( (dislen = invwin_printlist(invwin, invlist, invsz, invstart, invstart +winsz) ) == -1) {
             invstart = 0;
@@ -580,6 +634,10 @@ void invwin_inventory(struct hrl_window *window, struct dc_map *map, struct pl_p
 
     delwin(invwin_ex);
     delwin(invwin);
-    wrefresh(window->win);
+
+    mapwin_display_map_noref(mapwin, map, &plr->player->pos);
+    wrefresh(mapwin->win);
+    charwin_refresh(charwin, plr);
+    wrefresh(charwin->win);
 }
 
