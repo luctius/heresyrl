@@ -317,9 +317,13 @@ void mapwin_overlay_examine_cursor(struct hrl_window *mapwin, struct hrl_window 
 
     do {
         switch (ch) {
+            case KEY_A1: e_pos.y--; e_pos.x--; break;
             case KEY_UP: e_pos.y--; break;
+            case KEY_A3: e_pos.y--; e_pos.x++; break;
             case KEY_RIGHT: e_pos.x++; break;
+            case KEY_C3: e_pos.y++; e_pos.x++; break;
             case KEY_DOWN: e_pos.y++; break;
+            case KEY_C1: e_pos.y++; e_pos.x--; break;
             case KEY_LEFT: e_pos.x--; break;
             default: break;
         }

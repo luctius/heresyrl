@@ -58,10 +58,14 @@ int main(void)
         pos = *player_pos;
     
         switch (ch) { 
+            case KEY_HOME: pos.y--; pos.x--; break;
             case KEY_UP: pos.y--; break;
-            case KEY_DOWN: pos.y++; break;
-            case KEY_LEFT: pos.x--; break;
+            case KEY_NPAGE: pos.y--; pos.x++; break;
             case KEY_RIGHT: pos.x++; break;
+            case KEY_PPAGE: pos.y++; pos.x++; break;
+            case KEY_DOWN: pos.y++; break;
+            case KEY_END: pos.y++; pos.x--; break;
+            case KEY_LEFT: pos.x--; break;
             
             case 'g':
                 if ( (item = sd_get_map_me(player_pos, game->current_map)->item) != NULL ) {
@@ -91,6 +95,7 @@ int main(void)
                 }
                 break;
             default:
+                lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "main", "key pressed: %d.", ch);
                 break;
         }
 
