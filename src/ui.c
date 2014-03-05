@@ -299,9 +299,9 @@ void mapwin_overlay_examine_cursor(struct hrl_window *window, struct dc_map *map
         if (examine_mode == false) break;
 
         if (e_pos.y < 0) e_pos.y = 0;
-        if (e_pos.y >= window->lines -1) e_pos.y = window->lines -1;
+        if (e_pos.y >= map->size.y -1) e_pos.y = map->size.y;
         if (e_pos.x < 0) e_pos.x = 0;
-        if (e_pos.x >= window->cols -1) e_pos.x = window->cols -1;
+        if (e_pos.x >= map->size.y -1) e_pos.x = map->size.x;
 
         chtype oldch = mvwinch(window->win, e_pos.y - scr_y, e_pos.x - scr_x);
         mvwchgat(window->win, e_pos.y - scr_y, e_pos.x - scr_x, 1, A_NORMAL, DPL_COLOUR_BGB_RED, NULL);
@@ -342,16 +342,16 @@ void mapwin_overlay_fire_cursor(struct hrl_window *window, struct dc_map *map, c
         if (fire_mode == false) break;
 
         if (e_pos.y < 0) e_pos.y = 0;
-        if (e_pos.y >= window->lines -1) e_pos.y = window->lines -1;
+        if (e_pos.y >= map->size.y -1) e_pos.y = map->size.y;
         if (e_pos.x < 0) e_pos.x = 0;
-        if (e_pos.x >= window->cols -1) e_pos.x = window->cols -1;
+        if (e_pos.x >= map->size.y -1) e_pos.x = map->size.x;
 
-        int length = cd_pyth(p_pos, &e_pos) +1;
-        coord_t path[length];
-        int path_len = fght_calc_lof_path(p_pos, &e_pos, path, length);
+        int length = cd_pyth(p_pos, &e_pos);
+        coord_t path[length+1];
+        int path_len = fght_calc_lof_path(p_pos, &e_pos, path, ARRAY_SZ(path) );
         for (int i = 0; i < path_len; i++) {
             mvwchgat(window->win, path[i].y - scr_y, path[i].x - scr_x, 1, A_NORMAL, DPL_COLOUR_BGB_RED, NULL);
-            lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "mapwin", "fire_mode: [%d/%d] c (%d,%d)", i, path_len, path[i].x, path[i].y);
+            lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "mapwin", "fire_mode: [%d/%d] c (%d,%d) -> (%d,%d)", i, path_len, path[i].x, path[i].y, path[i].x - scr_x, path[i].y - scr_y);
         }
         mvwchgat(window->win, e_pos.y -scr_y, e_pos.x -scr_x, 1, A_NORMAL, DPL_COLOUR_BGB_RED, NULL);
 
@@ -513,7 +513,7 @@ void invwin_inventory(struct hrl_window *window, struct dc_map *map, struct pl_p
     WINDOW *invwin = derwin(window->win, window->lines, window->cols / 2, 0, 0);
     WINDOW *invwin_ex = NULL;
 
-    int winsz = window->lines -3;
+    int winsz = window->lines -4;
 
     int dislen = winsz;
     do {
@@ -521,8 +521,19 @@ void invwin_inventory(struct hrl_window *window, struct dc_map *map, struct pl_p
         struct inv_show_item *invlist = calloc(invsz, sizeof(struct inv_show_item) );
         inv_create_list(plr->player->inventory, invlist, invsz);
 
+        /* TODO clean this shit up */
         switch (ch) {
             case ' ': invstart += dislen; break;
+            case 'u': {
+                    int item_idx;
+                    ch = getch();
+                    if (ch == 'q' || ch == 27) break;
+                    if ( (item_idx = get_invid(ch) ) != -1) {
+                        if ((item_idx + invstart) >= invsz) break;
+                        msr_use_item(plr->player, invlist[item_idx +invstart].item);
+                    }
+                }
+                break;
             case 'x': {
                     int item_idx;
                     delwin(invwin_ex);
@@ -559,8 +570,9 @@ void invwin_inventory(struct hrl_window *window, struct dc_map *map, struct pl_p
             invstart = 0;
             dislen = invwin_printlist(invwin, invlist, invsz, invstart, invstart +winsz);
         }
-        mvwprintw(invwin, winsz +1, 1, "[q] exit, [space] next screen.");
-        mvwprintw(invwin, winsz +2, 1, "[x] examine item, [d] drop item.");
+        mvwprintw(invwin, winsz +1, 1, "[q] exit, [space] next page.");
+        mvwprintw(invwin, winsz +2, 1, "[d] drop, [x] examine.");
+        mvwprintw(invwin, winsz +3, 1, "[u] use,  [w] wear.");
         wrefresh(invwin);
         free(invlist);
     }
