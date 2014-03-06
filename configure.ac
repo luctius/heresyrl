@@ -16,6 +16,7 @@ AC_TYPE_SIZE_T
 AC_STRUCT_TM
 AC_DEFINE([_GNU_SOURCE], 1, [Use GNU extensions])
 
+PKG_CHECK_MODULES([lua], [lua], [], [PKG_CHECK_MODULES([lua], [lua5.1] )])
 AC_SEARCH_LIBS(initscr, ncurses, [], [AC_MSG_ERROR([Unable to find ncurses])], [])
 AC_SEARCH_LIBS(new_panel, panel, [], [AC_MSG_ERROR([Unable to find ncurses panel])], [])
 AC_SEARCH_LIBS(new_menu, menu, [], [AC_MSG_ERROR([Unable to find ncurses menu])], [])

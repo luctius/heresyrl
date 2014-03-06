@@ -8,20 +8,20 @@
 #define AVERAGE_STUB_AUTOMATIC_DESC "This a generic stub automatic."
 
 #define CLOTHING(item_id,item_sd_name,item_ld_name,item_desc,cloth_typ,dr,avail,item_quality,item_weight,item_cost,delay) \
-    [item_id] = { .id=0, .list_id=item_id, .item_type=ITEM_TYPE_WEARABLE, .availability=avail, .quality=item_quality, \
+    [item_id] = { .save_id=0, .list_id=item_id, .item_type=ITEM_TYPE_WEARABLE, .availability=avail, .quality=item_quality, \
     .attributes=ITEM_ATTRIBUTE_NONE, .age=0, .weight=item_weight, .cost=item_cost, .sd_name=item_sd_name, \
     .ld_name=item_ld_name, .description=item_desc, .icon=']', .icon_attr=COLOR_PAIR(DPL_COLOUR_NORMAL), .use_delay=delay, \
     .stacked_quantity=0, .max_quantity=1, .dropable=true, .specific.wearable = { .wearable_type=cloth_typ, .damage_reduction=dr, }, }
 
 #define MELEE(item_id,item_sd_name,item_ld_name,item_desc,wpn_cat,dmg_die,dmg_add,dmg_tp,pen,avail,item_quality,item_weight,item_cost,delay,special) \
-    [item_id] = { .id=0, .list_id=item_id, .item_type=ITEM_TYPE_WEAPON, .availability=avail, .quality=item_quality, \
+    [item_id] = { .save_id=0, .list_id=item_id, .item_type=ITEM_TYPE_WEAPON, .availability=avail, .quality=item_quality, \
     .attributes=ITEM_ATTRIBUTE_NONE, .age=0, .weight=item_weight, .cost=item_cost, .sd_name=item_sd_name, \
     .ld_name=item_ld_name, .description=item_desc, .icon='|', .icon_attr=COLOR_PAIR(DPL_COLOUR_NORMAL), .use_delay=delay, \
     .stacked_quantity=0, .max_quantity=1, .dropable=true, .specific.weapon = { .weapon_type=WEAPON_TYPE_MELEE, .weapon_category=wpn_cat, \
     .dmg_type=dmg_tp, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=0, .penetration=pen, .special_quality=special, .jammed=false, }, }
 
 #define RANGED(item_id,item_sd_name,item_ld_name,item_desc,wpn_cat,dmg_die,dmg_add,dmg_tp,pen,ran,rofsi,rofse,rofau,magsz,avail,item_quality,item_weight,item_cost,delay,special) \
-    [item_id] = { .id=0, .list_id=item_id, .item_type=ITEM_TYPE_WEAPON, .availability=avail, .quality=item_quality, \
+    [item_id] = { .save_id=0, .list_id=item_id, .item_type=ITEM_TYPE_WEAPON, .availability=avail, .quality=item_quality, \
     .attributes=ITEM_ATTRIBUTE_NONE, .age=0, .weight=item_weight, .cost=item_cost, .sd_name=item_sd_name, \
     .ld_name=item_ld_name, .description=item_desc, .icon='|', .icon_attr=COLOR_PAIR(DPL_COLOUR_NORMAL), .use_delay=delay, \
     .stacked_quantity=0, .max_quantity=1, .dropable=true, .specific.weapon = { .weapon_type=WEAPON_TYPE_RANGED, .weapon_category=wpn_cat, \
@@ -30,14 +30,14 @@
     .penetration=pen, .special_quality=special, .jammed=false, }, }
 
 #define LIGHT(item_id,item_sd_name,item_ld_name,item_desc,lumin,dur,avail,item_quality,item_weight,item_cost,delay) \
-    [item_id] = { .id=0, .list_id=item_id, .item_type=ITEM_TYPE_TOOL, .availability=avail, .quality=item_quality, \
+    [item_id] = { .save_id=0, .list_id=item_id, .item_type=ITEM_TYPE_TOOL, .availability=avail, .quality=item_quality, \
     .attributes=ITEM_ATTRIBUTE_NONE, .age=0, .weight=item_weight, .cost=item_cost, .sd_name=item_sd_name, \
     .ld_name=item_ld_name, .description=item_desc, .icon='(', .icon_attr=COLOR_PAIR(DPL_COLOUR_NORMAL), .use_delay=delay, \
     .stacked_quantity=1, .max_quantity=100, .dropable=true, .specific.tool = { .tool_type=TOOL_TYPE_LIGHT, .energy=dur, \
     .energy_left=dur, .light_luminem=lumin, .lit=false, }, }
 
 #define AMMO(item_id,item_sd_name,item_ld_name,item_desc,ammo_typ,energ,avail,item_quality,item_weight,item_cost,delay) \
-    [item_id] = { .id=0, .list_id=item_id, .item_type=ITEM_TYPE_AMMO, .availability=avail, .quality=item_quality, \
+    [item_id] = { .save_id=0, .list_id=item_id, .item_type=ITEM_TYPE_AMMO, .availability=avail, .quality=item_quality, \
     .attributes=ITEM_ATTRIBUTE_NONE, .age=0, .weight=item_weight, .cost=item_cost, .sd_name=item_sd_name, \
     .ld_name=item_ld_name, .description=item_desc, .icon='\'', .icon_attr=COLOR_PAIR(DPL_COLOUR_NORMAL), .use_delay=delay, \
     .stacked_quantity=1, .max_quantity=100, .dropable=true, .specific.ammo = { .ammo_type=ammo_typ, .energy=energ, energy_left=energ, }, }

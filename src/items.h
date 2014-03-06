@@ -209,7 +209,7 @@ enum item_owner {
 };
 
 struct itm_item {
-    uint32_t id;
+    uint32_t save_id; /* should not be used, only for saving the item to file.*/
     uint32_t list_id;
     enum item_types item_type;
     /*enum item_material material;*/
@@ -244,13 +244,9 @@ struct itm_item {
     } specific;
 };
 
-struct itm_item_list_entry {
-    struct itm_item item;
-    LIST_ENTRY(itm_item_list_entry) entries;
-};
-
 void itmlst_items_list_init(void);
 void itmlst_items_list_exit(void);
+bool itmlst_truncate_ids(void);
 struct itm_item *itmlst_get_next_item(struct itm_item *prev);
 
 struct itm_item *itm_generate(enum item_types type);

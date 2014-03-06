@@ -31,11 +31,11 @@ int main(void)
     gbl_log = lg_init(LG_DEBUG_LEVEL_DEBUG, 100);
  	srand(time(NULL));
 
-    initscr(); /*  Start curses mode         */
+    initscr(); //  Start curses mode
     if (has_colors() == FALSE) exit(1);
     if (start_color() == ERR) exit(1);
     win_generate_colours();
-    refresh(); /*  Print it on to the real screen */
+    refresh(); //  Print it on to the real screen
 
     ui_create(COLS, LINES, &map_win, &char_win, &msg_win);
 
@@ -45,6 +45,7 @@ int main(void)
     keypad(stdscr, TRUE);
 
     game_init(NULL, rand());
+    game_init_map();
 
     pos = game->player_data.player->pos;
     struct itm_item *item = itm_create_specific(ITEM_ID_AVERAGE_TORCH);
@@ -176,11 +177,14 @@ int main(void)
     }
     while((ch = inp_get_input()) != INP_KEY_ESCAPE);
 
+    game_exit();
+
     ui_destroy(map_win, char_win, msg_win);
     map_win = char_win = msg_win = NULL;
+
     clear();
-    refresh();          /*  Print it on to the real screen */
-    endwin();           /*  End curses mode       */
+    refresh();          //  Print it on to the real screen
+    endwin();           //  End curses mode
 
     lg_printf("Goodbye :)");
     lg_exit(gbl_log);

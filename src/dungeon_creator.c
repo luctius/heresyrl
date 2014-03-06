@@ -208,6 +208,7 @@ static unsigned int dc_traversable_callback(void *vmap, struct pf_coord *coord) 
 bool dc_generate_map(struct dc_map *map, enum dc_dungeon_type type, int level, unsigned long seed) {
     if (map == NULL) return false;
     map->seed = seed;
+    map->type = type;
 
     struct random *r = random_init_genrand(seed);
     switch(type) {

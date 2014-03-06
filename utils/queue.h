@@ -4,6 +4,7 @@
 
 #include <errno.h>
 #include <stddef.h>
+#include <stdint.h>
 
 #define QUEUE_SUCCESS (0)
 

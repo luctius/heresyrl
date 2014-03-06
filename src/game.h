@@ -29,7 +29,8 @@ struct gm_game {
 extern struct gm_game *game;
 
 void game_init(struct pl_player *plr, unsigned long initial_seed);
-void game_new_turn(void);
-void game_exit(void);
+bool game_init_map(void);
+bool game_new_turn(void);
+bool game_exit(void);
 
 #endif /*GAME_H_*/

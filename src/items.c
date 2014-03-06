@@ -9,9 +9,14 @@
 #include "tiles.h"
 #include "inventory.h"
 
+struct itm_item_list_entry {
+    struct itm_item item;
+    LIST_ENTRY(itm_item_list_entry) entries;
+};
+
 static LIST_HEAD(items_list, itm_item_list_entry) items_list_head;
 static bool items_list_initialised = false;
-static uint64_t id = 1;
+static uint64_t save_id = 1;
 
 #include "items_static.c"
 
@@ -42,6 +47,18 @@ struct itm_item *itmlst_get_next_item(struct itm_item *prev) {
     return &ile->entries.le_next->item;
 }
 
+bool itmlst_truncate_ids(void) {
+    if (items_list_initialised == false) return false;
+    struct itm_item_list_entry *ie = items_list_head.lh_first;
+    save_id = 1;
+
+    while (ie != NULL) {
+        ie->item.save_id = save_id++;
+        ie = ie->entries.le_next;
+    }
+}
+
+
 struct itm_item *itm_generate(enum item_types type) {
     if (items_list_initialised == false) itmlst_items_list_init();
     return NULL;
@@ -56,7 +73,7 @@ struct itm_item *itm_create_specific(int idx) {
 
     memcpy(&i->item, &static_item_list[idx], sizeof(static_item_list[idx]));
     LIST_INSERT_HEAD(&items_list_head, i, entries);
-    i->item.id = id++;
+    i->item.save_id = save_id++;
     i->item.owner_type = ITEM_OWNER_NONE;
 
     lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "Item", "creating: %c", i->item.icon);

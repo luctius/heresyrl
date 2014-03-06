@@ -42,6 +42,7 @@ enum tile_types {
 };
 
 struct tl_tile {
+    enum tile_ids id;
     uint16_t attributes;
     enum tile_types type;
     char icon;
