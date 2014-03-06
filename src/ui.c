@@ -16,6 +16,7 @@
 #include "inventory.h"
 #include "linewrap.h"
 #include "input.h"
+#include "dowear.h"
 
 struct hrl_window {
     WINDOW *win;
@@ -376,7 +377,7 @@ void mapwin_overlay_fire_cursor(struct hrl_window *window, struct pl_player *plr
     if (map == NULL) return;
     if (p_pos == NULL) return;
     if (window->type != HRL_WINDOW_TYPE_MAP) return;
-    if (plr_ranged_weapons_check(plr) == false) {
+    if (fght_ranged_weapons_check(plr->player, plr->weapon_selection) == false) {
         You("wield no ranged weapon.");
         return;
     }
@@ -504,25 +505,22 @@ void charwin_refresh(struct hrl_window *window, struct pl_player *plr) {
 
     y++;
     mvwprintw(window->win, y++,x, "Wounds    [%2d/%2d]", player->cur_wounds, player->max_wounds);
-
-    y++;
-    mvwprintw(window->win, y++,x, "Armour [%2d]", 1);
-    mvwprintw(window->win, y++,x, "       [%2d]", 1);
-    mvwprintw(window->win, y++,x, "   [%2d]    [%2d]", 1, 1);
-    mvwprintw(window->win, y++,x, "     [%2d][%2d]", 1, 1);
+    mvwprintw(window->win, y++,x, "Armour [%d][%d][%d][%d][%d][%d]", 10,10,10,10,10,10);
 
     y++;
     struct itm_item *item;
     if ( (item = inv_get_item_from_location(player->inventory, INV_LOC_RIGHT_WIELD) ) != NULL) {
-        mvwprintw(window->win, y++,x, "Right Wpn: %s", item->sd_name);
         if (item->item_type == ITEM_TYPE_WEAPON) {
-            if (item->specific.weapon.weapon_type == WEAPON_TYPE_RANGED) {
-                mvwprintw(window->win, y++,x, "  Ammo: %d/%d", 5,6);
-                int single = item->specific.weapon.rof[WPN_ROF_SETTING_SINGLE];
-                int semi = item->specific.weapon.rof[WPN_ROF_SETTING_SEMI];
-                int aut = item->specific.weapon.rof[WPN_ROF_SETTING_AUTO];
-                char *set = (plr->rof_setting_rhand == WPN_ROF_SETTING_SINGLE) ? "single" : 
-                            (plr->rof_setting_rhand == WPN_ROF_SETTING_SEMI) ? "semi": "auto";
+            struct item_weapon_specific *wpn = &item->specific.weapon;
+            mvwprintw(window->win, y++,x, "Right Wpn: %s", item->sd_name);
+            mvwprintw(window->win, y++,x, "  Damage: %dD10 +%d", wpn->nr_dmg_die, wpn->dmg_addition);
+            if (wpn->weapon_type == WEAPON_TYPE_RANGED) {
+                mvwprintw(window->win, y++,x, "  Ammo: %d/%d", wpn->magazine_left, wpn->magazine_sz);
+                int single = wpn->rof[WEAPON_ROF_SETTING_SINGLE];
+                int semi = wpn->rof[WEAPON_ROF_SETTING_SEMI];
+                int aut = wpn->rof[WEAPON_ROF_SETTING_AUTO];
+                char *set = (plr->rof_setting_rhand == WEAPON_ROF_SETTING_SINGLE) ? "single" : 
+                            (plr->rof_setting_rhand == WEAPON_ROF_SETTING_SEMI) ? "semi": "auto";
                 char semi_str[4]; snprintf(semi_str, 3, "%d", semi);
                 char auto_str[4]; snprintf(auto_str, 3, "%d", aut);
                 mvwprintw(window->win, y++,x, "  Setting: %s (%s/%s/%s)", set, 
@@ -535,15 +533,17 @@ void charwin_refresh(struct hrl_window *window, struct pl_player *plr) {
 
     y++;
     if ( (item = inv_get_item_from_location(player->inventory, INV_LOC_LEFT_WIELD) ) != NULL) {
-        mvwprintw(window->win, y++,x, "Left Wpn: %s", item->sd_name);
         if (item->item_type == ITEM_TYPE_WEAPON) {
-            if (item->specific.weapon.weapon_type == WEAPON_TYPE_RANGED) {
-                mvwprintw(window->win, y++,x, "  Ammo: %d/%d", 5,6);
-                int single = item->specific.weapon.rof[WPN_ROF_SETTING_SINGLE];
-                int semi = item->specific.weapon.rof[WPN_ROF_SETTING_SEMI];
-                int aut = item->specific.weapon.rof[WPN_ROF_SETTING_AUTO];
-                char *set = (plr->rof_setting_lhand == WPN_ROF_SETTING_SINGLE) ? "single" : 
-                            (plr->rof_setting_lhand == WPN_ROF_SETTING_SEMI) ? "semi": "auto";
+            struct item_weapon_specific *wpn = &item->specific.weapon;
+            mvwprintw(window->win, y++,x, "Right Wpn: %s", item->sd_name);
+            mvwprintw(window->win, y++,x, "  Damage: %dD10 +%d", wpn->nr_dmg_die, wpn->dmg_addition);
+            if (wpn->weapon_type == WEAPON_TYPE_RANGED) {
+                mvwprintw(window->win, y++,x, "  Ammo: %d/%d", wpn->magazine_left, wpn->magazine_sz);
+                int single = wpn->rof[WEAPON_ROF_SETTING_SINGLE];
+                int semi = wpn->rof[WEAPON_ROF_SETTING_SEMI];
+                int aut = wpn->rof[WEAPON_ROF_SETTING_AUTO];
+                char *set = (plr->rof_setting_lhand == WEAPON_ROF_SETTING_SINGLE) ? "single" : 
+                            (plr->rof_setting_lhand == WEAPON_ROF_SETTING_SEMI) ? "semi": "auto";
                 char semi_str[4]; snprintf(semi_str, 3, "%d", semi);
                 char auto_str[4]; snprintf(auto_str, 3, "%d", aut);
                 mvwprintw(window->win, y++,x, "  Setting: %s (%s/%s/%s)", set, 
@@ -558,13 +558,14 @@ void charwin_refresh(struct hrl_window *window, struct pl_player *plr) {
          ( (item = inv_get_item_from_location(player->inventory, INV_LOC_RIGHT_WIELD) ) != NULL) ) {
         y++;
         switch (plr->weapon_selection) {
-            case FGHT_WEAPON_SELECT_LHAND:
+            case FGHT_WEAPON_SELECT_LEFT_HAND:
                 mvwprintw(window->win, y++,x, "Using left hand.");
                 break;
-            case FGHT_WEAPON_SELECT_RHAND:
+            case FGHT_WEAPON_SELECT_RIGHT_HAND:
                 mvwprintw(window->win, y++,x, "Using right hand.");
                 break;
-            case FGHT_WEAPON_SELECT_BHAND:
+            case FGHT_WEAPON_SELECT_BOTH_HAND:
+            case FGHT_WEAPON_SELECT_DUAL_HAND:
                 mvwprintw(window->win, y++,x, "Using both hands.");
                 break;
             default: break;
@@ -673,6 +674,7 @@ void invwin_inventory(struct hrl_window *mapwin, struct hrl_window *charwin, str
                     if (item_idx == INP_KEY_ESCAPE) break;
                     if ((item_idx + invstart) >= invsz) break;
                     dw_wear_item(plr->player, invlist[item_idx+invstart].item);
+                    inv_create_list(plr->player->inventory, invlist, invsz);
                 } 
                 break;
             case INP_KEY_EXAMINE: {

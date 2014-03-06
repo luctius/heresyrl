@@ -49,7 +49,6 @@ struct tl_tile {
     uint8_t movement_cost;
     const char *sd_name;
     const char *ld_name;
-    const char *description;
 };
 
 struct tl_tile *ts_get_tile_specific(enum tile_ids ti);

@@ -51,6 +51,8 @@ int main(void)
     if (item != NULL) itm_insert_item(item, game->current_map, &pos);
     item = itm_create_specific(ITEM_ID_AVERAGE_STUB_AUTOMATIC);
     if (item != NULL) itm_insert_item(item, game->current_map, &pos);
+    item = itm_create_specific(ITEM_ID_AVERAGE_STUB_AUTOMATIC);
+    if (item != NULL) itm_insert_item(item, game->current_map, &pos);
 
     game_new_turn();
 
@@ -74,6 +76,7 @@ int main(void)
             case INP_KEY_PICKUP: {
                     struct inv_inventory *inv = sd_get_map_me(player_pos, game->current_map)->inventory;
                     if ( (inv_inventory_size(inv) ) > 0) {
+                        struct itm_item *prev = NULL;
                         item = NULL;
                         bool pickup_all = false;
                         bool stop = false;
@@ -93,8 +96,10 @@ int main(void)
                             if (pickup || pickup_all) {
                                 if (msr_give_item(game->player_data.player, item) == true) {
                                     inv_remove_item(inv, item);
+                                    item = prev;
                                 }
                             }
+                            prev = item;
                         }
                     }
                     else You("see nothing there.");
@@ -121,26 +126,40 @@ int main(void)
                 break;
             case INP_KEY_RELOAD: break;
             case INP_KEY_WEAPON_SETTING: 
-                if (inv_loc_empty(game->player_data.player->inventory, INV_LOC_RIGHT_WIELD) == false) {
-                    game->player_data.rof_setting_rhand++;
-                    /*check if valid here, else ++*/
-                    game->player_data.rof_setting_rhand %= WPN_ROF_SETTING_MAX;
+                if ( (game->player_data.weapon_selection == FGHT_WEAPON_SELECT_RIGHT_HAND) || 
+                     (game->player_data.weapon_selection == FGHT_WEAPON_SELECT_DUAL_HAND) || 
+                     (game->player_data.weapon_selection == FGHT_WEAPON_SELECT_BOTH_HAND) ) {
+                    if (inv_loc_empty(game->player_data.player->inventory, INV_LOC_RIGHT_WIELD) == false) {
+                        item = inv_get_item_from_location(game->player_data.player->inventory, INV_LOC_RIGHT_WIELD);
+                        if (wpn_is_type(item, WEAPON_TYPE_RANGED) ) {
+                            do {
+                                game->player_data.rof_setting_rhand++;
+                                game->player_data.rof_setting_rhand %= WEAPON_ROF_SETTING_MAX;
+                            } while (wpn_ranged_weapon_setting_check(item, game->player_data.rof_setting_rhand) == false);
+                        }
+                    }
                 }
-                if (inv_loc_empty(game->player_data.player->inventory, INV_LOC_LEFT_WIELD) == false) {
-                    game->player_data.rof_setting_lhand++;
-                    /*check if valid here, else ++*/
-                    game->player_data.rof_setting_lhand %= WPN_ROF_SETTING_MAX;
+                if ( (game->player_data.weapon_selection == FGHT_WEAPON_SELECT_LEFT_HAND) || 
+                     (game->player_data.weapon_selection == FGHT_WEAPON_SELECT_DUAL_HAND) ) {
+                    if (inv_loc_empty(game->player_data.player->inventory, INV_LOC_LEFT_WIELD) == false) {
+                        item = inv_get_item_from_location(game->player_data.player->inventory, INV_LOC_LEFT_WIELD);
+                        if (wpn_is_type(item, WEAPON_TYPE_RANGED) ) {
+                            do {
+                                game->player_data.rof_setting_lhand++;
+                                game->player_data.rof_setting_lhand %= WEAPON_ROF_SETTING_MAX;
+                            } while (wpn_ranged_weapon_setting_check(item, game->player_data.rof_setting_lhand) == false);
+                        }
+                    }
                 }
                 break;
             case INP_KEY_WEAPON_SELECT: 
-                game->player_data.weapon_selection++;
-                game->player_data.weapon_selection %= FGHT_WEAPON_SELECT_MAX;
-                if (inv_loc_empty(game->player_data.player->inventory, INV_LOC_RIGHT_WIELD) == true) {
-                    game->player_data.weapon_selection = FGHT_WEAPON_SELECT_LHAND;
-                }
-                if (inv_loc_empty(game->player_data.player->inventory, INV_LOC_LEFT_WIELD) == true) {
-                    game->player_data.weapon_selection = FGHT_WEAPON_SELECT_RHAND;
-                }
+                if ( (inv_loc_empty(game->player_data.player->inventory, INV_LOC_RIGHT_WIELD) == true) &&
+                     (inv_loc_empty(game->player_data.player->inventory, INV_LOC_RIGHT_WIELD) == true) ) break;
+
+                do {
+                    game->player_data.weapon_selection++;
+                    game->player_data.weapon_selection %= FGHT_WEAPON_SELECT_MAX;
+                } while (fght_weapons_check(game->player_data.player, game->player_data.weapon_selection) == false);
                 break;
             default:
                 lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "main", "key pressed: %d.", ch);

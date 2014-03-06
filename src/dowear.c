@@ -33,6 +33,7 @@ static bool wield_melee_weapon(struct msr_monster *monster, struct itm_item *ite
     if (inv_move_item_to_location(inv, item, location) == false) {
         lg_printf_l(LG_DEBUG_LEVEL_WARNING, "Could not move %s to the correct location, bailing.", item->ld_name);
         You("seem to be unable to wield this weapon.");
+        return false;
     }
 
     return true;

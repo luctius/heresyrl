@@ -152,10 +152,10 @@ enum item_weapon_category {
 };
 
 enum wpn_rof_setting {
-    WPN_ROF_SETTING_SINGLE,
-    WPN_ROF_SETTING_SEMI,
-    WPN_ROF_SETTING_AUTO,
-    WPN_ROF_SETTING_MAX,
+    WEAPON_ROF_SETTING_SINGLE,
+    WEAPON_ROF_SETTING_SEMI,
+    WEAPON_ROF_SETTING_AUTO,
+    WEAPON_ROF_SETTING_MAX,
 };
 
 
@@ -166,7 +166,7 @@ struct item_weapon_specific {
     uint8_t nr_dmg_die; /*0 is 1d5*/
     uint8_t dmg_addition;
     uint8_t range;
-    uint8_t rof[WPN_ROF_SETTING_MAX];
+    uint8_t rof[WEAPON_ROF_SETTING_MAX];
     uint8_t magazine_sz;
     uint8_t magazine_left;
     uint8_t reload_delay;
@@ -263,6 +263,7 @@ coord_t itm_get_pos(struct itm_item *item);
 
 bool wpn_is_type(struct itm_item *item, enum item_weapon_type type);
 bool wpn_is_catergory(struct itm_item *item, enum item_weapon_category cat);
+bool wpn_ranged_weapon_setting_check(struct itm_item *item, enum wpn_rof_setting set);
 
 #endif /*ITEMS_H_*/
 

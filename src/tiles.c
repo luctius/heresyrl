@@ -11,7 +11,6 @@ static struct tl_tile tile_array[] = {
         .movement_cost = 0,
         .sd_name = "",
         .ld_name = "",
-        .description = "",
     },
     [TILE_ID_BORDER_WALL] = {
         .attributes = TILE_ATTR_BORDER,
@@ -21,7 +20,6 @@ static struct tl_tile tile_array[] = {
         .movement_cost = TILE_MOVEMENT_MAX,
         .sd_name = "stone wall",
         .ld_name = "a stone wall",
-        .description = "",
     },
     [TILE_ID_STONE_WALL] = {
         .attributes =  0,
@@ -31,7 +29,6 @@ static struct tl_tile tile_array[] = {
         .movement_cost = 3,
         .sd_name = "stone wall",
         .ld_name = "a stone wall",
-        .description = "",
     },
     [TILE_ID_STONE_FLOOR] = {
         .attributes = TILE_ATTR_TRAVERSABLE | TILE_ATTR_OPAGUE,
@@ -41,7 +38,6 @@ static struct tl_tile tile_array[] = {
         .movement_cost = 1,
         .sd_name = "stone floor",
         .ld_name = "a stone floor",
-        .description = "",
     },
     [TILE_ID_WOODEN_CLOSED_DOOR] = {
         .attributes = TILE_ATTR_DOOR_CLOSED,
@@ -51,7 +47,6 @@ static struct tl_tile tile_array[] = {
         .movement_cost = 2,
         .sd_name = "wooden door",
         .ld_name = "a wooden door",
-        .description = "",
     },
     [TILE_ID_WOODEN_OPEN_DOOR] = {
         .attributes = TILE_ATTR_TRAVERSABLE | TILE_ATTR_OPAGUE | TILE_ATTR_DOOR_OPEN,
@@ -61,7 +56,6 @@ static struct tl_tile tile_array[] = {
         .movement_cost = 1,
         .sd_name = "wooden door",
         .ld_name = "a wooden door",
-        .description = "",
     },
     [TILE_ID_STONE_STAIRS_UP] = {
         .attributes = TILE_ATTR_TRAVERSABLE | TILE_ATTR_OPAGUE | TILE_ATTR_STAIRS_UP,
@@ -71,7 +65,6 @@ static struct tl_tile tile_array[] = {
         .movement_cost = 1,
         .sd_name = "stone stairs",
         .ld_name = "stone stairs, going up",
-        .description = "",
     },
     [TILE_ID_STONE_STAIRS_DOWN] = {
         .attributes = TILE_ATTR_TRAVERSABLE | TILE_ATTR_OPAGUE | TILE_ATTR_STAIRS_DOWN,
@@ -81,8 +74,7 @@ static struct tl_tile tile_array[] = {
         .movement_cost = 1,
         .sd_name = "stone stairs",
         .ld_name = "stone stairs, going down",
-        .description = "",
-    }
+    },
 };
 
 struct tl_tile *ts_get_tile_specific(enum tile_ids ti) {

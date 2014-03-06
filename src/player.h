@@ -16,6 +16,5 @@ struct pl_player {
 
 void plr_init(struct pl_player *plr, char *name, enum msr_race race, enum msr_gender gender);
 void plr_sanity_check(struct pl_player *plr);
-bool plr_ranged_weapons_check(struct pl_player *plr);
 
 #endif /*PLAYER_H_*/

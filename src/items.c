@@ -141,3 +141,10 @@ bool wpn_is_catergory(struct itm_item *item, enum item_weapon_category cat) {
     if (item->specific.weapon.weapon_category == cat) return true;
     return false;
 }
+
+bool wpn_ranged_weapon_setting_check(struct itm_item *item, enum wpn_rof_setting set) {
+    if (wpn_is_type(item, WEAPON_TYPE_RANGED) == false) return false;
+    if (item->specific.weapon.rof[set] > 0) return true;
+    return false;
+}
+

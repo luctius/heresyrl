@@ -8,6 +8,89 @@
 #include "tiles.h"
 #include "inventory.h"
 
+
+
+bool fght_weapons_check(struct msr_monster *monster, enum fght_weapon_selection sel) {
+    if (monster == NULL) return false;
+    if (sel >= FGHT_WEAPON_SELECT_MAX) return false;
+
+    struct inv_inventory *inv = monster->inventory;
+    if ( (inv_loc_empty(inv, INV_LOC_RIGHT_WIELD) == true) && (inv_loc_empty(inv, INV_LOC_LEFT_WIELD) ) ) return false;
+
+    /* If we haev a single hand, test that for emptiness and weaponness. */
+    if (sel == FGHT_WEAPON_SELECT_LEFT_HAND) {
+        if (inv_loc_empty(inv, INV_LOC_LEFT_WIELD) == true) return false;
+        if (inv_get_item_from_location(inv, INV_LOC_LEFT_WIELD)->item_type != ITEM_TYPE_WEAPON) return false;
+    }
+    else if (sel == FGHT_WEAPON_SELECT_RIGHT_HAND) {
+        if (inv_loc_empty(inv, INV_LOC_RIGHT_WIELD) == true) return false;
+        if (inv_get_item_from_location(inv, INV_LOC_RIGHT_WIELD)->item_type != ITEM_TYPE_WEAPON) return false;
+    }
+    else if (sel == FGHT_WEAPON_SELECT_DUAL_HAND) {
+        if (inv_loc_empty(inv, INV_LOC_RIGHT_WIELD) == true) return false;
+        if (inv_get_item_from_location(inv, INV_LOC_RIGHT_WIELD)->item_type != ITEM_TYPE_WEAPON) return false;
+        if (inv_loc_empty(inv, INV_LOC_LEFT_WIELD) == true) return false;
+        if (inv_get_item_from_location(inv, INV_LOC_LEFT_WIELD)->item_type != ITEM_TYPE_WEAPON) return false;
+    }
+    else if (sel == FGHT_WEAPON_SELECT_BOTH_HAND) {
+        if (inv_loc_empty(inv, INV_LOC_RIGHT_WIELD) == true) return false;
+        if (inv_get_item_from_location(inv, INV_LOC_RIGHT_WIELD)->item_type != ITEM_TYPE_WEAPON) return false;
+
+        if ( (wpn_is_catergory(inv_get_item_from_location(inv, INV_LOC_RIGHT_WIELD), WEAPON_CATEGORY_BASIC) == false) ||
+             (wpn_is_catergory(inv_get_item_from_location(inv, INV_LOC_RIGHT_WIELD), WEAPON_CATEGORY_HEAVY) == false) ||
+             (wpn_is_catergory(inv_get_item_from_location(inv, INV_LOC_RIGHT_WIELD), WEAPON_CATEGORY_2H_MELEE) == false) ) {
+            return false;
+        }
+    }
+    else return false;
+
+    return true;
+}
+
+bool fght_ranged_weapons_check(struct msr_monster *monster, enum fght_weapon_selection sel) {
+    if (fght_weapons_check(monster, sel) == false) return false;
+    struct inv_inventory *inv = monster->inventory;
+
+    if (sel == FGHT_WEAPON_SELECT_LEFT_HAND) {
+         if (wpn_is_type(inv_get_item_from_location(inv, INV_LOC_LEFT_WIELD), WEAPON_TYPE_RANGED) == false) return false;
+    }
+    else if (sel == FGHT_WEAPON_SELECT_RIGHT_HAND) {
+         if (wpn_is_type(inv_get_item_from_location(inv, INV_LOC_RIGHT_WIELD), WEAPON_TYPE_RANGED) == false) return false;
+    }
+    else if (sel == FGHT_WEAPON_SELECT_DUAL_HAND) {
+         if ( (wpn_is_type(inv_get_item_from_location(inv, INV_LOC_LEFT_WIELD), WEAPON_TYPE_RANGED) == false) ||
+              (wpn_is_type(inv_get_item_from_location(inv, INV_LOC_RIGHT_WIELD), WEAPON_TYPE_RANGED) == false) ) return false;
+    }
+    else if (sel == FGHT_WEAPON_SELECT_BOTH_HAND) {
+         if (wpn_is_type(inv_get_item_from_location(inv, INV_LOC_RIGHT_WIELD), WEAPON_TYPE_RANGED) == false) return false;
+    }
+    else return false;
+
+    return true;
+}
+
+bool fght_melee_weapons_check(struct msr_monster *monster, enum fght_weapon_selection sel) {
+    if (fght_weapons_check(monster, sel) == false) return false;
+    struct inv_inventory *inv = monster->inventory;
+
+    if (sel == FGHT_WEAPON_SELECT_LEFT_HAND) {
+         if (wpn_is_type(inv_get_item_from_location(inv, INV_LOC_LEFT_WIELD), WEAPON_TYPE_MELEE) == false) return false;
+    }
+    else if (sel == FGHT_WEAPON_SELECT_RIGHT_HAND) {
+         if (wpn_is_type(inv_get_item_from_location(inv, INV_LOC_RIGHT_WIELD), WEAPON_TYPE_MELEE) == false) return false;
+    }
+    else if (sel == FGHT_WEAPON_SELECT_DUAL_HAND) {
+         if ( (wpn_is_type(inv_get_item_from_location(inv, INV_LOC_LEFT_WIELD), WEAPON_TYPE_MELEE) == false) ||
+              (wpn_is_type(inv_get_item_from_location(inv, INV_LOC_RIGHT_WIELD), WEAPON_TYPE_MELEE) == false) ) return false;
+    }
+    else if (sel == FGHT_WEAPON_SELECT_BOTH_HAND) {
+         if (wpn_is_type(inv_get_item_from_location(inv, INV_LOC_RIGHT_WIELD), WEAPON_TYPE_MELEE) == false) return false;
+    }
+    else return false;
+
+    return true;
+}
+
 int fght_shoot(struct msr_monster *monster, struct dc_map *map, enum fght_weapon_selection sel, enum wpn_rof_setting set1, 
                     enum wpn_rof_setting set2, coord_t *s, coord_t *e, coord_t path_list[], int path_list_sz) {
     if (monster == NULL) return -1;
@@ -16,42 +99,38 @@ int fght_shoot(struct msr_monster *monster, struct dc_map *map, enum fght_weapon
     if (e == NULL) return -1;
     if (path_list == NULL) return -1;
     if (sel >= FGHT_WEAPON_SELECT_MAX) return -1;
-    if (set1 >= WPN_ROF_SETTING_MAX) return -1;
-    if (set2 >= WPN_ROF_SETTING_MAX) return -1;
+    if (set1 >= WEAPON_ROF_SETTING_MAX) return -1;
+    if (set2 >= WEAPON_ROF_SETTING_MAX) return -1;
+    if (fght_ranged_weapons_check(monster, sel) == false) return -1;
 
+    struct inv_inventory *inv = monster->inventory;
     struct item_weapon_specific *wpn1 = NULL;
     struct item_weapon_specific *wpn2 = NULL;
     struct itm_item *item1 = NULL;
     struct itm_item *item2 = NULL;
     int ammo1 = 1;
     int ammo2 = 1;
+
     /*
        Check monster for weapon.
      */
-    if (sel == FGHT_WEAPON_SELECT_BHAND) {
-        if (inv_loc_empty(monster->inventory, INV_LOC_BOTH_WIELD) ) return false;
-        if (wpn_is_type(inv_get_item_from_location(monster->inventory, INV_LOC_BOTH_WIELD), WEAPON_TYPE_RANGED) == false) return false;
-        item1 = inv_get_item_from_location(monster->inventory, INV_LOC_BOTH_WIELD);
+    item1 = inv_get_item_from_location(inv, INV_LOC_RIGHT_WIELD);
+    item2 = inv_get_item_from_location(inv, INV_LOC_LEFT_WIELD);
+    if (item1 != NULL) {
+        wpn1 = &item1->specific.weapon;
+        if (wpn1->weapon_type == WEAPON_TYPE_RANGED) {
+            ammo1 = MIN(wpn1->magazine_left, wpn1->rof[set1]);
+        }
+        else wpn1 = NULL;
     }
-    else if (sel == FGHT_WEAPON_SELECT_RHAND) {
-        if (inv_loc_empty(monster->inventory, INV_LOC_RIGHT_WIELD) ) return false;
-        if (wpn_is_type(inv_get_item_from_location(monster->inventory, INV_LOC_RIGHT_WIELD), WEAPON_TYPE_RANGED) == false) return false;
-        item1 = inv_get_item_from_location(monster->inventory, INV_LOC_RIGHT_WIELD);
-    }
-    else if (sel == FGHT_WEAPON_SELECT_LHAND) {
-        if (inv_loc_empty(monster->inventory, INV_LOC_LEFT_WIELD) ) return false;
-        if (wpn_is_type(inv_get_item_from_location(monster->inventory, INV_LOC_LEFT_WIELD), WEAPON_TYPE_RANGED) == false) return false;
-        item1 = inv_get_item_from_location(monster->inventory, INV_LOC_LEFT_WIELD);
-    }
-
-    if (item1 == NULL) return false;
-    wpn1 = &item1->specific.weapon;
-    ammo1 = MIN(wpn1->magazine_left, wpn1->rof[set1]);
-
     if (item2 != NULL) {
         wpn2 = &item2->specific.weapon;
-        ammo2 = MIN(wpn2->magazine_left, wpn2->rof[set2]);
+        if (wpn2->weapon_type == WEAPON_TYPE_RANGED) {
+            ammo2 = MIN(wpn2->magazine_left, wpn2->rof[set2]);
+        }
+        else wpn2 = NULL;
     }
+    if ( (wpn1 == wpn2) == NULL) return -1;
 
     coord_t path[MAX(map->size.x, map->size.y)];
     int path_len = fght_calc_lof_path(s, e, path, ARRAY_SZ(path));
@@ -61,12 +140,17 @@ int fght_shoot(struct msr_monster *monster, struct dc_map *map, enum fght_weapon
     for (int i = 1; (i < path_len) && (blocked == false); i++) {
         if ( (sd_get_map_me(&path[i], map)->monster != NULL) || 
                 (TILE_HAS_ATTRIBUTE(sd_get_map_tile(&path[i], map), TILE_ATTR_TRAVERSABLE) == false) ) {
-            blocked = true;
             /* Do damage */
-        } else if (sd_get_map_me(&path[i], map)->visible == true) {
-            if (i-1 < path_list_sz) {
-                path_list[i-1] = path[i];
-                unblocked_length++;
+
+            /*if hit.. */
+            blocked = true;
+        }
+        if (blocked == false) {
+            if (sd_get_map_me(&path[i], map)->visible == true) {
+                if (i-1 < path_list_sz) {
+                    path_list[i-1] = path[i];
+                    unblocked_length++;
+                }
             }
         }
     }
