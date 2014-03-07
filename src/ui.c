@@ -469,7 +469,7 @@ void msgwin_log_refresh(struct hrl_window *window, struct logging *lg) {
         for (int i = log_start; i < log_sz; i++) {
             tmp_entry = (struct log_entry *) queue_peek_nr(q, i);
             if ( (tmp_entry != NULL) && (tmp_entry->level <= LG_DEBUG_LEVEL_GAME) ) {
-                mvwprintw(window->win, y++,1, tmp_entry->string);
+                mvwprintw(window->win, y++,1, "%s\n", tmp_entry->string);
             }
         }
     }
@@ -700,6 +700,8 @@ void invwin_inventory(struct hrl_window *mapwin, struct hrl_window *charwin, str
                 } 
                 break;
             case INP_KEY_DROP: {
+                    invsz = inv_inventory_size(plr->player->inventory);
+                    You("invsz: %d", invsz);
                     int item_idx = inp_get_input_idx();
                     if (item_idx == INP_KEY_ESCAPE) break;
                     if ((item_idx + invstart) >= invsz) break;

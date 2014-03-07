@@ -94,6 +94,7 @@ int main(void)
                             }
                             prev = item;
                         }
+                        lg_printf("Done.");
                     }
                     else You("see nothing there.");
                 }

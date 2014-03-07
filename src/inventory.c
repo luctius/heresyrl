@@ -115,7 +115,7 @@ bool inv_remove_item(struct inv_inventory *inv, struct itm_item *item) {
 
     while (ie != NULL) {
         if (ie->item == item) {
-            LIST_REMOVE(inv->head.lh_first, entries);
+            LIST_REMOVE(ie, entries);
             free(ie);
             return true;
         }

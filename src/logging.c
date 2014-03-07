@@ -118,7 +118,6 @@ static void lg_print_to_queue(struct logging *log, enum lg_debug_levels dbg_lvl,
             entry->turn = 0;
             if (gbl_game != NULL) entry->turn = gbl_game->turn;
             strncpy(entry->string, tstring, len);
-            if (entry->string[len-1] != '\n') entry->string[len] = '\n';
             queue_push_tail(log->logging_q, (intptr_t) entry);
 
             if (log->callback != NULL) log->callback(log, entry, log->priv);
