@@ -246,15 +246,10 @@ static bool load_game(lua_State *L, struct gm_game *g) {
     if (lua_intexpr(L, &t, "game.map_random.called") == 0) return false;
     random_loop_called(g->map_random, t);
 
-    if (lua_intexpr(L, &t, "game.item_random.seed") == 0) return false;
-    g->item_random = random_init_genrand(t);
-    if (lua_intexpr(L, &t, "game.item_random.called") == 0) return false;
-    random_loop_called(g->item_random, t);
-
-    if (lua_intexpr(L, &t, "game.monster_random.seed") == 0) return false;
-    g->monster_random = random_init_genrand(t);
-    if (lua_intexpr(L, &t, "game.monster_random.called") == 0) return false;
-    random_loop_called(g->monster_random, t);
+    if (lua_intexpr(L, &t, "game.spawn_random.seed") == 0) return false;
+    g->spawn_random = random_init_genrand(t);
+    if (lua_intexpr(L, &t, "game.spawn_random.called") == 0) return false;
+    random_loop_called(g->spawn_random, t);
 
     if (lua_intexpr(L, &t, "game.ai_random.seed") == 0) return false;
     g->ai_random = random_init_genrand(t);
@@ -291,7 +286,7 @@ static bool load_items_list(lua_State *L) {
     for (int i = 0; i < items_sz; i++) {
         if (lua_intexpr(L, &t, "game.items[%d].template_id", i+1) == 0) return false;
         int template_id = t;
-        struct itm_item *item = itm_create_specific(template_id);
+        struct itm_item *item = itm_create(template_id);
         if (item == NULL) return false;
 
         lua_intexpr(L, &t, "game.items[%d].uid", i+1); item->uid = t;
@@ -337,10 +332,11 @@ static bool load_monsters(lua_State *L, struct dc_map *map, struct gm_game *g) {
     int monsters_sz = t;
     for (int i = 0; i < monsters_sz; i++) {
 
-        if (lua_intexpr(L, &t, "game.monsters[%d].uid", i+1) == 0) return false;
+        if (lua_intexpr(L, &t, "game.monsters[%d].template_id", i+1) == 0) return false;
         struct msr_monster *monster = msr_create(t);
         if (monster == NULL) return false;
-        lua_intexpr(L, &t, "game.monsters[%d].template_id", i+1); monster->template_id = t;
+        monster->template_id = t;
+        lua_intexpr(L, &t, "game.monsters[%d].uid", i+1); monster->uid = t;
         lua_intexpr(L, &t, "game.monsters[%d].race", i+1); monster->race = t;
         lua_intexpr(L, &t, "game.monsters[%d].size", i+1); monster->size = t;
         lua_intexpr(L, &t, "game.monsters[%d].cur_wounds", i+1); monster->cur_wounds = t;
@@ -400,7 +396,7 @@ static bool load_monsters(lua_State *L, struct dc_map *map, struct gm_game *g) {
 static bool load_map(lua_State *L, struct dc_map **m, int mapid) {
     if (L == NULL) return false;
     uint64_t t;
-    int map_sz = 0, x_sz, y_sz, type, seed;
+    int map_sz = 0, x_sz, y_sz, type, seed, threat;
     if (lua_intexpr(L, &t, "game.maps[%d].map.sz", mapid) == 1) {
         map_sz = t;
         if (lua_intexpr(L, &t, "game.maps[%d].seed", mapid) == 0) return false;
@@ -411,6 +407,8 @@ static bool load_map(lua_State *L, struct dc_map **m, int mapid) {
         x_sz = t;
         if (lua_intexpr(L, &t, "game.maps[%d].size.y", mapid) == 0) return false;
         y_sz = t;
+        if (lua_intexpr(L, &t, "game.maps[%d].threat", mapid) == 0) t = 1;
+        threat = t;
 
         if (x_sz * y_sz != map_sz) return false;
 
@@ -419,6 +417,7 @@ static bool load_map(lua_State *L, struct dc_map **m, int mapid) {
             struct dc_map *map = *m;
             map->seed = seed;
             map->type = type;
+            map->threat_lvl = threat;
             dc_clear_map(map);
 
             for (int i = 0; i < map_sz; i++) {
@@ -436,7 +435,7 @@ static bool load_map(lua_State *L, struct dc_map **m, int mapid) {
                         for (int j = items_sz; j > 0; j--) {
                             if (lua_intexpr(L, &t, "game.maps[%d].map[%d].items[%d]", mapid, i+1, j) == 1) {
                                 item = itmlst_item_by_uid(t);
-                                inv_add_item(sd_get_map_me(&pos,map)->inventory,item);
+                                itm_insert_item(item, map, &pos);
                             }
                         }
                     }

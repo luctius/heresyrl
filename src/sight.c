@@ -1,3 +1,5 @@
+#include <math.h>
+
 #include "sight.h"
 #include "items.h"
 #include "fov.h"
@@ -26,10 +28,24 @@ static void apply_light_source(void *vmap, int x, int y, int dx, int dy, void *i
 
     coord_t c = cd_create(x,y);
     if (cd_within_bound(&c, &map->size) == false) return;
-    sd_get_map_me(&c,map)->light_level = item->specific.tool.light_luminem - pyth(dx,dy);
+    sd_get_map_me(&c,map)->light_level = 1;
 }
 
-static void apply_player_sight(void *vmap, int x, int y, int dx, int dy, void *isrc) {
+static void apply_indirect_player_sight(void *vmap, int x, int y, int dx, int dy, void *isrc) {
+    struct dc_map *map = (struct dc_map *) vmap;
+    struct msr_monster *monster = (struct msr_monster *) isrc;
+
+    coord_t c = cd_create(x,y);
+    /* Do some checks against monster on location to see if it is visible, later...*/
+
+    if (sd_get_map_me(&c,map)->light_level > 0) {
+        sd_get_map_me(&c,map)->discovered = true;
+        sd_get_map_me(&c,map)->in_sight = true;
+        sd_get_map_me(&c,map)->visible = true;
+    }
+}
+
+static void apply_direct_player_sight(void *vmap, int x, int y, int dx, int dy, void *isrc) {
     struct dc_map *map = (struct dc_map *) vmap;
     struct msr_monster *monster = (struct msr_monster *) isrc;
 
@@ -37,14 +53,7 @@ static void apply_player_sight(void *vmap, int x, int y, int dx, int dy, void *i
     /* Do some checks against monster on location to see if it is visible, later...*/
     sd_get_map_me(&c,map)->discovered = true;
     sd_get_map_me(&c,map)->in_sight = true;
-
-    int radius = msr_get_near_sight_range(monster) +msr_get_far_sight_range(monster);
-    if (pyth(dx, dy) < radius) {
-        sd_get_map_me(&c,map)->visible = true;
-    }
-    else if (sd_get_map_me(&c,map)->light_level > 0) {
-        sd_get_map_me(&c,map)->visible = true;
-    }
+    sd_get_map_me(&c,map)->visible = true;
 }
 
 struct sgt_sight *sgt_init(void) {
@@ -97,12 +106,14 @@ bool sgt_calculate_player_sight(struct sgt_sight *sight, struct dc_map *map, str
     if (monster == NULL) return false;
 
     fov_settings_set_opacity_test_function(&sight->fov_settings, check_opaque);
-    fov_settings_set_apply_lighting_function(&sight->fov_settings, apply_player_sight);
+    fov_settings_set_apply_lighting_function(&sight->fov_settings, apply_direct_player_sight);
+    fov_circle(&sight->fov_settings, map, monster, monster->pos.x, monster->pos.y, msr_get_near_sight_range(monster) +1 );
+    apply_direct_player_sight(map, monster->pos.x, monster->pos.y, 0, 0, monster);
 
     int radius = msr_get_near_sight_range(monster) +msr_get_far_sight_range(monster);
+    fov_settings_set_opacity_test_function(&sight->fov_settings, check_opaque);
+    fov_settings_set_apply_lighting_function(&sight->fov_settings, apply_indirect_player_sight);
     fov_circle(&sight->fov_settings, map, monster, monster->pos.x, monster->pos.y, radius);
-    check_opaque(map, monster->pos.x, monster->pos.y);
-    apply_player_sight(map, monster->pos.x, monster->pos.y, 0, 0, monster);
     return true;
 }
 

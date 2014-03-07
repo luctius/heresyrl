@@ -16,8 +16,7 @@ struct logging;
 struct gm_game {
     struct random *game_random;
     struct random *map_random;
-    struct random *item_random;
-    struct random *monster_random;
+    struct random *spawn_random;
     struct random *ai_random;
 
     struct sgt_sight *sight;

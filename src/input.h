@@ -13,6 +13,7 @@ enum inp_keys {
     INP_KEY_DOWN,
     INP_KEY_DOWN_LEFT,
     INP_KEY_LEFT,
+    INP_KEY_WAIT,
     INP_KEY_ESCAPE,
     INP_KEY_YES,
     INP_KEY_NO,
@@ -29,6 +30,7 @@ enum inp_keys {
     INP_KEY_STAIRS_UP,
     INP_KEY_WEAPON_SETTING,
     INP_KEY_WEAPON_SELECT,
+    INP_KEY_QUIT,
     INP_KEY_MAX,
 };
 

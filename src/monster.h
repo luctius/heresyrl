@@ -121,7 +121,6 @@ bool msr_move_monster(struct msr_monster *monster, struct dc_map *map, coord_t *
 bool msr_remove_monster(struct msr_monster *monster, struct dc_map *map);
 bool msr_give_item(struct msr_monster *monster, struct itm_item *item);
 bool msr_remove_item(struct msr_monster *monster, struct itm_item *item);
-bool msr_use_item(struct msr_monster *monster, struct itm_item *item);
 
 int msr_calculate_characteristic(struct msr_monster *monster, enum msr_characteristic chr);
 int msr_get_near_sight_range(struct msr_monster *monster);

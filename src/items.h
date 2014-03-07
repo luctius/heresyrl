@@ -251,7 +251,7 @@ struct itm_item *itmlst_get_next_item(struct itm_item *prev);
 struct itm_item *itmlst_item_by_uid(uint32_t uid);
 
 struct itm_item *itm_generate(enum item_types type);
-struct itm_item *itm_create_specific(int template_id);
+struct itm_item *itm_create(int template_id);
 void itm_destroy(struct itm_item *item);
 bool itm_insert_item(struct itm_item *item, struct dc_map *map, coord_t *pos);
 bool itm_remove_item(struct itm_item *item, struct dc_map *map, coord_t *pos);

@@ -16,7 +16,6 @@ struct itm_item_list_entry {
 
 static LIST_HEAD(items_list, itm_item_list_entry) items_list_head;
 static bool items_list_initialised = false;
-static uint64_t uid = 1;
 
 #include "items_static.c"
 
@@ -61,7 +60,7 @@ struct itm_item *itmlst_item_by_uid(uint32_t item_uid) {
 static uint32_t itmlst_next_id(void) {
     if (items_list_initialised == false) return false;
     struct itm_item_list_entry *ie = items_list_head.lh_first;
-    uid = 1;
+    uint32_t uid = 1;
 
     while (ie != NULL) {
         if (uid <= ie->item.uid) uid = ie->item.uid+1;
@@ -75,11 +74,11 @@ struct itm_item *itm_generate(enum item_types type) {
     return NULL;
 }
 
-struct itm_item *itm_create_specific(int template_id) {
+struct itm_item *itm_create(int template_id) {
     if (template_id >= (int) ARRAY_SZ(static_item_list)) return NULL;
     if (items_list_initialised == false) itmlst_items_list_init();
 
-    struct itm_item_list_entry *i = malloc(sizeof(struct itm_item_list_entry) );
+    struct itm_item_list_entry *i = calloc(1, sizeof(struct itm_item_list_entry) );
     if (i == NULL) return NULL;
 
     memcpy(&i->item, &static_item_list[template_id], sizeof(static_item_list[template_id]));

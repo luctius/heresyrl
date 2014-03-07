@@ -135,3 +135,26 @@ bool dw_remove_item(struct msr_monster *monster, struct itm_item *item) {
     }
     return false;
 }
+
+bool dw_use_item(struct msr_monster *monster, struct itm_item *item) {
+    if (monster == NULL) return false;
+    if (item == NULL) return false;
+    if (monster->inventory == NULL) {
+        Your("inventory is empty.");
+        return false;
+    }
+    if (inv_has_item(monster->inventory, item) == false) return false;
+
+    if (item->item_type == ITEM_TYPE_TOOL && item->specific.tool.tool_type == TOOL_TYPE_LIGHT) {
+        if (item->specific.tool.lit == false) {
+            item->specific.tool.lit = true;
+            You("light %s.", item->ld_name);
+        }
+        else {
+            item->specific.tool.lit = false;
+            You("douse %s.", item->ld_name);
+        }
+    }
+    return true;
+}
+

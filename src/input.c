@@ -26,14 +26,15 @@ enum inp_keys inp_get_input_idx(void) {
 enum inp_keys inp_get_input(void) {
     int ch = getch();
     switch (ch) {
-        /*case 'y':*/ case 55:  case KEY_HOME:  return INP_KEY_UP_LEFT; break;
-        /*case 'k':*/ case 56:  case KEY_UP:    return INP_KEY_UP; break;
-        /*case 'u':*/ case 57:  case KEY_NPAGE: return INP_KEY_UP_RIGHT; break;
-        /*case 'l':*/ case 54:  case KEY_RIGHT: return INP_KEY_RIGHT; break;
-        /*case 'n':*/ case 51:  case KEY_PPAGE: return INP_KEY_DOWN_RIGHT; break;
-        /*case 'j':*/ case 50:  case KEY_DOWN:  return INP_KEY_DOWN; break; 
-        /*case 'b':*/ case 49:  case KEY_END:   return INP_KEY_DOWN_LEFT; break;
-        /*case 'h':*/ case 52:  case KEY_LEFT:  return INP_KEY_LEFT; break;
+        case 'y': case 55:  case KEY_HOME:  return INP_KEY_UP_LEFT; break;
+        case 'k': case 56:  case KEY_UP:    return INP_KEY_UP; break;
+        case 'u': case 57:  case KEY_NPAGE: return INP_KEY_UP_RIGHT; break;
+        case 'l': case 54:  case KEY_RIGHT: return INP_KEY_RIGHT; break;
+        case 'n': case 51:  case KEY_PPAGE: return INP_KEY_DOWN_RIGHT; break;
+        case 'j': case 50:  case KEY_DOWN:  return INP_KEY_DOWN; break; 
+        case 'b': case 49:  case KEY_END:   return INP_KEY_DOWN_LEFT; break;
+        case 'h': case 52:  case KEY_LEFT:  return INP_KEY_LEFT; break;
+        case '.':                           return INP_KEY_WAIT; break;
 
         case 'q':
         case 27:        return INP_KEY_ESCAPE; break;
@@ -43,15 +44,16 @@ enum inp_keys inp_get_input(void) {
         case 'f':       return INP_KEY_FIRE; break;
         case 'd':       return INP_KEY_DROP; break;
         case 'w':       return INP_KEY_WEAR; break;
-        case 'u':       return INP_KEY_USE; break;
+        case 'U':       return INP_KEY_USE; break;
         case 'r':       return INP_KEY_RELOAD; break;
         case '[':       return INP_KEY_WEAPON_SETTING; break;
         case ']':       return INP_KEY_WEAPON_SELECT; break;
 
         case ' ':
         case '\n':
-        case 'y':       return INP_KEY_YES; break;
-        case 'n':       return INP_KEY_NO; break;
+        case 'Y':       return INP_KEY_YES; break;
+        case 'N':       return INP_KEY_NO; break;
+        case 'A':
         case 'a':       return INP_KEY_ALL; break;
 
         case ',':
@@ -59,6 +61,7 @@ enum inp_keys inp_get_input(void) {
 
         case '>':       return INP_KEY_STAIRS_DOWN; break;
         case '<':       return INP_KEY_STAIRS_UP; break;
+        case 24:        return INP_KEY_QUIT; break;
         default:
             lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "main", "key pressed: %d.", ch);
             break;

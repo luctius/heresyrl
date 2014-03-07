@@ -76,7 +76,7 @@ int main(void)
                         while ( ( (item = inv_get_next_item(inv, item) ) != NULL) && (stop == false) ){
                             bool pickup = false;
                             if (pickup_all != true) {
-                                lg_printf("Pickup %s? (y)es/(n)o/(a)ll/(q)uit", item->ld_name);
+                                lg_printf("Pickup %s? (Y)es/(N)o/(A)ll/(q)uit", item->ld_name);
                                 switch (inp_get_input() ) {
                                     case INP_KEY_ESCAPE: stop = false; break;
                                     case INP_KEY_ALL:    pickup_all = true; break;
@@ -167,7 +167,7 @@ int main(void)
         charwin_refresh(char_win, &gbl_game->player_data);
         mapwin_display_map(map_win, gbl_game->current_map, player_pos);
     }
-    while((ch = inp_get_input()) != INP_KEY_ESCAPE);
+    while((ch = inp_get_input()) != INP_KEY_QUIT);
 
     game_exit();
 

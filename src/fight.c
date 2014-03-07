@@ -114,12 +114,25 @@ int fght_shoot(struct msr_monster *monster, struct dc_map *map, enum fght_weapon
     /*
        Check monster for weapon.
      */
-    item1 = inv_get_item_from_location(inv, INV_LOC_RIGHT_WIELD);
-    item2 = inv_get_item_from_location(inv, INV_LOC_LEFT_WIELD);
+    if ( (sel == FGHT_WEAPON_SELECT_RIGHT_HAND) ||
+         (sel == FGHT_WEAPON_SELECT_DUAL_HAND)  ||
+         (sel == FGHT_WEAPON_SELECT_BOTH_HAND) ) {
+        item1 = inv_get_item_from_location(inv, INV_LOC_RIGHT_WIELD);
+    }
+
+    if ( (sel == FGHT_WEAPON_SELECT_LEFT_HAND) ||
+         (sel == FGHT_WEAPON_SELECT_DUAL_HAND) ) {
+        item2 = inv_get_item_from_location(inv, INV_LOC_LEFT_WIELD);
+    }
+
     if (item1 != NULL) {
         wpn1 = &item1->specific.weapon;
         if (wpn1->weapon_type == WEAPON_TYPE_RANGED) {
             ammo1 = MIN(wpn1->magazine_left, wpn1->rof[set1]);
+            if (ammo1 > 0) {
+                wpn1->magazine_left -= ammo1;
+            }
+            else wpn1 = NULL;
         }
         else wpn1 = NULL;
     }
@@ -127,10 +140,14 @@ int fght_shoot(struct msr_monster *monster, struct dc_map *map, enum fght_weapon
         wpn2 = &item2->specific.weapon;
         if (wpn2->weapon_type == WEAPON_TYPE_RANGED) {
             ammo2 = MIN(wpn2->magazine_left, wpn2->rof[set2]);
+            if (ammo2 > 0) {
+                wpn2->magazine_left -= ammo2;
+            }
+            else wpn2 = NULL;
         }
         else wpn2 = NULL;
     }
-    if ( (wpn1 == wpn2) == NULL) return -1;
+    if ( (wpn1 == NULL) && (wpn2 == NULL) ) return -1;
 
     coord_t path[MAX(map->size.x, map->size.y)];
     int path_len = fght_calc_lof_path(s, e, path, ARRAY_SZ(path));

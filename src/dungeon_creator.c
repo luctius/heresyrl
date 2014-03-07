@@ -110,8 +110,8 @@ static void dc_add_stairs(struct dc_map *map, struct random *r) {
 
     while (tile_up == NULL || tile_down == NULL) {
         coord_t c;
-        c.x = random_genrand_int32(r) % map->size.x;
-        c. y = random_genrand_int32(r) % map->size.y;
+        c.x = random_int32(r) % map->size.x;
+        c. y = random_int32(r) % map->size.y;
         i++;
 
         if (sd_get_map_tile(&c,map)->type == TILE_TYPE_FLOOR ) {
@@ -167,7 +167,7 @@ bool dc_clear_map(struct dc_map *map) {
             sd_get_map_me(&c,map)->inventory = inv_init(inv_loc_tile);
             if (sd_get_map_tile(&c,map) != NULL) {
                 if (TILE_HAS_ATTRIBUTE(sd_get_map_tile(&c,map), TILE_ATTR_LIGHT_SOURCE) ) {
-                    struct itm_item *i = itm_create_specific(ITEM_ID_FIXED_LIGHT);
+                    struct itm_item *i = itm_create(ITEM_ID_FIXED_LIGHT);
                     inv_add_item(sd_get_map_me(&c,map)->inventory, i);
                     i->specific.tool.lit = true;
                 }
@@ -218,6 +218,7 @@ bool dc_generate_map(struct dc_map *map, enum dc_dungeon_type type, int level, u
     if (map == NULL) return false;
     map->seed = seed;
     map->type = type;
+    map->threat_lvl = level;
 
     struct random *r = random_init_genrand(seed);
     switch(type) {
@@ -258,7 +259,7 @@ bool dc_generate_map(struct dc_map *map, enum dc_dungeon_type type, int level, u
         }
         else {
             lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "dc", "Stairs not reachable.");
-            dc_generate_map(map, type, level, random_genrand_int32(r) );
+            dc_generate_map(map, type, level, random_int32(r) );
         }
     }
 

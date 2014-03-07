@@ -8,7 +8,7 @@
 #include "tiles.h"
 #include "save.h"
 #include "load.h"
-#include "items_static.h"
+#include "spawn.h"
 
 #define LOAD 1
 #define SAVE 1
@@ -29,10 +29,9 @@ void game_init(struct pl_player *plr, unsigned long initial_seed) {
 
             if (gbl_game->game_random == NULL) {
                 gbl_game->game_random = random_init_genrand(initial_seed);
-                gbl_game->item_random = random_init_genrand(random_genrand_int32(gbl_game->game_random));
-                gbl_game->monster_random = random_init_genrand(random_genrand_int32(gbl_game->game_random));
-                gbl_game->map_random = random_init_genrand(random_genrand_int32(gbl_game->game_random));
-                gbl_game->ai_random = random_init_genrand(random_genrand_int32(gbl_game->game_random));
+                gbl_game->spawn_random = random_init_genrand(random_int32(gbl_game->game_random));
+                gbl_game->map_random = random_init_genrand(random_int32(gbl_game->game_random));
+                gbl_game->ai_random = random_init_genrand(random_int32(gbl_game->game_random));
             }
 
             gbl_game->sight = sgt_init();
@@ -47,7 +46,7 @@ bool game_init_map(void) {
 
     if (gbl_game->current_map == NULL) {
         gbl_game->current_map = dc_alloc_map(x,y);
-        dc_generate_map(gbl_game->current_map, DC_DUNGEON_TYPE_CAVE, 1, random_genrand_int32(gbl_game->map_random) );
+        dc_generate_map(gbl_game->current_map, DC_DUNGEON_TYPE_CAVE, 1, random_int32(gbl_game->map_random) );
     }
 
     plr_init(&gbl_game->player_data, "Tester", MSR_RACE_HUMAN, MSR_GENDER_MALE);
@@ -57,17 +56,9 @@ bool game_init_map(void) {
     if (cd_equal(&gbl_game->player_data.player->pos, &c) == true) {
         if (dc_tile_instance(gbl_game->current_map, TILE_TYPE_STAIRS_UP, 0, &c) == false) exit(1);
         if (msr_insert_monster(gbl_game->player_data.player, gbl_game->current_map, &c) == false) exit(1);
+        spwn_populate_map(gbl_game->current_map, gbl_game->spawn_random, 10000);
     }
 
-#ifndef LOAD
-    coord_t pos = gbl_game->player_data.player->pos;
-    struct itm_item *item = itm_create_specific(ITEM_ID_AVERAGE_TORCH);
-    if (item != NULL) itm_insert_item(item, gbl_game->current_map, &pos);
-    item = itm_create_specific(ITEM_ID_AVERAGE_STUB_AUTOMATIC);
-    if (item != NULL) itm_insert_item(item, gbl_game->current_map, &pos);
-    item = itm_create_specific(ITEM_ID_AVERAGE_STUB_AUTOMATIC);
-    if (item != NULL) itm_insert_item(item, gbl_game->current_map, &pos);
-#endif
     return true;
 }
 
@@ -98,8 +89,7 @@ bool game_exit() {
 
     random_exit(gbl_game->game_random);
     random_exit(gbl_game->ai_random);
-    random_exit(gbl_game->item_random);
-    random_exit(gbl_game->monster_random);
+    random_exit(gbl_game->spawn_random);
     random_exit(gbl_game->map_random);
 
     free(gbl_game);

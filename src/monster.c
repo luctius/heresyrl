@@ -46,35 +46,43 @@ struct msr_monster *msrlst_get_next_monster(struct msr_monster *prev) {
     return &mle->entries.le_next->monster;
 }
 
+static uint32_t msrlst_next_id(void) {
+    if (monster_list_initialised == false) return false;
+    struct msr_monster_list_entry *me = monster_list_head.lh_first;
+    uint32_t uid = 1;
+
+    while (me != NULL) {
+        if (uid <= me->monster.uid) uid = me->monster.uid+1;
+        me = me->entries.le_next;
+    }
+    return uid;
+}
+
 struct msr_monster *msr_create(uint32_t template_id) {
     if (monster_list_initialised == false) msrlst_monster_list_init();
+    if (template_id >= (int) ARRAY_SZ(static_monster_list)) return NULL;
     struct msr_monster *template_monster = NULL;
-    for (unsigned int i = 0; i < ARRAY_SZ(static_monster_list); i++) {
-        if (static_monster_list[i].template_id == template_id) {
-            template_monster = &static_monster_list[i];
+
+    template_monster = &static_monster_list[template_id];
+    struct msr_monster_list_entry *m = calloc(1,sizeof(struct msr_monster_list_entry) );
+    if (m != NULL) {
+        memcpy(&m->monster, template_monster, sizeof(struct msr_monster) );
+        m->monster.pos = cd_create(0,0);
+        m->monster.uid = msrlst_next_id();
+        m->monster.inventory = NULL;
+
+        switch (m->monster.race) {
+            case MSR_RACE_HUMAN:
+                m->monster.inventory = inv_init(inv_loc_human);
+                break;
+            default:
+                free(m);
+                return NULL;
+                break;
         }
-    }
 
-    if (template_monster != NULL) {
-        struct msr_monster_list_entry *m = calloc(1,sizeof(struct msr_monster_list_entry) );
-        if (m != NULL) {
-            memcpy(&m->monster, template_monster, sizeof(struct msr_monster) );
-            m->monster.pos = cd_create(0,0);
-            m->monster.inventory = NULL;
-
-            switch (m->monster.race) {
-                case MSR_RACE_HUMAN:
-                    m->monster.inventory = inv_init(inv_loc_human);
-                    break;
-                default:
-                    free(m);
-                    return NULL;
-                    break;
-            }
-
-            LIST_INSERT_HEAD(&monster_list_head, m, entries);
-            return &m->monster;
-        }
+        LIST_INSERT_HEAD(&monster_list_head, m, entries);
+        return &m->monster;
     }
     return NULL;
 }
@@ -102,6 +110,8 @@ bool msr_insert_monster(struct msr_monster *monster, struct dc_map *map, coord_t
         if (me_future->monster == NULL) {
             me_future->monster = monster;
             monster->pos = *pos;
+            lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "msr", "Inserting monster id [uid:%d, tid:%d] to (%d,%d)", 
+                        monster->uid, monster->template_id, monster->pos.x, monster->pos.y);
             retval = true;
         }
     }
@@ -149,22 +159,6 @@ bool msr_give_item(struct msr_monster *monster, struct itm_item *item) {
     return true;
 }
 
-bool msr_use_item(struct msr_monster *monster, struct itm_item *item) {
-    if (monster == NULL) return false;
-    if (item == NULL) return false;
-    if (monster->inventory == NULL) {
-        Your("inventory is empty.");
-        return false;
-    }
-    if (inv_has_item(monster->inventory, item) == false) return false;
-
-    if (item->item_type == ITEM_TYPE_TOOL && item->specific.tool.tool_type == TOOL_TYPE_LIGHT) {
-        item->specific.tool.lit = true;
-        You("light %s.", item->ld_name);
-    }
-    return true;
-}
-
 bool msr_remove_item(struct msr_monster *monster, struct itm_item *item) {
     if (monster == NULL) return false;
     if (item == NULL) return false;
@@ -179,12 +173,12 @@ bool msr_remove_item(struct msr_monster *monster, struct itm_item *item) {
 
 int msr_get_near_sight_range(struct msr_monster *monster) {
     if (monster == NULL) return -1;
-    return 2;
+    return (msr_calculate_characteristic(monster, MSR_CHAR_PERCEPTION) * 2) / 10;
 }
 
 int msr_get_far_sight_range(struct msr_monster *monster) {
     if (monster == NULL) return -1;
-    return 4;
+    return (msr_calculate_characteristic(monster, MSR_CHAR_PERCEPTION) / 10);
 }
 
 bool msr_remove_monster(struct msr_monster *monster, struct dc_map *map) {

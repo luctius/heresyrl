@@ -9,7 +9,8 @@ struct random;
 
 struct random *random_init_genrand(unsigned long s);
 void random_exit(struct random *r);
-unsigned long random_genrand_int32(struct random *r);
+unsigned long random_int32(struct random *r);
+double random_float(struct random *r);
 
 int random_get_seed(struct random *r);
 int random_get_nr_called(struct random *r);

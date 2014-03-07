@@ -30,7 +30,7 @@ static struct random *cave_random = NULL;
  
 static int randpick(void)
 {
-    if(random_genrand_int32(cave_random)%100 < fillprob)
+    if(random_int32(cave_random)%100 < fillprob)
         return TILE_WALL;
     else
         return TILE_FLOOR;

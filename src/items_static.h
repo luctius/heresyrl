@@ -11,7 +11,4 @@ enum item_ids {
     ITEM_ID_MAX,
 };
 
-extern struct itm_item static_item_list[];
-
-
 #endif /* ITEMS_STATIC_H */

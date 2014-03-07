@@ -29,6 +29,7 @@ struct dc_map {
     coord_t size;
     unsigned int seed;
     enum dc_dungeon_type type;
+    int threat_lvl;
 
     coord_t stair_up;
     coord_t stair_down;

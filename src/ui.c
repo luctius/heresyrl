@@ -238,26 +238,27 @@ static void mapwin_display_map_noref(struct hrl_window *window, struct dc_map *m
                 int attr_mod = sd_get_map_tile(&map_c, map)->icon_attr;
                 char icon = sd_get_map_tile(&map_c, map)->icon;
 
-                if (sd_get_map_me(&map_c, map)->monster != NULL) {
-                    icon = sd_get_map_me(&map_c, map)->monster->icon;
-                    attr_mod = sd_get_map_me(&map_c, map)->monster->icon_attr;
-                }
-                else if (inv_inventory_size(sd_get_map_me(&map_c, map)->inventory) > 0) {
-                    struct itm_item *i = inv_get_next_item(sd_get_map_me(&map_c, map)->inventory, NULL);
-                    if (i != NULL) {
+                if (sd_get_map_me(&map_c, map)->visible == true) {
+                    if (sd_get_map_me(&map_c, map)->monster != NULL) {
+                        icon = sd_get_map_me(&map_c, map)->monster->icon;
+                        attr_mod = sd_get_map_me(&map_c, map)->monster->icon_attr;
+                    }
+                    else if (TILE_HAS_ATTRIBUTE(sd_get_map_tile(&map_c, map), TILE_ATTR_TRAVERSABLE) == false) {
+                        attr_mod = COLOR_PAIR(DPL_COLOUR_FG_YELLOW);
+                    }
+                    else if (inv_inventory_size(sd_get_map_me(&map_c, map)->inventory) > 0) {
+                        struct itm_item *i = inv_get_next_item(sd_get_map_me(&map_c, map)->inventory, NULL);
                         icon = i->icon;
                         attr_mod = i->icon_attr;
                     }
-                }
-                else if (TILE_HAS_ATTRIBUTE(sd_get_map_tile(&map_c, map), TILE_ATTR_TRAVERSABLE) == false) {
-                    if (sd_get_map_me(&map_c, map)->visible == true) {
-                        attr_mod = COLOR_PAIR(DPL_COLOUR_FG_YELLOW);
+                    else if (TILE_HAS_ATTRIBUTE(sd_get_map_tile(&map_c, map), TILE_ATTR_TRAVERSABLE) == true){
+                        attr_mod |= A_BOLD;
                     }
                 }
                 else if (TILE_HAS_ATTRIBUTE(sd_get_map_tile(&map_c, map), TILE_ATTR_TRAVERSABLE) ){
-                    if (sd_get_map_me(&map_c, map)->visible == false) attr_mod |= A_DIM;
-                    else if (sd_get_map_me(&map_c, map)->visible == true) attr_mod |= A_BOLD;
+                    attr_mod |= A_DIM;
                 }
+
                 if (has_colors() == TRUE) wattron(window->win, attr_mod);
                 mvwprintw(window->win, yi, xi, "%c", icon);
                 if (has_colors() == TRUE) wattroff(window->win, attr_mod);
@@ -365,7 +366,7 @@ void mapwin_overlay_examine_cursor(struct hrl_window *mapwin, struct hrl_window 
         wrefresh(mapwin->win);
         mvwaddch(mapwin->win, e_pos.y - scr_y, e_pos.x - scr_x, oldch);
     }
-    while((ch = inp_get_input()) != INP_KEY_ESCAPE && examine_mode);
+    while( ( (ch = inp_get_input()) != INP_KEY_ESCAPE) && (ch != INP_KEY_YES) && (examine_mode == true) );
 
     delwin(mapwin_ex);
     wrefresh(mapwin->win);
@@ -408,8 +409,7 @@ void mapwin_overlay_fire_cursor(struct hrl_window *window, struct pl_player *plr
             case INP_KEY_YES:
             case INP_KEY_FIRE: {
                 bool blocked = false;
-                You("fire (%d,%d)", e_pos.x, e_pos.y);
-                path_len = fght_shoot(plr->player, map, plr->rof_setting_rhand, plr->rof_setting_lhand, plr->weapon_selection, p_pos, &e_pos, path, ARRAY_SZ(path) );
+                path_len = fght_shoot(plr->player, map, plr->weapon_selection, plr->rof_setting_rhand, plr->rof_setting_lhand, p_pos, &e_pos, path, ARRAY_SZ(path) );
                 for (int i = 1; (i < path_len) && (blocked == false); i++) {
                     chtype oldch = mvwinch(window->win, path[i].y - scr_y, path[i].x - scr_x);
                     mvwaddch(window->win, path[i].y - scr_y, path[i].x - scr_x, '*');
@@ -417,6 +417,8 @@ void mapwin_overlay_fire_cursor(struct hrl_window *window, struct pl_player *plr
                     mvwaddch(window->win, path[i].y - scr_y, path[i].x - scr_x, oldch);
                     usleep(50000);
                 }
+                if (path_len < 0) Your("weapon(s) failed to fire.");
+
                 fire_mode=false;
             }
             break;
@@ -671,6 +673,7 @@ void invwin_inventory(struct hrl_window *mapwin, struct hrl_window *charwin, str
         /* TODO clean this shit up */
         switch (ch) {
             case INP_KEY_YES: invstart += dislen; break;
+            case INP_KEY_UP_RIGHT: 
             case INP_KEY_USE: {
                     delwin(invwin_ex);
                     mvwprintw(invwin, winsz, 1, "Use which item?.");
@@ -679,7 +682,7 @@ void invwin_inventory(struct hrl_window *mapwin, struct hrl_window *charwin, str
                     if (item_idx == INP_KEY_ESCAPE) break;
                     if ((item_idx + invstart) >= invsz) break;
 
-                    msr_use_item(plr->player, invlist[item_idx +invstart].item);
+                    dw_use_item(plr->player, invlist[item_idx +invstart].item);
                 }
                 break;
             case INP_KEY_WEAR: {
@@ -743,7 +746,7 @@ void invwin_inventory(struct hrl_window *mapwin, struct hrl_window *charwin, str
         }
         mvwprintw(invwin, winsz +1, 1, "[q] exit, [space] next page.");
         mvwprintw(invwin, winsz +2, 1, "[d] drop, [x] examine.");
-        mvwprintw(invwin, winsz +3, 1, "[u] use,  [w] wear.");
+        mvwprintw(invwin, winsz +3, 1, "[U] use,  [w] wear.");
         wrefresh(invwin);
         free(invlist);
     }

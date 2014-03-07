@@ -131,12 +131,12 @@ int random_get_nr_called(struct random *r) {
 void random_loop_called(struct random *r, int called) {
     if (r == NULL) return;
     for (int i = 0; i < called; i++) {
-        random_genrand_int32(r);
+        random_int32(r);
     }
 }
 
 /* generates a random number on [0,0xffffffff]-interval */
-unsigned long random_genrand_int32(struct random *r)
+unsigned long random_int32(struct random *r)
 {
     unsigned long y;
     static unsigned long mag01[2]={0x0UL, MATRIX_A};
@@ -178,34 +178,34 @@ unsigned long random_genrand_int32(struct random *r)
 /* generates a random number on [0,0x7fffffff]-interval */
 long random_genrand_int31(struct random *r)
 {
-    return (long)(random_genrand_int32(r)>>1);
+    return (long)(random_int32(r)>>1);
 }
 
 /* generates a random number on [0,1]-real-interval */
 double random_genrand_real1(struct random *r)
 {
-    return random_genrand_int32(r)*(1.0/4294967295.0); 
+    return random_int32(r)*(1.0/4294967295.0); 
     /* divided by 2^32-1 */ 
 }
 
 /* generates a random number on [0,1)-real-interval */
 double random_genrand_real2(struct random *r)
 {
-    return random_genrand_int32(r)*(1.0/4294967296.0); 
+    return random_int32(r)*(1.0/4294967296.0); 
     /* divided by 2^32 */
 }
 
 /* generates a random number on (0,1)-real-interval */
 double random_genrand_real3(struct random *r)
 {
-    return (((double)random_genrand_int32(r)) + 0.5)*(1.0/4294967296.0); 
+    return (((double)random_int32(r)) + 0.5)*(1.0/4294967296.0); 
     /* divided by 2^32 */
 }
 
 /* generates a random number on [0,1) with 53-bit resolution*/
-double random_genrand_res53(struct random *r) 
+double random_float(struct random *r) 
 { 
-    unsigned long a=random_genrand_int32(r)>>5, b=random_genrand_int32(r)>>6; 
+    unsigned long a=random_int32(r)>>5, b=random_int32(r)>>6; 
     return(a*67108864.0+b)*(1.0/9007199254740992.0); 
 } 
 /* These real versions are due to Isaku Wada, 2002/01/09 added */
