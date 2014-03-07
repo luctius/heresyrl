@@ -14,6 +14,7 @@
 
 #define ARRAY_SZ(a) (sizeof(a) / sizeof(a[0]))
 
+struct gm_game;
 struct tl_tile;
 struct msr_monster;
 struct itm_item;

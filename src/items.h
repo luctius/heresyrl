@@ -106,10 +106,10 @@ enum item_wearable_type {
 };
 
 enum item_quality {
-    ITEM_QUALITY_POOR,
-    ITEM_QUALITY_AVERAGE,
-    ITEM_QUALITY_GOOD,
-    ITEM_QUALITY_BEST,
+    ITEM_QUALITY_POOR       = 1000,
+    ITEM_QUALITY_AVERAGE    = 2000,
+    ITEM_QUALITY_GOOD       = 3000,
+    ITEM_QUALITY_BEST       = 4000,
     ITEM_QUALITY_MAX,
     ITEM_QUALITY_RANDOM,
 };
@@ -173,6 +173,7 @@ struct item_weapon_specific {
     uint8_t penetration;
     enum weapon_special_quality special_quality;
     enum item_ammo_type ammo_type;
+    uint16_t upgrades;
     bool jammed;
 };
 
@@ -209,14 +210,13 @@ enum item_owner {
 };
 
 struct itm_item {
-    uint32_t save_id; /* should not be used, only for saving the item to file.*/
-    uint32_t list_id;
+    uint32_t uid;
+    uint32_t static_id;
     enum item_types item_type;
     /*enum item_material material;*/
     enum item_availability availability;
     enum item_quality quality;
     enum item_attributes attributes;
-    unsigned long age;
     int weight;
     int cost;
     const char *sd_name;
@@ -227,6 +227,7 @@ struct itm_item {
     uint8_t use_delay;
     uint8_t stacked_quantity;
     uint8_t max_quantity;
+    unsigned long age;
     bool dropable;
 
     enum item_owner owner_type;
@@ -246,12 +247,11 @@ struct itm_item {
 
 void itmlst_items_list_init(void);
 void itmlst_items_list_exit(void);
-bool itmlst_truncate_ids(void);
 struct itm_item *itmlst_get_next_item(struct itm_item *prev);
+struct itm_item *itmlst_item_by_uid(uint32_t uid);
 
 struct itm_item *itm_generate(enum item_types type);
-struct itm_item *itm_create_specific(int idx);
-struct itm_item *itm_create_type(enum item_types type, int specific_id);
+struct itm_item *itm_create_specific(int static_id);
 void itm_destroy(struct itm_item *item);
 bool itm_insert_item(struct itm_item *item, struct dc_map *map, coord_t *pos);
 bool itm_remove_item(struct itm_item *item, struct dc_map *map, coord_t *pos);

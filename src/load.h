@@ -6,6 +6,8 @@
 #include <lualib.h>
 #include <lauxlib.h>
 
+#include "heresyrl_def.h"
+
 /** 
 * Opens the configfile as set in options.
 * Then evaluates the aqcuired Lua State for the possible
@@ -16,6 +18,6 @@
 * 
 * @return 0 on success or 1 on failure.
 */
-int ld_read_save_file(const char *path);
+int ld_read_save_file(const char *path, struct gm_game *g);
 
 #endif /* LOAD_H */

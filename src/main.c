@@ -26,6 +26,7 @@ struct hrl_window *msg_win = NULL;
 int main(void)
 {
     int ch;
+    struct itm_item *item;
     coord_t pos = cd_create(0,0);
 
     gbl_log = lg_init(LG_DEBUG_LEVEL_DEBUG, 100);
@@ -47,13 +48,15 @@ int main(void)
     game_init(NULL, rand());
     game_init_map();
 
+    /*
     pos = game->player_data.player->pos;
-    struct itm_item *item = itm_create_specific(ITEM_ID_AVERAGE_TORCH);
+    item = itm_create_specific(ITEM_ID_AVERAGE_TORCH);
     if (item != NULL) itm_insert_item(item, game->current_map, &pos);
     item = itm_create_specific(ITEM_ID_AVERAGE_STUB_AUTOMATIC);
     if (item != NULL) itm_insert_item(item, game->current_map, &pos);
     item = itm_create_specific(ITEM_ID_AVERAGE_STUB_AUTOMATIC);
     if (item != NULL) itm_insert_item(item, game->current_map, &pos);
+    */
 
     game_new_turn();
 

@@ -7,6 +7,7 @@
 #include "player.h"
 #include "tiles.h"
 #include "save.h"
+#include "load.h"
 
 struct gm_game *game = NULL;
 
@@ -33,8 +34,10 @@ bool game_init_map(void) {
     int x = 100;
     int y = 100;
 
-    game->current_map = dc_alloc_map(x,y);
-    dc_generate_map(game->current_map, DC_DUNGEON_TYPE_CAVE, 1, random_genrand_int32(game->map_random) );
+    //game->current_map = dc_alloc_map(x,y);
+    //dc_generate_map(game->current_map, DC_DUNGEON_TYPE_CAVE, 1, random_genrand_int32(game->map_random) );
+
+    ld_read_save_file("/tmp/heresyrl.save", game);
 
     plr_init(&game->player_data, "Tester", MSR_RACE_HUMAN, MSR_GENDER_MALE);
     game->player_data.player->is_player = true;

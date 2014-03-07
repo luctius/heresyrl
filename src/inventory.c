@@ -76,7 +76,7 @@ bool inv_add_stack(struct inv_inventory *inv, struct itm_item *item) {
 
     struct itm_item *i = NULL;
     while ( (i = inv_get_next_item(inv, i) ) != NULL ) {
-        if (i->list_id == item->list_id) {
+        if (i->static_id == item->static_id) {
             if (i->stacked_quantity < i->max_quantity) {
                 int diff = (i->max_quantity - i->stacked_quantity);
                 int max = MAX(diff, item->stacked_quantity);

@@ -11,6 +11,8 @@
 #include "dungeon_cave.h"
 #include "pathfinding.h"
 #include "inventory.h"
+#include "items.h"
+#include "items_static.h"
 
 extern inline struct dc_map_entity *sd_get_map_me(coord_t *c, struct dc_map *map);
 extern inline struct tl_tile *sd_get_map_tile(coord_t *c, struct dc_map *map);
@@ -146,7 +148,7 @@ static void dc_add_stairs(struct dc_map *map, struct random *r) {
     map->stair_down = down;
 }
 
-static bool dc_clear_map(struct dc_map *map) {
+bool dc_clear_map(struct dc_map *map) {
     if (map == NULL) return false;
     if (map->size.x < 2) return false;
     if (map->size.y < 2) return false;
@@ -162,7 +164,14 @@ static bool dc_clear_map(struct dc_map *map) {
             sd_get_map_me(&c,map)->light_level = 0;
             sd_get_map_me(&c,map)->general_var = 0;
             sd_get_map_me(&c,map)->monster = NULL;
-            sd_get_map_me(&c,map)->inventory = inv_init(inv_loc_human);
+            sd_get_map_me(&c,map)->inventory = inv_init(inv_loc_tile);
+            if (sd_get_map_tile(&c,map) != NULL) {
+                if (TILE_HAS_ATTRIBUTE(sd_get_map_tile(&c,map), TILE_ATTR_LIGHT_SOURCE) ) {
+                    struct itm_item *i = itm_create_specific(ITEM_ID_FIXED_LIGHT);
+                    inv_add_stack(sd_get_map_me(&c,map)->inventory, i);
+                    i->specific.tool.lit = true;
+                }
+            }
         }
     }
     return true;

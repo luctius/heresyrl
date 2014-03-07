@@ -307,7 +307,7 @@ static WINDOW *mapwin_examine(struct hrl_window *window, struct dc_map_entity *m
         }
     }
 
-    if (inv_inventory_size(me->inventory) > 0) {
+    if ( (inv_inventory_size(me->inventory) > 0) && (TILE_HAS_ATTRIBUTE(me->tile, TILE_ATTR_TRAVERSABLE) ) ) {
         y_ctr++;
         mvwprintw(mapwin_ex, y_ctr++, 1, "The %s contains:", me->tile->sd_name);
         struct itm_item *i = NULL;

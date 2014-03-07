@@ -16,7 +16,7 @@ struct itm_item_list_entry {
 
 static LIST_HEAD(items_list, itm_item_list_entry) items_list_head;
 static bool items_list_initialised = false;
-static uint64_t save_id = 1;
+static uint64_t uid = 1;
 
 #include "items_static.c"
 
@@ -47,17 +47,28 @@ struct itm_item *itmlst_get_next_item(struct itm_item *prev) {
     return &ile->entries.le_next->item;
 }
 
-bool itmlst_truncate_ids(void) {
+struct itm_item *itmlst_item_by_uid(uint32_t item_uid) {
     if (items_list_initialised == false) return false;
     struct itm_item_list_entry *ie = items_list_head.lh_first;
-    save_id = 1;
 
     while (ie != NULL) {
-        ie->item.save_id = save_id++;
+        if (item_uid == ie->item.uid) return &ie->item;
         ie = ie->entries.le_next;
     }
+    return NULL;
 }
 
+static uint32_t itmlst_next_id(void) {
+    if (items_list_initialised == false) return false;
+    struct itm_item_list_entry *ie = items_list_head.lh_first;
+    uid = 1;
+
+    while (ie != NULL) {
+        if (uid <= ie->item.uid) uid = ie->item.uid+1;
+        ie = ie->entries.le_next;
+    }
+    return uid;
+}
 
 struct itm_item *itm_generate(enum item_types type) {
     if (items_list_initialised == false) itmlst_items_list_init();
@@ -73,18 +84,12 @@ struct itm_item *itm_create_specific(int idx) {
 
     memcpy(&i->item, &static_item_list[idx], sizeof(static_item_list[idx]));
     LIST_INSERT_HEAD(&items_list_head, i, entries);
-    i->item.save_id = save_id++;
+    i->item.uid = itmlst_next_id();
     i->item.owner_type = ITEM_OWNER_NONE;
 
     lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "Item", "creating: %c", i->item.icon);
 
     return &i->item;
-}
-
-struct itm_item *itm_create_type(enum item_types type, int specific_id) {
-    if (items_list_initialised == false) itmlst_items_list_init();
-    return NULL;
-
 }
 
 void itm_destroy(struct itm_item *item) {

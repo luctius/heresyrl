@@ -7,3 +7,8 @@ character screen
 basic chargen
 better ingame message system
 ai
+
+
+accept input from savegame (replay)
+Make the game sound based (actions cost sound, enemies go to the biggest sound source, hounds bark, etc)
+Vendor machines and Medical machines.
