@@ -156,7 +156,6 @@ int main(void)
                 } while (fght_weapons_check(gbl_game->player_data.player, gbl_game->player_data.weapon_selection) == false);
                 break;
             default:
-                lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "main", "key pressed: %d.", ch);
                 break;
         }
 

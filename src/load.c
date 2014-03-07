@@ -391,7 +391,8 @@ static bool load_monsters(lua_State *L, struct dc_map *map, struct gm_game *g) {
         if (monster->is_player == true) {
             g->player_data.player = monster;
         }
-        else msr_insert_monster(monster, map, &monster->pos);
+
+        msr_insert_monster(monster, map, &monster->pos);
     }
     return true;
 }

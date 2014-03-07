@@ -1,6 +1,7 @@
 #include <ncurses.h>
 
 #include "input.h"
+#include "logging.h"
 
 char inp_key_translate_idx(int idx) {
     if (idx <= 25) return idx+0x61;
@@ -25,14 +26,14 @@ enum inp_keys inp_get_input_idx(void) {
 enum inp_keys inp_get_input(void) {
     int ch = getch();
     switch (ch) {
-        case KEY_HOME:  return INP_KEY_UP_LEFT; break;
-        case KEY_UP:    return INP_KEY_UP; break;
-        case KEY_NPAGE: return INP_KEY_UP_RIGHT; break;
-        case KEY_RIGHT: return INP_KEY_RIGHT; break;
-        case KEY_PPAGE: return INP_KEY_DOWN_RIGHT; break;
-        case KEY_DOWN:  return INP_KEY_DOWN; break;
-        case KEY_END:   return INP_KEY_DOWN_LEFT; break;
-        case KEY_LEFT:  return INP_KEY_LEFT; break;
+        /*case 'y':*/ case 55:  case KEY_HOME:  return INP_KEY_UP_LEFT; break;
+        /*case 'k':*/ case 56:  case KEY_UP:    return INP_KEY_UP; break;
+        /*case 'u':*/ case 57:  case KEY_NPAGE: return INP_KEY_UP_RIGHT; break;
+        /*case 'l':*/ case 54:  case KEY_RIGHT: return INP_KEY_RIGHT; break;
+        /*case 'n':*/ case 51:  case KEY_PPAGE: return INP_KEY_DOWN_RIGHT; break;
+        /*case 'j':*/ case 50:  case KEY_DOWN:  return INP_KEY_DOWN; break; 
+        /*case 'b':*/ case 49:  case KEY_END:   return INP_KEY_DOWN_LEFT; break;
+        /*case 'h':*/ case 52:  case KEY_LEFT:  return INP_KEY_LEFT; break;
 
         case 'q':
         case 27:        return INP_KEY_ESCAPE; break;
@@ -59,6 +60,7 @@ enum inp_keys inp_get_input(void) {
         case '>':       return INP_KEY_STAIRS_DOWN; break;
         case '<':       return INP_KEY_STAIRS_UP; break;
         default:
+            lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "main", "key pressed: %d.", ch);
             break;
     }
     return INP_KEY_NONE;

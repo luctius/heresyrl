@@ -120,9 +120,9 @@ bool msr_move_monster(struct msr_monster *monster, struct dc_map *map, coord_t *
     struct dc_map_entity *me_future = sd_get_map_me(pos, map);
 
     if (TILE_HAS_ATTRIBUTE(me_future->tile, TILE_ATTR_TRAVERSABLE) ) {
-        int x_diff = monster->pos.x - pos->x;
-        int y_diff = monster->pos.y - pos->y;
-        if (abs(x_diff) + abs(y_diff) > 1) return false; /*Speed of one for now*/
+        int x_diff = abs(monster->pos.x - pos->x);
+        int y_diff = abs(monster->pos.y - pos->y);
+        if ( (x_diff > 1) || (y_diff > 1) ) return false; /*Speed of one for now*/
         coord_t mon_pos_new = cd_add(&monster->pos, pos);
 
         if (msr_insert_monster(monster, map, pos) == true) {

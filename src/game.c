@@ -53,9 +53,11 @@ bool game_init_map(void) {
     plr_init(&gbl_game->player_data, "Tester", MSR_RACE_HUMAN, MSR_GENDER_MALE);
     gbl_game->player_data.player->is_player = true;
 
-    coord_t c;
-    if (dc_tile_instance(gbl_game->current_map, TILE_TYPE_STAIRS_UP, 0, &c) == false) exit(1);
-    if (msr_insert_monster(gbl_game->player_data.player, gbl_game->current_map, &c) == false) exit(1);
+    coord_t c = cd_create(0,0);
+    if (cd_equal(&gbl_game->player_data.player->pos, &c) == true) {
+        if (dc_tile_instance(gbl_game->current_map, TILE_TYPE_STAIRS_UP, 0, &c) == false) exit(1);
+        if (msr_insert_monster(gbl_game->player_data.player, gbl_game->current_map, &c) == false) exit(1);
+    }
 
 #ifndef LOAD
     coord_t pos = gbl_game->player_data.player->pos;
