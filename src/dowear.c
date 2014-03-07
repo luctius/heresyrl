@@ -5,6 +5,7 @@
 static bool wield_melee_weapon(struct msr_monster *monster, struct itm_item *item) {
     if (monster == NULL) return false;
     if (item == NULL) return false;
+    if (item->item_type != ITEM_TYPE_WEAPON) return false;
     if (wpn_is_type(item, WEAPON_TYPE_MELEE) == false) return false;
     struct item_weapon_specific *weapon = &item->specific.weapon;
     struct inv_inventory *inv = monster->inventory;
@@ -42,6 +43,7 @@ static bool wield_melee_weapon(struct msr_monster *monster, struct itm_item *ite
 static bool wield_ranged_weapon(struct msr_monster *monster, struct itm_item *item) {
     if (monster == NULL) return false;
     if (item == NULL) return false;
+    if (item->item_type != ITEM_TYPE_WEAPON) return false;
     if (wpn_is_type(item, WEAPON_TYPE_RANGED) == false) return false;
     struct item_weapon_specific *weapon = &item->specific.weapon;
     struct inv_inventory *inv = monster->inventory;
@@ -49,7 +51,7 @@ static bool wield_ranged_weapon(struct msr_monster *monster, struct itm_item *it
     enum inv_locations location = INV_LOC_RIGHT_WIELD;
     if (wpn_is_catergory(item, WEAPON_CATEGORY_BASIC) || wpn_is_catergory(item, WEAPON_CATEGORY_HEAVY) ) {
         location = INV_LOC_BOTH_WIELD;
-        if (inv_support_location(inv, INV_LOC_RIGHT_WIELD) == false) {
+        if (inv_support_location(inv, INV_LOC_BOTH_WIELD) == false) {
             You("do not have two hands.");
         }
     }
@@ -78,6 +80,8 @@ static bool wield_ranged_weapon(struct msr_monster *monster, struct itm_item *it
 bool dw_wear_item(struct msr_monster *monster, struct itm_item *item) {
     if (monster == NULL) return false;
     if (item == NULL) return false;
+    if (inv_has_item(monster->inventory, item) == false) return false;
+    if (inv_get_item_location(monster->inventory, item) != INV_LOC_INVENTORY) return false;
 
     switch(item->item_type) {
         case ITEM_TYPE_FOOD: return false; break;
@@ -90,6 +94,42 @@ bool dw_wear_item(struct msr_monster *monster, struct itm_item *item) {
                  if (wpn_is_type(item, WEAPON_TYPE_MELEE) ) return wield_melee_weapon(monster, item);
                  if (wpn_is_type(item, WEAPON_TYPE_THROWN) ) return false;
                  if (wpn_is_type(item, WEAPON_TYPE_CREATURE) ) return false; /*TODO add wield_creature_weapon*/
+                 break;
+        default: break;
+    }
+    return false;
+}
+
+static bool dw_remove_weapon(struct msr_monster *monster, struct itm_item *item) {
+    if (monster == NULL) return false;
+    if (item == NULL) return false;
+    if (inv_has_item(monster->inventory, item) == false) return false;
+    if (inv_get_item_location(monster->inventory, item) == INV_LOC_INVENTORY) return false;
+    //struct item_weapon_specific *weapon = &item->specific.weapon;
+    struct inv_inventory *inv = monster->inventory;
+
+    if (inv_move_item_to_location(inv, item, INV_LOC_INVENTORY) == false) {
+        lg_printf_l(LG_DEBUG_LEVEL_WARNING, "Could not move %s to the correct location, bailing.", item->ld_name);
+        You("are to be unable to remove this weapon.");
+    }
+    return false;
+}
+
+bool dw_remove_item(struct msr_monster *monster, struct itm_item *item) {
+    if (monster == NULL) return false;
+    if (item == NULL) return false;
+    if (item->item_type != ITEM_TYPE_WEAPON) return false;
+    if (inv_has_item(monster->inventory, item) == false) return false;
+    if (inv_get_item_location(monster->inventory, item) == INV_LOC_INVENTORY) return false;
+
+    switch(item->item_type) {
+        case ITEM_TYPE_FOOD: return false; break;
+        case ITEM_TYPE_AMMO: return false; break;
+        case ITEM_TYPE_TOOL: return false; break;
+        case ITEM_TYPE_WEARABLE:
+                 break;
+        case ITEM_TYPE_WEAPON:
+                 return dw_remove_weapon(monster, item);
                  break;
         default: break;
     }

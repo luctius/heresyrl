@@ -148,7 +148,7 @@ int main(void)
                 break;
             case INP_KEY_WEAPON_SELECT: 
                 if ( (inv_loc_empty(gbl_game->player_data.player->inventory, INV_LOC_RIGHT_WIELD) == true) &&
-                     (inv_loc_empty(gbl_game->player_data.player->inventory, INV_LOC_RIGHT_WIELD) == true) ) break;
+                     (inv_loc_empty(gbl_game->player_data.player->inventory, INV_LOC_LEFT_WIELD) == true) ) break;
 
                 do {
                     gbl_game->player_data.weapon_selection++;

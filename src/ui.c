@@ -497,24 +497,21 @@ void charwin_refresh(struct hrl_window *window, struct pl_player *plr) {
     mvwprintw(window->win, y++,x, "Career    %s", "Thug");
 
     y++;
-    int chr = msr_calculate_characteristic(player, MSR_CHAR_WEAPON_SKILL);
-    mvwprintw(window->win, y++,x, "WS             %d", chr);
-    chr = msr_calculate_characteristic(player, MSR_CHAR_BALISTIC_SKILL);
-    mvwprintw(window->win, y++,x, "BS             %d", chr);
-    chr = msr_calculate_characteristic(player, MSR_CHAR_STRENGTH);
-    mvwprintw(window->win, y++,x, "Strength     [%d]%d", chr/10, chr%10);
-    chr = msr_calculate_characteristic(player, MSR_CHAR_TOUCHNESS);
-    mvwprintw(window->win, y++,x, "Toughness    [%d]%d", chr/10, chr%10);
-    chr = msr_calculate_characteristic(player, MSR_CHAR_AGILITY);
-    mvwprintw(window->win, y++,x, "Agility      [%d]%d", chr/10, chr%10);
-    chr = msr_calculate_characteristic(player, MSR_CHAR_INTELLIGENCE);
-    mvwprintw(window->win, y++,x, "Intelligence [%d]%d", chr/10, chr%10);
-    chr = msr_calculate_characteristic(player, MSR_CHAR_PERCEPTION);
-    mvwprintw(window->win, y++,x, "Perception   [%d]%d", chr/10, chr%10);
-    chr = msr_calculate_characteristic(player, MSR_CHAR_WILLPOWER);
-    mvwprintw(window->win, y++,x, "Willpower    [%d]%d", chr/10, chr%10);
-    chr = msr_calculate_characteristic(player, MSR_CHAR_FELLOWSHIP);
-    mvwprintw(window->win, y++,x, "Fellowship   [%d]%d", chr/10, chr%10);
+    int ws, bs, str, tgh, agi, intel, per, wil, fel;
+    ws = msr_calculate_characteristic(player, MSR_CHAR_WEAPON_SKILL);
+    bs = msr_calculate_characteristic(player, MSR_CHAR_BALISTIC_SKILL);
+    str = msr_calculate_characteristic(player, MSR_CHAR_STRENGTH);
+    tgh = msr_calculate_characteristic(player, MSR_CHAR_TOUCHNESS);
+    agi = msr_calculate_characteristic(player, MSR_CHAR_AGILITY);
+    intel = msr_calculate_characteristic(player, MSR_CHAR_INTELLIGENCE);
+    per = msr_calculate_characteristic(player, MSR_CHAR_PERCEPTION);
+    wil = msr_calculate_characteristic(player, MSR_CHAR_WILLPOWER);
+    fel = msr_calculate_characteristic(player, MSR_CHAR_FELLOWSHIP);
+    mvwprintw(window->win, y++,x, "WS     %d   BS    %d", ws,bs);
+    mvwprintw(window->win, y++,x, "Str  [%d]%d   Tgh [%d]%d", str/10, str%10, tgh/10, tgh%10);
+    mvwprintw(window->win, y++,x, "Agi  [%d]%d   Int [%d]%d", agi/10, agi%10, intel/10, intel%10);
+    mvwprintw(window->win, y++,x, "Per  [%d]%d   Wil [%d]%d", per/10, per%10, wil/10, wil%10);
+    //mvwprintw(window->win, y++,x, "Fellowship   [%d]%d", chr/10, chr%10);
 
     y++;
     mvwprintw(window->win, y++,x, "Wounds    [%2d/%2d]", player->cur_wounds, player->max_wounds);
@@ -526,7 +523,7 @@ void charwin_refresh(struct hrl_window *window, struct pl_player *plr) {
         if (item->item_type == ITEM_TYPE_WEAPON) {
             struct item_weapon_specific *wpn = &item->specific.weapon;
             mvwprintw(window->win, y++,x, "Right Wpn: %s", item->sd_name);
-            mvwprintw(window->win, y++,x, "  Damage: %dD10 +%d", wpn->nr_dmg_die, wpn->dmg_addition);
+            mvwprintw(window->win, y++,x, "  Dmg: %dD10 +%d", wpn->nr_dmg_die, wpn->dmg_addition);
             if (wpn->weapon_type == WEAPON_TYPE_RANGED) {
                 mvwprintw(window->win, y++,x, "  Ammo: %d/%d", wpn->magazine_left, wpn->magazine_sz);
                 int single = wpn->rof[WEAPON_ROF_SETTING_SINGLE];
@@ -537,9 +534,7 @@ void charwin_refresh(struct hrl_window *window, struct pl_player *plr) {
                 char semi_str[4]; snprintf(semi_str, 3, "%d", semi);
                 char auto_str[4]; snprintf(auto_str, 3, "%d", aut);
                 mvwprintw(window->win, y++,x, "  Setting: %s (%s/%s/%s)", set, 
-                        (single > 0) ? "S" : "-",
-                        (semi > 0) ? semi_str : "-",
-                        (aut > 0) ? auto_str : "-");
+                        (single > 0) ? "S" : "-", (semi > 0) ? semi_str : "-", (aut > 0) ? auto_str : "-");
             }
         }
     }
@@ -548,7 +543,7 @@ void charwin_refresh(struct hrl_window *window, struct pl_player *plr) {
     if ( (item = inv_get_item_from_location(player->inventory, INV_LOC_LEFT_WIELD) ) != NULL) {
         if (item->item_type == ITEM_TYPE_WEAPON) {
             struct item_weapon_specific *wpn = &item->specific.weapon;
-            mvwprintw(window->win, y++,x, "Right Wpn: %s", item->sd_name);
+            mvwprintw(window->win, y++,x, "Left Wpn: %s", item->sd_name);
             mvwprintw(window->win, y++,x, "  Damage: %dD10 +%d", wpn->nr_dmg_die, wpn->dmg_addition);
             if (wpn->weapon_type == WEAPON_TYPE_RANGED) {
                 mvwprintw(window->win, y++,x, "  Ammo: %d/%d", wpn->magazine_left, wpn->magazine_sz);
@@ -560,15 +555,13 @@ void charwin_refresh(struct hrl_window *window, struct pl_player *plr) {
                 char semi_str[4]; snprintf(semi_str, 3, "%d", semi);
                 char auto_str[4]; snprintf(auto_str, 3, "%d", aut);
                 mvwprintw(window->win, y++,x, "  Setting: %s (%s/%s/%s)", set, 
-                        (single > 0) ? "S" : "-",
-                        (semi > 0) ? semi_str : "-",
-                        (aut > 0) ? auto_str : "-");
+                        (single > 0) ? "S" : "-", (semi > 0) ? semi_str : "-", (aut > 0) ? auto_str : "-");
             }
         }
     }
 
     if ( ( (item = inv_get_item_from_location(player->inventory, INV_LOC_RIGHT_WIELD) ) != NULL) ||
-         ( (item = inv_get_item_from_location(player->inventory, INV_LOC_RIGHT_WIELD) ) != NULL) ) {
+         ( (item = inv_get_item_from_location(player->inventory, INV_LOC_LEFT_WIELD) ) != NULL) ) {
         y++;
         switch (plr->weapon_selection) {
             case FGHT_WEAPON_SELECT_LEFT_HAND:
@@ -675,6 +668,8 @@ void invwin_inventory(struct hrl_window *mapwin, struct hrl_window *charwin, str
         switch (ch) {
             case INP_KEY_YES: invstart += dislen; break;
             case INP_KEY_USE: {
+                    mvwprintw(invwin, winsz, 1, "Use which item?.");
+                    wrefresh(invwin);
                     int item_idx = inp_get_input_idx();
                     if (item_idx == INP_KEY_ESCAPE) break;
                     if ((item_idx + invstart) >= invsz) break;
@@ -683,14 +678,23 @@ void invwin_inventory(struct hrl_window *mapwin, struct hrl_window *charwin, str
                 }
                 break;
             case INP_KEY_WEAR: {
+                    mvwprintw(invwin, winsz, 1, "Wear which item?.");
+                    wrefresh(invwin);
                     int item_idx = inp_get_input_idx();
                     if (item_idx == INP_KEY_ESCAPE) break;
                     if ((item_idx + invstart) >= invsz) break;
-                    dw_wear_item(plr->player, invlist[item_idx+invstart].item);
+                    if (inv_get_item_location(plr->player->inventory, invlist[item_idx+invstart].item) == INV_LOC_INVENTORY) {
+                        dw_wear_item(plr->player, invlist[item_idx+invstart].item);
+                    }
+                    else {
+                        dw_remove_item(plr->player, invlist[item_idx+invstart].item);
+                    }
                     inv_create_list(plr->player->inventory, invlist, invsz);
                 } 
                 break;
             case INP_KEY_EXAMINE: {
+                    mvwprintw(invwin, winsz, 1, "Examine which item?.");
+                    wrefresh(invwin);
                     int item_idx = inp_get_input_idx();
                     if (item_idx == INP_KEY_ESCAPE) break;
                     if ((item_idx + invstart) >= invsz) break;
@@ -700,8 +704,9 @@ void invwin_inventory(struct hrl_window *mapwin, struct hrl_window *charwin, str
                 } 
                 break;
             case INP_KEY_DROP: {
+                    mvwprintw(invwin, winsz, 1, "Drop which item?.");
+                    wrefresh(invwin);
                     invsz = inv_inventory_size(plr->player->inventory);
-                    You("invsz: %d", invsz);
                     int item_idx = inp_get_input_idx();
                     if (item_idx == INP_KEY_ESCAPE) break;
                     if ((item_idx + invstart) >= invsz) break;
