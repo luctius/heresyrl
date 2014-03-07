@@ -11,6 +11,82 @@
 #include "player.h"
 #include "tiles.h"
 
+static bool sv_save_log(FILE *file, int indent) {
+    if (file == NULL) return false;
+    if (gbl_log == NULL) return false;
+    struct queue *q = lg_logging_queue(gbl_log);
+    if (q == NULL) return false;
+
+    fprintf(file, "%*s" "log={\n", indent, ""); { indent += 2;
+        fprintf(file, "%*s" "sz=%d,\n",  indent, "", queue_size(q) );
+        for (int i = 0; i < queue_size(q); i++) {
+            fprintf(file, "%*s" "{", indent, ""); { indent += 2;
+                struct log_entry *te = (struct log_entry *) queue_peek_nr(q, i);
+                if (te != NULL) {
+                    fprintf(file, "turn=%d,", te->turn);
+                    fprintf(file, "level=%d,", te->level);
+                    fprintf(file, "module=\"%s\",", te->module);
+                    fprintf(file, "string=\"%s\",", te->string);
+                }
+
+            } indent -= 2; fprintf(file, "},\n");
+        }
+
+    } indent -= 2; fprintf(file, "%*s" "},\n", indent, "");
+    return true;
+}
+
+static bool sv_save_player(FILE *file, int indent, struct pl_player *plr) {
+    if (file == NULL) return false;
+    int sz = 0;
+
+    fprintf(file, "%*s" "player={", indent, "");
+    fprintf(file, "name=\"%s\",weapon_selection=%d,rof_setting_rhand=%d,rof_setting_lhand=%d,},\n", 
+            plr->name, plr->weapon_selection, plr->rof_setting_rhand, plr->rof_setting_lhand);
+    return true;
+}
+
+static bool sv_save_monsters(FILE *file, int indent) {
+    if (file == NULL) return false;
+    int sz = 0;
+
+    fprintf(file, "%*s" "monsters={\n", indent, ""); { indent += 2;
+        struct msr_monster *m = NULL;
+        while ( (m = msrlst_get_next_monster(m) ) != NULL) {
+            fprintf(file, "%*s" "{uid=%d,template_id=%d,race=%d,size=%d,cur_wounds=%d,max_wounds=%d,",  indent, "", 
+                    m->uid, m->template_id,m->race,m->size,m->cur_wounds,m->max_wounds);
+            fprintf(file,"fatepoints=%d,race_traits=%lld,combat_talents=%lld,career_talents=%lld,",
+                    m->fatepoints, m->race_traits,m->combat_talents,m->career_talents);
+            fprintf(file,"creature_talents=%lld,is_player=%d,pos={x=%d,y=%d,},", m->creature_talents,m->is_player,m->pos.x,m->pos.y);
+            fprintf(file,"skills={sz=%d,", MSR_SKILL_RATE_MAX);
+            for (int i = 0; i < MSR_SKILL_RATE_MAX; i++) {
+                fprintf(file,"%d,", m->skills[i]);
+            }
+            fprintf(file, "},");
+            fprintf(file,"characteristic={sz=%d,", MSR_CHAR_MAX);
+            for (int i = 0; i < MSR_CHAR_MAX; i++) {
+                fprintf(file,"{base_value=%d,advancement=%d},", m->characteristic[i].base_value, m->characteristic[i].advancement);
+            }
+            fprintf(file, "},");
+            int invsz = 0;
+            if ( (invsz = inv_inventory_size(m->inventory) ) > 0) {
+                fprintf(file, "items={");
+                struct itm_item *item = NULL;
+                for (int i = 0; i < invsz; i++) {
+                    item = inv_get_next_item(m->inventory, item);
+                    if (item != NULL) fprintf(file, "{uid=%d,position=%d},", item->uid, inv_get_item_location(m->inventory, item) );
+                }
+                fprintf(file, "sz=%d,", invsz);
+                fprintf(file, "},");
+            }
+            sz++;
+        }
+        fprintf(file, "},\n");
+        fprintf(file, "%*s" "sz=%d,\n", indent, "", sz);
+    } indent -= 2; fprintf(file, "%*s" "},\n", indent, "");
+    return true;
+}
+
 static bool sv_save_items(FILE *file, int indent) {
     if (file == NULL) return false;
     int sz = 0;
@@ -22,7 +98,7 @@ static bool sv_save_items(FILE *file, int indent) {
                 switch(item->item_type) {
                     case ITEM_TYPE_WEAPON: {
                             struct item_weapon_specific *wpn = &item->specific.weapon;
-                            fprintf(file, "weapon={magazine_left=%d,jammed=%d,special_quality=%d,upgrades=%d,}",
+                            fprintf(file, "weapon={magazine_left=%d,jammed=%d,special_quality=%d,upgrades=%d,},",
                                     wpn->magazine_left,wpn->jammed,wpn->special_quality,wpn->upgrades);
                         } break;
                     case ITEM_TYPE_WEARABLE: {
@@ -47,31 +123,6 @@ static bool sv_save_items(FILE *file, int indent) {
             sz++;
         }
         fprintf(file, "%*s" "sz=%d,\n",  indent, "", sz);
-    } indent -= 2; fprintf(file, "%*s" "},\n", indent, "");
-    return true;
-}
-
-static bool sv_save_log(FILE *file, int indent) {
-    if (file == NULL) return false;
-    if (gbl_log == NULL) return false;
-    struct queue *q = lg_logging_queue(gbl_log);
-    if (q == NULL) return false;
-
-    fprintf(file, "%*s" "log={\n", indent, ""); { indent += 2;
-        fprintf(file, "%*s" "sz=%d,\n",  indent, "", queue_size(q) );
-        for (int i = 0; i < queue_size(q); i++) {
-            fprintf(file, "%*s" "{", indent, ""); { indent += 2;
-                struct log_entry *te = (struct log_entry *) queue_peek_nr(q, i);
-                if (te != NULL) {
-                    fprintf(file, "turn=%d,", te->turn);
-                    fprintf(file, "level=%d,", te->level);
-                    fprintf(file, "module=\"%s\",", te->module);
-                    fprintf(file, "string=\"%s\",", te->string);
-                }
-
-            } indent -= 2; fprintf(file, "},\n", indent, "");
-        }
-
     } indent -= 2; fprintf(file, "%*s" "},\n", indent, "");
     return true;
 }
@@ -120,10 +171,24 @@ bool sv_save_game(const char *filename, struct gm_game *gm) {
 
     FILE *file = fopen(filename, "w");
     fprintf(file, "%*s" "game={\n", indent, ""); { indent += 2;
+        fprintf(file, "%*s" "turn=%d,\n", indent, "", gm->turn);
+        fprintf(file, "%*s" "game_random={seed=%d,called=%d},\n", indent, "", 
+                random_get_seed(gm->game_random), random_get_nr_called(gm->game_random) );
+        fprintf(file, "%*s" "map_random={seed=%d,called=%d},\n", indent, "", 
+                random_get_seed(gm->map_random), random_get_nr_called(gm->map_random) );
+        fprintf(file, "%*s" "item_random={seed=%d,called=%d},\n", indent, "", 
+                random_get_seed(gm->item_random), random_get_nr_called(gm->item_random) );
+        fprintf(file, "%*s" "monster_random={seed=%d,called=%d},\n", indent, "", 
+                random_get_seed(gm->monster_random), random_get_nr_called(gm->monster_random) );
+        fprintf(file, "%*s" "ai_random={seed=%d,called=%d},\n", indent, "", 
+                random_get_seed(gm->ai_random), random_get_nr_called(gm->ai_random) );
+
+        sv_save_player(file, indent, &gm->player_data);
+        sv_save_items(file, indent);
+        sv_save_monsters(file, indent);
         fprintf(file, "%*s" "maps={\n", indent, ""); { indent += 2;
             sv_save_map(file, indent, gm->current_map);
         } indent -= 2; fprintf(file, "%*s" "},\n", indent, "");
-        sv_save_items(file, indent);
         sv_save_log(file, indent);
     } indent -= 2; fprintf(file, "%*s" "}\n", indent, "");
     return true;

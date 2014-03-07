@@ -10,7 +10,7 @@
 #include "load.h"
 #include "items_static.h"
 
-//#define LOAD 1
+#define LOAD 1
 #define SAVE 1
 
 struct gm_game *gbl_game = NULL;

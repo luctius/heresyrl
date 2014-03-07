@@ -242,12 +242,13 @@ static void mapwin_display_map_noref(struct hrl_window *window, struct dc_map *m
                     icon = sd_get_map_me(&map_c, map)->monster->icon;
                     attr_mod = sd_get_map_me(&map_c, map)->monster->icon_attr;
                 }
-                /*
-                else if (sd_get_map_me(&map_c, map)->item != NULL) {
-                    icon = sd_get_map_me(&map_c, map)->item->icon;
-                    attr_mod = sd_get_map_me(&map_c, map)->item->icon_attr;
+                else if (inv_inventory_size(sd_get_map_me(&map_c, map)->inventory) > 0) {
+                    struct itm_item *i = inv_get_next_item(sd_get_map_me(&map_c, map)->inventory, NULL);
+                    if (i != NULL) {
+                        icon = i->icon;
+                        attr_mod = i->icon_attr;
+                    }
                 }
-                */
                 else if (TILE_HAS_ATTRIBUTE(sd_get_map_tile(&map_c, map), TILE_ATTR_TRAVERSABLE) == false) {
                     if (sd_get_map_me(&map_c, map)->visible == true) {
                         attr_mod = COLOR_PAIR(DPL_COLOUR_FG_YELLOW);
@@ -501,16 +502,16 @@ void charwin_refresh(struct hrl_window *window, struct pl_player *plr) {
     ws = msr_calculate_characteristic(player, MSR_CHAR_WEAPON_SKILL);
     bs = msr_calculate_characteristic(player, MSR_CHAR_BALISTIC_SKILL);
     str = msr_calculate_characteristic(player, MSR_CHAR_STRENGTH);
-    tgh = msr_calculate_characteristic(player, MSR_CHAR_TOUCHNESS);
+    tgh = msr_calculate_characteristic(player, MSR_CHAR_TOUGHNESS);
     agi = msr_calculate_characteristic(player, MSR_CHAR_AGILITY);
     intel = msr_calculate_characteristic(player, MSR_CHAR_INTELLIGENCE);
     per = msr_calculate_characteristic(player, MSR_CHAR_PERCEPTION);
     wil = msr_calculate_characteristic(player, MSR_CHAR_WILLPOWER);
     fel = msr_calculate_characteristic(player, MSR_CHAR_FELLOWSHIP);
-    mvwprintw(window->win, y++,x, "WS     %d   BS    %d", ws,bs);
-    mvwprintw(window->win, y++,x, "Str  [%d]%d   Tgh [%d]%d", str/10, str%10, tgh/10, tgh%10);
-    mvwprintw(window->win, y++,x, "Agi  [%d]%d   Int [%d]%d", agi/10, agi%10, intel/10, intel%10);
-    mvwprintw(window->win, y++,x, "Per  [%d]%d   Wil [%d]%d", per/10, per%10, wil/10, wil%10);
+    mvwprintw(window->win, y++,x, "WS   %d   BS   %d", ws,bs);
+    mvwprintw(window->win, y++,x, "Str  %d   Tgh  %d", str, tgh);
+    mvwprintw(window->win, y++,x, "Agi  %d   Int  %d", agi, intel);
+    mvwprintw(window->win, y++,x, "Per  %d   Wil  %d", per, wil);
     //mvwprintw(window->win, y++,x, "Fellowship   [%d]%d", chr/10, chr%10);
 
     y++;
@@ -626,24 +627,27 @@ static WINDOW *invwin_examine(struct hrl_window *window, struct itm_item *item) 
     if (item == NULL) return NULL;
     if (window->type != HRL_WINDOW_TYPE_CHARACTER) return NULL;
 
+    WINDOW *invwin_ex = derwin(window->win, 0,0,0,0);
+    touchwin(window->win);
+    wclear(invwin_ex);
+    mvwprintw(invwin_ex, 0, 1, "Description of %s.", item->ld_name);
+
     char **desc;
     int *len_lines;
     int len = strwrap(item->description, window->cols, &desc, &len_lines);
     if (len > 0) {
-        WINDOW *invwin_ex = derwin(window->win, 0,0,0,0);
-        touchwin(window->win);
-        wclear(invwin_ex);
-
-        mvwprintw(invwin_ex, 0, 1, "Description of %s.", item->ld_name);
         for (int i = 0; i < len; i++) {
             mvwprintw(invwin_ex, 2+i, 0, desc[i]);
         }
-        free(desc);
-        free(len_lines);
-        wrefresh(invwin_ex);
-        return invwin_ex;
     }
-    return NULL;
+    else {
+        mvwprintw(invwin_ex, 2, 0, "No description available.");
+    }
+
+    free(desc);
+    free(len_lines);
+    wrefresh(invwin_ex);
+    return invwin_ex;
 }
 
 void invwin_inventory(struct hrl_window *mapwin, struct hrl_window *charwin, struct dc_map *map, struct pl_player *plr) {
@@ -668,6 +672,7 @@ void invwin_inventory(struct hrl_window *mapwin, struct hrl_window *charwin, str
         switch (ch) {
             case INP_KEY_YES: invstart += dislen; break;
             case INP_KEY_USE: {
+                    delwin(invwin_ex);
                     mvwprintw(invwin, winsz, 1, "Use which item?.");
                     wrefresh(invwin);
                     int item_idx = inp_get_input_idx();
@@ -678,6 +683,7 @@ void invwin_inventory(struct hrl_window *mapwin, struct hrl_window *charwin, str
                 }
                 break;
             case INP_KEY_WEAR: {
+                    delwin(invwin_ex);
                     mvwprintw(invwin, winsz, 1, "Wear which item?.");
                     wrefresh(invwin);
                     int item_idx = inp_get_input_idx();
@@ -704,6 +710,7 @@ void invwin_inventory(struct hrl_window *mapwin, struct hrl_window *charwin, str
                 } 
                 break;
             case INP_KEY_DROP: {
+                    delwin(invwin_ex);
                     mvwprintw(invwin, winsz, 1, "Drop which item?.");
                     wrefresh(invwin);
                     invsz = inv_inventory_size(plr->player->inventory);
@@ -723,7 +730,10 @@ void invwin_inventory(struct hrl_window *mapwin, struct hrl_window *charwin, str
             default: break;
         }
 
-        charwin_refresh(charwin, plr);
+        if (invwin_ex == NULL) {
+            charwin_refresh(charwin, plr);
+        }
+
         mapwin_display_map_noref(mapwin, map, &plr->player->pos);
         touchwin(mapwin->win);
         wclear(invwin);

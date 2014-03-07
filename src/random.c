@@ -118,6 +118,11 @@ void random_exit(struct random *r) {
     free(r);
 }
 
+int random_get_seed(struct random *r) {
+    if (r == NULL) return -1;
+    return r->seed;
+}
+
 int random_get_nr_called(struct random *r) {
     if (r == NULL) return -1;
     return r->called;

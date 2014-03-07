@@ -17,6 +17,7 @@
 #include "coord.h"
 #include "player.h"
 #include "tiles.h"
+#include "random.h"
 
 /** 
 * Evaluates a Lua expression and returns the string result. 
@@ -28,13 +29,11 @@
 * 
 * @return a pointer towards the asked string.
 */
-static const char* lua_stringexpr(lua_State *L, const char *def, const char* format, va_list args)
+static const char* lua_stringexpr(lua_State *L, const char *def, const char* expr)
 {
     const char* r = (const char *) def;
     char buf[256] = "";
-    char expr[256] = "";
 
-    (void) vsnprintf(expr, sizeof(expr), format, args);
     /* Assign the Lua expression to a Lua global variable. */
     (void) snprintf(buf, 255, "evalExpr=%s", expr);
 
@@ -146,7 +145,8 @@ static int lua_boolexpr(lua_State* L, bool def, const char* format, va_list args
 
         if (lua_isboolean(L, -1) == true)
         {
-            ok = (bool) lua_toboolean(L, -1);
+            int t = lua_toboolean(L, -1);
+            ok = (bool) t;
         }
 
         /* remove lua_getglobal value */
@@ -178,23 +178,23 @@ static lua_State *conf_open(const char *file)
     {
         if (err == LUA_ERRFILE)
         {
-            lg_printf_l(LG_DEBUG_LEVEL_INFORMATIONAL, "load", "cannot access config file: %s\n", file);
+            lg_printf_l(LG_DEBUG_LEVEL_INFORMATIONAL, "load", "cannot access config file: %s", file);
         }
         else if (err == LUA_ERRSYNTAX)
         {
-            lg_printf_l(LG_DEBUG_LEVEL_ERROR, "load", "syntax error in config file: %s\n", file);
+            lg_printf_l(LG_DEBUG_LEVEL_ERROR, "load", "syntax error in config file: %s", file);
         }
         else if (err == LUA_ERRERR)
         {
-            lg_printf_l(LG_DEBUG_LEVEL_ERROR, "load", "general LUA error when accessing config file: %s\n", file);
+            lg_printf_l(LG_DEBUG_LEVEL_ERROR, "load", "general LUA error when accessing config file: %s", file);
         }
         else if (err == LUA_ERRMEM)
         {
-            lg_printf_l(LG_DEBUG_LEVEL_ERROR, "load", "out of memory when accessing config file: %s\n", file);
+            lg_printf_l(LG_DEBUG_LEVEL_ERROR, "load", "out of memory when accessing config file: %s", file);
         }
         else
         {
-            lg_printf_l(LG_DEBUG_LEVEL_ERROR, "load", "Unkown LUA error(%d) when accessing config file: %s\n", err, file);
+            lg_printf_l(LG_DEBUG_LEVEL_ERROR, "load", "Unkown LUA error(%d) when accessing config file: %s", err, file);
         }
         lua_close(L);
         L = NULL;
@@ -205,28 +205,81 @@ static lua_State *conf_open(const char *file)
         {
             if (err == LUA_ERRRUN)
             {
-                lg_printf_l(LG_DEBUG_LEVEL_ERROR, "load", "Run error when executing config file: %s\n", file);
+                lg_printf_l(LG_DEBUG_LEVEL_ERROR, "load", "Run error when executing config file: %s", file);
             }
             else if (err == LUA_ERRERR)
             {
-                lg_printf_l(LG_DEBUG_LEVEL_ERROR, "load", "general LUA error when executing config file: %s\n", file);
+                lg_printf_l(LG_DEBUG_LEVEL_ERROR, "load", "general LUA error when executing config file: %s", file);
             }
             else if (err == LUA_ERRMEM)
             {
-                lg_printf_l(LG_DEBUG_LEVEL_ERROR, "load", "out of memory when executing config file: %s\n", file);
+                lg_printf_l(LG_DEBUG_LEVEL_ERROR, "load", "out of memory when executing config file: %s", file);
             }
             else
             {
-                lg_printf_l(LG_DEBUG_LEVEL_ERROR, "load", "unkown error(%d) when executing config file: %s\n", err, file);
+                lg_printf_l(LG_DEBUG_LEVEL_ERROR, "load", "unkown error(%d) when executing config file: %s", err, file);
             }
 
             lua_close(L);
             L = NULL;
         }
-        else lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "load", "loaded config file in memory; parsing now...\n");
+        else lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "load", "loaded config file in memory; parsing now...");
     }
 
     return L;
+}
+
+static bool load_game(lua_State *L, struct gm_game *g) {
+    uint64_t t;
+    if (L == NULL) return false;
+
+    if (lua_intexpr(L, &t, "game.turn") == 0) return false;
+    g->turn = t;
+
+    if (lua_intexpr(L, &t, "game.game_random.seed") == 0) return false;
+    g->game_random = random_init_genrand(t);
+    if (lua_intexpr(L, &t, "game.game_random.called") == 0) return false;
+    random_loop_called(g->game_random, t);
+
+    if (lua_intexpr(L, &t, "game.map_random.seed") == 0) return false;
+    g->map_random = random_init_genrand(t);
+    if (lua_intexpr(L, &t, "game.map_random.called") == 0) return false;
+    random_loop_called(g->map_random, t);
+
+    if (lua_intexpr(L, &t, "game.item_random.seed") == 0) return false;
+    g->item_random = random_init_genrand(t);
+    if (lua_intexpr(L, &t, "game.item_random.called") == 0) return false;
+    random_loop_called(g->item_random, t);
+
+    if (lua_intexpr(L, &t, "game.monster_random.seed") == 0) return false;
+    g->monster_random = random_init_genrand(t);
+    if (lua_intexpr(L, &t, "game.monster_random.called") == 0) return false;
+    random_loop_called(g->monster_random, t);
+
+    if (lua_intexpr(L, &t, "game.ai_random.seed") == 0) return false;
+    g->ai_random = random_init_genrand(t);
+    if (lua_intexpr(L, &t, "game.ai_random.called") == 0) return false;
+    random_loop_called(g->ai_random, t);
+
+    return true;
+}
+
+static bool load_player(lua_State *L, struct pl_player *plr) {
+    uint64_t t;
+    if (L == NULL) return false;
+
+    char *name_ptr;
+    if ( (name_ptr = lua_stringexpr(L,"noname", "game.player.name") ) == NULL) return false;
+    plr->name = malloc(strlen(name_ptr) );
+    strcpy(plr->name,name_ptr);
+
+    if (lua_intexpr(L, &t, "game.player.weapon_selection") == 0) return false;
+    plr->weapon_selection = t;
+    if (lua_intexpr(L, &t, "game.player.rof_setting_rhand") == 0) return false;
+    plr->rof_setting_rhand = t;
+    if (lua_intexpr(L, &t, "game.player.rof_setting_lhand") == 0) return false;
+    plr->rof_setting_lhand = t;
+    return true;
 }
 
 static bool load_items_list(lua_State *L) {
@@ -236,12 +289,12 @@ static bool load_items_list(lua_State *L) {
 
     int items_sz = t;
     for (int i = 0; i < items_sz; i++) {
-
-        if (lua_intexpr(L, &t, "game.items[%d].uid", i+1) == 0) return false;
-        struct itm_item *item = itm_create_specific(t);
+        if (lua_intexpr(L, &t, "game.items[%d].template_id", i+1) == 0) return false;
+        int template_id = t;
+        struct itm_item *item = itm_create_specific(template_id);
         if (item == NULL) return false;
 
-        lua_intexpr(L, &t, "game.items[%d].template_id", i+1); item->template_id = t;
+        lua_intexpr(L, &t, "game.items[%d].uid", i+1); item->uid = t;
         lua_intexpr(L, &t, "game.items[%d].quality", i+1); item->quality = t;
         lua_intexpr(L, &t, "game.items[%d].quantity", i+1); item->stacked_quantity = t;
 
@@ -272,6 +325,73 @@ static bool load_items_list(lua_State *L) {
                 } break;
             default: break;
         }
+    }
+    return true;
+}
+
+static bool load_monsters(lua_State *L, struct dc_map *map, struct gm_game *g) {
+    uint64_t t;
+    if (L == NULL) return false;
+    if (lua_intexpr(L, &t, "game.monsters.sz") == 0) return false;
+
+    int monsters_sz = t;
+    for (int i = 0; i < monsters_sz; i++) {
+
+        if (lua_intexpr(L, &t, "game.monsters[%d].uid", i+1) == 0) return false;
+        struct msr_monster *monster = msr_create(t);
+        if (monster == NULL) return false;
+        lua_intexpr(L, &t, "game.monsters[%d].template_id", i+1); monster->template_id = t;
+        lua_intexpr(L, &t, "game.monsters[%d].race", i+1); monster->race = t;
+        lua_intexpr(L, &t, "game.monsters[%d].size", i+1); monster->size = t;
+        lua_intexpr(L, &t, "game.monsters[%d].cur_wounds", i+1); monster->cur_wounds = t;
+        lua_intexpr(L, &t, "game.monsters[%d].max_wounds", i+1); monster->max_wounds = t;
+        lua_intexpr(L, &t, "game.monsters[%d].fatepoints", i+1); monster->fatepoints = t;
+        lua_intexpr(L, &t, "game.monsters[%d].race_traits", i+1); monster->race_traits = t;
+        lua_intexpr(L, &t, "game.monsters[%d].combat_talents", i+1); monster->combat_talents = t;
+        lua_intexpr(L, &t, "game.monsters[%d].career_talents", i+1); monster->career_talents = t;
+        lua_intexpr(L, &t, "game.monsters[%d].creature_talents", i+1); monster->creature_talents = t;
+        lua_intexpr(L, &t, "game.monsters[%d].is_player", i+1); monster->is_player = t;
+        lua_intexpr(L, &t, "game.monsters[%d].pos.x", i+1); monster->pos.x = t;
+        lua_intexpr(L, &t, "game.monsters[%d].pos.y", i+1); monster->pos.y = t;
+
+        if (lua_intexpr(L, &t, "game.monsters[%d].skills.sz", i+1) == 1) {
+            int skills_sz = t;
+            for (int j = 0; j < skills_sz; j++) {
+                if (lua_intexpr(L, &t, "game.monsters[%d].skills[%d]", i+1, j+1) == 1) {
+                    monster->skills[j] = t;
+                }
+            }
+        }
+
+        if (lua_intexpr(L, &t, "game.monsters[%d].characteristic.sz", i+1) == 1) {
+            int characteristic_sz = t;
+            for (int j = 0; j < characteristic_sz; j++) {
+                if (lua_intexpr(L, &t, "game.monsters[%d].characteristic[%d].base_value", i+1,j+1) == 1) {
+                    monster->characteristic[j].base_value = t;
+                    lua_intexpr(L, &t, "game.monsters[%d].characteristic[%d].advancement", i+1,j+1);
+                    monster->characteristic[j].advancement = t;
+                }
+            }
+        }
+
+        if (lua_intexpr(L, &t, "game.monsters[%d].items.sz", i+1) == 1) {
+            int items_sz = t;
+            struct itm_item *item;
+            for (int j = 0; j < items_sz; j++) {
+                if (lua_intexpr(L, &t, "game.monsters[%d].items[%d].uid", i+1,j+1) == 1) {
+                    item = itmlst_item_by_uid(t);
+                    inv_add_item(monster->inventory,item);
+                    if (lua_intexpr(L, &t, "game.monsters[%d].items[%d].position", i+1,j+1) == 1) {
+                        enum inv_locations loc = t;
+                        inv_move_item_to_location(monster->inventory, item, loc);
+                    }
+                }
+            }
+        }
+        if (monster->is_player == true) {
+            g->player_data.player = monster;
+        }
+        else msr_insert_monster(monster, map, &monster->pos);
     }
     return true;
 }
@@ -313,9 +433,10 @@ static bool load_map(lua_State *L, struct dc_map **m, int mapid) {
                         int items_sz = t;
                         struct itm_item *item;
                         for (int j = items_sz; j > 0; j--) {
-                            lua_intexpr(L, &t, "game.maps[%d].map[%d].items[%d]", mapid, i+1, j);
-                            item = itmlst_item_by_uid(t);
-                            inv_add_item(sd_get_map_me(&pos,map)->inventory,item);
+                            if (lua_intexpr(L, &t, "game.maps[%d].map[%d].items[%d]", mapid, i+1, j) == 1) {
+                                item = itmlst_item_by_uid(t);
+                                inv_add_item(sd_get_map_me(&pos,map)->inventory,item);
+                            }
                         }
                     }
                 }
@@ -337,112 +458,12 @@ int ld_read_save_file(const char *path, struct gm_game *g) {
     
     if (L != NULL)
     {
+        load_player(L, &g->player_data);
         load_items_list(L);
         load_map(L, &g->current_map, 1);
+        load_monsters(L, g->current_map, g);
         lua_close(L);
     }
     return errorcode;
 }
 
-#if 0
-int read_config_file(const char *path)
-{
-    lua_State *L = conf_open(path);
-    int errorcode = 0;
-    
-    if (L != NULL)
-    {
-        int counter = 0;
-        const char *str = NULL;
-        char *basestr = "settings.channels[%d].%s";
-        char *namestr = "name";
-        char *passwdstr = "password";
-
-        verbose("found the config file %s\n", path);
-
-        if (!options.silent)  options.silent    = lua_boolexpr(L , "settings.silent"         , options.silent);
-        if (!options.verbose) options.verbose   = lua_boolexpr(L , "settings.verbose"        , options.verbose);
-        if (!options.debug)   options.debug     = lua_boolexpr(L , "settings.debug"          , options.debug);
-
-        options.interactive                 = lua_boolexpr(L     , "settings.interactive"    , options.interactive);
-        options.showchannel                 = lua_boolexpr(L     , "settings.showchannel"    , options.showchannel);
-        options.shownick                    = lua_boolexpr(L     , "settings.shownick"       , options.shownick);
-        options.showjoins                   = lua_boolexpr(L     , "settings.showjoins"      , options.showjoins);
-        options.enableplugins               = lua_boolexpr(L     , "settings.plugins"        , options.enableplugins);
-        (void) lua_intexpr(L                                     , "settings.port"           , &options.port);
-        (void) lua_intexpr(L                                     , "settings.oflood"         , &options.output_flood_timeout);
-        (void) lua_intexpr(L                                     , "settings.timeout"        , (int *) &options.connection_timeout);
-        strncpy(options.serverpassword      , lua_stringexpr(L   , "settings.serverpassword" , options.serverpassword) , MAX_PASSWD_LEN);
-
-        if ( (str = (const char *) lua_stringexpr(L, "settings.server",          options.server)  )        != options.server)         strncpy(options.server,         str, MAX_SERVER_NAMELEN);
-        if ( (str = (const char *) lua_stringexpr(L, "settings.name",            options.botname) )        != options.botname)        strncpy(options.botname,        str, MAX_BOT_NAMELEN);
-        if ( (str = (const char *) lua_stringexpr(L, "settings.serverpassword" , options.serverpassword) ) != options.serverpassword) strncpy(options.serverpassword, str, MAX_PASSWD_LEN);
-
-        options.botname[MAX_BOT_NAMELEN -1] = '\0';
-
-        /*channels and channel passwords*/
-        for (counter = 0; counter < MAX_CHANNELS; counter++)
-        {
-            char name_buff[strlen(basestr) + strlen(namestr) +2];
-            char passwd_buff[strlen(basestr) + strlen(passwdstr) +2];
-
-            (void) snprintf(name_buff, sizeof(name_buff) -1, basestr, counter +1, namestr);
-            (void) snprintf(passwd_buff, sizeof(passwd_buff) -1, basestr, counter +1, passwdstr);
-
-            if ( (str = (const char *) lua_stringexpr(L, name_buff,   options.channels[counter]) )         != options.channels[counter])         strncpy(options.channels[counter],         str, MAX_CHANNELS_NAMELEN);
-            if ( (str = (const char *) lua_stringexpr(L, passwd_buff, options.channelpasswords[counter]) ) != options.channelpasswords[counter]) strncpy(options.channelpasswords[counter], str, MAX_PASSWD_LEN);
-
-            if (strlen(options.channels[counter]) == 0) counter = MAX_CHANNELS;
-            else
-            {
-                options.no_channels = counter +1;
-                debug("fetching %s: %s\n", name_buff, options.channels[counter]);
-                debug("fetching %s: %s\n", passwd_buff, options.channelpasswords[counter]);
-            }
-        }
-
-        debug("creating plugin paths\n");
-        /* plugin paths */
-        basestr = "settings.plugin_path[%d]";
-        for (counter = options.no_pluginpaths; counter < MAX_CHANNELS; counter++)
-        {
-            char pluginpath[strlen(basestr) +10];
-            (void) snprintf(pluginpath, sizeof(pluginpath) -1, basestr, counter +1);
-            if ( (str = (const char *) lua_stringexpr(L, pluginpath, options.pluginpaths[counter]) ) != options.pluginpaths[counter]) strncpy(options.pluginpaths[counter], str, MAX_PATH_LEN);
-
-            if (strlen(options.pluginpaths[counter]) == 0) counter = MAX_CHANNELS;
-            else
-            {
-                options.no_pluginpaths = counter +1;
-                debug("fetching %s: %s\n", pluginpath, options.pluginpaths[counter]);
-            }
-        }
-
-        debug("creating plugins\n");
-        /* plugins */
-        basestr = "settings.plugin[%d]";
-        for (counter = options.no_plugins; counter < MAX_CHANNELS; counter++)
-        {
-            char plugin[strlen(basestr) +10];
-            (void) snprintf(plugin, sizeof(plugin) -1, basestr, counter +1);
-            if ( ( str = (const char *) lua_stringexpr(L, plugin, options.plugins[counter]) ) != options.plugins[counter]) strncpy(options.plugins[counter], str, MAX_CHANNELS_NAMELEN);
-
-            if (strlen(options.plugins[counter]) == 0) counter = MAX_CHANNELS;
-            else
-            {
-                options.no_plugins = counter +1;
-                debug("fetching %s: %s\n", plugin, options.plugins[counter]);
-            }
-        }
-
-        debug("number of channels to join: %d\n", options.no_channels);
-        lua_close(L);
-    }
-    else
-    {
-        errorcode = 1;
-    }
-
-    return  errorcode;
-}
-#endif

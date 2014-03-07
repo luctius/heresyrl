@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stddef.h>
+#include <string.h>
 #include <ncurses.h>
 
 #include "dungeon_creator.h"
@@ -10,6 +11,8 @@
 
 static LIST_HEAD(monster_list, msr_monster_list_entry) monster_list_head;
 static bool monster_list_initialised = false;
+
+#include "monster_static.c"
 
 struct msr_monster_list_entry {
     struct msr_monster monster;
@@ -43,36 +46,35 @@ struct msr_monster *msrlst_get_next_monster(struct msr_monster *prev) {
     return &mle->entries.le_next->monster;
 }
 
-struct msr_monster *msr_create(enum msr_race race) {
+struct msr_monster *msr_create(uint32_t template_id) {
     if (monster_list_initialised == false) msrlst_monster_list_init();
-
-    struct msr_monster_list_entry *m = malloc(sizeof(struct msr_monster_list_entry) );
-    if (m != NULL) {
-
-        m->monster.pos = cd_create(0,0);
-        m->monster.icon = 'm';
-        m->monster.icon_attr = COLOR_PAIR(DPL_COLOUR_NORMAL);
-        m->monster.visibility = 100;
-        m->monster.is_player = false;
-        m->monster.inventory = NULL;
-        m->monster.sd_name = "";
-        m->monster.ld_name = "";
-        m->monster.description = "";
-        m->monster.gender = MSR_GENDER_MALE;
-        m->monster.race = race;
-
-        switch (race) {
-            case MSR_RACE_HUMAN:
-                m->monster.inventory = inv_init(inv_loc_human);
-                break;
-            default:
-                free(m);
-                return NULL;
-                break;
+    struct msr_monster *template_monster = NULL;
+    for (unsigned int i = 0; i < ARRAY_SZ(static_monster_list); i++) {
+        if (static_monster_list[i].template_id == template_id) {
+            template_monster = &static_monster_list[i];
         }
+    }
 
-        LIST_INSERT_HEAD(&monster_list_head, m, entries);
-        return &m->monster;
+    if (template_monster != NULL) {
+        struct msr_monster_list_entry *m = calloc(1,sizeof(struct msr_monster_list_entry) );
+        if (m != NULL) {
+            memcpy(&m->monster, template_monster, sizeof(struct msr_monster) );
+            m->monster.pos = cd_create(0,0);
+            m->monster.inventory = NULL;
+
+            switch (m->monster.race) {
+                case MSR_RACE_HUMAN:
+                    m->monster.inventory = inv_init(inv_loc_human);
+                    break;
+                default:
+                    free(m);
+                    return NULL;
+                    break;
+            }
+
+            LIST_INSERT_HEAD(&monster_list_head, m, entries);
+            return &m->monster;
+        }
     }
     return NULL;
 }
@@ -203,7 +205,7 @@ bool msr_remove_monster(struct msr_monster *monster, struct dc_map *map) {
 
 int msr_calculate_characteristic(struct msr_monster *monster, enum msr_characteristic chr) {
     if (monster == NULL) return -1;
-    return 30;
+    return monster->characteristic[chr].base_value + (monster->characteristic[chr].advancement * 5);
 }
 
 char *msr_gender_string(struct msr_monster *monster) {

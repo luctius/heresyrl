@@ -7,7 +7,6 @@
 
 struct pl_player {
     char *name;
-    unsigned long age;
     struct msr_monster *player;
     enum fght_weapon_selection weapon_selection;
     enum wpn_rof_setting rof_setting_rhand;
