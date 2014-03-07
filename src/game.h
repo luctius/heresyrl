@@ -24,9 +24,10 @@ struct gm_game {
 
     struct dc_map *current_map;
     struct pl_player player_data;
+    int turn;
 };
 
-extern struct gm_game *game;
+extern struct gm_game *gbl_game;
 
 void game_init(struct pl_player *plr, unsigned long initial_seed);
 bool game_init_map(void);

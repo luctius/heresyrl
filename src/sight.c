@@ -14,6 +14,7 @@ static bool check_opaque(void *vmap, int x, int y) {
     if (map == NULL) return false;
 
     coord_t c = cd_create(x,y);
+    if (cd_within_bound(&c, &map->size) == false) return false;
     return !( (sd_get_map_tile(&c,map)->attributes & TILE_ATTR_OPAGUE) > 0);
 }
 
@@ -24,6 +25,7 @@ static void apply_light_source(void *vmap, int x, int y, int dx, int dy, void *i
     if (item == NULL) return;
 
     coord_t c = cd_create(x,y);
+    if (cd_within_bound(&c, &map->size) == false) return;
     sd_get_map_me(&c,map)->light_level = item->specific.tool.light_luminem - pyth(dx,dy);
 }
 
@@ -68,6 +70,7 @@ bool sgt_calculate_light_source(struct sgt_sight *sight, struct dc_map *map, str
     if (item->specific.tool.tool_type != TOOL_TYPE_LIGHT) return false;
     if (item->specific.tool.lit != true) return false;
 
+    lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "sight", "processing light source %s.", item->ld_name);
     fov_settings_set_opacity_test_function(&sight->fov_settings, check_opaque);
     fov_settings_set_apply_lighting_function(&sight->fov_settings, apply_light_source);
 
@@ -84,7 +87,6 @@ bool sgt_calculate_all_light_sources(struct sgt_sight *sight, struct dc_map *map
     struct itm_item *item = NULL;
     while ( (item = itmlst_get_next_item(item) ) != NULL){
         sgt_calculate_light_source(sight, map, item);
-        lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "sight", "processing light source %s.", item->ld_name);
     }
     return true;
 }

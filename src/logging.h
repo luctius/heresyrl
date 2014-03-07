@@ -46,6 +46,7 @@ enum lg_debug_levels {
 struct log_entry {
     char *module;
     char *string;
+    int turn;
     enum lg_debug_levels level;
 };
 

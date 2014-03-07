@@ -37,10 +37,12 @@ struct dc_map {
 };
 
 inline struct dc_map_entity *sd_get_map_me(coord_t *c, struct dc_map *map) {
+    if (cd_within_bound(c, &map->size) == false) return NULL;
     return &map->map[((c->x) * (map)->size.y) + (c->y)];
 }
 
 inline struct tl_tile *sd_get_map_tile(coord_t *c, struct dc_map *map) {
+    if (cd_within_bound(c, &map->size) == false) return NULL;
     return map->map[((c->x) * (map)->size.y) + (c->y)].tile;
 }
 

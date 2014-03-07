@@ -8,76 +8,99 @@
 #include "tiles.h"
 #include "save.h"
 #include "load.h"
+#include "items_static.h"
 
-struct gm_game *game = NULL;
+//#define LOAD 1
+#define SAVE 1
+
+struct gm_game *gbl_game = NULL;
 
 void game_init(struct pl_player *plr, unsigned long initial_seed) {
-    if (game == NULL) {
-        game = calloc(1, sizeof(struct gm_game));
-        if (game != NULL) {
-            game->game_random = random_init_genrand(initial_seed);
-            game->item_random = random_init_genrand(random_genrand_int32(game->game_random));
-            game->monster_random = random_init_genrand(random_genrand_int32(game->game_random));
-            game->map_random = random_init_genrand(random_genrand_int32(game->game_random));
-            game->ai_random = random_init_genrand(random_genrand_int32(game->game_random));
-
-            game->sight = sgt_init();
-
+    if (gbl_game == NULL) {
+        gbl_game = calloc(1, sizeof(struct gm_game));
+        if (gbl_game != NULL) {
+            gbl_game->turn = 0;
             msrlst_monster_list_init();
             itmlst_items_list_init();
+
+#ifdef LOAD
+            ld_read_save_file("/tmp/heresyrl.save", gbl_game);
+#endif
+
+            if (gbl_game->game_random == NULL) {
+                gbl_game->game_random = random_init_genrand(initial_seed);
+                gbl_game->item_random = random_init_genrand(random_genrand_int32(gbl_game->game_random));
+                gbl_game->monster_random = random_init_genrand(random_genrand_int32(gbl_game->game_random));
+                gbl_game->map_random = random_init_genrand(random_genrand_int32(gbl_game->game_random));
+                gbl_game->ai_random = random_init_genrand(random_genrand_int32(gbl_game->game_random));
+            }
+
+            gbl_game->sight = sgt_init();
         }
     }
 }
 
 bool game_init_map(void) {
-    if (game == NULL) return false;
+    if (gbl_game == NULL) return false;
     int x = 100;
     int y = 100;
 
-    //game->current_map = dc_alloc_map(x,y);
-    //dc_generate_map(game->current_map, DC_DUNGEON_TYPE_CAVE, 1, random_genrand_int32(game->map_random) );
+    if (gbl_game->current_map == NULL) {
+        gbl_game->current_map = dc_alloc_map(x,y);
+        dc_generate_map(gbl_game->current_map, DC_DUNGEON_TYPE_CAVE, 1, random_genrand_int32(gbl_game->map_random) );
+    }
 
-    ld_read_save_file("/tmp/heresyrl.save", game);
-
-    plr_init(&game->player_data, "Tester", MSR_RACE_HUMAN, MSR_GENDER_MALE);
-    game->player_data.player->is_player = true;
+    plr_init(&gbl_game->player_data, "Tester", MSR_RACE_HUMAN, MSR_GENDER_MALE);
+    gbl_game->player_data.player->is_player = true;
 
     coord_t c;
-    if (dc_tile_instance(game->current_map, TILE_TYPE_STAIRS_UP, 0, &c) == false) exit(1);
-    if (msr_insert_monster(game->player_data.player, game->current_map, &c) == false) exit(1);
+    if (dc_tile_instance(gbl_game->current_map, TILE_TYPE_STAIRS_UP, 0, &c) == false) exit(1);
+    if (msr_insert_monster(gbl_game->player_data.player, gbl_game->current_map, &c) == false) exit(1);
+
+#ifndef LOAD
+    coord_t pos = gbl_game->player_data.player->pos;
+    struct itm_item *item = itm_create_specific(ITEM_ID_AVERAGE_TORCH);
+    if (item != NULL) itm_insert_item(item, gbl_game->current_map, &pos);
+    item = itm_create_specific(ITEM_ID_AVERAGE_STUB_AUTOMATIC);
+    if (item != NULL) itm_insert_item(item, gbl_game->current_map, &pos);
+    item = itm_create_specific(ITEM_ID_AVERAGE_STUB_AUTOMATIC);
+    if (item != NULL) itm_insert_item(item, gbl_game->current_map, &pos);
+#endif
     return true;
 }
 
 bool game_new_turn(void) {
-    if (game == NULL) return false;
-    game->player_data.age++;
+    if (gbl_game == NULL) return false;
+    gbl_game->turn++;
 
     coord_t zero = cd_create(0,0);
-    dc_clear_map_visibility(game->current_map, &zero, &game->current_map->size);
-    sgt_calculate_all_light_sources(game->sight, game->current_map);
-    sgt_calculate_player_sight(game->sight, game->current_map, game->player_data.player);
+    dc_clear_map_visibility(gbl_game->current_map, &zero, &gbl_game->current_map->size);
+    sgt_calculate_all_light_sources(gbl_game->sight, gbl_game->current_map);
+    sgt_calculate_player_sight(gbl_game->sight, gbl_game->current_map, gbl_game->player_data.player);
     return true;
 }
 
 bool game_exit() {
-    if (game == NULL) return false;
-    sv_save_game("/tmp/heresyrl.save", game);
+    if (gbl_game == NULL) return false;
+#ifdef SAVE
+    sv_save_game("/tmp/heresyrl.save", gbl_game);
+#endif
 
-    msr_die(game->player_data.player, game->current_map);
-    dc_free_map(game->current_map);
+    msr_die(gbl_game->player_data.player, gbl_game->current_map);
+    dc_free_map(gbl_game->current_map);
 
     msrlst_monster_list_exit();
     itmlst_items_list_exit();
 
-    sgt_exit(game->sight);
+    sgt_exit(gbl_game->sight);
 
-    random_exit(game->game_random);
-    random_exit(game->ai_random);
-    random_exit(game->item_random);
-    random_exit(game->monster_random);
-    random_exit(game->map_random);
+    random_exit(gbl_game->game_random);
+    random_exit(gbl_game->ai_random);
+    random_exit(gbl_game->item_random);
+    random_exit(gbl_game->monster_random);
+    random_exit(gbl_game->map_random);
 
-    free(game);
+    free(gbl_game);
     return true;
 }
 

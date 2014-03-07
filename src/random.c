@@ -42,6 +42,7 @@
 */
 
 #include <stdlib.h>
+#include "random.h"
 
 /* Period parameters */  
 #define N 624
@@ -56,8 +57,6 @@ struct random {
     unsigned long mt[N]; /* the array for the state vector  */
     int mti; //=N+1; /* r->mti==N+1 means r->mt[N] is not initialized */
 };
-
-struct random *gbl_random = NULL;
 
 /* initializes r->mt[N] with a seed */
 struct random *random_init_genrand(unsigned long s)
@@ -117,6 +116,18 @@ struct random *random_init_by_array(unsigned long init_key[], int key_length)
 
 void random_exit(struct random *r) {
     free(r);
+}
+
+int random_get_nr_called(struct random *r) {
+    if (r == NULL) return -1;
+    return r->called;
+}
+
+void random_loop_called(struct random *r, int called) {
+    if (r == NULL) return;
+    for (int i = 0; i < called; i++) {
+        random_genrand_int32(r);
+    }
 }
 
 /* generates a random number on [0,0xffffffff]-interval */

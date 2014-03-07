@@ -211,7 +211,7 @@ enum item_owner {
 
 struct itm_item {
     uint32_t uid;
-    uint32_t static_id;
+    uint32_t template_id;
     enum item_types item_type;
     /*enum item_material material;*/
     enum item_availability availability;
@@ -251,7 +251,7 @@ struct itm_item *itmlst_get_next_item(struct itm_item *prev);
 struct itm_item *itmlst_item_by_uid(uint32_t uid);
 
 struct itm_item *itm_generate(enum item_types type);
-struct itm_item *itm_create_specific(int static_id);
+struct itm_item *itm_create_specific(int template_id);
 void itm_destroy(struct itm_item *item);
 bool itm_insert_item(struct itm_item *item, struct dc_map *map, coord_t *pos);
 bool itm_remove_item(struct itm_item *item, struct dc_map *map, coord_t *pos);

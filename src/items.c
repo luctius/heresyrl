@@ -75,14 +75,14 @@ struct itm_item *itm_generate(enum item_types type) {
     return NULL;
 }
 
-struct itm_item *itm_create_specific(int idx) {
-    if (idx >= (int) ARRAY_SZ(static_item_list)) return NULL;
+struct itm_item *itm_create_specific(int template_id) {
+    if (template_id >= (int) ARRAY_SZ(static_item_list)) return NULL;
     if (items_list_initialised == false) itmlst_items_list_init();
 
     struct itm_item_list_entry *i = malloc(sizeof(struct itm_item_list_entry) );
     if (i == NULL) return NULL;
 
-    memcpy(&i->item, &static_item_list[idx], sizeof(static_item_list[idx]));
+    memcpy(&i->item, &static_item_list[template_id], sizeof(static_item_list[template_id]));
     LIST_INSERT_HEAD(&items_list_head, i, entries);
     i->item.uid = itmlst_next_id();
     i->item.owner_type = ITEM_OWNER_NONE;

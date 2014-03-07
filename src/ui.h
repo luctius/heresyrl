@@ -10,7 +10,7 @@
 #define MAP_LINES_FACTOR 0.90f
 
 #define MSG_MIN_COLS 40
-#define MSG_MAX_COLS 40
+#define MSG_MAX_COLS 100
 #define MSG_COLS_FACTOR 0.95f
 
 #define MSG_MIN_LINES 2

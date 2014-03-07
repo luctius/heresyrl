@@ -168,7 +168,7 @@ bool dc_clear_map(struct dc_map *map) {
             if (sd_get_map_tile(&c,map) != NULL) {
                 if (TILE_HAS_ATTRIBUTE(sd_get_map_tile(&c,map), TILE_ATTR_LIGHT_SOURCE) ) {
                     struct itm_item *i = itm_create_specific(ITEM_ID_FIXED_LIGHT);
-                    inv_add_stack(sd_get_map_me(&c,map)->inventory, i);
+                    inv_add_item(sd_get_map_me(&c,map)->inventory, i);
                     i->specific.tool.lit = true;
                 }
             }

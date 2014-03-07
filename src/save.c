@@ -18,7 +18,7 @@ static bool sv_save_items(FILE *file, int indent) {
     fprintf(file, "%*s" "items={\n", indent, ""); { indent += 2;
         struct itm_item *item = NULL;
         while ( (item = itmlst_get_next_item(item) ) != NULL) {
-                fprintf(file, "%*s" "{uid=%d,static_id=%d,quality=%d,quantity=%d,",  indent, "", item->uid, item->static_id,item->quality,item->stacked_quantity);
+                fprintf(file, "%*s" "{uid=%d,template_id=%d,quality=%d,quantity=%d,",  indent, "", item->uid, item->template_id,item->quality,item->stacked_quantity);
                 switch(item->item_type) {
                     case ITEM_TYPE_WEAPON: {
                             struct item_weapon_specific *wpn = &item->specific.weapon;
@@ -47,6 +47,31 @@ static bool sv_save_items(FILE *file, int indent) {
             sz++;
         }
         fprintf(file, "%*s" "sz=%d,\n",  indent, "", sz);
+    } indent -= 2; fprintf(file, "%*s" "},\n", indent, "");
+    return true;
+}
+
+static bool sv_save_log(FILE *file, int indent) {
+    if (file == NULL) return false;
+    if (gbl_log == NULL) return false;
+    struct queue *q = lg_logging_queue(gbl_log);
+    if (q == NULL) return false;
+
+    fprintf(file, "%*s" "log={\n", indent, ""); { indent += 2;
+        fprintf(file, "%*s" "sz=%d,\n",  indent, "", queue_size(q) );
+        for (int i = 0; i < queue_size(q); i++) {
+            fprintf(file, "%*s" "{", indent, ""); { indent += 2;
+                struct log_entry *te = (struct log_entry *) queue_peek_nr(q, i);
+                if (te != NULL) {
+                    fprintf(file, "turn=%d,", te->turn);
+                    fprintf(file, "level=%d,", te->level);
+                    fprintf(file, "module=\"%s\",", te->module);
+                    fprintf(file, "string=\"%s\",", te->string);
+                }
+
+            } indent -= 2; fprintf(file, "},\n", indent, "");
+        }
+
     } indent -= 2; fprintf(file, "%*s" "},\n", indent, "");
     return true;
 }
@@ -99,6 +124,7 @@ bool sv_save_game(const char *filename, struct gm_game *gm) {
             sv_save_map(file, indent, gm->current_map);
         } indent -= 2; fprintf(file, "%*s" "},\n", indent, "");
         sv_save_items(file, indent);
+        sv_save_log(file, indent);
     } indent -= 2; fprintf(file, "%*s" "}\n", indent, "");
     return true;
 }

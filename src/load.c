@@ -241,7 +241,7 @@ static bool load_items_list(lua_State *L) {
         struct itm_item *item = itm_create_specific(t);
         if (item == NULL) return false;
 
-        lua_intexpr(L, &t, "game.items[%d].static_id", i+1); item->static_id = t;
+        lua_intexpr(L, &t, "game.items[%d].template_id", i+1); item->template_id = t;
         lua_intexpr(L, &t, "game.items[%d].quality", i+1); item->quality = t;
         lua_intexpr(L, &t, "game.items[%d].quantity", i+1); item->stacked_quantity = t;
 
@@ -312,8 +312,8 @@ static bool load_map(lua_State *L, struct dc_map **m, int mapid) {
                     if (lua_intexpr(L, &t, "game.maps[%d].map[%d].items.sz", mapid, i+1) == 1) {
                         int items_sz = t;
                         struct itm_item *item;
-                        for (int j = 0; j < items_sz; j++) {
-                            lua_intexpr(L, &t, "game.maps[%d].map[%d].items[%d]", mapid, i+1, j+1);
+                        for (int j = items_sz; j > 0; j--) {
+                            lua_intexpr(L, &t, "game.maps[%d].map[%d].items[%d]", mapid, i+1, j);
                             item = itmlst_item_by_uid(t);
                             inv_add_item(sd_get_map_me(&pos,map)->inventory,item);
                         }

@@ -30,7 +30,7 @@ struct hrl_window {
 void win_generate_colours(void) {
     int i = 1;
 
-    lg_printf("generating colours");
+    lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "ui", "generating colours");
 
     init_pair(i++, COLOR_WHITE, COLOR_BLACK);
     assert(i-1 == DPL_COLOUR_NORMAL);
@@ -445,19 +445,32 @@ void msgwin_log_refresh(struct hrl_window *window, struct logging *lg) {
     struct queue *q = lg_logging_queue(lg);
     int log_sz = queue_size(q);
     int win_sz = window->lines;
+    struct log_entry *tmp_entry = NULL;
 
     if (window == NULL) return;
     if (window->type != HRL_WINDOW_TYPE_MESSAGE) return;
     wclear(window->win);
 
-    int max = (win_sz < log_sz) ? win_sz : log_sz;
-    int log_start = log_sz - win_sz;
-    if (log_start < 0) log_start = 0;
+    int max = MIN(win_sz, log_sz);
+    int log_start = 0;
 
-    for (int i = 0; i < max; i++) {
-        struct log_entry *tmp_entry = (struct log_entry *) queue_peek_nr(q, log_start +i);
-        if (tmp_entry != NULL) {
-            waddstr(window->win, tmp_entry->string);
+    int game_lvl_sz = 0;
+    for (int i = log_sz -1; i > 0; i--) {
+        tmp_entry = (struct log_entry *) queue_peek_nr(q, i);
+        if ( (tmp_entry != NULL) && (tmp_entry->level <= LG_DEBUG_LEVEL_GAME) ) {
+            game_lvl_sz++;
+            log_start = i;
+            if (game_lvl_sz == max) i = 0;
+        }
+    }
+
+    if (game_lvl_sz > 0) {
+        int y = 0;
+        for (int i = log_start; i < log_sz; i++) {
+            tmp_entry = (struct log_entry *) queue_peek_nr(q, i);
+            if ( (tmp_entry != NULL) && (tmp_entry->level <= LG_DEBUG_LEVEL_GAME) ) {
+                mvwprintw(window->win, y++,1, tmp_entry->string);
+            }
         }
     }
     wrefresh(window->win);
@@ -703,6 +716,7 @@ void invwin_inventory(struct hrl_window *mapwin, struct hrl_window *charwin, str
             default: break;
         }
 
+        charwin_refresh(charwin, plr);
         mapwin_display_map_noref(mapwin, map, &plr->player->pos);
         touchwin(mapwin->win);
         wclear(invwin);

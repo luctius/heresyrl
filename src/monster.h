@@ -39,6 +39,7 @@ struct msr_char {
 };
 
 struct msr_monster {
+    uint32_t uid;
     coord_t pos;
     char icon;
     int icon_attr;
