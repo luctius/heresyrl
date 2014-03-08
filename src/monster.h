@@ -123,6 +123,8 @@ bool msr_give_item(struct msr_monster *monster, struct itm_item *item);
 bool msr_remove_item(struct msr_monster *monster, struct itm_item *item);
 
 int msr_calculate_characteristic(struct msr_monster *monster, enum msr_characteristic chr);
+int msr_calculate_armour(struct msr_monster *monster);
+
 int msr_get_near_sight_range(struct msr_monster *monster);
 int msr_get_far_sight_range(struct msr_monster *monster);
 char *msr_gender_string(struct msr_monster *monster);

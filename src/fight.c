@@ -8,7 +8,13 @@
 #include "tiles.h"
 #include "inventory.h"
 
+int fght_calc_dmg(struct msr_monster *monster, struct msr_monster *target, struct itm_item *wpn, int hits) {
+    return -1;
+}
 
+int fght_ranged_calc_tohit(struct msr_monster *monster, struct msr_monster *target, struct itm_item *wpn, enum wpn_rof_setting rof) {
+    return -1;
+}
 
 bool fght_weapons_check(struct msr_monster *monster, enum fght_weapon_selection sel) {
     if (monster == NULL) return false;
@@ -103,13 +109,11 @@ int fght_shoot(struct msr_monster *monster, struct dc_map *map, enum fght_weapon
     if (set2 >= WEAPON_ROF_SETTING_MAX) return -1;
     if (fght_ranged_weapons_check(monster, sel) == false) return -1;
 
+    enum wpn_rof_setting rof_set[] = {set1, set2};
     struct inv_inventory *inv = monster->inventory;
-    struct item_weapon_specific *wpn1 = NULL;
-    struct item_weapon_specific *wpn2 = NULL;
-    struct itm_item *item1 = NULL;
-    struct itm_item *item2 = NULL;
-    int ammo1 = 1;
-    int ammo2 = 1;
+    struct item_weapon_specific *wpn[2] = {NULL};
+    struct itm_item *item[2] = {NULL};
+    int ammo[2] = {0};
 
     /*
        Check monster for weapon.
@@ -117,37 +121,28 @@ int fght_shoot(struct msr_monster *monster, struct dc_map *map, enum fght_weapon
     if ( (sel == FGHT_WEAPON_SELECT_RIGHT_HAND) ||
          (sel == FGHT_WEAPON_SELECT_DUAL_HAND)  ||
          (sel == FGHT_WEAPON_SELECT_BOTH_HAND) ) {
-        item1 = inv_get_item_from_location(inv, INV_LOC_RIGHT_WIELD);
+        item[0] = inv_get_item_from_location(inv, INV_LOC_RIGHT_WIELD);
     }
 
     if ( (sel == FGHT_WEAPON_SELECT_LEFT_HAND) ||
          (sel == FGHT_WEAPON_SELECT_DUAL_HAND) ) {
-        item2 = inv_get_item_from_location(inv, INV_LOC_LEFT_WIELD);
+        item[1] = inv_get_item_from_location(inv, INV_LOC_LEFT_WIELD);
     }
 
-    if (item1 != NULL) {
-        wpn1 = &item1->specific.weapon;
-        if (wpn1->weapon_type == WEAPON_TYPE_RANGED) {
-            ammo1 = MIN(wpn1->magazine_left, wpn1->rof[set1]);
-            if (ammo1 > 0) {
-                wpn1->magazine_left -= ammo1;
+    for (int i = 0; i< 2; i++) {
+        if (item[i] != NULL) {
+            wpn[i] = &item[i]->specific.weapon;
+            if (wpn[i]->weapon_type == WEAPON_TYPE_RANGED) {
+                ammo[i] = MIN(wpn[i]->magazine_left, wpn[i]->rof[rof_set[i]]);
+                if (ammo[i] > 0) {
+                    wpn[i]->magazine_left -= ammo[i];
+                }
+                else wpn[i] = NULL;
             }
-            else wpn1 = NULL;
+            else wpn[i] = NULL;
         }
-        else wpn1 = NULL;
     }
-    if (item2 != NULL) {
-        wpn2 = &item2->specific.weapon;
-        if (wpn2->weapon_type == WEAPON_TYPE_RANGED) {
-            ammo2 = MIN(wpn2->magazine_left, wpn2->rof[set2]);
-            if (ammo2 > 0) {
-                wpn2->magazine_left -= ammo2;
-            }
-            else wpn2 = NULL;
-        }
-        else wpn2 = NULL;
-    }
-    if ( (wpn1 == NULL) && (wpn2 == NULL) ) return -1;
+    if ( (wpn[0] == NULL) && (wpn[1] == NULL) ) return -1;
 
     coord_t path[MAX(map->size.x, map->size.y)];
     int path_len = fght_calc_lof_path(s, e, path, ARRAY_SZ(path));
@@ -155,11 +150,21 @@ int fght_shoot(struct msr_monster *monster, struct dc_map *map, enum fght_weapon
     int unblocked_length = 0;
 
     for (int i = 1; (i < path_len) && (blocked == false); i++) {
-        if ( (sd_get_map_me(&path[i], map)->monster != NULL) || 
-                (TILE_HAS_ATTRIBUTE(sd_get_map_tile(&path[i], map), TILE_ATTR_TRAVERSABLE) == false) ) {
-            /* Do damage */
+        if (sd_get_map_me(&path[i], map)->monster != NULL) {
+            struct msr_monster *target = sd_get_map_me(&path[i], map)->monster;
 
-            /*if hit.. */
+            for (int f = 0; f< 2; f++) {
+                if (wpn[f] != NULL) {
+                    int tohit = fght_ranged_calc_tohit(monster, target, wpn[f], rof_set[f]);
+
+                    /* Do damage */
+
+                    /*if hit.. */
+                    blocked = true;
+                }
+            }
+        }
+        if (TILE_HAS_ATTRIBUTE(sd_get_map_tile(&path[i], map), TILE_ATTR_TRAVERSABLE) == false) {
             blocked = true;
         }
         if (blocked == false) {
