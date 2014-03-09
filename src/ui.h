@@ -46,7 +46,7 @@ void win_destroy(struct hrl_window *window);
 
 void mapwin_display_map(struct hrl_window *window, struct dc_map *map, coord_t *player);
 void mapwin_overlay_examine_cursor(struct hrl_window *mapwin, struct hrl_window *charwin, struct dc_map *map, coord_t *p_pos);
-void mapwin_overlay_fire_cursor(struct hrl_window *window, struct pl_player *plr, struct dc_map *map, coord_t *p_pos);
+void mapwin_overlay_fire_cursor(struct hrl_window *window, struct gm_game *g, struct dc_map *map, coord_t *p_pos);
 
 void msgwin_log_callback(struct logging *log, struct log_entry *entry, void *priv);
 void msgwin_log_refresh(struct hrl_window *window, struct logging *log);

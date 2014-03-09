@@ -8,9 +8,6 @@
 struct pl_player {
     char *name;
     struct msr_monster *player;
-    enum fght_weapon_selection weapon_selection;
-    enum wpn_rof_setting rof_setting_rhand;
-    enum wpn_rof_setting rof_setting_lhand;
 };
 
 void plr_init(struct pl_player *plr, char *name, enum msr_race race, enum msr_gender gender);

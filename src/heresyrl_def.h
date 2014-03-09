@@ -29,7 +29,8 @@ enum tile_types;
 enum dc_dungeon_type;
 enum msr_gender;
 enum msr_race;
-enum fght_weapon_selection;
+enum msr_weapon_selection;
+enum item_weapon_type;
 enum wpn_rof_setting;
 
 enum dpl_colours {

@@ -220,6 +220,8 @@ bool dc_generate_map(struct dc_map *map, enum dc_dungeon_type type, int level, u
     map->type = type;
     map->threat_lvl = level;
 
+    lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "dc", "generating map with seed \'%d\', type \'%d\' adn threat_lvl \'%d\'", seed, type, level);
+
     struct random *r = random_init_genrand(seed);
     switch(type) {
         case DC_DUNGEON_TYPE_CAVE:

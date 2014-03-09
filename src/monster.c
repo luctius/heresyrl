@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
+#include <sys/param.h>
 #include <ncurses.h>
 
 #include "dungeon_creator.h"
@@ -69,6 +70,7 @@ struct msr_monster *msr_create(uint32_t template_id) {
         memcpy(&m->monster, template_monster, sizeof(struct msr_monster) );
         m->monster.pos = cd_create(0,0);
         m->monster.uid = msrlst_next_id();
+        m->monster.faction = 1;
         m->monster.inventory = NULL;
 
         switch (m->monster.race) {
@@ -197,6 +199,22 @@ bool msr_remove_monster(struct msr_monster *monster, struct dc_map *map) {
     return retval;
 }
 
+int msr_calculate_armour(struct msr_monster *monster, int hit_loc_roll) {
+    return MSR_HITLOC_CHEST;
+}
+
+bool msr_do_dmg(struct msr_monster *monster, int dmg, int pen, int hit_loc_roll) {
+    int armour = MIN(msr_calculate_armour(monster, hit_loc_roll) - pen, 0);
+    int toughness = msr_calculate_characteristic(monster, MSR_CHAR_TOUGHNESS) / 10;
+    dmg = dmg - (armour + toughness);
+    if (dmg > 0) {
+        monster->cur_wounds -= dmg;
+        /* do critical hits! */
+        return true;
+    }
+    return false;
+}
+
 int msr_calculate_characteristic(struct msr_monster *monster, enum msr_characteristic chr) {
     if (monster == NULL) return -1;
     return monster->characteristic[chr].base_value + (monster->characteristic[chr].advancement * 5);
@@ -211,5 +229,79 @@ char *msr_gender_string(struct msr_monster *monster) {
         default: break;
     }
     return "";
+}
+
+bool msr_weapons_check(struct msr_monster *monster) {
+    if (monster == NULL) return false;
+    if (monster->inventory == NULL) return false;
+    if (monster->wpn_sel >= MSR_WEAPON_SELECT_MAX) return false;
+
+    struct inv_inventory *inv = monster->inventory;
+    if ( (inv_loc_empty(inv, INV_LOC_MAINHAND_WIELD) == true) && (inv_loc_empty(inv, INV_LOC_OFFHAND_WIELD) ) ) return false;
+
+    /* If we have a single hand, test that for emptiness and weaponness. */
+    if (monster->wpn_sel== MSR_WEAPON_SELECT_OFF_HAND) {
+        if (inv_loc_empty(inv, INV_LOC_OFFHAND_WIELD) == true) return false;
+        if (inv_get_item_from_location(inv, INV_LOC_OFFHAND_WIELD)->item_type != ITEM_TYPE_WEAPON) return false;
+    }
+    else if (monster->wpn_sel == MSR_WEAPON_SELECT_MAIN_HAND) {
+        if (inv_loc_empty(inv, INV_LOC_MAINHAND_WIELD) == true) return false;
+        if (inv_get_item_from_location(inv, INV_LOC_MAINHAND_WIELD)->item_type != ITEM_TYPE_WEAPON) return false;
+    }
+    else if (monster->wpn_sel == MSR_WEAPON_SELECT_DUAL_HAND) {
+        if (inv_loc_empty(inv, INV_LOC_MAINHAND_WIELD) == true) return false;
+        if (inv_get_item_from_location(inv, INV_LOC_MAINHAND_WIELD)->item_type != ITEM_TYPE_WEAPON) return false;
+        if (inv_loc_empty(inv, INV_LOC_OFFHAND_WIELD) == true) return false;
+        if (inv_get_item_from_location(inv, INV_LOC_OFFHAND_WIELD)->item_type != ITEM_TYPE_WEAPON) return false;
+    }
+    else if (monster->wpn_sel == MSR_WEAPON_SELECT_BOTH_HAND) {
+        if (inv_loc_empty(inv, INV_LOC_MAINHAND_WIELD) == true) return false;
+        if (inv_get_item_from_location(inv, INV_LOC_MAINHAND_WIELD)->item_type != ITEM_TYPE_WEAPON) return false;
+
+        if ( (wpn_is_catergory(inv_get_item_from_location(inv, INV_LOC_MAINHAND_WIELD), WEAPON_CATEGORY_BASIC) == false) ||
+             (wpn_is_catergory(inv_get_item_from_location(inv, INV_LOC_MAINHAND_WIELD), WEAPON_CATEGORY_HEAVY) == false) ||
+             (wpn_is_catergory(inv_get_item_from_location(inv, INV_LOC_MAINHAND_WIELD), WEAPON_CATEGORY_2H_MELEE) == false) ) {
+            return false;
+        }
+    }
+    else return false;
+
+    return true;
+}
+
+bool msr_weapon_type_check(struct msr_monster *monster, enum item_weapon_type type) {
+    if (msr_weapons_check(monster) == false) return false;
+    if (type >= WEAPON_TYPE_MAX) return false;
+    struct inv_inventory *inv = monster->inventory;
+
+    if (monster->wpn_sel == MSR_WEAPON_SELECT_OFF_HAND) {
+         if (wpn_is_type(inv_get_item_from_location(inv, INV_LOC_OFFHAND_WIELD), type) == false) return false;
+    }
+    else if (monster->wpn_sel == MSR_WEAPON_SELECT_MAIN_HAND) {
+         if (wpn_is_type(inv_get_item_from_location(inv, INV_LOC_MAINHAND_WIELD), type) == false) return false;
+    }
+    else if (monster->wpn_sel == MSR_WEAPON_SELECT_DUAL_HAND) {
+         if ( (wpn_is_type(inv_get_item_from_location(inv, INV_LOC_OFFHAND_WIELD), type) == false) &&
+              (wpn_is_type(inv_get_item_from_location(inv, INV_LOC_MAINHAND_WIELD), type) == false) ) return false;
+    }
+    else if (monster->wpn_sel == MSR_WEAPON_SELECT_BOTH_HAND) {
+         if (wpn_is_type(inv_get_item_from_location(inv, INV_LOC_MAINHAND_WIELD), type) == false) return false;
+    }
+    else return false;
+
+    return true;
+}
+
+bool msr_weapon_next_selection(struct msr_monster *monster) {
+    if (monster == NULL) return false;
+    if (monster->inventory == NULL) return false;
+
+    if ( (inv_loc_empty(monster->inventory, INV_LOC_MAINHAND_WIELD) == true) &&
+         (inv_loc_empty(monster->inventory, INV_LOC_OFFHAND_WIELD) == true) ) return false;
+
+    do {
+        monster->wpn_sel++;
+        monster->wpn_sel %= MSR_WEAPON_SELECT_MAX;
+    } while (msr_weapons_check(monster) == false);
 }
 

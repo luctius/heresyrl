@@ -143,7 +143,7 @@ void lg_printf_basic(struct logging *log, enum lg_debug_levels dbg_lvl, const ch
 void lg_printf(const char* format, ... ) {
     va_list args;
     va_start(args, format);
-    lg_printf_basic(gbl_log, LG_DEBUG_LEVEL_GAME, "Heresyrl", format, args);
+    lg_printf_basic(gbl_log, LG_DEBUG_LEVEL_GAME, "player", format, args);
     va_end(args);
 }
 

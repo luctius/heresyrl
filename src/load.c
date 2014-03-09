@@ -268,12 +268,6 @@ static bool load_player(lua_State *L, struct pl_player *plr) {
     plr->name = malloc(strlen(name_ptr) );
     strcpy(plr->name,name_ptr);
 
-    if (lua_intexpr(L, &t, "game.player.weapon_selection") == 0) return false;
-    plr->weapon_selection = t;
-    if (lua_intexpr(L, &t, "game.player.rof_setting_rhand") == 0) return false;
-    plr->rof_setting_rhand = t;
-    if (lua_intexpr(L, &t, "game.player.rof_setting_lhand") == 0) return false;
-    plr->rof_setting_lhand = t;
     return true;
 }
 
@@ -299,7 +293,9 @@ static bool load_items_list(lua_State *L) {
                     lua_intexpr(L, &t, "game.items[%d].weapon.magazine_left", i+1); wpn->magazine_left = t;
                     lua_intexpr(L, &t, "game.items[%d].weapon.special_quality", i+1); wpn->special_quality = t;
                     lua_intexpr(L, &t, "game.items[%d].weapon.upgrades", i+1); wpn->upgrades = t;
+                    lua_intexpr(L, &t, "game.items[%d].weapon.rof_set", i+1); wpn->rof_set = t;
                     lua_intexpr(L, &t, "game.items[%d].weapon.jammed", i+1); wpn->jammed = t;
+                    if (wpn_ranged_weapon_rof_set_check(wpn) == false) wpn_ranged_weapon_rof_set_check(wpn);
                 } break;
             case ITEM_TYPE_WEARABLE: {
                     /*struct item_wearable_specific *wear = &item->specific.wearable;
@@ -387,6 +383,7 @@ static bool load_monsters(lua_State *L, struct dc_map *map, struct gm_game *g) {
         if (monster->is_player == true) {
             g->player_data.player = monster;
         }
+        if (msr_weapons_check(monster) == false) msr_weapon_next_selection(monster);
 
         msr_insert_monster(monster, map, &monster->pos);
     }
@@ -410,14 +407,10 @@ static bool load_map(lua_State *L, struct dc_map **m, int mapid) {
         if (lua_intexpr(L, &t, "game.maps[%d].threat", mapid) == 0) t = 1;
         threat = t;
 
-        if (x_sz * y_sz != map_sz) return false;
-
         *m = dc_alloc_map(x_sz, y_sz);
         if (*m != NULL) {
             struct dc_map *map = *m;
-            map->seed = seed;
-            map->type = type;
-            map->threat_lvl = threat;
+            dc_generate_map(map, type, threat, seed);
             dc_clear_map(map);
 
             for (int i = 0; i < map_sz; i++) {
@@ -426,8 +419,8 @@ static bool load_map(lua_State *L, struct dc_map **m, int mapid) {
                 lua_intexpr(L, &t, "game.maps[%d].map[%d].pos.y", mapid, i+1); pos.y = t;
                 if ( (pos.x < map->size.x) && (pos.y < map->size.y) ) {
                     sd_get_map_me(&pos, map)->pos = pos;
-                    lua_intexpr(L, &t, "game.maps[%d].map[%d].discovered", mapid, i+1); sd_get_map_me(&pos, map)->discovered = t;
                     lua_intexpr(L, &t, "game.maps[%d].map[%d].tile.id", mapid, i+1); sd_get_map_me(&pos, map)->tile = ts_get_tile_specific(t);
+                    lua_intexpr(L, &t, "game.maps[%d].map[%d].discovered", mapid, i+1); sd_get_map_me(&pos, map)->discovered = t;
 
                     if (lua_intexpr(L, &t, "game.maps[%d].map[%d].items.sz", mapid, i+1) == 1) {
                         int items_sz = t;

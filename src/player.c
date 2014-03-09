@@ -10,14 +10,11 @@ void plr_init(struct pl_player *plr, char *name, enum msr_race race, enum msr_ge
     if (plr->player == NULL) {
         plr->name = name;
         plr->player = msr_create(MSR_ID_BASIC_FERAL);
-
-        plr->weapon_selection = FGHT_WEAPON_SELECT_RIGHT_HAND;
-        plr->rof_setting_rhand = WEAPON_ROF_SETTING_SINGLE;
-        plr->rof_setting_lhand = WEAPON_ROF_SETTING_SINGLE;
     }
 
     plr->player->icon = '@';
     plr->player->icon_attr = COLOR_PAIR(DPL_COLOUR_NORMAL) | A_BOLD;
+    plr->player->faction = 0;
 }
 
 void plr_sanity_check(struct pl_player *plr) {

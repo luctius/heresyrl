@@ -16,8 +16,8 @@ enum inv_locations {
     INV_LOC_HANDS,
     INV_LOC_LEFT_RING,
     INV_LOC_RIGHT_RING,
-    INV_LOC_LEFT_WIELD,
-    INV_LOC_RIGHT_WIELD,
+    INV_LOC_OFFHAND_WIELD,
+    INV_LOC_MAINHAND_WIELD,
     INV_LOC_HEAD,
     INV_LOC_FACE,
     INV_LOC_BACK,
@@ -50,7 +50,7 @@ const char *inv_location_name(enum inv_locations loc);
       inv_loc(INV_LOC_CHEST)      | inv_loc(INV_LOC_SHOULDERS)    | \
       inv_loc(INV_LOC_ARMS)       | inv_loc(INV_LOC_HANDS)        | \
       inv_loc(INV_LOC_LEFT_RING)  | inv_loc(INV_LOC_RIGHT_RING)   | \
-      inv_loc(INV_LOC_LEFT_WIELD) | inv_loc(INV_LOC_RIGHT_WIELD)  | \
+      inv_loc(INV_LOC_OFFHAND_WIELD) | inv_loc(INV_LOC_MAINHAND_WIELD)  | \
       inv_loc(INV_LOC_HEAD)       | inv_loc(INV_LOC_FACE)         | \
       inv_loc(INV_LOC_BACK)       | inv_loc(INV_LOC_ARMOUR_CHEST) | \
       inv_loc(INV_LOC_INVENTORY) )

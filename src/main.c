@@ -55,6 +55,7 @@ int main(void)
 
     do {
         pos = *player_pos;
+        struct msr_monster *player = gbl_game->player_data.player;
     
         switch (ch) { 
             case INP_KEY_UP_LEFT:    pos.y--; pos.x--; break;
@@ -87,7 +88,7 @@ int main(void)
                             }
 
                             if (pickup || pickup_all) {
-                                if (msr_give_item(gbl_game->player_data.player, item) == true) {
+                                if (msr_give_item(player, item) == true) {
                                     inv_remove_item(inv, item);
                                     item = prev;
                                 }
@@ -106,7 +107,7 @@ int main(void)
                 mapwin_overlay_examine_cursor(map_win, char_win, gbl_game->current_map, player_pos);
                 break;
             case INP_KEY_FIRE:
-                mapwin_overlay_fire_cursor(map_win, &gbl_game->player_data, gbl_game->current_map, player_pos);
+                mapwin_overlay_fire_cursor(map_win, gbl_game, gbl_game->current_map, player_pos);
                 break;
             case INP_KEY_STAIRS_DOWN:
                 if (sd_get_map_tile(player_pos, gbl_game->current_map)->type == TILE_TYPE_STAIRS_DOWN) {
@@ -120,46 +121,24 @@ int main(void)
                 break;
             case INP_KEY_RELOAD: break;
             case INP_KEY_WEAPON_SETTING: 
-                if ( (gbl_game->player_data.weapon_selection == FGHT_WEAPON_SELECT_RIGHT_HAND) || 
-                     (gbl_game->player_data.weapon_selection == FGHT_WEAPON_SELECT_DUAL_HAND) || 
-                     (gbl_game->player_data.weapon_selection == FGHT_WEAPON_SELECT_BOTH_HAND) ) {
-                    if (inv_loc_empty(gbl_game->player_data.player->inventory, INV_LOC_RIGHT_WIELD) == false) {
-                        item = inv_get_item_from_location(gbl_game->player_data.player->inventory, INV_LOC_RIGHT_WIELD);
-                        if (wpn_is_type(item, WEAPON_TYPE_RANGED) ) {
-                            do {
-                                gbl_game->player_data.rof_setting_rhand++;
-                                gbl_game->player_data.rof_setting_rhand %= WEAPON_ROF_SETTING_MAX;
-                            } while (wpn_ranged_weapon_setting_check(item, gbl_game->player_data.rof_setting_rhand) == false);
-                        }
-                    }
+                if ( (player->wpn_sel == MSR_WEAPON_SELECT_MAIN_HAND) || 
+                     (player->wpn_sel == MSR_WEAPON_SELECT_DUAL_HAND) || 
+                     (player->wpn_sel == MSR_WEAPON_SELECT_BOTH_HAND) ) {
+                    wpn_ranged_next_rof_set(inv_get_item_from_location(player->inventory, INV_LOC_MAINHAND_WIELD) );
                 }
-                if ( (gbl_game->player_data.weapon_selection == FGHT_WEAPON_SELECT_LEFT_HAND) || 
-                     (gbl_game->player_data.weapon_selection == FGHT_WEAPON_SELECT_DUAL_HAND) ) {
-                    if (inv_loc_empty(gbl_game->player_data.player->inventory, INV_LOC_LEFT_WIELD) == false) {
-                        item = inv_get_item_from_location(gbl_game->player_data.player->inventory, INV_LOC_LEFT_WIELD);
-                        if (wpn_is_type(item, WEAPON_TYPE_RANGED) ) {
-                            do {
-                                gbl_game->player_data.rof_setting_lhand++;
-                                gbl_game->player_data.rof_setting_lhand %= WEAPON_ROF_SETTING_MAX;
-                            } while (wpn_ranged_weapon_setting_check(item, gbl_game->player_data.rof_setting_lhand) == false);
-                        }
-                    }
+                if ( (player->wpn_sel == MSR_WEAPON_SELECT_OFF_HAND) || 
+                     (player->wpn_sel == MSR_WEAPON_SELECT_DUAL_HAND) ) {
+                    wpn_ranged_next_rof_set(inv_get_item_from_location(player->inventory, INV_LOC_OFFHAND_WIELD) );
                 }
                 break;
             case INP_KEY_WEAPON_SELECT: 
-                if ( (inv_loc_empty(gbl_game->player_data.player->inventory, INV_LOC_RIGHT_WIELD) == true) &&
-                     (inv_loc_empty(gbl_game->player_data.player->inventory, INV_LOC_LEFT_WIELD) == true) ) break;
-
-                do {
-                    gbl_game->player_data.weapon_selection++;
-                    gbl_game->player_data.weapon_selection %= FGHT_WEAPON_SELECT_MAX;
-                } while (fght_weapons_check(gbl_game->player_data.player, gbl_game->player_data.weapon_selection) == false);
+                msr_weapon_next_selection(player);
                 break;
             default:
                 break;
         }
 
-        if (msr_move_monster(gbl_game->player_data.player, gbl_game->current_map, &pos) == false) {
+        if (msr_move_monster(player, gbl_game->current_map, &pos) == false) {
         }
 
         game_new_turn();

@@ -1,4 +1,5 @@
 #include <string.h>
+#include <sys/queue.h>
 #include <ncurses.h>
 
 #include "dungeon_creator.h"
@@ -163,9 +164,18 @@ bool wpn_is_catergory(struct itm_item *item, enum item_weapon_category cat) {
     return false;
 }
 
-bool wpn_ranged_weapon_setting_check(struct itm_item *item, enum wpn_rof_setting set) {
+bool wpn_ranged_weapon_rof_set_check(struct itm_item *item) {
     if (wpn_is_type(item, WEAPON_TYPE_RANGED) == false) return false;
-    if (item->specific.weapon.rof[set] > 0) return true;
+    if (item->specific.weapon.rof[item->specific.weapon.rof_set] > 0) return true;
     return false;
+}
+
+bool wpn_ranged_next_rof_set(struct itm_item *item) {
+    if (wpn_is_type(item, WEAPON_TYPE_RANGED) == false) return false;
+    do {
+        item->specific.weapon.rof_set++;
+        item->specific.weapon.rof_set %= WEAPON_ROF_SETTING_MAX;
+    } while (wpn_ranged_weapon_rof_set_check(item) == false);
+    return true;
 }
 

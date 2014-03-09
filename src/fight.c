@@ -7,142 +7,134 @@
 #include "items.h"
 #include "tiles.h"
 #include "inventory.h"
+#include "random.h"
 
-int fght_calc_dmg(struct msr_monster *monster, struct msr_monster *target, struct itm_item *wpn, int hits) {
-    return -1;
+const char *fght_weapon_hand_name(enum fght_hand hand) {
+    switch (hand) {
+        case FGHT_MAIN_HAND: return "main"; break;
+        case FGHT_OFF_HAND: return "off"; break;
+        default: break;
+    }
+    return "unknown";
 }
 
-int fght_ranged_calc_tohit(struct msr_monster *monster, struct msr_monster *target, struct itm_item *wpn, enum wpn_rof_setting rof) {
-    return -1;
-}
-
-bool fght_weapons_check(struct msr_monster *monster, enum fght_weapon_selection sel) {
+bool fght_do_dmg(struct random *r, struct msr_monster *monster, struct msr_monster *target, int hits, enum fght_hand hand) {
     if (monster == NULL) return false;
-    if (sel >= FGHT_WEAPON_SELECT_MAX) return false;
+    if (target == NULL) return false;
+    if (hits < 1) return false;
+    if ( (msr_weapon_type_check(monster, WEAPON_TYPE_RANGED) == false)   &&
+         (msr_weapon_type_check(monster, WEAPON_TYPE_CREATURE) == false) &&
+         (msr_weapon_type_check(monster, WEAPON_TYPE_THROWN) == false)   &&
+         (msr_weapon_type_check(monster, WEAPON_TYPE_MELEE) == false) ) return false;
+    if (msr_weapons_check(monster) == false) return false;
 
     struct inv_inventory *inv = monster->inventory;
-    if ( (inv_loc_empty(inv, INV_LOC_RIGHT_WIELD) == true) && (inv_loc_empty(inv, INV_LOC_LEFT_WIELD) ) ) return false;
+    struct item_weapon_specific *wpn = NULL;
+    struct itm_item *item = NULL;
 
-    /* If we haev a single hand, test that for emptiness and weaponness. */
-    if (sel == FGHT_WEAPON_SELECT_LEFT_HAND) {
-        if (inv_loc_empty(inv, INV_LOC_LEFT_WIELD) == true) return false;
-        if (inv_get_item_from_location(inv, INV_LOC_LEFT_WIELD)->item_type != ITEM_TYPE_WEAPON) return false;
-    }
-    else if (sel == FGHT_WEAPON_SELECT_RIGHT_HAND) {
-        if (inv_loc_empty(inv, INV_LOC_RIGHT_WIELD) == true) return false;
-        if (inv_get_item_from_location(inv, INV_LOC_RIGHT_WIELD)->item_type != ITEM_TYPE_WEAPON) return false;
-    }
-    else if (sel == FGHT_WEAPON_SELECT_DUAL_HAND) {
-        if (inv_loc_empty(inv, INV_LOC_RIGHT_WIELD) == true) return false;
-        if (inv_get_item_from_location(inv, INV_LOC_RIGHT_WIELD)->item_type != ITEM_TYPE_WEAPON) return false;
-        if (inv_loc_empty(inv, INV_LOC_LEFT_WIELD) == true) return false;
-        if (inv_get_item_from_location(inv, INV_LOC_LEFT_WIELD)->item_type != ITEM_TYPE_WEAPON) return false;
-    }
-    else if (sel == FGHT_WEAPON_SELECT_BOTH_HAND) {
-        if (inv_loc_empty(inv, INV_LOC_RIGHT_WIELD) == true) return false;
-        if (inv_get_item_from_location(inv, INV_LOC_RIGHT_WIELD)->item_type != ITEM_TYPE_WEAPON) return false;
-
-        if ( (wpn_is_catergory(inv_get_item_from_location(inv, INV_LOC_RIGHT_WIELD), WEAPON_CATEGORY_BASIC) == false) ||
-             (wpn_is_catergory(inv_get_item_from_location(inv, INV_LOC_RIGHT_WIELD), WEAPON_CATEGORY_HEAVY) == false) ||
-             (wpn_is_catergory(inv_get_item_from_location(inv, INV_LOC_RIGHT_WIELD), WEAPON_CATEGORY_2H_MELEE) == false) ) {
-            return false;
+    if (hand == FGHT_MAIN_HAND) {
+        if ( (monster->wpn_sel == MSR_WEAPON_SELECT_MAIN_HAND) ||
+             (monster->wpn_sel == MSR_WEAPON_SELECT_DUAL_HAND)  ||
+             (monster->wpn_sel == MSR_WEAPON_SELECT_BOTH_HAND) ) {
+            item = inv_get_item_from_location(inv, INV_LOC_MAINHAND_WIELD);
         }
     }
-    else return false;
 
+    if (hand == FGHT_OFF_HAND) {
+        if ( (monster->wpn_sel == MSR_WEAPON_SELECT_OFF_HAND) ||
+             (monster->wpn_sel == MSR_WEAPON_SELECT_DUAL_HAND) ) {
+            item = inv_get_item_from_location(inv, INV_LOC_OFFHAND_WIELD);
+        }
+    }
+    if (item == NULL) return false;
+
+    for (int h = 0; h < hits; h++) {
+        wpn = &item->specific.weapon;
+
+        int dmg = 0;
+        for (int i = 0; i < wpn->nr_dmg_die; i++) {
+            dmg += (random_int32(r)%10);
+        }
+        dmg += wpn->dmg_addition;
+        lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "fght", "Doing %dD10+%d damage => %d dmg.", wpn->nr_dmg_die, wpn->dmg_addition, dmg);
+
+        int hitloc = random_int32(r) % 100;
+        msr_do_dmg(target, dmg, wpn->penetration, hitloc);
+    }
     return true;
 }
 
-bool fght_ranged_weapons_check(struct msr_monster *monster, enum fght_weapon_selection sel) {
-    if (fght_weapons_check(monster, sel) == false) return false;
+int fght_ranged_calc_tohit(struct random *r, struct msr_monster *monster, struct msr_monster *target, enum fght_hand hand) {
+    if (monster == NULL) return -1;
+    if (target == NULL) return -1;
+    if (msr_weapon_type_check(monster, WEAPON_TYPE_RANGED) == false) return -1;
     struct inv_inventory *inv = monster->inventory;
+    struct item_weapon_specific *wpn = NULL;
+    struct itm_item *item = NULL;
+    int ammo = 0;
 
-    if (sel == FGHT_WEAPON_SELECT_LEFT_HAND) {
-         if (wpn_is_type(inv_get_item_from_location(inv, INV_LOC_LEFT_WIELD), WEAPON_TYPE_RANGED) == false) return false;
+    /*
+       Check monster for weapon.
+     */
+    if (hand == FGHT_MAIN_HAND) {
+        if ( (monster->wpn_sel == MSR_WEAPON_SELECT_MAIN_HAND) ||
+             (monster->wpn_sel == MSR_WEAPON_SELECT_DUAL_HAND)  ||
+             (monster->wpn_sel == MSR_WEAPON_SELECT_BOTH_HAND) ) {
+            item = inv_get_item_from_location(inv, INV_LOC_MAINHAND_WIELD);
+        }
     }
-    else if (sel == FGHT_WEAPON_SELECT_RIGHT_HAND) {
-         if (wpn_is_type(inv_get_item_from_location(inv, INV_LOC_RIGHT_WIELD), WEAPON_TYPE_RANGED) == false) return false;
-    }
-    else if (sel == FGHT_WEAPON_SELECT_DUAL_HAND) {
-         if ( (wpn_is_type(inv_get_item_from_location(inv, INV_LOC_LEFT_WIELD), WEAPON_TYPE_RANGED) == false) ||
-              (wpn_is_type(inv_get_item_from_location(inv, INV_LOC_RIGHT_WIELD), WEAPON_TYPE_RANGED) == false) ) return false;
-    }
-    else if (sel == FGHT_WEAPON_SELECT_BOTH_HAND) {
-         if (wpn_is_type(inv_get_item_from_location(inv, INV_LOC_RIGHT_WIELD), WEAPON_TYPE_RANGED) == false) return false;
-    }
-    else return false;
 
-    return true;
+    if (hand == FGHT_OFF_HAND) {
+        if ( (monster->wpn_sel == MSR_WEAPON_SELECT_OFF_HAND) ||
+             (monster->wpn_sel == MSR_WEAPON_SELECT_DUAL_HAND) ) {
+            item = inv_get_item_from_location(inv, INV_LOC_OFFHAND_WIELD);
+        }
+    }
+
+    if (item != NULL) {
+        wpn = &item->specific.weapon;
+        if (wpn->weapon_type == WEAPON_TYPE_RANGED) {
+            ammo = MIN(wpn->magazine_left, wpn->rof[wpn->rof_set]);
+            if (ammo > 0) {
+                wpn->magazine_left -= ammo;
+            }
+            else {
+                wpn = NULL;
+                Your("%s-hand weapon is empty.", fght_weapon_hand_name(hand) );
+            }
+        }
+        else wpn = NULL;
+    }
+    if (wpn == NULL) return -1;
+
+    int to_hit = msr_calculate_characteristic(monster, MSR_CHAR_BALISTIC_SKILL);
+    /*add to-hit modifiers here*/
+    if (hand == FGHT_OFF_HAND) to_hit += FGHT_RANGED_MODIFIER_OFF_HAND;
+    if (wpn->rof_set == WEAPON_ROF_SETTING_SINGLE) to_hit += 0;
+    if (wpn->rof_set == WEAPON_ROF_SETTING_SEMI) to_hit += FGHT_RANGED_MODIFIER_ROF_SEMI;
+    if (wpn->rof_set == WEAPON_ROF_SETTING_AUTO) to_hit += FGHT_RANGED_MODIFIER_ROF_AUTO;
+
+    if (to_hit <= 0) {
+        You("miss the shot by a huge margin.");
+        return -1;
+    }
+    int roll = random_int32(r) % 100;
+    lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "fght", "Shot attempt with calcBS: %d => %d", roll, to_hit);
+    if (roll < to_hit) {
+        return MIN(ammo, ((to_hit - roll) /10) +1);
+    }
+
+    You("miss with your %s-hand weapon.", fght_weapon_hand_name(hand) );
+    return -1;
 }
 
-bool fght_melee_weapons_check(struct msr_monster *monster, enum fght_weapon_selection sel) {
-    if (fght_weapons_check(monster, sel) == false) return false;
-    struct inv_inventory *inv = monster->inventory;
-
-    if (sel == FGHT_WEAPON_SELECT_LEFT_HAND) {
-         if (wpn_is_type(inv_get_item_from_location(inv, INV_LOC_LEFT_WIELD), WEAPON_TYPE_MELEE) == false) return false;
-    }
-    else if (sel == FGHT_WEAPON_SELECT_RIGHT_HAND) {
-         if (wpn_is_type(inv_get_item_from_location(inv, INV_LOC_RIGHT_WIELD), WEAPON_TYPE_MELEE) == false) return false;
-    }
-    else if (sel == FGHT_WEAPON_SELECT_DUAL_HAND) {
-         if ( (wpn_is_type(inv_get_item_from_location(inv, INV_LOC_LEFT_WIELD), WEAPON_TYPE_MELEE) == false) ||
-              (wpn_is_type(inv_get_item_from_location(inv, INV_LOC_RIGHT_WIELD), WEAPON_TYPE_MELEE) == false) ) return false;
-    }
-    else if (sel == FGHT_WEAPON_SELECT_BOTH_HAND) {
-         if (wpn_is_type(inv_get_item_from_location(inv, INV_LOC_RIGHT_WIELD), WEAPON_TYPE_MELEE) == false) return false;
-    }
-    else return false;
-
-    return true;
-}
-
-int fght_shoot(struct msr_monster *monster, struct dc_map *map, enum fght_weapon_selection sel, enum wpn_rof_setting set1, 
-                    enum wpn_rof_setting set2, coord_t *s, coord_t *e, coord_t path_list[], int path_list_sz) {
+int fght_shoot(struct random *r, struct msr_monster *monster, struct dc_map *map, coord_t *s, coord_t *e, coord_t path_list[], int path_list_sz) {
     if (monster == NULL) return -1;
     if (map == NULL) return -1;
     if (s == NULL) return -1;
     if (e == NULL) return -1;
     if (path_list == NULL) return -1;
-    if (sel >= FGHT_WEAPON_SELECT_MAX) return -1;
-    if (set1 >= WEAPON_ROF_SETTING_MAX) return -1;
-    if (set2 >= WEAPON_ROF_SETTING_MAX) return -1;
-    if (fght_ranged_weapons_check(monster, sel) == false) return -1;
-
-    enum wpn_rof_setting rof_set[] = {set1, set2};
-    struct inv_inventory *inv = monster->inventory;
-    struct item_weapon_specific *wpn[2] = {NULL};
-    struct itm_item *item[2] = {NULL};
-    int ammo[2] = {0};
-
-    /*
-       Check monster for weapon.
-     */
-    if ( (sel == FGHT_WEAPON_SELECT_RIGHT_HAND) ||
-         (sel == FGHT_WEAPON_SELECT_DUAL_HAND)  ||
-         (sel == FGHT_WEAPON_SELECT_BOTH_HAND) ) {
-        item[0] = inv_get_item_from_location(inv, INV_LOC_RIGHT_WIELD);
-    }
-
-    if ( (sel == FGHT_WEAPON_SELECT_LEFT_HAND) ||
-         (sel == FGHT_WEAPON_SELECT_DUAL_HAND) ) {
-        item[1] = inv_get_item_from_location(inv, INV_LOC_LEFT_WIELD);
-    }
-
-    for (int i = 0; i< 2; i++) {
-        if (item[i] != NULL) {
-            wpn[i] = &item[i]->specific.weapon;
-            if (wpn[i]->weapon_type == WEAPON_TYPE_RANGED) {
-                ammo[i] = MIN(wpn[i]->magazine_left, wpn[i]->rof[rof_set[i]]);
-                if (ammo[i] > 0) {
-                    wpn[i]->magazine_left -= ammo[i];
-                }
-                else wpn[i] = NULL;
-            }
-            else wpn[i] = NULL;
-        }
-    }
-    if ( (wpn[0] == NULL) && (wpn[1] == NULL) ) return -1;
+    if (msr_weapon_type_check(monster, WEAPON_TYPE_RANGED) == false) return -1;
 
     coord_t path[MAX(map->size.x, map->size.y)];
     int path_len = fght_calc_lof_path(s, e, path, ARRAY_SZ(path));
@@ -152,17 +144,18 @@ int fght_shoot(struct msr_monster *monster, struct dc_map *map, enum fght_weapon
     for (int i = 1; (i < path_len) && (blocked == false); i++) {
         if (sd_get_map_me(&path[i], map)->monster != NULL) {
             struct msr_monster *target = sd_get_map_me(&path[i], map)->monster;
+            int hits;
 
-            for (int f = 0; f< 2; f++) {
-                if (wpn[f] != NULL) {
-                    int tohit = fght_ranged_calc_tohit(monster, target, wpn[f], rof_set[f]);
+            /* Do damage */
+            hits = fght_ranged_calc_tohit(r, monster, target, FGHT_MAIN_HAND);
+            fght_do_dmg(r, monster, target, hits, FGHT_MAIN_HAND);
+            hits = fght_ranged_calc_tohit(r, monster, target, FGHT_OFF_HAND);
+            fght_do_dmg(r, monster, target, hits, FGHT_OFF_HAND);
 
-                    /* Do damage */
-
-                    /*if hit.. */
-                    blocked = true;
-                }
-            }
+            /* For now, always stop at the first monster. 
+               later on we can continue but then we have 
+               to keep track of the ammo once...*/
+            blocked = true;
         }
         if (TILE_HAS_ATTRIBUTE(sd_get_map_tile(&path[i], map), TILE_ATTR_TRAVERSABLE) == false) {
             blocked = true;
@@ -230,7 +223,6 @@ int fght_calc_lof_path(coord_t *s, coord_t *e, coord_t path_list[], int path_lis
         while (pl_counter < path_list_sz) {
              /* Check for an obstruction. If the obstruction can be "moved
               * around", it isn't really an obstruction. */
-            lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "fght", "%d:%d => %d:%d", los_x_1, los_y_1, los_x_2, los_y_2);
             path_list[pl_counter].x = los_x_1;
             path_list[pl_counter].y = los_y_1;
             pl_counter++;
@@ -256,7 +248,6 @@ int fght_calc_lof_path(coord_t *s, coord_t *e, coord_t path_list[], int path_lis
         while (pl_counter < path_list_sz) {
             /* Check for an obstruction. If the obstruction can be "moved
             * around", it isn't really an obstruction. */
-            lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "fght", "%d:%d => %d:%d", los_x_1, los_y_1, los_x_2, los_y_2);
             path_list[pl_counter].x = los_x_1;
             path_list[pl_counter].y = los_y_1;
             pl_counter++;
@@ -274,7 +265,6 @@ int fght_calc_lof_path(coord_t *s, coord_t *e, coord_t path_list[], int path_lis
         }
     }
 
-    lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "fght", "%d:%d => %d:%d", los_x_2, los_y_2, los_x_2, los_y_2);
     path_list[pl_counter].x = los_x_2;
     path_list[pl_counter].y = los_y_2;
     pl_counter++;

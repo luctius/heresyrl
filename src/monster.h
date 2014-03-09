@@ -74,6 +74,24 @@ enum msr_skill_rate {
     MSR_SKILL_RATE_MAX,
 };
 
+enum msr_weapon_selection {
+    MSR_WEAPON_SELECT_OFF_HAND,
+    MSR_WEAPON_SELECT_MAIN_HAND,
+    MSR_WEAPON_SELECT_DUAL_HAND,
+    MSR_WEAPON_SELECT_BOTH_HAND,
+    MSR_WEAPON_SELECT_MAX,
+};
+
+enum msr_hit_location {
+    MSR_HITLOC_LEFT_LEG,
+    MSR_HITLOC_RIGHT_LEG,
+    MSR_HITLOC_LEFT_ARM,
+    MSR_HITLOC_RIGHT_ARM,
+    MSR_HITLOC_CHEST,
+    MSR_HITLOC_HEAD,
+    MSR_HITLOC_MAX,
+};
+
 struct msr_char {
     uint8_t base_value;
     uint8_t advancement;
@@ -97,6 +115,7 @@ struct msr_monster {
     uint8_t cur_wounds;
     uint8_t max_wounds;
     uint8_t fatepoints;
+    int energy;
 
     uint64_t race_traits;
     uint64_t combat_talents;
@@ -107,6 +126,9 @@ struct msr_monster {
     struct msr_char characteristic[MSR_CHAR_MAX];
     enum msr_skills skills[MSR_SKILL_RATE_MAX];
 
+    int faction;
+
+    enum msr_weapon_selection wpn_sel;
     struct inv_inventory *inventory;
 };
 
@@ -123,11 +145,16 @@ bool msr_give_item(struct msr_monster *monster, struct itm_item *item);
 bool msr_remove_item(struct msr_monster *monster, struct itm_item *item);
 
 int msr_calculate_characteristic(struct msr_monster *monster, enum msr_characteristic chr);
-int msr_calculate_armour(struct msr_monster *monster);
+int msr_calculate_armour(struct msr_monster *monster, int hit_loc_roll);
+bool msr_do_dmg(struct msr_monster *monster, int dmg, int pen, int hit_loc_roll);
 
 int msr_get_near_sight_range(struct msr_monster *monster);
 int msr_get_far_sight_range(struct msr_monster *monster);
 char *msr_gender_string(struct msr_monster *monster);
 bool msr_do_skill_check(struct msr_monster *monster, enum msr_skills skill, int modifiers);
+
+bool msr_weapons_check(struct msr_monster *monster);
+bool msr_weapon_type_check(struct msr_monster *monster, enum item_weapon_type type);
+bool msr_weapon_next_selection(struct msr_monster *monster);
 
 #endif /*MONSTER_H_*/

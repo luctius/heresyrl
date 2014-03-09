@@ -19,6 +19,7 @@ struct inv_inventory {
 struct inv_inventory *inv_init(uint32_t locations) {
     struct inv_inventory *i= calloc(1, sizeof(struct inv_inventory) );
     if (i != NULL) {
+        LIST_INIT(&i->head);
         i->available_locations = locations;
     }
     return i;
@@ -138,8 +139,8 @@ bool inv_support_location(struct inv_inventory *inv, enum inv_locations location
     if (inv == NULL) return false;
     if (location > INV_LOC_MAX) return false;
     if (location == INV_LOC_BOTH_WIELD) {
-        if ( ( (inv->available_locations & inv_loc(INV_LOC_RIGHT_WIELD) ) > 0) && 
-             ( (inv->available_locations & inv_loc(INV_LOC_LEFT_WIELD) ) > 0) ) return true;
+        if ( ( (inv->available_locations & inv_loc(INV_LOC_MAINHAND_WIELD) ) > 0) && 
+             ( (inv->available_locations & inv_loc(INV_LOC_OFFHAND_WIELD) ) > 0) ) return true;
     }
     if ( (inv->available_locations & inv_loc(location) ) > 0) return true;
     return false;
@@ -150,7 +151,7 @@ bool inv_move_item_to_location(struct inv_inventory *inv, struct itm_item *item,
     if (item == NULL) return false;
     if (inv_support_location(inv, location) == false) return false;
     if (inv_has_item(inv, item) == false) return false;
-    if (location == INV_LOC_BOTH_WIELD) location = INV_LOC_RIGHT_WIELD;
+    if (location == INV_LOC_BOTH_WIELD) location = INV_LOC_MAINHAND_WIELD;
 
     struct inv_entry *ie = inv->head.lh_first;
 
@@ -167,7 +168,7 @@ bool inv_move_item_to_location(struct inv_inventory *inv, struct itm_item *item,
 struct itm_item *inv_get_item_from_location(struct inv_inventory *inv, enum inv_locations location) {
     if (inv == NULL) return NULL;
     if (inv_support_location(inv, location) == false) return NULL;
-    if (location == INV_LOC_BOTH_WIELD) location = INV_LOC_RIGHT_WIELD;
+    if (location == INV_LOC_BOTH_WIELD) location = INV_LOC_MAINHAND_WIELD;
 
     struct inv_entry *ie = inv->head.lh_first;
 
@@ -183,7 +184,7 @@ struct itm_item *inv_get_item_from_location(struct inv_inventory *inv, enum inv_
 bool inv_loc_empty(struct inv_inventory *inv, enum inv_locations location) {
     if (inv == NULL) return false;
     if (inv_support_location(inv, location) == false) return false;
-    if (location == INV_LOC_BOTH_WIELD) location = INV_LOC_RIGHT_WIELD;
+    if (location == INV_LOC_BOTH_WIELD) location = INV_LOC_MAINHAND_WIELD;
 
     return (inv_get_item_from_location(inv, location) == NULL);
 }
@@ -214,8 +215,8 @@ static const char *location_name_lst[] = {
     [INV_LOC_HANDS] = "hands",
     [INV_LOC_LEFT_RING] = "lring",
     [INV_LOC_RIGHT_RING] = "rring",
-    [INV_LOC_LEFT_WIELD] = "lhand",
-    [INV_LOC_RIGHT_WIELD] = "rhand",
+    [INV_LOC_OFFHAND_WIELD] = "lhand",
+    [INV_LOC_MAINHAND_WIELD] = "rhand",
     [INV_LOC_HEAD] = "head",
     [INV_LOC_FACE] = "face",
     [INV_LOC_BACK] = "back",
