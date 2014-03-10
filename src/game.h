@@ -24,6 +24,7 @@ struct gm_game {
     struct dc_map *current_map;
     struct pl_player player_data;
     int turn;
+    bool running;
 };
 
 extern struct gm_game *gbl_game;

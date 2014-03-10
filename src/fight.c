@@ -8,6 +8,7 @@
 #include "tiles.h"
 #include "inventory.h"
 #include "random.h"
+#include "ui.h"
 
 const char *fght_weapon_hand_name(enum fght_hand hand) {
     switch (hand) {
@@ -128,12 +129,11 @@ int fght_ranged_calc_tohit(struct random *r, struct msr_monster *monster, struct
     return -1;
 }
 
-int fght_shoot(struct random *r, struct msr_monster *monster, struct dc_map *map, coord_t *s, coord_t *e, coord_t path_list[], int path_list_sz) {
+int fght_shoot(struct random *r, struct msr_monster *monster, struct dc_map *map, coord_t *s, coord_t *e) {
     if (monster == NULL) return -1;
     if (map == NULL) return -1;
     if (s == NULL) return -1;
     if (e == NULL) return -1;
-    if (path_list == NULL) return -1;
     if (msr_weapon_type_check(monster, WEAPON_TYPE_RANGED) == false) return -1;
 
     coord_t path[MAX(map->size.x, map->size.y)];
@@ -141,7 +141,8 @@ int fght_shoot(struct random *r, struct msr_monster *monster, struct dc_map *map
     bool blocked = false;
     int unblocked_length = 0;
 
-    for (int i = 1; (i < path_len) && (blocked == false); i++) {
+    int i = 1;
+    while ((i < path_len) && (blocked == false)) {
         if (sd_get_map_me(&path[i], map)->monster != NULL) {
             struct msr_monster *target = sd_get_map_me(&path[i], map)->monster;
             int hits;
@@ -161,14 +162,13 @@ int fght_shoot(struct random *r, struct msr_monster *monster, struct dc_map *map
             blocked = true;
         }
         if (blocked == false) {
-            if (sd_get_map_me(&path[i], map)->visible == true) {
-                if (i-1 < path_list_sz) {
-                    path_list[i-1] = path[i];
-                    unblocked_length++;
-                }
-            }
+            unblocked_length++;
         }
+        i++;
     }
+
+    ui_animate_projectile(map, path, unblocked_length, '*');
+
     return unblocked_length;
 }
 

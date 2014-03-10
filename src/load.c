@@ -295,7 +295,7 @@ static bool load_items_list(lua_State *L) {
                     lua_intexpr(L, &t, "game.items[%d].weapon.upgrades", i+1); wpn->upgrades = t;
                     lua_intexpr(L, &t, "game.items[%d].weapon.rof_set", i+1); wpn->rof_set = t;
                     lua_intexpr(L, &t, "game.items[%d].weapon.jammed", i+1); wpn->jammed = t;
-                    if (wpn_ranged_weapon_rof_set_check(wpn) == false) wpn_ranged_weapon_rof_set_check(wpn);
+                    if (wpn_ranged_weapon_rof_set_check(item) == false) wpn_ranged_weapon_rof_set_check(item);
                 } break;
             case ITEM_TYPE_WEARABLE: {
                     /*struct item_wearable_specific *wear = &item->specific.wearable;
@@ -451,6 +451,7 @@ int ld_read_save_file(const char *path, struct gm_game *g) {
     
     if (L != NULL)
     {
+        load_game(L, g);
         load_player(L, &g->player_data);
         load_items_list(L);
         load_map(L, &g->current_map, 1);
