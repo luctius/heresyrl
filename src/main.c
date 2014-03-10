@@ -49,7 +49,7 @@ int main(void)
     charwin_refresh(&gbl_game->player_data);
 
     while(gbl_game->running == true) {
-        es_process();
+        mt_process();
 
         game_new_turn();
         ui_create(COLS, LINES);

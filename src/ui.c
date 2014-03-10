@@ -220,6 +220,11 @@ void win_destroy(struct hrl_window *window) {
     free(window);
 }
 
+void update_screen(void) {
+    mapwin_display_map(gbl_game->current_map, gbl_game->player_data.player);
+    charwin_refresh(&gbl_game->player_data);
+}
+
 static int get_viewport(int p, int vps, int mps) {
     int hvps = vps / 2;
     if (mps < vps) return 0;

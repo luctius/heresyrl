@@ -145,6 +145,7 @@ bool msr_give_item(struct msr_monster *monster, struct itm_item *item);
 bool msr_remove_item(struct msr_monster *monster, struct itm_item *item);
 
 int msr_calculate_characteristic(struct msr_monster *monster, enum msr_characteristic chr);
+int msr_calculate_characteristic_bonus(struct msr_monster *monster, enum msr_characteristic chr);
 int msr_calculate_armour(struct msr_monster *monster, int hit_loc_roll);
 bool msr_do_dmg(struct msr_monster *monster, int dmg, int pen, int hit_loc_roll);
 

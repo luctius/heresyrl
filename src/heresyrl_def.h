@@ -33,10 +33,6 @@ enum msr_weapon_selection;
 enum item_weapon_type;
 enum wpn_rof_setting;
 
-typedef uint32_t (*event_get_energy_t)(void *dataptr);
-typedef bool (*event_add_energy_t)(void *dataptr, int energy);
-typedef bool (*event_callback_t)(void *dataptr, void *controller, bool interrupted);
-
 enum dpl_colours {
     DPL_COLOUR_NORMAL  =1, /*FG_WHITE,BG_BLACK*/
     DPL_COLOUR_FG_RED,      /* FG_RED,BG_BLACK */

@@ -9,23 +9,12 @@
 #include "ui.h"
 #include "input.h"
 #include "game.h"
-#include "monster_action.h"
+#include "monster_turn.h"
 #include "tiles.h"
 
 static bool plr_action_loop(struct gm_game *g);
 
-static uint32_t plr_get_energy(void *dataptr) {
-    struct msr_monster *monster = dataptr;
-    return monster->energy;
-}
-
-static bool plr_add_energy(void *dataptr, int energy) {
-    struct msr_monster *monster = dataptr;
-    monster->energy += energy;
-    return true;
-}
-
-static bool plr_action_done_callback(void *dataptr, void *controller, bool interrupted) {
+static bool plr_action_done_callback(struct msr_monster *player, void *controller) {
     struct gm_game *g = controller;
     plr_action_loop(g);
     return true;
@@ -41,17 +30,8 @@ void plr_init(struct pl_player *plr, char *name, enum msr_race race, enum msr_ge
     plr->player->icon_attr = COLOR_PAIR(DPL_COLOUR_NORMAL) | A_BOLD;
     plr->player->faction = 0;
 
-    plr->player->energy = ENERGY_MAX;
-    struct es_event e = {
-        .dataptr = plr->player,
-        .controller = gbl_game,
-        .ev_do = plr_action_done_callback,
-        .ev_get = plr_get_energy,
-        .ev_set = plr_add_energy,
-        .interruptable = false,
-        .interrupted = false,
-    };
-    es_add_event(&e, ENERGY_TICK);
+    plr->player->energy = MT_ENERGY_FULL;
+    mt_do_guard(plr->player, plr_action_done_callback, gbl_game);
 }
 
 bool plr_action_loop(struct gm_game *g) {
@@ -62,12 +42,6 @@ bool plr_action_loop(struct gm_game *g) {
 
     coord_t pos = player->pos;
     coord_t *player_pos = &player->pos;
-
-    struct monster_controller mc = {
-        .controller = g,
-        .monster = player,
-        .callback = plr_action_done_callback,
-    };
 
     while ( (has_action == false) && (g->running) ) {
         switch (ch = inp_get_input() ) { 
@@ -116,16 +90,6 @@ bool plr_action_loop(struct gm_game *g) {
                         lg_printf("Done.");
 
                         if (nr_picked > 0) {
-                            struct es_event e = {
-                                .dataptr = player,
-                                .controller = gbl_game,
-                                .ev_do = plr_action_done_callback,
-                                .ev_get = plr_get_energy,
-                                .ev_set = plr_add_energy,
-                                .interruptable = false,
-                                .interrupted = false,
-                            };
-                            es_add_event(&e, ENERGY_TICK);
                         }
                     }
                     else You("see nothing there.");
@@ -169,7 +133,7 @@ bool plr_action_loop(struct gm_game *g) {
                 break;
         }
 
-        if (ma_do_move(&mc, &pos) == true) {
+        if (mt_do_move(player, &pos, plr_action_done_callback, gbl_game) == true) {
             has_action = true;
         }
     }
