@@ -18,7 +18,7 @@ enum fght_hand {
 bool fght_do_dmg(struct random *r, struct msr_monster *monster, struct msr_monster *target, int hits, enum fght_hand hand);
 int fght_ranged_calc_tohit(struct random *r, struct msr_monster *monster, struct msr_monster *target, enum fght_hand hand);
 
-int fght_shoot(struct random *r, struct msr_monster *monster, struct dc_map *map, coord_t *s, coord_t *e);
+int fght_shoot(struct random *r, struct msr_monster *monster, struct dc_map *map, coord_t *e);
 int fght_calc_lof_path(coord_t *s, coord_t *e, coord_t path_list[], int path_list_sz);
 const char *fght_weapon_hand_name(enum fght_hand hand);
 

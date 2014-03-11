@@ -35,7 +35,7 @@ void update_screen(void);
 
 void mapwin_display_map(struct dc_map *map, coord_t *player);
 void mapwin_overlay_examine_cursor(struct dc_map *map, coord_t *p_pos);
-void mapwin_overlay_fire_cursor(struct gm_game *g, struct dc_map *map, coord_t *p_pos);
+bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dc_map *map, coord_t *p_pos);
 
 void msgwin_log_callback(struct logging *log, struct log_entry *entry, void *priv);
 void msgwin_log_refresh(struct logging *log);

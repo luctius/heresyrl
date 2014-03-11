@@ -91,8 +91,8 @@ bool dw_wear_item(struct msr_monster *monster, struct itm_item *item) {
         case ITEM_TYPE_WEARABLE:
                  break;
         case ITEM_TYPE_WEAPON:
-                 if (wpn_is_type(item, WEAPON_TYPE_RANGED) )   retval = wield_ranged_weapon(monster, item);
-                 if (wpn_is_type(item, WEAPON_TYPE_MELEE) )    retval = wield_melee_weapon(monster, item);
+                 if (wpn_is_type(item, WEAPON_TYPE_RANGED) )   retval = wield_ranged_weapon(monster, item); break;
+                 if (wpn_is_type(item, WEAPON_TYPE_MELEE) )    retval = wield_melee_weapon(monster, item);  break;
                  if (wpn_is_type(item, WEAPON_TYPE_THROWN) )   retval = false;
                  if (wpn_is_type(item, WEAPON_TYPE_CREATURE) ) retval = false; /*TODO add wield_creature_weapon*/
                  break;
@@ -123,7 +123,6 @@ static bool dw_remove_weapon(struct msr_monster *monster, struct itm_item *item)
 bool dw_remove_item(struct msr_monster *monster, struct itm_item *item) {
     if (monster == NULL) return false;
     if (item == NULL) return false;
-    if (item->item_type != ITEM_TYPE_WEAPON) return false;
     if (inv_has_item(monster->inventory, item) == false) return false;
     if (inv_get_item_location(monster->inventory, item) == INV_LOC_INVENTORY) return false;
     bool retval = false;
@@ -164,6 +163,42 @@ bool dw_use_item(struct msr_monster *monster, struct itm_item *item) {
             You("douse %s.", item->ld_name);
         }
     }
+    return true;
+}
+
+bool dw_can_wear_item(struct msr_monster *monster, struct itm_item *item) {
+    if (monster == NULL) return false;
+    if (item == NULL) return false;
+    if (inv_has_item(monster->inventory, item) == false) return false;
+    if (inv_get_item_location(monster->inventory, item) != INV_LOC_INVENTORY) return false;
+    bool retval = false;
+
+    switch(item->item_type) {
+        case ITEM_TYPE_FOOD: retval = false; break;
+        case ITEM_TYPE_AMMO: retval = false; break;
+        case ITEM_TYPE_TOOL: retval = false; break;
+        case ITEM_TYPE_WEARABLE: retval = true; break;
+        case ITEM_TYPE_WEAPON:
+                 if (wpn_is_type(item, WEAPON_TYPE_RANGED) )   retval = true; break;
+                 if (wpn_is_type(item, WEAPON_TYPE_MELEE) )    retval = true; break;
+                 if (wpn_is_type(item, WEAPON_TYPE_THROWN) )   retval = false;
+                 if (wpn_is_type(item, WEAPON_TYPE_CREATURE) ) 
+                    /*TODO add checks here*/
+                    retval = false; break;
+        default: break;
+    }
+
+    return retval;
+}
+
+bool dw_can_remove_item(struct msr_monster *monster, struct itm_item *item) {
+    if (monster == NULL) return false;
+    if (item == NULL) return false;
+    if (inv_has_item(monster->inventory, item) == false) return false;
+    if (inv_get_item_location(monster->inventory, item) == INV_LOC_INVENTORY) return false;
+
+    /* TODO add remove checks here*/
+
     return true;
 }
 

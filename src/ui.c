@@ -18,6 +18,7 @@
 #include "input.h"
 #include "dowear.h"
 #include "game.h"
+#include "monster_turn.h"
 
 enum window_type {
     HRL_WINDOW_TYPE_MAP,
@@ -221,7 +222,7 @@ void win_destroy(struct hrl_window *window) {
 }
 
 void update_screen(void) {
-    mapwin_display_map(gbl_game->current_map, gbl_game->player_data.player);
+    mapwin_display_map(gbl_game->current_map, &gbl_game->player_data.player->pos);
     charwin_refresh(&gbl_game->player_data);
 }
 
@@ -420,20 +421,21 @@ void ui_animate_projectile(struct dc_map *map, coord_t path[], int path_len, cha
     }
 }
 
-void mapwin_overlay_fire_cursor(struct gm_game *g, struct dc_map *map, coord_t *p_pos) {
+bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dc_map *map, coord_t *p_pos) {
     int ch = '0';
     bool fire_mode = true;
-    if (map_win == NULL) return;
-    if (g == NULL) return;
-    if (map == NULL) return;
-    if (p_pos == NULL) return;
-    if (map_win->type != HRL_WINDOW_TYPE_MAP) return;
+    if (map_win == NULL) return false;
+    if (g == NULL) return false;
+    if (map == NULL) return false;
+    if (p_pos == NULL) return false;
+    if (map_win->type != HRL_WINDOW_TYPE_MAP) return false;
+    bool has_action = false;
 
     struct pl_player *plr = &g->player_data;
-    if (plr == NULL) return;
+    if (plr == NULL) return false;
     if (msr_weapon_type_check(plr->player, WEAPON_TYPE_RANGED) == false) {
         You("wield no ranged weapon.");
-        return;
+        return false;
     }
 
     coord_t e_pos = *p_pos;
@@ -460,9 +462,10 @@ void mapwin_overlay_fire_cursor(struct gm_game *g, struct dc_map *map, coord_t *
             case INP_KEY_LEFT:       e_pos.x--; break;
             case INP_KEY_YES:
             case INP_KEY_FIRE: {
-                path_len = fght_shoot(g->game_random, plr->player, map, p_pos, &e_pos);
-                if (path_len < 0) Your("weapon(s) failed to fire.");
-
+                if (mt_do_fire(plr->player, &e_pos, plr_action_done_callback, g) == true) {
+                    has_action = true;
+                }
+                else Your("weapon(s) failed to fire.");
                 fire_mode=false;
             }
             break;
@@ -486,6 +489,8 @@ void mapwin_overlay_fire_cursor(struct gm_game *g, struct dc_map *map, coord_t *
         mapwin_display_map_noref(map, p_pos);
     }
     while((ch = inp_get_input()) != INP_KEY_ESCAPE && fire_mode);
+
+    return has_action;
 }
 
 void msgwin_log_refresh(struct logging *lg) {
@@ -712,7 +717,6 @@ bool invwin_inventory(struct dc_map *map, struct pl_player *plr) {
                     if ((item_idx + invstart) >= invsz) break;
 
                     dw_use_item(plr->player, invlist[item_idx +invstart].item);
-                    has_action = true;
                 }
                 break;
             case INP_KEY_WEAR: {
@@ -723,13 +727,12 @@ bool invwin_inventory(struct dc_map *map, struct pl_player *plr) {
                     if (item_idx == INP_KEY_ESCAPE) break;
                     if ((item_idx + invstart) >= invsz) break;
                     if (inv_get_item_location(plr->player->inventory, invlist[item_idx+invstart].item) == INV_LOC_INVENTORY) {
-                        dw_wear_item(plr->player, invlist[item_idx+invstart].item);
+                        has_action = mt_do_wear(plr->player, invlist[item_idx+invstart].item, plr_action_done_callback, gbl_game);
                     }
                     else {
-                        dw_remove_item(plr->player, invlist[item_idx+invstart].item);
+                        has_action = mt_do_remove(plr->player, invlist[item_idx+invstart].item, plr_action_done_callback, gbl_game);
                     }
                     inv_create_list(plr->player->inventory, invlist, invsz);
-                    has_action = true;
                 } 
                 break;
             case INP_KEY_EXAMINE: {
@@ -752,14 +755,7 @@ bool invwin_inventory(struct dc_map *map, struct pl_player *plr) {
                     if (item_idx == INP_KEY_ESCAPE) break;
                     if ((item_idx + invstart) >= invsz) break;
 
-                    if (msr_remove_item(plr->player, invlist[item_idx +invstart].item ) == true) {
-                        itm_insert_item(invlist[item_idx +invstart].item, map, &plr->player->pos);
-                        free(invlist);
-                        invsz = inv_inventory_size(plr->player->inventory);
-                        invlist = calloc(invsz, sizeof(struct inv_show_item) );
-                        inv_create_list(plr->player->inventory, invlist, invsz);
-                    }
-                    has_action = true;
+                    has_action = mt_do_drop(plr->player, invlist[item_idx+invstart].item, plr_action_done_callback, gbl_game);
                 }
                 break;
             default: break;

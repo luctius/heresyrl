@@ -11,5 +11,6 @@ struct pl_player {
 };
 
 void plr_init(struct pl_player *plr, char *name, enum msr_race race, enum msr_gender gender);
+bool plr_action_done_callback(struct msr_monster *player, void *controller);
 
 #endif /*PLAYER_H_*/

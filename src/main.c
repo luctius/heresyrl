@@ -16,6 +16,7 @@
 #include "tiles.h"
 #include "inventory.h"
 #include "input.h"
+#include "monster_turn.h"
 
 
 //int main(int argc, char *argv[])

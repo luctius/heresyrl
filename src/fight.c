@@ -129,15 +129,14 @@ int fght_ranged_calc_tohit(struct random *r, struct msr_monster *monster, struct
     return -1;
 }
 
-int fght_shoot(struct random *r, struct msr_monster *monster, struct dc_map *map, coord_t *s, coord_t *e) {
+int fght_shoot(struct random *r, struct msr_monster *monster, struct dc_map *map, coord_t *e) {
     if (monster == NULL) return -1;
     if (map == NULL) return -1;
-    if (s == NULL) return -1;
     if (e == NULL) return -1;
     if (msr_weapon_type_check(monster, WEAPON_TYPE_RANGED) == false) return -1;
 
     coord_t path[MAX(map->size.x, map->size.y)];
-    int path_len = fght_calc_lof_path(s, e, path, ARRAY_SZ(path));
+    int path_len = fght_calc_lof_path(&monster->pos, e, path, ARRAY_SZ(path));
     bool blocked = false;
     int unblocked_length = 0;
 

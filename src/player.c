@@ -14,7 +14,7 @@
 
 static bool plr_action_loop(struct gm_game *g);
 
-static bool plr_action_done_callback(struct msr_monster *player, void *controller) {
+bool plr_action_done_callback(struct msr_monster *player, void *controller) {
     struct gm_game *g = controller;
     plr_action_loop(g);
     return true;
@@ -34,7 +34,7 @@ void plr_init(struct pl_player *plr, char *name, enum msr_race race, enum msr_ge
     mt_do_guard(plr->player, plr_action_done_callback, gbl_game);
 }
 
-bool plr_action_loop(struct gm_game *g) {
+static bool plr_action_loop(struct gm_game *g) {
     struct msr_monster *player = g->player_data.player;
     struct dc_map *map = g->current_map;
     int ch;
@@ -59,50 +59,38 @@ bool plr_action_loop(struct gm_game *g) {
             case INP_KEY_PICKUP: {
                     struct inv_inventory *inv = sd_get_map_me(&pos, map)->inventory;
                     if ( (inv_inventory_size(inv) ) > 0) {
-                        int nr_picked = 0;
                         struct itm_item *item = NULL;
-                        struct itm_item *prev = NULL;
                         item = NULL;
-                        bool pickup_all = false;
                         bool stop = false;
-                        while ( ( (item = inv_get_next_item(inv, item) ) != NULL) && (stop == false) ){
-                            bool pickup = false;
-                            if (pickup_all != true) {
-                                lg_printf("Pickup %s? (Y)es/(N)o/(A)ll/(q)uit", item->ld_name);
-                                switch (inp_get_input() ) {
-                                    case INP_KEY_ESCAPE: stop = false; break;
-                                    case INP_KEY_ALL:    pickup_all = true; break;
-                                    case INP_KEY_YES:    pickup = true; break;
-                                    case INP_KEY_NO:
-                                    default: break;
-                                }
+                        bool pickup = false;
+                        while ( ( (item = inv_get_next_item(inv, item) ) != NULL) && (stop == false) && (pickup == false) ){
+                            lg_printf("Pickup %s? (Y)es/(N)o/(q)uit", item->ld_name);
+                            switch (inp_get_input() ) {
+                                case INP_KEY_ESCAPE: stop = true; break;
+                                case INP_KEY_YES:    pickup = true; break;
+                                case INP_KEY_NO:
+                                default: break;
                             }
 
-                            if (pickup || pickup_all) {
-                                if (msr_give_item(player, item) == true) {
-                                    inv_remove_item(inv, item);
-                                    item = prev;
-                                    nr_picked++;
-                                }
+                            if (pickup) {
+                                has_action = mt_do_pickup(player, item, plr_action_done_callback, gbl_game);
                             }
-                            prev = item;
                         }
-                        lg_printf("Done.");
-
-                        if (nr_picked > 0) {
+                        if ( (stop == true) || (item == NULL) ) {
+                            lg_printf("Done.");
                         }
                     }
                     else You("see nothing there.");
                 }
                 break;
             case INP_KEY_INVENTORY:
-                invwin_inventory(gbl_game->current_map, &gbl_game->player_data);
+                has_action = invwin_inventory(gbl_game->current_map, &gbl_game->player_data);
                 break;
             case INP_KEY_EXAMINE:
                 mapwin_overlay_examine_cursor(gbl_game->current_map, player_pos);
                 break;
             case INP_KEY_FIRE:
-                mapwin_overlay_fire_cursor(gbl_game, gbl_game->current_map, player_pos);
+                has_action = mapwin_overlay_fire_cursor(gbl_game, gbl_game->current_map, player_pos);
                 break;
             case INP_KEY_STAIRS_DOWN:
                 if (sd_get_map_tile(player_pos, gbl_game->current_map)->type == TILE_TYPE_STAIRS_DOWN) {
@@ -114,7 +102,8 @@ bool plr_action_loop(struct gm_game *g) {
                     You("see a broken stairway.");
                 }
                 break;
-            case INP_KEY_RELOAD: break;
+            case INP_KEY_RELOAD: 
+                has_action = mt_do_reload(player, plr_action_done_callback, gbl_game); break;
             case INP_KEY_WEAPON_SETTING: 
                 if ( (player->wpn_sel == MSR_WEAPON_SELECT_MAIN_HAND) || 
                      (player->wpn_sel == MSR_WEAPON_SELECT_DUAL_HAND) || 

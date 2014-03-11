@@ -105,6 +105,7 @@ struct msr_monster {
     int icon_attr;
     bool is_player;
     enum msr_gender gender;
+    char *unique_name;
     const char *sd_name;
     const char *ld_name;
     const char *description;
@@ -115,7 +116,7 @@ struct msr_monster {
     uint8_t cur_wounds;
     uint8_t max_wounds;
     uint8_t fatepoints;
-    int energy;
+    uint32_t energy;
 
     uint64_t race_traits;
     uint64_t combat_talents;

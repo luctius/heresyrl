@@ -7,4 +7,6 @@ bool dw_wear_item(struct msr_monster *monster, struct itm_item *item);
 bool dw_remove_item(struct msr_monster *monster, struct itm_item *item);
 bool dw_use_item(struct msr_monster *monster, struct itm_item *item);
 
+bool dw_can_wear_item(struct msr_monster *monster, struct itm_item *item);
+bool dw_can_remove_item(struct msr_monster *monster, struct itm_item *item);
 #endif /* DOWEAR_H */
