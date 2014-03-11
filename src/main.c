@@ -16,7 +16,7 @@
 #include "tiles.h"
 #include "inventory.h"
 #include "input.h"
-#include "monster_turn.h"
+#include "monster_action.h"
 
 
 //int main(int argc, char *argv[])
@@ -50,7 +50,7 @@ int main(void)
     charwin_refresh(&gbl_game->player_data);
 
     while(gbl_game->running == true) {
-        mt_process();
+        ma_process();
 
         game_new_turn();
         ui_create(COLS, LINES);

@@ -62,14 +62,16 @@ static uint32_t msrlst_next_id(void) {
 struct msr_monster *msr_create(uint32_t template_id) {
     if (monster_list_initialised == false) msrlst_monster_list_init();
     if (template_id >= (int) ARRAY_SZ(static_monster_list)) return NULL;
-    struct msr_monster *template_monster = NULL;
+    struct msr_monster *template_monster = template_monster = &static_monster_list[template_id];
 
-    template_monster = &static_monster_list[template_id];
     struct msr_monster_list_entry *m = calloc(1,sizeof(struct msr_monster_list_entry) );
     if (m != NULL) {
         memcpy(&m->monster, template_monster, sizeof(struct msr_monster) );
+        m->monster.controller.controller_ctx = NULL;
+        m->monster.controller.controller_cb = NULL;
         m->monster.pos = cd_create(0,0);
         m->monster.uid = msrlst_next_id();
+        m->monster.energy = MSR_ENERGY_FULL;
         m->monster.faction = 1;
         m->monster.inventory = NULL;
 
@@ -100,6 +102,13 @@ void msr_die(struct msr_monster *monster, struct dc_map *map) {
     LIST_REMOVE(target_mle, entries);
     free(target_mle);
 }
+
+void msr_assign_controller(struct msr_monster *monster, struct monster_controller *controller) {
+    if (monster == NULL) return;
+    if (controller == NULL) return;
+    memcpy(&monster->controller, controller, sizeof(struct monster_controller) );
+}
+
 
 bool msr_insert_monster(struct msr_monster *monster, struct dc_map *map, coord_t *pos) {
     bool retval = false;

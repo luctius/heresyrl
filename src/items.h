@@ -224,7 +224,7 @@ struct itm_item {
     const char *description;
     char icon;
     int icon_attr;
-    uint8_t use_delay;
+    float use_delay;
     uint8_t stacked_quantity;
     uint8_t max_quantity;
     unsigned long age;

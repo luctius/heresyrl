@@ -97,6 +97,19 @@ struct msr_char {
     uint8_t advancement;
 };
 
+enum monster_energy {
+    MSR_ENERGY_TICK = 10,
+    MSR_ENERGY_TURN = 100,
+    MSR_ENERGY_FULL = 1000,
+};
+
+struct monster_controller {
+    bool interruptable;
+    bool interrupted;
+    void *controller_ctx;
+    bool (*controller_cb)(struct msr_monster *monster, void *controller_ctx);
+};
+
 struct msr_monster {
     uint32_t uid;
     uint32_t template_id;
@@ -127,6 +140,7 @@ struct msr_monster {
     struct msr_char characteristic[MSR_CHAR_MAX];
     enum msr_skills skills[MSR_SKILL_RATE_MAX];
 
+    struct monster_controller controller;
     int faction;
 
     enum msr_weapon_selection wpn_sel;
@@ -139,6 +153,7 @@ struct msr_monster *msrlst_get_next_monster(struct msr_monster *prev);
 
 struct msr_monster *msr_create(uint32_t template_id);
 void msr_die(struct msr_monster *monster, struct dc_map *map);
+void msr_assign_controller(struct msr_monster *monster, struct monster_controller *controller);
 bool msr_insert_monster(struct msr_monster *monster, struct dc_map *map, coord_t *pos);
 bool msr_move_monster(struct msr_monster *monster, struct dc_map *map, coord_t *pos);
 bool msr_remove_monster(struct msr_monster *monster, struct dc_map *map);

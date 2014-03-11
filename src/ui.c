@@ -18,7 +18,7 @@
 #include "input.h"
 #include "dowear.h"
 #include "game.h"
-#include "monster_turn.h"
+#include "monster_action.h"
 
 enum window_type {
     HRL_WINDOW_TYPE_MAP,
@@ -39,6 +39,7 @@ struct hrl_window {
 static struct hrl_window *map_win = NULL;
 static struct hrl_window *char_win = NULL;
 static struct hrl_window *msg_win = NULL;
+static bool colours_generated = false;
 
 static struct hrl_window *win_create(int height, int width, int starty, int startx, enum window_type type);
 static void win_destroy(struct hrl_window *window);
@@ -46,80 +47,83 @@ static void win_destroy(struct hrl_window *window);
 static void win_generate_colours(void) {
     int i = 1;
 
-    lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "ui", "generating colours");
+    if (colours_generated == false) {
+        colours_generated = true;
+        lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "ui", "generating colours");
 
-    init_pair(i++, COLOR_WHITE, COLOR_BLACK);
-    assert(i-1 == DPL_COLOUR_NORMAL);
-    init_pair(i++, COLOR_RED, COLOR_BLACK);
-    assert(i-1 == DPL_COLOUR_FG_RED);
-    init_pair(i++, COLOR_GREEN, COLOR_BLACK);
-    assert(i-1 == DPL_COLOUR_FG_GREEN);
-    init_pair(i++, COLOR_YELLOW, COLOR_BLACK);
-    assert(i-1 == DPL_COLOUR_FG_YELLOW);
-    init_pair(i++, COLOR_BLUE, COLOR_BLACK);
-    assert(i-1 == DPL_COLOUR_FG_BLUE);
-    init_pair(i++, COLOR_MAGENTA, COLOR_BLACK);
-    assert(i-1 == DPL_COLOUR_FG_MAGENTA);
-    init_pair(i++, COLOR_CYAN, COLOR_BLACK);
-    assert(i-1 == DPL_COLOUR_FG_CYAN);
+        init_pair(i++, COLOR_WHITE, COLOR_BLACK);
+        assert(i-1 == DPL_COLOUR_NORMAL);
+        init_pair(i++, COLOR_RED, COLOR_BLACK);
+        assert(i-1 == DPL_COLOUR_FG_RED);
+        init_pair(i++, COLOR_GREEN, COLOR_BLACK);
+        assert(i-1 == DPL_COLOUR_FG_GREEN);
+        init_pair(i++, COLOR_YELLOW, COLOR_BLACK);
+        assert(i-1 == DPL_COLOUR_FG_YELLOW);
+        init_pair(i++, COLOR_BLUE, COLOR_BLACK);
+        assert(i-1 == DPL_COLOUR_FG_BLUE);
+        init_pair(i++, COLOR_MAGENTA, COLOR_BLACK);
+        assert(i-1 == DPL_COLOUR_FG_MAGENTA);
+        init_pair(i++, COLOR_CYAN, COLOR_BLACK);
+        assert(i-1 == DPL_COLOUR_FG_CYAN);
 
-    init_pair(i++, COLOR_BLACK, COLOR_WHITE);
-    assert(i-1 == DPL_COLOUR_FGW_INVERSE);
-    init_pair(i++, COLOR_RED, COLOR_WHITE);
-    assert(i-1 == DPL_COLOUR_FGW_RED);
-    init_pair(i++, COLOR_GREEN, COLOR_WHITE);
-    assert(i-1 == DPL_COLOUR_FGW_GREEN);
-    init_pair(i++, COLOR_YELLOW, COLOR_WHITE);
-    assert(i-1 == DPL_COLOUR_FGW_YELLOW);
-    init_pair(i++, COLOR_BLUE, COLOR_WHITE);
-    assert(i-1 == DPL_COLOUR_FGW_BLUE);
-    init_pair(i++, COLOR_MAGENTA, COLOR_WHITE);
-    assert(i-1 == DPL_COLOUR_FGW_MAGENTA);
-    init_pair(i++, COLOR_CYAN, COLOR_WHITE);
-    assert(i-1 == DPL_COLOUR_FGW_CYAN);
+        init_pair(i++, COLOR_BLACK, COLOR_WHITE);
+        assert(i-1 == DPL_COLOUR_FGW_INVERSE);
+        init_pair(i++, COLOR_RED, COLOR_WHITE);
+        assert(i-1 == DPL_COLOUR_FGW_RED);
+        init_pair(i++, COLOR_GREEN, COLOR_WHITE);
+        assert(i-1 == DPL_COLOUR_FGW_GREEN);
+        init_pair(i++, COLOR_YELLOW, COLOR_WHITE);
+        assert(i-1 == DPL_COLOUR_FGW_YELLOW);
+        init_pair(i++, COLOR_BLUE, COLOR_WHITE);
+        assert(i-1 == DPL_COLOUR_FGW_BLUE);
+        init_pair(i++, COLOR_MAGENTA, COLOR_WHITE);
+        assert(i-1 == DPL_COLOUR_FGW_MAGENTA);
+        init_pair(i++, COLOR_CYAN, COLOR_WHITE);
+        assert(i-1 == DPL_COLOUR_FGW_CYAN);
 
-    init_pair(i++, COLOR_BLACK, COLOR_RED);
-    assert(i-1 == DPL_COLOUR_BGB_RED);
-    init_pair(i++, COLOR_BLACK, COLOR_GREEN);
-    assert(i-1 == DPL_COLOUR_BGB_GREEN);
-    init_pair(i++, COLOR_BLACK, COLOR_YELLOW);
-    assert(i-1 == DPL_COLOUR_BGB_YELLOW);
-    init_pair(i++, COLOR_BLACK, COLOR_BLUE);
-    assert(i-1 == DPL_COLOUR_BGB_BLUE);
-    init_pair(i++, COLOR_BLACK, COLOR_MAGENTA);
-    assert(i-1 == DPL_COLOUR_BGB_MAGENTA);
-    init_pair(i++, COLOR_BLACK, COLOR_CYAN);
-    assert(i-1 == DPL_COLOUR_BGB_CYAN);
+        init_pair(i++, COLOR_BLACK, COLOR_RED);
+        assert(i-1 == DPL_COLOUR_BGB_RED);
+        init_pair(i++, COLOR_BLACK, COLOR_GREEN);
+        assert(i-1 == DPL_COLOUR_BGB_GREEN);
+        init_pair(i++, COLOR_BLACK, COLOR_YELLOW);
+        assert(i-1 == DPL_COLOUR_BGB_YELLOW);
+        init_pair(i++, COLOR_BLACK, COLOR_BLUE);
+        assert(i-1 == DPL_COLOUR_BGB_BLUE);
+        init_pair(i++, COLOR_BLACK, COLOR_MAGENTA);
+        assert(i-1 == DPL_COLOUR_BGB_MAGENTA);
+        init_pair(i++, COLOR_BLACK, COLOR_CYAN);
+        assert(i-1 == DPL_COLOUR_BGB_CYAN);
 
-    init_pair(i++, COLOR_WHITE, COLOR_RED);
-    assert(i-1 == DPL_COLOUR_BGW_RED);
-    init_pair(i++, COLOR_WHITE, COLOR_GREEN);
-    assert(i-1 == DPL_COLOUR_BGW_GREEN);
-    init_pair(i++, COLOR_WHITE, COLOR_YELLOW);
-    assert(i-1 == DPL_COLOUR_BGW_YELLOW);
-    init_pair(i++, COLOR_WHITE, COLOR_BLUE);
-    assert(i-1 == DPL_COLOUR_BGW_BLUE);
-    init_pair(i++, COLOR_WHITE, COLOR_MAGENTA);
-    assert(i-1 == DPL_COLOUR_BGW_MAGENTA);
-    init_pair(i++, COLOR_WHITE, COLOR_CYAN);
-    assert(i-1 == DPL_COLOUR_BGW_CYAN);
+        init_pair(i++, COLOR_WHITE, COLOR_RED);
+        assert(i-1 == DPL_COLOUR_BGW_RED);
+        init_pair(i++, COLOR_WHITE, COLOR_GREEN);
+        assert(i-1 == DPL_COLOUR_BGW_GREEN);
+        init_pair(i++, COLOR_WHITE, COLOR_YELLOW);
+        assert(i-1 == DPL_COLOUR_BGW_YELLOW);
+        init_pair(i++, COLOR_WHITE, COLOR_BLUE);
+        assert(i-1 == DPL_COLOUR_BGW_BLUE);
+        init_pair(i++, COLOR_WHITE, COLOR_MAGENTA);
+        assert(i-1 == DPL_COLOUR_BGW_MAGENTA);
+        init_pair(i++, COLOR_WHITE, COLOR_CYAN);
+        assert(i-1 == DPL_COLOUR_BGW_CYAN);
 
-    init_pair(i++, COLOR_RED, COLOR_RED);
-    assert(i-1 == DPL_COLOUR_ALL_RED);
-    init_pair(i++, COLOR_GREEN, COLOR_GREEN);
-    assert(i-1 == DPL_COLOUR_ALL_GREEN);
-    init_pair(i++, COLOR_YELLOW, COLOR_YELLOW);
-    assert(i-1 == DPL_COLOUR_ALL_YELLOW);
-    init_pair(i++, COLOR_BLUE, COLOR_BLUE);
-    assert(i-1 == DPL_COLOUR_ALL_BLUE);
-    init_pair(i++, COLOR_MAGENTA, COLOR_MAGENTA);
-    assert(i-1 == DPL_COLOUR_ALL_MAGENTA);
-    init_pair(i++, COLOR_CYAN, COLOR_CYAN);
-    assert(i-1 == DPL_COLOUR_ALL_CYAN);
-    init_pair(i++, COLOR_BLACK, COLOR_BLACK);
-    assert(i-1 == DPL_COLOUR_ALL_BLACK);
-    init_pair(i++, COLOR_WHITE, COLOR_WHITE);
-    assert(i-1 == DPL_COLOUR_ALL_WHITE);
+        init_pair(i++, COLOR_RED, COLOR_RED);
+        assert(i-1 == DPL_COLOUR_ALL_RED);
+        init_pair(i++, COLOR_GREEN, COLOR_GREEN);
+        assert(i-1 == DPL_COLOUR_ALL_GREEN);
+        init_pair(i++, COLOR_YELLOW, COLOR_YELLOW);
+        assert(i-1 == DPL_COLOUR_ALL_YELLOW);
+        init_pair(i++, COLOR_BLUE, COLOR_BLUE);
+        assert(i-1 == DPL_COLOUR_ALL_BLUE);
+        init_pair(i++, COLOR_MAGENTA, COLOR_MAGENTA);
+        assert(i-1 == DPL_COLOUR_ALL_MAGENTA);
+        init_pair(i++, COLOR_CYAN, COLOR_CYAN);
+        assert(i-1 == DPL_COLOUR_ALL_CYAN);
+        init_pair(i++, COLOR_BLACK, COLOR_BLACK);
+        assert(i-1 == DPL_COLOUR_ALL_BLACK);
+        init_pair(i++, COLOR_WHITE, COLOR_WHITE);
+        assert(i-1 == DPL_COLOUR_ALL_WHITE);
+    }
 }
 
 static int hdr_lines = 0;
@@ -429,7 +433,6 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dc_map *map, coord_t *
     if (map == NULL) return false;
     if (p_pos == NULL) return false;
     if (map_win->type != HRL_WINDOW_TYPE_MAP) return false;
-    bool has_action = false;
 
     struct pl_player *plr = &g->player_data;
     if (plr == NULL) return false;
@@ -450,6 +453,7 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dc_map *map, coord_t *
     int path_len = 0;
 
     do {
+        mapwin_display_map_noref(map, &plr->player->pos);
         lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "mapwin", "entering fire_mode (%d,%d) -> (%d,%d)", p_pos->x, p_pos->y, e_pos.x, e_pos.y);
         switch (ch) {
             case INP_KEY_UP_LEFT:    e_pos.y--; e_pos.x--; break;
@@ -462,8 +466,9 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dc_map *map, coord_t *
             case INP_KEY_LEFT:       e_pos.x--; break;
             case INP_KEY_YES:
             case INP_KEY_FIRE: {
-                if (mt_do_fire(plr->player, &e_pos, plr_action_done_callback, g) == true) {
-                    has_action = true;
+                if (ma_do_fire(plr->player, &e_pos) == true) {
+                    mapwin_display_map(map, p_pos);
+                    return true;
                 }
                 else Your("weapon(s) failed to fire.");
                 fire_mode=false;
@@ -484,13 +489,11 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dc_map *map, coord_t *
             mvwchgat(map_win->win, path[i].y - scr_y, path[i].x - scr_x, 1, A_NORMAL, DPL_COLOUR_BGB_RED, NULL);
             lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "mapwin", "fire_mode: [%d/%d] c (%d,%d) -> (%d,%d)", i, path_len, path[i].x, path[i].y, path[i].x - scr_x, path[i].y - scr_y);
         }
-
         wrefresh(map_win->win);
-        mapwin_display_map_noref(map, p_pos);
     }
     while((ch = inp_get_input()) != INP_KEY_ESCAPE && fire_mode);
 
-    return has_action;
+    return false;
 }
 
 void msgwin_log_refresh(struct logging *lg) {
@@ -530,7 +533,7 @@ void msgwin_log_refresh(struct logging *lg) {
 
 void msgwin_log_callback(struct logging *lg, struct log_entry *entry, void *priv) {
     struct hrl_window *window = priv;
-    if (window != NULL) msgwin_log_refresh(lg);
+    msgwin_log_refresh(lg);
 }
 
 void charwin_refresh(struct pl_player *plr) {
@@ -690,80 +693,19 @@ bool invwin_inventory(struct dc_map *map, struct pl_player *plr) {
     if (plr == NULL) return false;
     if (map_win->type != HRL_WINDOW_TYPE_MAP) return false;
     int invstart = 0;
-    int ch = 0;
-    bool has_action = false;
+    struct itm_item *item = NULL;
 
     WINDOW *invwin = derwin(map_win->win, map_win->lines, map_win->cols / 2, 0, 0);
     WINDOW *invwin_ex = NULL;
 
     int winsz = map_win->lines -4;
-
     int dislen = winsz;
+
+    int ch = INP_KEY_NONE;
     do {
         int invsz = inv_inventory_size(plr->player->inventory);
         struct inv_show_item *invlist = calloc(invsz, sizeof(struct inv_show_item) );
         inv_create_list(plr->player->inventory, invlist, invsz);
-
-        /* TODO clean this shit up */
-        switch (ch) {
-            case INP_KEY_YES: invstart += dislen; break;
-            case INP_KEY_UP_RIGHT: 
-            case INP_KEY_USE: {
-                    delwin(invwin_ex);
-                    mvwprintw(invwin, winsz, 1, "Use which item?.");
-                    wrefresh(invwin);
-                    int item_idx = inp_get_input_idx();
-                    if (item_idx == INP_KEY_ESCAPE) break;
-                    if ((item_idx + invstart) >= invsz) break;
-
-                    dw_use_item(plr->player, invlist[item_idx +invstart].item);
-                }
-                break;
-            case INP_KEY_WEAR: {
-                    delwin(invwin_ex);
-                    mvwprintw(invwin, winsz, 1, "Wear which item?.");
-                    wrefresh(invwin);
-                    int item_idx = inp_get_input_idx();
-                    if (item_idx == INP_KEY_ESCAPE) break;
-                    if ((item_idx + invstart) >= invsz) break;
-                    if (inv_get_item_location(plr->player->inventory, invlist[item_idx+invstart].item) == INV_LOC_INVENTORY) {
-                        has_action = mt_do_wear(plr->player, invlist[item_idx+invstart].item, plr_action_done_callback, gbl_game);
-                    }
-                    else {
-                        has_action = mt_do_remove(plr->player, invlist[item_idx+invstart].item, plr_action_done_callback, gbl_game);
-                    }
-                    inv_create_list(plr->player->inventory, invlist, invsz);
-                } 
-                break;
-            case INP_KEY_EXAMINE: {
-                    mvwprintw(invwin, winsz, 1, "Examine which item?.");
-                    wrefresh(invwin);
-                    int item_idx = inp_get_input_idx();
-                    if (item_idx == INP_KEY_ESCAPE) break;
-                    if ((item_idx + invstart) >= invsz) break;
-
-                    delwin(invwin_ex);
-                    invwin_ex = invwin_examine(char_win, invlist[item_idx +invstart].item);
-                } 
-                break;
-            case INP_KEY_DROP: {
-                    delwin(invwin_ex);
-                    mvwprintw(invwin, winsz, 1, "Drop which item?.");
-                    wrefresh(invwin);
-                    invsz = inv_inventory_size(plr->player->inventory);
-                    int item_idx = inp_get_input_idx();
-                    if (item_idx == INP_KEY_ESCAPE) break;
-                    if ((item_idx + invstart) >= invsz) break;
-
-                    has_action = mt_do_drop(plr->player, invlist[item_idx+invstart].item, plr_action_done_callback, gbl_game);
-                }
-                break;
-            default: break;
-        }
-
-        if (invwin_ex == NULL) {
-            charwin_refresh(plr);
-        }
 
         mapwin_display_map_noref(map, &plr->player->pos);
         touchwin(map_win->win);
@@ -776,15 +718,97 @@ bool invwin_inventory(struct dc_map *map, struct pl_player *plr) {
         mvwprintw(invwin, winsz +2, 1, "[d] drop, [x] examine.");
         mvwprintw(invwin, winsz +3, 1, "[U] use,  [w] wear.");
         wrefresh(invwin);
-        free(invlist);
-    }
-    while((ch = inp_get_input() ) != INP_KEY_ESCAPE && (has_action == false) );
+
+        /* TODO clean this shit up */
+        switch (ch) {
+            case INP_KEY_YES: invstart += dislen; break;
+            case INP_KEY_UP_RIGHT: 
+            case INP_KEY_USE: {
+                    mvwprintw(invwin, winsz, 1, "Use which item?.");
+                    wrefresh(invwin);
+                    delwin(invwin_ex);
+
+                    int item_idx = inp_get_input_idx();
+                    if (item_idx == INP_KEY_ESCAPE) break;
+                    if ((item_idx + invstart) >= invsz) break;
+                    item = invlist[item_idx +invstart].item;
+                    free(invlist);
+                    delwin(invwin);
+                    charwin_refresh(plr);
+                    mapwin_display_map(map, &plr->player->pos);
+
+                    return ma_do_use(plr->player, item);
+                }
+                break;
+            case INP_KEY_WEAR: {
+                    mvwprintw(invwin, winsz, 1, "Wear which item?.");
+                    wrefresh(invwin);
+                    delwin(invwin_ex);
+                    charwin_refresh(plr);
+
+                    int item_idx = inp_get_input_idx();
+                    if (item_idx == INP_KEY_ESCAPE) break;
+                    if ((item_idx + invstart) >= invsz) break;
+                    item = invlist[item_idx +invstart].item;
+                    free(invlist);
+                    delwin(invwin);
+                    charwin_refresh(plr);
+                    mapwin_display_map(map, &plr->player->pos);
+
+                    if (inv_get_item_location(plr->player->inventory, item) == INV_LOC_INVENTORY) {
+                        return ma_do_wear(plr->player, item);
+                    }
+                    else {
+                        return ma_do_remove(plr->player, item);
+                    }
+                } 
+                break;
+            case INP_KEY_EXAMINE: {
+                    mvwprintw(invwin, winsz, 1, "Examine which item?.");
+                    wrefresh(invwin);
+                    delwin(invwin_ex);
+                    charwin_refresh(plr);
+
+                    int item_idx = inp_get_input_idx();
+                    if (item_idx == INP_KEY_ESCAPE) break;
+                    if ((item_idx + invstart) >= invsz) break;
+                    item = invlist[item_idx +invstart].item;
+                    free(invlist);
+
+                    invwin_ex = invwin_examine(char_win, invlist[item_idx +invstart].item);
+                } 
+                break;
+            case INP_KEY_DROP: {
+                    mvwprintw(invwin, winsz, 1, "Drop which item?.");
+                    wrefresh(invwin);
+                    delwin(invwin_ex);
+                    charwin_refresh(plr);
+
+                    invsz = inv_inventory_size(plr->player->inventory);
+                    int item_idx = inp_get_input_idx();
+                    if (item_idx == INP_KEY_ESCAPE) break;
+                    if ((item_idx + invstart) >= invsz) break;
+                    item = invlist[item_idx +invstart].item;
+                    free(invlist);
+                    struct itm_item *items[1] = {item};
+                    return ma_do_drop(plr->player, items, 1);
+                }
+                break;
+            default: break;
+        }
+
+        if (invwin_ex == NULL) {
+            charwin_refresh(plr);
+        }
+
+    } while((ch = inp_get_input() ) != INP_KEY_ESCAPE);
 
     delwin(invwin_ex);
     delwin(invwin);
 
     mapwin_display_map(map, &plr->player->pos);
     charwin_refresh(plr);
-    return has_action;
+
+    return false;
 }
 

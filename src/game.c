@@ -9,7 +9,7 @@
 #include "save.h"
 #include "load.h"
 #include "spawn.h"
-#include "monster_turn.h"
+#include "monster_action.h"
 
 #define LOAD 1
 #define SAVE 1
@@ -23,7 +23,7 @@ void game_init(struct pl_player *plr, unsigned long initial_seed) {
             gbl_game->turn = 0;
             msrlst_monster_list_init();
             itmlst_items_list_init();
-            mt_init();
+            ma_init();
 
             gbl_game->running = true;
 
@@ -84,7 +84,7 @@ bool game_exit() {
     sv_save_game("/tmp/heresyrl.save", gbl_game);
 #endif
 
-    mt_exit();
+    ma_exit();
     msr_die(gbl_game->player_data.player, gbl_game->current_map);
     dc_free_map(gbl_game->current_map);
 
