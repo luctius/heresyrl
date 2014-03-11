@@ -31,7 +31,7 @@ extern struct gm_game *gbl_game;
 
 void game_init(struct pl_player *plr, unsigned long initial_seed);
 bool game_init_map(void);
-bool game_new_turn(void);
+bool game_new_tick(void);
 bool game_exit(void);
 
 #endif /*GAME_H_*/

@@ -235,7 +235,7 @@ int msr_calculate_characteristic_bonus(struct msr_monster *monster, enum msr_cha
     if (chr >= MSR_CHAR_MAX) return -1;
     if (chr == MSR_CHAR_WEAPON_SKILL) return -1;
     if (chr == MSR_CHAR_BALISTIC_SKILL) return -1;
-    return ( (monster->characteristic[chr].base_value + (monster->characteristic[chr].advancement * 5)) / 10) * 10;
+    return ( (monster->characteristic[chr].base_value + (monster->characteristic[chr].advancement * 5)) / 10);
 }
 
 char *msr_gender_string(struct msr_monster *monster) {

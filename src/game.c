@@ -62,14 +62,19 @@ bool game_init_map(void) {
         if (dc_tile_instance(gbl_game->current_map, TILE_TYPE_STAIRS_UP, 0, &c) == false) exit(1);
         if (msr_insert_monster(gbl_game->player_data.player, gbl_game->current_map, &c) == false) exit(1);
         spwn_populate_map(gbl_game->current_map, gbl_game->spawn_random, 10000);
+
     }
+
+    dc_clear_map_visibility(gbl_game->current_map, &c, &gbl_game->current_map->size);
+    sgt_calculate_all_light_sources(gbl_game->sight, gbl_game->current_map);
+    sgt_calculate_player_sight(gbl_game->sight, gbl_game->current_map, gbl_game->player_data.player);
 
     return true;
 }
 
-bool game_new_turn(void) {
+bool game_new_tick(void) {
     if (gbl_game == NULL) return false;
-    gbl_game->turn++;
+    gbl_game->turn += MSR_ENERGY_TICK;
 
     coord_t zero = cd_create(0,0);
     dc_clear_map_visibility(gbl_game->current_map, &zero, &gbl_game->current_map->size);

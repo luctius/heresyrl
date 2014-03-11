@@ -1,19 +1,21 @@
 basic fighting system
-monster generation
-item generation
+monster generation      -- initial system done
+item generation         -- initial system done
 basic career and homeworld system
 effect system
-character screen
+character screen        -- initial screen done
 basic chargen
 better ingame message system
 ai
 
 
+ideas:
+
 accept input from savegame (replay)
 Make the game sound based (actions cost sound, enemies go to the biggest sound source, hounds bark, etc)
 Vendor machines and Medical machines.
-
-
+autoexplore in direction
+sound based detection and npc communication
 steroids and other chems.
 warp artifacts
 warp based grenades

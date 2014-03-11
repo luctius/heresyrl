@@ -43,7 +43,6 @@ int main(void)
     keypad(stdscr, TRUE);
 
     game_init_map();
-    game_new_turn();
 
     coord_t *player_pos = &gbl_game->player_data.player->pos;
     mapwin_display_map(gbl_game->current_map, player_pos);
@@ -51,11 +50,13 @@ int main(void)
 
     while(gbl_game->running == true) {
         ma_process();
+        if (gbl_game->running) game_new_tick();
 
-        game_new_turn();
         ui_create(COLS, LINES);
+        /*
         charwin_refresh(&gbl_game->player_data);
         mapwin_display_map(gbl_game->current_map, player_pos);
+        */
     }
 
     game_exit();

@@ -550,6 +550,7 @@ void charwin_refresh(struct pl_player *plr) {
     mvwprintw(char_win->win, y++,x, "Gender    %s", msr_gender_string(player) );
     mvwprintw(char_win->win, y++,x, "Homeworld %s", "Void Born");
     mvwprintw(char_win->win, y++,x, "Career    %s", "Thug");
+    mvwprintw(char_win->win, y++,x, "Turn      %d.%d", gbl_game->turn / MSR_ENERGY_TURN, gbl_game->turn % MSR_ENERGY_TURN);
 
     y++;
     int ws, bs, str, tgh, agi, intel, per, wil, fel;
@@ -615,7 +616,6 @@ void charwin_refresh(struct pl_player *plr) {
                 break;
             default: break;
         }
-        y++;
     }
 
     wrefresh(char_win->win);
@@ -694,6 +694,7 @@ bool invwin_inventory(struct dc_map *map, struct pl_player *plr) {
     if (map_win->type != HRL_WINDOW_TYPE_MAP) return false;
     int invstart = 0;
     struct itm_item *item = NULL;
+    bool inventory = true;
 
     WINDOW *invwin = derwin(map_win->win, map_win->lines, map_win->cols / 2, 0, 0);
     WINDOW *invwin_ex = NULL;
@@ -722,6 +723,7 @@ bool invwin_inventory(struct dc_map *map, struct pl_player *plr) {
         /* TODO clean this shit up */
         switch (ch) {
             case INP_KEY_YES: invstart += dislen; break;
+            case INP_KEY_INVENTORY: inventory = false; break;
             case INP_KEY_UP_RIGHT: 
             case INP_KEY_USE: {
                     mvwprintw(invwin, winsz, 1, "Use which item?.");
@@ -801,7 +803,7 @@ bool invwin_inventory(struct dc_map *map, struct pl_player *plr) {
             charwin_refresh(plr);
         }
 
-    } while((ch = inp_get_input() ) != INP_KEY_ESCAPE);
+    } while((inventory != false) && (ch = inp_get_input() ) != INP_KEY_ESCAPE);
 
     delwin(invwin_ex);
     delwin(invwin);
