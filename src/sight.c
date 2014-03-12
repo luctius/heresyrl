@@ -28,7 +28,8 @@ static void apply_light_source(void *vmap, int x, int y, int dx, int dy, void *i
 
     coord_t c = cd_create(x,y);
     if (cd_within_bound(&c, &map->size) == false) return;
-    sd_get_map_me(&c,map)->light_level = 1;
+    sd_get_map_me(&c,map)->light_level = item->specific.tool.light_luminem - pyth(dx, dy);
+    if (sd_get_map_me(&c,map)->light_level < 0) sd_get_map_me(&c,map)->light_level = 0;
 }
 
 static void apply_indirect_player_sight(void *vmap, int x, int y, int dx, int dy, void *isrc) {

@@ -135,6 +135,26 @@ void random_loop_called(struct random *r, int called) {
     }
 }
 
+int random_xd5(struct random *r, int nr_die) {
+    if (r == NULL) return -1;
+    int total = 0;
+    for (int i = 0; i < nr_die; i++) {
+        total += random_int32(r) % 5;
+    }
+}
+int random_xd10(struct random *r, int nr_die) {
+    if (r == NULL) return -1;
+    int total = 0;
+    for (int i = 0; i < nr_die; i++) {
+        total += random_int32(r) % 10;
+    }
+}
+
+int random_d100(struct random *r) {
+    if (r == NULL) return -1;
+    return random_int32(r) % 100;
+}
+
 /* generates a random number on [0,0xffffffff]-interval */
 unsigned long random_int32(struct random *r)
 {

@@ -75,18 +75,14 @@ bool fght_do_weapon_dmg(struct random *r, struct msr_monster *monster, struct ms
     if (item == NULL) return false;
     if (itm_verify_item(item) == false) return false;
 
+    int total_dmg = 0;
     for (int h = 0; h < hits; h++) {
         wpn = &item->specific.weapon;
 
-        int dmg = 0;
-        for (int i = 0; i < wpn->nr_dmg_die; i++) {
-            dmg += (random_int32(r)%10);
-        }
-        dmg += wpn->dmg_addition;
+        int dmg = random_xd10(r, wpn->nr_dmg_die) + wpn->dmg_addition;
         lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "fght", "Doing %dD10+%d damage => %d dmg.", wpn->nr_dmg_die, wpn->dmg_addition, dmg);
 
-        int hitroll = random_int32(r) % 100;
-        enum msr_hit_location mhl = msr_get_hit_location(monster, hitroll);
+        enum msr_hit_location mhl = msr_get_hit_location(monster, random_d100(r) );
         int penetration = wpn->penetration;
         int armour = msr_calculate_armour(monster, mhl);
         int toughness = msr_calculate_characteristic(monster, MSR_CHAR_TOUGHNESS) / 10;
@@ -99,7 +95,10 @@ bool fght_do_weapon_dmg(struct random *r, struct msr_monster *monster, struct ms
         armour = MIN((armour - penetration), 0);
         dmg = dmg - (armour  + toughness);
         msr_do_dmg(target, dmg, mhl);
+        total_dmg += dmg;
     }
+    lg_printf("Doing %d hits for %dD10+%d damage.", hits, wpn->nr_dmg_die, wpn->dmg_addition);
+
     return true;
 }
 
@@ -108,7 +107,6 @@ int fght_ranged_calc_tohit(struct random *r, struct msr_monster *monster, struct
     if (msr_verify_monster(target) == false) return -1;
     if (ammo == 0) return -1;
     if (msr_weapon_type_check(monster, WEAPON_TYPE_RANGED) == false) return -1;
-    struct inv_inventory *inv = monster->inventory;
     struct item_weapon_specific *wpn = NULL;
     struct itm_item *item = NULL;
 
@@ -122,7 +120,9 @@ int fght_ranged_calc_tohit(struct random *r, struct msr_monster *monster, struct
     int to_hit = msr_calculate_characteristic(monster, MSR_CHAR_BALISTIC_SKILL);
     int to_hit_mod = 0;
 
-    /*add to-hit modifiers here*/ {
+    {/*add to-hit modifiers here*/ 
+        /* Add lighting modifiers */
+
         /* Offhand Weapon */
         if (hand == FGHT_OFF_HAND) to_hit_mod += FGHT_RANGED_MODIFIER_OFF_HAND;
 
@@ -145,19 +145,27 @@ int fght_ranged_calc_tohit(struct random *r, struct msr_monster *monster, struct
 
         /* Shooting Distances */
         int distance = cd_pyth(&monster->pos, &target->pos);
-        if (distance == 1) to_hit_mod += FGHT_RANGED_MODIFIER_MELEE;
+        if (distance == FGHT_MELEE_RANGE) to_hit_mod += FGHT_RANGED_MODIFIER_MELEE;
         else if (distance >= (wpn->range * 3) ) to_hit_mod += FGHT_RANGED_MODIFIER_EXTREME_RANGE;
         else if (distance >= (wpn->range * 2) ) to_hit_mod += FGHT_RANGED_MODIFIER_LONG_RANGE;
-        else if (distance <= 3) to_hit_mod += FGHT_RANGED_MODIFIER_POINT_BLACK;
+        else if (distance <= FGHT_POINT_BLANK_RANGE) to_hit_mod += FGHT_RANGED_MODIFIER_POINT_BLACK;
         else if (distance <= (wpn->range * 0.5) ) to_hit_mod += FGHT_RANGED_MODIFIER_SHORT_RANGE;
 
-        if (to_hit_mod < -60)  to_hit_mod = -60;
-        else if (to_hit_mod > 60)  to_hit_mod = 60;
+        /* Maximum modifier */
+        if (to_hit_mod < -FGHT_MODIFIER_MAX) to_hit_mod = -FGHT_MODIFIER_MAX;
+        if (to_hit_mod > FGHT_MODIFIER_MAX)  to_hit_mod = FGHT_MODIFIER_MAX;
+
         to_hit += to_hit_mod;
     }
 
-    int roll = random_int32(r) % 100;
-    if (roll >= FGHT_RANGED_JAM) {
+    int roll = random_d100(r);
+    int jammed_threshold = FGHT_RANGED_JAM;
+    if ( (wpn->rof_set == WEAPON_ROF_SETTING_SEMI) ||
+         (wpn->rof_set == WEAPON_ROF_SETTING_AUTO) ) {
+        jammed_threshold = FGHT_RANGED_JAM_SEMI;
+    }
+
+    if (roll >= jammed_threshold) {
         wpn->jammed = true;
 
         Your(monster, "%s-hand weapon jammed.", fght_weapon_hand_name(hand) );

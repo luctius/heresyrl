@@ -35,6 +35,7 @@ void game_init(struct pl_player *plr, unsigned long initial_seed) {
 }
 
 bool game_load(void) {
+    bool loaded = false;
     if (gbl_game == NULL) return false;
 
     if (gbl_game->game_random != NULL) {
@@ -49,10 +50,16 @@ bool game_load(void) {
     }
 
     if (gbl_game->args_info->no_load_flag == false) {
-        return ld_read_save_file(gbl_game->args_info->save_file_arg, gbl_game);
+        loaded = ld_read_save_file(gbl_game->args_info->save_file_arg, gbl_game);
+        if (loaded == true) {
+            lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "game", "Game loaded from %s.", gbl_game->args_info->save_file_arg);
+        }
+        else {
+            lg_printf_l(LG_DEBUG_LEVEL_WARNING, "game", "Failed to load game from %s.", gbl_game->args_info->save_file_arg);
+        }
     }
 
-    return false;
+    return loaded;
 }
 
 bool game_init_map(void) {

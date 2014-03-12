@@ -165,13 +165,12 @@ bool ma_do_drop(struct msr_monster *monster, struct itm_item *items[], int nr_it
                 if (msr_remove_item(monster, items[i]) == true) {
                     itm_insert_item(items[i], gbl_game->current_map, &monster->pos);
 
+                    const char *hand_string = "hand";
                     if (monster->wpn_sel == MSR_WEAPON_SELECT_BOTH_HAND) {
-                        You_action(monster, "let %s fall from your hands.", items[i]->ld_name);
+                        hand_string = "hands";
                     }
-                    else {
-                        You_action(monster, "let %s fall from your hand.", items[i]->ld_name);
-                    }
-                    Monster_action(monster, "dropped %s.", items[i]->ld_name);
+                    You_action(monster, "let %s fall from your %s.", items[i]->ld_name, hand_string);
+                    Monster_action(monster, "dropped %s from %s %s.", items[i]->ld_name, msr_gender_string(monster), hand_string);
                 }
             }
 
@@ -196,12 +195,26 @@ bool ma_do_drop(struct msr_monster *monster, struct itm_item *items[], int nr_it
 bool ma_do_fire(struct msr_monster *monster, coord_t *pos) {
     if (msr_verify_monster(monster) == false) return false;
     if (pos == NULL) return false;
+    struct itm_item *item = NULL;
+    struct item_weapon_specific *wpn = NULL;
+    int shots = 0;
+    int cost = MSR_ACTION_FIRE;
+
+    for (int i = 0; i < FGHT_MAX_HAND; i++) {
+        item = fght_get_weapon(monster, WEAPON_TYPE_RANGED, i);
+        if (item != NULL) {
+            wpn = &item->specific.weapon;
+            shots += wpn->rof[wpn->rof_set];
+        }
+    }
 
     if (fght_shoot(gbl_game->game_random, monster, gbl_game->current_map, pos) == false) {
         return false;
     }
 
-    monster->energy -= MSR_ACTION_FIRE;
+    if (shots == 1) cost = MSR_ACTION_SINGLE_SHOT;
+
+    monster->energy -= cost;
     monster->controller.interruptable = false;
     monster->controller.interrupted = false;
     return true;
@@ -214,17 +227,13 @@ static bool ma_has_ammo(struct msr_monster *monster, struct itm_item *item) {
 
 bool ma_do_reload(struct msr_monster *monster) {
     if (msr_verify_monster(monster) == false) return false;
-    struct inv_inventory *inv = monster->inventory;
-    if (inv_loc_empty(inv,INV_LOC_MAINHAND_WIELD) && inv_loc_empty(inv, INV_LOC_OFFHAND_WIELD) ) return false;
     struct itm_item *item = NULL;
     struct item_weapon_specific *wpn = NULL;
     uint32_t cost = 0;
 
-    if ( (monster->wpn_sel == MSR_WEAPON_SELECT_MAIN_HAND) ||
-         (monster->wpn_sel == MSR_WEAPON_SELECT_DUAL_HAND) ||
-         (monster->wpn_sel == MSR_WEAPON_SELECT_BOTH_HAND) ) {
-        item = inv_get_item_from_location(inv, INV_LOC_MAINHAND_WIELD);
-        if (wpn_is_type(item, WEAPON_TYPE_RANGED) != false) {
+    for (int i = 0; i < FGHT_MAX_HAND; i++) {
+        item = fght_get_weapon(monster, WEAPON_TYPE_RANGED, i);
+        if (item != NULL) {
             wpn = &item->specific.weapon;
             if (wpn->magazine_left < wpn->magazine_sz) {
                 if (ma_has_ammo(monster, item) == true ) {
@@ -233,25 +242,6 @@ bool ma_do_reload(struct msr_monster *monster) {
 
                     You_action(monster, "reload %s.", item->ld_name);
                     Monster_action(monster, "reloads %s.", item->ld_name);
-                }
-            }
-        }
-    }
-
-    if (cost == 0) {
-        if ( (monster->wpn_sel == MSR_WEAPON_SELECT_OFF_HAND) ||
-             (monster->wpn_sel == MSR_WEAPON_SELECT_DUAL_HAND) ) {
-            item = inv_get_item_from_location(inv, INV_LOC_OFFHAND_WIELD);
-            if (wpn_is_type(item, WEAPON_TYPE_RANGED) != false) {
-                wpn = &item->specific.weapon;
-                if (wpn->magazine_left < wpn->magazine_sz) {
-                    if (ma_has_ammo(monster, item) == true ) {
-                        wpn->magazine_left = wpn->magazine_sz;
-                        cost += MSR_ACTION_RELOAD * item->use_delay;
-
-                        You_action(monster, "reload %s.", item->ld_name);
-                        Monster_action(monster, "reloads %s.", item->ld_name);
-                    }
                 }
             }
         }

@@ -59,7 +59,7 @@ int main(int argc, char *argv[]) {
 
     coord_t *player_pos = &gbl_game->player_data.player->pos;
     mapwin_display_map(gbl_game->current_map, player_pos);
-    charwin_refresh(&gbl_game->player_data);
+    charwin_refresh();
 
     /*initialise signal handler*/
     struct sigaction setmask;

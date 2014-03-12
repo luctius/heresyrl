@@ -16,7 +16,7 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dc_map *map, coord_t *
 void msgwin_log_callback(struct logging *log, struct log_entry *entry, void *priv);
 void msgwin_log_refresh(struct logging *log);
 
-void charwin_refresh();
+void charwin_refresh(void);
 bool invwin_inventory(struct dc_map *map, struct pl_player *plr);
 
 void ui_animate_projectile(struct dc_map *map, coord_t path[], int path_len, char projectile);

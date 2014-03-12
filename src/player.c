@@ -43,7 +43,7 @@ static bool plr_action_loop(struct msr_monster *player, void *controller) {
 
     while (gbl_game->running) {
         mapwin_display_map(map, player_pos);
-        charwin_refresh( (struct pl_player *) controller);
+        charwin_refresh();
 
         switch (ch = inp_get_input() ) { 
             case INP_KEY_PICKUP: {

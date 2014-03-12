@@ -772,7 +772,7 @@ bool invwin_inventory(struct dc_map *map, struct pl_player *plr) {
         }
         mvwprintw(invwin, winsz +1, 1, "[q] exit, [space] next page.");
         mvwprintw(invwin, winsz +2, 1, "[d] drop, [x] examine.");
-        mvwprintw(invwin, winsz +3, 1, "[U] use,  [w] wear.");
+        mvwprintw(invwin, winsz +3, 1, "[U] use,  [w] wield/wear.");
         wrefresh(invwin);
 
         /* TODO clean this shit up */

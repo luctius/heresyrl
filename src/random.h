@@ -9,6 +9,11 @@ struct random;
 
 struct random *random_init_genrand(unsigned long s);
 void random_exit(struct random *r);
+
+int random_xd5(struct random *r, int nr_die);
+int random_xd10(struct random *r, int nr_die);
+int random_d100(struct random *r);
+
 unsigned long random_int32(struct random *r);
 double random_float(struct random *r);
 

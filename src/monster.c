@@ -200,7 +200,7 @@ bool msr_remove_item(struct msr_monster *monster, struct itm_item *item) {
 
 int msr_get_near_sight_range(struct msr_monster *monster) {
     if (msr_verify_monster(monster) == false) return -1;
-    return (msr_calculate_characteristic(monster, MSR_CHAR_PERCEPTION) * 2) / 10;
+    return (msr_calculate_characteristic(monster, MSR_CHAR_PERCEPTION) * 1) / 10;
 }
 
 int msr_get_far_sight_range(struct msr_monster *monster) {

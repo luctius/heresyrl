@@ -5,7 +5,12 @@
 #include "monster.h"
 #include "coord.h"
 
+#define FGHT_MODIFIER_MAX (60)
+#define FGHT_MELEE_RANGE (1)
+#define FGHT_POINT_BLANK_RANGE (3)
+
 #define FGHT_RANGED_JAM (95)
+#define FGHT_RANGED_JAM_SEMI (93)
 #define FGHT_RANGED_MODIFIER_OFF_HAND (-20)
 #define FGHT_RANGED_MODIFIER_ROF_SEMI (20)
 #define FGHT_RANGED_MODIFIER_ROF_AUTO (10)
@@ -76,6 +81,7 @@ enum fght_hand {
 bool fght_do_dmg(struct random *r, struct msr_monster *monster, struct msr_monster *target, int hits, enum fght_hand hand);
 int fght_shoot(struct random *r, struct msr_monster *monster, struct dc_map *map, coord_t *e);
 int fght_calc_lof_path(coord_t *s, coord_t *e, coord_t path_list[], int path_list_sz);
+struct itm_item *fght_get_weapon(struct msr_monster *monster, enum item_weapon_type type, enum fght_hand hand);
 const char *fght_weapon_hand_name(enum fght_hand hand);
 
 #endif /* FIGHT_H */
