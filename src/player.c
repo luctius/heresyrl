@@ -80,7 +80,7 @@ static bool plr_action_loop(struct msr_monster *player, void *controller) {
                             lg_printf("Done.");
                         }
                     }
-                    else You("see nothing there.");
+                    else You(player, "see nothing there.");
                 }
                 break;
             case INP_KEY_INVENTORY:
@@ -91,10 +91,10 @@ static bool plr_action_loop(struct msr_monster *player, void *controller) {
                 return mapwin_overlay_fire_cursor(gbl_game, gbl_game->current_map, player_pos); break;
             case INP_KEY_STAIRS_DOWN:
                 if (sd_get_map_tile(player_pos, gbl_game->current_map)->type == TILE_TYPE_STAIRS_DOWN) {
-                    You("see a broken stairway."); } break;
+                    You(player, "see a broken stairway."); } break;
             case INP_KEY_STAIRS_UP:
                 if (sd_get_map_tile(player_pos, gbl_game->current_map)->type == TILE_TYPE_STAIRS_UP) {
-                    You("see a broken stairway."); } break;
+                    You(player, "see a broken stairway."); } break;
             case INP_KEY_RELOAD: 
                 return ma_do_reload(player); break;
             case INP_KEY_WEAPON_SETTING: 

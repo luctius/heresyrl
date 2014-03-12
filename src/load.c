@@ -330,7 +330,7 @@ static bool load_monsters(lua_State *L, struct dc_map *map, struct gm_game *g) {
 
         if (lua_intexpr(L, &t, "game.monsters[%d].template_id", i+1) == 0) return false;
         struct msr_monster *monster = msr_create(t);
-        if (msr_verify(monster) == false) return false;
+        if (msr_verify_monster(monster) == false) return false;
 
         monster->template_id = t;
         lua_intexpr(L, &t, "game.monsters[%d].uid", i+1); monster->uid = t;

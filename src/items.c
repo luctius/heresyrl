@@ -125,7 +125,6 @@ bool itm_insert_item(struct itm_item *item, struct dc_map *map, coord_t *pos) {
                 item->owner_type = ITEM_OWNER_MAP;
                 item->owner.owner_map_entity = target;
                 retval = true;
-                You("dropped %s.", item->ld_name);
             }
         }
     }

@@ -4,29 +4,10 @@
 #include "tiles.h"
 #include "items.h"
 #include "monster.h"
-#include "items_static.h"
-#include "monster_static.h"
+#include "spawn_static.h"
 #include "random.h"
 
-struct spwn_item {
-    enum item_ids id;
-    int weight;
-};
-
-struct spwn_monster {
-    enum msr_ids id;
-    int weight;
-};
-
-static struct spwn_item item_weights[] = {
-    {.weight=1, .id=ITEM_ID_AVERAGE_TORCH, },
-    {.weight=10, .id=ITEM_ID_AVERAGE_STUB_AUTOMATIC, },
-    {.weight=15, .id=ITEM_ID_AVERAGE_STUB_REVOLVER, },
-};
-
-static struct spwn_monster monster_weights[] = {
-    {.weight=1, .id=MSR_ID_BASIC_FERAL, },
-};
+#include "spawn_static.c"
 
 uint32_t spawn_item(double roll) {
     int sz = ARRAY_SZ(item_weights);

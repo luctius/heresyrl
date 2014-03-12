@@ -31,7 +31,7 @@ enum inv_locations {
 
 struct inv_inventory *inv_init(uint32_t locations);
 void inv_exit(struct inv_inventory *inv);
-bool inv_verify(struct inv_inventory *inv);
+bool inv_verify_inventory(struct inv_inventory *inv);
 
 bool inv_has_item(struct inv_inventory *inv, struct itm_item *item);
 bool inv_add_item(struct inv_inventory *inv, struct itm_item *item);

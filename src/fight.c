@@ -9,6 +9,7 @@
 #include "inventory.h"
 #include "random.h"
 #include "ui.h"
+#include "game.h"
 
 const char *fght_weapon_hand_name(enum fght_hand hand) {
     switch (hand) {
@@ -20,7 +21,7 @@ const char *fght_weapon_hand_name(enum fght_hand hand) {
 }
 
 bool fght_do_dmg(struct random *r, struct msr_monster *monster, struct msr_monster *target, int hits, enum fght_hand hand) {
-    if (msr_verify(monster) == false) return false;
+    if (msr_verify_monster(monster) == false) return false;
     if (target == NULL) return false;
     if (hits < 1) return false;
     if ( (msr_weapon_type_check(monster, WEAPON_TYPE_RANGED) == false)   &&
@@ -66,7 +67,7 @@ bool fght_do_dmg(struct random *r, struct msr_monster *monster, struct msr_monst
 }
 
 int fght_ranged_calc_tohit(struct random *r, struct msr_monster *monster, struct msr_monster *target, enum fght_hand hand) {
-    if (msr_verify(monster) == false) return -1;
+    if (msr_verify_monster(monster) == false) return -1;
     if (target == NULL) return -1;
     if (msr_weapon_type_check(monster, WEAPON_TYPE_RANGED) == false) return -1;
     struct inv_inventory *inv = monster->inventory;
@@ -101,12 +102,15 @@ int fght_ranged_calc_tohit(struct random *r, struct msr_monster *monster, struct
             }
             else {
                 wpn = NULL;
-                Your("%s-hand weapon is empty.", fght_weapon_hand_name(hand) );
+                Your(monster, "%s-hand weapon is empty.", fght_weapon_hand_name(hand) );
             }
         }
         else wpn = NULL;
     }
     if (wpn == NULL) return -1;
+
+    You_action(monster, "fire at %s with your %s.", monster->ld_name, item->sd_name);
+    Monster_action(monster, "fires at you with his %s.", item->sd_name);
 
     int to_hit = msr_calculate_characteristic(monster, MSR_CHAR_BALISTIC_SKILL);
     /*add to-hit modifiers here*/
@@ -116,7 +120,8 @@ int fght_ranged_calc_tohit(struct random *r, struct msr_monster *monster, struct
     if (wpn->rof_set == WEAPON_ROF_SETTING_AUTO) to_hit += FGHT_RANGED_MODIFIER_ROF_AUTO;
 
     if (to_hit <= 0) {
-        You("miss the shot by a huge margin.");
+        You(monster, "miss the shot by a huge margin.");
+        Monster_action(monster, "missed you with a huge margin.");
         return -1;
     }
     int roll = random_int32(r) % 100;
@@ -125,12 +130,18 @@ int fght_ranged_calc_tohit(struct random *r, struct msr_monster *monster, struct
         return MIN(ammo, ((to_hit - roll) /10) +1);
     }
 
-    You("miss with your %s-hand weapon.", fght_weapon_hand_name(hand) );
+    if (monster->wpn_sel == MSR_WEAPON_SELECT_BOTH_HAND) {
+        You(monster, "miss with your %s.", item->sd_name);
+    }
+    else {
+        You(monster, "miss with your %s-hand weapon.", fght_weapon_hand_name(hand) );
+    }
+
     return -1;
 }
 
 int fght_shoot(struct random *r, struct msr_monster *monster, struct dc_map *map, coord_t *e) {
-    if (msr_verify(monster) == false) return -1;
+    if (msr_verify_monster(monster) == false) return -1;
     if (dc_verify_map(map) == false) return -1;
     if (e == NULL) return -1;
     if (msr_weapon_type_check(monster, WEAPON_TYPE_RANGED) == false) return -1;

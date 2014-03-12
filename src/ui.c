@@ -437,7 +437,7 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dc_map *map, coord_t *
     struct pl_player *plr = &g->player_data;
     if (plr == NULL) return false;
     if (msr_weapon_type_check(plr->player, WEAPON_TYPE_RANGED) == false) {
-        You("wield no ranged weapon.");
+        You(plr->player, "wield no ranged weapon.");
         return false;
     }
 
@@ -470,7 +470,7 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dc_map *map, coord_t *
                     mapwin_display_map(map, p_pos);
                     return true;
                 }
-                else Your("weapon(s) failed to fire.");
+                else Your(plr->player, "weapon(s) failed to fire.");
                 fire_mode=false;
             }
             break;

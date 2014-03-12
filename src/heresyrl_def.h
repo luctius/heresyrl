@@ -14,6 +14,17 @@
 
 #define ARRAY_SZ(a) (sizeof(a) / sizeof(a[0]))
 
+/*
+   These macros require:
+#include "game.h"
+#include "dungeon_creator.h"
+#include "monster.h"
+ */
+#define You(monster, format, args...) if (monster->is_player == true) { lg_printf("%s " format, "You",  ##args); }
+#define You_action(monster, format, args...) if (monster->is_player == true) { lg_printf("%s " format, "You",  ##args); }
+#define Monster_action(monster, format, args...) if (monster->is_player == false) { if (sd_get_map_me(&monster->pos, gbl_game->current_map)->visible) lg_printf("%s " format, monster->ld_name,  ##args); }
+#define Your(monster, format, args...) if (monster->is_player == true) { lg_printf("%s " format, "Your",  ##args); }
+
 struct gm_game;
 struct tl_tile;
 struct msr_monster;

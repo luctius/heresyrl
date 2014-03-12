@@ -3,9 +3,11 @@
 #include "monster.h"
 #include "items.h"
 #include "inventory.h"
+#include "game.h"
+#include "dungeon_creator.h"
 
 static bool wield_melee_weapon(struct msr_monster *monster, struct itm_item *item) {
-    if (msr_verify(monster) == false) return false;
+    if (msr_verify_monster(monster) == false) return false;
     if (itm_verify_item(item) == false) return false;
     if (item->item_type != ITEM_TYPE_WEAPON) return false;
     if (wpn_is_type(item, WEAPON_TYPE_MELEE) == false) return false;
@@ -16,7 +18,7 @@ static bool wield_melee_weapon(struct msr_monster *monster, struct itm_item *ite
     if (weapon->weapon_category == WEAPON_CATEGORY_2H_MELEE) {
         location = INV_LOC_BOTH_WIELD;
         if (inv_support_location(inv, INV_LOC_MAINHAND_WIELD) == false) {
-            You("do not have two hands.");
+            You(monster, "do not have two hands.");
         }
     }
 
@@ -29,13 +31,13 @@ static bool wield_melee_weapon(struct msr_monster *monster, struct itm_item *ite
         location = INV_LOC_OFFHAND_WIELD;
     }
     else {
-        You("have no hands free.");
+        You(monster, "have no hands free.");
         return false;
     }
 
     if (inv_move_item_to_location(inv, item, location) == false) {
         lg_printf_l(LG_DEBUG_LEVEL_WARNING, "Could not move %s to the correct location, bailing.", item->ld_name);
-        You("seem to be unable to wield this weapon.");
+        You(monster, "seem to be unable to wield this weapon.");
         return false;
     }
 
@@ -43,7 +45,7 @@ static bool wield_melee_weapon(struct msr_monster *monster, struct itm_item *ite
 }
 
 static bool wield_ranged_weapon(struct msr_monster *monster, struct itm_item *item) {
-    if (msr_verify(monster) == false) return false;
+    if (msr_verify_monster(monster) == false) return false;
     if (itm_verify_item(item) == false) return false;
     if (item->item_type != ITEM_TYPE_WEAPON) return false;
     if (wpn_is_type(item, WEAPON_TYPE_RANGED) == false) return false;
@@ -54,7 +56,7 @@ static bool wield_ranged_weapon(struct msr_monster *monster, struct itm_item *it
     if (wpn_is_catergory(item, WEAPON_CATEGORY_BASIC) || wpn_is_catergory(item, WEAPON_CATEGORY_HEAVY) ) {
         location = INV_LOC_BOTH_WIELD;
         if (inv_support_location(inv, INV_LOC_BOTH_WIELD) == false) {
-            You("do not have two hands.");
+            You(monster, "do not have two hands.");
         }
     }
 
@@ -67,20 +69,20 @@ static bool wield_ranged_weapon(struct msr_monster *monster, struct itm_item *it
         location = INV_LOC_OFFHAND_WIELD;
     }
     else {
-        You("have no hands free.");
+        You(monster, "have no hands free.");
         return false;
     }
 
     if (inv_move_item_to_location(inv, item, location) == false) {
         lg_printf_l(LG_DEBUG_LEVEL_WARNING, "Could not move %s to the correct location, bailing.", item->ld_name);
-        You("seem to be unable to wield this weapon.");
+        You(monster, "seem to be unable to wield this weapon.");
     }
 
     return true;
 }
 
 bool dw_wear_item(struct msr_monster *monster, struct itm_item *item) {
-    if (msr_verify(monster) == false) return false;
+    if (msr_verify_monster(monster) == false) return false;
     if (itm_verify_item(item) == false) return false;
     if (inv_has_item(monster->inventory, item) == false) return false;
     if (inv_get_item_location(monster->inventory, item) != INV_LOC_INVENTORY) return false;
@@ -101,6 +103,15 @@ bool dw_wear_item(struct msr_monster *monster, struct itm_item *item) {
         default: break;
     }
 
+    if (item->item_type == ITEM_TYPE_WEAPON) {
+        You_action(monster, "wield %s.", item->ld_name);
+        Monster_action(monster, "wields %s.", item->ld_name);
+    }
+    else {
+        You_action(monster, "wear %s.", item->ld_name);
+        Monster_action(monster, "wears %s.", item->ld_name);
+    }
+
     /* Do check here */
     if (msr_weapons_check(monster) == false) msr_weapon_next_selection(monster);
 
@@ -108,7 +119,7 @@ bool dw_wear_item(struct msr_monster *monster, struct itm_item *item) {
 }
 
 static bool dw_remove_weapon(struct msr_monster *monster, struct itm_item *item) {
-    if (msr_verify(monster) == false) return false;
+    if (msr_verify_monster(monster) == false) return false;
     if (itm_verify_item(item) == false) return false;
     if (inv_has_item(monster->inventory, item) == false) return false;
     if (inv_get_item_location(monster->inventory, item) == INV_LOC_INVENTORY) return false;
@@ -117,13 +128,18 @@ static bool dw_remove_weapon(struct msr_monster *monster, struct itm_item *item)
 
     if (inv_move_item_to_location(inv, item, INV_LOC_INVENTORY) == false) {
         lg_printf_l(LG_DEBUG_LEVEL_WARNING, "Could not move %s to the correct location, bailing.", item->ld_name);
-        You("are to be unable to remove this weapon.");
+        You(monster, "are to be unable to remove this weapon.");
+        return false;
     }
-    return false;
+
+    You_action(monster, "remove %s.", item->ld_name);
+    Monster_action(monster, "removes %s.", item->ld_name);
+
+    return true;
 }
 
 bool dw_remove_item(struct msr_monster *monster, struct itm_item *item) {
-    if (msr_verify(monster) == false) return false;
+    if (msr_verify_monster(monster) == false) return false;
     if (itm_verify_item(item) == false) return false;
     if (inv_has_item(monster->inventory, item) == false) return false;
     if (inv_get_item_location(monster->inventory, item) == INV_LOC_INVENTORY) return false;
@@ -147,10 +163,10 @@ bool dw_remove_item(struct msr_monster *monster, struct itm_item *item) {
 }
 
 bool dw_use_item(struct msr_monster *monster, struct itm_item *item) {
-    if (msr_verify(monster) == false) return false;
+    if (msr_verify_monster(monster) == false) return false;
     if (itm_verify_item(item) == false) return false;
     if (monster->inventory == NULL) {
-        Your("inventory is empty.");
+        Your(monster, "inventory is empty.");
         return false;
     }
     if (inv_has_item(monster->inventory, item) == false) return false;
@@ -158,18 +174,22 @@ bool dw_use_item(struct msr_monster *monster, struct itm_item *item) {
     if (item->item_type == ITEM_TYPE_TOOL && item->specific.tool.tool_type == TOOL_TYPE_LIGHT) {
         if (item->specific.tool.lit == false) {
             item->specific.tool.lit = true;
-            You("light %s.", item->ld_name);
+
+            You_action(monster, "light %s.", item->ld_name);
+            Monster_action(monster, "lights %s.", item->ld_name);
         }
         else {
             item->specific.tool.lit = false;
-            You("douse %s.", item->ld_name);
+
+            You(monster, "douse %s.", item->ld_name);
+            Monster_action(monster, "douses %s.", item->ld_name);
         }
     }
     return true;
 }
 
 bool dw_can_wear_item(struct msr_monster *monster, struct itm_item *item) {
-    if (msr_verify(monster) == false) return false;
+    if (msr_verify_monster(monster) == false) return false;
     if (itm_verify_item(item) == false) return false;
     if (inv_has_item(monster->inventory, item) == false) return false;
     if (inv_get_item_location(monster->inventory, item) != INV_LOC_INVENTORY) return false;
@@ -194,7 +214,7 @@ bool dw_can_wear_item(struct msr_monster *monster, struct itm_item *item) {
 }
 
 bool dw_can_remove_item(struct msr_monster *monster, struct itm_item *item) {
-    if (msr_verify(monster) == false) return false;
+    if (msr_verify_monster(monster) == false) return false;
     if (itm_verify_item(item) == false) return false;
     if (inv_has_item(monster->inventory, item) == false) return false;
     if (inv_get_item_location(monster->inventory, item) == INV_LOC_INVENTORY) return false;

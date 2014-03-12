@@ -37,7 +37,7 @@ struct inv_inventory *inv_init(uint32_t locations) {
 }
 
 void inv_exit(struct inv_inventory *inv) {
-    if (inv_verify(inv) == false) return;
+    if (inv_verify_inventory(inv) == false) return;
 
     struct inv_entry *ie;
     while ( (ie = inv->head.lh_first ) != NULL) {
@@ -48,7 +48,7 @@ void inv_exit(struct inv_inventory *inv) {
     free(inv);
 }
 
-bool inv_verify(struct inv_inventory *inv) {
+bool inv_verify_inventory(struct inv_inventory *inv) {
     assert(inv != NULL);
     assert(inv->inv_pre == INVENTORY_PRE_CHECK);
     assert(inv->inv_post == INVENTORY_POST_CHECK);
@@ -57,7 +57,7 @@ bool inv_verify(struct inv_inventory *inv) {
 }
 
 struct itm_item *inv_get_next_item(struct inv_inventory *inv, struct itm_item *prev) {
-    if (inv_verify(inv) == false) return NULL;
+    if (inv_verify_inventory(inv) == false) return NULL;
     if (prev == NULL) {
         if (inv->head.lh_first != NULL) return inv->head.lh_first->item;
         return NULL;
@@ -77,7 +77,7 @@ struct itm_item *inv_get_next_item(struct inv_inventory *inv, struct itm_item *p
 }
 
 bool inv_has_item(struct inv_inventory *inv, struct itm_item *item) {
-    if (inv_verify(inv) == false) return NULL;
+    if (inv_verify_inventory(inv) == false) return NULL;
     if (itm_verify_item(item) == false) return NULL;
 
     struct itm_item *i = NULL;
@@ -89,7 +89,7 @@ bool inv_has_item(struct inv_inventory *inv, struct itm_item *item) {
 }
 
 bool inv_add_stack(struct inv_inventory *inv, struct itm_item *item) {
-    if (inv_verify(inv) == false) return false;
+    if (inv_verify_inventory(inv) == false) return false;
     if (itm_verify_item(item) == false) return false;
     if (item->max_quantity == 0) return false;
     if (item->stacked_quantity == 0) return false;
@@ -111,7 +111,7 @@ bool inv_add_stack(struct inv_inventory *inv, struct itm_item *item) {
 }
 
 bool inv_add_item(struct inv_inventory *inv, struct itm_item *item) {
-    if (inv_verify(inv) == false) return NULL;
+    if (inv_verify_inventory(inv) == false) return NULL;
     if (itm_verify_item(item) == false) return NULL;
     if (inv_has_item(inv, item) == true ) return false;
     if (inv_add_stack(inv, item) == true) return true;
@@ -127,7 +127,7 @@ bool inv_add_item(struct inv_inventory *inv, struct itm_item *item) {
 }
 
 bool inv_remove_item(struct inv_inventory *inv, struct itm_item *item) {
-    if (inv_verify(inv) == false) return NULL;
+    if (inv_verify_inventory(inv) == false) return NULL;
     if (itm_verify_item(item) == false) return NULL;
     if (inv_has_item(inv, item) == false) return false;
 
@@ -146,7 +146,7 @@ bool inv_remove_item(struct inv_inventory *inv, struct itm_item *item) {
 }
 
 int inv_inventory_size(struct inv_inventory *inv) {
-    if (inv_verify(inv) == false) return -1;
+    if (inv_verify_inventory(inv) == false) return -1;
     int sz = 0;
 
     struct itm_item *i = NULL;
@@ -155,7 +155,7 @@ int inv_inventory_size(struct inv_inventory *inv) {
 }
 
 bool inv_support_location(struct inv_inventory *inv, enum inv_locations location) {
-    if (inv_verify(inv) == false) return false;
+    if (inv_verify_inventory(inv) == false) return false;
     if (location > INV_LOC_MAX) return false;
     if (location == INV_LOC_BOTH_WIELD) {
         if ( ( (inv->available_locations & inv_loc(INV_LOC_MAINHAND_WIELD) ) > 0) && 
@@ -166,7 +166,7 @@ bool inv_support_location(struct inv_inventory *inv, enum inv_locations location
 }
 
 bool inv_move_item_to_location(struct inv_inventory *inv, struct itm_item *item, enum inv_locations location) {
-    if (inv_verify(inv) == false) return false;
+    if (inv_verify_inventory(inv) == false) return false;
     if (itm_verify_item(item) == false) return false;
     if (inv_support_location(inv, location) == false) return false;
     if (inv_has_item(inv, item) == false) return false;
@@ -185,7 +185,7 @@ bool inv_move_item_to_location(struct inv_inventory *inv, struct itm_item *item,
 }
 
 struct itm_item *inv_get_item_from_location(struct inv_inventory *inv, enum inv_locations location) {
-    if (inv_verify(inv) == false) return NULL;
+    if (inv_verify_inventory(inv) == false) return NULL;
     if (inv_support_location(inv, location) == false) return NULL;
     if (location == INV_LOC_BOTH_WIELD) location = INV_LOC_MAINHAND_WIELD;
 
@@ -201,7 +201,7 @@ struct itm_item *inv_get_item_from_location(struct inv_inventory *inv, enum inv_
 }
 
 bool inv_loc_empty(struct inv_inventory *inv, enum inv_locations location) {
-    if (inv_verify(inv) == false) return false;
+    if (inv_verify_inventory(inv) == false) return false;
     if (inv_support_location(inv, location) == false) return false;
     if (location == INV_LOC_BOTH_WIELD) location = INV_LOC_MAINHAND_WIELD;
 
@@ -209,7 +209,7 @@ bool inv_loc_empty(struct inv_inventory *inv, enum inv_locations location) {
 }
 
 enum inv_locations inv_get_item_location(struct inv_inventory *inv, struct itm_item *item) {
-    if (inv_verify(inv) == false) return INV_LOC_NONE;
+    if (inv_verify_inventory(inv) == false) return INV_LOC_NONE;
     if (itm_verify_item(item) == false) return INV_LOC_NONE;
     if (inv_has_item(inv, item) == false) return INV_LOC_NONE;
     

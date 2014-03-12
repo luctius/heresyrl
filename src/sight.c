@@ -103,7 +103,7 @@ bool sgt_calculate_all_light_sources(struct sgt_sight *sight, struct dc_map *map
 bool sgt_calculate_player_sight(struct sgt_sight *sight, struct dc_map *map, struct msr_monster *monster) {
     if (sight == NULL) return false;
     if (dc_verify_map(map) == false) return false;
-    if (msr_verify(monster) == false) return false;
+    if (msr_verify_monster(monster) == false) return false;
 
     fov_settings_set_opacity_test_function(&sight->fov_settings, check_opaque);
     fov_settings_set_apply_lighting_function(&sight->fov_settings, apply_direct_player_sight);

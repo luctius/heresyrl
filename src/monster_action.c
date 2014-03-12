@@ -25,7 +25,6 @@ bool ma_process(void) {
     while ( (monster = msrlst_get_next_monster(monster) ) != NULL) {
         if (monster->energy < MSR_ENERGY_FULL) monster->energy += MSR_ENERGY_TICK;
 
-        //if (monster->energy >= MSR_ENERGY_FULL) {
         if ( (monster->energy >= MSR_ENERGY_FULL) || 
              (monster->controller.interrupted == true) ) {
             if (monster->controller.controller_cb != NULL) {
@@ -50,7 +49,7 @@ bool mt_interrupt_event(uint32_t monster_uid) {
 }
 
 bool ma_do_move(struct msr_monster *monster, coord_t *pos) {
-    if (msr_verify(monster) == false) return false;
+    if (msr_verify_monster(monster) == false) return false;
     if (pos == NULL) return false;
     coord_t oldpos = monster->pos;
 
@@ -75,7 +74,7 @@ bool ma_do_idle(struct msr_monster *monster) {
 }
 
 bool ma_do_guard(struct msr_monster *monster) {
-    if (msr_verify(monster) == false) return false;
+    if (msr_verify_monster(monster) == false) return false;
 
     monster->energy -= MSR_ACTION_GUARD;
     monster->controller.interruptable = true;
@@ -84,7 +83,7 @@ bool ma_do_guard(struct msr_monster *monster) {
 }
 
 bool ma_do_wear(struct msr_monster *monster, struct itm_item *item) {
-    if (msr_verify(monster) == false) return false;
+    if (msr_verify_monster(monster) == false) return false;
     if (itm_verify_item(item) == false) return false;
     if (inv_has_item(monster->inventory, item) == false) return false;
     if (inv_get_item_location(monster->inventory, item) != INV_LOC_INVENTORY) return false;
@@ -98,7 +97,7 @@ bool ma_do_wear(struct msr_monster *monster, struct itm_item *item) {
 }
 
 bool ma_do_remove(struct msr_monster *monster, struct itm_item *item) {
-    if (msr_verify(monster) == false) return false;
+    if (msr_verify_monster(monster) == false) return false;
     if (itm_verify_item(item) == false) return false;
     if (inv_has_item(monster->inventory, item) == false) return false;
     if (inv_get_item_location(monster->inventory, item) == INV_LOC_INVENTORY) return false;
@@ -112,7 +111,7 @@ bool ma_do_remove(struct msr_monster *monster, struct itm_item *item) {
 }
 
 bool ma_do_use(struct msr_monster *monster, struct itm_item *item) {
-    if (msr_verify(monster) == false) return false;
+    if (msr_verify_monster(monster) == false) return false;
     if (itm_verify_item(item) == false) return false;
     if (inv_has_item(monster->inventory, item) == false) return false;
     if (inv_get_item_location(monster->inventory, item) != INV_LOC_INVENTORY) return false;
@@ -125,7 +124,7 @@ bool ma_do_use(struct msr_monster *monster, struct itm_item *item) {
 }
 
 bool ma_do_pickup(struct msr_monster *monster, struct itm_item *items[], int nr_items) {
-    if (msr_verify(monster) == false) return false;
+    if (msr_verify_monster(monster) == false) return false;
     if (items == NULL) return false;
     if (nr_items == 0) return false;
 
@@ -136,6 +135,9 @@ bool ma_do_pickup(struct msr_monster *monster, struct itm_item *items[], int nr_
                 if (msr_give_item(monster, items[i]) == true) {
                     inv_remove_item(me->inventory, items[i]);
                     monster->energy -= MSR_ACTION_PICKUP;
+
+                    You_action(monster, "picked up %s.", items[i]->ld_name);
+                    Monster_action(monster, "picked up %s.", items[i]->ld_name);
                 }
             }
         }
@@ -147,7 +149,7 @@ bool ma_do_pickup(struct msr_monster *monster, struct itm_item *items[], int nr_
 }
 
 bool ma_do_drop(struct msr_monster *monster, struct itm_item *items[], int nr_items) {
-    if (msr_verify(monster) == false) return false;
+    if (msr_verify_monster(monster) == false) return false;
     if (items == NULL) return false;
     if (nr_items <= 0) return false;
 
@@ -156,16 +158,28 @@ bool ma_do_drop(struct msr_monster *monster, struct itm_item *items[], int nr_it
             if ( (inv_get_item_location(monster->inventory, items[i]) == INV_LOC_MAINHAND_WIELD) ||
                  (inv_get_item_location(monster->inventory, items[i]) == INV_LOC_OFFHAND_WIELD) ) {
                 /*
-                   Allow drop of weapons to the ground for free.
+                   Allow drop of weapons in hand to the ground for free.
                  */
                 if (msr_remove_item(monster, items[i]) == true) {
                     itm_insert_item(items[i], gbl_game->current_map, &monster->pos);
+
+                    if (monster->wpn_sel == MSR_WEAPON_SELECT_BOTH_HAND) {
+                        You_action(monster, "let %s fall from your hands.", items[i]->ld_name);
+                    }
+                    else {
+                        You_action(monster, "let %s fall from your hand.", items[i]->ld_name);
+                    }
+                    Monster_action(monster, "dropped %s.", items[i]->ld_name);
                 }
             }
+
             if (inv_get_item_location(monster->inventory, items[i]) == INV_LOC_INVENTORY) {
                 if (msr_remove_item(monster, items[i]) == true) {
                     if (itm_insert_item(items[i], gbl_game->current_map, &monster->pos) == true) {
                         monster->energy -= MSR_ACTION_DROP;
+
+                        You_action(monster,"dropped %s.", items[i]->ld_name);
+                        Monster_action(monster, "dropped %s.", items[i]->ld_name);
                     }
                 }
             }
@@ -178,7 +192,7 @@ bool ma_do_drop(struct msr_monster *monster, struct itm_item *items[], int nr_it
 }
 
 bool ma_do_fire(struct msr_monster *monster, coord_t *pos) {
-    if (msr_verify(monster) == false) return false;
+    if (msr_verify_monster(monster) == false) return false;
     if (pos == NULL) return false;
 
     if (fght_shoot(gbl_game->game_random, monster, gbl_game->current_map, pos) == false) {
@@ -197,7 +211,7 @@ static bool ma_has_ammo(struct msr_monster *monster, struct itm_item *item) {
 }
 
 bool ma_do_reload(struct msr_monster *monster) {
-    if (msr_verify(monster) == false) return false;
+    if (msr_verify_monster(monster) == false) return false;
     struct inv_inventory *inv = monster->inventory;
     if (inv_loc_empty(inv,INV_LOC_MAINHAND_WIELD) && inv_loc_empty(inv, INV_LOC_OFFHAND_WIELD) ) return false;
     struct itm_item *item = NULL;
@@ -205,7 +219,7 @@ bool ma_do_reload(struct msr_monster *monster) {
     uint32_t cost = 0;
 
     if ( (monster->wpn_sel == MSR_WEAPON_SELECT_MAIN_HAND) ||
-         (monster->wpn_sel == MSR_WEAPON_SELECT_DUAL_HAND)  ||
+         (monster->wpn_sel == MSR_WEAPON_SELECT_DUAL_HAND) ||
          (monster->wpn_sel == MSR_WEAPON_SELECT_BOTH_HAND) ) {
         item = inv_get_item_from_location(inv, INV_LOC_MAINHAND_WIELD);
         if (wpn_is_type(item, WEAPON_TYPE_RANGED) != false) {
@@ -214,6 +228,9 @@ bool ma_do_reload(struct msr_monster *monster) {
                 if (ma_has_ammo(monster, item) == true ) {
                     wpn->magazine_left = wpn->magazine_sz;
                     cost += MSR_ACTION_RELOAD * item->use_delay;
+
+                    You_action(monster, "reload %s.", item->ld_name);
+                    Monster_action(monster, "reloads %s.", item->ld_name);
                 }
             }
         }
@@ -229,6 +246,9 @@ bool ma_do_reload(struct msr_monster *monster) {
                     if (ma_has_ammo(monster, item) == true ) {
                         wpn->magazine_left = wpn->magazine_sz;
                         cost += MSR_ACTION_RELOAD * item->use_delay;
+
+                        You_action(monster, "reload %s.", item->ld_name);
+                        Monster_action(monster, "reloads %s.", item->ld_name);
                     }
                 }
             }
