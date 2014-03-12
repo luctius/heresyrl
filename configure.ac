@@ -42,4 +42,8 @@ AC_FUNC_MALLOC
 AC_CHECK_FUNCS([memmove memset])
 
 
-AC_OUTPUT(Makefile utils/Makefile src/Makefile)
+AC_CONFIG_FILES([Makefile
+                 utils/Makefile 
+                 src/Makefile 
+                 heresyrl.ggo])
+AC_OUTPUT

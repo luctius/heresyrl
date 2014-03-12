@@ -1,30 +1,6 @@
 #ifndef UI_H
 #define UI_H
 
-#define MAP_MIN_COLS 20
-#define MAP_MAX_COLS 100
-#define MAP_COLS_FACTOR 0.90f
-
-#define MAP_MIN_LINES 22
-#define MAP_MAX_LINES 0
-#define MAP_LINES_FACTOR 0.90f
-
-#define MSG_MIN_COLS 40
-#define MSG_MAX_COLS 100
-#define MSG_COLS_FACTOR 0.95f
-
-#define MSG_MIN_LINES 2
-#define MSG_MAX_LINES 0
-#define MSG_LINES_FACTOR 0.10f
-
-#define CHAR_MIN_COLS 31
-#define CHAR_MAX_COLS 31
-#define CHAR_COLS_FACTOR 0.05f
-
-#define CHAR_MIN_LINES 30
-#define CHAR_MAX_LINES 30
-#define CHAR_LINES_FACTOR 1.00f
-
 #include "heresyrl_def.h"
 #include "coord.h"
 

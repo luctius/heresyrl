@@ -446,12 +446,13 @@ static bool load_map(lua_State *L, struct dc_map **m, int mapid) {
 * 
 * @return returns 0 on succes or 1 on failure.
 */
-int ld_read_save_file(const char *path, struct gm_game *g) {
+bool ld_read_save_file(const char *path, struct gm_game *g) {
+    if (path == NULL) return false;
+    if (g == NULL) return false;
+
     lua_State *L = conf_open(path);
-    int errorcode = 1;
     
-    if (L != NULL)
-    {
+    if (L != NULL) {
         load_game(L, g);
         load_player(L, &g->player_data);
         load_items_list(L);
@@ -459,6 +460,6 @@ int ld_read_save_file(const char *path, struct gm_game *g) {
         load_monsters(L, g->current_map, g);
         lua_close(L);
     }
-    return errorcode;
+    return true;
 }
 

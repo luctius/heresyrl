@@ -18,6 +18,6 @@
 * 
 * @return 0 on success or 1 on failure.
 */
-int ld_read_save_file(const char *path, struct gm_game *g);
+bool ld_read_save_file(const char *path, struct gm_game *g);
 
 #endif /* LOAD_H */

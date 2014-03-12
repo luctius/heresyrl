@@ -1,4 +1,5 @@
 #include "game.h"
+#include "cmdline.h"
 #include "dungeon_creator.h"
 #include "items.h"
 #include "monster.h"
@@ -20,6 +21,7 @@ void game_init(struct pl_player *plr, unsigned long initial_seed) {
     if (gbl_game == NULL) {
         gbl_game = calloc(1, sizeof(struct gm_game));
         if (gbl_game != NULL) {
+            gbl_game->initial_seed = initial_seed;
             gbl_game->turn = 0;
             msrlst_monster_list_init();
             itmlst_items_list_init();
@@ -27,25 +29,42 @@ void game_init(struct pl_player *plr, unsigned long initial_seed) {
 
             gbl_game->running = true;
 
-#ifdef LOAD
-            ld_read_save_file("/tmp/heresyrl.save", gbl_game);
-#endif
-
-            if (gbl_game->game_random == NULL) {
-                gbl_game->game_random = random_init_genrand(initial_seed);
-                gbl_game->spawn_random = random_init_genrand(random_int32(gbl_game->game_random));
-                gbl_game->map_random = random_init_genrand(random_int32(gbl_game->game_random));
-                gbl_game->ai_random = random_init_genrand(random_int32(gbl_game->game_random));
-            }
-
             gbl_game->sight = sgt_init();
-
         }
     }
 }
 
+bool game_load(void) {
+    if (gbl_game == NULL) return false;
+
+    if (gbl_game->game_random != NULL) {
+        random_exit(gbl_game->game_random);
+        random_exit(gbl_game->spawn_random);
+        random_exit(gbl_game->map_random);
+        random_exit(gbl_game->ai_random);
+        gbl_game->game_random = NULL;
+        gbl_game->spawn_random = NULL;
+        gbl_game->map_random = NULL;
+        gbl_game->ai_random = NULL;
+    }
+
+    if (gbl_game->args_info->no_load_flag == false) {
+        return ld_read_save_file(gbl_game->args_info->save_file_arg, gbl_game);
+    }
+
+    return false;
+}
+
 bool game_init_map(void) {
     if (gbl_game == NULL) return false;
+
+    if (gbl_game->game_random == NULL) {
+        gbl_game->game_random = random_init_genrand(gbl_game->initial_seed);
+        gbl_game->spawn_random = random_init_genrand(random_int32(gbl_game->game_random));
+        gbl_game->map_random = random_init_genrand(random_int32(gbl_game->game_random));
+        gbl_game->ai_random = random_init_genrand(random_int32(gbl_game->game_random));
+    }
+
     int x = 100;
     int y = 100;
 
@@ -85,9 +104,10 @@ bool game_new_tick(void) {
 
 bool game_exit() {
     if (gbl_game == NULL) return false;
-#ifdef SAVE
-    sv_save_game("/tmp/heresyrl.save", gbl_game);
-#endif
+
+    if (gbl_game->args_info->no_save_flag == false) {
+        sv_save_game(gbl_game->args_info->save_file_arg, gbl_game);
+    }
 
     ma_exit();
     msr_die(gbl_game->player_data.player, gbl_game->current_map);

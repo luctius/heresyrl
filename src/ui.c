@@ -6,6 +6,7 @@
 #include <sys/param.h>
 
 #include "ui.h"
+#include "cmdline.h"
 #include "tiles.h"
 #include "monster.h"
 #include "items.h"
@@ -19,6 +20,30 @@
 #include "dowear.h"
 #include "game.h"
 #include "monster_action.h"
+
+#define MAP_MIN_COLS 20
+#define MAP_MAX_COLS 100
+#define MAP_COLS_FACTOR 0.90f
+
+#define MAP_MIN_LINES 22
+#define MAP_MAX_LINES 0
+#define MAP_LINES_FACTOR 0.90f
+
+#define MSG_MIN_COLS 40
+#define MSG_MAX_COLS 100
+#define MSG_COLS_FACTOR 0.95f
+
+#define MSG_MIN_LINES 2
+#define MSG_MAX_LINES 0
+#define MSG_LINES_FACTOR 0.10f
+
+#define CHAR_MIN_COLS 31
+#define CHAR_MAX_COLS 31
+#define CHAR_COLS_FACTOR 0.05f
+
+#define CHAR_MIN_LINES 30
+#define CHAR_MAX_LINES 30
+#define CHAR_LINES_FACTOR 1.00f
 
 enum window_type {
     HRL_WINDOW_TYPE_MAP,
@@ -265,7 +290,9 @@ static void mapwin_display_map_noref(struct dc_map *map, coord_t *player) {
     for (int xi = 0; xi < x_max; xi++) {
         for (int yi = 0; yi < y_max; yi++) {
             coord_t map_c = cd_create(xi+scr_c.x, yi+scr_c.y);
-            if ( (sd_get_map_me(&map_c, map)->visible == true) || (sd_get_map_me(&map_c, map)->discovered == true) ) {
+            if ( (sd_get_map_me(&map_c, map)->visible == true) || 
+                 (sd_get_map_me(&map_c, map)->discovered == true) || 
+                 (gbl_game->args_info->map_flag == true) ) {
                 int attr_mod = sd_get_map_tile(&map_c, map)->icon_attr;
                 char icon = sd_get_map_tile(&map_c, map)->icon;
 

@@ -20,16 +20,16 @@ struct logging {
     void *priv;
 };
 
-struct logging *lg_init(enum lg_debug_levels lvl, int max_size) {
+struct logging *lg_init(char *logfile, enum lg_debug_levels lvl, int max_size) {
     struct logging *log = malloc(sizeof(struct logging) );
     if (log == NULL) return NULL;
 
     log->level = lvl;
     log->logging_q_sz = max_size;
     log->logging_q = queue_init_simple(log->logging_q_sz+1);
-    log->log_file = fopen("/tmp/heresyrl.log", "w");
+    log->log_file = fopen(logfile, "w");
     if (log->log_file == NULL) {
-        fprintf(stderr, "Could not open logfile\n");
+        fprintf(stderr, "Could not open logfile %s\n", logfile);
         exit(1);
     }
     log->callback = NULL;
