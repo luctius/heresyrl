@@ -77,8 +77,12 @@ static bool dc_clear_map_unsafe(struct dc_map *map) {
             if (sd_get_map_tile(&c,map) != NULL) {
                 if (TILE_HAS_ATTRIBUTE(sd_get_map_tile(&c,map), TILE_ATTR_LIGHT_SOURCE) ) {
                     struct itm_item *i = itm_create(ITEM_ID_FIXED_LIGHT);
-                    inv_add_item(sd_get_map_me(&c,map)->inventory, i);
-                    i->specific.tool.lit = true;
+                    if (itm_insert_item(i, map, &c) == false) {
+                        itm_destroy(i);
+                    }
+                    else {
+                        i->specific.tool.lit = true;
+                    }
                 }
             }
         }

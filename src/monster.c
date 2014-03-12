@@ -211,13 +211,14 @@ int msr_get_far_sight_range(struct msr_monster *monster) {
 bool msr_drop_inventory(struct msr_monster *monster, struct dc_map *map) {
     if (msr_verify_monster(monster) == false) return false;
     if (dc_verify_map(map) == false) return false;
-    struct dc_map_entity *me = sd_get_map_me(&monster->pos, map);
 
     struct itm_item *item = NULL;
     while ( (item = inv_get_next_item(monster->inventory, item) ) != NULL) {
         if (itm_verify_item(item) == true) {
             if (inv_remove_item(monster->inventory, item) ) {
-                inv_add_item(me->inventory, item);
+                if (itm_insert_item(item, map, &monster->pos) == false) {
+                    itm_destroy(item);
+                }
             }
         }
     }
@@ -241,20 +242,34 @@ bool msr_remove_monster(struct msr_monster *monster, struct dc_map *map) {
     return retval;
 }
 
-int msr_calculate_armour(struct msr_monster *monster, int hit_loc_roll) {
+int msr_calculate_armour(struct msr_monster *monster, enum msr_hit_location mhl) {
     if (msr_verify_monster(monster) == false) return -1;
     return MSR_HITLOC_CHEST;
 }
 
-bool msr_do_dmg(struct msr_monster *monster, int dmg, int pen, int hit_loc_roll) {
+enum msr_hit_location msr_get_hit_location(struct msr_monster *monster, int hit_roll) {
+    if (hit_roll > 99) hit_roll %= 100;
+
+    /* Human hitloc */
+    if (hit_roll >= 85) return MSR_HITLOC_LEFT_LEG;
+    if (hit_roll >= 70) return MSR_HITLOC_RIGHT_LEG;
+    if (hit_roll >= 30) return MSR_HITLOC_CHEST;
+    if (hit_roll >= 20) return MSR_HITLOC_LEFT_ARM;
+    if (hit_roll >= 10) return MSR_HITLOC_RIGHT_ARM;
+    return MSR_HITLOC_HEAD;
+}
+
+bool msr_do_dmg(struct msr_monster *monster, int dmg, enum msr_hit_location mhl) {
     if (msr_verify_monster(monster) == false) return false;
 
-    int armour = MIN(msr_calculate_armour(monster, hit_loc_roll) - pen, 0);
-    int toughness = msr_calculate_characteristic(monster, MSR_CHAR_TOUGHNESS) / 10;
-    dmg = dmg - (armour + toughness);
     if (dmg > 0) {
-        monster->cur_wounds -= dmg;
-        /* do critical hits! */
+        if (monster->cur_wounds >0) {
+            monster->cur_wounds -= MIN(dmg, monster->cur_wounds);
+        }
+        else {
+            /* do critical hits! */
+            monster->dead = true;
+        }
         return true;
     }
     return false;
@@ -341,6 +356,7 @@ bool msr_weapon_type_check(struct msr_monster *monster, enum item_weapon_type ty
          if (wpn_is_type(inv_get_item_from_location(inv, INV_LOC_MAINHAND_WIELD), type) == false) return false;
     }
     else return false;
+
 
     return true;
 }

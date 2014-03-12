@@ -252,7 +252,7 @@ void win_destroy(struct hrl_window *window) {
 
 void update_screen(void) {
     mapwin_display_map(gbl_game->current_map, &gbl_game->player_data.player->pos);
-    charwin_refresh(&gbl_game->player_data);
+    charwin_refresh();
 }
 
 static int get_viewport(int p, int vps, int mps) {
@@ -261,13 +261,6 @@ static int get_viewport(int p, int vps, int mps) {
     if (p < hvps) return 0;
     if (p > (mps - hvps) ) return mps - vps;
     return p - hvps;
-
-    /*
-    int vp = p - (vps/2);
-    if (vp < 0) vp = 0;
-    if (vp >= mps) vp = mps-1;
-    return np;
-    */
 }
 
 static void mapwin_display_map_noref(struct dc_map *map, coord_t *player) {
@@ -287,34 +280,67 @@ static void mapwin_display_map_noref(struct dc_map *map, coord_t *player) {
     scr_c.x = get_viewport(player->x, map_win->cols, map->size.x-1);
     scr_c.y = get_viewport(player->y, map_win->lines, map->size.y-1);
 
+    bool map_see = gbl_game->args_info->map_flag;
+
     for (int xi = 0; xi < x_max; xi++) {
         for (int yi = 0; yi < y_max; yi++) {
             coord_t map_c = cd_create(xi+scr_c.x, yi+scr_c.y);
-            if ( (sd_get_map_me(&map_c, map)->visible == true) || 
-                 (sd_get_map_me(&map_c, map)->discovered == true) || 
-                 (gbl_game->args_info->map_flag == true) ) {
-                int attr_mod = sd_get_map_tile(&map_c, map)->icon_attr;
-                char icon = sd_get_map_tile(&map_c, map)->icon;
+            struct dc_map_entity *me = sd_get_map_me(&map_c, map);
+            struct tl_tile *tile = me->tile;
 
-                if (sd_get_map_me(&map_c, map)->visible == true) {
-                    if (sd_get_map_me(&map_c, map)->monster != NULL) {
-                        icon = sd_get_map_me(&map_c, map)->monster->icon;
-                        attr_mod = sd_get_map_me(&map_c, map)->monster->icon_attr;
-                    }
-                    else if (TILE_HAS_ATTRIBUTE(sd_get_map_tile(&map_c, map), TILE_ATTR_TRAVERSABLE) == false) {
-                        attr_mod = COLOR_PAIR(DPL_COLOUR_FG_YELLOW);
-                    }
-                    else if (inv_inventory_size(sd_get_map_me(&map_c, map)->inventory) > 0) {
-                        struct itm_item *i = inv_get_next_item(sd_get_map_me(&map_c, map)->inventory, NULL);
-                        icon = i->icon;
-                        attr_mod = i->icon_attr;
-                    }
-                    else if (TILE_HAS_ATTRIBUTE(sd_get_map_tile(&map_c, map), TILE_ATTR_TRAVERSABLE) == true){
-                        attr_mod |= A_BOLD;
+            if ( (me->visible == true) || (me->discovered == true) || (map_see == true) ) {
+                int attr_mod = tile->icon_attr;
+                char icon = tile->icon;
+                bool modified = false;
+
+                /* Modify wall colour */
+                if (modified == false) {
+                    if (me->visible == true) {
+                        if (TILE_HAS_ATTRIBUTE(tile, TILE_ATTR_TRAVERSABLE) == false) {
+                            attr_mod = COLOR_PAIR(DPL_COLOUR_FG_YELLOW);
+                            modified = true;
+                        }
                     }
                 }
-                else if (TILE_HAS_ATTRIBUTE(sd_get_map_tile(&map_c, map), TILE_ATTR_TRAVERSABLE) ){
-                    attr_mod |= A_DIM;
+
+                /* First see monster */
+                if (modified == false) {
+                    if ( (me->visible == true) || (map_see) ) {
+                        if (me->monster != NULL) {
+                            icon = me->monster->icon;
+                            attr_mod = me->monster->icon_attr;
+                            modified = true;
+                        }
+                    }
+                }
+                /* Else see items */
+                if (modified == false) {
+                    if ( (me->visible == true) || (map_see) ) {
+                        if (inv_inventory_size(me->inventory) > 0) {
+                            struct itm_item *i = inv_get_next_item(me->inventory, NULL);
+                            icon = i->icon;
+                            attr_mod = i->icon_attr;
+                            modified = true;
+                        }
+                    }
+                }
+                /* Otherwise bright tile */
+                if (modified == false) {
+                    if (me->visible == true) {
+                        if (TILE_HAS_ATTRIBUTE(tile, TILE_ATTR_TRAVERSABLE) == true){
+                            attr_mod |= A_BOLD;
+                            modified = true;
+                        }
+                    }
+                }
+
+                /* finaly, if out of direct sight, dim tile */
+                if (modified == false) {
+                    if (me->visible == false) {
+                        if (TILE_HAS_ATTRIBUTE(tile, TILE_ATTR_TRAVERSABLE) ){
+                            attr_mod |= A_DIM;
+                        }
+                    }
                 }
 
                 if (has_colors() == TRUE) wattron(map_win->win, attr_mod);
@@ -415,13 +441,14 @@ void mapwin_overlay_examine_cursor(struct dc_map *map, coord_t *p_pos) {
         if (examine_mode == false) break;
 
         if (e_pos.y < 0) e_pos.y = 0;
-        if (e_pos.y >= map->size.y -1) e_pos.y = map->size.y;
+        if (e_pos.y >= map->size.y) e_pos.y = map->size.y -1;
         if (e_pos.x < 0) e_pos.x = 0;
-        if (e_pos.x >= map->size.y -1) e_pos.x = map->size.x;
+        if (e_pos.x >= map->size.x) e_pos.x = map->size.x -1;
 
         delwin(map_win_ex);
         map_win_ex = mapwin_examine(sd_get_map_me(&e_pos, map) );
 
+        lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "ui", "examining pos: (%d,%d), plr (%d,%d)", e_pos.x, e_pos.y, p_pos->x, p_pos->y);
         chtype oldch = mvwinch(map_win->win, e_pos.y - scr_y, e_pos.x - scr_x);
         mvwchgat(map_win->win, e_pos.y - scr_y, e_pos.x - scr_x, 1, A_NORMAL, DPL_COLOUR_BGB_RED, NULL);
         wrefresh(map_win->win);
@@ -506,9 +533,9 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dc_map *map, coord_t *
         if (fire_mode == false) break;
 
         if (e_pos.y < 0) e_pos.y = 0;
-        if (e_pos.y >= map->size.y -1) e_pos.y = map->size.y;
+        if (e_pos.y >= map->size.y) e_pos.y = map->size.y -1;
         if (e_pos.x < 0) e_pos.x = 0;
-        if (e_pos.x >= map->size.y -1) e_pos.x = map->size.x;
+        if (e_pos.x >= map->size.x) e_pos.x = map->size.x -1;
 
         length = cd_pyth(p_pos, &e_pos) +1;
         path_len = fght_calc_lof_path(p_pos, &e_pos, path, ARRAY_SZ(path));
@@ -537,11 +564,11 @@ void msgwin_log_refresh(struct logging *lg) {
     int log_start = 0;
 
     int game_lvl_sz = 0;
-    for (int i = log_sz -1; i > 0; i--) {
-        tmp_entry = (struct log_entry *) queue_peek_nr(q, i);
+    for (int i = log_sz; i > 0; i--) {
+        tmp_entry = (struct log_entry *) queue_peek_nr(q, i-1);
         if ( (tmp_entry != NULL) && (tmp_entry->level <= LG_DEBUG_LEVEL_GAME) ) {
             game_lvl_sz++;
-            log_start = i;
+            log_start = i -1;
             if (game_lvl_sz == max) i = 0;
         }
     }
@@ -563,9 +590,10 @@ void msgwin_log_callback(struct logging *lg, struct log_entry *entry, void *priv
     msgwin_log_refresh(lg);
 }
 
-void charwin_refresh(struct pl_player *plr) {
+void charwin_refresh() {
     if (char_win == NULL) return;
-    if (plr == NULL) return;
+     struct pl_player *plr = &gbl_game->player_data;
+     if (plr == NULL) return;
     if (char_win->type != HRL_WINDOW_TYPE_CHARACTER) return;
     werase(char_win->win);
 
@@ -610,7 +638,7 @@ void charwin_refresh(struct pl_player *plr) {
             if (item->item_type == ITEM_TYPE_WEAPON) {
                 struct item_weapon_specific *wpn = &item->specific.weapon;
                 mvwprintw(char_win->win, y++,x, "%s Wpn: %s", (i==0) ? "Main" : "Secondary", item->sd_name);
-                mvwprintw(char_win->win, y++,x, "  Dmg: %dD10 +%d", wpn->nr_dmg_die, wpn->dmg_addition);
+                mvwprintw(char_win->win, y++,x, "  Dmg: %dD10 +%d   Pen: %d", wpn->nr_dmg_die, wpn->dmg_addition, wpn->penetration);
                 if (wpn->weapon_type == WEAPON_TYPE_RANGED) {
                     mvwprintw(char_win->win, y++,x, "  Ammo: %d/%d", wpn->magazine_left, wpn->magazine_sz);
                     int single = wpn->rof[WEAPON_ROF_SETTING_SINGLE];
@@ -763,7 +791,7 @@ bool invwin_inventory(struct dc_map *map, struct pl_player *plr) {
                     item = invlist[item_idx +invstart].item;
                     free(invlist);
                     delwin(invwin);
-                    charwin_refresh(plr);
+                    charwin_refresh();
                     mapwin_display_map(map, &plr->player->pos);
 
                     return ma_do_use(plr->player, item);
@@ -773,7 +801,7 @@ bool invwin_inventory(struct dc_map *map, struct pl_player *plr) {
                     mvwprintw(invwin, winsz, 1, "Wear which item?.");
                     wrefresh(invwin);
                     delwin(invwin_ex);
-                    charwin_refresh(plr);
+                    charwin_refresh();
 
                     int item_idx = inp_get_input_idx();
                     if (item_idx == INP_KEY_ESCAPE) break;
@@ -781,7 +809,7 @@ bool invwin_inventory(struct dc_map *map, struct pl_player *plr) {
                     item = invlist[item_idx +invstart].item;
                     free(invlist);
                     delwin(invwin);
-                    charwin_refresh(plr);
+                    charwin_refresh();
                     mapwin_display_map(map, &plr->player->pos);
 
                     if (inv_get_item_location(plr->player->inventory, item) == INV_LOC_INVENTORY) {
@@ -796,7 +824,7 @@ bool invwin_inventory(struct dc_map *map, struct pl_player *plr) {
                     mvwprintw(invwin, winsz, 1, "Examine which item?.");
                     wrefresh(invwin);
                     delwin(invwin_ex);
-                    charwin_refresh(plr);
+                    charwin_refresh();
 
                     int item_idx = inp_get_input_idx();
                     if (item_idx == INP_KEY_ESCAPE) break;
@@ -811,7 +839,7 @@ bool invwin_inventory(struct dc_map *map, struct pl_player *plr) {
                     mvwprintw(invwin, winsz, 1, "Drop which item?.");
                     wrefresh(invwin);
                     delwin(invwin_ex);
-                    charwin_refresh(plr);
+                    charwin_refresh();
 
                     invsz = inv_inventory_size(plr->player->inventory);
                     int item_idx = inp_get_input_idx();
@@ -827,7 +855,7 @@ bool invwin_inventory(struct dc_map *map, struct pl_player *plr) {
         }
 
         if (invwin_ex == NULL) {
-            charwin_refresh(plr);
+            charwin_refresh();
         }
 
     } while((inventory != false) && (ch = inp_get_input() ) != INP_KEY_ESCAPE);
@@ -836,7 +864,7 @@ bool invwin_inventory(struct dc_map *map, struct pl_player *plr) {
     delwin(invwin);
 
     mapwin_display_map(map, &plr->player->pos);
-    charwin_refresh(plr);
+    charwin_refresh();
 
     return false;
 }

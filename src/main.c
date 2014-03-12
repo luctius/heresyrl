@@ -52,7 +52,6 @@ int main(int argc, char *argv[]) {
 
     cbreak();
     noecho();
-    //timeout(1);
     keypad(stdscr, TRUE);
 
     game_load();
@@ -78,13 +77,17 @@ int main(int argc, char *argv[]) {
     }
 
     game_exit();
+
+    lg_printf("Goodbye :)");
+    timeout(500);
+    getch();
+
     ui_destroy();
 
     clear();
     refresh();          //  Print it on to the real screen
     endwin();           //  End curses mode
 
-    lg_printf("Goodbye :)");
     lg_exit(gbl_log);
     return 0;
 }

@@ -373,7 +373,9 @@ static bool load_monsters(lua_State *L, struct dc_map *map, struct gm_game *g) {
             for (int j = 0; j < items_sz; j++) {
                 if (lua_intexpr(L, &t, "game.monsters[%d].items[%d].uid", i+1,j+1) == 1) {
                     item = itmlst_item_by_uid(t);
-                    inv_add_item(monster->inventory,item);
+                    if (msr_give_item(monster, item) == false) {
+                        itm_destroy(item);
+                    }
                     if (lua_intexpr(L, &t, "game.monsters[%d].items[%d].position", i+1,j+1) == 1) {
                         enum inv_locations loc = t;
                         inv_move_item_to_location(monster->inventory, item, loc);

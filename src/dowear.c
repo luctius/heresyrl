@@ -98,7 +98,6 @@ bool dw_wear_item(struct msr_monster *monster, struct itm_item *item) {
                  if (wpn_is_type(item, WEAPON_TYPE_RANGED) )   retval = wield_ranged_weapon(monster, item); break;
                  if (wpn_is_type(item, WEAPON_TYPE_MELEE) )    retval = wield_melee_weapon(monster, item);  break;
                  if (wpn_is_type(item, WEAPON_TYPE_THROWN) )   retval = false;
-                 if (wpn_is_type(item, WEAPON_TYPE_CREATURE) ) retval = false; /*TODO add wield_creature_weapon*/
                  break;
         default: break;
     }
@@ -203,10 +202,7 @@ bool dw_can_wear_item(struct msr_monster *monster, struct itm_item *item) {
         case ITEM_TYPE_WEAPON:
                  if (wpn_is_type(item, WEAPON_TYPE_RANGED) )   retval = true; break;
                  if (wpn_is_type(item, WEAPON_TYPE_MELEE) )    retval = true; break;
-                 if (wpn_is_type(item, WEAPON_TYPE_THROWN) )   retval = false;
-                 if (wpn_is_type(item, WEAPON_TYPE_CREATURE) ) 
-                    /*TODO add checks here*/
-                    retval = false; break;
+                 if (wpn_is_type(item, WEAPON_TYPE_THROWN) )   retval = false; break;
         default: break;
     }
 

@@ -117,6 +117,7 @@ bool itm_insert_item(struct itm_item *item, struct dc_map *map, coord_t *pos) {
     if (itm_verify_item(item) == false) return false;
     if (dc_verify_map(map) == false) return false;
     if (cd_within_bound(pos, &map->size) == false) return false;
+    if (item->dropable == false) return false;
 
     struct dc_map_entity *target = sd_get_map_me(pos, map);
     if (TILE_HAS_ATTRIBUTE(target->tile, TILE_ATTR_TRAVERSABLE) ) {

@@ -34,8 +34,8 @@ void inv_exit(struct inv_inventory *inv);
 bool inv_verify_inventory(struct inv_inventory *inv);
 
 bool inv_has_item(struct inv_inventory *inv, struct itm_item *item);
-bool inv_add_item(struct inv_inventory *inv, struct itm_item *item);
-bool inv_remove_item(struct inv_inventory *inv, struct itm_item *item);
+bool inv_add_item(struct inv_inventory *inv, struct itm_item *item); /*Internal use only !!*/
+bool inv_remove_item(struct inv_inventory *inv, struct itm_item *item); /*Internal use only!!*/
 struct itm_item *inv_get_next_item(struct inv_inventory *inv, struct itm_item *prev);
 int inv_inventory_size(struct inv_inventory *inv);
 

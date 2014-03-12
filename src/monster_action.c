@@ -132,12 +132,14 @@ bool ma_do_pickup(struct msr_monster *monster, struct itm_item *items[], int nr_
         struct dc_map_entity *me = sd_get_map_me(&monster->pos, gbl_game->current_map);
         if (me != NULL) {
             if (inv_has_item(me->inventory, items[i]) == true) {
-                if (msr_give_item(monster, items[i]) == true) {
-                    inv_remove_item(me->inventory, items[i]);
-                    monster->energy -= MSR_ACTION_PICKUP;
+                if (inv_remove_item(me->inventory, items[i]) == true) {
+                    if (msr_give_item(monster, items[i]) == true) {
+                        monster->energy -= MSR_ACTION_PICKUP;
 
-                    You_action(monster, "picked up %s.", items[i]->ld_name);
-                    Monster_action(monster, "picked up %s.", items[i]->ld_name);
+                        You_action(monster, "picked up %s.", items[i]->ld_name);
+                        Monster_action(monster, "picked up %s.", items[i]->ld_name);
+                    }
+                    else itm_destroy(items[i]);
                 }
             }
         }

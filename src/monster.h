@@ -130,6 +130,7 @@ struct msr_monster {
 
     uint8_t cur_wounds;
     uint8_t max_wounds;
+    bool dead;
     uint8_t fatepoints;
     uint32_t energy;
 
@@ -168,8 +169,9 @@ bool msr_remove_item(struct msr_monster *monster, struct itm_item *item);
 
 int msr_calculate_characteristic(struct msr_monster *monster, enum msr_characteristic chr);
 int msr_calculate_characteristic_bonus(struct msr_monster *monster, enum msr_characteristic chr);
-int msr_calculate_armour(struct msr_monster *monster, int hit_loc_roll);
-bool msr_do_dmg(struct msr_monster *monster, int dmg, int pen, int hit_loc_roll);
+int msr_calculate_armour(struct msr_monster *monster, enum msr_hit_location hitloc);
+bool msr_do_dmg(struct msr_monster *monster, int dmg, enum msr_hit_location hitloc);
+enum msr_hit_location msr_get_hit_location(struct msr_monster *monster, int hit_roll); /* hitroll, from 0-99*/
 
 int msr_get_near_sight_range(struct msr_monster *monster);
 int msr_get_far_sight_range(struct msr_monster *monster);
