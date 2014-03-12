@@ -20,10 +20,14 @@
 #include "dungeon_creator.h"
 #include "monster.h"
  */
+/* If monster is player, output it, else stay silent. */
 #define You(monster, format, args...) if (monster->is_player == true) { lg_printf("%s " format, "You",  ##args); }
-#define You_action(monster, format, args...) if (monster->is_player == true) { lg_printf("%s " format, "You",  ##args); }
-#define Monster_action(monster, format, args...) if (monster->is_player == false) { if (sd_get_map_me(&monster->pos, gbl_game->current_map)->visible) lg_printf("%s " format, monster->ld_name,  ##args); }
+/* If monster is player, output it, else stay silent. */
 #define Your(monster, format, args...) if (monster->is_player == true) { lg_printf("%s " format, "Your",  ##args); }
+/* If monster is player, output it, else stay silent. */
+#define You_action(monster, format, args...) if (monster->is_player == true) { lg_printf("%s " format, "You",  ##args); }
+/* if monster is a monster, but is on a visible square, output it. */
+#define Monster_action(monster, format, args...) if (monster->is_player == false) { if (sd_get_map_me(&monster->pos, gbl_game->current_map)->visible) lg_printf("%s " format, monster->ld_name,  ##args); }
 
 struct gm_game;
 struct tl_tile;
