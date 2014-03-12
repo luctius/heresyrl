@@ -210,6 +210,8 @@ enum item_owner {
 };
 
 struct itm_item {
+    int item_pre;
+
     uint32_t uid;
     uint32_t template_id;
     enum item_types item_type;
@@ -243,6 +245,8 @@ struct itm_item {
         struct item_tool_specific tool;
         struct item_wearable_specific wearable;
     } specific;
+
+    int item_post;
 };
 
 void itmlst_items_list_init(void);
@@ -253,6 +257,7 @@ struct itm_item *itmlst_item_by_uid(uint32_t uid);
 struct itm_item *itm_generate(enum item_types type);
 struct itm_item *itm_create(int template_id);
 void itm_destroy(struct itm_item *item);
+bool itm_verify_item(struct itm_item *item);
 bool itm_insert_item(struct itm_item *item, struct dc_map *map, coord_t *pos);
 bool itm_remove_item(struct itm_item *item, struct dc_map *map, coord_t *pos);
 coord_t itm_get_pos(struct itm_item *item);

@@ -3,6 +3,7 @@
 #include <string.h>
 #include <sys/param.h>
 #include <ncurses.h>
+#include <assert.h>
 
 #include "dungeon_creator.h"
 #include "monster.h"
@@ -59,6 +60,9 @@ static uint32_t msrlst_next_id(void) {
     return uid;
 }
 
+#define MONSTER_PRE_CHECK (10477)
+#define MONSTER_POST_CHECK (10706)
+
 struct msr_monster *msr_create(uint32_t template_id) {
     if (monster_list_initialised == false) msrlst_monster_list_init();
     if (template_id >= (int) ARRAY_SZ(static_monster_list)) return NULL;
@@ -74,6 +78,9 @@ struct msr_monster *msr_create(uint32_t template_id) {
         m->monster.energy = MSR_ENERGY_FULL;
         m->monster.faction = 1;
         m->monster.inventory = NULL;
+
+        m->monster.monster_pre = MONSTER_PRE_CHECK;
+        m->monster.monster_post = MONSTER_POST_CHECK;
 
         switch (m->monster.race) {
             case MSR_RACE_HUMAN:
@@ -92,8 +99,8 @@ struct msr_monster *msr_create(uint32_t template_id) {
 }
 
 void msr_die(struct msr_monster *monster, struct dc_map *map) {
-    if (monster == NULL) return;
-    if (map == NULL) return;
+    if (msr_verify(monster) == false) return;
+    if (dc_verify_map(map) == false) return;
     struct msr_monster_list_entry *target_mle = container_of(monster, struct msr_monster_list_entry, monster);
 
     inv_exit(monster->inventory);
@@ -103,8 +110,16 @@ void msr_die(struct msr_monster *monster, struct dc_map *map) {
     free(target_mle);
 }
 
+bool msr_verify(struct msr_monster *monster) {
+    assert(monster != NULL);
+    assert(monster->monster_pre == MONSTER_PRE_CHECK);
+    assert(monster->monster_post == MONSTER_POST_CHECK);
+
+    return true;
+}
+
 void msr_assign_controller(struct msr_monster *monster, struct monster_controller *controller) {
-    if (monster == NULL) return;
+    if (msr_verify(monster) == false) return;
     if (controller == NULL) return;
     memcpy(&monster->controller, controller, sizeof(struct monster_controller) );
 }
@@ -112,8 +127,8 @@ void msr_assign_controller(struct msr_monster *monster, struct monster_controlle
 
 bool msr_insert_monster(struct msr_monster *monster, struct dc_map *map, coord_t *pos) {
     bool retval = false;
-    if (monster == NULL) return false;
-    if (map == NULL) return false;
+    if (msr_verify(monster) == false) return false;
+    if (dc_verify_map(map) == false) return false;
     if (cd_within_bound(pos, &map->size) == false) return false;
 
     struct dc_map_entity *me_future = sd_get_map_me(pos, map);
@@ -132,8 +147,8 @@ bool msr_insert_monster(struct msr_monster *monster, struct dc_map *map, coord_t
 
 bool msr_move_monster(struct msr_monster *monster, struct dc_map *map, coord_t *pos) {
     bool retval = false;
-    if (monster == NULL) return false;
-    if (map == NULL) return false;
+    if (msr_verify(monster) == false) return false;
+    if (dc_verify_map(map) == false) return false;
     if (cd_within_bound(pos, &map->size) == false) return false;
     if (cd_equal(&monster->pos, pos) == true ) return false;
 
@@ -158,8 +173,8 @@ bool msr_move_monster(struct msr_monster *monster, struct dc_map *map, coord_t *
     return retval;
 }
 bool msr_give_item(struct msr_monster *monster, struct itm_item *item) {
-    if (monster == NULL) return false;
-    if (item == NULL) return false;
+    if (msr_verify(monster) == false) return false;
+    if (itm_verify_item(item) == false) return false;
     if (inv_has_item(monster->inventory, item) == true) return false;
 
     if (inv_add_item(monster->inventory, item) == true) {
@@ -171,8 +186,8 @@ bool msr_give_item(struct msr_monster *monster, struct itm_item *item) {
 }
 
 bool msr_remove_item(struct msr_monster *monster, struct itm_item *item) {
-    if (monster == NULL) return false;
-    if (item == NULL) return false;
+    if (msr_verify(monster) == false) return false;
+    if (itm_verify_item(item) == false) return false;
     if (inv_has_item(monster->inventory, item) == false) return false;
 
     if (inv_remove_item(monster->inventory, item) == true) {
@@ -183,19 +198,19 @@ bool msr_remove_item(struct msr_monster *monster, struct itm_item *item) {
 }
 
 int msr_get_near_sight_range(struct msr_monster *monster) {
-    if (monster == NULL) return -1;
+    if (msr_verify(monster) == false) return -1;
     return (msr_calculate_characteristic(monster, MSR_CHAR_PERCEPTION) * 2) / 10;
 }
 
 int msr_get_far_sight_range(struct msr_monster *monster) {
-    if (monster == NULL) return -1;
+    if (msr_verify(monster) == false) return -1;
     return (msr_calculate_characteristic(monster, MSR_CHAR_PERCEPTION) / 10);
 }
 
 bool msr_remove_monster(struct msr_monster *monster, struct dc_map *map) {
     bool retval = false;
-    if (monster == NULL) return false;
-    if (map == NULL) return false;
+    if (msr_verify(monster) == false) return false;
+    if (dc_verify_map(map) == false) return false;
 
     struct dc_map_entity *me_current = sd_get_map_me(&monster->pos, map);
     if (me_current->monster == monster) {
@@ -209,10 +224,13 @@ bool msr_remove_monster(struct msr_monster *monster, struct dc_map *map) {
 }
 
 int msr_calculate_armour(struct msr_monster *monster, int hit_loc_roll) {
+    if (msr_verify(monster) == false) return -1;
     return MSR_HITLOC_CHEST;
 }
 
 bool msr_do_dmg(struct msr_monster *monster, int dmg, int pen, int hit_loc_roll) {
+    if (msr_verify(monster) == false) return false;
+
     int armour = MIN(msr_calculate_armour(monster, hit_loc_roll) - pen, 0);
     int toughness = msr_calculate_characteristic(monster, MSR_CHAR_TOUGHNESS) / 10;
     dmg = dmg - (armour + toughness);
@@ -225,13 +243,13 @@ bool msr_do_dmg(struct msr_monster *monster, int dmg, int pen, int hit_loc_roll)
 }
 
 int msr_calculate_characteristic(struct msr_monster *monster, enum msr_characteristic chr) {
-    if (monster == NULL) return -1;
+    if (msr_verify(monster) == false) return -1;
     if (chr >= MSR_CHAR_MAX) return -1;
     return monster->characteristic[chr].base_value + (monster->characteristic[chr].advancement * 5);
 }
 
 int msr_calculate_characteristic_bonus(struct msr_monster *monster, enum msr_characteristic chr) {
-    if (monster == NULL) return -1;
+    if (msr_verify(monster) == false) return -1;
     if (chr >= MSR_CHAR_MAX) return -1;
     if (chr == MSR_CHAR_WEAPON_SKILL) return -1;
     if (chr == MSR_CHAR_BALISTIC_SKILL) return -1;
@@ -239,7 +257,7 @@ int msr_calculate_characteristic_bonus(struct msr_monster *monster, enum msr_cha
 }
 
 char *msr_gender_string(struct msr_monster *monster) {
-    if (monster == NULL) return "nil";
+    if (msr_verify(monster) == false) return "nil";
     switch (monster->gender) {
         case MSR_GENDER_MALE: return "Male";
         case MSR_GENDER_FEMALE: return "Female";
@@ -250,7 +268,7 @@ char *msr_gender_string(struct msr_monster *monster) {
 }
 
 bool msr_weapons_check(struct msr_monster *monster) {
-    if (monster == NULL) return false;
+    if (msr_verify(monster) == false) return false;
     if (monster->inventory == NULL) return false;
     if (monster->wpn_sel >= MSR_WEAPON_SELECT_MAX) return false;
 
@@ -311,7 +329,7 @@ bool msr_weapon_type_check(struct msr_monster *monster, enum item_weapon_type ty
 }
 
 bool msr_weapon_next_selection(struct msr_monster *monster) {
-    if (monster == NULL) return false;
+    if (msr_verify(monster) == false) return false;
     if (monster->inventory == NULL) return false;
 
     if ( (inv_loc_empty(monster->inventory, INV_LOC_MAINHAND_WIELD) == true) &&

@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <assert.h>
 
 #include "tiles.h"
 #include "random.h"
@@ -16,6 +17,12 @@
 
 extern inline struct dc_map_entity *sd_get_map_me(coord_t *c, struct dc_map *map);
 extern inline struct tl_tile *sd_get_map_tile(coord_t *c, struct dc_map *map);
+static bool dc_clear_map_unsafe(struct dc_map *map);
+
+#define MAP_PRE_CHECK (13300)
+#define MAP_POST_CHECK (3600)
+#define MAPENTITY_PRE_CHECK (320)
+#define MAPENTITY_POST_CHECK (7936)
 
 struct dc_map *dc_alloc_map(int x_sz, int y_sz) {
     if (x_sz < 2) return NULL;
@@ -25,13 +32,18 @@ struct dc_map *dc_alloc_map(int x_sz, int y_sz) {
     struct dc_map *map = malloc(sz);
     if (map == NULL) return NULL;
 
+    map->map_pre = MAP_PRE_CHECK;
+    map->map_post = MAP_POST_CHECK;
     map->size = cd_create(x_sz, y_sz);
     map->seed = 0;
+
+    dc_clear_map_unsafe(map);
+
     return map;
 }
 
-int dc_free_map(struct dc_map *map) {
-    if (map == NULL) return EXIT_SUCCESS;
+bool dc_free_map(struct dc_map *map) {
+    if (dc_verify_map(map) == false) return false;
 
     coord_t c = cd_create(0,0);
     for (c.x = 0; c.x < map->size.x; c.x++) {
@@ -41,14 +53,62 @@ int dc_free_map(struct dc_map *map) {
     }
 
     free(map);
-    return EXIT_SUCCESS;
+    return true;
 }
 
-int dc_print_map(struct dc_map *map) {
-    if (map == NULL) return EXIT_FAILURE;
-    if (map->size.x < 2) return EXIT_FAILURE;
-    if (map->size.y < 2) return EXIT_FAILURE;
-    if (map->map == NULL) return EXIT_FAILURE;
+static bool dc_clear_map_unsafe(struct dc_map *map) {
+    coord_t c = cd_create(0,0);
+    for (c.x = 0; c.x < map->size.x; c.x++) {
+        for (c.y = 0; c.y < map->size.y; c.y++) {
+            sd_get_map_me(&c,map)->map_entity_pre = MAPENTITY_PRE_CHECK;
+            sd_get_map_me(&c,map)->map_entity_post = MAPENTITY_POST_CHECK;
+
+            sd_get_map_me(&c,map)->pos = c;
+            sd_get_map_me(&c,map)->in_sight = false;
+            sd_get_map_me(&c,map)->visible = false;
+            sd_get_map_me(&c,map)->discovered = false;
+            sd_get_map_me(&c,map)->light_level = 0;
+            sd_get_map_me(&c,map)->general_var = 0;
+            sd_get_map_me(&c,map)->monster = NULL;
+
+            if (sd_get_map_me(&c,map)->inventory != NULL) inv_exit(sd_get_map_me(&c,map)->inventory);
+            sd_get_map_me(&c,map)->inventory = inv_init(inv_loc_tile);
+
+            if (sd_get_map_tile(&c,map) != NULL) {
+                if (TILE_HAS_ATTRIBUTE(sd_get_map_tile(&c,map), TILE_ATTR_LIGHT_SOURCE) ) {
+                    struct itm_item *i = itm_create(ITEM_ID_FIXED_LIGHT);
+                    inv_add_item(sd_get_map_me(&c,map)->inventory, i);
+                    i->specific.tool.lit = true;
+                }
+            }
+        }
+    }
+    return true;
+}
+
+bool dc_verify_map(struct dc_map *map) {
+    assert(map != NULL);
+    assert(map->map_pre == MAP_PRE_CHECK);
+    assert(map->map_post == MAP_POST_CHECK);
+    assert(map->size.x > 2);
+    assert(map->size.y > 2);
+    assert(map->map != NULL);
+
+    coord_t c = cd_create(0,0);
+    struct dc_map_entity *me = sd_get_map_me(&c, map);
+    assert(me->map_entity_pre = MAPENTITY_PRE_CHECK);
+    assert(me->map_entity_post = MAPENTITY_POST_CHECK);
+
+    c = cd_create(map->size.x -1, map->size.y -1);
+    me = sd_get_map_me(&c, map);
+    assert(me->map_entity_pre = MAPENTITY_PRE_CHECK);
+    assert(me->map_entity_post = MAPENTITY_POST_CHECK);
+
+    return true;
+}
+
+bool dc_print_map(struct dc_map *map) {
+    if (dc_verify_map(map) == false) return false;
 
     coord_t c;
     for (c.y = 0; c.y < map->size.y; c.y++) {
@@ -59,10 +119,12 @@ int dc_print_map(struct dc_map *map) {
     }
     putchar('\n');
 
-    return EXIT_SUCCESS;
+    return true;
 }
 
 bool dc_tile_instance(struct dc_map *map, enum tile_types tt, int instance, coord_t *pos) {
+    if (dc_verify_map(map) == false) return false;
+
     coord_t c;
     for (c.x = 0; c.x < map->size.x; c.x++) {
         for (c.y = 0; c.y < map->size.y; c.y++) {
@@ -79,10 +141,7 @@ bool dc_tile_instance(struct dc_map *map, enum tile_types tt, int instance, coor
 }
 
 static bool dc_generate_map_simple(struct dc_map *map, struct random *r, enum dc_dungeon_type type, int level) {
-    if (map == NULL) return false;
-    if (map->size.x < 2) return false;
-    if (map->size.y < 2) return false;
-    if (map->map == NULL) return false;
+    if (dc_verify_map(map) == false) return false;
 
     coord_t c;
     for (c.x = 0; c.x < map->size.x; c.x++) {
@@ -96,6 +155,8 @@ static bool dc_generate_map_simple(struct dc_map *map, struct random *r, enum dc
 }
 
 static void dc_add_stairs(struct dc_map *map, struct random *r) {
+    if (dc_verify_map(map) == false) return false;
+
     struct tl_tile **tile_up = NULL;
     struct tl_tile **tile_down = NULL;
     struct tl_tile **tile_down_temp = NULL;
@@ -149,39 +210,14 @@ static void dc_add_stairs(struct dc_map *map, struct random *r) {
 }
 
 bool dc_clear_map(struct dc_map *map) {
-    if (map == NULL) return false;
-    if (map->size.x < 2) return false;
-    if (map->size.y < 2) return false;
-    if (map->map == NULL) return false;
+    if (dc_verify_map(map) == false) return false;
 
-    coord_t c = cd_create(0,0);
-    for (c.x = 0; c.x < map->size.x; c.x++) {
-        for (c.y = 0; c.y < map->size.y; c.y++) {
-            sd_get_map_me(&c,map)->pos = c;
-            sd_get_map_me(&c,map)->in_sight = false;
-            sd_get_map_me(&c,map)->visible = false;
-            sd_get_map_me(&c,map)->discovered = false;
-            sd_get_map_me(&c,map)->light_level = 0;
-            sd_get_map_me(&c,map)->general_var = 0;
-            sd_get_map_me(&c,map)->monster = NULL;
-            sd_get_map_me(&c,map)->inventory = inv_init(inv_loc_tile);
-            if (sd_get_map_tile(&c,map) != NULL) {
-                if (TILE_HAS_ATTRIBUTE(sd_get_map_tile(&c,map), TILE_ATTR_LIGHT_SOURCE) ) {
-                    struct itm_item *i = itm_create(ITEM_ID_FIXED_LIGHT);
-                    inv_add_item(sd_get_map_me(&c,map)->inventory, i);
-                    i->specific.tool.lit = true;
-                }
-            }
-        }
-    }
-    return true;
+    return dc_clear_map_unsafe(map);
 }
 
 bool dc_clear_map_visibility(struct dc_map *map, coord_t *start, coord_t *end) {
-    if (map == NULL) return false;
-    if (map->size.x < 2) return false;
-    if (map->size.y < 2) return false;
-    if (map->map == NULL) return false;
+    if (dc_verify_map(map) == false) return false;
+
     if (cd_within_bound(start, &map->size) == false) return false;
     if (end->x > map->size.x) return false;
     if (end->y > map->size.y) return false;
@@ -215,7 +251,8 @@ static unsigned int dc_traversable_callback(void *vmap, struct pf_coord *coord) 
 }
 
 bool dc_generate_map(struct dc_map *map, enum dc_dungeon_type type, int level, unsigned long seed) {
-    if (map == NULL) return false;
+    if (dc_verify_map(map) == false) return false;
+
     map->seed = seed;
     map->type = type;
     map->threat_lvl = level;

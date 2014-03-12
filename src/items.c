@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <string.h>
 #include <sys/queue.h>
 #include <ncurses.h>
@@ -75,6 +76,9 @@ struct itm_item *itm_generate(enum item_types type) {
     return NULL;
 }
 
+#define ITEM_PRE_CHECK (11867)
+#define ITEM_POST_CHECK (8708)
+
 struct itm_item *itm_create(int template_id) {
     if (template_id >= (int) ARRAY_SZ(static_item_list)) return NULL;
     if (items_list_initialised == false) itmlst_items_list_init();
@@ -84,6 +88,8 @@ struct itm_item *itm_create(int template_id) {
 
     memcpy(&i->item, &static_item_list[template_id], sizeof(static_item_list[template_id]));
     LIST_INSERT_HEAD(&items_list_head, i, entries);
+    i->item.item_pre = ITEM_PRE_CHECK;
+    i->item.item_post = ITEM_POST_CHECK;
     i->item.uid = itmlst_next_id();
     i->item.owner_type = ITEM_OWNER_NONE;
 
@@ -99,10 +105,17 @@ void itm_destroy(struct itm_item *item) {
     free(ile);
 }
 
+bool itm_verify_item(struct itm_item *item) {
+    assert(item != NULL);
+    assert(item->item_pre == ITEM_PRE_CHECK);
+    assert(item->item_post == ITEM_POST_CHECK);
+    return true;
+}
+
 bool itm_insert_item(struct itm_item *item, struct dc_map *map, coord_t *pos) {
     bool retval = false;
-    if (item == NULL) return false;
-    if (map == NULL) return false;
+    if (itm_verify_item(item) == false) return false;
+    if (dc_verify_map(map) == false) return false;
     if (cd_within_bound(pos, &map->size) == false) return false;
 
     struct dc_map_entity *target = sd_get_map_me(pos, map);
@@ -122,8 +135,8 @@ bool itm_insert_item(struct itm_item *item, struct dc_map *map, coord_t *pos) {
 
 bool itm_remove_item(struct itm_item *item, struct dc_map *map, coord_t *pos) {
     bool retval = false;
-    if (item == NULL) return false;
-    if (map == NULL) return false;
+    if (itm_verify_item(item) == false) return false;
+    if (dc_verify_map(map) == false) return false;
     if (cd_within_bound(pos, &map->size) == false) return false;
 
     struct dc_map_entity *target = sd_get_map_me(pos, map);
@@ -140,7 +153,7 @@ bool itm_remove_item(struct itm_item *item, struct dc_map *map, coord_t *pos) {
 }
 
 coord_t itm_get_pos(struct itm_item *item) {
-    if (item == NULL) return cd_create(0,0);
+    if (itm_verify_item(item) == false) return cd_create(0,0);
 
     switch (item->owner_type) {
         case ITEM_OWNER_MAP:        return item->owner.owner_map_entity->pos;
@@ -151,14 +164,14 @@ coord_t itm_get_pos(struct itm_item *item) {
 }
 
 bool wpn_is_type(struct itm_item *item, enum item_weapon_type type) {
-    if (item == NULL) return false;
+    if (itm_verify_item(item) == false) return false;
     if (item->item_type != ITEM_TYPE_WEAPON) return false;
     if (item->specific.weapon.weapon_type == type) return true;
     return false;
 }
 
 bool wpn_is_catergory(struct itm_item *item, enum item_weapon_category cat) {
-    if (item == NULL) return false;
+    if (itm_verify_item(item) == false) return false;
     if (item->item_type != ITEM_TYPE_WEAPON) return false;
     if (item->specific.weapon.weapon_category == cat) return true;
     return false;

@@ -281,7 +281,7 @@ static bool load_items_list(lua_State *L) {
         if (lua_intexpr(L, &t, "game.items[%d].template_id", i+1) == 0) return false;
         int template_id = t;
         struct itm_item *item = itm_create(template_id);
-        if (item == NULL) return false;
+        if (itm_verify_item(item) == false) return false;
 
         lua_intexpr(L, &t, "game.items[%d].uid", i+1); item->uid = t;
         lua_intexpr(L, &t, "game.items[%d].quality", i+1); item->quality = t;
@@ -330,7 +330,8 @@ static bool load_monsters(lua_State *L, struct dc_map *map, struct gm_game *g) {
 
         if (lua_intexpr(L, &t, "game.monsters[%d].template_id", i+1) == 0) return false;
         struct msr_monster *monster = msr_create(t);
-        if (monster == NULL) return false;
+        if (msr_verify(monster) == false) return false;
+
         monster->template_id = t;
         lua_intexpr(L, &t, "game.monsters[%d].uid", i+1); monster->uid = t;
         lua_intexpr(L, &t, "game.monsters[%d].race", i+1); monster->race = t;

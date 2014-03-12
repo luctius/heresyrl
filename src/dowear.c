@@ -1,10 +1,12 @@
+#include <assert.h>
+
 #include "monster.h"
 #include "items.h"
 #include "inventory.h"
 
 static bool wield_melee_weapon(struct msr_monster *monster, struct itm_item *item) {
-    if (monster == NULL) return false;
-    if (item == NULL) return false;
+    if (msr_verify(monster) == false) return false;
+    if (itm_verify_item(item) == false) return false;
     if (item->item_type != ITEM_TYPE_WEAPON) return false;
     if (wpn_is_type(item, WEAPON_TYPE_MELEE) == false) return false;
     struct item_weapon_specific *weapon = &item->specific.weapon;
@@ -41,8 +43,8 @@ static bool wield_melee_weapon(struct msr_monster *monster, struct itm_item *ite
 }
 
 static bool wield_ranged_weapon(struct msr_monster *monster, struct itm_item *item) {
-    if (monster == NULL) return false;
-    if (item == NULL) return false;
+    if (msr_verify(monster) == false) return false;
+    if (itm_verify_item(item) == false) return false;
     if (item->item_type != ITEM_TYPE_WEAPON) return false;
     if (wpn_is_type(item, WEAPON_TYPE_RANGED) == false) return false;
     struct item_weapon_specific *weapon = &item->specific.weapon;
@@ -78,8 +80,8 @@ static bool wield_ranged_weapon(struct msr_monster *monster, struct itm_item *it
 }
 
 bool dw_wear_item(struct msr_monster *monster, struct itm_item *item) {
-    if (monster == NULL) return false;
-    if (item == NULL) return false;
+    if (msr_verify(monster) == false) return false;
+    if (itm_verify_item(item) == false) return false;
     if (inv_has_item(monster->inventory, item) == false) return false;
     if (inv_get_item_location(monster->inventory, item) != INV_LOC_INVENTORY) return false;
     bool retval = false;
@@ -106,8 +108,8 @@ bool dw_wear_item(struct msr_monster *monster, struct itm_item *item) {
 }
 
 static bool dw_remove_weapon(struct msr_monster *monster, struct itm_item *item) {
-    if (monster == NULL) return false;
-    if (item == NULL) return false;
+    if (msr_verify(monster) == false) return false;
+    if (itm_verify_item(item) == false) return false;
     if (inv_has_item(monster->inventory, item) == false) return false;
     if (inv_get_item_location(monster->inventory, item) == INV_LOC_INVENTORY) return false;
     //struct item_weapon_specific *weapon = &item->specific.weapon;
@@ -121,8 +123,8 @@ static bool dw_remove_weapon(struct msr_monster *monster, struct itm_item *item)
 }
 
 bool dw_remove_item(struct msr_monster *monster, struct itm_item *item) {
-    if (monster == NULL) return false;
-    if (item == NULL) return false;
+    if (msr_verify(monster) == false) return false;
+    if (itm_verify_item(item) == false) return false;
     if (inv_has_item(monster->inventory, item) == false) return false;
     if (inv_get_item_location(monster->inventory, item) == INV_LOC_INVENTORY) return false;
     bool retval = false;
@@ -145,8 +147,8 @@ bool dw_remove_item(struct msr_monster *monster, struct itm_item *item) {
 }
 
 bool dw_use_item(struct msr_monster *monster, struct itm_item *item) {
-    if (monster == NULL) return false;
-    if (item == NULL) return false;
+    if (msr_verify(monster) == false) return false;
+    if (itm_verify_item(item) == false) return false;
     if (monster->inventory == NULL) {
         Your("inventory is empty.");
         return false;
@@ -167,8 +169,8 @@ bool dw_use_item(struct msr_monster *monster, struct itm_item *item) {
 }
 
 bool dw_can_wear_item(struct msr_monster *monster, struct itm_item *item) {
-    if (monster == NULL) return false;
-    if (item == NULL) return false;
+    if (msr_verify(monster) == false) return false;
+    if (itm_verify_item(item) == false) return false;
     if (inv_has_item(monster->inventory, item) == false) return false;
     if (inv_get_item_location(monster->inventory, item) != INV_LOC_INVENTORY) return false;
     bool retval = false;
@@ -192,8 +194,8 @@ bool dw_can_wear_item(struct msr_monster *monster, struct itm_item *item) {
 }
 
 bool dw_can_remove_item(struct msr_monster *monster, struct itm_item *item) {
-    if (monster == NULL) return false;
-    if (item == NULL) return false;
+    if (msr_verify(monster) == false) return false;
+    if (itm_verify_item(item) == false) return false;
     if (inv_has_item(monster->inventory, item) == false) return false;
     if (inv_get_item_location(monster->inventory, item) == INV_LOC_INVENTORY) return false;
 

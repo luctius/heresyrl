@@ -75,7 +75,7 @@ uint32_t spawn_monster(double roll) {
 }
 
 bool spwn_populate_map(struct dc_map *map, struct random *r, int generations) {
-    if (map == NULL) return false;
+    if (dc_verify_map(map) == false) return false;
     if (r == NULL) return false;
 
     for (int i = 0; i < generations; i++) {

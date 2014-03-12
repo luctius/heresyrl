@@ -111,6 +111,8 @@ struct monster_controller {
 };
 
 struct msr_monster {
+    uint32_t monster_pre;
+
     uint32_t uid;
     uint32_t template_id;
     coord_t pos;
@@ -145,6 +147,8 @@ struct msr_monster {
 
     enum msr_weapon_selection wpn_sel;
     struct inv_inventory *inventory;
+
+    uint32_t monster_post;
 };
 
 void msrlst_monster_list_init(void);
@@ -153,6 +157,8 @@ struct msr_monster *msrlst_get_next_monster(struct msr_monster *prev);
 
 struct msr_monster *msr_create(uint32_t template_id);
 void msr_die(struct msr_monster *monster, struct dc_map *map);
+bool msr_verify(struct msr_monster *monster);
+
 void msr_assign_controller(struct msr_monster *monster, struct monster_controller *controller);
 bool msr_insert_monster(struct msr_monster *monster, struct dc_map *map, coord_t *pos);
 bool msr_move_monster(struct msr_monster *monster, struct dc_map *map, coord_t *pos);

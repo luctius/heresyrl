@@ -13,6 +13,8 @@ enum dc_dungeon_type {
 };
 
 struct dc_map_entity {
+    uint32_t map_entity_pre;
+
     coord_t pos;
     char type;
     bool in_sight;
@@ -23,9 +25,13 @@ struct dc_map_entity {
     struct tl_tile *tile;
     struct msr_monster *monster;
     struct inv_inventory *inventory;
+
+    uint32_t map_entity_post;
 };
 
 struct dc_map {
+    uint32_t map_pre;
+
     coord_t size;
     unsigned int seed;
     enum dc_dungeon_type type;
@@ -33,6 +39,8 @@ struct dc_map {
 
     coord_t stair_up;
     coord_t stair_down;
+
+    uint32_t map_post;
 
     struct dc_map_entity map[];
 };
@@ -48,9 +56,10 @@ inline struct tl_tile *sd_get_map_tile(coord_t *c, struct dc_map *map) {
 }
 
 struct dc_map *dc_alloc_map(int x_sz, int y_sz);
-int dc_free_map(struct dc_map *map);
+bool dc_free_map(struct dc_map *map);
+bool dc_verify_map(struct dc_map *map);
 
-int dc_print_map(struct dc_map *map);
+bool dc_print_map(struct dc_map *map);
 bool dc_generate_map(struct dc_map *map, enum dc_dungeon_type type, int level, unsigned long seed);
 bool dc_tile_instance(struct dc_map *map, enum tile_types tt, int instance, coord_t *pos);
 bool dc_clear_map_visibility(struct dc_map *map, coord_t *start, coord_t *end);

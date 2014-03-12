@@ -138,7 +138,7 @@ static bool sv_save_items(FILE *file, int indent) {
 
 static bool sv_save_map(FILE *file, int indent, struct dc_map *map) {
     if (file == NULL) return false;
-    if (map == NULL) return false;
+    if (dc_verify_map(map) == false) return false;
     int sz = 0;
 
     fprintf(file, "%*s" "{\n", indent, ""); { indent += 2;

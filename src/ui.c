@@ -250,7 +250,7 @@ static void mapwin_display_map_noref(struct dc_map *map, coord_t *player) {
     coord_t scr_c = cd_create(0,0);
 
     if (map_win == NULL) return;
-    if (map == NULL) return;
+    if (dc_verify_map(map) == false) return;
     if (player == NULL) return;
     if (map_win->type != HRL_WINDOW_TYPE_MAP) return;
 
@@ -300,7 +300,7 @@ static void mapwin_display_map_noref(struct dc_map *map, coord_t *player) {
 
 void mapwin_display_map(struct dc_map *map, coord_t *player) {
     if (map_win == NULL) return;
-    if (map == NULL) return;
+    if (dc_verify_map(map) == false) return;
     if (player == NULL) return;
     if (map_win->type != HRL_WINDOW_TYPE_MAP) return;
 
@@ -359,7 +359,7 @@ void mapwin_overlay_examine_cursor(struct dc_map *map, coord_t *p_pos) {
 
     if (map_win == NULL) return;
     if (char_win == NULL) return;
-    if (map == NULL) return;
+    if (dc_verify_map(map) == false) return;
     if (p_pos == NULL) return;
     if (map_win->type != HRL_WINDOW_TYPE_MAP) return;
     if (char_win->type != HRL_WINDOW_TYPE_CHARACTER) return;
@@ -430,7 +430,7 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dc_map *map, coord_t *
     bool fire_mode = true;
     if (map_win == NULL) return false;
     if (g == NULL) return false;
-    if (map == NULL) return false;
+    if (dc_verify_map(map) == false) return false;
     if (p_pos == NULL) return false;
     if (map_win->type != HRL_WINDOW_TYPE_MAP) return false;
 
@@ -662,7 +662,7 @@ static void inv_create_list(struct inv_inventory *inventory, struct inv_show_ite
 
 static WINDOW *invwin_examine(struct hrl_window *window, struct itm_item *item) {
     if (window == NULL) return NULL;
-    if (item == NULL) return NULL;
+    if (itm_verify_item(item) == false) return NULL;
     if (window->type != HRL_WINDOW_TYPE_CHARACTER) return NULL;
 
     WINDOW *invwin_ex = derwin(window->win, 0,0,0,0);

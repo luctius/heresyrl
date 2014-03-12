@@ -20,7 +20,7 @@ const char *fght_weapon_hand_name(enum fght_hand hand) {
 }
 
 bool fght_do_dmg(struct random *r, struct msr_monster *monster, struct msr_monster *target, int hits, enum fght_hand hand) {
-    if (monster == NULL) return false;
+    if (msr_verify(monster) == false) return false;
     if (target == NULL) return false;
     if (hits < 1) return false;
     if ( (msr_weapon_type_check(monster, WEAPON_TYPE_RANGED) == false)   &&
@@ -47,7 +47,7 @@ bool fght_do_dmg(struct random *r, struct msr_monster *monster, struct msr_monst
             item = inv_get_item_from_location(inv, INV_LOC_OFFHAND_WIELD);
         }
     }
-    if (item == NULL) return false;
+    if (itm_verify_item(item) == false) return false;
 
     for (int h = 0; h < hits; h++) {
         wpn = &item->specific.weapon;
@@ -66,7 +66,7 @@ bool fght_do_dmg(struct random *r, struct msr_monster *monster, struct msr_monst
 }
 
 int fght_ranged_calc_tohit(struct random *r, struct msr_monster *monster, struct msr_monster *target, enum fght_hand hand) {
-    if (monster == NULL) return -1;
+    if (msr_verify(monster) == false) return -1;
     if (target == NULL) return -1;
     if (msr_weapon_type_check(monster, WEAPON_TYPE_RANGED) == false) return -1;
     struct inv_inventory *inv = monster->inventory;
@@ -130,8 +130,8 @@ int fght_ranged_calc_tohit(struct random *r, struct msr_monster *monster, struct
 }
 
 int fght_shoot(struct random *r, struct msr_monster *monster, struct dc_map *map, coord_t *e) {
-    if (monster == NULL) return -1;
-    if (map == NULL) return -1;
+    if (msr_verify(monster) == false) return -1;
+    if (dc_verify_map(map) == false) return -1;
     if (e == NULL) return -1;
     if (msr_weapon_type_check(monster, WEAPON_TYPE_RANGED) == false) return -1;
 

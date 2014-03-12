@@ -53,10 +53,6 @@ int main(void)
         if (gbl_game->running) game_new_tick();
 
         ui_create(COLS, LINES);
-        /*
-        charwin_refresh(&gbl_game->player_data);
-        mapwin_display_map(gbl_game->current_map, player_pos);
-        */
     }
 
     game_exit();

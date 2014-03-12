@@ -13,7 +13,7 @@ struct sgt_sight {
 
 static bool check_opaque(void *vmap, int x, int y) {
     struct dc_map *map = (struct dc_map *) vmap;
-    if (map == NULL) return false;
+    if (dc_verify_map(map) == false) return false;
 
     coord_t c = cd_create(x,y);
     if (cd_within_bound(&c, &map->size) == false) return false;
@@ -23,8 +23,8 @@ static bool check_opaque(void *vmap, int x, int y) {
 static void apply_light_source(void *vmap, int x, int y, int dx, int dy, void *isrc) {
     struct dc_map *map = (struct dc_map *) vmap;
     struct itm_item *item = (struct itm_item *) isrc;
-    if (map == NULL) return;
-    if (item == NULL) return;
+    if (dc_verify_map(map) == false) return;
+    if (itm_verify_item(item) == false) return;
 
     coord_t c = cd_create(x,y);
     if (cd_within_bound(&c, &map->size) == false) return;
@@ -73,8 +73,8 @@ void sgt_exit(struct sgt_sight *sight) {
 
 bool sgt_calculate_light_source(struct sgt_sight *sight, struct dc_map *map, struct itm_item *item) {
     if (sight == NULL) return false;
-    if (map == NULL) return false;
-    if (item == NULL) return false;
+    if (dc_verify_map(map) == false) return false;
+    if (itm_verify_item(item) == false) return false;
     if (item->item_type != ITEM_TYPE_TOOL) return false;
     if (item->specific.tool.tool_type != TOOL_TYPE_LIGHT) return false;
     if (item->specific.tool.lit != true) return false;
@@ -91,7 +91,7 @@ bool sgt_calculate_light_source(struct sgt_sight *sight, struct dc_map *map, str
 
 bool sgt_calculate_all_light_sources(struct sgt_sight *sight, struct dc_map *map) {
     if (sight == NULL) return false;
-    if (map == NULL) return false;
+    if (dc_verify_map(map) == false) return false;
 
     struct itm_item *item = NULL;
     while ( (item = itmlst_get_next_item(item) ) != NULL){
@@ -102,8 +102,8 @@ bool sgt_calculate_all_light_sources(struct sgt_sight *sight, struct dc_map *map
 
 bool sgt_calculate_player_sight(struct sgt_sight *sight, struct dc_map *map, struct msr_monster *monster) {
     if (sight == NULL) return false;
-    if (map == NULL) return false;
-    if (monster == NULL) return false;
+    if (dc_verify_map(map) == false) return false;
+    if (msr_verify(monster) == false) return false;
 
     fov_settings_set_opacity_test_function(&sight->fov_settings, check_opaque);
     fov_settings_set_apply_lighting_function(&sight->fov_settings, apply_direct_player_sight);
