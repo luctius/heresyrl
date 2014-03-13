@@ -119,7 +119,6 @@ bool game_exit() {
     }
 
     ma_exit();
-    msr_die(gbl_game->player_data.player, gbl_game->current_map);
     dc_free_map(gbl_game->current_map);
 
     msrlst_monster_list_exit();

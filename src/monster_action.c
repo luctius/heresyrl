@@ -23,6 +23,15 @@ bool ma_process(void) {
     struct msr_monster *monster = NULL;
 
     while ( (monster = msrlst_get_next_monster(monster) ) != NULL) {
+        if (monster->dead) {
+            /* Clean-up monsters which can be cleaned up. */
+            if (monster->controller.controller_cb == NULL) {
+                struct msr_monster *dead_monster = monster;
+                monster = msrlst_get_next_monster(monster);
+                msr_destroy(dead_monster, gbl_game->current_map);
+            }
+        }
+
         if (monster->energy < MSR_ENERGY_FULL) monster->energy += MSR_ENERGY_TICK;
 
         if ( (monster->energy >= MSR_ENERGY_FULL) || 
@@ -201,7 +210,7 @@ bool ma_do_fire(struct msr_monster *monster, coord_t *pos) {
     int cost = MSR_ACTION_FIRE;
 
     for (int i = 0; i < FGHT_MAX_HAND; i++) {
-        item = fght_get_weapon(monster, WEAPON_TYPE_RANGED, i);
+        item = fght_get_working_weapon(monster, WEAPON_TYPE_RANGED, i);
         if (item != NULL) {
             wpn = &item->specific.weapon;
             shots += wpn->rof[wpn->rof_set];
@@ -230,9 +239,10 @@ bool ma_do_reload(struct msr_monster *monster) {
     struct itm_item *item = NULL;
     struct item_weapon_specific *wpn = NULL;
     uint32_t cost = 0;
+    int hand_lst[] = {FGHT_MAIN_HAND, FGHT_OFF_HAND,};
 
-    for (int i = 0; i < FGHT_MAX_HAND; i++) {
-        item = fght_get_weapon(monster, WEAPON_TYPE_RANGED, i);
+    for (int i = 0; i < ARRAY_SZ(hand_lst); i++) {
+        item = fght_get_weapon(monster, WEAPON_TYPE_RANGED, hand_lst[i]);
         if (item != NULL) {
             wpn = &item->specific.weapon;
             if (wpn->magazine_left < wpn->magazine_sz) {
@@ -242,6 +252,13 @@ bool ma_do_reload(struct msr_monster *monster) {
 
                     You_action(monster, "reload %s.", item->ld_name);
                     Monster_action(monster, "reloads %s.", item->ld_name);
+                }
+
+                /* Do skill check here.. */
+                if (wpn->jammed == true) {
+                    wpn->jammed = false;
+                    You_action(monster, "unjam %s.", item->ld_name);
+                    Monster_action(monster, "unjams %s.", item->ld_name);
                 }
             }
         }

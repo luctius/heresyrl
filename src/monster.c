@@ -7,6 +7,7 @@
 
 #include "monster.h"
 #include "dungeon_creator.h"
+#include "game.h"
 #include "items.h"
 #include "tiles.h"
 #include "inventory.h"
@@ -99,7 +100,7 @@ struct msr_monster *msr_create(uint32_t template_id) {
     return NULL;
 }
 
-void msr_die(struct msr_monster *monster, struct dc_map *map) {
+void msr_destroy(struct msr_monster *monster, struct dc_map *map) {
     if (msr_verify_monster(monster) == false) return;
     if (dc_verify_map(map) == false) return;
     struct msr_monster_list_entry *target_mle = container_of(monster, struct msr_monster_list_entry, monster);
@@ -259,7 +260,21 @@ enum msr_hit_location msr_get_hit_location(struct msr_monster *monster, int hit_
     return MSR_HITLOC_HEAD;
 }
 
-bool msr_do_dmg(struct msr_monster *monster, int dmg, enum msr_hit_location mhl) {
+static bool msr_die(struct msr_monster *monster, struct dc_map *map) {
+    if (msr_verify_monster(monster) == false) return false;
+    if (dc_verify_map(map) == false) return false;
+
+    You_action(monster, "died...");
+    Monster_action(monster, "dies.");
+
+    monster->dead = true;
+    msr_drop_inventory(monster, map);
+    msr_remove_monster(monster, map);
+
+    return true;
+}
+
+bool msr_do_dmg(struct msr_monster *monster, int dmg, enum msr_hit_location mhl, struct dc_map *map) {
     if (msr_verify_monster(monster) == false) return false;
 
     if (dmg > 0) {
@@ -268,7 +283,9 @@ bool msr_do_dmg(struct msr_monster *monster, int dmg, enum msr_hit_location mhl)
         }
         else {
             /* do critical hits! */
-            monster->dead = true;
+
+            /* if dead.. */
+            msr_die(monster, map);
         }
         return true;
     }

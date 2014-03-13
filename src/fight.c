@@ -45,6 +45,15 @@ struct itm_item *fght_get_weapon(struct msr_monster *monster, enum item_weapon_t
     if (itm_verify_item(item) == false) return NULL;
     if (item->specific.weapon.weapon_type != type) return NULL;
 
+    return item;
+}
+
+struct itm_item *fght_get_working_weapon(struct msr_monster *monster, enum item_weapon_type type, enum fght_hand hand) {
+    struct itm_item *item = fght_get_weapon(monster, type, hand);
+    if (item == NULL) return NULL;
+    if (itm_verify_item(item) == false) return NULL;
+    if (item->specific.weapon.weapon_type != type) return NULL;
+
     if (type == WEAPON_TYPE_RANGED) {
         if (item->specific.weapon.jammed == true) {
             Your(monster, "%s-hand weapon is jammed.", fght_weapon_hand_name(hand) );
@@ -69,7 +78,7 @@ bool fght_do_weapon_dmg(struct random *r, struct msr_monster *monster, struct ms
     struct itm_item *item = NULL;
 
     for (int i = 0; i < WEAPON_TYPE_MAX; i++) {
-        item = fght_get_weapon(monster, i, hand);
+        item = fght_get_working_weapon(monster, i, hand);
         if (item != NULL) i = WEAPON_TYPE_MAX;
     }
     if (item == NULL) return false;
@@ -94,8 +103,10 @@ bool fght_do_weapon_dmg(struct random *r, struct msr_monster *monster, struct ms
 
         armour = MIN((armour - penetration), 0);
         dmg = dmg - (armour  + toughness);
-        msr_do_dmg(target, dmg, mhl);
+        msr_do_dmg(target, dmg, mhl, gbl_game->current_map);
         total_dmg += dmg;
+
+        if (target->dead) h = hits;
     }
     lg_printf("Doing %d hits for %dD10+%d damage.", hits, wpn->nr_dmg_die, wpn->dmg_addition);
 
@@ -110,7 +121,7 @@ int fght_ranged_calc_tohit(struct random *r, struct msr_monster *monster, struct
     struct item_weapon_specific *wpn = NULL;
     struct itm_item *item = NULL;
 
-    item = fght_get_weapon(monster, WEAPON_TYPE_RANGED, hand);
+    item = fght_get_working_weapon(monster, WEAPON_TYPE_RANGED, hand);
     if (item == NULL) return -1;
 
     wpn = &item->specific.weapon;
@@ -199,8 +210,8 @@ int fght_shoot(struct random *r, struct msr_monster *monster, struct dc_map *map
     if (dc_verify_map(map) == false) return -1;
     if (e == NULL) return -1;
     if (msr_weapon_type_check(monster, WEAPON_TYPE_RANGED) == false) return -1;
-    struct itm_item *item1 = fght_get_weapon(monster, WEAPON_TYPE_RANGED, FGHT_MAIN_HAND);
-    struct itm_item *item2 = fght_get_weapon(monster, WEAPON_TYPE_RANGED, FGHT_OFF_HAND);
+    struct itm_item *item1 = fght_get_working_weapon(monster, WEAPON_TYPE_RANGED, FGHT_MAIN_HAND);
+    struct itm_item *item2 = fght_get_working_weapon(monster, WEAPON_TYPE_RANGED, FGHT_OFF_HAND);
     if ( (item1 == NULL) && (item2 == NULL) ) return -1;
     int ammo1 = 0;
     int ammo2 = 0;
