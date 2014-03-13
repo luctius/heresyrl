@@ -2,6 +2,7 @@
 
 static struct spwn_item item_weights[] = {
     {.id=ITEM_ID_AVERAGE_TORCH,          .weight=1 },
+    {.id=ITEM_ID_AVERAGE_PISTOL_AMMO,    .weight=1 },
     {.id=ITEM_ID_AVERAGE_STUB_AUTOMATIC, .weight=2 },
     {.id=ITEM_ID_AVERAGE_STUB_REVOLVER,  .weight=1, },
 };

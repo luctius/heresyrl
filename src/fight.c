@@ -94,7 +94,7 @@ bool fght_do_weapon_dmg(struct random *r, struct msr_monster *monster, struct ms
         }
 
         int dmg_add = wpn->dmg_addition;
-        lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "fght", "Doing %d%s+%d damage => %d dmg.", wpn->nr_dmg_die, random_die_name(dmg_die_sz), wpn->dmg_addition, dmg);
+        lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "fght", "Doing %d%s+%d damage => %d dmg.", wpn->nr_dmg_die, random_die_name(dmg_die_sz), wpn->dmg_addition, dmg + dmg_add);
 
         enum msr_hit_location mhl = msr_get_hit_location(target, random_d100(r) );
         int penetration = wpn->penetration;
@@ -113,7 +113,7 @@ bool fght_do_weapon_dmg(struct random *r, struct msr_monster *monster, struct ms
             /* Modifiers to armour here */
         }
 
-        You(monster, "Do %d%s+%d => (%d) damage.", wpn->nr_dmg_die, random_die_name(dmg_die_sz), dmg_add, dmg + dmg_add);
+        You(monster, "do %d damage.", dmg + dmg_add);
         armour = MIN((armour - penetration), 0);
         dmg = (dmg + dmg_add) - (armour  + toughness);
         msr_do_dmg(target, dmg, mhl, gbl_game->current_map);
@@ -204,7 +204,11 @@ int fght_ranged_calc_tohit(struct random *r, struct msr_monster *monster, struct
 
     lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "fght", "Shot attempt with calcBS: %d => %d", roll, to_hit);
     if (roll < to_hit) {
-        return MIN(ammo, ((to_hit - roll) /10) +1);
+        int dos = (to_hit - roll) / 10;
+        if (wpn->rof_set == WEAPON_ROF_SETTING_SINGLE) return MIN(ammo, 1);
+        else if (wpn->rof_set == WEAPON_ROF_SETTING_AUTO) return MIN(ammo, 1 + dos);
+        else if (wpn->rof_set == WEAPON_ROF_SETTING_SEMI) return MIN(ammo, 1 + (dos/2) );
+        return -1;
     }
 
     if (monster->wpn_sel == MSR_WEAPON_SELECT_BOTH_HAND) {
@@ -295,7 +299,6 @@ bool fght_melee(struct random *r, struct msr_monster *monster, struct msr_monste
     enum msr_weapon_selection wpn_sel = monster->wpn_sel;
     bool unarmed = false;
     int hits = 0;
-    bool retval = false;
 
     if ( (item1 == NULL) || (item2 == NULL) ) {
         /* 

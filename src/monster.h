@@ -124,6 +124,7 @@ struct msr_monster {
     const char *sd_name;
     const char *ld_name;
     const char *description;
+    int faction;
 
     enum msr_race race;
     enum msr_size size;
@@ -134,17 +135,15 @@ struct msr_monster {
     uint8_t fatepoints;
     uint32_t energy;
 
-    uint64_t race_traits;
-    uint64_t combat_talents;
-    uint64_t career_talents;
-    uint64_t creature_talents;
-    uint64_t innate_weapon;
+    bitfield_t race_traits;
+    bitfield_t combat_talents;
+    bitfield_t career_talents;
+    bitfield_t creature_talents;
 
     struct msr_char characteristic[MSR_CHAR_MAX];
-    enum msr_skills skills[MSR_SKILL_RATE_MAX];
+    bitfield_t skills[MSR_SKILL_RATE_MAX];
 
     struct monster_controller controller;
-    int faction;
 
     enum msr_weapon_selection wpn_sel;
     struct inv_inventory *inventory;

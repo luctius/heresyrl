@@ -270,10 +270,10 @@ static bool msr_die(struct msr_monster *monster, struct dc_map *map) {
     You_action(monster, "died...");
     Monster_action(monster, "dies.");
 
-    monster->dead = true;
     msr_drop_inventory(monster, map);
     msr_remove_monster(monster, map);
 
+    monster->dead = true;
     return true;
 }
 

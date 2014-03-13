@@ -277,8 +277,8 @@ static void mapwin_display_map_noref(struct dc_map *map, coord_t *player) {
     werase(map_win->win);
     curs_set(0);
 
-    scr_c.x = get_viewport(player->x, map_win->cols, map->size.x-1);
-    scr_c.y = get_viewport(player->y, map_win->lines, map->size.y-1);
+    scr_c.x = get_viewport(player->x, map_win->cols,  map->size.x -1);
+    scr_c.y = get_viewport(player->y, map_win->lines, map->size.y -1);
 
     bool map_see = gbl_game->args_info->map_flag;
 

@@ -210,6 +210,7 @@ bool ma_do_melee(struct msr_monster *monster, coord_t *target_pos) {
     if (msr_verify_monster(monster) == false) return false;
     if (target_pos == NULL) return false;
     struct msr_monster *target = sd_get_map_me(target_pos, gbl_game->current_map)->monster;
+    if (target == NULL) return false;
     if (msr_verify_monster(target) == false) return false;
 
     struct itm_item *item = NULL;
@@ -282,7 +283,8 @@ static bool ma_has_ammo(struct msr_monster *monster, struct itm_item *item) {
                 /*
                    Transfer ammo from stack to the magazine of the item.
                  */
-                int sz = MIN(wpn->magazine_sz, a_item->stacked_quantity);
+                int to_fill = wpn->magazine_sz - wpn->magazine_left;
+                int sz = MIN(to_fill, a_item->stacked_quantity);
                 wpn->magazine_left += sz;
                 a_item->stacked_quantity -= sz;
 
@@ -321,14 +323,13 @@ bool ma_do_reload(struct msr_monster *monster) {
             wpn = &item->specific.weapon;
             if (wpn->magazine_left < wpn->magazine_sz) {
                 if (ma_has_ammo(monster, item) == true ) {
-                    wpn->magazine_left = wpn->magazine_sz;
                     cost += MSR_ACTION_RELOAD * item->use_delay;
 
                     You_action(monster, "reload %s.", item->ld_name);
                     Monster_action(monster, "reloads %s.", item->ld_name);
                 }
                 else {
-                    You(monster, "are out of ammo for %s.", item->ld_name);
+                    You(monster, "do not have any ammo left for %s.", item->ld_name);
                 }
 
                 /* Do skill check here.. */
@@ -336,6 +337,10 @@ bool ma_do_reload(struct msr_monster *monster) {
                     wpn->jammed = false;
                     You_action(monster, "unjam %s.", item->ld_name);
                     Monster_action(monster, "unjams %s.", item->ld_name);
+                    
+                    if (cost == 0) {
+                        cost += MSR_ACTION_RELOAD * item->use_delay;
+                    }
                 }
             }
         }
