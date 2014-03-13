@@ -4,6 +4,7 @@
 #include "items.h"
 
 enum item_ids {
+    ITEM_ID_HUMAN_UNARMED,
     ITEM_ID_FIXED_LIGHT,
     ITEM_ID_AVERAGE_TORCH,
     ITEM_ID_AVERAGE_STUB_AUTOMATIC,

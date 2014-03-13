@@ -11,6 +11,7 @@
 #include "items.h"
 #include "tiles.h"
 #include "inventory.h"
+#include "items_static.h"
 
 static LIST_HEAD(monster_list, msr_monster_list_entry) monster_list_head;
 static bool monster_list_initialised = false;
@@ -89,6 +90,7 @@ struct msr_monster *msr_create(uint32_t template_id) {
                 m->monster.inventory = inv_init(inv_loc_human);
                 break;
             default:
+                assert(false);
                 free(m);
                 return NULL;
                 break;
@@ -117,6 +119,7 @@ bool msr_verify_monster(struct msr_monster *monster) {
     assert(monster->monster_pre == MONSTER_PRE_CHECK);
     assert(monster->monster_post == MONSTER_POST_CHECK);
     assert(inv_verify_inventory(monster->inventory) == true );
+    if (monster->dead == true) return false;
 
     return true;
 }
@@ -322,7 +325,7 @@ bool msr_weapons_check(struct msr_monster *monster) {
     if (monster->wpn_sel >= MSR_WEAPON_SELECT_MAX) return false;
 
     struct inv_inventory *inv = monster->inventory;
-    if ( (inv_loc_empty(inv, INV_LOC_MAINHAND_WIELD) == true) && (inv_loc_empty(inv, INV_LOC_OFFHAND_WIELD) ) ) return false;
+    if ( (inv_loc_empty(inv, INV_LOC_MAINHAND_WIELD) == true) && (inv_loc_empty(inv, INV_LOC_OFFHAND_WIELD) == true) ) return false;
 
     /* If we have a single hand, test that for emptiness and weaponness. */
     if (monster->wpn_sel== MSR_WEAPON_SELECT_OFF_HAND) {
@@ -380,7 +383,6 @@ bool msr_weapon_type_check(struct msr_monster *monster, enum item_weapon_type ty
 
 bool msr_weapon_next_selection(struct msr_monster *monster) {
     if (msr_verify_monster(monster) == false) return false;
-    if (monster->inventory == NULL) return false;
 
     if ( (inv_loc_empty(monster->inventory, INV_LOC_MAINHAND_WIELD) == true) &&
          (inv_loc_empty(monster->inventory, INV_LOC_OFFHAND_WIELD) == true) ) return false;
@@ -390,5 +392,20 @@ bool msr_weapon_next_selection(struct msr_monster *monster) {
         monster->wpn_sel %= MSR_WEAPON_SELECT_MAX;
     } while (msr_weapons_check(monster) == false);
     return true;
+}
+
+struct itm_item *msr_unarmed_weapon(struct msr_monster *monster) {
+    if (msr_verify_monster(monster) == false) return false;
+    struct itm_item *item = NULL;
+    
+    switch (monster->race) {
+        case MSR_RACE_HUMAN:
+            item = itm_create(ITEM_ID_HUMAN_UNARMED);
+            break;
+        default:
+            assert(false);
+            break;
+    }
+    return item;
 }
 

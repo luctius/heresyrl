@@ -182,4 +182,6 @@ bool msr_weapons_check(struct msr_monster *monster);
 bool msr_weapon_type_check(struct msr_monster *monster, enum item_weapon_type type);
 bool msr_weapon_next_selection(struct msr_monster *monster);
 
+struct itm_item *msr_unarmed_weapon(struct msr_monster *monster);
+
 #endif /*MONSTER_H_*/

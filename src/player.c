@@ -41,6 +41,10 @@ static bool plr_action_loop(struct msr_monster *player, void *controller) {
     coord_t pos = player->pos;
     coord_t *player_pos = &player->pos;
 
+    if (player->dead) {
+        gbl_game->running = false;
+    }
+
     while (gbl_game->running) {
         mapwin_display_map(map, player_pos);
         charwin_refresh();
@@ -127,9 +131,14 @@ static bool plr_action_loop(struct msr_monster *player, void *controller) {
                 break;
         }
 
-        /* test for a move */
-        if (ma_do_move(player, &pos) == true) {
-            return true;
+        if (cd_equal(&pos, player_pos) == false) {
+            /* test for a move */
+            if (ma_do_move(player, &pos) == true) {
+                return true;
+            }
+            else {
+                ma_do_melee(player, &pos);
+            }
         }
 
         pos = player->pos;

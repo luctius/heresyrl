@@ -83,32 +83,43 @@ bool fght_do_weapon_dmg(struct random *r, struct msr_monster *monster, struct ms
     }
     if (item == NULL) return false;
     if (itm_verify_item(item) == false) return false;
+    wpn = &item->specific.weapon;
 
-    int total_dmg = 0;
     for (int h = 0; h < hits; h++) {
-        wpn = &item->specific.weapon;
+        int dmg_die_sz = 10;
+        int dmg = random_xd10(r, wpn->nr_dmg_die);
+        if (wpn->nr_dmg_die == 0) {
+            dmg = random_xd5(r, 1);
+            dmg_die_sz = 5;
+        }
 
-        int dmg = random_xd10(r, wpn->nr_dmg_die) + wpn->dmg_addition;
-        lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "fght", "Doing %dD10+%d damage => %d dmg.", wpn->nr_dmg_die, wpn->dmg_addition, dmg);
+        int dmg_add = wpn->dmg_addition;
+        lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "fght", "Doing %d%s+%d damage => %d dmg.", wpn->nr_dmg_die, random_die_name(dmg_die_sz), wpn->dmg_addition, dmg);
 
-        enum msr_hit_location mhl = msr_get_hit_location(monster, random_d100(r) );
+        enum msr_hit_location mhl = msr_get_hit_location(target, random_d100(r) );
         int penetration = wpn->penetration;
         int armour = msr_calculate_armour(monster, mhl);
-        int toughness = msr_calculate_characteristic(monster, MSR_CHAR_TOUGHNESS) / 10;
+        int toughness = msr_calculate_characteristic_bonus(target, MSR_CHAR_TOUGHNESS);
 
-        /* Modifiers to damage here */
-        /* Modifiers to penatration here */
-        /* Modifiers to toughness here */
-        /* Modifiers to armour here */
+        {
+            /* Modifiers to damage here */
+            if ( (wpn->weapon_type == WEAPON_TYPE_MELEE) ||
+                 (wpn->weapon_type == WEAPON_TYPE_THROWN) ) {
+                dmg_add += msr_calculate_characteristic_bonus(monster, MSR_CHAR_STRENGTH);
+            }
 
+            /* Modifiers to penatration here */
+            /* Modifiers to toughness here */
+            /* Modifiers to armour here */
+        }
+
+        You(monster, "Do %d%s+%d => (%d) damage.", wpn->nr_dmg_die, random_die_name(dmg_die_sz), dmg_add, dmg + dmg_add);
         armour = MIN((armour - penetration), 0);
-        dmg = dmg - (armour  + toughness);
+        dmg = (dmg + dmg_add) - (armour  + toughness);
         msr_do_dmg(target, dmg, mhl, gbl_game->current_map);
-        total_dmg += dmg;
 
         if (target->dead) h = hits;
     }
-    lg_printf("Doing %d hits for %dD10+%d damage.", hits, wpn->nr_dmg_die, wpn->dmg_addition);
 
     return true;
 }
@@ -146,6 +157,7 @@ int fght_ranged_calc_tohit(struct random *r, struct msr_monster *monster, struct
         /* Fully Automatic */
         if (wpn->rof_set == WEAPON_ROF_SETTING_AUTO) to_hit_mod += FGHT_RANGED_MODIFIER_ROF_AUTO;
 
+        /* Target size modifiers */
         if (target->size == MSR_SIZE_AVERAGE) to_hit_mod += FGHT_MODIFIER_SIZE_AVERAGE;
         else if (target->size == MSR_SIZE_MASSIVE) to_hit_mod += FGHT_MODIFIER_SIZE_MASSIVE;
         else if (target->size == MSR_SIZE_ENORMOUS) to_hit_mod += FGHT_MODIFIER_SIZE_ENORMOUS;
@@ -203,6 +215,116 @@ int fght_ranged_calc_tohit(struct random *r, struct msr_monster *monster, struct
     }
 
     return -1;
+}
+
+int fght_melee_calc_tohit(struct random *r, struct msr_monster *monster, struct msr_monster *target, enum fght_hand hand) {
+    if (msr_verify_monster(monster) == false) return -1;
+    if (msr_verify_monster(target) == false) return -1;
+    if (msr_weapon_type_check(monster, WEAPON_TYPE_MELEE) == false) return -1;
+    struct item_weapon_specific *wpn = NULL;
+    struct itm_item *item = NULL;
+
+    item = fght_get_working_weapon(monster, WEAPON_TYPE_MELEE, hand);
+    if (item == NULL) return -1;
+
+    wpn = &item->specific.weapon;
+    You_action(monster, "slash at %s with your %s.", monster->ld_name, item->sd_name);
+    Monster_action(monster, "slashes at you with his %s.", item->sd_name);
+
+    int to_hit = msr_calculate_characteristic(monster, MSR_CHAR_WEAPON_SKILL);
+    int to_hit_mod = 0;
+
+    {/*add to-hit modifiers here*/ 
+        /* Add lighting modifiers */
+
+        /* Offhand Weapon */
+        if (hand == FGHT_OFF_HAND) to_hit_mod += FGHT_RANGED_MODIFIER_OFF_HAND;
+
+        if (target->size == MSR_SIZE_AVERAGE) to_hit_mod += FGHT_MODIFIER_SIZE_AVERAGE;
+        else if (target->size == MSR_SIZE_MASSIVE) to_hit_mod += FGHT_MODIFIER_SIZE_MASSIVE;
+        else if (target->size == MSR_SIZE_ENORMOUS) to_hit_mod += FGHT_MODIFIER_SIZE_ENORMOUS;
+        else if (target->size == MSR_SIZE_HULKING) to_hit_mod += FGHT_MODIFIER_SIZE_HULKING;
+        else if (target->size == MSR_SIZE_SCRAWY) to_hit_mod += FGHT_MODIFIER_SIZE_SCRAWNY;
+        else if (target->size == MSR_SIZE_PUNY) to_hit_mod += FGHT_MODIFIER_SIZE_PUNY;
+        else if (target->size == MSR_SIZE_MINISCULE) to_hit_mod += FGHT_MODIFIER_SIZE_MINISCULE;
+
+        /* Shooting Distances */
+        int distance = cd_pyth(&monster->pos, &target->pos);
+        if (distance == FGHT_MELEE_RANGE) to_hit_mod += FGHT_RANGED_MODIFIER_MELEE;
+        else if (distance >= (wpn->range * 3) ) to_hit_mod += FGHT_RANGED_MODIFIER_EXTREME_RANGE;
+        else if (distance >= (wpn->range * 2) ) to_hit_mod += FGHT_RANGED_MODIFIER_LONG_RANGE;
+        else if (distance <= FGHT_POINT_BLANK_RANGE) to_hit_mod += FGHT_RANGED_MODIFIER_POINT_BLACK;
+        else if (distance <= (wpn->range * 0.5) ) to_hit_mod += FGHT_RANGED_MODIFIER_SHORT_RANGE;
+
+        /* Maximum modifier */
+        if (to_hit_mod < -FGHT_MODIFIER_MAX) to_hit_mod = -FGHT_MODIFIER_MAX;
+        if (to_hit_mod > FGHT_MODIFIER_MAX)  to_hit_mod = FGHT_MODIFIER_MAX;
+
+        to_hit += to_hit_mod;
+    }
+
+    int roll = random_d100(r);
+    if (to_hit <= 0) {
+        You(monster, "miss by a huge margin.");
+        Monster_action(monster, "missed you with a huge margin.");
+        return -1;
+    }
+
+    lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "fght", "Melee attempt with calcWS: %d => %d", roll, to_hit);
+    if (roll < to_hit) {
+        return 1;
+    }
+
+    if (monster->wpn_sel == MSR_WEAPON_SELECT_BOTH_HAND) {
+        You(monster, "miss with your %s.", item->sd_name);
+    }
+    else {
+        You(monster, "miss with your %s-hand weapon.", fght_weapon_hand_name(hand) );
+    }
+
+    return -1;
+}
+
+bool fght_melee(struct random *r, struct msr_monster *monster, struct msr_monster *target) {
+    if (msr_verify_monster(monster) == false) return false;
+    if (msr_verify_monster(target) == false) return false;
+    if (cd_pyth(&monster->pos, &target->pos) > 1) return false;
+    if (monster->faction == target->faction) return false; /* do not attack members of same faction */
+    struct itm_item *item1 = fght_get_working_weapon(monster, WEAPON_TYPE_MELEE, FGHT_MAIN_HAND);
+    struct itm_item *item2 = fght_get_working_weapon(monster, WEAPON_TYPE_MELEE, FGHT_OFF_HAND);
+    bool unarmed = false;
+    int hits = 0;
+
+    if ( (item1 == NULL) && (item2 == NULL) ) {
+        unarmed = true;
+        /* 
+           Lame hack:
+           create unarmed dmg item 
+         */
+        item1 = msr_unarmed_weapon(monster);
+        msr_give_item(monster, item1);
+        inv_move_item_to_location(monster->inventory, item1, INV_LOC_MAINHAND_WIELD);
+        monster->wpn_sel = MSR_WEAPON_SELECT_MAIN_HAND;
+    }
+
+    if (msr_weapon_type_check(monster, WEAPON_TYPE_MELEE) == false) return false;
+
+    /* Do damage */
+    hits = fght_melee_calc_tohit(r, monster, target, FGHT_MAIN_HAND);
+    fght_do_weapon_dmg(r, monster, target, hits, FGHT_MAIN_HAND);
+    hits = fght_melee_calc_tohit(r, monster, target, FGHT_OFF_HAND);
+    fght_do_weapon_dmg(r, monster, target, hits, FGHT_OFF_HAND);
+
+    if (unarmed == true) {
+        /* remove unarmed dmg item */
+        item1 = inv_get_item_from_location(monster->inventory, INV_LOC_MAINHAND_WIELD);
+        if (item1 != NULL) {
+            if (inv_remove_item(monster->inventory, item1) == true) {
+                itm_destroy(item1);
+            }
+        }
+    }
+    return true;
 }
 
 int fght_shoot(struct random *r, struct msr_monster *monster, struct dc_map *map, coord_t *e) {

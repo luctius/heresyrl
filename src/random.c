@@ -42,6 +42,7 @@
 */
 
 #include <stdlib.h>
+#include <assert.h>
 #include "random.h"
 
 /* Period parameters */  
@@ -57,6 +58,16 @@ struct random {
     unsigned long mt[N]; /* the array for the state vector  */
     int mti; //=N+1; /* r->mti==N+1 means r->mt[N] is not initialized */
 };
+
+char *random_die_name(int die_sz) {
+    switch (die_sz) {
+        case 5: return "D5";
+        case 10: return "D10";
+        case 100: return "D100";
+        default: assert(false); return "";
+    }
+    return "";
+}
 
 /* initializes r->mt[N] with a seed */
 struct random *random_init_genrand(unsigned long s)
@@ -141,6 +152,7 @@ int random_xd5(struct random *r, int nr_die) {
     for (int i = 0; i < nr_die; i++) {
         total += random_int32(r) % 5;
     }
+    return total;
 }
 int random_xd10(struct random *r, int nr_die) {
     if (r == NULL) return -1;
@@ -148,6 +160,7 @@ int random_xd10(struct random *r, int nr_die) {
     for (int i = 0; i < nr_die; i++) {
         total += random_int32(r) % 10;
     }
+    return total;
 }
 
 int random_d100(struct random *r) {

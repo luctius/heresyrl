@@ -19,3 +19,7 @@ sound based detection and npc communication
 steroids and other chems.
 warp artifacts
 warp based grenades
+
+bugs:
+fix unarmed, check melee action cost
+fght descriptors per weapon (fire,slash,spit,spray,chop ... )

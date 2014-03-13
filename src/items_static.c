@@ -14,6 +14,13 @@
     .ld_name=item_ld_name, .description=item_desc, .icon=']', .icon_attr=COLOR_PAIR(DPL_COLOUR_NORMAL), .use_delay=delay, \
     .stacked_quantity=0, .max_quantity=1, .dropable=true, .specific.wearable = { .wearable_type=cloth_typ, .damage_reduction=dr, }, }
 
+#define CREATURE_MELEE(item_id,item_sd_name,item_ld_name,item_desc,wpn_cat,dmg_die,dmg_add,dmg_tp,pen,avail,item_quality,item_weight,item_cost,delay,special) \
+    [item_id] = { .uid=0, .template_id=item_id, .item_type=ITEM_TYPE_WEAPON, .availability=avail, .quality=item_quality, \
+    .attributes=ITEM_ATTRIBUTE_NONE, .age=0, .weight=item_weight, .cost=item_cost, .sd_name=item_sd_name, \
+    .ld_name=item_ld_name, .description=item_desc, .icon='|', .icon_attr=COLOR_PAIR(DPL_COLOUR_NORMAL), .use_delay=delay, \
+    .stacked_quantity=0, .max_quantity=1, .dropable=false, .specific.weapon = { .weapon_type=WEAPON_TYPE_MELEE, .weapon_category=wpn_cat, \
+    .dmg_type=dmg_tp, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=0, .penetration=pen, .special_quality=special, .jammed=false, }, }
+
 #define MELEE(item_id,item_sd_name,item_ld_name,item_desc,wpn_cat,dmg_die,dmg_add,dmg_tp,pen,avail,item_quality,item_weight,item_cost,delay,special) \
     [item_id] = { .uid=0, .template_id=item_id, .item_type=ITEM_TYPE_WEAPON, .availability=avail, .quality=item_quality, \
     .attributes=ITEM_ATTRIBUTE_NONE, .age=0, .weight=item_weight, .cost=item_cost, .sd_name=item_sd_name, \
@@ -44,6 +51,8 @@
     .stacked_quantity=1, .max_quantity=100, .dropable=true, .specific.ammo = { .ammo_type=ammo_typ, .energy=energ, energy_left=energ, }, }
 
 struct itm_item static_item_list[] = {
+    CREATURE_MELEE(ITEM_ID_HUMAN_UNARMED,"hands","hands","",WEAPON_CATEGORY_2H_MELEE,0,-3,WEAPON_DMG_TYPE_IMPACT,0,0,60000,0,0,1,0),
+
     LIGHT(ITEM_ID_FIXED_LIGHT,"torch","a torch",AVERAGE_TORCH_DESC,12,65000,ITEM_AVAILABILITY_POOR,ITEM_QUALITY_AVERAGE,1,1,0),
     LIGHT(ITEM_ID_AVERAGE_TORCH,"torch","a torch",AVERAGE_TORCH_DESC,12,100,ITEM_AVAILABILITY_PLENTIFUL,ITEM_QUALITY_AVERAGE,1,1,1),
     RANGED(ITEM_ID_AVERAGE_STUB_AUTOMATIC,"stub automatic","a stub automatic",AVERAGE_STUB_AUTOMATIC_DESC,WEAPON_CATEGORY_PISTOL,1,3,

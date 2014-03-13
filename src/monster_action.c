@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/queue.h>
+#include <sys/param.h>
 
 #include "monster_action.h"
 #include "monster.h"
@@ -24,21 +25,28 @@ bool ma_process(void) {
 
     while ( (monster = msrlst_get_next_monster(monster) ) != NULL) {
         if (monster->dead) {
+
             /* Clean-up monsters which can be cleaned up. */
             if (monster->controller.controller_cb == NULL) {
                 struct msr_monster *dead_monster = monster;
                 monster = msrlst_get_next_monster(monster);
+
                 msr_destroy(dead_monster, gbl_game->current_map);
             }
         }
 
+        bool do_action = false;
+
         if (monster->energy < MSR_ENERGY_FULL) monster->energy += MSR_ENERGY_TICK;
 
-        if ( (monster->energy >= MSR_ENERGY_FULL) || 
-             (monster->controller.interrupted == true) ) {
+        if (monster->energy >= MSR_ENERGY_FULL) do_action = true;
+        if (monster->controller.interrupted == true) do_action = true;
+
+        if (do_action) {
             if (monster->controller.controller_cb != NULL) {
                 monster->controller.controller_cb(monster, monster->controller.controller_ctx);
             }
+            monster->controller.interrupted = false;
         }
 
     }
@@ -87,7 +95,6 @@ bool ma_do_guard(struct msr_monster *monster) {
 
     monster->energy -= MSR_ACTION_GUARD;
     monster->controller.interruptable = true;
-    monster->controller.interrupted = false;
     return true;
 }
 
@@ -101,7 +108,6 @@ bool ma_do_wear(struct msr_monster *monster, struct itm_item *item) {
     if (dw_wear_item(monster, item) == false) return false;
     monster->energy -= MSR_ACTION_WEAR * item->use_delay;
     monster->controller.interruptable = false;
-    monster->controller.interrupted = false;
     return true;
 }
 
@@ -128,7 +134,6 @@ bool ma_do_use(struct msr_monster *monster, struct itm_item *item) {
 
     monster->energy -= MSR_ACTION_USE * item->use_delay;
     monster->controller.interruptable = false;
-    monster->controller.interrupted = false;
     return true;
 }
 
@@ -155,7 +160,6 @@ bool ma_do_pickup(struct msr_monster *monster, struct itm_item *items[], int nr_
     }
 
     monster->controller.interruptable = false;
-    monster->controller.interrupted = false;
     return true;
 }
 
@@ -197,7 +201,38 @@ bool ma_do_drop(struct msr_monster *monster, struct itm_item *items[], int nr_it
     }
 
     monster->controller.interruptable = false;
-    monster->controller.interrupted = false;
+    return true;
+}
+
+bool ma_do_melee(struct msr_monster *monster, coord_t *target_pos) {
+    if (gbl_game == NULL) return false;
+    if (dc_verify_map(gbl_game->current_map) == false) return false;
+    if (msr_verify_monster(monster) == false) return false;
+    if (target_pos == NULL) return false;
+    struct msr_monster *target = sd_get_map_me(target_pos, gbl_game->current_map)->monster;
+    if (msr_verify_monster(target) == false) return false;
+
+    struct itm_item *item = NULL;
+    struct item_weapon_specific *wpn = NULL;
+    int cost = MSR_ACTION_MELEE;
+    int hand_lst[] = {FGHT_MAIN_HAND, FGHT_OFF_HAND,};
+    int hits = 0;
+
+    for (unsigned int i = 0; i < ARRAY_SZ(hand_lst); i++) {
+        item = fght_get_working_weapon(monster, WEAPON_TYPE_RANGED, hand_lst[i]);
+        if (item != NULL) {
+            hits++;
+        }
+    }
+
+    if (fght_melee(gbl_game->game_random, monster, target) == false) {
+        return false;
+    }
+
+    //if (hits == 1) cost = MSR_ACTION_SINGLE_SHOT;
+
+    monster->energy -= cost;
+    monster->controller.interruptable = false;
     return true;
 }
 
@@ -208,9 +243,10 @@ bool ma_do_fire(struct msr_monster *monster, coord_t *pos) {
     struct item_weapon_specific *wpn = NULL;
     int shots = 0;
     int cost = MSR_ACTION_FIRE;
+    int hand_lst[] = {FGHT_MAIN_HAND, FGHT_OFF_HAND,};
 
-    for (int i = 0; i < FGHT_MAX_HAND; i++) {
-        item = fght_get_working_weapon(monster, WEAPON_TYPE_RANGED, i);
+    for (unsigned int i = 0; i < ARRAY_SZ(hand_lst); i++) {
+        item = fght_get_working_weapon(monster, WEAPON_TYPE_RANGED, hand_lst[i]);
         if (item != NULL) {
             wpn = &item->specific.weapon;
             shots += wpn->rof[wpn->rof_set];
@@ -225,13 +261,51 @@ bool ma_do_fire(struct msr_monster *monster, coord_t *pos) {
 
     monster->energy -= cost;
     monster->controller.interruptable = false;
-    monster->controller.interrupted = false;
     return true;
 }
 
 static bool ma_has_ammo(struct msr_monster *monster, struct itm_item *item) {
-    /* TODO check for ammo in inventory */
-    return true;
+    if (msr_verify_monster(monster) == false) return false;
+    if (itm_verify_item(item) == false) return false;
+    if (inv_has_item(monster->inventory, item) == false) return false;
+    if (wpn_is_type(item, WEAPON_TYPE_RANGED) == false) return false;
+
+    struct item_weapon_specific *wpn = &item->specific.weapon;
+    struct item_ammo_specific *ammo = NULL;
+    struct itm_item *a_item = NULL;
+
+    while ( (a_item = inv_get_next_item(monster->inventory, a_item) ) != NULL) {
+        if (a_item->item_type == ITEM_TYPE_AMMO) {
+            ammo = &a_item->specific.ammo;
+            if (ammo->ammo_type == wpn->ammo_type) {
+
+                /*
+                   Transfer ammo from stack to the magazine of the item.
+                 */
+                int sz = MIN(wpn->magazine_sz, a_item->stacked_quantity);
+                wpn->magazine_left += sz;
+                a_item->stacked_quantity -= sz;
+
+                if (a_item->stacked_quantity == 0) {
+                    /*
+                       Destroy stacked ammo item,
+                       and start over, looking for more ammo.
+                     */
+                    if (inv_remove_item(monster->inventory, a_item) == true) {
+                        itm_destroy(a_item);
+                        a_item = NULL;
+                    }
+                }
+
+                if (wpn->magazine_left == wpn->magazine_sz) {
+                    /*Until the weapon is full. */
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
 }
 
 bool ma_do_reload(struct msr_monster *monster) {
@@ -241,7 +315,7 @@ bool ma_do_reload(struct msr_monster *monster) {
     uint32_t cost = 0;
     int hand_lst[] = {FGHT_MAIN_HAND, FGHT_OFF_HAND,};
 
-    for (int i = 0; i < ARRAY_SZ(hand_lst); i++) {
+    for (unsigned int i = 0; i < ARRAY_SZ(hand_lst); i++) {
         item = fght_get_weapon(monster, WEAPON_TYPE_RANGED, hand_lst[i]);
         if (item != NULL) {
             wpn = &item->specific.weapon;
@@ -252,6 +326,9 @@ bool ma_do_reload(struct msr_monster *monster) {
 
                     You_action(monster, "reload %s.", item->ld_name);
                     Monster_action(monster, "reloads %s.", item->ld_name);
+                }
+                else {
+                    You(monster, "are out of ammo for %s.", item->ld_name);
                 }
 
                 /* Do skill check here.. */
@@ -267,7 +344,6 @@ bool ma_do_reload(struct msr_monster *monster) {
     if (cost == 0) return false;
     monster->energy -= cost;
     monster->controller.interruptable = false;
-    monster->controller.interrupted = false;
     return true;
 }
 
