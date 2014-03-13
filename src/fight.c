@@ -146,7 +146,7 @@ int fght_ranged_calc_tohit(struct random *r, struct msr_monster *monster, struct
         /* Add lighting modifiers */
 
         /* Offhand Weapon */
-        if (hand == FGHT_OFF_HAND) to_hit_mod += FGHT_RANGED_MODIFIER_OFF_HAND;
+        if (hand == FGHT_OFF_HAND) to_hit_mod += FGHT_MODIFIER_OFF_HAND;
 
         /* Single Shot */
         if (wpn->rof_set == WEAPON_ROF_SETTING_SINGLE) to_hit_mod += 0;
@@ -238,7 +238,8 @@ int fght_melee_calc_tohit(struct random *r, struct msr_monster *monster, struct 
         /* Add lighting modifiers */
 
         /* Offhand Weapon */
-        if (hand == FGHT_OFF_HAND) to_hit_mod += FGHT_RANGED_MODIFIER_OFF_HAND;
+        if (hand == FGHT_OFF_HAND) to_hit_mod += FGHT_MODIFIER_OFF_HAND;
+        if (wpn->is_unarmed == true) to_hit_mod += FGHT_MELEE_UNARMED;
 
         if (target->size == MSR_SIZE_AVERAGE) to_hit_mod += FGHT_MODIFIER_SIZE_AVERAGE;
         else if (target->size == MSR_SIZE_MASSIVE) to_hit_mod += FGHT_MODIFIER_SIZE_MASSIVE;
@@ -247,14 +248,6 @@ int fght_melee_calc_tohit(struct random *r, struct msr_monster *monster, struct 
         else if (target->size == MSR_SIZE_SCRAWY) to_hit_mod += FGHT_MODIFIER_SIZE_SCRAWNY;
         else if (target->size == MSR_SIZE_PUNY) to_hit_mod += FGHT_MODIFIER_SIZE_PUNY;
         else if (target->size == MSR_SIZE_MINISCULE) to_hit_mod += FGHT_MODIFIER_SIZE_MINISCULE;
-
-        /* Shooting Distances */
-        int distance = cd_pyth(&monster->pos, &target->pos);
-        if (distance == FGHT_MELEE_RANGE) to_hit_mod += FGHT_RANGED_MODIFIER_MELEE;
-        else if (distance >= (wpn->range * 3) ) to_hit_mod += FGHT_RANGED_MODIFIER_EXTREME_RANGE;
-        else if (distance >= (wpn->range * 2) ) to_hit_mod += FGHT_RANGED_MODIFIER_LONG_RANGE;
-        else if (distance <= FGHT_POINT_BLANK_RANGE) to_hit_mod += FGHT_RANGED_MODIFIER_POINT_BLACK;
-        else if (distance <= (wpn->range * 0.5) ) to_hit_mod += FGHT_RANGED_MODIFIER_SHORT_RANGE;
 
         /* Maximum modifier */
         if (to_hit_mod < -FGHT_MODIFIER_MAX) to_hit_mod = -FGHT_MODIFIER_MAX;

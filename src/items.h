@@ -174,6 +174,7 @@ struct item_weapon_specific {
     enum item_ammo_type ammo_type;
     uint16_t upgrades;
     bool jammed;
+    bool is_unarmed;
 };
 
 struct item_wearable_specific {
