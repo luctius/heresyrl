@@ -18,14 +18,6 @@ enum item_types {
     ITEM_TYPE_RANDOM,
 };
 
-enum item_attributes {
-    ITEM_ATTRIBUTE_NONE         = (0),
-    ITEM_ATTRIBUTE_STACKABLE    = (1<<0),
-    ITEM_ATTRIBUTE_WARPED       = (1<<1),
-    ITEM_ATTRIBUTE_EXPLOSIVE    = (1<<2),
-    ITEM_ATTRIBUTE_UNSTABLE     = (1<<3),
-};
-
 /*
 enum item_material {
     ITEM_MATERIAL_LIQUID,
@@ -170,15 +162,17 @@ struct item_weapon_specific {
     uint8_t magazine_sz;
     uint8_t magazine_left;
     uint8_t penetration;
-    enum weapon_special_quality special_quality;
     enum item_ammo_type ammo_type;
-    uint16_t upgrades;
+    uint32_t ammo_used_template_id;
+    bitfield_t special_quality;
+    bitfield_t upgrades;
     bool jammed;
     bool is_unarmed;
 };
 
 struct item_wearable_specific {
     enum item_wearable_type wearable_type;
+    bitfield_t special_quality;
     uint8_t damage_reduction;
 };
 
@@ -218,7 +212,6 @@ struct itm_item {
     /*enum item_material material;*/
     enum item_availability availability;
     enum item_quality quality;
-    enum item_attributes attributes;
     int weight;
     int cost;
     const char *sd_name;

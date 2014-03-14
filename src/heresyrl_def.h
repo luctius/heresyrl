@@ -13,6 +13,9 @@
         (type *)( (char *)__mptr - offsetof(type,member) );})
 
 #define ARRAY_SZ(a) (sizeof(a) / sizeof(a[0]))
+#define bitfield(field, attr) (((field) & attr) > 0)
+
+typedef uint64_t bitfield_t;
 
 /*
    These macros require:

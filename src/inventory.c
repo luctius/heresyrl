@@ -15,7 +15,7 @@ struct inv_entry {
 struct inv_inventory {
     uint32_t inv_pre;
 
-    uint16_t available_locations;
+    bitfield_t available_locations;
     LIST_HEAD(invhead, inv_entry) head;
 
     uint32_t inv_post;

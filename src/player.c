@@ -37,6 +37,7 @@ static bool plr_action_loop(struct msr_monster *player, void *controller) {
     if (controller == NULL) return false;
     struct dc_map *map = gbl_game->current_map;
     int ch;
+    bool has_action = false;
 
     coord_t pos = player->pos;
     coord_t *player_pos = &player->pos;
@@ -45,7 +46,7 @@ static bool plr_action_loop(struct msr_monster *player, void *controller) {
         gbl_game->running = false;
     }
 
-    while (gbl_game->running) {
+    while (gbl_game->running && (has_action == false) ) {
         mapwin_display_map(map, player_pos);
         charwin_refresh();
 
@@ -79,7 +80,7 @@ static bool plr_action_loop(struct msr_monster *player, void *controller) {
                         }
                         if ( (stop == true) || (item == NULL) ) {
                             if (item_list_sz > 0) {
-                                return ma_do_pickup(player, item_list, item_list_sz);
+                                has_action = ma_do_pickup(player, item_list, item_list_sz);
                             }
                             lg_printf("Done.");
                         }
@@ -88,11 +89,11 @@ static bool plr_action_loop(struct msr_monster *player, void *controller) {
                 }
                 break;
             case INP_KEY_INVENTORY:
-                return invwin_inventory(gbl_game->current_map, &gbl_game->player_data); break;
+                has_action = invwin_inventory(gbl_game->current_map, &gbl_game->player_data); break;
             case INP_KEY_EXAMINE:
                 mapwin_overlay_examine_cursor(gbl_game->current_map, player_pos); break;
             case INP_KEY_FIRE:
-                return mapwin_overlay_fire_cursor(gbl_game, gbl_game->current_map, player_pos); break;
+                has_action = mapwin_overlay_fire_cursor(gbl_game, gbl_game->current_map, player_pos); break;
             case INP_KEY_STAIRS_DOWN:
                 if (sd_get_map_tile(player_pos, gbl_game->current_map)->type == TILE_TYPE_STAIRS_DOWN) {
                     You(player, "see a broken stairway."); } break;
@@ -100,7 +101,7 @@ static bool plr_action_loop(struct msr_monster *player, void *controller) {
                 if (sd_get_map_tile(player_pos, gbl_game->current_map)->type == TILE_TYPE_STAIRS_UP) {
                     You(player, "see a broken stairway."); } break;
             case INP_KEY_RELOAD: 
-                return ma_do_reload(player); break;
+                has_action = ma_do_reload(player); break;
             case INP_KEY_WEAPON_SETTING: 
                 if ( (player->wpn_sel == MSR_WEAPON_SELECT_MAIN_HAND) || 
                      (player->wpn_sel == MSR_WEAPON_SELECT_DUAL_HAND) || 
@@ -134,14 +135,14 @@ static bool plr_action_loop(struct msr_monster *player, void *controller) {
         if (cd_equal(&pos, player_pos) == false) {
             /* test for a move */
             if (ma_do_move(player, &pos) == true) {
-                return true;
+                has_action = true;
             }
             else {
-                ma_do_melee(player, &pos);
+                has_action = ma_do_melee(player, &pos);
             }
         }
 
         pos = player->pos;
     }
-    return false;
+    return has_action;
 }

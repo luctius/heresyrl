@@ -89,7 +89,11 @@ bool spwn_populate_map(struct dc_map *map, struct random *r, int generations) {
                 if (TILE_HAS_ATTRIBUTE(sd_get_map_me(&c,map)->tile, TILE_ATTR_TRAVERSABLE) == true) {
                     itm_insert_item(item, map, &c);
                     j = try;
+                    spawned = true;
                 }
+            }
+            if (spawned == false) {
+                itm_destroy(item);
             }
         }
     }
