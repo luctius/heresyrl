@@ -4,22 +4,23 @@
 #include "items.h"
 
 enum item_ids {
-    /* Creature Attacks */
-    ITEM_ID_HUMAN_UNARMED,
-
+    /* Tools */
     /* Fixed Items */
     ITEM_ID_FIXED_LIGHT,
 
     /* Tools */
-    ITEM_ID_AVERAGE_TORCH,
+    ITEM_ID_TORCH,
 
     /* Weapons */
+    /* Creature Attacks */
+    ITEM_ID_HUMAN_UNARMED,
+
     /* Pistols*/
-    ITEM_ID_AVERAGE_STUB_AUTOMATIC,
-    ITEM_ID_AVERAGE_STUB_REVOLVER,
+    ITEM_ID_STUB_AUTOMATIC,
+    ITEM_ID_STUB_REVOLVER,
 
     /* Ammo */
-    ITEM_ID_AVERAGE_PISTOL_AMMO,
+    ITEM_ID_PISTOL_AMMO,
 
     /* Last Entry */
     ITEM_ID_MAX,

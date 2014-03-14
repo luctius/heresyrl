@@ -230,7 +230,7 @@ bool ma_do_melee(struct msr_monster *monster, coord_t *target_pos) {
         return false;
     }
 
-    //if (hits == 1) cost = MSR_ACTION_SINGLE_SHOT;
+    if (hits == 1) cost = MSR_ACTION_SINGLE_MELEE;
 
     monster->energy -= cost;
     monster->controller.interruptable = false;
@@ -310,7 +310,7 @@ static bool ma_has_ammo(struct msr_monster *monster, struct itm_item *item) {
     return false;
 }
 
-bool ma_do_reload(struct msr_monster *monster) {
+bool ma_do_reload_carried(struct msr_monster *monster, struct itm_item *ammo_item) {
     if (msr_verify_monster(monster) == false) return false;
     struct itm_item *item = NULL;
     struct item_weapon_specific *wpn = NULL;
@@ -340,6 +340,79 @@ bool ma_do_reload(struct msr_monster *monster) {
                     
                     if (cost == 0) {
                         cost += MSR_ACTION_RELOAD * item->use_delay;
+                    }
+                }
+            }
+        }
+    }
+
+    if (cost == 0) return false;
+    monster->energy -= cost;
+    monster->controller.interruptable = false;
+    return true;
+}
+
+static bool unload(struct msr_monster *monster, struct itm_item *weapon_item) {
+    if (msr_verify_monster(monster) == false) return false;
+    if (itm_verify_item(weapon_item) == false) return false;
+    if (wpn_is_type(weapon_item, WEAPON_TYPE_RANGED) == false) return false;
+    struct item_weapon_specific *wpn = &weapon_item->specific.weapon;
+    if (wpn->magazine_left == 0) return false;
+
+    struct itm_item *ammo_item = itm_create(wpn->ammo_used_template_id);
+    if (itm_verify_item(ammo_item) == false) return false;
+
+    struct item_ammo_specific *ammo = &ammo_item->specific.ammo;
+    ammo_item->stacked_quantity = wpn->magazine_left;
+    wpn->magazine_left = 0;
+    You(monster, "have unloaded %s.", weapon_item->ld_name);
+    return msr_give_item(monster, ammo_item);
+}
+
+bool ma_do_unload(struct msr_monster *monster, struct itm_item *weapon_item) {
+    if (msr_verify_monster(monster) == false) return false;
+    struct itm_item *item = weapon_item;
+    struct item_weapon_specific *wpn = NULL;
+    uint32_t cost = 0;
+
+    /* handle item given */
+    if (item != NULL) {
+        if (itm_verify_item(item)) {
+            wpn = &item->specific.weapon;
+            if (wpn->magazine_left > 0) {
+                if (unload(monster, item) == true) {
+                    cost += MSR_ACTION_UNLOAD;
+                }
+            }
+        }
+    }
+
+    /* or handle items on the ground*/
+    if (item == NULL) {
+        struct dc_map_entity *me = sd_get_map_me(&monster->pos, gbl_game->current_map);
+        while ( (item = inv_get_next_item(me->inventory, item) ) != NULL) {
+            if (itm_verify_item(item) == true) {
+                wpn = &item->specific.weapon;
+                if (wpn->magazine_left > 0) {
+                    if (unload(monster, item) ) {
+                        cost += MSR_ACTION_UNLOAD;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    /* .. or handle carried weapons. */
+    if (item == NULL) {
+        int hand_lst[] = {FGHT_MAIN_HAND, FGHT_OFF_HAND,};
+        for (unsigned int i = 0; i < ARRAY_SZ(hand_lst); i++) {
+            item = fght_get_weapon(monster, WEAPON_TYPE_RANGED, hand_lst[i]);
+            if (item != NULL) {
+                wpn = &item->specific.weapon;
+                if (wpn->magazine_left > 0) {
+                    if (unload(monster, item) ) {
+                        cost += MSR_ACTION_UNLOAD;
                     }
                 }
             }

@@ -97,10 +97,10 @@ enum item_wearable_type {
 };
 
 enum item_quality {
-    ITEM_QUALITY_POOR       = 1000,
-    ITEM_QUALITY_AVERAGE    = 2000,
-    ITEM_QUALITY_GOOD       = 3000,
-    ITEM_QUALITY_BEST       = 4000,
+    ITEM_QUALITY_POOR,
+    ITEM_QUALITY_AVERAGE,
+    ITEM_QUALITY_GOOD,
+    ITEM_QUALITY_BEST,
     ITEM_QUALITY_MAX,
     ITEM_QUALITY_RANDOM,
 };
@@ -126,8 +126,11 @@ enum weapon_dmg_type {
     WEAPON_DMG_TYPE_RANDOM,
 };
 enum weapon_special_quality {
-    WEAPON_SPEC_QUALITY_NONE        = (0<<0),
-    WEAPON_SPEC_QUALITY_RELIABLE    = (1<<0),
+    WEAPON_SPEC_QUALITY_NONE       = (0<<0),
+    WEAPON_SPEC_QUALITY_RELIABLE   = (1<<1),
+    WEAPON_SPEC_QUALITY_UNRELIABLE = (1<<2),
+    WEAPON_SPEC_QUALITY_UNARMED    = (1<<3),
+    WEAPON_SPEC_QUALITY_PRIMITIVE  = (1<<4),
 };
 
 enum item_weapon_category {
@@ -149,13 +152,12 @@ enum wpn_rof_setting {
     WEAPON_ROF_SETTING_MAX,
 };
 
-
 struct item_weapon_specific {
     enum item_weapon_type weapon_type;
     enum item_weapon_category weapon_category;
     enum weapon_dmg_type dmg_type;
     uint8_t nr_dmg_die; /*0 is 1d5*/
-    uint8_t dmg_addition;
+    int8_t dmg_addition;
     uint8_t range;
     uint8_t rof[WEAPON_ROF_SETTING_MAX];
     enum wpn_rof_setting rof_set;
@@ -167,7 +169,6 @@ struct item_weapon_specific {
     bitfield_t special_quality;
     bitfield_t upgrades;
     bool jammed;
-    bool is_unarmed;
 };
 
 struct item_wearable_specific {

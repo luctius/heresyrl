@@ -46,6 +46,7 @@ enum inp_keys inp_get_input(void) {
         case 'w':       return INP_KEY_WEAR; break;
         case 'U':       return INP_KEY_USE; break;
         case 'r':       return INP_KEY_RELOAD; break;
+        case 'R':       return INP_KEY_UNLOAD; break;
         case '[':       return INP_KEY_WEAPON_SETTING; break;
         case ']':       return INP_KEY_WEAPON_SELECT; break;
 

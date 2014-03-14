@@ -101,7 +101,9 @@ static bool plr_action_loop(struct msr_monster *player, void *controller) {
                 if (sd_get_map_tile(player_pos, gbl_game->current_map)->type == TILE_TYPE_STAIRS_UP) {
                     You(player, "see a broken stairway."); } break;
             case INP_KEY_RELOAD: 
-                has_action = ma_do_reload(player); break;
+                has_action = ma_do_reload_carried(player, NULL); break;
+            case INP_KEY_UNLOAD: 
+                has_action = ma_do_unload(player, NULL); break;
             case INP_KEY_WEAPON_SETTING: 
                 if ( (player->wpn_sel == MSR_WEAPON_SELECT_MAIN_HAND) || 
                      (player->wpn_sel == MSR_WEAPON_SELECT_DUAL_HAND) || 

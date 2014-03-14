@@ -1,18 +1,29 @@
 #include "monster_static.h"
 
-#define HUMAN(tid,ic,sdn,ldn,desc,gnr,mwound,ws,bs,st,tg,ag,pr,in,wl,fl,rtrait,comtrait,cartrait,creatrait,sk_basic, sk_adv, sk_exp) \
-    [tid]={.uid=0, .template_id=tid, .icon=ic, .icon_attr=COLOR_PAIR(DPL_COLOUR_NORMAL), .sd_name=sdn, .ld_name=ldn, \
-    .description=desc, .race=MSR_RACE_HUMAN, .size=MSR_SIZE_AVERAGE, .gender=gnr, .cur_wounds=mwound, .max_wounds=mwound, \
-    .fatepoints=0, .race_traits=rtrait, .combat_talents=comtrait, .career_talents=cartrait, .creature_talents=creatrait, \
+#define MONSTER(tid,_icon,_sd_name,_ld_name,desc,_gender,maxwounds) \
+    [tid]={.uid=0, .template_id=tid, .icon=_icon, .sd_name=_sd_name, .ld_name=_ld_name, .description=desc,\
+        .gender=_gender, .cur_wounds=maxwounds, .max_wounds=maxwounds, .fatepoints=0,
+#define MONSTER_END }
+
+#define CHARACTERISTICS(ws,bs,st,tg,ag,pr,in,wl,fl) \
     .characteristic[MSR_CHAR_WEAPON_SKILL]={ .base_value=ws,}, .characteristic[MSR_CHAR_BALISTIC_SKILL]={ .base_value=bs,}, \
     .characteristic[MSR_CHAR_STRENGTH]={ .base_value=st,}, .characteristic[MSR_CHAR_TOUGHNESS]={ .base_value=tg,}, \
     .characteristic[MSR_CHAR_AGILITY]={ .base_value=ag,}, .characteristic[MSR_CHAR_PERCEPTION]={ .base_value=pr,}, \
     .characteristic[MSR_CHAR_INTELLIGENCE]={ .base_value=in,}, .characteristic[MSR_CHAR_WILLPOWER]={ .base_value=wl,}, \
-    .characteristic[MSR_CHAR_FELLOWSHIP]={ .base_value=fl,}, .skills[MSR_SKILL_RATE_BASIC]=sk_basic, \
-    .skills[MSR_SKILL_RATE_ADVANCED]=sk_adv, .skills[MSR_SKILL_RATE_EXPERT]=sk_exp }
+    .characteristic[MSR_CHAR_FELLOWSHIP]={ .base_value=fl,} 
+
+#define SKILLS(basic_skills, advanced_skills, expert_skills) .skills[MSR_SKILL_RATE_BASIC]=basic_skills, \
+    .skills[MSR_SKILL_RATE_ADVANCED]=advanced_skills, .skills[MSR_SKILL_RATE_EXPERT]=expert_skills
+
+#define HUMAN(racetraits,combattalents,careertalents) .race=MSR_RACE_HUMAN, .size=MSR_SIZE_AVERAGE, .race_traits=racetraits, .combat_talents=combattalents, .career_talents=careertalents, .creature_talents=0
 
 #define BASIC_FERAL_DESC "description of a basic feral human"
 
 struct msr_monster static_monster_list[] = {
-    HUMAN(MSR_ID_BASIC_FERAL,'h',"human","a basic human",BASIC_FERAL_DESC,MSR_GENDER_MALE,14,30,30,30,30,30,30,30,30,30,0,0,0,0,0,0,0),
+    MONSTER(MSR_ID_BASIC_FERAL,'h',"human","a feral human",BASIC_FERAL_DESC,MSR_GENDER_MALE,14)
+        HUMAN(0,0,0),
+        CHARACTERISTICS(30,30,30,30,30,30,30,30,30),
+        SKILLS(0,0,0),
+    MONSTER_END,
+
 };
