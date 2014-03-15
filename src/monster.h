@@ -7,6 +7,7 @@
 
 #include "heresyrl_def.h"
 #include "coord.h"
+#include "enums.h"
 
 enum msr_gender {
     MSR_GENDER_MALE,
@@ -40,38 +41,6 @@ enum msr_size {
     MSR_SIZE_HULKING,
     MSR_SIZE_ENORMOUS,
     MSR_SIZE_MASSIVE,
-};
-
-enum msr_skills {
-    MSR_SKILL_AWARENESS,
-    MSR_SKILL_BARTER,
-    MSR_SKILL_CHEM_USE,
-    MSR_SKILL_COMMON_LORE,
-    MSR_SKILL_CONCEALMENT,
-    MSR_SKILL_DEMOLITION,
-    MSR_SKILL_DISGUISE,
-    MSR_SKILL_DODGE,
-    MSR_SKILL_EVALUATE,
-    MSR_SKILL_FORBIDDEN_LORE,
-    MSR_SKILL_INVOCATION,
-    MSR_SKILL_LOGIC,
-    MSR_SKILL_MEDICAE,
-    MSR_SKILL_PSYSCIENCE,
-    MSR_SKILL_SCHOLASTIC_LORE,
-    MSR_SKILL_SEARCH,
-    MSR_SKILL_SECURITY,
-    MSR_SKILL_SILENT_MOVE,
-    MSR_SKILL_SURVIVAL,
-    MSR_SKILL_TECH_USE,
-    MSR_SKILL_TRACKING,
-    MSR_SKILL_MAX,
-};
-
-enum msr_skill_rate {
-    MSR_SKILL_RATE_BASIC,
-    MSR_SKILL_RATE_ADVANCED,
-    MSR_SKILL_RATE_EXPERT,
-    MSR_SKILL_RATE_MAX,
 };
 
 enum msr_weapon_selection {
@@ -135,13 +104,9 @@ struct msr_monster {
     uint8_t fatepoints;
     uint32_t energy;
 
-    bitfield_t race_traits;
-    bitfield_t combat_talents;
-    bitfield_t career_talents;
-    bitfield_t creature_talents;
-
-    struct msr_char characteristic[MSR_CHAR_MAX];
+    bitfield_t talents[((TALENTS_MAX >> 27) & 0x0F)+1];
     bitfield_t skills[MSR_SKILL_RATE_MAX];
+    struct msr_char characteristic[MSR_CHAR_MAX];
 
     struct monster_controller controller;
 
@@ -175,12 +140,17 @@ enum msr_hit_location msr_get_hit_location(struct msr_monster *monster, int hit_
 int msr_get_near_sight_range(struct msr_monster *monster);
 int msr_get_far_sight_range(struct msr_monster *monster);
 char *msr_gender_string(struct msr_monster *monster);
-bool msr_do_skill_check(struct msr_monster *monster, enum msr_skills skill, int modifiers);
+bool msr_do_skill_check(struct msr_monster *monster, enum skills skill, int modifiers);
 
 bool msr_weapons_check(struct msr_monster *monster);
 bool msr_weapon_type_check(struct msr_monster *monster, enum item_weapon_type type);
 bool msr_weapon_next_selection(struct msr_monster *monster);
 
 struct itm_item *msr_unarmed_weapon(struct msr_monster *monster);
+
+bool msr_check_talent(struct msr_monster *monster,  bitfield_t talent);
+bool msr_set_talent(struct msr_monster *monster, bitfield_t talent);
+enum skill_rate msr_check_skill(struct msr_monster *monster,  enum skills skill);
+bool msr_set_skill(struct msr_monster *monster, enum skills skill, enum skill_rate);
 
 #endif /*MONSTER_H_*/

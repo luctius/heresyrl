@@ -56,9 +56,9 @@ static bool sv_save_monsters(FILE *file, int indent) {
         while ( (m = msrlst_get_next_monster(m) ) != NULL) {
             fprintf(file, "%*s" "{uid=%d,template_id=%d,race=%d,size=%d,cur_wounds=%d,max_wounds=%d,",  indent, "", 
                     m->uid, m->template_id,m->race,m->size,m->cur_wounds,m->max_wounds);
-            fprintf(file,"fatepoints=%d,race_traits=%lld,combat_talents=%lld,career_talents=%lld,",
-                    m->fatepoints, m->race_traits,m->combat_talents,m->career_talents);
-            fprintf(file,"creature_talents=%lld,is_player=%d,wpn_sel=%d,pos={x=%d,y=%d,},", m->creature_talents,m->is_player,m->wpn_sel,m->pos.x,m->pos.y);
+            /*fprintf(file,"creature_talents=%lld,race_traits=%lld,combat_talents=%lld,career_talents=%lld,",
+                    m->creature_talents, m->race_traits,m->combat_talents,m->career_talents);*/
+            fprintf(file,"fatepoints=%d,is_player=%d,wpn_sel=%d,pos={x=%d,y=%d,},", m->fatepoints,m->is_player,m->wpn_sel,m->pos.x,m->pos.y);
 
             fprintf(file,"skills={sz=%d,", MSR_SKILL_RATE_MAX);
             for (int i = 0; i < MSR_SKILL_RATE_MAX; i++) {

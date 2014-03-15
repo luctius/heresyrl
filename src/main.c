@@ -20,7 +20,7 @@
 #include "input.h"
 #include "monster_action.h"
 
-static void sigfunc(void) {
+static void sigfunc(int signal) {
     gbl_game->running = false;
 }
 

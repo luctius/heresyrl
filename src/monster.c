@@ -409,3 +409,16 @@ struct itm_item *msr_unarmed_weapon(struct msr_monster *monster) {
     return item;
 }
 
+bool msr_check_talent(struct msr_monster *monster,  bitfield_t talent) {
+    if (msr_verify_monster(monster) == false) return false;
+    int idx = (talent >> (bitfield_width - 4) ) & 0x0F; 
+    return bitfield(monster->talents[idx], talent);
+}
+
+bool msr_set_talent(struct msr_monster *monster, bitfield_t talent) {
+    if (msr_verify_monster(monster) == false) return false;
+    int idx = (talent >> (bitfield_width - 4) ) & 0x0F; 
+    set_bitfield(monster->talents[idx], talent);
+    return true;
+}
+

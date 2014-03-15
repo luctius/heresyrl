@@ -15,13 +15,14 @@
 #define SKILLS(basic_skills, advanced_skills, expert_skills) .skills[MSR_SKILL_RATE_BASIC]=basic_skills, \
     .skills[MSR_SKILL_RATE_ADVANCED]=advanced_skills, .skills[MSR_SKILL_RATE_EXPERT]=expert_skills
 
-#define HUMAN(racetraits,combattalents,careertalents) .race=MSR_RACE_HUMAN, .size=MSR_SIZE_AVERAGE, .race_traits=racetraits, .combat_talents=combattalents, .career_talents=careertalents, .creature_talents=0
+#define HUMAN(tal0,tal1,tal2) .race=MSR_RACE_HUMAN, .size=MSR_SIZE_AVERAGE, \
+        .talents[0]= TALENTS0_CREATURE_TALENT_HANDS | tal0, .talents[1]=tal1, .talents[2]=tal2
 
 #define BASIC_FERAL_DESC "description of a basic feral human"
 
 struct msr_monster static_monster_list[] = {
     MONSTER(MSR_ID_BASIC_FERAL,'h',"human","a feral human",BASIC_FERAL_DESC,MSR_GENDER_MALE,14)
-        HUMAN(0,0,0),
+        HUMAN(TALENTS0_BASIC_WEAPON_TRAINING_SOLID_PROJECTILE,TALENTS1_TALENT_DODGE,0),
         CHARACTERISTICS(30,30,30,30,30,30,30,30,30),
         SKILLS(0,0,0),
     MONSTER_END,

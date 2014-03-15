@@ -7,6 +7,7 @@
 
 #include "heresyrl_def.h"
 #include "coord.h"
+#include "enums.h"
 
 enum item_types {
     ITEM_TYPE_WEARABLE,
@@ -125,13 +126,6 @@ enum weapon_dmg_type {
     WEAPON_DMG_TYPE_MAX,
     WEAPON_DMG_TYPE_RANDOM,
 };
-enum weapon_special_quality {
-    WEAPON_SPEC_QUALITY_NONE       = (0<<0),
-    WEAPON_SPEC_QUALITY_RELIABLE   = (1<<1),
-    WEAPON_SPEC_QUALITY_UNRELIABLE = (1<<2),
-    WEAPON_SPEC_QUALITY_UNARMED    = (1<<3),
-    WEAPON_SPEC_QUALITY_PRIMITIVE  = (1<<4),
-};
 
 enum item_weapon_category {
     WEAPON_CATEGORY_PISTOL,
@@ -168,6 +162,7 @@ struct item_weapon_specific {
     uint32_t ammo_used_template_id;
     bitfield_t special_quality;
     bitfield_t upgrades;
+    bitfield_t wpn_talent;
     bool jammed;
 };
 

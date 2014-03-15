@@ -224,8 +224,12 @@ int fght_ranged_calc_tohit(struct random *r, struct msr_monster *monster, struct
     lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "fght", "Shot attempt with calcBS: %d => %d", roll, to_hit);
     if (roll < to_hit) {
         int dos = (to_hit - roll) / 10;
+
+        /* Single Shot: max 1 hit */
         if (wpn->rof_set == WEAPON_ROF_SETTING_SINGLE) return MIN(ammo, 1);
+        /* Automatic 1 hit + 1 for ever DoS */
         else if (wpn->rof_set == WEAPON_ROF_SETTING_AUTO) return MIN(ammo, 1 + dos);
+        /* Semi automatic: 1 hit + 1 per 2 DoS*/
         else if (wpn->rof_set == WEAPON_ROF_SETTING_SEMI) return MIN(ammo, 1 + (dos/2) );
         return -1;
     }
