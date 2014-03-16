@@ -68,7 +68,6 @@ static bool dc_clear_map_unsafe(struct dc_map *map) {
             sd_get_map_me(&c,map)->visible = false;
             sd_get_map_me(&c,map)->discovered = false;
             sd_get_map_me(&c,map)->light_level = 0;
-            sd_get_map_me(&c,map)->general_var = 0;
             sd_get_map_me(&c,map)->monster = NULL;
 
             if (sd_get_map_me(&c,map)->inventory != NULL) inv_exit(sd_get_map_me(&c,map)->inventory);
@@ -146,6 +145,9 @@ bool dc_tile_instance(struct dc_map *map, enum tile_types tt, int instance, coor
 
 static bool dc_generate_map_simple(struct dc_map *map, struct random *r, enum dc_dungeon_type type, int level) {
     if (dc_verify_map(map) == false) return false;
+    FIX_UNUSED(r);
+    FIX_UNUSED(type);
+    FIX_UNUSED(level);
 
     coord_t c;
     for (c.x = 0; c.x < map->size.x; c.x++) {
@@ -159,7 +161,7 @@ static bool dc_generate_map_simple(struct dc_map *map, struct random *r, enum dc
 }
 
 static void dc_add_stairs(struct dc_map *map, struct random *r) {
-    if (dc_verify_map(map) == false) return false;
+    if (dc_verify_map(map) == false) return;
 
     struct tl_tile **tile_up = NULL;
     struct tl_tile **tile_down = NULL;

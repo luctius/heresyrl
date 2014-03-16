@@ -21,14 +21,13 @@
 #include "monster_action.h"
 
 static void sigfunc(int signal) {
+    FIX_UNUSED(signal);
+
     gbl_game->running = false;
 }
 
 int main(int argc, char *argv[]) {
     struct gengetopt_args_info args_info;
-    int ch;
-    struct itm_item *item;
-    coord_t pos = cd_create(0,0);
 
     if (cmdline_parser (argc, argv, &args_info) != 0) exit(1);
 

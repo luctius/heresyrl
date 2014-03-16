@@ -586,7 +586,9 @@ void msgwin_log_refresh(struct logging *lg) {
 }
 
 void msgwin_log_callback(struct logging *lg, struct log_entry *entry, void *priv) {
-    struct hrl_window *window = priv;
+    FIX_UNUSED(entry);
+    FIX_UNUSED(priv);
+
     msgwin_log_refresh(lg);
 }
 
@@ -608,7 +610,7 @@ void charwin_refresh() {
     mvwprintw(char_win->win, y++,x, "Turn      %d.%d", gbl_game->turn / MSR_ENERGY_TURN, gbl_game->turn % MSR_ENERGY_TURN);
 
     y++;
-    int ws, bs, str, tgh, agi, intel, per, wil, fel;
+    int ws, bs, str, tgh, agi, intel, per, wil/*, fel*/;
     ws = msr_calculate_characteristic(player, MSR_CHAR_WEAPON_SKILL);
     bs = msr_calculate_characteristic(player, MSR_CHAR_BALISTIC_SKILL);
     str = msr_calculate_characteristic(player, MSR_CHAR_STRENGTH);
@@ -617,7 +619,7 @@ void charwin_refresh() {
     intel = msr_calculate_characteristic(player, MSR_CHAR_INTELLIGENCE);
     per = msr_calculate_characteristic(player, MSR_CHAR_PERCEPTION);
     wil = msr_calculate_characteristic(player, MSR_CHAR_WILLPOWER);
-    fel = msr_calculate_characteristic(player, MSR_CHAR_FELLOWSHIP);
+    /*fel = msr_calculate_characteristic(player, MSR_CHAR_FELLOWSHIP);*/
     mvwprintw(char_win->win, y++,x, "WS   %d   BS   %d", ws,bs);
     mvwprintw(char_win->win, y++,x, "Str  %d   Tgh  %d", str, tgh);
     mvwprintw(char_win->win, y++,x, "Agi  %d   Int  %d", agi, intel);

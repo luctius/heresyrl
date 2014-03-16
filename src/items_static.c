@@ -69,20 +69,21 @@ struct itm_item static_item_list[] = {
     /* Melee */
 
     /* Pistols */
-    /*    ID                            short name         long name          description           availability            quality                   weight,cost,delay*/
+    /*    ID                            short name         long name          description           availability            quality   weight,cost,delay*/
     ITEM(ITEM_ID_STUB_AUTOMATIC,"stub automatic","a stub automatic",STUB_AUTOMATIC_DESC,ITEM_AVAILABILITY_AVERAGE,ITEM_QUALITY_AVERAGE, 15,    50,  1),
         /*       dmg type             xd10  +x   range  single semi  auto  mag_sz  pen  upgrades  special   talent*/
         PISTOL(WEAPON_DMG_TYPE_IMPACT,1,     3,  30,     1,    3,    0,    9,      0,   0,        0, TALENTS0_PISTOL_WEAPON_TRAINING_SOLID_PROJECTILE), 
     ITEM_END,
 
     ITEM(ITEM_ID_STUB_REVOLVER,"stub revolver",  "a stub revolver", STUB_REVOLVER_DESC, ITEM_AVAILABILITY_AVERAGE,ITEM_QUALITY_AVERAGE, 15,    50,  2),
-        PISTOL(WEAPON_DMG_TYPE_IMPACT,1,     3,  30,     1,    3,    0,    6,      0,   0,        WEAPON_SPEC_QUALITY_RELIABLE, TALENTS0_PISTOL_WEAPON_TRAINING_SOLID_PROJECTILE), 
+        PISTOL(WEAPON_DMG_TYPE_IMPACT,1,     3,  30,     1,    3,    0,    6,      0,   0,  WEAPON_SPEC_QUALITY_RELIABLE, TALENTS0_PISTOL_WEAPON_TRAINING_SOLID_PROJECTILE), 
     ITEM_END,
 
     /* Ammo */
     /*    ID                    short name    long name           description    availability             quality           weight,cost,delay*/
     ITEM(ITEM_ID_PISTOL_AMMO,  "pistol ammo","A clip of pistol ammo","",    ITEM_AVAILABILITY_AVERAGE,ITEM_QUALITY_AVERAGE,  0,     1,   0),
         /*      ammo Type      energy level*/
-        AMMO(AMMO_TYPE_PISTOL,     0), ITEM_END,
+        AMMO(AMMO_TYPE_PISTOL,     0), 
+    ITEM_END,
 };
 

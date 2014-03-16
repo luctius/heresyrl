@@ -49,7 +49,7 @@ static bool wield_ranged_weapon(struct msr_monster *monster, struct itm_item *it
     if (itm_verify_item(item) == false) return false;
     if (item->item_type != ITEM_TYPE_WEAPON) return false;
     if (wpn_is_type(item, WEAPON_TYPE_RANGED) == false) return false;
-    struct item_weapon_specific *weapon = &item->specific.weapon;
+    //struct item_weapon_specific *weapon = &item->specific.weapon;
     struct inv_inventory *inv = monster->inventory;
     
     enum inv_locations location = INV_LOC_MAINHAND_WIELD;

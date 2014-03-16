@@ -20,8 +20,7 @@ struct dc_map_entity {
     bool in_sight;
     bool visible;
     bool discovered;
-    uint8_t light_level;
-    uint8_t general_var;
+    int light_level;
     struct tl_tile *tile;
     struct msr_monster *monster;
     struct inv_inventory *inventory;

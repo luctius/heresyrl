@@ -214,7 +214,6 @@ bool ma_do_melee(struct msr_monster *monster, coord_t *target_pos) {
     if (msr_verify_monster(target) == false) return false;
 
     struct itm_item *item = NULL;
-    struct item_weapon_specific *wpn = NULL;
     int cost = MSR_ACTION_MELEE;
     int hand_lst[] = {FGHT_MAIN_HAND, FGHT_OFF_HAND,};
     int hits = 0;
@@ -362,7 +361,6 @@ static bool unload(struct msr_monster *monster, struct itm_item *weapon_item) {
     struct itm_item *ammo_item = itm_create(wpn->ammo_used_template_id);
     if (itm_verify_item(ammo_item) == false) return false;
 
-    struct item_ammo_specific *ammo = &ammo_item->specific.ammo;
     ammo_item->stacked_quantity = wpn->magazine_left;
     wpn->magazine_left = 0;
     You(monster, "have unloaded %s.", weapon_item->ld_name);
