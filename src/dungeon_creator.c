@@ -278,7 +278,6 @@ bool dc_generate_map(struct dc_map *map, enum dc_dungeon_type type, int level, u
     dc_add_stairs(map, r);
     dc_clear_map(map);
 
-    struct pf_context *pf_ctx = pf_init();
 
     struct pf_settings pf_set = { 
         .max_traversable_cost = ts_get_movement_cost_max(),
@@ -296,11 +295,15 @@ bool dc_generate_map(struct dc_map *map, enum dc_dungeon_type type, int level, u
     struct pf_coord start = { .x = map->stair_up.x, .y = map->stair_up.y};
     struct pf_coord end = { .x = map->stair_down.x, .y = map->stair_down.y};
 
-    if (pf_flood_map(pf_ctx, &pf_set, &start) ) {
-        pf_calculate_reachability(pf_ctx);
+    struct pf_context *pf_ctx = pf_init(&pf_set);
+
+    if (pf_dijkstra_map(pf_ctx, &start) ) {
 
         if (pf_calculate_path(pf_ctx, &start, &end, NULL) > 1) {
             lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "dc", "Stairs reachable.");
+            if (pf_astar_map(pf_ctx, &start, &end) == true) {
+                lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "dc", "AStar: Stairs reachable.");
+            }
         }
         else {
             lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "dc", "Stairs not reachable.");

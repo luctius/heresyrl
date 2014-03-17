@@ -871,3 +871,33 @@ bool invwin_inventory(struct dc_map *map, struct pl_player *plr) {
     return false;
 }
 
+void character_window(void) {
+
+/*
+Career: 
+Rank:
+Origin: 
+Divination: 
+Wounds  0/0         Fate:  0/0
+Insanity: 0         Corruption: 0
+XP: 100             Spend: 3000
+
+[WS BS ... ]
+[      ... ]
+
+Amour                 AP          location
+guard flak      
+
+Condition                   Note
+....                        ....
+
+Skill       Level
+dodge       basic
+...         ...
+                                                 |
+Talent                      Note                 |
+Basic weapon traning SP     ...                  |
+
+*/
+}
+
