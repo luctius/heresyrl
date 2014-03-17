@@ -13,7 +13,6 @@ struct pf_coord {
 };
 
 struct pf_settings {
-    int max_traversable_cost;
     struct pf_coord map_start;
     struct pf_coord map_end;
 
@@ -54,7 +53,8 @@ Prereq: pf_dijkstra_map OR pf_astar_map
 Backtraces from end to start and finds the fastest route.
 If the map is a dijkstra map, every traversable square can be used to travel to end.
 If the map is an A* map, only squares along the route from start to end can be (reliably) used.
-This means that a dijkstra map is reusable as long as the end remains the same.
+This means that a dijkstra map is reusable as long start remains the same.
+    This means that calculations of other actors using the same map should be reversed.
 
 coord_lst is the adres of an empty pf_coord pointer.
 This will receive an adress via malloc and is the responsibility of the caller to be freed.

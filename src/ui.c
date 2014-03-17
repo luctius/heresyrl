@@ -264,7 +264,6 @@ static int get_viewport(int p, int vps, int mps) {
 }
 
 static void mapwin_display_map_noref(struct dc_map *map, coord_t *player) {
-    // Calculate top left of camera position
     coord_t scr_c = cd_create(0,0);
 
     if (map_win == NULL) return;
@@ -277,8 +276,9 @@ static void mapwin_display_map_noref(struct dc_map *map, coord_t *player) {
     werase(map_win->win);
     curs_set(0);
 
-    scr_c.x = get_viewport(player->x, map_win->cols,  map->size.x -1);
-    scr_c.y = get_viewport(player->y, map_win->lines, map->size.y -1);
+    // Calculate top left of camera position
+    scr_c.x = get_viewport(player->x, map_win->cols,  map->size.x);
+    scr_c.y = get_viewport(player->y, map_win->lines, map->size.y);
 
     bool map_see = gbl_game->args_info->map_flag;
 
@@ -292,6 +292,7 @@ static void mapwin_display_map_noref(struct dc_map *map, coord_t *player) {
                 int attr_mod = tile->icon_attr;
                 char icon = tile->icon;
                 bool modified = false;
+
 
                 /* Modify wall colour */
                 if (modified == false) {
@@ -324,7 +325,19 @@ static void mapwin_display_map_noref(struct dc_map *map, coord_t *player) {
                         }
                     }
                 }
-                /* Otherwise bright tile */
+
+                if (modified == false) {
+                    if (me->test_var == 2) {
+                        attr_mod = COLOR_PAIR(DPL_COLOUR_BGB_RED);
+                        modified = true;
+                    }
+                    if (me->test_var == 1) {
+                        attr_mod = COLOR_PAIR(DPL_COLOUR_BGB_BLUE);
+                        modified = true;
+                    }
+                }
+
+                /* Otherwise visible traversable tiles */
                 if (modified == false) {
                     if (me->visible == true) {
                         if (TILE_HAS_ATTRIBUTE(tile, TILE_ATTR_TRAVERSABLE) == true){

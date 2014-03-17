@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <assert.h>
+#include <ncurses.h>
 
 #include "tiles.h"
 #include "random.h"
@@ -69,6 +70,7 @@ static bool dc_clear_map_unsafe(struct dc_map *map) {
             sd_get_map_me(&c,map)->discovered = false;
             sd_get_map_me(&c,map)->light_level = 0;
             sd_get_map_me(&c,map)->monster = NULL;
+            sd_get_map_me(&c,map)->test_var = 0;
 
             if (sd_get_map_me(&c,map)->inventory != NULL) inv_exit(sd_get_map_me(&c,map)->inventory);
             sd_get_map_me(&c,map)->inventory = inv_init(inv_loc_tile);
@@ -280,7 +282,6 @@ bool dc_generate_map(struct dc_map *map, enum dc_dungeon_type type, int level, u
 
 
     struct pf_settings pf_set = { 
-        .max_traversable_cost = ts_get_movement_cost_max(),
         .map_start = { 
             .x = 0, 
             .y = 0, 
@@ -297,13 +298,12 @@ bool dc_generate_map(struct dc_map *map, enum dc_dungeon_type type, int level, u
 
     struct pf_context *pf_ctx = pf_init(&pf_set);
 
+    int dks_len = 0;
     if (pf_dijkstra_map(pf_ctx, &start) ) {
 
         if (pf_calculate_path(pf_ctx, &start, &end, NULL) > 1) {
+            dks_len = pf_calculate_path(pf_ctx, &start, &end, NULL);
             lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "dc", "Stairs reachable.");
-            if (pf_astar_map(pf_ctx, &start, &end) == true) {
-                lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "dc", "AStar: Stairs reachable.");
-            }
         }
         else {
             lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "dc", "Stairs not reachable.");

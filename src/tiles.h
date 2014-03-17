@@ -56,6 +56,5 @@ struct tl_tile {
 
 struct tl_tile *ts_get_tile_specific(enum tile_ids ti);
 struct tl_tile *ts_get_tile_type(enum tile_types tt);
-int ts_get_movement_cost_max(void);
 
 #endif /*TILES_H_*/

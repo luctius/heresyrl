@@ -12,8 +12,8 @@ enum pf_entity_state {
 
 struct pf_map_entity {
     int distance;
-    int cost;
-    int score;
+    unsigned int cost;
+    unsigned int score;
     enum pf_entity_state state;
 };
 
@@ -61,7 +61,7 @@ static bool pf_flood_map_point(struct pf_context *ctx, struct pf_coord *point, s
         
         pos_cbk.x = pos.x +ctx->set.map_start.x;
         pos_cbk.y = pos.y +ctx->set.map_start.y;
-        int cost = pf_get_index(point, map)->cost + ctx->set.pf_traversable_callback(ctx->set.map, &pos_cbk);
+        unsigned int cost = pf_get_index(point, map)->cost + ctx->set.pf_traversable_callback(ctx->set.map, &pos_cbk);
         if (cost >= PF_BLOCKED) {
             me->cost = cost;
             me->distance = pf_get_index(point, map)->distance + 1;
@@ -90,9 +90,9 @@ static bool pf_flood_map_point(struct pf_context *ctx, struct pf_coord *point, s
 }
 
 static struct pf_coord get_best_open_node(struct pf_map *map) {
-    struct pf_coord cd_best = { .x=INT_MAX, .y=INT_MAX, };
-    int score = INT_MAX;
-    int cost = INT_MAX;
+    struct pf_coord cd_best = { .x=PF_BLOCKED, .y=PF_BLOCKED, };
+    unsigned int score = PF_BLOCKED;
+    unsigned int cost = PF_BLOCKED;
 
     struct pf_coord point;
     for (point.x = 0; point.x < map->size.x; point.x++) {
@@ -128,15 +128,16 @@ static bool pf_astar_loop(struct pf_context *ctx, struct pf_coord *end) {
         struct pf_coord point = get_best_open_node(map);
         struct pf_map_entity *me = pf_get_index(&point, map);
 
-        //lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "pf", "entering (%d,%d) -> [st: %d/ cst: %d/dst: %d/scr: %d]", point.x, point.y, me->state, me->cost, me->distance, me->score);
-        if ( (point.x == end->x) && (point.y == end->y) ) {
-            /* found our goal, yeey! */
-            return true;
-        }
-        else if ( (point.x == INT_MAX) || (point.y == INT_MAX) ) {
+        if ( (point.x == PF_BLOCKED) || (point.y == PF_BLOCKED) ) {
             /* failed to find any open node... */
             return false;
         }
+        else if ( (point.x == end->x) && (point.y == end->y) ) {
+            /* found our goal, yeey! */
+            return true;
+        }
+
+        //lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "pf", "entering (%d,%d) -> [st: %d/ cst: %d/dst: %d/scr: %d]", point.x, point.y, me->state, me->cost, me->distance, me->score);
 
         me->state = PF_ENTITY_STATE_CLOSED;
 
@@ -145,59 +146,72 @@ static bool pf_astar_loop(struct pf_context *ctx, struct pf_coord *end) {
         for (unsigned int i = 0; i < ARRAY_SZ(pf_coord_lo_table); i++) {
             pos.x = pf_coord_lo_table[i].x + point.x;
             pos.y = pf_coord_lo_table[i].y + point.y;
+
+            if (pos.x >= map->size.x) continue;
+            if (pos.y >= map->size.y) continue;
+            if (pos.x < 0) continue;
+            if (pos.y < 0) continue;
             struct pf_map_entity *me_new = pf_get_index(&pos, map);
             
             pos_cbk.x = pos.x +ctx->set.map_start.x;
             pos_cbk.y = pos.y +ctx->set.map_start.y;
-            int cost = ctx->set.pf_traversable_callback(ctx->set.map, &pos_cbk);
+            unsigned int cost = ctx->set.pf_traversable_callback(ctx->set.map, &pos_cbk);
 
             /* If the new cost is better, OR it was in the free state, update it */
-            if ( ( (me->cost +cost) <= me_new->cost) || (me_new->state == PF_ENTITY_STATE_FREE) ) {
+            if ( ( (me->cost +cost) < me_new->cost) || (me_new->state == PF_ENTITY_STATE_FREE) ) {
                 me_new->cost = cost + me->cost;
-                me_new->score = me_new->cost + pyth(pos.x - end->x, pos.y - end->y);
+                me_new->score = me_new->cost + (pyth(pos.x - end->x, pos.y - end->y) * 2);
                 me_new->distance = me->distance +1;
                 me_new->state = PF_ENTITY_STATE_OPEN;
             }
 
-            //lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "pf", "tested (%d,%d) -> [st: %d/ cst: %d/dst: %d/scr: %d]", pos.x, point.y, me_new->state, me_new->cost, me_new->distance, me->score);
+            //lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "pf", "tested (%d,%d) -> [st: %d/ cst: %d/dst: %d/scr: %d]", pos.x, pos.y, me_new->state, me_new->cost, me_new->distance, me_new->score);
         }
     }
 
     return false;
 }
 
-static bool pf_backtrace(struct pf_map *map, struct pf_coord *point, struct pf_coord coord_lst[]) {
+static bool pf_backtrace(struct pf_map *map, struct pf_coord *end, struct pf_coord coord_lst[], int coord_lst_len) {
     if (map == NULL) return false;
-    if (point == NULL) return false;
-    if ( (point->x < 0) || (point->x >= map->size.x) ) return false;
-    if ( (point->y < 0) || (point->y >= map->size.y) ) return false;
+    if (end == NULL) return false;
+    if ( (end->x < 0) || (end->x >= map->size.x) ) return false;
+    if ( (end->y < 0) || (end->y >= map->size.y) ) return false;
 
-    struct pf_map_entity *me = pf_get_index(point, map);
-    if (coord_lst != NULL) {
-        coord_lst[me->distance].x = point->x;
-        coord_lst[me->distance].y = point->y;
-    }
+    lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "pf","backtrace length %d", coord_lst_len);
 
-    //lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "pf", "entering (%d,%d) -> [st: %d/ cst: %d/dst: %d]", point->x, point->y, me->state, me->cost, me->distance);
-    if (me->distance == 0) return true;
-
-    int best = PF_BLOCKED;
-    struct pf_coord pos, best_pos;
-    for (unsigned int i = 0; i < ARRAY_SZ(pf_coord_lo_table); i++) {
-        pos.x = pf_coord_lo_table[i].x + point->x;
-        pos.y = pf_coord_lo_table[i].y + point->y;
-        me = pf_get_index(&pos, map);
-        if (me->state != PF_ENTITY_STATE_FREE) {
-            if (best > me->cost) {
-                best = me->cost;
-                best_pos.x = pos.x;
-                best_pos.y = pos.y;
-            }
+    struct pf_coord point = { .x = end->x, .y = end->y, };
+    for (int i = 0; i < coord_lst_len; i++) {
+        struct pf_map_entity *me = pf_get_index(&point, map);
+        if (coord_lst != NULL) {
+            coord_lst[i].x = point.x;
+            coord_lst[i].y = point.y;
         }
-        //lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "pf", "p(%d,%d) -> [st: %d/ cst: %d/dst: %d]", pos.x, pos.y, me->state, me->cost, me->distance);
+
+        //lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "pf", "entering p(%d,%d, [%d] ) -> [st: %d/ cst: %d/dst: %d]", point.x, point.y, i, me->state, me->cost, me->distance);
+        if (me->cost >= PF_BLOCKED) return false;
+        if (me->distance == 0) return true;
+
+        unsigned int best = PF_BLOCKED;
+        struct pf_coord pos, best_pos;
+        for (unsigned int j = 0; j < ARRAY_SZ(pf_coord_lo_table); j++) {
+            pos.x = pf_coord_lo_table[j].x + point.x;
+            pos.y = pf_coord_lo_table[j].y + point.y;
+            me = pf_get_index(&pos, map);
+            if (me->state != PF_ENTITY_STATE_FREE) {
+                if (best > me->cost) {
+                    best = me->cost;
+                    best_pos.x = pos.x;
+                    best_pos.y = pos.y;
+                }
+            }
+            //lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "pf", "testing p(%d,%d) -> [st: %d/ cst: %d/dst: %d]", pos.x, pos.y, me->state, me->cost, me->distance);
+        }
+
+        point.x = best_pos.x;
+        point.y = best_pos.y;
     }
 
-    if (best != PF_BLOCKED) return pf_backtrace(map, &best_pos, coord_lst);
     return false;
 }
 
@@ -307,21 +321,22 @@ int pf_calculate_path(struct pf_context *ctx, struct pf_coord *start, struct pf_
     if (pf_get_index(start, &ctx->map)->cost != 1) return false;
     if (pf_get_index(start, &ctx->map)->distance != 0) return false;
 
-    struct pf_coord *list = NULL;
-    if (coord_lst != NULL) {
-        *coord_lst = malloc(sizeof(struct pf_coord) * (length+1) );
-        list = *coord_lst;
-    }
-
     lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "pf","backtrace: start at (%d,%d)", start->x,  start->y);
     lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "pf","backtrace: end at (%d,%d)", end->x,  end->y);
 
-    length = pf_get_index(end, &ctx->map)->distance;
-    if (pf_backtrace(&ctx->map, end, list) == length) {
+    length = pf_get_index(end, &ctx->map)->distance+1;
+
+    struct pf_coord *list = NULL;
+    if (coord_lst != NULL) {
+        *coord_lst = calloc(length +1 , sizeof(struct pf_coord) );
+        list = *coord_lst;
+    }
+
+    if (pf_backtrace(&ctx->map, end, list, length) == false) {
         lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "pf","backtrace failed");
         length = -1;
     }
-    else lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "pf","backtrace sucess");
+    else lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "pf","backtrace succes");
 
     if (length == -1) free(list);
     return length;

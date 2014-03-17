@@ -107,10 +107,3 @@ struct tl_tile *ts_get_tile_type(enum tile_types tt) {
     return &tile_array[0];
 }
 
-int ts_get_movement_cost_max(void) {
-    int max = 0;
-    for (unsigned int i = 0; i < ARRAY_SZ(tile_array); i++) {
-        if (max < tile_array[i].movement_cost) max = tile_array[i].movement_cost;
-    }
-    return max;
-}
