@@ -264,6 +264,7 @@ static int get_viewport(int p, int vps, int mps) {
     return p - hvps;
 }
 
+static coord_t last_ppos = {0,0};
 static void mapwin_display_map_noref(struct dc_map *map, coord_t *player) {
     coord_t scr_c = cd_create(0,0);
 
@@ -277,9 +278,16 @@ static void mapwin_display_map_noref(struct dc_map *map, coord_t *player) {
     werase(map_win->win);
     curs_set(0);
 
+    /* Only change viewport if the difference between the last change is big enough */
+    coord_t ppos = *player;
+    if (cd_pyth(&last_ppos, &ppos) > 10) {
+        last_ppos = ppos;
+    }
+    else { ppos = last_ppos; }
+
     // Calculate top left of camera position
-    scr_c.x = get_viewport(player->x, map_win->cols,  map->size.x);
-    scr_c.y = get_viewport(player->y, map_win->lines, map->size.y);
+    scr_c.x = get_viewport(ppos.x, map_win->cols,  map->size.x);
+    scr_c.y = get_viewport(ppos.y, map_win->lines, map->size.y);
 
     bool map_see = gbl_game->args_info->map_flag;
 
@@ -505,7 +513,7 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dc_map *map, coord_t *
     struct pl_player *plr = &g->player_data;
     if (plr == NULL) return false;
     if (msr_weapon_type_check(plr->player, WEAPON_TYPE_RANGED) == false) {
-        You(plr->player, "wield no ranged weapon.");
+        You(plr->player, "do not wield a ranged weapon.");
         return false;
     }
 
@@ -710,7 +718,7 @@ static int invwin_printlist(WINDOW *win, struct inv_show_item list[], int list_s
     if (start >= max) return -1;
 
     for (int i = 0; i < max; i++) {
-        mvwprintw(win, i, 1, "%c  %c%s", inp_key_translate_idx(i), list[i+start].location[0], list[i+start].item->sd_name);
+        mvwprintw(win, i, 1, "%c)  %c%s", inp_key_translate_idx(i), list[i+start].location[0], list[i+start].item->sd_name);
     }
     return max;
 }
@@ -911,6 +919,12 @@ dodge       basic
                                                  |
 Talent                      Note                 |
 Basic weapon traning SP     ...                  |
+
+*/
+}
+
+void levelup_selection_window(void) {
+/*
 
 */
 }
