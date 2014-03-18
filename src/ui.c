@@ -256,7 +256,8 @@ void update_screen(void) {
 }
 
 static int get_viewport(int p, int vps, int mps) {
-    int hvps = vps / 2;
+    int hvps = round(vps / 2.0f);
+
     if (mps < vps) return 0;
     if (p < hvps) return 0;
     if (p > (mps - hvps) ) return mps - vps;
