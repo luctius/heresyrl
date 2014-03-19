@@ -302,7 +302,6 @@ static void mapwin_display_map_noref(struct dc_map *map, coord_t *player) {
                 char icon = tile->icon;
                 bool modified = false;
 
-
                 /* Modify wall colour */
                 if (modified == false) {
                     if (me->visible == true) {
@@ -440,8 +439,8 @@ void mapwin_overlay_examine_cursor(struct dc_map *map, coord_t *p_pos) {
     if (char_win->type != HRL_WINDOW_TYPE_CHARACTER) return;
 
     coord_t e_pos = *p_pos;
-    int scr_x = get_viewport(p_pos->x, map_win->cols, map->size.x);
-    int scr_y = get_viewport(p_pos->y, map_win->lines, map->size.y);
+    int scr_x = get_viewport(last_ppos.x, map_win->cols, map->size.x);
+    int scr_y = get_viewport(last_ppos.y, map_win->lines, map->size.y);
 
     WINDOW *map_win_ex = NULL;
 
@@ -521,8 +520,8 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dc_map *map, coord_t *
     /*find nearest enemy....*/
 
 
-    int scr_x = get_viewport(p_pos->x, map_win->cols, map->size.x);
-    int scr_y = get_viewport(p_pos->y, map_win->lines, map->size.y);
+    int scr_x = get_viewport(last_ppos.x, map_win->cols, map->size.x);
+    int scr_y = get_viewport(last_ppos.y, map_win->lines, map->size.y);
 
     int length = 0;
     coord_t path[MAX(map->size.x, map->size.y)];
