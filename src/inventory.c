@@ -7,7 +7,7 @@
 #include "items.h"
 
 struct inv_entry {
-    enum inv_locations location;
+    bitfield_t location;
     struct itm_item *item;
     LIST_ENTRY(inv_entry) entries;
 };
@@ -24,7 +24,7 @@ struct inv_inventory {
 #define INVENTORY_PRE_CHECK (16524)
 #define INVENTORY_POST_CHECK (411)
 
-struct inv_inventory *inv_init(uint32_t locations) {
+struct inv_inventory *inv_init(bitfield_t locations) {
     struct inv_inventory *i= calloc(1, sizeof(struct inv_inventory) );
     if (i != NULL) {
         LIST_INIT(&i->head);
@@ -157,10 +157,6 @@ int inv_inventory_size(struct inv_inventory *inv) {
 bool inv_support_location(struct inv_inventory *inv, enum inv_locations location) {
     if (inv_verify_inventory(inv) == false) return false;
     if (location > INV_LOC_MAX) return false;
-    if (location == INV_LOC_BOTH_WIELD) {
-        if ( ( (inv->available_locations & inv_loc(INV_LOC_MAINHAND_WIELD) ) > 0) && 
-             ( (inv->available_locations & inv_loc(INV_LOC_OFFHAND_WIELD) ) > 0) ) return true;
-    }
     if ( (inv->available_locations & inv_loc(location) ) > 0) return true;
     return false;
 }
@@ -170,7 +166,6 @@ bool inv_move_item_to_location(struct inv_inventory *inv, struct itm_item *item,
     if (itm_verify_item(item) == false) return false;
     if (inv_support_location(inv, location) == false) return false;
     if (inv_has_item(inv, item) == false) return false;
-    if (location == INV_LOC_BOTH_WIELD) location = INV_LOC_MAINHAND_WIELD;
 
     struct inv_entry *ie = inv->head.lh_first;
 
@@ -187,7 +182,6 @@ bool inv_move_item_to_location(struct inv_inventory *inv, struct itm_item *item,
 struct itm_item *inv_get_item_from_location(struct inv_inventory *inv, enum inv_locations location) {
     if (inv_verify_inventory(inv) == false) return NULL;
     if (inv_support_location(inv, location) == false) return NULL;
-    if (location == INV_LOC_BOTH_WIELD) location = INV_LOC_MAINHAND_WIELD;
 
     struct inv_entry *ie = inv->head.lh_first;
 
@@ -203,7 +197,6 @@ struct itm_item *inv_get_item_from_location(struct inv_inventory *inv, enum inv_
 bool inv_loc_empty(struct inv_inventory *inv, enum inv_locations location) {
     if (inv_verify_inventory(inv) == false) return false;
     if (inv_support_location(inv, location) == false) return false;
-    if (location == INV_LOC_BOTH_WIELD) location = INV_LOC_MAINHAND_WIELD;
 
     return (inv_get_item_from_location(inv, location) == NULL);
 }
@@ -223,13 +216,42 @@ enum inv_locations inv_get_item_location(struct inv_inventory *inv, struct itm_i
     return INV_LOC_NONE;
 }
 
+bool inv_item_worn(struct inv_inventory *inv, struct itm_item *item) {
+    if (inv_verify_inventory(inv) == false) return false;
+    if (itm_verify_item(item) == false) return false;
+    if (inv_has_item(inv, item) == false) return false;
+
+    struct inv_entry *ie = inv->head.lh_first;
+    while (ie != NULL) {
+        if (ie->item == item) {
+            if (ie->location & (~INV_LOC_INVENTORY) > 0) return true;
+        }
+        ie = ie->entries.le_next;
+    }
+    return false;
+}
+
+bool inv_item_wielded(struct inv_inventory *inv, struct itm_item *item) {
+    if (inv_verify_inventory(inv) == false) return false;
+    if (itm_verify_item(item) == false) return false;
+    if (inv_item_worn(inv, item) == false) return false;
+
+    struct inv_entry *ie = inv->head.lh_first;
+    while (ie != NULL) {
+        if (ie->item == item) {
+            if (ie->location & (INV_LOC_OFFHAND_WIELD | INV_LOC_MAINHAND_WIELD) > 0) return true;
+        }
+        ie = ie->entries.le_next;
+    }
+    return false;
+}
+
 static const char *location_name_lst[] = {
     [INV_LOC_NONE] = "",
     [INV_LOC_INVENTORY] = "",
     [INV_LOC_FEET] = "feet",
     [INV_LOC_LEGS] = "legs",
     [INV_LOC_CHEST] = "chest",
-    [INV_LOC_SHOULDERS] = "shoulders",
     [INV_LOC_ARMS] = "arms",
     [INV_LOC_HANDS] = "hands",
     [INV_LOC_LEFT_RING] = "lring",
@@ -239,7 +261,6 @@ static const char *location_name_lst[] = {
     [INV_LOC_HEAD] = "head",
     [INV_LOC_FACE] = "face",
     [INV_LOC_BACK] = "back",
-    [INV_LOC_ARMOUR_CHEST] = "armour",
 };
 
 const char *inv_location_name(enum inv_locations loc) {

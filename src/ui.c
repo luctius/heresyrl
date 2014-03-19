@@ -732,7 +732,7 @@ static void inv_create_list(struct inv_inventory *inventory, struct inv_show_ite
          if (item != NULL) {
             invlist[i].item = item;
             invlist[i].location = " ";
-            if (inv_get_item_location(inventory, item) != INV_LOC_INVENTORY) {
+            if (inv_item_worn(inventory, item) == true) {
                 invlist[i].location = "*";
             }
          }
@@ -836,11 +836,11 @@ bool invwin_inventory(struct dc_map *map, struct pl_player *plr) {
                     charwin_refresh();
                     mapwin_display_map(map, &plr->player->pos);
 
-                    if (inv_get_item_location(plr->player->inventory, item) == INV_LOC_INVENTORY) {
-                        return ma_do_wear(plr->player, item);
+                    if (inv_item_worn(plr->player->inventory, item) == true) {
+                        return ma_do_remove(plr->player, item);
                     }
                     else {
-                        return ma_do_remove(plr->player, item);
+                        return ma_do_wear(plr->player, item);
                     }
                 } 
                 break;

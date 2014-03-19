@@ -8,6 +8,7 @@
 #include "heresyrl_def.h"
 #include "coord.h"
 #include "enums.h"
+#include "inventory.h"
 
 enum item_types {
     ITEM_TYPE_WEARABLE,
@@ -70,29 +71,41 @@ enum item_tool_type {
 
 enum item_ammo_type {
     AMMO_TYPE_ARROW,
-    AMMO_TYPE_PISTOL,
-    AMMO_TYPE_BASIC,
-    AMMO_TYPE_ROCKET,
-    AMMO_TYPE_FLAMER,
-    AMMO_TYPE_SHOTGUN,
-    AMMO_TYPE_LAS_PACK,
-    AMMO_TYPE_PLASMA_PACK,
+    AMMO_TYPE_PISTOL_SP,
+    AMMO_TYPE_PISTOL_LAS,
+    AMMO_TYPE_PISTOL_PLASMA,
+    AMMO_TYPE_PISTOL_MELTA,
+    AMMO_TYPE_PISTOL_FLAME,
+    AMMO_TYPE_PISTOL_BOLT,
+    AMMO_TYPE_PISTOL_SHURIKEN,
+    AMMO_TYPE_BASIC_SP,
+    AMMO_TYPE_BASIC_SHOTGUN,
+    AMMO_TYPE_BASIC_LAS,
+    AMMO_TYPE_BASIC_PLASMA,
+    AMMO_TYPE_BASIC_MELTA,
+    AMMO_TYPE_BASIC_FLAME,
+    AMMO_TYPE_BASIC_BOLT,
+    AMMO_TYPE_BASIC_SHURIKEN,
+    AMMO_TYPE_BASIC_GRENADE,
+    AMMO_TYPE_HEAVY_SP,
+    AMMO_TYPE_HEAVY_LAS,
+    AMMO_TYPE_HEAVY_PLASMA,
+    AMMO_TYPE_HEAVY_MELTA,
+    AMMO_TYPE_HEAVY_FLAME,
+    AMMO_TYPE_HEAVY_BOLT,
+    AMMO_TYPE_HEAVY_GRENADE,
+    AMMO_TYPE_HEAVY_ROCKET,
     AMMO_TYPE_MAX,
     AMMO_TYPE_RANDOM,
 };
 
 enum item_wearable_type {
-    WEARABLE_TYPE_FEET,
-    WEARABLE_TYPE_LEGS,
-    WEARABLE_TYPE_CHEST,
-    WEARABLE_TYPE_SHOULDERS,
-    WEARABLE_TYPE_ARMS,
-    WEARABLE_TYPE_HANDS,
-    WEARABLE_TYPE_FINGERS,
-    WEARABLE_TYPE_HEAD,
-    WEARABLE_TYPE_FACE,
-    WEARABLE_TYPE_BACK,
-    WEARABLE_TYPE_ARMOUR_CHEST,
+    WEARABLE_TYPE_ARMOUR,
+    WEARABLE_TYPE_BOOTS,
+    WEARABLE_TYPE_VISOR,
+    WEARABLE_TYPE_CLOTHING,
+    WEARABLE_TYPE_RING,
+    WEARABLE_TYPE_GLOVES,
     WEARABLE_TYPE_MAX,
     WEARABLE_TYPE_RANDOM,
 };
@@ -134,7 +147,6 @@ enum item_weapon_category {
     WEAPON_CATEGORY_1H_MELEE,
     WEAPON_CATEGORY_2H_MELEE,
     WEAPON_CATEGORY_THROWN,
-    WEAPON_CATEGORY_MELEE_THROWN,
     WEAPON_CATEGORY_MAX,
     WEAPON_CATEGORY_RANDOM,
 };
@@ -168,6 +180,7 @@ struct item_weapon_specific {
 
 struct item_wearable_specific {
     enum item_wearable_type wearable_type;
+    enum inv_locations location;
     bitfield_t special_quality;
     uint8_t damage_reduction;
 };
@@ -188,8 +201,8 @@ struct item_food_specific {
 
 struct item_ammo_specific {
     enum item_ammo_type ammo_type;
-    uint8_t energy;
-    uint8_t energy_left;
+    int energy;
+    int energy_left;
 };
 
 enum item_owner {

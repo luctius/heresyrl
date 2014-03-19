@@ -102,7 +102,7 @@ bool ma_do_wear(struct msr_monster *monster, struct itm_item *item) {
     if (msr_verify_monster(monster) == false) return false;
     if (itm_verify_item(item) == false) return false;
     if (inv_has_item(monster->inventory, item) == false) return false;
-    if (inv_get_item_location(monster->inventory, item) != INV_LOC_INVENTORY) return false;
+    if (inv_item_worn(monster->inventory, item) == true) return false;
     if (dw_can_wear_item(monster, item) == false) return false;
 
     if (dw_wear_item(monster, item) == false) return false;
@@ -115,7 +115,7 @@ bool ma_do_remove(struct msr_monster *monster, struct itm_item *item) {
     if (msr_verify_monster(monster) == false) return false;
     if (itm_verify_item(item) == false) return false;
     if (inv_has_item(monster->inventory, item) == false) return false;
-    if (inv_get_item_location(monster->inventory, item) == INV_LOC_INVENTORY) return false;
+    if (inv_item_worn(monster->inventory, item) == false) return false;
     if (dw_can_remove_item(monster, item) == false) return false;
 
     if (dw_remove_item(monster, item) == false) return false;
@@ -129,7 +129,6 @@ bool ma_do_use(struct msr_monster *monster, struct itm_item *item) {
     if (msr_verify_monster(monster) == false) return false;
     if (itm_verify_item(item) == false) return false;
     if (inv_has_item(monster->inventory, item) == false) return false;
-    if (inv_get_item_location(monster->inventory, item) != INV_LOC_INVENTORY) return false;
     if (dw_use_item(monster, item) == false) return false;
 
     monster->energy -= MSR_ACTION_USE * item->use_delay;
@@ -170,8 +169,7 @@ bool ma_do_drop(struct msr_monster *monster, struct itm_item *items[], int nr_it
 
     for (int i = 0; i< nr_items; i++) {
         if (inv_has_item(monster->inventory, items[i]) == true) {
-            if ( (inv_get_item_location(monster->inventory, items[i]) == INV_LOC_MAINHAND_WIELD) ||
-                 (inv_get_item_location(monster->inventory, items[i]) == INV_LOC_OFFHAND_WIELD) ) {
+            if (inv_item_wielded(monster->inventory, items[i]) == true) {
                 /*
                    Allow drop of weapons in hand to the ground for free.
                  */
@@ -187,7 +185,7 @@ bool ma_do_drop(struct msr_monster *monster, struct itm_item *items[], int nr_it
                 }
             }
 
-            if (inv_get_item_location(monster->inventory, items[i]) == INV_LOC_INVENTORY) {
+            if (inv_item_worn(monster->inventory, items[i]) == false) {
                 if (msr_remove_item(monster, items[i]) == true) {
                     if (itm_insert_item(items[i], gbl_game->current_map, &monster->pos) == true) {
                         monster->energy -= MSR_ACTION_DROP;
@@ -279,14 +277,25 @@ static bool ma_has_ammo(struct msr_monster *monster, struct itm_item *item) {
             ammo = &a_item->specific.ammo;
             if (ammo->ammo_type == wpn->ammo_type) {
 
-                /*
-                   Transfer ammo from stack to the magazine of the item.
-                 */
                 int to_fill = wpn->magazine_sz - wpn->magazine_left;
-                int sz = MIN(to_fill, a_item->stacked_quantity);
-                wpn->magazine_left += sz;
-                a_item->stacked_quantity -= sz;
+                if (ammo->energy > 0) {
+                    float mod = ammo->energy / (float) wpn->magazine_sz;
+                    int ammo_in_pack = ammo->energy_left * mod;
+                    int sz = MIN(to_fill, ammo_in_pack);
+                    wpn->magazine_left += sz;
+                    ammo->energy_left -= (sz * mod);
+                    if (ammo->energy_left < 2) a_item->stacked_quantity = 0;
+                }
+                else {
+                    /*
+                       Transfer ammo from stack to the magazine of the item.
+                     */
+                    int sz = MIN(to_fill, a_item->stacked_quantity);
+                    wpn->magazine_left += sz;
+                    a_item->stacked_quantity -= sz;
+                }
 
+                /* TODO: destroy all items in inventory of stack_qnty == 0 */
                 if (a_item->stacked_quantity == 0) {
                     /*
                        Destroy stacked ammo item,
@@ -326,8 +335,7 @@ bool ma_do_reload_carried(struct msr_monster *monster, struct itm_item *ammo_ite
 
                     You_action(monster, "reload %s.", item->ld_name);
                     Monster_action(monster, "reloads %s.", item->ld_name);
-                }
-                else {
+                } else {
                     You(monster, "do not have any ammo left for %s.", item->ld_name);
                 }
 
@@ -360,9 +368,19 @@ static bool unload(struct msr_monster *monster, struct itm_item *weapon_item) {
 
     struct itm_item *ammo_item = itm_create(wpn->ammo_used_template_id);
     if (itm_verify_item(ammo_item) == false) return false;
+    struct item_ammo_specific *ammo = &ammo_item->specific.ammo;
 
-    ammo_item->stacked_quantity = wpn->magazine_left;
+    if (ammo->energy > 0) {
+        /* We count charge packs with energy */
+        ammo_item->stacked_quantity = 1;
+        float mod = ammo->energy / (float) wpn->magazine_sz;
+        ammo->energy_left = wpn->magazine_left * mod;
+    } else {
+        /* We count individual bullets */
+        ammo_item->stacked_quantity = wpn->magazine_left;
+    }
     wpn->magazine_left = 0;
+
     You(monster, "have unloaded %s.", weapon_item->ld_name);
     return msr_give_item(monster, ammo_item);
 }

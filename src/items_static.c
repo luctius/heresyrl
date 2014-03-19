@@ -4,9 +4,10 @@
    TODO create a nice solution.
  */
 
-#define TORCH_DESC "This a generic torch."
+#define GLOW_GLOBE_DESC "This a generic glow globe."
 #define STUB_AUTOMATIC_DESC "This a generic stub automatic."
 #define STUB_REVOLVER_DESC "This a generic stub revolver."
+#define LAS_PISTOL_DESC "This a generic las pistol."
 
 #define ITEM(item_id,_sd_name,_ld_name,item_desc,_availability,item_quality,item_weight,item_cost,delay) \
     [item_id]={.uid=0, .template_id=item_id, .availability=_availability, .quality=item_quality, \
@@ -39,7 +40,7 @@
             .weapon_category=WEAPON_CATEGORY_PISTOL, .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=_range, \
             .rof[WEAPON_ROF_SETTING_SINGLE]=rof_single, .rof[WEAPON_ROF_SETTING_SEMI]=rof_semi, .rof[WEAPON_ROF_SETTING_AUTO]=rof_auto, \
             .rof_set=WEAPON_ROF_SETTING_SINGLE, .magazine_sz=mag_sz, .magazine_left=mag_sz, .penetration=_penetration, \
-            .ammo_type=AMMO_TYPE_PISTOL, .ammo_used_template_id=ITEM_ID_PISTOL_AMMO, .special_quality=special, .upgrades=_upgrades, \
+            .ammo_type=AMMO_TYPE_PISTOL_SP, .ammo_used_template_id=ITEM_ID_PISTOL_AMMO_SP, .special_quality=special, .upgrades=_upgrades, \
             .wpn_talent=talent, .jammed=false,}
 
 #define AMMO(_ammo_type,_energy) .icon='^', .stacked_quantity=1, .max_quantity=100,\
@@ -49,11 +50,11 @@ struct itm_item static_item_list[] = {
     /* Tools */
     /* Lights */
     /*    ID                   short name  long name    description          availability               quality              weight,cost,delay*/
-    ITEM(ITEM_ID_FIXED_LIGHT,  "torch",    "a torch",   TORCH_DESC,  ITEM_AVAILABILITY_AVERAGE, ITEM_QUALITY_AVERAGE, 1,     1,   1),
+    ITEM(ITEM_ID_FIXED_LIGHT,  "torch",    "a torch",   GLOW_GLOBE_DESC,  ITEM_AVAILABILITY_AVERAGE, ITEM_QUALITY_AVERAGE, 1,     1,   1),
         /*        tool type     energy  luminem*/
         LIGHT(TOOL_TYPE_LIGHT,  65000,     12), ITEM_END,
 
-    ITEM(ITEM_ID_TORCH,       "torch",    "a torch",    TORCH_DESC,  ITEM_AVAILABILITY_AVERAGE, ITEM_QUALITY_AVERAGE, 1,     1,   1),
+    ITEM(ITEM_ID_GLOW_GLOBE,    "glowe globe",    "a glowe globe",    GLOW_GLOBE_DESC,  ITEM_AVAILABILITY_AVERAGE, ITEM_QUALITY_AVERAGE, 1,     1,   1),
         LIGHT(TOOL_TYPE_LIGHT,   100,      12), ITEM_END,
 
     /* Wearables */
@@ -64,7 +65,7 @@ struct itm_item static_item_list[] = {
     ITEM(ITEM_ID_HUMAN_UNARMED,  "hands",    "hands",     "",                  0,                         0,                    0,    0,   0),
         /*                 CATEGORY             xd10  +X     dmg type              upgrades       special qualities             talent */
         CREATURE_MELEE(WEAPON_CATEGORY_2H_MELEE,0,    -3,  WEAPON_DMG_TYPE_IMPACT, 0,         WEAPON_SPEC_QUALITY_UNARMED), 
-    ITEM_END,
+        ITEM_END,
 
     /* Melee */
 
@@ -73,17 +74,23 @@ struct itm_item static_item_list[] = {
     ITEM(ITEM_ID_STUB_AUTOMATIC,"stub automatic","a stub automatic",STUB_AUTOMATIC_DESC,ITEM_AVAILABILITY_AVERAGE,ITEM_QUALITY_AVERAGE, 15,    50,  1),
         /*       dmg type             xd10  +x   range  single semi  auto  mag_sz  pen  upgrades  special   talent*/
         PISTOL(WEAPON_DMG_TYPE_IMPACT,1,     3,  30,     1,    3,    0,    9,      0,   0,        0, TALENTS0_PISTOL_WEAPON_TRAINING_SOLID_PROJECTILE), 
-    ITEM_END,
+        ITEM_END,
 
-    ITEM(ITEM_ID_STUB_REVOLVER,"stub revolver",  "a stub revolver", STUB_REVOLVER_DESC, ITEM_AVAILABILITY_AVERAGE,ITEM_QUALITY_AVERAGE, 15,    50,  2),
-        PISTOL(WEAPON_DMG_TYPE_IMPACT,1,     3,  30,     1,    3,    0,    6,      0,   0,  WEAPON_SPEC_QUALITY_RELIABLE, TALENTS0_PISTOL_WEAPON_TRAINING_SOLID_PROJECTILE), 
-    ITEM_END,
+    ITEM(ITEM_ID_STUB_REVOLVER,"stub revolver",  "a stub revolver", STUB_REVOLVER_DESC, ITEM_AVAILABILITY_AVERAGE,ITEM_QUALITY_AVERAGE, 15,    40,  2),
+        PISTOL(WEAPON_DMG_TYPE_IMPACT,1,     3,  30,     1,    0,    0,    6,      0,   0,  WEAPON_SPEC_QUALITY_RELIABLE, TALENTS0_PISTOL_WEAPON_TRAINING_SOLID_PROJECTILE), 
+        ITEM_END,
+
+    ITEM(ITEM_ID_LAS_PISTOL,"las pistol",       "a las pistol",    LAS_PISTOL_DESC,    ITEM_AVAILABILITY_AVERAGE,ITEM_QUALITY_AVERAGE, 17,    50,  1),
+        PISTOL(WEAPON_DMG_TYPE_ENERGY,1,     2,  30,     1,    0,    0,   30,      0,   0,  WEAPON_SPEC_QUALITY_RELIABLE, TALENTS0_PISTOL_WEAPON_TRAINING_LAS), 
+        ITEM_END,
 
     /* Ammo */
     /*    ID                    short name    long name           description    availability             quality           weight,cost,delay*/
-    ITEM(ITEM_ID_PISTOL_AMMO,  "pistol ammo","A clip of pistol ammo","",    ITEM_AVAILABILITY_AVERAGE,ITEM_QUALITY_AVERAGE,  0,     1,   0),
+    ITEM(ITEM_ID_PISTOL_AMMO_SP,  "solid pistol ammo","A clip of solid projectile pistol ammo","",    ITEM_AVAILABILITY_AVERAGE,ITEM_QUALITY_AVERAGE,  0,     1,   0),
         /*      ammo Type      energy level*/
-        AMMO(AMMO_TYPE_PISTOL,     0), 
-    ITEM_END,
+        AMMO(AMMO_TYPE_PISTOL_SP,     0), ITEM_END,
+    ITEM(ITEM_ID_PISTOL_AMMO_LAS,  "pistol charge pack","A pistol charge pack","",    ITEM_AVAILABILITY_AVERAGE,ITEM_QUALITY_AVERAGE,  0,     1,   0),
+        /*      ammo Type      energy level*/
+        AMMO(AMMO_TYPE_PISTOL_LAS,     1000), ITEM_END,
 };
 
