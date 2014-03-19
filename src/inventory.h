@@ -36,9 +36,10 @@ struct itm_item *inv_get_next_item(struct inv_inventory *inv, struct itm_item *p
 int inv_inventory_size(struct inv_inventory *inv);
 
 bool inv_support_location(struct inv_inventory *inv, enum inv_locations location);
-bool inv_move_item_to_location(struct inv_inventory *inv, struct itm_item *item, enum inv_locations location);
+bool inv_move_item_to_location(struct inv_inventory *inv, struct itm_item *item, bitfield_t location);
 struct itm_item *inv_get_item_from_location(struct inv_inventory *inv, enum inv_locations location);
 bool inv_loc_empty(struct inv_inventory *inv, enum inv_locations location);
+bitfield_t inv_get_item_locations(struct inv_inventory *inv, struct itm_item *item);
 
 bool inv_item_worn(struct inv_inventory *inv, struct itm_item *item); /* worn items include wielded items, but not vice versa. */
 bool inv_item_wielded(struct inv_inventory *inv, struct itm_item *item);

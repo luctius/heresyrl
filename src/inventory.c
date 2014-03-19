@@ -161,11 +161,17 @@ bool inv_support_location(struct inv_inventory *inv, enum inv_locations location
     return false;
 }
 
-bool inv_move_item_to_location(struct inv_inventory *inv, struct itm_item *item, enum inv_locations location) {
+bool inv_move_item_to_location(struct inv_inventory *inv, struct itm_item *item, bitfield_t location) {
     if (inv_verify_inventory(inv) == false) return false;
     if (itm_verify_item(item) == false) return false;
-    if (inv_support_location(inv, location) == false) return false;
     if (inv_has_item(inv, item) == false) return false;
+
+    for (int i = 0; i < INV_LOC_MAX; i++) {
+        if (location & inv_loc(i) > 0) {
+            if (inv_support_location(inv, i) == false) return false;
+            if (inv_loc_empty(inv, i) == false) return false;
+        }
+    }
 
     struct inv_entry *ie = inv->head.lh_first;
 
@@ -197,11 +203,12 @@ struct itm_item *inv_get_item_from_location(struct inv_inventory *inv, enum inv_
 bool inv_loc_empty(struct inv_inventory *inv, enum inv_locations location) {
     if (inv_verify_inventory(inv) == false) return false;
     if (inv_support_location(inv, location) == false) return false;
+    if (location == INV_LOC_INVENTORY) return true; /*Inventory is the base where everything can go */
 
     return (inv_get_item_from_location(inv, location) == NULL);
 }
 
-enum inv_locations inv_get_item_location(struct inv_inventory *inv, struct itm_item *item) {
+bitfield_t inv_get_item_locations(struct inv_inventory *inv, struct itm_item *item) {
     if (inv_verify_inventory(inv) == false) return INV_LOC_NONE;
     if (itm_verify_item(item) == false) return INV_LOC_NONE;
     if (inv_has_item(inv, item) == false) return INV_LOC_NONE;

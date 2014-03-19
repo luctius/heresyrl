@@ -130,7 +130,7 @@ static bool dw_remove_weapon(struct msr_monster *monster, struct itm_item *item)
     //struct item_weapon_specific *weapon = &item->specific.weapon;
     struct inv_inventory *inv = monster->inventory;
 
-    if (inv_move_item_to_location(inv, item, INV_LOC_INVENTORY) == false) {
+    if (inv_move_item_to_location(inv, item, inv_loc(INV_LOC_INVENTORY) ) == false) {
         lg_printf_l(LG_DEBUG_LEVEL_WARNING, "Could not move %s to the correct location, bailing.", item->ld_name);
         You(monster, "are to be unable to remove this weapon.");
         return false;
