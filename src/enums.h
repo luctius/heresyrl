@@ -2,6 +2,7 @@
 #define SPECIALQUALITIES_H
 
 enum weapon_special_quality {
+    WEAPON_SPEC_QUALITY_NONE,
     //WEAPON_SPEC_QUALITY_ACCURATE,   /* Additional +10 to hit when used with the aim action */
     WEAPON_SPEC_QUALITY_BALANCED,   /* +10 Parry */
     WEAPON_SPEC_QUALITY_BLAST_2,    /* All within the weapon's blast radius in squares is hit */
@@ -27,13 +28,17 @@ enum weapon_special_quality {
     WEAPON_SPEC_QUALITY_UNRELIABLE, /* jams on 90+ */
     WEAPON_SPEC_QUALITY_UNSTABLE,   /* on hit, roll 1d10: 1: half dmg, 2-9: normal, 10: double damage */
     WEAPON_SPEC_QUALITY_UNWIELDY,   /* Cannot be used to parry. */
+    WEAPON_SPEC_MAX,
 };
 
 enum wearable_special_quality {
+    WEARABLE_SPEC_QUALITY_NONE,
     WEARABLE_SPEC_QUALITY_PRIMITIVE, /* AP halved unless weapon is also primitive. */
+    WEARABLE_SPEC_QUALITY_MAX,
 };
 
 enum weapon_upgrades {
+    WEAPON_UPGRADE_NONE,
     WEAPON_UPGRADE_COMPACT,
     WEAPON_UPGRADE_EXTERMINATOR,
     WEAPON_UPGRADE_EXTRA_GRIP,
@@ -44,13 +49,16 @@ enum weapon_upgrades {
     WEAPON_UPGRADE_RED_DOT,
     WEAPON_UPGRADE_SILENCER,
     WEAPON_UPGRADE_TELESCOPE_SIGHT,
+    WEAPON_UPGRADE_MAX,
 };
 
 enum ammo_upgrades {
+    AMMO_UPGRADE_NONE,
     AMMO_UPGRADE_DUMDUM,     /* +2 dmg, armour doubles */
     AMMO_UPGRADE_HOTSHOT,    /* +1 dmg, tearing, +pen 4, clip_sz == 1, -reliable */
     AMMO_UPGRADE_INFERNO,    /* Ag test or catch fire */
     AMMO_UPGRADE_MANSTOPPER, /* +3 Penetration */
+    AMMO_UPGRADE_MAX,
 };
 
 enum skill_rate {
@@ -86,6 +94,7 @@ enum skills {
     SKILLS_MAX,
 };
 
+#define TALENTS_NONE                                      (0)
 #define TALENTS0_BASIC_WEAPON_TRAINING_BOLT               ((0x0UL<<27) | (0x1UL<<0))
 #define TALENTS0_BASIC_WEAPON_TRAINING_FLAME              ((0x0UL<<27) | (0x1UL<<1))
 #define TALENTS0_BASIC_WEAPON_TRAINING_LAS                ((0x0UL<<27) | (0x1UL<<2))
@@ -236,6 +245,6 @@ enum skills {
 #define TALENTS2_WALL_OF_STEEL                            ((0x2UL<<27) | (0x1UL<<46))
 
 
-#define TALENTS_MAX                                       ((0x2UL<<27) | (0x1UL<<59))
+#define TALENTS_MAX                                       ( ((0x2UL<<27) | (0x1UL<<46)) +1)
 
 #endif /* SPECIALQUALITIES_H */

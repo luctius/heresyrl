@@ -180,9 +180,9 @@ struct item_weapon_specific {
 
 struct item_wearable_specific {
     enum item_wearable_type wearable_type;
-    enum inv_locations location;
-    bitfield_t special_quality;
+    enum inv_locations locations;
     uint8_t damage_reduction;
+    bitfield_t special_quality;
 };
 
 struct item_tool_specific {
@@ -269,5 +269,8 @@ bool wpn_is_catergory(struct itm_item *item, enum item_weapon_category cat);
 bool wpn_ranged_weapon_rof_set_check(struct itm_item *item);
 bool wpn_ranged_next_rof_set(struct itm_item *item);
 
+bool wearable_is_type(struct itm_item *item, enum item_wearable_type type);
+bool ammo_is_type(struct itm_item *item, enum item_ammo_type type);
+bool tool_is_type(struct itm_item *item, enum item_tool_type type);
 #endif /*ITEMS_H_*/
 

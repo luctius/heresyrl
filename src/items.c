@@ -192,3 +192,23 @@ bool wpn_ranged_next_rof_set(struct itm_item *item) {
     return true;
 }
 
+bool wearable_is_type(struct itm_item *item, enum item_wearable_type type) {
+    if (itm_verify_item(item) == false) return false;
+    if (item->item_type != ITEM_TYPE_WEARABLE) return false;
+    if (item->specific.wearable.wearable_type == type) return true;
+    return false;
+}
+
+bool ammo_is_type(struct itm_item *item, enum item_ammo_type type) {
+    if (itm_verify_item(item) == false) return false;
+    if (item->item_type != ITEM_TYPE_AMMO) return false;
+    if (item->specific.ammo.ammo_type == type) return true;
+    return false;
+}
+
+bool tool_is_type(struct itm_item *item, enum item_tool_type type) {
+    if (itm_verify_item(item) == false) return false;
+    if (item->item_type != ITEM_TYPE_TOOL) return false;
+    if (item->specific.tool.tool_type == type) return true;
+    return false;
+}

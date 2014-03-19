@@ -650,11 +650,17 @@ void charwin_refresh() {
 
     y++;
     mvwprintw(char_win->win, y++,x, "Wounds    [%2d/%2d]", player->cur_wounds, player->max_wounds);
-    mvwprintw(char_win->win, y++,x, "Armour [%d][%d][%d][%d][%d][%d]", 10,10,10,10,10,10);
+    mvwprintw(char_win->win, y++,x, "Armour [%d][%d][%d][%d][%d][%d]", 
+                                            msr_calculate_armour(player, MSR_HITLOC_HEAD),
+                                            msr_calculate_armour(player, MSR_HITLOC_CHEST),
+                                            msr_calculate_armour(player, MSR_HITLOC_LEFT_ARM),
+                                            msr_calculate_armour(player, MSR_HITLOC_RIGHT_ARM),
+                                            msr_calculate_armour(player, MSR_HITLOC_LEFT_LEG),
+                                            msr_calculate_armour(player, MSR_HITLOC_RIGHT_LEG) );
 
     struct itm_item *item;
     for (int i = 0; i<2; i++) {
-        enum inv_locations loc = INV_LOC_MAINHAND_WIELD;
+        bitfield_t loc = INV_LOC_MAINHAND_WIELD;
         if (i == 1) loc = INV_LOC_OFFHAND_WIELD;
 
         y++;

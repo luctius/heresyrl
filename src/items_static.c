@@ -1,3 +1,5 @@
+#include "inventory.h"
+
 /*
    This file is included in items.c.
    This is purely my sanity that it is seperate.
@@ -20,10 +22,10 @@
             .specific.tool={ .tool_type=_tool_type, .energy=_energy, .energy_left=_energy, \
             .light_luminem=_light_luminem, .lit=false,}
 
-#define CLOTHING(_wearable_type,_special_quality,_damage_reduction) \
-            .icon=')', .stacked_quantity=0, .max_quantity=1, .item_type=ITEM_TYPE_WEARABLE, \
-            .specific.wearable_type={ .wearable_type=_wearable_type, .special_quality=_special_quality, \
-            .damage_reduction=_damage_reduction,}
+#define ARMOUR(_damage_reduction,_locations,_special_quality) \
+            .icon=']', .stacked_quantity=0, .max_quantity=1, .item_type=ITEM_TYPE_WEARABLE, \
+            .specific.wearable={ .wearable_type=WEARABLE_TYPE_ARMOUR, .locations=_locations, \
+            .special_quality=_special_quality, .damage_reduction=_damage_reduction,}
 
 #define CREATURE_MELEE(wpn_cat,dmg_die,dmg_add,_dmg_type,_penetration,special) .icon=' ',.stacked_quantity=0, .max_quantity=1,\
             .item_type=ITEM_TYPE_WEAPON, .dropable=false, .specific.weapon={.weapon_type=WEAPON_TYPE_MELEE,\
@@ -54,10 +56,15 @@ struct itm_item static_item_list[] = {
         /*        tool type     energy  luminem*/
         LIGHT(TOOL_TYPE_LIGHT,  65000,     12), ITEM_END,
 
-    ITEM(ITEM_ID_GLOW_GLOBE,    "glowe globe",    "a glowe globe",    GLOW_GLOBE_DESC,  ITEM_AVAILABILITY_AVERAGE, ITEM_QUALITY_AVERAGE, 1,     1,   1),
+    ITEM(ITEM_ID_GLOW_GLOBE,    "glow globe",    "a glow globe",    GLOW_GLOBE_DESC,  ITEM_AVAILABILITY_AVERAGE, ITEM_QUALITY_AVERAGE, 1,     1,   1),
         LIGHT(TOOL_TYPE_LIGHT,   100,      12), ITEM_END,
 
     /* Wearables */
+    /*    ID                     short name  long name                       description          availability               quality          weight,cost,delay*/
+    ITEM(ITEM_ID_LIGHT_FLAK,  "light flack", "a piece of light flak armour",  "",           ITEM_AVAILABILITY_AVERAGE, ITEM_QUALITY_AVERAGE,   300,    0,   5),
+        /*     dr   locations                     special qualities*/
+        ARMOUR(5,   INV_LOC_CHEST | INV_LOC_ARMS, 0),
+        ITEM_END,
 
     /* Weapons */
     /* Creature Attacks */

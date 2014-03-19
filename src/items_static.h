@@ -4,6 +4,9 @@
 #include "items.h"
 
 enum item_ids {
+    /* Wearables*/
+    ITEM_ID_LIGHT_FLAK,
+
     /* Tools */
     /* Fixed Items */
     ITEM_ID_FIXED_LIGHT,

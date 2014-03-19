@@ -133,6 +133,7 @@ bool msr_remove_item(struct msr_monster *monster, struct itm_item *item);
 
 int msr_calculate_characteristic(struct msr_monster *monster, enum msr_characteristic chr);
 int msr_calculate_characteristic_bonus(struct msr_monster *monster, enum msr_characteristic chr);
+struct item_item *msr_get_armour_from_hitloc(struct msr_monster *monster, enum msr_hit_location mhl);
 int msr_calculate_armour(struct msr_monster *monster, enum msr_hit_location hitloc);
 bool msr_do_dmg(struct msr_monster *monster, int dmg, enum msr_hit_location mhl, struct dc_map *map);
 enum msr_hit_location msr_get_hit_location(struct msr_monster *monster, int hit_roll); /* hitroll, from 0-99*/

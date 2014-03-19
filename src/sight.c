@@ -76,8 +76,7 @@ bool sgt_calculate_light_source(struct sgt_sight *sight, struct dc_map *map, str
     if (sight == NULL) return false;
     if (dc_verify_map(map) == false) return false;
     if (itm_verify_item(item) == false) return false;
-    if (item->item_type != ITEM_TYPE_TOOL) return false;
-    if (item->specific.tool.tool_type != TOOL_TYPE_LIGHT) return false;
+    if (tool_is_type(item, TOOL_TYPE_LIGHT) == false) return false;
     if (item->specific.tool.lit != true) return false;
 
     lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "sight", "processing light source %s.", item->ld_name);

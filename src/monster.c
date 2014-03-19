@@ -246,9 +246,37 @@ bool msr_remove_monster(struct msr_monster *monster, struct dc_map *map) {
     return retval;
 }
 
+struct item_item *msr_get_armour_from_hitloc(struct msr_monster *monster, enum msr_hit_location mhl) {
+    if (msr_verify_monster(monster) == false) return -1;
+    if (mhl >= MSR_HITLOC_MAX) return 0;
+    struct itm_item *item = NULL;
+
+    switch(mhl) {
+        case MSR_HITLOC_CHEST:     item = inv_get_item_from_location(monster->inventory, INV_LOC_CHEST); break;
+        case MSR_HITLOC_LEFT_LEG:
+        case MSR_HITLOC_RIGHT_LEG: item = inv_get_item_from_location(monster->inventory, INV_LOC_LEGS); break;
+        case MSR_HITLOC_LEFT_ARM:
+        case MSR_HITLOC_RIGHT_ARM: item = inv_get_item_from_location(monster->inventory, INV_LOC_ARMS); break;
+        case MSR_HITLOC_HEAD:      item = inv_get_item_from_location(monster->inventory, INV_LOC_HEAD); break;
+    }
+    return item;
+}
+
 int msr_calculate_armour(struct msr_monster *monster, enum msr_hit_location mhl) {
     if (msr_verify_monster(monster) == false) return -1;
-    return MSR_HITLOC_CHEST;
+    if (mhl >= MSR_HITLOC_MAX) return 0;
+    struct itm_item *item = msr_get_armour_from_hitloc(monster, mhl);
+    int armour = 0;
+
+    if (item != NULL) {
+        if (wearable_is_type(item, WEARABLE_TYPE_ARMOUR) == true) {
+            armour += item->specific.wearable.damage_reduction;
+        }
+    }
+
+    /* Add Armour talents here */
+
+    return armour;
 }
 
 enum msr_hit_location msr_get_hit_location(struct msr_monster *monster, int hit_roll) {

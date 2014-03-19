@@ -2,6 +2,7 @@
 #include <string.h>
 #include <sys/queue.h>
 #include <sys/param.h>
+#include <assert.h>
 
 #include "monster_action.h"
 #include "monster.h"
@@ -273,44 +274,42 @@ static bool ma_has_ammo(struct msr_monster *monster, struct itm_item *item) {
     struct itm_item *a_item = NULL;
 
     while ( (a_item = inv_get_next_item(monster->inventory, a_item) ) != NULL) {
-        if (a_item->item_type == ITEM_TYPE_AMMO) {
+        if (ammo_is_type(a_item, wpn->ammo_type) ) {
             ammo = &a_item->specific.ammo;
-            if (ammo->ammo_type == wpn->ammo_type) {
 
-                int to_fill = wpn->magazine_sz - wpn->magazine_left;
-                if (ammo->energy > 0) {
-                    float mod = ammo->energy / (float) wpn->magazine_sz;
-                    int ammo_in_pack = ammo->energy_left * mod;
-                    int sz = MIN(to_fill, ammo_in_pack);
-                    wpn->magazine_left += sz;
-                    ammo->energy_left -= (sz * mod);
-                    if (ammo->energy_left < 2) a_item->stacked_quantity = 0;
-                }
-                else {
-                    /*
-                       Transfer ammo from stack to the magazine of the item.
-                     */
-                    int sz = MIN(to_fill, a_item->stacked_quantity);
-                    wpn->magazine_left += sz;
-                    a_item->stacked_quantity -= sz;
-                }
+            int to_fill = wpn->magazine_sz - wpn->magazine_left;
+            if (ammo->energy > 0) {
+                float mod = ammo->energy / (float) wpn->magazine_sz;
+                int ammo_in_pack = ammo->energy_left * mod;
+                int sz = MIN(to_fill, ammo_in_pack);
+                wpn->magazine_left += sz;
+                ammo->energy_left -= (sz * mod);
+                if (ammo->energy_left < 2) a_item->stacked_quantity = 0;
+            }
+            else {
+                /*
+                   Transfer ammo from stack to the magazine of the item.
+                 */
+                int sz = MIN(to_fill, a_item->stacked_quantity);
+                wpn->magazine_left += sz;
+                a_item->stacked_quantity -= sz;
+            }
 
-                /* TODO: destroy all items in inventory of stack_qnty == 0 */
-                if (a_item->stacked_quantity == 0) {
-                    /*
-                       Destroy stacked ammo item,
-                       and start over, looking for more ammo.
-                     */
-                    if (inv_remove_item(monster->inventory, a_item) == true) {
-                        itm_destroy(a_item);
-                        a_item = NULL;
-                    }
+            /* TODO: destroy all items in inventory of stack_qnty == 0 */
+            if (a_item->stacked_quantity == 0) {
+                /*
+                   Destroy stacked ammo item,
+                   and start over, looking for more ammo.
+                 */
+                if (inv_remove_item(monster->inventory, a_item) == true) {
+                    itm_destroy(a_item);
+                    a_item = NULL;
                 }
+            }
 
-                if (wpn->magazine_left == wpn->magazine_sz) {
-                    /*Until the weapon is full. */
-                    return true;
-                }
+            if (wpn->magazine_left == wpn->magazine_sz) {
+                /*Until the weapon is full. */
+                return true;
             }
         }
     }
@@ -368,6 +367,8 @@ static bool unload(struct msr_monster *monster, struct itm_item *weapon_item) {
 
     struct itm_item *ammo_item = itm_create(wpn->ammo_used_template_id);
     if (itm_verify_item(ammo_item) == false) return false;
+    assert(ammo_is_type(ammo_item, ITEM_TYPE_AMMO) == true);
+
     struct item_ammo_specific *ammo = &ammo_item->specific.ammo;
 
     if (ammo->energy > 0) {
