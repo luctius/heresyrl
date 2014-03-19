@@ -246,7 +246,7 @@ bool msr_remove_monster(struct msr_monster *monster, struct dc_map *map) {
     return retval;
 }
 
-struct item_item *msr_get_armour_from_hitloc(struct msr_monster *monster, enum msr_hit_location mhl) {
+struct itm_item *msr_get_armour_from_hitloc(struct msr_monster *monster, enum msr_hit_location mhl) {
     if (msr_verify_monster(monster) == false) return -1;
     if (mhl >= MSR_HITLOC_MAX) return 0;
     struct itm_item *item = NULL;

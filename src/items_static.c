@@ -37,12 +37,12 @@
             .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=0, .penetration=_penetration, \
             .special_quality=special .upgrades=_upgrades, .wpn_talent=talent, }
 
-#define PISTOL(_dmg_type,dmg_die,dmg_add,_range,rof_single,rof_semi,rof_auto,mag_sz,_penetration,_upgrades,special,talent) \
+#define PISTOL(_dmg_type,dmg_die,dmg_add,_range,_ammo_type,_ammo_id,rof_single,rof_semi,rof_auto,mag_sz,_penetration,_upgrades,special,talent) \
             .icon='|', .stacked_quantity=0, .max_quantity=1, .item_type=ITEM_TYPE_WEAPON, .specific.weapon={ \
             .weapon_category=WEAPON_CATEGORY_PISTOL, .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=_range, \
             .rof[WEAPON_ROF_SETTING_SINGLE]=rof_single, .rof[WEAPON_ROF_SETTING_SEMI]=rof_semi, .rof[WEAPON_ROF_SETTING_AUTO]=rof_auto, \
             .rof_set=WEAPON_ROF_SETTING_SINGLE, .magazine_sz=mag_sz, .magazine_left=mag_sz, .penetration=_penetration, \
-            .ammo_type=AMMO_TYPE_PISTOL_SP, .ammo_used_template_id=ITEM_ID_PISTOL_AMMO_SP, .special_quality=special, .upgrades=_upgrades, \
+            .ammo_type=_ammo_type, .ammo_used_template_id=_ammo_id, .special_quality=special, .upgrades=_upgrades, \
             .wpn_talent=talent, .jammed=false,}
 
 #define AMMO(_ammo_type,_energy) .icon='^', .stacked_quantity=1, .max_quantity=100,\
@@ -79,16 +79,16 @@ struct itm_item static_item_list[] = {
     /* Pistols */
     /*    ID                            short name         long name          description           availability            quality   weight,cost,delay*/
     ITEM(ITEM_ID_STUB_AUTOMATIC,"stub automatic","a stub automatic",STUB_AUTOMATIC_DESC,ITEM_AVAILABILITY_AVERAGE,ITEM_QUALITY_AVERAGE, 15,    50,  1),
-        /*       dmg type             xd10  +x   range  single semi  auto  mag_sz  pen  upgrades  special   talent*/
-        PISTOL(WEAPON_DMG_TYPE_IMPACT,1,     3,  30,     1,    3,    0,    9,      0,   0,        0, TALENTS0_PISTOL_WEAPON_TRAINING_SOLID_PROJECTILE), 
+        /*       dmg type             xd10  +x   range  ammo type             ammoid                 single semi  auto  mag_sz  pen  upgrades  special   talent*/
+        PISTOL(WEAPON_DMG_TYPE_IMPACT,1,     3,  30,    AMMO_TYPE_PISTOL_SP,  ITEM_ID_PISTOL_AMMO_SP,  1,    3,    0,    9,      0,   0, WEAPON_SPEC_QUALITY_NONE, TALENTS0_PISTOL_WEAPON_TRAINING_SOLID_PROJECTILE), 
         ITEM_END,
 
     ITEM(ITEM_ID_STUB_REVOLVER,"stub revolver",  "a stub revolver", STUB_REVOLVER_DESC, ITEM_AVAILABILITY_AVERAGE,ITEM_QUALITY_AVERAGE, 15,    40,  2),
-        PISTOL(WEAPON_DMG_TYPE_IMPACT,1,     3,  30,     1,    0,    0,    6,      0,   0,  WEAPON_SPEC_QUALITY_RELIABLE, TALENTS0_PISTOL_WEAPON_TRAINING_SOLID_PROJECTILE), 
+        PISTOL(WEAPON_DMG_TYPE_IMPACT,1,     3,  30,    AMMO_TYPE_PISTOL_SP,  ITEM_ID_PISTOL_AMMO_SP,  1,    0,    0,    6,      0,   0, WEAPON_SPEC_QUALITY_RELIABLE, TALENTS0_PISTOL_WEAPON_TRAINING_SOLID_PROJECTILE), 
         ITEM_END,
 
     ITEM(ITEM_ID_LAS_PISTOL,"las pistol",       "a las pistol",    LAS_PISTOL_DESC,    ITEM_AVAILABILITY_AVERAGE,ITEM_QUALITY_AVERAGE, 17,    50,  1),
-        PISTOL(WEAPON_DMG_TYPE_ENERGY,1,     2,  30,     1,    0,    0,   30,      0,   0,  WEAPON_SPEC_QUALITY_RELIABLE, TALENTS0_PISTOL_WEAPON_TRAINING_LAS), 
+        PISTOL(WEAPON_DMG_TYPE_ENERGY,1,     2,  30,    AMMO_TYPE_PISTOL_SP,  ITEM_ID_PISTOL_AMMO_SP,  1,    0,    0,   30,      0,   0, WEAPON_SPEC_QUALITY_RELIABLE, TALENTS0_PISTOL_WEAPON_TRAINING_LAS), 
         ITEM_END,
 
     /* Ammo */
