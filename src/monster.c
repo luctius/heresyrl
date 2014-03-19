@@ -444,7 +444,7 @@ bool msr_weapon_next_selection(struct msr_monster *monster) {
 
     do {
         monster->wpn_sel++;
-        monster->wpn_sel %= MSR_WEAPON_SELECT_MAX;
+        monster->wpn_sel %= MSR_WEAPON_SELECT_CREATURE1;
     } while (msr_weapons_check(monster) == false);
     return true;
 }
