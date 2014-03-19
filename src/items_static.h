@@ -4,12 +4,22 @@
 #include "items.h"
 
 enum item_ids {
+    /* Wearables*/
+    ITEM_ID_LIGHT_FLAK,
+
     /* Tools */
     /* Fixed Items */
     ITEM_ID_FIXED_LIGHT,
 
     /* Tools */
-    ITEM_ID_TORCH,
+    ITEM_ID_GLOW_GLOBE, //GLOWGLOBE
+    //Screamer
+    //Respirator
+    //photovisor
+    //medipack
+    //infra-red goggles
+    //filter plugs
+    //bio-scanner
 
     /* Weapons */
     /* Creature Attacks */
@@ -18,9 +28,38 @@ enum item_ids {
     /* Pistols*/
     ITEM_ID_STUB_AUTOMATIC,
     ITEM_ID_STUB_REVOLVER,
+    ITEM_ID_LAS_PISTOL,
 
     /* Ammo */
-    ITEM_ID_PISTOL_AMMO,
+    ITEM_ID_ARROW,
+    ITEM_ID_PISTOL_AMMO_SP,
+    ITEM_ID_PISTOL_AMMO_SP_DUMDUM,
+    ITEM_ID_PISTOL_AMMO_SP_MANSTOPPER,
+    ITEM_ID_PISTOL_AMMO_LAS,
+    ITEM_ID_PISTOL_AMMO_PLASMA,
+    ITEM_ID_PISTOL_AMMO_MELTA,
+    ITEM_ID_PISTOL_AMMO_FLAME,
+    ITEM_ID_PISTOL_AMMO_BOLT,
+    ITEM_ID_PISTOL_AMMO_SHURIKEN,
+    ITEM_ID_BASIC_AMMO_SP,
+    ITEM_ID_BASIC_AMMO_SP_DUMDUM,
+    ITEM_ID_BASIC_AMMO_SP_MANSTOPPER,
+    ITEM_ID_BASIC_AMMO_SHOTGUN,
+    ITEM_ID_BASIC_AMMO_LAS,
+    ITEM_ID_BASIC_AMMO_PLASMA,
+    ITEM_ID_BASIC_AMMO_MELTA,
+    ITEM_ID_BASIC_AMMO_FLAME,
+    ITEM_ID_BASIC_AMMO_BOLT,
+    ITEM_ID_BASIC_AMMO_SHURIKEN,
+    ITEM_ID_BASIC_AMMO_GRENADE,
+    ITEM_ID_HEAVY_AMMO_SP,
+    ITEM_ID_HEAVY_AMMO_LAS,
+    ITEM_ID_HEAVY_AMMO_PLASMA,
+    ITEM_ID_HEAVY_AMMO_MELTA,
+    ITEM_ID_HEAVY_AMMO_FLAME,
+    ITEM_ID_HEAVY_AMMO_BOLT,
+    ITEM_ID_HEAVY_AMMO_GRENADE,
+    ITEM_ID_HEAVY_AMMO_ROCKET,
 
     /* Last Entry */
     ITEM_ID_MAX,

@@ -2,12 +2,15 @@
 #include <stdlib.h>
 #include <sys/queue.h>
 #include <sys/param.h>
+#include <string.h>
 
 #include "inventory.h"
 #include "items.h"
 
+#define inv_loc(loc) (1<<loc)
+
 struct inv_entry {
-    enum inv_locations location;
+    bitfield_t location;
     struct itm_item *item;
     LIST_ENTRY(inv_entry) entries;
 };
@@ -21,10 +24,11 @@ struct inv_inventory {
     uint32_t inv_post;
 };
 
+/* Garanteed to be random, rolled it myself ;)  */
 #define INVENTORY_PRE_CHECK (16524)
 #define INVENTORY_POST_CHECK (411)
 
-struct inv_inventory *inv_init(uint32_t locations) {
+struct inv_inventory *inv_init(bitfield_t locations) {
     struct inv_inventory *i= calloc(1, sizeof(struct inv_inventory) );
     if (i != NULL) {
         LIST_INIT(&i->head);
@@ -98,10 +102,12 @@ bool inv_add_stack(struct inv_inventory *inv, struct itm_item *item) {
     while ( (i = inv_get_next_item(inv, i) ) != NULL ) {
         if (i->template_id == item->template_id) {
             if (i->stacked_quantity < i->max_quantity) {
-                int diff = (i->max_quantity - i->stacked_quantity);
-                int max = MAX(diff, item->stacked_quantity);
-                i->stacked_quantity += max;
-                item->stacked_quantity -= max;
+                if (memcmp(i, item, sizeof(struct itm_item) ) == 0) {
+                    int diff = (i->max_quantity - i->stacked_quantity);
+                    int max = MAX(diff, item->stacked_quantity);
+                    i->stacked_quantity += max;
+                    item->stacked_quantity -= max;
+                }
             }
         }
         if (item->stacked_quantity == 0) return true;
@@ -154,23 +160,24 @@ int inv_inventory_size(struct inv_inventory *inv) {
     return sz;
 }
 
-bool inv_support_location(struct inv_inventory *inv, enum inv_locations location) {
+bool inv_support_location(struct inv_inventory *inv, bitfield_t location) {
     if (inv_verify_inventory(inv) == false) return false;
     if (location > INV_LOC_MAX) return false;
-    if (location == INV_LOC_BOTH_WIELD) {
-        if ( ( (inv->available_locations & inv_loc(INV_LOC_MAINHAND_WIELD) ) > 0) && 
-             ( (inv->available_locations & inv_loc(INV_LOC_OFFHAND_WIELD) ) > 0) ) return true;
-    }
-    if ( (inv->available_locations & inv_loc(location) ) > 0) return true;
+    if ( (inv->available_locations & location) > 0) return true;
     return false;
 }
 
-bool inv_move_item_to_location(struct inv_inventory *inv, struct itm_item *item, enum inv_locations location) {
+bool inv_move_item_to_location(struct inv_inventory *inv, struct itm_item *item, bitfield_t location) {
     if (inv_verify_inventory(inv) == false) return false;
     if (itm_verify_item(item) == false) return false;
-    if (inv_support_location(inv, location) == false) return false;
     if (inv_has_item(inv, item) == false) return false;
-    if (location == INV_LOC_BOTH_WIELD) location = INV_LOC_MAINHAND_WIELD;
+
+    for (int i = 0; i < INV_LOC_MAX; i++) {
+        if ( (location & inv_loc(i) ) > 0) {
+            if (inv_support_location(inv, inv_loc(i) ) == false) return false;
+            if (inv_loc_empty(inv, inv_loc(i) ) == false) return false;
+        }
+    }
 
     struct inv_entry *ie = inv->head.lh_first;
 
@@ -184,15 +191,14 @@ bool inv_move_item_to_location(struct inv_inventory *inv, struct itm_item *item,
     return false;
 }
 
-struct itm_item *inv_get_item_from_location(struct inv_inventory *inv, enum inv_locations location) {
+struct itm_item *inv_get_item_from_location(struct inv_inventory *inv, bitfield_t location) {
     if (inv_verify_inventory(inv) == false) return NULL;
     if (inv_support_location(inv, location) == false) return NULL;
-    if (location == INV_LOC_BOTH_WIELD) location = INV_LOC_MAINHAND_WIELD;
 
     struct inv_entry *ie = inv->head.lh_first;
 
     while (ie != NULL) {
-        if (ie->location == location) {
+        if ( (ie->location & location) > 0) {
             return ie->item;
         }
         ie = ie->entries.le_next;
@@ -200,15 +206,15 @@ struct itm_item *inv_get_item_from_location(struct inv_inventory *inv, enum inv_
     return NULL;
 }
 
-bool inv_loc_empty(struct inv_inventory *inv, enum inv_locations location) {
+bool inv_loc_empty(struct inv_inventory *inv, bitfield_t location) {
     if (inv_verify_inventory(inv) == false) return false;
     if (inv_support_location(inv, location) == false) return false;
-    if (location == INV_LOC_BOTH_WIELD) location = INV_LOC_MAINHAND_WIELD;
+    if (location == INV_LOC_INVENTORY) return true; /*Inventory is the base where everything can go */
 
     return (inv_get_item_from_location(inv, location) == NULL);
 }
 
-enum inv_locations inv_get_item_location(struct inv_inventory *inv, struct itm_item *item) {
+bitfield_t inv_get_item_locations(struct inv_inventory *inv, struct itm_item *item) {
     if (inv_verify_inventory(inv) == false) return INV_LOC_NONE;
     if (itm_verify_item(item) == false) return INV_LOC_NONE;
     if (inv_has_item(inv, item) == false) return INV_LOC_NONE;
@@ -223,13 +229,44 @@ enum inv_locations inv_get_item_location(struct inv_inventory *inv, struct itm_i
     return INV_LOC_NONE;
 }
 
+bool inv_item_worn(struct inv_inventory *inv, struct itm_item *item) {
+    if (inv_verify_inventory(inv) == false) return false;
+    if (itm_verify_item(item) == false) return false;
+    if (inv_has_item(inv, item) == false) return false;
+
+    struct inv_entry *ie = inv->head.lh_first;
+    while (ie != NULL) {
+        if (ie->item == item) {
+            if ( (ie->location & (~INV_LOC_INVENTORY) ) > 0) {
+                return true;
+            }
+        }
+        ie = ie->entries.le_next;
+    }
+    return false;
+}
+
+bool inv_item_wielded(struct inv_inventory *inv, struct itm_item *item) {
+    if (inv_verify_inventory(inv) == false) return false;
+    if (itm_verify_item(item) == false) return false;
+    if (inv_item_worn(inv, item) == false) return false;
+
+    struct inv_entry *ie = inv->head.lh_first;
+    while (ie != NULL) {
+        if (ie->item == item) {
+            if ( (ie->location & (INV_LOC_OFFHAND_WIELD | INV_LOC_MAINHAND_WIELD) ) > 0) return true;
+        }
+        ie = ie->entries.le_next;
+    }
+    return false;
+}
+
 static const char *location_name_lst[] = {
     [INV_LOC_NONE] = "",
     [INV_LOC_INVENTORY] = "",
     [INV_LOC_FEET] = "feet",
     [INV_LOC_LEGS] = "legs",
     [INV_LOC_CHEST] = "chest",
-    [INV_LOC_SHOULDERS] = "shoulders",
     [INV_LOC_ARMS] = "arms",
     [INV_LOC_HANDS] = "hands",
     [INV_LOC_LEFT_RING] = "lring",
@@ -239,11 +276,15 @@ static const char *location_name_lst[] = {
     [INV_LOC_HEAD] = "head",
     [INV_LOC_FACE] = "face",
     [INV_LOC_BACK] = "back",
-    [INV_LOC_ARMOUR_CHEST] = "armour",
 };
 
-const char *inv_location_name(enum inv_locations loc) {
+const char *inv_location_name(bitfield_t loc) {
     if (loc >= INV_LOC_MAX) return NULL;
-    return location_name_lst[loc];
+    for (int i = 0; inv_loc(i) < INV_LOC_MAX; i++) {
+        if ( (loc & inv_loc(i) ) > 0) {
+            return location_name_lst[loc];
+        }
+    }
+    return NULL;
 }
 

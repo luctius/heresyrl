@@ -6,30 +6,24 @@
 struct inv_inventory;
 
 enum inv_locations {
-    INV_LOC_NONE,
-    INV_LOC_INVENTORY,
-    INV_LOC_FEET,
-    INV_LOC_LEGS,
-    INV_LOC_CHEST,
-    INV_LOC_SHOULDERS,
-    INV_LOC_ARMS,
-    INV_LOC_HANDS,
-    INV_LOC_LEFT_RING,
-    INV_LOC_RIGHT_RING,
-    INV_LOC_OFFHAND_WIELD,
-    INV_LOC_MAINHAND_WIELD,
-    INV_LOC_HEAD,
-    INV_LOC_FACE,
-    INV_LOC_BACK,
-    INV_LOC_ARMOUR_CHEST,
-    INV_LOC_CREATURE_WIELD,
-    INV_LOC_MAX,
-    INV_LOC_BOTH_WIELD,
+    INV_LOC_NONE            = (0),
+    INV_LOC_INVENTORY       = (1<<1),
+    INV_LOC_FEET            = (1<<2),
+    INV_LOC_LEGS            = (1<<3),
+    INV_LOC_CHEST           = (1<<4),
+    INV_LOC_ARMS            = (1<<5),
+    INV_LOC_HANDS           = (1<<6),
+    INV_LOC_LEFT_RING       = (1<<7),
+    INV_LOC_RIGHT_RING      = (1<<8),
+    INV_LOC_OFFHAND_WIELD   = (1<<9),
+    INV_LOC_MAINHAND_WIELD  = (1<<10),
+    INV_LOC_HEAD            = (1<<11),
+    INV_LOC_FACE            = (1<<12),
+    INV_LOC_BACK            = (1<<13),
+    INV_LOC_MAX             = (1<<13)+1,
 };
 
-#define inv_loc(loc) (1<<loc)
-
-struct inv_inventory *inv_init(uint32_t locations);
+struct inv_inventory *inv_init(bitfield_t locations);
 void inv_exit(struct inv_inventory *inv);
 bool inv_verify_inventory(struct inv_inventory *inv);
 
@@ -39,25 +33,27 @@ bool inv_remove_item(struct inv_inventory *inv, struct itm_item *item); /*Intern
 struct itm_item *inv_get_next_item(struct inv_inventory *inv, struct itm_item *prev);
 int inv_inventory_size(struct inv_inventory *inv);
 
-bool inv_support_location(struct inv_inventory *inv, enum inv_locations location);
-bool inv_move_item_to_location(struct inv_inventory *inv, struct itm_item *item, enum inv_locations location);
-struct itm_item *inv_get_item_from_location(struct inv_inventory *inv, enum inv_locations location);
-enum inv_locations inv_get_item_location(struct inv_inventory *inv, struct itm_item *item);
-bool inv_loc_empty(struct inv_inventory *inv, enum inv_locations location);
+bool inv_support_location(struct inv_inventory *inv, bitfield_t location);
+bool inv_move_item_to_location(struct inv_inventory *inv, struct itm_item *item, bitfield_t location);
+struct itm_item *inv_get_item_from_location(struct inv_inventory *inv, bitfield_t location);
+bool inv_loc_empty(struct inv_inventory *inv, bitfield_t location);
+bitfield_t inv_get_item_locations(struct inv_inventory *inv, struct itm_item *item);
 
-const char *inv_location_name(enum inv_locations loc);
+bool inv_item_worn(struct inv_inventory *inv, struct itm_item *item); /* worn items include wielded items, but not vice versa. */
+bool inv_item_wielded(struct inv_inventory *inv, struct itm_item *item);
+
+const char *inv_location_name(bitfield_t loc);
 
 #define inv_loc_human \
-    ( inv_loc(INV_LOC_FEET)       | inv_loc(INV_LOC_LEGS)         | \
-      inv_loc(INV_LOC_CHEST)      | inv_loc(INV_LOC_SHOULDERS)    | \
-      inv_loc(INV_LOC_ARMS)       | inv_loc(INV_LOC_HANDS)        | \
-      inv_loc(INV_LOC_LEFT_RING)  | inv_loc(INV_LOC_RIGHT_RING)   | \
-      inv_loc(INV_LOC_OFFHAND_WIELD) | inv_loc(INV_LOC_MAINHAND_WIELD)  | \
-      inv_loc(INV_LOC_HEAD)       | inv_loc(INV_LOC_FACE)         | \
-      inv_loc(INV_LOC_BACK)       | inv_loc(INV_LOC_ARMOUR_CHEST) | \
-      inv_loc(INV_LOC_INVENTORY) )
+    ( INV_LOC_FEET            | INV_LOC_LEGS          | \
+      INV_LOC_CHEST           | INV_LOC_ARMS          | \
+      INV_LOC_HANDS           | INV_LOC_LEFT_RING     | \
+      INV_LOC_RIGHT_RING      | INV_LOC_OFFHAND_WIELD | \
+      INV_LOC_MAINHAND_WIELD  | INV_LOC_HEAD          | \
+      INV_LOC_FACE            | INV_LOC_BACK          | \
+      INV_LOC_INVENTORY )
 
 #define inv_loc_tile \
-    ( inv_loc(INV_LOC_INVENTORY) )
+    ( INV_LOC_INVENTORY)
 
 #endif /* INVENTORY_H */

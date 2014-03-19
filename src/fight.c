@@ -75,15 +75,15 @@ bool fght_do_weapon_dmg(struct random *r, struct msr_monster *monster, struct ms
     if (hits < 1) return false;
 
     struct item_weapon_specific *wpn = NULL;
-    struct itm_item *item = NULL;
+    struct itm_item *weapon_item = NULL;
 
     for (int i = 0; i < WEAPON_TYPE_MAX; i++) {
-        item = fght_get_working_weapon(monster, i, hand);
-        if (item != NULL) i = WEAPON_TYPE_MAX;
+        weapon_item = fght_get_working_weapon(monster, i, hand);
+        if (weapon_item != NULL) i = WEAPON_TYPE_MAX;
     }
-    if (item == NULL) return false;
-    if (itm_verify_item(item) == false) return false;
-    wpn = &item->specific.weapon;
+    if (weapon_item == NULL) return false;
+    if (itm_verify_item(weapon_item) == false) return false;
+    wpn = &weapon_item->specific.weapon;
 
     int dmg_die_sz = 10;
     if (wpn->nr_dmg_die == 0) dmg_die_sz = 5;
@@ -98,6 +98,9 @@ bool fght_do_weapon_dmg(struct random *r, struct msr_monster *monster, struct ms
         int penetration = wpn->penetration;
         int armour = msr_calculate_armour(monster, mhl);
         int toughness = msr_calculate_characteristic_bonus(target, MSR_CHAR_TOUGHNESS);
+        struct itm_item *armour_item = msr_get_armour_from_hitloc(monster, mhl);
+        struct item_wearable_specific *amr = NULL;
+        if ( (armour_item != NULL) && (wearable_is_type(armour_item, WEARABLE_TYPE_ARMOUR) ) ) amr = &armour_item->specific.wearable;
 
         {
             /* Modifiers to damage here */
@@ -106,7 +109,8 @@ bool fght_do_weapon_dmg(struct random *r, struct msr_monster *monster, struct ms
                 if ( (wpn->weapon_type == WEAPON_TYPE_MELEE) || (wpn->weapon_type == WEAPON_TYPE_THROWN) ) dmg_add += msr_calculate_characteristic_bonus(monster, MSR_CHAR_STRENGTH);
 
                 /* Best Quality gains +1 damage */
-                if (item->quality >= ITEM_QUALITY_BEST) dmg_add += FGHT_MODIFIER_QUALITY_TO_DMG_BEST;
+                if (weapon_item->quality >= ITEM_QUALITY_BEST) dmg_add += FGHT_MODIFIER_QUALITY_TO_DMG_BEST;
+
             }
 
             /* Modifiers to penetration here */
@@ -114,11 +118,15 @@ bool fght_do_weapon_dmg(struct random *r, struct msr_monster *monster, struct ms
             /* Modifiers to toughness here */
             {}
             /* Modifiers to armour here */
-            {}
+            {
+                /* Armour counts double against primitive weapons, primitive armour counts as half against weapons, except against each other. */
+                if ( (wpn->special_quality & WEAPON_SPEC_QUALITY_PRIMITIVE) > 0) armour *= 2;
+                if ( (amr != NULL) && ( (amr->special_quality & WEARABLE_SPEC_QUALITY_PRIMITIVE) > 0) ) armour /= 2;
+            }
         }
 
         You(monster, "do %d damage.", dmg + dmg_add);
-        armour = MIN((armour - penetration), 0);
+        armour = MIN((armour - penetration), 0); /* penetration only works against armour */
         dmg = (dmg + dmg_add) - (armour  + toughness);
         msr_do_dmg(target, dmg, mhl, gbl_game->current_map);
 

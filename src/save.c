@@ -78,7 +78,7 @@ static bool sv_save_monsters(FILE *file, int indent) {
                 struct itm_item *item = NULL;
                 for (int i = 0; i < invsz; i++) {
                     item = inv_get_next_item(m->inventory, item);
-                    if (item != NULL) fprintf(file, "{uid=%d,position=%d},", item->uid, inv_get_item_location(m->inventory, item) );
+                    if (item != NULL) fprintf(file, "{uid=%d,position=%d},", item->uid, inv_get_item_locations(m->inventory, item) );
                 }
                 fprintf(file, "sz=%d,", invsz);
                 fprintf(file, "},");
