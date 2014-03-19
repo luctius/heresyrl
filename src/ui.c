@@ -698,6 +698,8 @@ void charwin_refresh() {
             case MSR_WEAPON_SELECT_DUAL_HAND:
                 mvwprintw(char_win->win, y++,x, "Using both hands.");
                 break;
+            case MSR_WEAPON_SELECT_CREATURE1:
+                mvwprintw(char_win->win, y++,x, "Unarmed.");
             default: break;
         }
     }

@@ -41,6 +41,12 @@ struct itm_item *fght_get_weapon(struct msr_monster *monster, enum item_weapon_t
         }
     }
 
+    if (hand == FGHT_CREATURE_HAND) {
+        if ( (monster->wpn_sel == MSR_WEAPON_SELECT_CREATURE1) ) {
+            item = inv_get_item_from_location(monster->inventory, INV_LOC_CREATURE_WIELD1);
+        }
+    }
+
     if (item == NULL) return NULL;
     if (itm_verify_item(item) == false) return NULL;
     if (item->specific.weapon.weapon_type != type) return NULL;
@@ -310,55 +316,19 @@ bool fght_melee(struct random *r, struct msr_monster *monster, struct msr_monste
     if (msr_verify_monster(target) == false) return false;
     if (cd_pyth(&monster->pos, &target->pos) > 1) return false;
     if (monster->faction == target->faction) return false; /* do not attack members of same faction */
-    struct itm_item *item1 = fght_get_working_weapon(monster, WEAPON_TYPE_MELEE, FGHT_MAIN_HAND);
-    struct itm_item *item2 = fght_get_working_weapon(monster, WEAPON_TYPE_MELEE, FGHT_OFF_HAND);
-    enum msr_weapon_selection wpn_sel = monster->wpn_sel;
-    bool unarmed = false;
     int hits = 0;
-
-    if ( (item1 == NULL) || (item2 == NULL) ) {
-        /* 
-           Lame hack:
-           create unarmed dmg item 
-         */
-        if (inv_loc_empty(monster->inventory, INV_LOC_MAINHAND_WIELD) == true) {
-            unarmed = true;
-            item1 = msr_unarmed_weapon(monster);
-            msr_give_item(monster, item1);
-            inv_move_item_to_location(monster->inventory, item1, INV_LOC_MAINHAND_WIELD);
-            monster->wpn_sel = MSR_WEAPON_SELECT_MAIN_HAND;
-        }
-        else if (inv_loc_empty(monster->inventory, INV_LOC_OFFHAND_WIELD) == true) {
-            unarmed = true;
-            item2 = msr_unarmed_weapon(monster);
-            msr_give_item(monster, item2);
-            inv_move_item_to_location(monster->inventory, item2, INV_LOC_MAINHAND_WIELD);
-            monster->wpn_sel = MSR_WEAPON_SELECT_OFF_HAND;
-        }
-    }
 
     if (msr_weapon_type_check(monster, WEAPON_TYPE_MELEE) == true) {
         /* Do damage */
+    
         hits = fght_melee_calc_tohit(r, monster, target, FGHT_MAIN_HAND);
         fght_do_weapon_dmg(r, monster, target, hits, FGHT_MAIN_HAND);
         hits = fght_melee_calc_tohit(r, monster, target, FGHT_OFF_HAND);
         fght_do_weapon_dmg(r, monster, target, hits, FGHT_OFF_HAND);
+        hits = fght_melee_calc_tohit(r, monster, target, FGHT_CREATURE_HAND);
+        fght_do_weapon_dmg(r, monster, target, hits, FGHT_CREATURE_HAND);
     }
 
-    if (unarmed == true) {
-        /* remove unarmed dmg items */
-        if (item1 != NULL) {
-            if (inv_remove_item(monster->inventory, item1) == true) {
-                itm_destroy(item1);
-            }
-        }
-        if (item2 != NULL) {
-            if (inv_remove_item(monster->inventory, item2) == true) {
-                itm_destroy(item2);
-            }
-        }
-        monster->wpn_sel = wpn_sel;
-    }
     return true;
 }
 

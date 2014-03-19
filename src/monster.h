@@ -48,6 +48,7 @@ enum msr_weapon_selection {
     MSR_WEAPON_SELECT_MAIN_HAND,
     MSR_WEAPON_SELECT_DUAL_HAND,
     MSR_WEAPON_SELECT_BOTH_HAND,
+    MSR_WEAPON_SELECT_CREATURE1,
     MSR_WEAPON_SELECT_MAX,
 };
 
@@ -143,15 +144,14 @@ int msr_get_far_sight_range(struct msr_monster *monster);
 char *msr_gender_string(struct msr_monster *monster);
 bool msr_do_skill_check(struct msr_monster *monster, enum skills skill, int modifiers);
 
-bool msr_weapons_check(struct msr_monster *monster);
-bool msr_weapon_type_check(struct msr_monster *monster, enum item_weapon_type type);
-bool msr_weapon_next_selection(struct msr_monster *monster);
-
-struct itm_item *msr_unarmed_weapon(struct msr_monster *monster);
-
 bool msr_check_talent(struct msr_monster *monster,  bitfield_t talent);
 bool msr_set_talent(struct msr_monster *monster, bitfield_t talent);
 enum skill_rate msr_check_skill(struct msr_monster *monster,  enum skills skill);
 bool msr_set_skill(struct msr_monster *monster, enum skills skill, enum skill_rate);
+uint8_t msr_get_movement_rate(struct msr_monster *monster);
+
+bool msr_weapons_check(struct msr_monster *monster);
+bool msr_weapon_type_check(struct msr_monster *monster, enum item_weapon_type type);
+bool msr_weapon_next_selection(struct msr_monster *monster);
 
 #endif /*MONSTER_H_*/

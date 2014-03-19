@@ -20,7 +20,8 @@ enum inv_locations {
     INV_LOC_HEAD            = (1<<11),
     INV_LOC_FACE            = (1<<12),
     INV_LOC_BACK            = (1<<13),
-    INV_LOC_MAX             = (1<<13)+1,
+    INV_LOC_CREATURE_WIELD1 = (1<<14),
+    INV_LOC_MAX             = (1<<14)+1,
 };
 
 struct inv_inventory *inv_init(bitfield_t locations);
@@ -51,7 +52,7 @@ const char *inv_location_name(bitfield_t loc);
       INV_LOC_RIGHT_RING      | INV_LOC_OFFHAND_WIELD | \
       INV_LOC_MAINHAND_WIELD  | INV_LOC_HEAD          | \
       INV_LOC_FACE            | INV_LOC_BACK          | \
-      INV_LOC_INVENTORY )
+      INV_LOC_INVENTORY       | INV_LOC_CREATURE_WIELD1 )
 
 #define inv_loc_tile \
     ( INV_LOC_INVENTORY)

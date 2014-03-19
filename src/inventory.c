@@ -7,6 +7,8 @@
 #include "inventory.h"
 #include "items.h"
 
+#include "items_static.h"
+
 #define inv_loc(loc) (1<<loc)
 
 struct inv_entry {
@@ -62,31 +64,51 @@ bool inv_verify_inventory(struct inv_inventory *inv) {
 
 struct itm_item *inv_get_next_item(struct inv_inventory *inv, struct itm_item *prev) {
     if (inv_verify_inventory(inv) == false) return NULL;
-    if (prev == NULL) {
-        if (inv->head.lh_first != NULL) return inv->head.lh_first->item;
-        return NULL;
-    }
+    if (inv->head.lh_first == NULL) return NULL;
     struct inv_entry *ie = inv->head.lh_first;
 
-    while (ie != NULL) {
-        if (ie->item == prev) {
+    struct itm_item *item = NULL;
+    bitfield_t item_location = 0;
+
+    if (prev == NULL) { 
+        item = ie->item; /* if this is the first attempt take the first item */ 
+        item_location =ie->location;
+    }
+
+    while ( (ie != NULL) && (item == NULL) ) {
+        if (ie->item == prev) { /*return next item */
             if (ie->entries.le_next != NULL) {
-                return ie->entries.le_next->item;
+                item = ie->entries.le_next->item;
+                item_location = ie->entries.le_next->location;
+                break;
             }
-            return NULL;
         }
+
         ie = ie->entries.le_next;
     }
-    return NULL;
+
+    if (item != NULL) {
+        if (item->template_id == ITEM_ID_HUMAN_UNARMED) {
+            if ( (item_location & INV_LOC_CREATURE_WIELD1) > 0) { 
+                /* HACK: ignore creature wields (atleast for humans) */
+                item = inv_get_next_item(inv, item);
+            }
+        }
+    }
+
+    return item;
 }
 
 bool inv_has_item(struct inv_inventory *inv, struct itm_item *item) {
     if (inv_verify_inventory(inv) == false) return NULL;
     if (itm_verify_item(item) == false) return NULL;
 
-    struct itm_item *i = NULL;
-    while ( (i = inv_get_next_item(inv, i) ) != NULL ) {
-        if (i == item) return true;
+    struct inv_entry *ie = inv->head.lh_first;
+    while (ie != NULL) {
+        if  (ie->item == item) {
+            return true;
+        }
+        ie = ie->entries.le_next;
     }
 
     return false;
@@ -276,6 +298,8 @@ static const char *location_name_lst[] = {
     [INV_LOC_HEAD] = "head",
     [INV_LOC_FACE] = "face",
     [INV_LOC_BACK] = "back",
+    [INV_LOC_CREATURE_WIELD1] = "",
+    [INV_LOC_MAX] = "",
 };
 
 const char *inv_location_name(bitfield_t loc) {

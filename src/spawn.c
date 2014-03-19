@@ -55,45 +55,31 @@ uint32_t spawn_monster(double roll) {
     return 0;
 }
 
-bool spwn_populate_map(struct dc_map *map, struct random *r, int generations) {
+bool spwn_populate_map(struct dc_map *map, struct random *r, int monster_chance, int item_chance) {
     if (dc_verify_map(map) == false) return false;
     if (r == NULL) return false;
+    coord_t c;
+    int idx;
 
-    for (int i = 0; i < generations; i++) {
-        if ( (random_int32(r) % 10000) <= 20) {
-            int idx = spawn_monster(random_float(r) );
-            coord_t c;
-            int try = 10;
-            struct msr_monster *monster = msr_create(idx);
-
-            for (int j = 0; j < try; j++) {
-                c = cd_create(random_int32(r) % map->size.x,  random_int32(r) % map->size.y);
+    for (int xi = 0; xi < map->size.x; xi++) {
+        for (int yi = 0; yi < map->size.y; yi++) {
+            c = cd_create(xi,yi);
+            if ( (random_int32(r) % 10000) <= monster_chance) {
                 if (TILE_HAS_ATTRIBUTE(sd_get_map_me(&c,map)->tile, TILE_ATTR_TRAVERSABLE) == true) {
+                    idx = spawn_monster(random_float(r) );
+                    struct msr_monster *monster = msr_create(idx);
+
                     msr_insert_monster(monster, map, &c);
-                    j = try;
                 }
             }
-        }
-    }
 
-    for (int i = 0; i < generations; i++) {
-        if ( (random_int32(r) % 10000) <= 20) {
-            int idx = spawn_item(random_float(r) );
-            bool spawned = false;
-            coord_t c;
-            int try = 10;
-            struct itm_item *item = itm_create(idx);
-
-            for (int j = 0; j < try; j++) {
-                c = cd_create(random_int32(r) % map->size.x,  random_int32(r) % map->size.y);
+            if ( (random_int32(r) % 10000) <= item_chance) {
                 if (TILE_HAS_ATTRIBUTE(sd_get_map_me(&c,map)->tile, TILE_ATTR_TRAVERSABLE) == true) {
+                    idx = spawn_item(random_float(r) );
+                    struct itm_item *item = itm_create(idx);
+
                     itm_insert_item(item, map, &c);
-                    j = try;
-                    spawned = true;
                 }
-            }
-            if (spawned == false) {
-                itm_destroy(item);
             }
         }
     }

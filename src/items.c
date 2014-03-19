@@ -164,6 +164,7 @@ coord_t itm_get_pos(struct itm_item *item) {
 }
 
 bool wpn_is_type(struct itm_item *item, enum item_weapon_type type) {
+    if (item == NULL) return false;
     if (itm_verify_item(item) == false) return false;
     if (item->item_type != ITEM_TYPE_WEAPON) return false;
     if (item->specific.weapon.weapon_type == type) return true;

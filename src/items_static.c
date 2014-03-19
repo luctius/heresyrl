@@ -79,16 +79,16 @@ struct itm_item static_item_list[] = {
     /* Pistols */
     /*    ID                            short name         long name          description           availability            quality   weight,cost,delay*/
     ITEM(ITEM_ID_STUB_AUTOMATIC,"stub automatic","a stub automatic",STUB_AUTOMATIC_DESC,ITEM_AVAILABILITY_AVERAGE,ITEM_QUALITY_AVERAGE, 15,    50,  1),
-        /*       dmg type             xd10  +x   range  ammo type             ammoid                 single semi  auto  mag_sz  pen  upgrades  special   talent*/
-        PISTOL(WEAPON_DMG_TYPE_IMPACT,1,     3,  30,    AMMO_TYPE_PISTOL_SP,  ITEM_ID_PISTOL_AMMO_SP,  1,    3,    0,    9,      0,   0, WEAPON_SPEC_QUALITY_NONE, TALENTS0_PISTOL_WEAPON_TRAINING_SOLID_PROJECTILE), 
+        /*       dmg type           xd10  +x range  ammo type             ammoid                 single semi  auto  mag_sz  pen  upgrades  special   talent*/
+        PISTOL(WEAPON_DMG_TYPE_IMPACT,1, 3,  30, AMMO_TYPE_PISTOL_SP,  ITEM_ID_PISTOL_AMMO_SP,  1,    3,    0,    9,      0,   0, WEAPON_SPEC_QUALITY_NONE, TALENTS0_PISTOL_WEAPON_TRAINING_SOLID_PROJECTILE), 
         ITEM_END,
 
     ITEM(ITEM_ID_STUB_REVOLVER,"stub revolver",  "a stub revolver", STUB_REVOLVER_DESC, ITEM_AVAILABILITY_AVERAGE,ITEM_QUALITY_AVERAGE, 15,    40,  2),
-        PISTOL(WEAPON_DMG_TYPE_IMPACT,1,     3,  30,    AMMO_TYPE_PISTOL_SP,  ITEM_ID_PISTOL_AMMO_SP,  1,    0,    0,    6,      0,   0, WEAPON_SPEC_QUALITY_RELIABLE, TALENTS0_PISTOL_WEAPON_TRAINING_SOLID_PROJECTILE), 
+        PISTOL(WEAPON_DMG_TYPE_IMPACT,1, 3,  30, AMMO_TYPE_PISTOL_SP,  ITEM_ID_PISTOL_AMMO_SP,  1,    0,    0,    6,      0,   0, WEAPON_SPEC_QUALITY_RELIABLE, TALENTS0_PISTOL_WEAPON_TRAINING_SOLID_PROJECTILE), 
         ITEM_END,
 
     ITEM(ITEM_ID_LAS_PISTOL,"las pistol",       "a las pistol",    LAS_PISTOL_DESC,    ITEM_AVAILABILITY_AVERAGE,ITEM_QUALITY_AVERAGE, 17,    50,  1),
-        PISTOL(WEAPON_DMG_TYPE_ENERGY,1,     2,  30,    AMMO_TYPE_PISTOL_SP,  ITEM_ID_PISTOL_AMMO_SP,  1,    0,    0,   30,      0,   0, WEAPON_SPEC_QUALITY_RELIABLE, TALENTS0_PISTOL_WEAPON_TRAINING_LAS), 
+        PISTOL(WEAPON_DMG_TYPE_ENERGY,1, 2,  30, AMMO_TYPE_PISTOL_LAS,  ITEM_ID_PISTOL_AMMO_LAS,  1,    0,    0,   30,      0,   0, WEAPON_SPEC_QUALITY_RELIABLE, TALENTS0_PISTOL_WEAPON_TRAINING_LAS), 
         ITEM_END,
 
     /* Ammo */

@@ -78,7 +78,7 @@ bool ma_do_move(struct msr_monster *monster, coord_t *pos) {
             update_screen();
         }
 
-        int speed = msr_calculate_characteristic_bonus(monster, MSR_CHAR_TOUGHNESS) * 10;
+        int speed = msr_get_movement_rate(monster);
         monster->energy -= (MSR_ACTION_MOVE - speed);
         monster->controller.interruptable = false;
         monster->controller.interrupted = false;
@@ -107,6 +107,8 @@ bool ma_do_wear(struct msr_monster *monster, struct itm_item *item) {
     if (dw_can_wear_item(monster, item) == false) return false;
 
     if (dw_wear_item(monster, item) == false) return false;
+    msr_weapon_next_selection(monster);
+
     monster->energy -= MSR_ACTION_WEAR * item->use_delay;
     monster->controller.interruptable = false;
     return true;
@@ -120,6 +122,8 @@ bool ma_do_remove(struct msr_monster *monster, struct itm_item *item) {
     if (dw_can_remove_item(monster, item) == false) return false;
 
     if (dw_remove_item(monster, item) == false) return false;
+    msr_weapon_next_selection(monster);
+
     monster->energy -= MSR_ACTION_REMOVE * item->use_delay;
     monster->controller.interruptable = false;
     monster->controller.interrupted = false;
@@ -218,7 +222,7 @@ bool ma_do_melee(struct msr_monster *monster, coord_t *target_pos) {
     int hits = 0;
 
     for (unsigned int i = 0; i < ARRAY_SZ(hand_lst); i++) {
-        item = fght_get_working_weapon(monster, WEAPON_TYPE_RANGED, hand_lst[i]);
+        item = fght_get_working_weapon(monster, WEAPON_TYPE_MELEE, hand_lst[i]);
         if (item != NULL) {
             hits++;
         }
@@ -367,7 +371,7 @@ static bool unload(struct msr_monster *monster, struct itm_item *weapon_item) {
 
     struct itm_item *ammo_item = itm_create(wpn->ammo_used_template_id);
     if (itm_verify_item(ammo_item) == false) return false;
-    assert(ammo_is_type(ammo_item, ITEM_TYPE_AMMO) == true);
+    assert(ammo_is_type(ammo_item, wpn->ammo_type) == true);
 
     struct item_ammo_specific *ammo = &ammo_item->specific.ammo;
 
