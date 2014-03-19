@@ -19,6 +19,7 @@
 #include "input.h"
 #include "dowear.h"
 #include "game.h"
+#include "ai.h"
 #include "monster_action.h"
 
 #define MAP_MIN_COLS 20
@@ -517,8 +518,12 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dc_map *map, coord_t *
     }
 
     coord_t e_pos = *p_pos;
-    /*find nearest enemy....*/
 
+    /*find nearest enemy....*/
+    int ign_cnt = 0;
+    int sight_radius =  msr_get_near_sight_range(plr->player) + msr_get_far_sight_range(plr->player);
+    struct msr_monster *target = ai_get_nearest_enemy(plr->player, sight_radius, ign_cnt, map);
+    if (target != NULL) e_pos = target->pos;
 
     int scr_x = get_viewport(last_ppos.x, map_win->cols, map->size.x);
     int scr_y = get_viewport(last_ppos.y, map_win->lines, map->size.y);
@@ -539,6 +544,14 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dc_map *map, coord_t *
             case INP_KEY_DOWN:       e_pos.y++; break;
             case INP_KEY_DOWN_LEFT:  e_pos.y++; e_pos.x--; break;
             case INP_KEY_LEFT:       e_pos.x--; break;
+            case INP_KEY_TAB: {
+                ign_cnt++; 
+                if ( (target = ai_get_nearest_enemy(plr->player, sight_radius, ign_cnt, map) ) != NULL) {
+                    e_pos = target->pos; 
+                }
+                else ign_cnt = 0;
+            } 
+            break;
             case INP_KEY_YES:
             case INP_KEY_FIRE: {
                 if (ma_do_fire(plr->player, &e_pos) == true) {
@@ -559,7 +572,7 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dc_map *map, coord_t *
         if (e_pos.x >= map->size.x) e_pos.x = map->size.x -1;
 
         length = cd_pyth(p_pos, &e_pos) +1;
-        path_len = fght_calc_lof_path(p_pos, &e_pos, path, ARRAY_SZ(path));
+        path_len = lof_calc_path(p_pos, &e_pos, path, ARRAY_SZ(path));
         for (int i = 0; i < MIN(path_len, length); i++) {
             mvwchgat(map_win->win, path[i].y - scr_y, path[i].x - scr_x, 1, A_NORMAL, DPL_COLOUR_BGB_RED, NULL);
             lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "mapwin", "fire_mode: [%d/%d] c (%d,%d) -> (%d,%d)", i, path_len, path[i].x, path[i].y, path[i].x - scr_x, path[i].y - scr_y);

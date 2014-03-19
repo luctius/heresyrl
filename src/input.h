@@ -31,6 +31,7 @@ enum inp_keys {
     INP_KEY_STAIRS_UP,
     INP_KEY_WEAPON_SETTING,
     INP_KEY_WEAPON_SELECT,
+    INP_KEY_TAB,
     INP_KEY_QUIT,
     INP_KEY_MAX,
 };

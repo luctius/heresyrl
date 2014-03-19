@@ -63,6 +63,8 @@ enum inp_keys inp_get_input(void) {
         case '>':       return INP_KEY_STAIRS_DOWN; break;
         case '<':       return INP_KEY_STAIRS_UP; break;
         case 24:        return INP_KEY_QUIT; break;
+        case 9:         return INP_KEY_TAB; break;
+                
         default:
             lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "main", "key pressed: %d.", ch);
             break;
