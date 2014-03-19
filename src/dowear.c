@@ -25,11 +25,11 @@ static bool wield_melee_weapon(struct msr_monster *monster, struct itm_item *ite
     } else {
         if ( (inv_loc_empty(inv, INV_LOC_MAINHAND_WIELD) == true) &&
                 (inv_support_location(inv, INV_LOC_MAINHAND_WIELD) == true) ) {
-            location = INV_LOC_MAINHAND_WIELD;
+            location = inv_loc(INV_LOC_MAINHAND_WIELD);
         }
         else if ( (inv_loc_empty(inv, INV_LOC_OFFHAND_WIELD) == true) &&
                 (inv_support_location(inv, INV_LOC_OFFHAND_WIELD) == true) ) {
-            location = INV_LOC_OFFHAND_WIELD;
+            location = inv_loc(INV_LOC_OFFHAND_WIELD);
         }
         else {
             You(monster, "have no hands free.");
@@ -38,7 +38,7 @@ static bool wield_melee_weapon(struct msr_monster *monster, struct itm_item *ite
     }
 
     if (inv_move_item_to_location(inv, item, location) == false) {
-        lg_printf_l(LG_DEBUG_LEVEL_WARNING, "Could not move %s to the correct location, bailing.", item->ld_name);
+        lg_printf_l(LG_DEBUG_LEVEL_WARNING, "dw", "Could not move %s to the correct location, bailing.", item->ld_name);
         You(monster, "seem to be unable to wield this weapon.");
         return false;
     }
@@ -65,11 +65,11 @@ static bool wield_ranged_weapon(struct msr_monster *monster, struct itm_item *it
     } else {
         if ( (inv_loc_empty(inv, INV_LOC_MAINHAND_WIELD) == true) &&
                 (inv_support_location(inv, INV_LOC_MAINHAND_WIELD) == true) ) {
-            location = INV_LOC_MAINHAND_WIELD;
+            location = inv_loc(INV_LOC_MAINHAND_WIELD);
         }
         else if ( (inv_loc_empty(inv, INV_LOC_OFFHAND_WIELD) == true) &&
                 (inv_support_location(inv, INV_LOC_OFFHAND_WIELD) == true) ) {
-            location = INV_LOC_OFFHAND_WIELD;
+            location = inv_loc(INV_LOC_OFFHAND_WIELD);
         }
         else {
             You(monster, "have no hands free.");
@@ -78,7 +78,7 @@ static bool wield_ranged_weapon(struct msr_monster *monster, struct itm_item *it
     }
 
     if (inv_move_item_to_location(inv, item, location) == false) {
-        lg_printf_l(LG_DEBUG_LEVEL_WARNING, "Could not move %s to the correct location, bailing.", item->ld_name);
+        lg_printf_l(LG_DEBUG_LEVEL_WARNING, "dw", "Could not move %s to the correct location, bailing.", item->ld_name);
         You(monster, "seem to be unable to wield this weapon.");
         return false;
     }
@@ -131,7 +131,7 @@ static bool dw_remove_weapon(struct msr_monster *monster, struct itm_item *item)
     struct inv_inventory *inv = monster->inventory;
 
     if (inv_move_item_to_location(inv, item, inv_loc(INV_LOC_INVENTORY) ) == false) {
-        lg_printf_l(LG_DEBUG_LEVEL_WARNING, "Could not move %s to the correct location, bailing.", item->ld_name);
+        lg_printf_l(LG_DEBUG_LEVEL_WARNING, "dw", "Could not move %s to the correct location, bailing.", item->ld_name);
         You(monster, "are to be unable to remove this weapon.");
         return false;
     }

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <sys/queue.h>
 #include <sys/param.h>
+#include <string.h>
 
 #include "inventory.h"
 #include "items.h"
@@ -98,10 +99,12 @@ bool inv_add_stack(struct inv_inventory *inv, struct itm_item *item) {
     while ( (i = inv_get_next_item(inv, i) ) != NULL ) {
         if (i->template_id == item->template_id) {
             if (i->stacked_quantity < i->max_quantity) {
-                int diff = (i->max_quantity - i->stacked_quantity);
-                int max = MAX(diff, item->stacked_quantity);
-                i->stacked_quantity += max;
-                item->stacked_quantity -= max;
+                if (memcmp(i, item, sizeof(struct itm_item) ) == 0) {
+                    int diff = (i->max_quantity - i->stacked_quantity);
+                    int max = MAX(diff, item->stacked_quantity);
+                    i->stacked_quantity += max;
+                    item->stacked_quantity -= max;
+                }
             }
         }
         if (item->stacked_quantity == 0) return true;
@@ -119,7 +122,7 @@ bool inv_add_item(struct inv_inventory *inv, struct itm_item *item) {
     struct inv_entry *ie = malloc(sizeof(struct inv_entry) );
     if (ie == NULL) return false;
 
-    ie->location = INV_LOC_INVENTORY;
+    ie->location = inv_loc(INV_LOC_INVENTORY);
     ie->item = item;
     LIST_INSERT_HEAD(&inv->head, ie, entries);
 
@@ -167,7 +170,7 @@ bool inv_move_item_to_location(struct inv_inventory *inv, struct itm_item *item,
     if (inv_has_item(inv, item) == false) return false;
 
     for (int i = 0; i < INV_LOC_MAX; i++) {
-        if (location & inv_loc(i) > 0) {
+        if ( (location & inv_loc(i) ) > 0) {
             if (inv_support_location(inv, i) == false) return false;
             if (inv_loc_empty(inv, i) == false) return false;
         }
@@ -192,7 +195,7 @@ struct itm_item *inv_get_item_from_location(struct inv_inventory *inv, enum inv_
     struct inv_entry *ie = inv->head.lh_first;
 
     while (ie != NULL) {
-        if (ie->location == location) {
+        if ( (ie->location & inv_loc(location) ) > 0) {
             return ie->item;
         }
         ie = ie->entries.le_next;
@@ -231,7 +234,9 @@ bool inv_item_worn(struct inv_inventory *inv, struct itm_item *item) {
     struct inv_entry *ie = inv->head.lh_first;
     while (ie != NULL) {
         if (ie->item == item) {
-            if (ie->location & (~INV_LOC_INVENTORY) > 0) return true;
+            if ( (ie->location & (~inv_loc(INV_LOC_INVENTORY) ) ) > 0) {
+                return true;
+            }
         }
         ie = ie->entries.le_next;
     }
@@ -246,7 +251,7 @@ bool inv_item_wielded(struct inv_inventory *inv, struct itm_item *item) {
     struct inv_entry *ie = inv->head.lh_first;
     while (ie != NULL) {
         if (ie->item == item) {
-            if (ie->location & (INV_LOC_OFFHAND_WIELD | INV_LOC_MAINHAND_WIELD) > 0) return true;
+            if ( (ie->location & (inv_loc(INV_LOC_OFFHAND_WIELD) | inv_loc(INV_LOC_MAINHAND_WIELD) ) ) > 0) return true;
         }
         ie = ie->entries.le_next;
     }
