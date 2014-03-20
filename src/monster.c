@@ -368,14 +368,16 @@ bool msr_weapons_check(struct msr_monster *monster) {
 
     /* If we have a single hand, test that for emptiness and weaponness. */
     if (monster->wpn_sel== MSR_WEAPON_SELECT_OFF_HAND) {
-        if (inv_support_location(inv, INV_LOC_OFFHAND_WIELD) == false) return false;
-        if (inv_loc_empty(inv, INV_LOC_OFFHAND_WIELD) == true) return false;
-        if (inv_get_item_from_location(inv, INV_LOC_OFFHAND_WIELD)->item_type != ITEM_TYPE_WEAPON) return false;
+        if (inv_support_location(inv, INV_LOC_OFFHAND_WIELD) == false) return false; /* if location is unsupported by this monster*/
+        if (inv_loc_empty(inv, INV_LOC_OFFHAND_WIELD) == true) return false;  /* if it is empty */
+        if (inv_get_item_from_location(inv, INV_LOC_OFFHAND_WIELD)->item_type != ITEM_TYPE_WEAPON) return false; /* if it is not a weapon */
+        if (inv_get_item_from_location(inv, INV_LOC_MAINHAND_WIELD) == inv_get_item_from_location(inv, INV_LOC_OFFHAND_WIELD) ) return false; /*or if it is the same as the mainhand wpn*/
     }
     else if (monster->wpn_sel == MSR_WEAPON_SELECT_MAIN_HAND) {
         if (inv_support_location(inv, INV_LOC_MAINHAND_WIELD) == false) return false;
         if (inv_loc_empty(inv, INV_LOC_MAINHAND_WIELD) == true) return false;
         if (inv_get_item_from_location(inv, INV_LOC_MAINHAND_WIELD)->item_type != ITEM_TYPE_WEAPON) return false;
+        if (inv_get_item_from_location(inv, INV_LOC_MAINHAND_WIELD) == inv_get_item_from_location(inv, INV_LOC_OFFHAND_WIELD) ) return false;
     }
     else if (monster->wpn_sel == MSR_WEAPON_SELECT_DUAL_HAND) {
         if (inv_support_location(inv, INV_LOC_MAINHAND_WIELD) == false) return false;
@@ -385,6 +387,8 @@ bool msr_weapons_check(struct msr_monster *monster) {
         if (inv_get_item_from_location(inv, INV_LOC_MAINHAND_WIELD)->item_type != ITEM_TYPE_WEAPON) return false;
         if (inv_loc_empty(inv, INV_LOC_OFFHAND_WIELD) == true) return false;
         if (inv_get_item_from_location(inv, INV_LOC_OFFHAND_WIELD)->item_type != ITEM_TYPE_WEAPON) return false;
+
+        if (inv_get_item_from_location(inv, INV_LOC_MAINHAND_WIELD) == inv_get_item_from_location(inv, INV_LOC_OFFHAND_WIELD) ) return false;
     }
     else if (monster->wpn_sel == MSR_WEAPON_SELECT_BOTH_HAND) {
         if (inv_support_location(inv, INV_LOC_MAINHAND_WIELD) == false) return false;

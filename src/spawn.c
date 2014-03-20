@@ -55,7 +55,7 @@ uint32_t spawn_monster(double roll) {
     return 0;
 }
 
-bool spwn_populate_map(struct dc_map *map, struct random *r, int monster_chance, int item_chance) {
+bool spwn_populate_map(struct dc_map *map, struct random *r, uint32_t monster_chance, uint32_t item_chance) {
     if (dc_verify_map(map) == false) return false;
     if (r == NULL) return false;
     coord_t c;

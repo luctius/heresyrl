@@ -30,6 +30,9 @@ enum item_ids {
     ITEM_ID_STUB_REVOLVER,
     ITEM_ID_LAS_PISTOL,
 
+    /* Basic weapons */
+    ITEM_ID_LAS_GUN,
+
     /* Ammo */
     ITEM_ID_ARROW,
     ITEM_ID_PISTOL_AMMO_SP,
