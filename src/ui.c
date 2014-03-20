@@ -525,7 +525,10 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dc_map *map, coord_t *
     /*find nearest enemy....*/
     int ign_cnt = 0;
     struct msr_monster *target = ai_get_nearest_enemy(plr->player, ign_cnt, map);
-    if (target != NULL) e_pos = target->pos;
+    if (target != NULL) {
+        e_pos = target->pos;
+        ign_cnt++;
+    }
 
     int scr_x = get_viewport(last_ppos.x, map_win->cols, map->size.x);
     int scr_y = get_viewport(last_ppos.y, map_win->lines, map->size.y);
@@ -547,11 +550,17 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dc_map *map, coord_t *
             case INP_KEY_DOWN_LEFT:  e_pos.y++; e_pos.x--; break;
             case INP_KEY_LEFT:       e_pos.x--; break;
             case INP_KEY_TAB: {
-                ign_cnt++; 
+
                 if ( (target = ai_get_nearest_enemy(plr->player, ign_cnt, map) ) != NULL) {
                     e_pos = target->pos; 
+                    ign_cnt++; 
                 }
-                else ign_cnt = 0;
+                else {
+                    ign_cnt = 0;
+                    target = ai_get_nearest_enemy(plr->player, ign_cnt, map);
+                    e_pos = target->pos; 
+                    ign_cnt++;
+                }
             } 
             break;
             case INP_KEY_YES:
