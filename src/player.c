@@ -1,4 +1,5 @@
 #include <ncurses.h>
+
 #include "player.h"
 #include "dungeon_creator.h"
 #include "monster.h"
@@ -11,6 +12,7 @@
 #include "game.h"
 #include "monster_action.h"
 #include "tiles.h"
+#include "ai.h"
 
 static bool plr_action_loop(struct msr_monster *player, void *controller);
 
@@ -30,12 +32,23 @@ void plr_init(struct pl_player *plr, char *name, enum msr_race race, enum msr_ge
     plr->player->icon = '@';
     plr->player->icon_attr = COLOR_PAIR(DPL_COLOUR_NORMAL) | A_BOLD;
     plr->player->faction = 0;
+    plr->player_map_pos = cd_create(0,0);
+}
+
+struct pf_context *plr_map(struct pl_player *plr, struct dc_map *map) {
+    if (cd_equal(&plr->player_map_pos, & plr->player->pos) == false) {
+        if (ai_generate_dijkstra(&plr->player_map, map, &plr->player->pos, 0) == true) {
+            plr->player_map_pos = plr->player->pos;
+        }
+    }
+    return plr->player_map;
 }
 
 static bool plr_action_loop(struct msr_monster *player, void *controller) {
     if (player == NULL) return false;
     if (controller == NULL) return false;
     struct dc_map *map = gbl_game->current_map;
+    struct pl_player *plr = controller;
     int ch;
     bool has_action = false;
 
@@ -46,6 +59,7 @@ static bool plr_action_loop(struct msr_monster *player, void *controller) {
         gbl_game->running = false;
     }
 
+    lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "plr", "plr_action_loop");
     while (gbl_game->running && (has_action == false) ) {
         mapwin_display_map(map, player_pos);
         charwin_refresh();
@@ -102,6 +116,8 @@ static bool plr_action_loop(struct msr_monster *player, void *controller) {
                     You(player, "see a broken stairway."); } break;
             case INP_KEY_RELOAD: 
                 has_action = ma_do_reload_carried(player, NULL); break;
+            case INP_KEY_WAIT: 
+                has_action = ma_do_guard(player); break;
             case INP_KEY_UNLOAD: 
                 has_action = ma_do_unload(player, NULL); break;
             case INP_KEY_WEAPON_SETTING: 
@@ -134,13 +150,15 @@ static bool plr_action_loop(struct msr_monster *player, void *controller) {
                 break;
         }
 
-        if (cd_equal(&pos, player_pos) == false) {
-            /* test for a move */
-            if (ma_do_move(player, &pos) == true) {
-                has_action = true;
-            }
-            else {
-                has_action = ma_do_melee(player, &pos);
+        if (has_action == false) {
+            if (cd_equal(&pos, player_pos) == false) {
+                /* test for a move */
+                if (ma_do_move(player, &pos) == true) {
+                    has_action = true;
+                }
+                else {
+                    has_action = ma_do_melee(player, &pos);
+                }
             }
         }
 

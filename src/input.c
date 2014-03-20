@@ -34,7 +34,7 @@ enum inp_keys inp_get_input(void) {
         case 'j': case 50:  case KEY_DOWN:  return INP_KEY_DOWN; break; 
         case 'b': case 49:  case KEY_END:   return INP_KEY_DOWN_LEFT; break;
         case 'h': case 52:  case KEY_LEFT:  return INP_KEY_LEFT; break;
-        case '.':                           return INP_KEY_WAIT; break;
+        case '.': case 53:                   return INP_KEY_WAIT; break;
 
         case 'q':
         case 27:        return INP_KEY_ESCAPE; break;

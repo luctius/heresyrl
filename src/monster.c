@@ -142,6 +142,11 @@ void msr_assign_controller(struct msr_monster *monster, struct monster_controlle
     memcpy(&monster->controller, controller, sizeof(struct monster_controller) );
 }
 
+void msr_clear_controller(struct msr_monster *monster) {
+    if (msr_verify_monster(monster) == false) return;
+    free(monster->controller.controller_ctx);
+    memset(&monster->controller, 0x0, sizeof(struct monster_controller) );
+}
 
 bool msr_insert_monster(struct msr_monster *monster, struct dc_map *map, coord_t *pos) {
     bool retval = false;
@@ -221,7 +226,7 @@ int msr_get_near_sight_range(struct msr_monster *monster) {
 
 int msr_get_far_sight_range(struct msr_monster *monster) {
     if (msr_verify_monster(monster) == false) return -1;
-    return (msr_calculate_characteristic(monster, MSR_CHAR_PERCEPTION) / 10);
+    return (msr_calculate_characteristic_bonus(monster, MSR_CHAR_PERCEPTION) );
 }
 
 bool msr_drop_inventory(struct msr_monster *monster, struct dc_map *map) {
@@ -256,6 +261,18 @@ bool msr_remove_monster(struct msr_monster *monster, struct dc_map *map) {
     }
 
     return retval;
+}
+
+int msr_get_energy(struct msr_monster *monster) {
+    if (msr_verify_monster(monster) == false) return -1;
+    return monster->energy;
+}
+
+bool msr_change_energy(struct msr_monster *monster, int energy) {
+    if (msr_verify_monster(monster) == false) return false;
+    monster->energy += energy;
+    if (monster->energy < 0) monster->energy = 0;
+    return true;
 }
 
 struct itm_item *msr_get_armour_from_hitloc(struct msr_monster *monster, enum msr_hit_location mhl) {

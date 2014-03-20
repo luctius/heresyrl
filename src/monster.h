@@ -105,7 +105,7 @@ struct msr_monster {
     uint8_t max_wounds;
     bool dead;
     uint8_t fatepoints;
-    uint32_t energy;
+    int energy;
 
     bitfield_t talents[((TALENTS_MAX >> 27) & 0x0F)+1];
     bitfield_t skills[MSR_SKILL_RATE_MAX];
@@ -129,6 +129,7 @@ void msr_destroy(struct msr_monster *monster, struct dc_map *map);
 bool msr_verify_monster(struct msr_monster *monster);
 
 void msr_assign_controller(struct msr_monster *monster, struct monster_controller *controller);
+void msr_clear_controller(struct msr_monster *monster);
 bool msr_insert_monster(struct msr_monster *monster, struct dc_map *map, coord_t *pos);
 bool msr_move_monster(struct msr_monster *monster, struct dc_map *map, coord_t *pos);
 bool msr_remove_monster(struct msr_monster *monster, struct dc_map *map);
@@ -141,6 +142,9 @@ struct itm_item *msr_get_armour_from_hitloc(struct msr_monster *monster, enum ms
 int msr_calculate_armour(struct msr_monster *monster, enum msr_hit_location hitloc);
 bool msr_do_dmg(struct msr_monster *monster, int dmg, enum msr_hit_location mhl, struct dc_map *map);
 enum msr_hit_location msr_get_hit_location(struct msr_monster *monster, int hit_roll); /* hitroll, from 0-99*/
+
+int msr_get_energy(struct msr_monster *monster);
+bool msr_change_energy(struct msr_monster *monster, int energy);
 
 int msr_get_near_sight_range(struct msr_monster *monster);
 int msr_get_far_sight_range(struct msr_monster *monster);

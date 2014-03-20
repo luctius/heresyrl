@@ -20,6 +20,7 @@
 #include "dowear.h"
 #include "game.h"
 #include "ai.h"
+#include "los.h"
 #include "monster_action.h"
 
 #define MAP_MIN_COLS 20
@@ -366,7 +367,8 @@ static void mapwin_display_map_noref(struct dc_map *map, coord_t *player) {
                 }
 
                 if (has_colors() == TRUE) wattron(map_win->win, attr_mod);
-                mvwprintw(map_win->win, yi, xi, "%c", icon);
+                //mvwprintw(map_win->win, yi, xi, "%c", icon);
+                mvwaddch(map_win->win, yi, xi, icon);
                 if (has_colors() == TRUE) wattroff(map_win->win, attr_mod);
             }
         }
@@ -379,6 +381,7 @@ void mapwin_display_map(struct dc_map *map, coord_t *player) {
     if (player == NULL) return;
     if (map_win->type != HRL_WINDOW_TYPE_MAP) return;
 
+    lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "ui", "update mapwin");
     mapwin_display_map_noref(map, player);
     wrefresh(map_win->win);
 }
@@ -521,8 +524,7 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dc_map *map, coord_t *
 
     /*find nearest enemy....*/
     int ign_cnt = 0;
-    int sight_radius =  msr_get_near_sight_range(plr->player) + msr_get_far_sight_range(plr->player);
-    struct msr_monster *target = ai_get_nearest_enemy(plr->player, sight_radius, ign_cnt, map);
+    struct msr_monster *target = ai_get_nearest_enemy(plr->player, ign_cnt, map);
     if (target != NULL) e_pos = target->pos;
 
     int scr_x = get_viewport(last_ppos.x, map_win->cols, map->size.x);
@@ -546,7 +548,7 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dc_map *map, coord_t *
             case INP_KEY_LEFT:       e_pos.x--; break;
             case INP_KEY_TAB: {
                 ign_cnt++; 
-                if ( (target = ai_get_nearest_enemy(plr->player, sight_radius, ign_cnt, map) ) != NULL) {
+                if ( (target = ai_get_nearest_enemy(plr->player, ign_cnt, map) ) != NULL) {
                     e_pos = target->pos; 
                 }
                 else ign_cnt = 0;

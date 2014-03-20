@@ -5,23 +5,20 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "coord.h"
+
 #define PF_BLOCKED (INT_MAX / 2)
 
-struct pf_coord {
-    int x;
-    int y;
-};
-
 struct pf_settings {
-    struct pf_coord map_start;
-    struct pf_coord map_end;
+    coord_t map_start;
+    coord_t map_end;
 
     /* Pointer of local map structure */
     void *map;
 
     /* Should return the cost of the tile (normally 1 and always higher than zero) 
        or PF_BLOCKED if it is a non-traversable tile.*/
-    unsigned int (*pf_traversable_callback)(void *map, struct pf_coord *coord);
+    unsigned int (*pf_traversable_callback)(void *map, coord_t *coord);
 };
 
 struct pf_context;
@@ -33,7 +30,7 @@ void pf_exit(struct pf_context *ctx);
 Prepares a full dijkstra map of the area, calculating the distance to start from all the (reachable) points
 The ctx can then be used by other functions.
 */
-bool pf_dijkstra_map(struct pf_context *ctx, struct pf_coord *start);
+bool pf_dijkstra_map(struct pf_context *ctx, coord_t *start);
 
 /*
 Prereq: pf_dijkstra_map
@@ -46,7 +43,7 @@ Prepares a A* map of the area, calculating the distance to start from the square
 Faster then pf_dijkstra_map, but it will only calculate the path needed to reach end, most of the squares 
 will not be touched. Thus it cannot be used by others to reach the same goal.
 */
-int pf_astar_map(struct pf_context *ctx, struct pf_coord *start, struct pf_coord *end);
+int pf_astar_map(struct pf_context *ctx, coord_t *start, coord_t *end);
 
 /*
 Prereq: pf_dijkstra_map OR pf_astar_map
@@ -63,6 +60,6 @@ If it is NULL it will not be used.
 
 returns the length of the path
 */
-int pf_calculate_path(struct pf_context *ctx, struct pf_coord *start, struct pf_coord *end, struct pf_coord **coord_lst);
+int pf_calculate_path(struct pf_context *ctx, coord_t *start, coord_t *end, coord_t **coord_lst);
 
 #endif /* PATHFINDING_H */

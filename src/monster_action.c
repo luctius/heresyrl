@@ -38,9 +38,9 @@ bool ma_process(void) {
 
         bool do_action = false;
 
-        if (monster->energy < MSR_ENERGY_FULL) monster->energy += MSR_ENERGY_TICK;
+        if (msr_get_energy(monster) < MSR_ENERGY_FULL) msr_change_energy(monster, MSR_ENERGY_TICK);
 
-        if (monster->energy >= MSR_ENERGY_FULL) do_action = true;
+        if (msr_get_energy(monster) >= MSR_ENERGY_FULL) do_action = true;
         if (monster->controller.interrupted == true) do_action = true;
 
         if (do_action) {
@@ -75,11 +75,10 @@ bool ma_do_move(struct msr_monster *monster, coord_t *pos) {
         if ( (sd_get_map_me(&oldpos, gbl_game->current_map)->visible == true) || 
              (sd_get_map_me(pos, gbl_game->current_map)->visible == true) ) {
             /* TODO interrupt enemies who see me. */
-            update_screen();
         }
 
         int speed = msr_get_movement_rate(monster);
-        monster->energy -= (MSR_ACTION_MOVE - speed);
+        msr_change_energy(monster, -(MSR_ACTION_MOVE - speed) );
         monster->controller.interruptable = false;
         monster->controller.interrupted = false;
         return true;
@@ -94,7 +93,7 @@ bool ma_do_idle(struct msr_monster *monster) {
 bool ma_do_guard(struct msr_monster *monster) {
     if (msr_verify_monster(monster) == false) return false;
 
-    monster->energy -= MSR_ACTION_GUARD;
+    msr_change_energy(monster, -(MSR_ACTION_GUARD) );
     monster->controller.interruptable = true;
     return true;
 }
@@ -109,7 +108,7 @@ bool ma_do_wear(struct msr_monster *monster, struct itm_item *item) {
     if (dw_wear_item(monster, item) == false) return false;
     msr_weapon_next_selection(monster);
 
-    monster->energy -= MSR_ACTION_WEAR * item->use_delay;
+    msr_change_energy(monster, -(MSR_ACTION_WEAR * item->use_delay) );
     monster->controller.interruptable = false;
     return true;
 }
@@ -124,7 +123,7 @@ bool ma_do_remove(struct msr_monster *monster, struct itm_item *item) {
     if (dw_remove_item(monster, item) == false) return false;
     msr_weapon_next_selection(monster);
 
-    monster->energy -= MSR_ACTION_REMOVE * item->use_delay;
+    msr_change_energy(monster, -(MSR_ACTION_REMOVE * item->use_delay) );
     monster->controller.interruptable = false;
     monster->controller.interrupted = false;
     return true;
@@ -136,7 +135,7 @@ bool ma_do_use(struct msr_monster *monster, struct itm_item *item) {
     if (inv_has_item(monster->inventory, item) == false) return false;
     if (dw_use_item(monster, item) == false) return false;
 
-    monster->energy -= MSR_ACTION_USE * item->use_delay;
+    msr_change_energy(monster, -(MSR_ACTION_USE * item->use_delay) );
     monster->controller.interruptable = false;
     return true;
 }
@@ -152,7 +151,7 @@ bool ma_do_pickup(struct msr_monster *monster, struct itm_item *items[], int nr_
             if (inv_has_item(me->inventory, items[i]) == true) {
                 if (inv_remove_item(me->inventory, items[i]) == true) {
                     if (msr_give_item(monster, items[i]) == true) {
-                        monster->energy -= MSR_ACTION_PICKUP;
+                        msr_change_energy(monster, -(MSR_ACTION_PICKUP) );
 
                         You_action(monster, "picked up %s.", items[i]->ld_name);
                         Monster_action(monster, "picked up %s.", items[i]->ld_name);
@@ -193,7 +192,7 @@ bool ma_do_drop(struct msr_monster *monster, struct itm_item *items[], int nr_it
             if (inv_item_worn(monster->inventory, items[i]) == false) {
                 if (msr_remove_item(monster, items[i]) == true) {
                     if (itm_insert_item(items[i], gbl_game->current_map, &monster->pos) == true) {
-                        monster->energy -= MSR_ACTION_DROP;
+                        msr_change_energy(monster, -(MSR_ACTION_DROP) );
 
                         You_action(monster,"dropped %s.", items[i]->ld_name);
                         Monster_action(monster, "dropped %s.", items[i]->ld_name);
@@ -234,7 +233,7 @@ bool ma_do_melee(struct msr_monster *monster, coord_t *target_pos) {
 
     if (hits == 1) cost = MSR_ACTION_SINGLE_MELEE;
 
-    monster->energy -= cost;
+    msr_change_energy(monster, -(cost) );
     monster->controller.interruptable = false;
     return true;
 }
@@ -256,13 +255,13 @@ bool ma_do_fire(struct msr_monster *monster, coord_t *pos) {
         }
     }
 
-    if (fght_shoot(gbl_game->game_random, monster, gbl_game->current_map, pos) == false) {
+    if (fght_shoot(gbl_game->game_random, monster, gbl_game->current_map, pos) < 0) {
         return false;
     }
 
     if (shots == 1) cost = MSR_ACTION_SINGLE_SHOT;
 
-    monster->energy -= cost;
+    msr_change_energy(monster, -(cost) );
     monster->controller.interruptable = false;
     return true;
 }
@@ -357,7 +356,7 @@ bool ma_do_reload_carried(struct msr_monster *monster, struct itm_item *ammo_ite
     }
 
     if (cost == 0) return false;
-    monster->energy -= cost;
+    msr_change_energy(monster, -(cost) );
     monster->controller.interruptable = false;
     return true;
 }
@@ -441,7 +440,7 @@ bool ma_do_unload(struct msr_monster *monster, struct itm_item *weapon_item) {
     }
 
     if (cost == 0) return false;
-    monster->energy -= cost;
+    msr_change_energy(monster, -(cost) );
     monster->controller.interruptable = false;
     return true;
 }

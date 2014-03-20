@@ -7,7 +7,7 @@
         .gender=_gender, .cur_wounds=maxwounds, .max_wounds=maxwounds, .fatepoints=0,
 #define MONSTER_END }
 
-#define CHARACTERISTICS(ws,bs,st,tg,ag,pr,in,wl,fl) \
+#define CHARACTERISTICS(ws,bs,st,tg,ag,in,pr,wl,fl) \
     .characteristic[MSR_CHAR_WEAPON_SKILL]={ .base_value=ws,}, .characteristic[MSR_CHAR_BALISTIC_SKILL]={ .base_value=bs,}, \
     .characteristic[MSR_CHAR_STRENGTH]={ .base_value=st,}, .characteristic[MSR_CHAR_TOUGHNESS]={ .base_value=tg,}, \
     .characteristic[MSR_CHAR_AGILITY]={ .base_value=ag,}, .characteristic[MSR_CHAR_PERCEPTION]={ .base_value=pr,}, \

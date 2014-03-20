@@ -6,6 +6,7 @@
 #include "monster.h"
 #include "spawn_static.h"
 #include "random.h"
+#include "ai.h"
 
 #include "spawn_static.c"
 
@@ -70,6 +71,7 @@ bool spwn_populate_map(struct dc_map *map, struct random *r, uint32_t monster_ch
                     struct msr_monster *monster = msr_create(idx);
 
                     msr_insert_monster(monster, map, &c);
+                    ai_monster_init(monster);
                 }
             }
 

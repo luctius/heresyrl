@@ -155,7 +155,7 @@ int fght_ranged_calc_tohit(struct random *r, struct msr_monster *monster, struct
     if (item == NULL) return -1;
 
     wpn = &item->specific.weapon;
-    You_action(monster, "fire at %s with your %s", monster->ld_name, item->sd_name);
+    You_action(monster, "fire at %s with your %s", target->ld_name, item->sd_name);
     Monster_action(monster, "fires at you with his %s", item->sd_name);
 
     int to_hit = msr_calculate_characteristic(monster, MSR_CHAR_BALISTIC_SKILL);
@@ -269,7 +269,7 @@ int fght_melee_calc_tohit(struct random *r, struct msr_monster *monster, struct 
     if (item == NULL) return -1;
 
     wpn = &item->specific.weapon;
-    You_action(monster, "slash at %s with your %s", monster->ld_name, item->sd_name);
+    You_action(monster, "slash at %s with your %s", target->ld_name, item->sd_name);
     Monster_action(monster, "slashes at you with his %s", item->sd_name);
 
     int to_hit = msr_calculate_characteristic(monster, MSR_CHAR_WEAPON_SKILL);
@@ -321,20 +321,18 @@ int fght_melee_calc_tohit(struct random *r, struct msr_monster *monster, struct 
 bool fght_melee(struct random *r, struct msr_monster *monster, struct msr_monster *target) {
     if (msr_verify_monster(monster) == false) return false;
     if (msr_verify_monster(target) == false) return false;
-    if (cd_pyth(&monster->pos, &target->pos) > 1) return false;
     if (monster->faction == target->faction) return false; /* do not attack members of same faction */
+    if (msr_weapon_type_check(monster, WEAPON_TYPE_MELEE) == false) return false;
+    if (cd_pyth(&monster->pos, &target->pos) > 1) return false;
     int hits = 0;
 
-    if (msr_weapon_type_check(monster, WEAPON_TYPE_MELEE) == true) {
-        /* Do damage */
-    
-        hits = fght_melee_calc_tohit(r, monster, target, FGHT_MAIN_HAND);
-        fght_do_weapon_dmg(r, monster, target, hits, FGHT_MAIN_HAND);
-        hits = fght_melee_calc_tohit(r, monster, target, FGHT_OFF_HAND);
-        fght_do_weapon_dmg(r, monster, target, hits, FGHT_OFF_HAND);
-        hits = fght_melee_calc_tohit(r, monster, target, FGHT_CREATURE_HAND);
-        fght_do_weapon_dmg(r, monster, target, hits, FGHT_CREATURE_HAND);
-    }
+    /* Do damage */
+    hits = fght_melee_calc_tohit(r, monster, target, FGHT_MAIN_HAND);
+    fght_do_weapon_dmg(r, monster, target, hits, FGHT_MAIN_HAND);
+    hits = fght_melee_calc_tohit(r, monster, target, FGHT_OFF_HAND);
+    fght_do_weapon_dmg(r, monster, target, hits, FGHT_OFF_HAND);
+    hits = fght_melee_calc_tohit(r, monster, target, FGHT_CREATURE_HAND);
+    fght_do_weapon_dmg(r, monster, target, hits, FGHT_CREATURE_HAND);
 
     return true;
 }

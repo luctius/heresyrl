@@ -10,7 +10,7 @@ bool los_has_sight(coord_t *s, coord_t *e, struct dc_map *map) {
     if (cd_within_bound(s, &map->size) == false) return false;
     if (cd_within_bound(e, &map->size) == false) return false;
 
-    int path_sz = cd_pyth(s,e) +1;
+    int path_sz = cd_pyth(s,e) +2;
     coord_t path[path_sz +1];
     path_sz = lof_calc_path(s,e, path, path_sz);
 
@@ -28,7 +28,7 @@ bool los_has_lof(coord_t *s, coord_t *e, struct dc_map *map) {
     if (cd_within_bound(s, &map->size) == false) return false;
     if (cd_within_bound(e, &map->size) == false) return false;
 
-    int path_sz = cd_pyth(s,e) +1;
+    int path_sz = cd_pyth(s,e) +2;
     coord_t path[path_sz +1];
     path_sz = lof_calc_path(s,e, path, path_sz);
 

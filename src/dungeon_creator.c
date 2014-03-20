@@ -6,11 +6,12 @@
 #include <assert.h>
 #include <ncurses.h>
 
-#include "tiles.h"
-#include "random.h"
 #include "heresyrl_def.h"
 #include "dungeon_creator.h"
 #include "dungeon_cave.h"
+#include "tiles.h"
+#include "ai.h"
+#include "random.h"
 #include "pathfinding.h"
 #include "inventory.h"
 #include "items.h"
@@ -243,7 +244,7 @@ bool dc_clear_map_visibility(struct dc_map *map, coord_t *start, coord_t *end) {
     return true;
 }
 
-static unsigned int dc_traversable_callback(void *vmap, struct pf_coord *coord) {
+static unsigned int dc_traversable_callback(void *vmap, coord_t *coord) {
     if (vmap == NULL) return PF_BLOCKED;
     if (coord == NULL) return PF_BLOCKED;
     struct dc_map *map = (struct dc_map *) vmap;
@@ -280,26 +281,11 @@ bool dc_generate_map(struct dc_map *map, enum dc_dungeon_type type, int level, u
     dc_add_stairs(map, r);
     dc_clear_map(map);
 
+    coord_t start = { .x = map->stair_up.x, .y = map->stair_up.y};
+    coord_t end = { .x = map->stair_down.x, .y = map->stair_down.y};
 
-    struct pf_settings pf_set = { 
-        .map_start = { 
-            .x = 0, 
-            .y = 0, 
-        }, 
-        .map_end = {
-            .x = map->size.x,
-            .y = map->size.y,
-        },
-        .map = map,
-        .pf_traversable_callback = dc_traversable_callback,
-    };
-    struct pf_coord start = { .x = map->stair_up.x, .y = map->stair_up.y};
-    struct pf_coord end = { .x = map->stair_down.x, .y = map->stair_down.y};
-
-    struct pf_context *pf_ctx = pf_init(&pf_set);
-
-    if (pf_dijkstra_map(pf_ctx, &start) ) {
-
+    struct pf_context *pf_ctx = NULL;
+    if (ai_generate_dijkstra(&pf_ctx, map, &start, 0) ) {
         if (pf_calculate_path(pf_ctx, &start, &end, NULL) > 1) {
             lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "dc", "Stairs reachable.");
         }

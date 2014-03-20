@@ -47,7 +47,9 @@ int main(int argc, char *argv[]) {
     if (start_color() == ERR) exit(1);
     refresh(); //  Print it on to the real screen
 
-    ui_create(COLS, LINES);
+    int cols, lines;
+    getmaxyx(stdscr, lines, cols);
+    ui_create(cols, lines);
 
     cbreak();
     noecho();
@@ -72,7 +74,8 @@ int main(int argc, char *argv[]) {
         ma_process();
         if (gbl_game->running) game_new_tick();
 
-        ui_create(COLS, LINES);
+        getmaxyx(stdscr, lines, cols);
+        ui_create(cols, lines);
     }
 
     game_exit();
