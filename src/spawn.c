@@ -9,7 +9,7 @@
 
 #include "spawn_static.c"
 
-uint32_t spawn_item(double roll) {
+static uint32_t spawn_item(double roll) {
     int sz = ARRAY_SZ(item_weights);
     double prob_arr[sz];
     double cumm_prob_arr[sz];
@@ -32,24 +32,24 @@ uint32_t spawn_item(double roll) {
     return 0;
 }
 
-uint32_t spawn_monster(double roll) {
+static uint32_t spawn_monster(double roll) {
     int sz = ARRAY_SZ(monster_weights);
     double prob_arr[sz];
     double cumm_prob_arr[sz];
     double sum = 0;
 
     for (int i = 0; i < sz; i++) {
-        sum += item_weights[i].weight;
+        sum += monster_weights[i].weight;
     }
     double cumm = 0;
     for (int i = 0; i < sz; i++) {
-        prob_arr[i] = item_weights[i].weight / sum;
+        prob_arr[i] = monster_weights[i].weight / sum;
         cumm += prob_arr[i];
         cumm_prob_arr[i] = cumm;
     }
     int idx = 0;
     for (int i = sz; i > 0; i--) {
-        if (roll < cumm_prob_arr[i]) idx = monster_weights[i-1].id;
+        if (roll < cumm_prob_arr[i-1]) idx = monster_weights[i-1].id;
         else return idx;
     }
     return 0;

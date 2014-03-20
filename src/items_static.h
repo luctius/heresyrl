@@ -24,6 +24,8 @@ enum item_ids {
     /* Weapons */
     /* Creature Attacks */
     ITEM_ID_HUMAN_UNARMED,
+    ITEM_ID_CREATURE_BITE_UNTRAINED,
+    ITEM_ID_CREATURE_BITE_TRAINED,
 
     /* Pistols*/
     ITEM_ID_STUB_AUTOMATIC,

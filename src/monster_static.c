@@ -1,5 +1,7 @@
 #include "monster_static.h"
 
+#include "monster_descriptions.h"
+
 #define MONSTER(tid,_icon,_sd_name,_ld_name,desc,_gender,maxwounds) \
     [tid]={.uid=0, .template_id=tid, .icon=_icon, .sd_name=_sd_name, .ld_name=_ld_name, .description=desc,\
         .gender=_gender, .cur_wounds=maxwounds, .max_wounds=maxwounds, .fatepoints=0,
@@ -16,15 +18,19 @@
     .skills[MSR_SKILL_RATE_ADVANCED]=advanced_skills, .skills[MSR_SKILL_RATE_EXPERT]=expert_skills
 
 #define HUMAN(tal0,tal1,tal2) .race=MSR_RACE_HUMAN, .size=MSR_SIZE_AVERAGE, \
-        .talents[0]= TALENTS0_CREATURE_TALENT_HANDS | tal0, .talents[1]=tal1, .talents[2]=tal2
+        .talents[0]= TALENTS0_CREATURE_WEAPON_TALENT | tal0, .talents[1]=tal1, .talents[2]=tal2, .creature_traits = CREATURE_TRAITS_NONE
 
-#define BASIC_FERAL_DESC "description of a basic feral human"
+#define BEAST(tal0,tal1,tal2) .race=MSR_RACE_BEAST, .size=MSR_SIZE_AVERAGE, \
+        .talents[0]= TALENTS0_CREATURE_WEAPON_TALENT | tal0, .talents[1]=tal1, .talents[2]=tal2, .creature_traits = CREATURE_TRAITS_BESTIAL | CREATURE_TRAITS_QUADRUPED
 
 struct msr_monster static_monster_list[] = {
-    MONSTER(MSR_ID_BASIC_FERAL,'h',"human","a feral human",BASIC_FERAL_DESC,MSR_GENDER_MALE,14)
+    MONSTER(MSR_ID_BASIC_FERAL,'h',"human","a feral human",MSR_DESC_FERAL_HUMAN,MSR_GENDER_MALE,14)
         HUMAN(TALENTS0_BASIC_WEAPON_TRAINING_SOLID_PROJECTILE,TALENTS1_TALENT_DODGE,0),
         CHARACTERISTICS(30,30,30,30,30,30,30,30,30),
-        SKILLS(0,0,0),
-    MONSTER_END,
+        SKILLS(0,0,0), MONSTER_END,
 
+    MONSTER(MSR_ID_VICIOUS_DOG,'d',"dog","a vicious dog",MSR_DESC_VISIOUS_DOG,MSR_GENDER_MALE,12)
+        BEAST(0,0,TALENTS2_SPRINT),
+        CHARACTERISTICS(30,0,30,30,30,15,38,40,30),
+        SKILLS(SKILLS_AWARENESS|SKILLS_SILENT_MOVE|SKILLS_TRACKING, SKILLS_AWARENESS|SKILLS_SILENT_MOVE|SKILLS_TRACKING ,0), MONSTER_END,
 };

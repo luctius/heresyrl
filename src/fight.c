@@ -198,7 +198,10 @@ int fght_ranged_calc_tohit(struct random *r, struct msr_monster *monster, struct
         else if (item->quality == ITEM_QUALITY_GOOD) to_hit_mod += FGHT_MODIFIER_QUALITY_TO_HIT_GOOD;
         else if (item->quality == ITEM_QUALITY_POOR) to_hit_mod += FGHT_MODIFIER_QUALITY_TO_HIT_POOR;
 
-        /* Maximum modifier */
+        /* Weapon talent of used weapon */
+        if (msr_check_talent(monster, wpn->wpn_talent) == false) to_hit_mod -= FGHT_MODIFIER_UNTRAINED_WEAPON;
+
+        /* Maximum modifier, keep these at the end! */
         if (to_hit_mod < -FGHT_MODIFIER_MAX) to_hit_mod = -FGHT_MODIFIER_MAX;
         if (to_hit_mod > FGHT_MODIFIER_MAX)  to_hit_mod = FGHT_MODIFIER_MAX;
 
@@ -287,7 +290,10 @@ int fght_melee_calc_tohit(struct random *r, struct msr_monster *monster, struct 
         else if (target->size == MSR_SIZE_PUNY) to_hit_mod += FGHT_MODIFIER_SIZE_PUNY;
         else if (target->size == MSR_SIZE_MINISCULE) to_hit_mod += FGHT_MODIFIER_SIZE_MINISCULE;
 
-        /* Maximum modifier */
+        /* Weapon talent of used weapon */
+        if (msr_check_talent(monster, wpn->wpn_talent) == false) to_hit_mod -= FGHT_MODIFIER_UNTRAINED_WEAPON;
+
+        /* Maximum modifier, keep these at the end! */
         if (to_hit_mod < -FGHT_MODIFIER_MAX) to_hit_mod = -FGHT_MODIFIER_MAX;
         if (to_hit_mod > FGHT_MODIFIER_MAX)  to_hit_mod = FGHT_MODIFIER_MAX;
 

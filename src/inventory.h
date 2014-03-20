@@ -54,6 +54,9 @@ const char *inv_location_name(bitfield_t loc);
       INV_LOC_FACE            | INV_LOC_BACK          | \
       INV_LOC_INVENTORY       | INV_LOC_CREATURE_WIELD1 )
 
+#define inv_loc_animal \
+    ( INV_LOC_INVENTORY       | INV_LOC_CREATURE_WIELD1 )
+
 #define inv_loc_tile \
     ( INV_LOC_INVENTORY)
 

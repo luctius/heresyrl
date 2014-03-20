@@ -93,8 +93,6 @@ struct itm_item *itm_create(int template_id) {
     i->item.uid = itmlst_next_id();
     i->item.owner_type = ITEM_OWNER_NONE;
 
-    lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "Item", "creating: %c", i->item.icon);
-
     return &i->item;
 }
 
@@ -126,6 +124,9 @@ bool itm_insert_item(struct itm_item *item, struct dc_map *map, coord_t *pos) {
                 item->owner_type = ITEM_OWNER_MAP;
                 item->owner.owner_map_entity = target;
                 retval = true;
+
+                lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "itm", "Inserting item %s (%c) [uid:%d, tid:%d] to (%d,%d)", 
+                        item->sd_name, item->icon, item->uid, item->template_id, pos->x, pos->y);
             }
         }
     }
@@ -141,7 +142,7 @@ bool itm_remove_item(struct itm_item *item, struct dc_map *map, coord_t *pos) {
 
     struct dc_map_entity *target = sd_get_map_me(pos, map);
     if (inv_has_item(target->inventory, item) == true) {
-        lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "Item", "removed (%d,%d)", pos->x, pos->y);
+        lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "itm", "removed (%d,%d)", pos->x, pos->y);
         if (inv_remove_item(target->inventory, item) ) {
             item->owner_type = ITEM_OWNER_NONE;
             item->owner.owner_map_entity = NULL;

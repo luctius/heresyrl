@@ -90,9 +90,13 @@ struct msr_monster *msr_create(uint32_t template_id) {
             case MSR_RACE_HUMAN:
                 m->monster.inventory = inv_init(inv_loc_human);
                 break;
+            case MSR_RACE_BEAST:
+            case MSR_RACE_DOMESTIC:
+                m->monster.inventory = inv_init(inv_loc_animal);
+                break;
             default:
-                assert(false);
                 free(m);
+                assert(false);
                 return NULL;
                 break;
         }
@@ -150,8 +154,8 @@ bool msr_insert_monster(struct msr_monster *monster, struct dc_map *map, coord_t
         if (me_future->monster == NULL) {
             me_future->monster = monster;
             monster->pos = *pos;
-            lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "msr", "Inserting monster id [uid:%d, tid:%d] to (%d,%d)", 
-                        monster->uid, monster->template_id, monster->pos.x, monster->pos.y);
+            lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "msr", "Inserting monster %s (%c) [uid:%d, tid:%d] to (%d,%d)", 
+                        monster->sd_name, monster->icon, monster->uid, monster->template_id, monster->pos.x, monster->pos.y);
             retval = true;
         }
     }
@@ -255,8 +259,8 @@ bool msr_remove_monster(struct msr_monster *monster, struct dc_map *map) {
 }
 
 struct itm_item *msr_get_armour_from_hitloc(struct msr_monster *monster, enum msr_hit_location mhl) {
-    if (msr_verify_monster(monster) == false) return -1;
-    if (mhl >= MSR_HITLOC_MAX) return 0;
+    if (msr_verify_monster(monster) == false) return NULL;
+    if (mhl >= MSR_HITLOC_MAX) return NULL;
     struct itm_item *item = NULL;
 
     switch(mhl) {
@@ -266,6 +270,7 @@ struct itm_item *msr_get_armour_from_hitloc(struct msr_monster *monster, enum ms
         case MSR_HITLOC_LEFT_ARM:
         case MSR_HITLOC_RIGHT_ARM: item = inv_get_item_from_location(monster->inventory, INV_LOC_ARMS); break;
         case MSR_HITLOC_HEAD:      item = inv_get_item_from_location(monster->inventory, INV_LOC_HEAD); break;
+        default: break;
     }
     return item;
 }
@@ -368,10 +373,14 @@ bool msr_weapons_check(struct msr_monster *monster) {
 
     /* If we have a single hand, test that for emptiness and weaponness. */
     if (monster->wpn_sel== MSR_WEAPON_SELECT_OFF_HAND) {
-        if (inv_support_location(inv, INV_LOC_OFFHAND_WIELD) == false) return false; /* if location is unsupported by this monster*/
-        if (inv_loc_empty(inv, INV_LOC_OFFHAND_WIELD) == true) return false;  /* if it is empty */
-        if (inv_get_item_from_location(inv, INV_LOC_OFFHAND_WIELD)->item_type != ITEM_TYPE_WEAPON) return false; /* if it is not a weapon */
-        if (inv_get_item_from_location(inv, INV_LOC_MAINHAND_WIELD) == inv_get_item_from_location(inv, INV_LOC_OFFHAND_WIELD) ) return false; /*or if it is the same as the mainhand wpn*/
+        /* if location is unsupported by this monster*/
+        if (inv_support_location(inv, INV_LOC_OFFHAND_WIELD) == false) return false;
+        /* if the location is empty */
+        if (inv_loc_empty(inv, INV_LOC_OFFHAND_WIELD) == true) return false;
+        /* if there is no weapon at that location*/
+        if (inv_get_item_from_location(inv, INV_LOC_OFFHAND_WIELD)->item_type != ITEM_TYPE_WEAPON) return false;
+        /* or if it is the same as the mainhand weapon */
+        if (inv_get_item_from_location(inv, INV_LOC_MAINHAND_WIELD) == inv_get_item_from_location(inv, INV_LOC_OFFHAND_WIELD) ) return false;
     }
     else if (monster->wpn_sel == MSR_WEAPON_SELECT_MAIN_HAND) {
         if (inv_support_location(inv, INV_LOC_MAINHAND_WIELD) == false) return false;
@@ -461,11 +470,22 @@ static struct itm_item *msr_unarmed_weapon(struct msr_monster *monster) {
         case MSR_RACE_HUMAN:
             item = itm_create(ITEM_ID_HUMAN_UNARMED);
             break;
+        case MSR_RACE_BEAST:
+            item = itm_create(ITEM_ID_CREATURE_BITE_TRAINED);
+            break;
+        case MSR_RACE_DOMESTIC:
+            item = itm_create(ITEM_ID_CREATURE_BITE_TRAINED);
+            break;
         default:
             assert(false);
             break;
     }
     return item;
+}
+
+bool msr_check_creature_trait(struct msr_monster *monster,  bitfield_t trait) {
+    if (msr_verify_monster(monster) == false) return false;
+    return bitfield(monster->creature_traits, trait);
 }
 
 bool msr_check_talent(struct msr_monster *monster,  bitfield_t talent) {
