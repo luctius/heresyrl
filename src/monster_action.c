@@ -33,6 +33,7 @@ bool ma_process(void) {
                 monster = msrlst_get_next_monster(monster);
 
                 msr_destroy(dead_monster, gbl_game->current_map);
+                continue;
             }
         }
 
@@ -43,7 +44,7 @@ bool ma_process(void) {
         if (msr_get_energy(monster) >= MSR_ENERGY_FULL) do_action = true;
         if (monster->controller.interrupted == true) do_action = true;
 
-        if (do_action) {
+        if (do_action || monster->dead) {
             if (monster->controller.controller_cb != NULL) {
                 monster->controller.controller_cb(monster, monster->controller.controller_ctx);
             }

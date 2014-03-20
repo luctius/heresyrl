@@ -9,9 +9,17 @@ struct spwn_item {
     int weight;
 };
 
+struct spwn_monster_item {
+    enum item_ids id;
+    int min;
+    int max;
+    bool wear;
+};
+
 struct spwn_monster {
     enum msr_ids id;
     int weight;
+    struct spwn_monster_item items[6];
 };
 
 #endif /* SPAWN_STATIC_H */

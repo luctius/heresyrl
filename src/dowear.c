@@ -107,24 +107,26 @@ bool dw_wear_item(struct msr_monster *monster, struct itm_item *item) {
         case ITEM_TYPE_TOOL: retval = false; break;
         case ITEM_TYPE_WEARABLE: retval = wear_wearable(monster, item); break;
         case ITEM_TYPE_WEAPON:
-                 if (wpn_is_type(item, WEAPON_TYPE_RANGED) )   { retval = wield_ranged_weapon(monster, item); break; }
-                 if (wpn_is_type(item, WEAPON_TYPE_MELEE) )    { retval = wield_melee_weapon(monster, item);  break; }
-                 if (wpn_is_type(item, WEAPON_TYPE_THROWN) )   { retval = false; break; }
+                 if (wpn_is_type(item, WEAPON_TYPE_RANGED) ) { retval = wield_ranged_weapon(monster, item); break; }
+                 if (wpn_is_type(item, WEAPON_TYPE_MELEE) )  { retval = wield_melee_weapon(monster, item);  break; }
+                 if (wpn_is_type(item, WEAPON_TYPE_THROWN) ) { retval = false; break; }
                  break;
         default: break;
     }
 
-    if (item->item_type == ITEM_TYPE_WEAPON) {
-        You_action(monster, "wield %s.", item->ld_name);
-        Monster_action(monster, "wields %s.", item->ld_name);
-    }
-    else {
-        You_action(monster, "wear %s.", item->ld_name);
-        Monster_action(monster, "wears %s.", item->ld_name);
-    }
+    if (retval == true) {
+        if (item->item_type == ITEM_TYPE_WEAPON) {
+            You_action(monster, "wield %s.", item->ld_name);
+            Monster_action(monster, "wields %s.", item->ld_name);
+        }
+        else {
+            You_action(monster, "wear %s.", item->ld_name);
+            Monster_action(monster, "wears %s.", item->ld_name);
+        }
 
-    /* Do check here */
-    if (msr_weapons_check(monster) == false) msr_weapon_next_selection(monster);
+        /* Do check here */
+        if (msr_weapons_check(monster) == false) msr_weapon_next_selection(monster);
+    }
 
     return retval;
 }

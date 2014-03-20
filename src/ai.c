@@ -80,10 +80,10 @@ bool ai_generate_dijkstra(struct pf_context **pf_ctx, struct dc_map *map, coord_
     };
 
     if (radius > 0) {
-        pf_set.map_start.x = MIN(start->x - radius, 0);
-        pf_set.map_start.y = MIN(start->y - radius, 0);
-        pf_set.map_end.x = MAX(start->x + radius, map->size.x);
-        pf_set.map_end.y = MAX(start->y + radius, map->size.y);
+        pf_set.map_start.x = MAX(start->x - radius, 0);
+        pf_set.map_start.y = MAX(start->y - radius, 0);
+        pf_set.map_end.x = MIN(start->x + radius, map->size.x);
+        pf_set.map_end.y = MIN(start->y + radius, map->size.y);
     }
 
     if (*pf_ctx == NULL) {
@@ -113,10 +113,10 @@ bool ai_generate_astar(struct pf_context **pf_ctx, struct dc_map *map, coord_t *
     };
 
     if (radius > 0) {
-        pf_set.map_start.x = MIN(start->x - radius, 0);
-        pf_set.map_start.y = MIN(start->y - radius, 0);
-        pf_set.map_end.x = MAX(start->x + radius, map->size.x);
-        pf_set.map_end.y = MAX(start->y + radius, map->size.y);
+        pf_set.map_start.x = MAX(start->x - radius, 0);
+        pf_set.map_start.y = MAX(start->y - radius, 0);
+        pf_set.map_end.x = MIN(start->x + radius, map->size.x);
+        pf_set.map_end.y = MIN(start->y + radius, map->size.y);
     }
 
     if (*pf_ctx == NULL) {
@@ -149,7 +149,7 @@ static bool ai_beast_loop(struct msr_monster *monster, void *controller) {
         lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "ai", "[uid: %d, tid: %d] sees an enemy", monster->uid, monster->template_id);
         if (cd_pyth(&monster->pos, &enemy->pos) > 1) {
             int radius = msr_get_near_sight_range(monster) + msr_get_far_sight_range(monster) +1;
-            if (ai_generate_astar(&ai->pf_ctx, map, &monster->pos, &enemy->pos, radius) == true) {
+            if (ai_generate_astar(&ai->pf_ctx, map, &monster->pos, &enemy->pos, 0) == true) {
                 coord_t *coord_lst;
                 int coord_lst_sz =  pf_calculate_path(ai->pf_ctx, &monster->pos, &enemy->pos, &coord_lst);
                 if (coord_lst_sz > 1) {

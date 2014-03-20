@@ -133,8 +133,8 @@ bool fght_do_weapon_dmg(struct random *r, struct msr_monster *monster, struct ms
         }
 
         You_action(monster, "do %d damage.", dmg + dmg_add);
-        armour = MIN((armour - penetration), 0); /* penetration only works against armour */
-        dmg = (dmg + dmg_add) - (armour  + toughness);
+        armour = MAX((armour - penetration), 0); /* penetration only works against armour */
+        dmg = MAX((dmg + dmg_add) - (armour  + toughness), 0);
         Monster_action_end(monster, "does %d damage.", dmg);
         msr_do_dmg(target, dmg, mhl, gbl_game->current_map);
 
