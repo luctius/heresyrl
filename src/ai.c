@@ -29,6 +29,7 @@ struct msr_monster *ai_get_nearest_enemy(struct msr_monster *monster, int ignore
             if (ignore_cnt < 0) return target;
         }
     }
+    if (ignore_cnt > 0) return NULL;
     return target;
 }
 

@@ -132,9 +132,10 @@ bool fght_do_weapon_dmg(struct random *r, struct msr_monster *monster, struct ms
             }
         }
 
-        You(monster, "do %d damage.", dmg + dmg_add);
+        You_action(monster, "do %d damage.", dmg + dmg_add);
         armour = MIN((armour - penetration), 0); /* penetration only works against armour */
         dmg = (dmg + dmg_add) - (armour  + toughness);
+        Monster_action_end(monster, "does %d damage.", dmg);
         msr_do_dmg(target, dmg, mhl, gbl_game->current_map);
 
         if (target->dead) h = hits;
