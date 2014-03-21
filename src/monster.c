@@ -222,21 +222,17 @@ bool msr_remove_item(struct msr_monster *monster, struct itm_item *item) {
 
 int msr_get_near_sight_range(struct msr_monster *monster) {
     if (msr_verify_monster(monster) == false) return -1;
-    return ( (msr_calculate_characteristic(monster, MSR_CHAR_PERCEPTION) * 2) /10) +1;
+    return ( (msr_calculate_characteristic_bonus(monster, MSR_CHAR_PERCEPTION) * 2) ) +1;
 }
 
 int msr_get_medium_sight_range(struct msr_monster *monster) {
     if (msr_verify_monster(monster) == false) return -1;
-    /* Not using char_bonus now, but first multiply and then divide by 10 
-       gives monster with an slightly higher perception an edge. */
-    return ( (msr_calculate_characteristic(monster, MSR_CHAR_PERCEPTION) * 3) /10) +1;
+    return ( (msr_calculate_characteristic_bonus(monster, MSR_CHAR_PERCEPTION) * 3) ) +1;
 }
 
 int msr_get_far_sight_range(struct msr_monster *monster) {
     if (msr_verify_monster(monster) == false) return -1;
-    /* Not using char_bonus now, but first multiply and then divide by 10 
-       gives monster with an slightly higher perception an edge. */
-    return ( (msr_calculate_characteristic(monster, MSR_CHAR_PERCEPTION) * 4) /10) +1;
+    return ( (msr_calculate_characteristic_bonus(monster, MSR_CHAR_PERCEPTION) * 4) ) +1;
 }
 
 bool msr_drop_inventory(struct msr_monster *monster, struct dc_map *map) {
@@ -518,7 +514,7 @@ bool msr_weapon_next_selection(struct msr_monster *monster) {
 
     do {
         monster->wpn_sel++;
-        monster->wpn_sel %= MSR_WEAPON_SELECT_CREATURE1;
+        monster->wpn_sel %= MSR_WEAPON_SELECT_MAX;
     } while (msr_weapons_check(monster) == false);
     return true;
 }
