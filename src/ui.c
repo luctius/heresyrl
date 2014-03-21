@@ -437,8 +437,8 @@ void ui_animate_projectile(struct dc_map *map, coord_t path[], int path_len, cha
     if (gbl_game->player_data.player == NULL) return;
 
     coord_t *p_pos = &gbl_game->player_data.player->pos;
-    int scr_x = get_viewport(p_pos->x, map_win->cols, map->size.x);
-    int scr_y = get_viewport(p_pos->y, map_win->lines, map->size.y);
+    int scr_x = get_viewport(last_ppos.x, map_win->cols, map->size.x);
+    int scr_y = get_viewport(last_ppos.y, map_win->lines, map->size.y);
 
     for (int i = 1; i < path_len; i++) {
         if (sd_get_map_me(&path[i],map)->visible == true) {
