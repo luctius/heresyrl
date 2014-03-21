@@ -87,7 +87,7 @@ bool game_init_map(void) {
     if (cd_equal(&gbl_game->player_data.player->pos, &c) == true) {
         if (dc_tile_instance(gbl_game->current_map, TILE_TYPE_STAIRS_UP, 0, &c) == false) exit(1);
         if (msr_insert_monster(gbl_game->player_data.player, gbl_game->current_map, &c) == false) exit(1);
-        spwn_populate_map(gbl_game->current_map, gbl_game->spawn_random, 10, 10);
+        spwn_populate_map(gbl_game->current_map, gbl_game->spawn_random, 50, 10);
     }
 
     dc_clear_map_visibility(gbl_game->current_map, &c, &gbl_game->current_map->size);

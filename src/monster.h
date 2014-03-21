@@ -101,10 +101,10 @@ struct msr_monster {
     enum msr_race race;
     enum msr_size size;
 
-    uint8_t cur_wounds;
-    uint8_t max_wounds;
-    bool dead;
+    int8_t cur_wounds;
+    int8_t max_wounds;
     uint8_t fatepoints;
+    bool dead;
     int energy;
 
     bitfield_t talents[((TALENTS_MAX >> 27) & 0x0F)+1];
@@ -147,6 +147,7 @@ int msr_get_energy(struct msr_monster *monster);
 bool msr_change_energy(struct msr_monster *monster, int energy);
 
 int msr_get_near_sight_range(struct msr_monster *monster);
+int msr_get_medium_sight_range(struct msr_monster *monster);
 int msr_get_far_sight_range(struct msr_monster *monster);
 char *msr_gender_string(struct msr_monster *monster);
 bool msr_do_skill_check(struct msr_monster *monster, enum skills skill, int modifiers);

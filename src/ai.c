@@ -15,7 +15,7 @@
 struct msr_monster *ai_get_nearest_enemy(struct msr_monster *monster, int ignore_cnt, struct dc_map *map) {
     struct msr_monster *target = NULL;
 
-    int far_radius = msr_get_near_sight_range(monster) + msr_get_far_sight_range(monster);
+    int far_radius = msr_get_far_sight_range(monster);
     while ( (target = msrlst_get_next_monster(target) ) != NULL) {
         if (target->faction == monster->faction) continue; /* ignore same faction */
         if (cd_equal(&target->pos, &monster->pos) ) continue; /* ignore current position*/

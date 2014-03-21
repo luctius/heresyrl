@@ -99,13 +99,11 @@ bool fght_do_weapon_dmg(struct random *r, struct msr_monster *monster, struct ms
         if (wpn->nr_dmg_die == 0) dmg = random_xd5(r, 1); /*TODO Emperors fury */
 
         int dmg_add = wpn->dmg_addition;
-        lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "fght", "Doing %d%s+%d damage => %d dmg.", wpn->nr_dmg_die, random_die_name(dmg_die_sz), wpn->dmg_addition, dmg + dmg_add);
-
         enum msr_hit_location mhl = msr_get_hit_location(target, random_d100(r) );
         int penetration = wpn->penetration;
-        int armour = msr_calculate_armour(monster, mhl);
+        int armour = msr_calculate_armour(target, mhl);
         int toughness = msr_calculate_characteristic_bonus(target, MSR_CHAR_TOUGHNESS);
-        struct itm_item *armour_item = msr_get_armour_from_hitloc(monster, mhl);
+        struct itm_item *armour_item = msr_get_armour_from_hitloc(target, mhl);
         struct item_wearable_specific *amr = NULL;
         if ( (armour_item != NULL) && (wearable_is_type(armour_item, WEARABLE_TYPE_ARMOUR) ) ) amr = &armour_item->specific.wearable;
 
@@ -138,6 +136,7 @@ bool fght_do_weapon_dmg(struct random *r, struct msr_monster *monster, struct ms
         Monster_action_end(monster, "does %d damage.", dmg);
         msr_do_dmg(target, dmg, mhl, gbl_game->current_map);
 
+        lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "fght", "Doing %d%s+%d damage => %d, %d wnds left.", wpn->nr_dmg_die, random_die_name(dmg_die_sz), wpn->dmg_addition, dmg, target->cur_wounds);
         if (target->dead) h = hits;
     }
 
