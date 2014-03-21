@@ -70,12 +70,12 @@ bool mt_interrupt_event(uint32_t monster_uid) {
 bool ma_do_move(struct msr_monster *monster, coord_t *pos) {
     if (msr_verify_monster(monster) == false) return false;
     if (pos == NULL) return false;
-    coord_t oldpos = monster->pos;
 
     if (msr_move_monster(monster, gbl_game->current_map, pos) == true) {
-        if ( (sd_get_map_me(&oldpos, gbl_game->current_map)->visible == true) || 
-             (sd_get_map_me(pos, gbl_game->current_map)->visible == true) ) {
-            /* TODO interrupt enemies who see me. */
+        struct dc_map_entity *me = sd_get_map_me(&monster->pos, gbl_game->current_map);
+        struct itm_item *item = NULL;
+        while ( (item = inv_get_next_item(me->inventory, item) ) != NULL) {
+            You(monster, "see %s lying here.", item->ld_name);
         }
 
         int speed = msr_get_movement_rate(monster);
