@@ -11,7 +11,7 @@
 #define ITEM(item_id,_sd_name,_ld_name,item_desc,_availability,item_quality,item_weight,item_cost,delay) \
     [item_id]={.uid=0, .template_id=item_id, .availability=_availability, .quality=item_quality, \
     .age=0, .weight=item_weight, .cost=item_cost, .sd_name=_sd_name, .ld_name=_ld_name, \
-    .description=item_desc, .icon_attr=COLOR_PAIR(DPL_COLOUR_NORMAL), .use_delay=delay, .dropable=true
+    .description=item_desc, .icon_attr=TERM_COLOUR_SLATE, .use_delay=delay, .dropable=true
 #define ITEM_END }
 
 #define LIGHT(_tool_type,_energy,_light_luminem) \

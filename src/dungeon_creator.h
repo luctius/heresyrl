@@ -17,6 +17,8 @@ struct dc_map_entity {
 
     coord_t pos;
     char type;
+    char icon_override;
+    int icon_attr_override;
     bool in_sight;
     bool visible;
     bool discovered;

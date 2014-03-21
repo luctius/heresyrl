@@ -6,6 +6,7 @@
 #include <sys/param.h>
 
 #include "ui.h"
+#include "heresyrl_def.h"
 #include "cmdline.h"
 #include "tiles.h"
 #include "monster.h"
@@ -78,78 +79,7 @@ static void win_generate_colours(void) {
         colours_generated = true;
         lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "ui", "generating colours");
 
-        init_pair(i++, COLOR_WHITE, COLOR_BLACK);
-        assert(i-1 == DPL_COLOUR_NORMAL);
-        init_pair(i++, COLOR_RED, COLOR_BLACK);
-        assert(i-1 == DPL_COLOUR_FG_RED);
-        init_pair(i++, COLOR_GREEN, COLOR_BLACK);
-        assert(i-1 == DPL_COLOUR_FG_GREEN);
-        init_pair(i++, COLOR_YELLOW, COLOR_BLACK);
-        assert(i-1 == DPL_COLOUR_FG_YELLOW);
-        init_pair(i++, COLOR_BLUE, COLOR_BLACK);
-        assert(i-1 == DPL_COLOUR_FG_BLUE);
-        init_pair(i++, COLOR_MAGENTA, COLOR_BLACK);
-        assert(i-1 == DPL_COLOUR_FG_MAGENTA);
-        init_pair(i++, COLOR_CYAN, COLOR_BLACK);
-        assert(i-1 == DPL_COLOUR_FG_CYAN);
-
-        init_pair(i++, COLOR_BLACK, COLOR_WHITE);
-        assert(i-1 == DPL_COLOUR_FGW_INVERSE);
-        init_pair(i++, COLOR_RED, COLOR_WHITE);
-        assert(i-1 == DPL_COLOUR_FGW_RED);
-        init_pair(i++, COLOR_GREEN, COLOR_WHITE);
-        assert(i-1 == DPL_COLOUR_FGW_GREEN);
-        init_pair(i++, COLOR_YELLOW, COLOR_WHITE);
-        assert(i-1 == DPL_COLOUR_FGW_YELLOW);
-        init_pair(i++, COLOR_BLUE, COLOR_WHITE);
-        assert(i-1 == DPL_COLOUR_FGW_BLUE);
-        init_pair(i++, COLOR_MAGENTA, COLOR_WHITE);
-        assert(i-1 == DPL_COLOUR_FGW_MAGENTA);
-        init_pair(i++, COLOR_CYAN, COLOR_WHITE);
-        assert(i-1 == DPL_COLOUR_FGW_CYAN);
-
-        init_pair(i++, COLOR_BLACK, COLOR_RED);
-        assert(i-1 == DPL_COLOUR_BGB_RED);
-        init_pair(i++, COLOR_BLACK, COLOR_GREEN);
-        assert(i-1 == DPL_COLOUR_BGB_GREEN);
-        init_pair(i++, COLOR_BLACK, COLOR_YELLOW);
-        assert(i-1 == DPL_COLOUR_BGB_YELLOW);
-        init_pair(i++, COLOR_BLACK, COLOR_BLUE);
-        assert(i-1 == DPL_COLOUR_BGB_BLUE);
-        init_pair(i++, COLOR_BLACK, COLOR_MAGENTA);
-        assert(i-1 == DPL_COLOUR_BGB_MAGENTA);
-        init_pair(i++, COLOR_BLACK, COLOR_CYAN);
-        assert(i-1 == DPL_COLOUR_BGB_CYAN);
-
-        init_pair(i++, COLOR_WHITE, COLOR_RED);
-        assert(i-1 == DPL_COLOUR_BGW_RED);
-        init_pair(i++, COLOR_WHITE, COLOR_GREEN);
-        assert(i-1 == DPL_COLOUR_BGW_GREEN);
-        init_pair(i++, COLOR_WHITE, COLOR_YELLOW);
-        assert(i-1 == DPL_COLOUR_BGW_YELLOW);
-        init_pair(i++, COLOR_WHITE, COLOR_BLUE);
-        assert(i-1 == DPL_COLOUR_BGW_BLUE);
-        init_pair(i++, COLOR_WHITE, COLOR_MAGENTA);
-        assert(i-1 == DPL_COLOUR_BGW_MAGENTA);
-        init_pair(i++, COLOR_WHITE, COLOR_CYAN);
-        assert(i-1 == DPL_COLOUR_BGW_CYAN);
-
-        init_pair(i++, COLOR_RED, COLOR_RED);
-        assert(i-1 == DPL_COLOUR_ALL_RED);
-        init_pair(i++, COLOR_GREEN, COLOR_GREEN);
-        assert(i-1 == DPL_COLOUR_ALL_GREEN);
-        init_pair(i++, COLOR_YELLOW, COLOR_YELLOW);
-        assert(i-1 == DPL_COLOUR_ALL_YELLOW);
-        init_pair(i++, COLOR_BLUE, COLOR_BLUE);
-        assert(i-1 == DPL_COLOUR_ALL_BLUE);
-        init_pair(i++, COLOR_MAGENTA, COLOR_MAGENTA);
-        assert(i-1 == DPL_COLOUR_ALL_MAGENTA);
-        init_pair(i++, COLOR_CYAN, COLOR_CYAN);
-        assert(i-1 == DPL_COLOUR_ALL_CYAN);
-        init_pair(i++, COLOR_BLACK, COLOR_BLACK);
-        assert(i-1 == DPL_COLOUR_ALL_BLACK);
-        init_pair(i++, COLOR_WHITE, COLOR_WHITE);
-        assert(i-1 == DPL_COLOUR_ALL_WHITE);
+        generate_colours();
     }
 }
 
@@ -304,11 +234,17 @@ static void mapwin_display_map_noref(struct dc_map *map, coord_t *player) {
                 char icon = tile->icon;
                 bool modified = false;
 
+                if (me->icon_override != -1) icon = me->icon_override;
+                if (me->icon_attr_override != -1) {
+                    attr_mod = me->icon_attr_override;
+                    modified = true;
+                }
+                
                 /* Modify wall colour */
                 if (modified == false) {
                     if (me->visible == true) {
                         if (TILE_HAS_ATTRIBUTE(tile, TILE_ATTR_TRAVERSABLE) == false) {
-                            attr_mod = COLOR_PAIR(DPL_COLOUR_FG_YELLOW);
+                            attr_mod = get_colour(TERM_COLOUR_UMBER);
                             modified = true;
                         }
                     }
@@ -341,12 +277,21 @@ static void mapwin_display_map_noref(struct dc_map *map, coord_t *player) {
                 /* test colours */
                 {
                     if (me->test_var == 2) {
-                        attr_mod = COLOR_PAIR(DPL_COLOUR_BGB_RED);
+                        attr_mod = get_colour(TERM_COLOUR_BLUE);
                         modified = true;
                     }
                     if (me->test_var == 1) {
-                        attr_mod = COLOR_PAIR(DPL_COLOUR_BGB_BLUE);
+                        attr_mod = get_colour(TERM_COLOUR_RED);
                         modified = true;
+                    }
+                }
+
+                if (modified == false) {
+                    if (me->visible == true) {
+                        if (me->light_level > 0) {
+                            attr_mod = get_colour(TERM_COLOUR_YELLOW);
+                            modified = true;
+                        }
                     }
                 }
 
@@ -370,7 +315,6 @@ static void mapwin_display_map_noref(struct dc_map *map, coord_t *player) {
                 }
 
                 if (has_colors() == TRUE) wattron(map_win->win, attr_mod);
-                //mvwprintw(map_win->win, yi, xi, "%c", icon);
                 mvwaddch(map_win->win, yi, xi, icon);
                 if (has_colors() == TRUE) wattroff(map_win->win, attr_mod);
             }
@@ -478,7 +422,7 @@ void mapwin_overlay_examine_cursor(struct dc_map *map, coord_t *p_pos) {
 
         lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "ui", "examining pos: (%d,%d), plr (%d,%d)", e_pos.x, e_pos.y, p_pos->x, p_pos->y);
         chtype oldch = mvwinch(map_win->win, e_pos.y - scr_y, e_pos.x - scr_x);
-        mvwchgat(map_win->win, e_pos.y - scr_y, e_pos.x - scr_x, 1, A_NORMAL, DPL_COLOUR_BGB_RED, NULL);
+        mvwchgat(map_win->win, e_pos.y - scr_y, e_pos.x - scr_x, 1, A_NORMAL, get_colour(TERM_COLOUR_BG_RED) , NULL);
         wrefresh(map_win->win);
         mvwaddch(map_win->win, e_pos.y - scr_y, e_pos.x - scr_x, oldch);
     }
@@ -588,7 +532,7 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dc_map *map, coord_t *
         length = cd_pyth(p_pos, &e_pos) +1;
         path_len = lof_calc_path(p_pos, &e_pos, path, ARRAY_SZ(path));
         for (int i = 0; i < MIN(path_len, length); i++) {
-            mvwchgat(map_win->win, path[i].y - scr_y, path[i].x - scr_x, 1, A_NORMAL, DPL_COLOUR_BGB_RED, NULL);
+            mvwchgat(map_win->win, path[i].y - scr_y, path[i].x - scr_x, 1, A_NORMAL, get_colour(TERM_COLOUR_BG_RED), NULL);
             lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "mapwin", "fire_mode: [%d/%d] c (%d,%d) -> (%d,%d)", i, path_len, path[i].x, path[i].y, path[i].x - scr_x, path[i].y - scr_y);
         }
         wrefresh(map_win->win);

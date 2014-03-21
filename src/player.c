@@ -45,7 +45,7 @@ void plr_init(struct pl_player *plr, char *name, enum msr_race race, enum msr_ge
 
     plr->player->is_player = true;
     plr->player->icon = '@';
-    plr->player->icon_attr = COLOR_PAIR(DPL_COLOUR_NORMAL) | A_BOLD;
+    plr->player->icon_attr = get_colour(TERM_COLOUR_WHITE);
     plr->player->faction = 0;
     plr->player_map_pos = cd_create(0,0);
 }

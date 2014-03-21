@@ -115,6 +115,7 @@ bool sgt_calculate_light_source(struct sgt_sight *sight, struct dc_map *map, str
     coord_t c = itm_get_pos(item);
 
     fov_circle(&sight->fov_settings, map, item, c.x, c.y, item->specific.tool.light_luminem);
+    sd_get_map_me(&c,map)->icon_attr_override = get_colour(TERM_COLOUR_YELLOW);
     return true;
 }
 

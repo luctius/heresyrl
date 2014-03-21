@@ -71,6 +71,8 @@ static bool dc_clear_map_unsafe(struct dc_map *map) {
             sd_get_map_me(&c,map)->discovered = false;
             sd_get_map_me(&c,map)->light_level = 0;
             sd_get_map_me(&c,map)->monster = NULL;
+            sd_get_map_me(&c,map)->icon_override = -1;
+            sd_get_map_me(&c,map)->icon_attr_override = -1;
             sd_get_map_me(&c,map)->test_var = 0;
 
             if (sd_get_map_me(&c,map)->inventory != NULL) inv_exit(sd_get_map_me(&c,map)->inventory);
@@ -240,6 +242,8 @@ bool dc_clear_map_visibility(struct dc_map *map, coord_t *start, coord_t *end) {
             sd_get_map_me(&c,map)->visible = false;
             sd_get_map_me(&c,map)->light_level = 0;
             sd_get_map_me(&c,map)->test_var = 0;
+            sd_get_map_me(&c,map)->icon_override = -1;
+            sd_get_map_me(&c,map)->icon_attr_override = -1;
         }
     }
     return true;
