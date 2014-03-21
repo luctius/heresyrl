@@ -11,13 +11,11 @@ static struct spwn_item item_weights[] = {
     {.id=ITEM_ID_STUB_REVOLVER,    .weight=2, },
     {.id=ITEM_ID_LAS_PISTOL,       .weight=2, },
     {.id=ITEM_ID_LAS_GUN,          .weight=2, },
-
-    {.id=ITEM_ID_LIGHT_FLAK,       .weight=1, },
 };
 
 static struct spwn_monster monster_weights[] = {
     {.weight=1, .id=MSR_ID_BASIC_FERAL,
-        .items = {  {.id=ITEM_ID_LIGHT_FLAK,.min=1,.max=1,.wear=true}, 
+        .items = {  {.id=ITEM_ID_FLAK_LIGHT_COAT,.min=1,.max=1,.wear=true}, 
                     {.id=ITEM_ID_LAS_PISTOL,.min=1,.max=1,.wear=true}, 
                     {.id=ITEM_ID_PISTOL_AMMO_LAS,.min=0,.max=3,.wear=false},{ 0,0,0,0,} },},
     {.weight=1, .id=MSR_ID_BASIC_FERAL,

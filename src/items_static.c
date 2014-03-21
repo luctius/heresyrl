@@ -74,9 +74,27 @@ struct itm_item static_item_list[] = {
 
     /* Wearables */
     /*    ID                     short name  long name                       description          availability               quality          weight,cost,delay*/
-    ITEM(ITEM_ID_LIGHT_FLAK,  "light flack", "a piece of light flak armour", ITM_DESC_LIGHT_FLACK,           ITEM_AVAILABILITY_AVERAGE, ITEM_QUALITY_AVERAGE,   300,    0,   5),
+    ITEM(ITEM_ID_FLAK_HELMET,  "flak helmet", "a flak helmet",      ITM_DESC_FLAK_HELMET,   ITEM_AVAILABILITY_AVERAGE, ITEM_QUALITY_AVERAGE,   20,    25,   2),
         /*     dr   locations                     special qualities*/
-        ARMOUR(5,   INV_LOC_CHEST | INV_LOC_ARMS, 0),
+        ARMOUR(2,   INV_LOC_HEAD, 0),
+        ITEM_END,
+    ITEM(ITEM_ID_FLAK_GAUNTLETS,  "flak gauntlets", "two pieces of flak gauntlets",  ITM_DESC_FLAK_GAUNTLETS,   ITEM_AVAILABILITY_AVERAGE, ITEM_QUALITY_AVERAGE,   10,    50,   2),
+        ARMOUR(2,   INV_LOC_ARMS, 0),
+        ITEM_END,
+    ITEM(ITEM_ID_FLAK_LIGHT_COAT,  "light flak coat", "a light flak coat",  ITM_DESC_FLAK_LIGHT_COAT,   ITEM_AVAILABILITY_AVERAGE, ITEM_QUALITY_AVERAGE,   40,    80,   4),
+        ARMOUR(2,   INV_LOC_ARMS | INV_LOC_CHEST | INV_LOC_LEGS, 0),
+        ITEM_END,
+    ITEM(ITEM_ID_FLAK_VEST,  "flak vest",     "a flak vest",    ITM_DESC_FLAK_VEST,   ITEM_AVAILABILITY_AVERAGE, ITEM_QUALITY_AVERAGE,   50,    50,   3),
+        ARMOUR(3,   INV_LOC_CHEST, 0),
+        ITEM_END,
+    ITEM(ITEM_ID_FLAK_JACKET,  "flak jacket", "a flak jacket",  ITM_DESC_FLAK_JACKET, ITEM_AVAILABILITY_AVERAGE, ITEM_QUALITY_AVERAGE,   60,    100,   4),
+        ARMOUR(3,   INV_LOC_ARMS | INV_LOC_CHEST | INV_LOC_LEGS, 0),
+        ITEM_END,
+    ITEM(ITEM_ID_FLAK_CLOAK,  "flak cloak", "a flak cloak",  ITM_DESC_FLAK_CLOAK, ITEM_AVAILABILITY_AVERAGE, ITEM_QUALITY_AVERAGE,   80,    80,   3),
+        ARMOUR(3,   INV_LOC_CHEST, 0),
+        ITEM_END,
+    ITEM(ITEM_ID_FLAK_GUARD_ARMOUR,  "guard flak armour", "a guard flak armour",  ITM_DESC_FLAK_GUARD_ARMOUR, ITEM_AVAILABILITY_AVERAGE, ITEM_QUALITY_AVERAGE,   110,  300,   3),
+        ARMOUR(4,   INV_LOC_ARMS | INV_LOC_LEGS | INV_LOC_CHEST | INV_LOC_HEAD, 0),
         ITEM_END,
 
     /* Weapons */
@@ -107,7 +125,7 @@ struct itm_item static_item_list[] = {
         PISTOL_LAS(WEAPON_DMG_TYPE_ENERGY,1, 2, 30,    1,    0,    0,   30,      0,   WEAPON_UPGRADE_NONE, WEAPON_SPEC_QUALITY_RELIABLE), ITEM_END,
 
     ITEM(ITEM_ID_LAS_GUN,      "las gun",       "a las gun",       ITM_DESC_LAS_GUN,       ITEM_AVAILABILITY_AVERAGE,ITEM_QUALITY_AVERAGE, 40,    50,  1),
-        BASIC_LAS(WEAPON_DMG_TYPE_ENERGY,1, 2, 100,    1,    3,    0,   60,      0,   WEAPON_UPGRADE_NONE, WEAPON_SPEC_QUALITY_RELIABLE), ITEM_END,
+        BASIC_LAS(WEAPON_DMG_TYPE_ENERGY,1, 3, 100,    1,    3,    0,   60,      0,   WEAPON_UPGRADE_NONE, WEAPON_SPEC_QUALITY_RELIABLE), ITEM_END,
 
     /* Ammo */
     /*    ID                    short name    long name                                                    description    availability                quality           weight,cost,delay*/

@@ -5,7 +5,13 @@
 
 enum item_ids {
     /* Wearables*/
-    ITEM_ID_LIGHT_FLAK,
+    ITEM_ID_FLAK_HELMET,
+    ITEM_ID_FLAK_GAUNTLETS,
+    ITEM_ID_FLAK_LIGHT_COAT,
+    ITEM_ID_FLAK_VEST,
+    ITEM_ID_FLAK_JACKET,
+    ITEM_ID_FLAK_CLOAK,
+    ITEM_ID_FLAK_GUARD_ARMOUR,
 
     /* Tools */
     /* Fixed Items */

@@ -60,6 +60,26 @@ static int spawn_monster(double roll) {
     return idx;
 }
 
+bool spwn_add_item_to_monster(struct msr_monster *monster, struct spwn_monster_item *sitem, struct random *r) {
+    int nr = 1;
+    if (sitem->min != sitem->max) {
+        nr = (random_int32(r) % (sitem->max - sitem->min) ) + sitem->min;
+    }
+
+    if (nr >= 1) {
+        struct itm_item *item = itm_create(sitem->id);
+        if (item != NULL) {
+            item->stacked_quantity = MIN(nr, item->max_quantity);
+            assert(msr_give_item(monster, item) == true);
+            if (sitem->wear == true) {
+                assert(dw_wear_item(monster, item) == true);
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 bool spwn_populate_map(struct dc_map *map, struct random *r, uint32_t monster_chance, uint32_t item_chance) {
     if (dc_verify_map(map) == false) return false;
     if (r == NULL) return false;
@@ -80,21 +100,7 @@ bool spwn_populate_map(struct dc_map *map, struct random *r, uint32_t monster_ch
                     struct spwn_monster_item *items = monster_weights[idx].items;
                     int i = 0;
                     while (items[i].max != 0) {
-                        int nr = 1;
-                        if (items[i].min != items[i].max) {
-                            nr = (random_int32(r) % (items[i].max - items[i].min) ) + items[i].min;
-                        }
-
-                        if (nr >= 1) {
-                            struct itm_item *item = itm_create(items[i].id);
-                            if (item != NULL) {
-                                item->stacked_quantity = MIN(nr, item->max_quantity);
-                                assert(msr_give_item(monster, item) == true);
-                                if (items[i].wear == true) {
-                                    assert(dw_wear_item(monster, item) == true);
-                                }
-                            }
-                        }
+                        spwn_add_item_to_monster(monster, &items[i], r);
                         i++;
                     }
                 }

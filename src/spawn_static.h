@@ -3,17 +3,11 @@
 
 #include "items_static.h"
 #include "monster_static.h"
+#include "spawn.h"
 
 struct spwn_item {
     enum item_ids id;
     int weight;
-};
-
-struct spwn_monster_item {
-    enum item_ids id;
-    int min;
-    int max;
-    bool wear;
 };
 
 struct spwn_monster {
