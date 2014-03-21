@@ -218,15 +218,16 @@ int fght_ranged_calc_tohit(struct random *r, struct msr_monster *monster, struct
     /* Calculate jamming threshold*/
     int jammed_threshold = FGHT_RANGED_JAM;
     if ( (wpn->rof_set == WEAPON_ROF_SETTING_SEMI) || (wpn->rof_set == WEAPON_ROF_SETTING_AUTO) ) jammed_threshold = MIN(FGHT_RANGED_JAM_SEMI,jammed_threshold);
-    if (bitfield(wpn->special_quality, WEAPON_SPEC_QUALITY_UNRELIABLE) == true) jammed_threshold = MIN(FGHT_RANGED_JAM_UNRELIABLE, jammed_threshold);
+    if ( (wpn->special_quality & WEAPON_SPEC_QUALITY_UNRELIABLE) > 0) jammed_threshold = MIN(FGHT_RANGED_JAM_UNRELIABLE, jammed_threshold);
     if (item->quality == ITEM_QUALITY_POOR) jammed_threshold = MIN(to_hit, jammed_threshold);
 
     /* Do jamming test */
     if (roll >= jammed_threshold) {
+        int reltest = -1;
         wpn->jammed = true;
-        if (bitfield(wpn->special_quality, WEAPON_SPEC_QUALITY_RELIABLE) == true) {
+        if ( (wpn->special_quality & WEAPON_SPEC_QUALITY_RELIABLE) > 0) {
             /* If the weapon is reliable, it only jamms on a 10 on a d10, when there is a chance to jam */
-            if (random_xd10(r,1) >= 9) {
+            if ( (reltest = random_xd10(r,1) ) <= 9) {
                 wpn->jammed = false;
             }
         }
@@ -234,6 +235,7 @@ int fght_ranged_calc_tohit(struct random *r, struct msr_monster *monster, struct
         if (wpn->jammed) {
             You_action_end(monster, "and your weapon jams.", fght_weapon_hand_name(hand) );
             Monster_action_end(monster, "and his weapon jams", item->sd_name); /*TODO gender*/
+            lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "fght", "Weapon jamm with roll %d, theshold %d, 2nd roll %d", roll, jammed_threshold, reltest);
             return -1;
         }
     }
@@ -285,7 +287,7 @@ int fght_melee_calc_tohit(struct random *r, struct msr_monster *monster, struct 
 
         /* Offhand Weapon */
         if (hand == FGHT_OFF_HAND) to_hit_mod += FGHT_MODIFIER_OFF_HAND;
-        if (bitfield(wpn->special_quality, WEAPON_SPEC_QUALITY_UNARMED) == true) to_hit_mod += FGHT_MELEE_UNARMED;
+        if ( (wpn->special_quality & WEAPON_SPEC_QUALITY_UNARMED) > 0) to_hit_mod += FGHT_MELEE_UNARMED;
 
         if (target->size == MSR_SIZE_AVERAGE) to_hit_mod += FGHT_MODIFIER_SIZE_AVERAGE;
         else if (target->size == MSR_SIZE_MASSIVE) to_hit_mod += FGHT_MODIFIER_SIZE_MASSIVE;

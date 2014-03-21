@@ -542,19 +542,19 @@ static struct itm_item *msr_unarmed_weapon(struct msr_monster *monster) {
 
 bool msr_check_creature_trait(struct msr_monster *monster,  bitfield_t trait) {
     if (msr_verify_monster(monster) == false) return false;
-    return bitfield(monster->creature_traits, trait);
+    return ( (monster->creature_traits & trait) > 0);
 }
 
 bool msr_check_talent(struct msr_monster *monster,  bitfield_t talent) {
     if (msr_verify_monster(monster) == false) return false;
     int idx = (talent >> (bitfield_width - 4) ) & 0x0F; 
-    return bitfield(monster->talents[idx], talent);
+    return ( (monster->talents[idx] & talent) > 0);
 }
 
 bool msr_set_talent(struct msr_monster *monster, bitfield_t talent) {
     if (msr_verify_monster(monster) == false) return false;
     int idx = (talent >> (bitfield_width - 4) ) & 0x0F; 
-    set_bitfield(monster->talents[idx], talent);
+    monster->talents[idx] |= talent;
     return true;
 }
 
