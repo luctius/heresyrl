@@ -136,6 +136,9 @@ bool msr_remove_monster(struct msr_monster *monster, struct dc_map *map);
 bool msr_give_item(struct msr_monster *monster, struct itm_item *item);
 bool msr_remove_item(struct msr_monster *monster, struct itm_item *item);
 
+bool msr_characteristic_check(struct msr_monster *monster, enum msr_characteristic chr);
+bool msr_skill_check(struct msr_monster *monster, enum skills skill, int mod);
+
 int msr_calculate_characteristic(struct msr_monster *monster, enum msr_characteristic chr);
 int msr_calculate_characteristic_bonus(struct msr_monster *monster, enum msr_characteristic chr);
 struct itm_item *msr_get_armour_from_hitloc(struct msr_monster *monster, enum msr_hit_location mhl);

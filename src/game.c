@@ -104,7 +104,6 @@ bool game_new_tick(void) {
     coord_t zero = cd_create(0,0);
     dc_clear_map_visibility(gbl_game->current_map, &zero, &gbl_game->current_map->size);
     sgt_calculate_all_light_sources(gbl_game->sight, gbl_game->current_map);
-    sgt_calculate_player_sight(gbl_game->sight, gbl_game->current_map, gbl_game->player_data.player);
     return true;
 }
 

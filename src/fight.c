@@ -148,6 +148,7 @@ int fght_ranged_calc_tohit(struct random *r, struct msr_monster *monster, struct
     if (msr_verify_monster(target) == false) return -1;
     if (ammo == 0) return -1;
     if (msr_weapon_type_check(monster, WEAPON_TYPE_RANGED) == false) return -1;
+    struct dc_map_entity *me = sd_get_map_me(&target->pos, gbl_game->current_map);
     struct item_weapon_specific *wpn = NULL;
     struct itm_item *item = NULL;
 
@@ -162,7 +163,6 @@ int fght_ranged_calc_tohit(struct random *r, struct msr_monster *monster, struct
     int to_hit_mod = 0;
 
     {/*add to-hit modifiers here*/ 
-        /* Add lighting modifiers */
 
         /* Offhand Weapon */
         if (hand == FGHT_OFF_HAND) to_hit_mod += FGHT_MODIFIER_OFF_HAND;
@@ -192,6 +192,11 @@ int fght_ranged_calc_tohit(struct random *r, struct msr_monster *monster, struct
         else if (distance >= (wpn->range * 2) ) to_hit_mod += FGHT_RANGED_MODIFIER_LONG_RANGE;
         else if (distance <= FGHT_POINT_BLANK_RANGE) to_hit_mod += FGHT_RANGED_MODIFIER_POINT_BLACK;
         else if (distance <= (wpn->range * 0.5) ) to_hit_mod += FGHT_RANGED_MODIFIER_SHORT_RANGE;
+
+        /* Add lighting modifiers */
+        if (me->in_sight == false) to_hit_mod += FGHT_MODIFIER_VISION_COMPLETE_DARKNESS;
+        if (me->visible == false)  to_hit_mod += FGHT_MODIFIER_VISION_DARKNESS;
+        if ( (me->in_sight == true) && (me->light_level == 0) ) to_hit_mod += FGHT_MODIFIER_VISION_SHADOWS;
 
         /* Quality modifiers */
         if (item->quality == ITEM_QUALITY_BEST) to_hit_mod += FGHT_MODIFIER_QUALITY_TO_HIT_BEST;

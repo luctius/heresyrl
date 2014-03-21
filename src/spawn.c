@@ -3,6 +3,7 @@
 
 #include "spawn.h"
 #include "logging.h"
+#include "game.h"
 #include "dungeon_creator.h"
 #include "tiles.h"
 #include "items.h"
@@ -86,9 +87,14 @@ bool spwn_populate_map(struct dc_map *map, struct random *r, uint32_t monster_ch
     coord_t c;
     int idx;
 
+    struct msr_monster *player = gbl_game->player_data.player;
+    int nogo_radius = msr_get_medium_sight_range(player);
+
     for (int xi = 0; xi < map->size.x; xi++) {
         for (int yi = 0; yi < map->size.y; yi++) {
             c = cd_create(xi,yi);
+            if (cd_pyth(&player->pos, &c) <= nogo_radius) continue; /* no npc's too close to the player*/
+
             if ( (random_int32(r) % 10000) <= monster_chance) {
                 if (TILE_HAS_ATTRIBUTE(sd_get_map_me(&c,map)->tile, TILE_ATTR_TRAVERSABLE) == true) {
                     idx = spawn_monster(random_float(r) );

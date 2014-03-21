@@ -9,6 +9,7 @@
 #include "dungeon_creator.h"
 #include "game.h"
 #include "items.h"
+#include "random.h"
 #include "tiles.h"
 #include "inventory.h"
 #include "items_static.h"
@@ -363,6 +364,31 @@ bool msr_do_dmg(struct msr_monster *monster, int dmg, enum msr_hit_location mhl,
     return false;
 }
 
+bool msr_characteristic_check(struct msr_monster *monster, enum msr_characteristic chr) {
+    if (msr_verify_monster(monster) == false) return false;
+    int charac = msr_calculate_characteristic(monster, chr);
+    assert(charac >= 0);
+
+    return ((random_int32(gbl_game->game_random)%100) < charac);
+}
+
+bool msr_skill_check(struct msr_monster *monster, enum skills skill, int mod) {
+    if (msr_verify_monster(monster) == false) return false;
+    int charac = msr_calculate_characteristic(monster, MSR_CHAR_PERCEPTION); /*TODO lookup table for charac <> skill*/
+    assert(charac >= 0);
+
+    enum skill_rate r = msr_check_skill(monster, skill);
+    switch(r) {
+        case MSR_SKILL_RATE_EXPERT:     charac += 10;
+        case MSR_SKILL_RATE_ADVANCED:   charac += 10;
+        case MSR_SKILL_RATE_BASIC:      break;
+        case MSR_SKILL_RATE_NONE:       charac /= 2; break;
+        default: assert(false); break;
+    }
+
+    return ((random_int32(gbl_game->game_random)%100) < charac);
+}
+
 int msr_calculate_characteristic(struct msr_monster *monster, enum msr_characteristic chr) {
     if (msr_verify_monster(monster) == false) return -1;
     if (chr >= MSR_CHAR_MAX) return -1;
@@ -375,6 +401,14 @@ int msr_calculate_characteristic_bonus(struct msr_monster *monster, enum msr_cha
     if (chr == MSR_CHAR_WEAPON_SKILL) return -1;
     if (chr == MSR_CHAR_BALISTIC_SKILL) return -1;
     return ( (monster->characteristic[chr].base_value + (monster->characteristic[chr].advancement * 5)) / 10);
+}
+
+enum skill_rate msr_check_skill(struct msr_monster *monster, enum skills skill) {
+    enum skill_rate r = MSR_SKILL_RATE_NONE;
+    if ((monster->skills[MSR_SKILL_RATE_BASIC]    & skill) > 0) r = MSR_SKILL_RATE_BASIC;
+    if ((monster->skills[MSR_SKILL_RATE_ADVANCED] & skill) > 0) r = MSR_SKILL_RATE_ADVANCED;
+    if ((monster->skills[MSR_SKILL_RATE_EXPERT]   & skill) > 0) r = MSR_SKILL_RATE_EXPERT;
+    return r;
 }
 
 char *msr_gender_string(struct msr_monster *monster) {

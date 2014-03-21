@@ -67,6 +67,12 @@ static bool plr_action_loop(struct msr_monster *player, void *controller) {
     int ch;
     bool has_action = false;
 
+
+    coord_t zero = cd_create(0,0);
+    dc_clear_map_visibility(map, &zero, &map->size);
+    sgt_calculate_all_light_sources(gbl_game->sight, map);
+    sgt_calculate_player_sight(gbl_game->sight, map, player);
+
     coord_t pos = player->pos;
     coord_t *player_pos = &player->pos;
 
