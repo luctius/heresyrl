@@ -542,15 +542,16 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dc_map *map, coord_t *
     return false;
 }
 
+static struct log_entry *last_entry;
 void msgwin_log_refresh(struct logging *lg) {
     struct queue *q = lg_logging_queue(lg);
     int log_sz = queue_size(q);
     int win_sz = msg_win->lines;
     struct log_entry *tmp_entry = NULL;
+    struct log_entry *tmpgame_entry = NULL;
 
     if (msg_win == NULL) return;
     if (msg_win->type != HRL_WINDOW_TYPE_MESSAGE) return;
-    wclear(msg_win->win);
 
     int max = MIN(win_sz, log_sz);
     int log_start = 0;
@@ -562,19 +563,27 @@ void msgwin_log_refresh(struct logging *lg) {
             game_lvl_sz++;
             log_start = i -1;
             if (game_lvl_sz == max) i = 0;
+            if (tmpgame_entry == NULL) tmpgame_entry = tmp_entry;
         }
     }
 
     if (game_lvl_sz > 0) {
         int y = 0;
-        for (int i = log_start; i < log_sz; i++) {
-            tmp_entry = (struct log_entry *) queue_peek_nr(q, i);
-            if ( (tmp_entry != NULL) && (tmp_entry->level <= LG_DEBUG_LEVEL_GAME) ) {
-                mvwprintw(msg_win->win, y++,1, "%s\n", tmp_entry->string);
+
+        if (last_entry != tmpgame_entry) { /*only update screen when there are msgs for the player*/
+
+            wclear(msg_win->win);
+            for (int i = log_start; i < log_sz; i++) {
+                tmp_entry = (struct log_entry *) queue_peek_nr(q, i);
+                if ( (tmp_entry != NULL) && (tmp_entry->level <= LG_DEBUG_LEVEL_GAME) ) {
+                    mvwprintw(msg_win->win, y++,1, "%s\n", tmp_entry->string);
+                }
             }
+
+            wrefresh(msg_win->win);
+            last_entry = tmpgame_entry;
         }
     }
-    wrefresh(msg_win->win);
 }
 
 void msgwin_log_callback(struct logging *lg, struct log_entry *entry, void *priv) {
