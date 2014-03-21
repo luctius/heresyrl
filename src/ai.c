@@ -3,6 +3,7 @@
 #include "ai.h"
 #include "pathfinding.h"
 #include "monster.h"
+#include "items.h"
 #include "dungeon_creator.h"
 #include "los.h"
 #include "tiles.h"
@@ -143,31 +144,57 @@ static bool ai_beast_loop(struct msr_monster *monster, void *controller) {
     struct dc_map *map = gbl_game->current_map;
     struct beast_ai_struct *ai = controller;
     bool has_action = false;
+    monster->wpn_sel = MSR_WEAPON_SELECT_CREATURE1;
 
     lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "ai", "ai_beast_loop for [uid: %d, tid: %d]", monster->uid, monster->template_id);
 
-    struct msr_monster *enemy = NULL;
-    if ( (enemy = ai_get_nearest_enemy(monster, 0, map) ) != NULL) {
-        lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "ai", "[uid: %d, tid: %d] sees an enemy", monster->uid, monster->template_id);
-        if (cd_pyth(&monster->pos, &enemy->pos) > 1) {
-            int radius = msr_get_near_sight_range(monster) + msr_get_far_sight_range(monster) +1;
-            if (ai_generate_astar(&ai->pf_ctx, map, &monster->pos, &enemy->pos, 0) == true) {
-                coord_t *coord_lst;
-                int coord_lst_sz =  pf_calculate_path(ai->pf_ctx, &monster->pos, &enemy->pos, &coord_lst);
-                if (coord_lst_sz > 1) {
-                    if (ma_do_move(monster, &coord_lst[1]) == true) {
-                        has_action = true;
+    for (int i = 0; i < MSR_WEAPON_SELECT_MAX; i++) {
+        monster->wpn_sel = i;
+        if (msr_weapons_check(monster) ) {
+            if (msr_weapon_type_check(monster, WEAPON_TYPE_RANGED) ) break;
+            if (msr_weapon_type_check(monster, WEAPON_TYPE_MELEE) ) break;
+        }
+    }
+
+    if (msr_weapon_type_check(monster, WEAPON_TYPE_MELEE) ) {
+        struct msr_monster *enemy = NULL;
+        if ( (enemy = ai_get_nearest_enemy(monster, 0, map) ) != NULL) {
+            lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "ai", "[uid: %d, tid: %d] sees an enemy (melee)", monster->uid, monster->template_id);
+            if (cd_pyth(&monster->pos, &enemy->pos) > 1) {
+                int radius = msr_get_near_sight_range(monster) + msr_get_far_sight_range(monster) +1;
+                if (ai_generate_astar(&ai->pf_ctx, map, &monster->pos, &enemy->pos, 0) == true) {
+                    coord_t *coord_lst;
+                    int coord_lst_sz =  pf_calculate_path(ai->pf_ctx, &monster->pos, &enemy->pos, &coord_lst);
+                    if (coord_lst_sz > 1) {
+                        has_action = ma_do_move(monster, &coord_lst[1]);
+                        free(coord_lst);
                     }
-                    free(coord_lst);
+                }
+            }
+            else {
+                lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "ai", "[uid: %d, tid: %d] attacks an enemy", monster->uid, monster->template_id);
+                if (ma_do_melee(monster, &enemy->pos) == true) {
+                    has_action = true;
                 }
             }
         }
-        else {
-            lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "ai", "[uid: %d, tid: %d] attacks an enemy", monster->uid, monster->template_id);
-            monster->wpn_sel = MSR_WEAPON_SELECT_CREATURE1;
-            if (ma_do_melee(monster, &enemy->pos) == true) {
-                has_action = true;
-            }
+    }
+
+    if (msr_weapon_type_check(monster, WEAPON_TYPE_RANGED) ) {
+        struct msr_monster *enemy = NULL;
+        struct itm_item *item = fght_get_weapon(monster, WEAPON_TYPE_RANGED, FGHT_MAIN_HAND);
+        if (item == NULL) item = fght_get_weapon(monster, WEAPON_TYPE_RANGED, FGHT_OFF_HAND);
+        struct item_weapon_specific *wpn = &item->specific.weapon;
+
+        if (wpn->magazine_left == 0 || wpn->jammed) {
+            struct itm_item *items[] = {item};
+            has_action == ma_do_reload_carried(monster, NULL);
+            if (has_action == false) ma_do_drop(monster, items, 1);
+        }
+
+        if ( (enemy = ai_get_nearest_enemy(monster, 0, map) ) != NULL) {
+            lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "ai", "[uid: %d, tid: %d] sees an enemy (ranged)", monster->uid, monster->template_id);
+            has_action = ma_do_fire(monster, &enemy->pos);
         }
     }
 

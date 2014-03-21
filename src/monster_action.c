@@ -24,6 +24,7 @@ void ma_exit(void) {
 bool ma_process(void) {
     struct msr_monster *monster = NULL;
 
+    /*TODO make a generic loop out of this one*/
     while ( (monster = msrlst_get_next_monster(monster) ) != NULL) {
         if (monster->dead) {
 

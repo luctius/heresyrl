@@ -366,18 +366,16 @@ int fght_shoot(struct random *r, struct msr_monster *monster, struct dc_map *map
         wpn->magazine_left -= ammo2;
     }
 
-    charwin_refresh();
-
     coord_t path[MAX(map->size.x, map->size.y)];
     int path_len = lof_calc_path(&monster->pos, e, path, ARRAY_SZ(path));
     bool blocked = false;
     int unblocked_length = 0;
 
     int i = 1;
+    int hits = -1;
     while ((i < path_len) && (blocked == false)) {
         if (sd_get_map_me(&path[i], map)->monster != NULL) {
             struct msr_monster *target = sd_get_map_me(&path[i], map)->monster;
-            int hits;
 
             /* Do damage */
             hits = fght_ranged_calc_tohit(r, monster, target, FGHT_MAIN_HAND, ammo1);
@@ -399,7 +397,7 @@ int fght_shoot(struct random *r, struct msr_monster *monster, struct dc_map *map
         i++;
     }
 
-    ui_animate_projectile(map, path, unblocked_length, '*');
+    if (hits >= 0) ui_animate_projectile(map, path, unblocked_length, '*');
 
     return unblocked_length;
 }

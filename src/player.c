@@ -51,6 +51,7 @@ void plr_init(struct pl_player *plr, char *name, enum msr_race race, enum msr_ge
     plr->player_map_pos = cd_create(0,0);
     plr->player->characteristic[MSR_CHAR_PERCEPTION].base_value = 80;
     plr->player->characteristic[MSR_CHAR_AGILITY].base_value = 80;
+    plr->player->characteristic[MSR_CHAR_TOUGHNESS].base_value = 80;
 }
 
 struct pf_context *plr_map(struct pl_player *plr, struct dc_map *map) {
@@ -69,7 +70,6 @@ static bool plr_action_loop(struct msr_monster *player, void *controller) {
     struct pl_player *plr = controller;
     int ch;
     bool has_action = false;
-
 
     coord_t zero = cd_create(0,0);
     dc_clear_map_visibility(map, &zero, &map->size);
@@ -189,5 +189,10 @@ static bool plr_action_loop(struct msr_monster *player, void *controller) {
 
         pos = player->pos;
     }
+
+    dc_clear_map_visibility(map, &zero, &map->size);
+    sgt_calculate_all_light_sources(gbl_game->sight, map);
+    sgt_calculate_player_sight(gbl_game->sight, map, player);
+
     return has_action;
 }
