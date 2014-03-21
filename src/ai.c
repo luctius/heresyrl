@@ -10,6 +10,8 @@
 #include "game.h"
 #include "monster_action.h"
 
+
+/* TODO: use sight.c to make sure visibility is the same for players and npcs */
 struct msr_monster *ai_get_nearest_enemy(struct msr_monster *monster, int ignore_cnt, struct dc_map *map) {
     struct msr_monster *target = NULL;
 

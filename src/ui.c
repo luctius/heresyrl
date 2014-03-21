@@ -327,16 +327,19 @@ static void mapwin_display_map_noref(struct dc_map *map, coord_t *player) {
                 /* Else see items */
                 if (modified == false) {
                     if ( (me->visible == true) || (map_see) ) {
-                        if (inv_inventory_size(me->inventory) > 0) {
-                            struct itm_item *i = inv_get_next_item(me->inventory, NULL);
-                            icon = i->icon;
-                            attr_mod = i->icon_attr;
-                            modified = true;
+                        if (TILE_HAS_ATTRIBUTE(tile, TILE_ATTR_TRAVERSABLE) == true) {
+                            if (inv_inventory_size(me->inventory) > 0) {
+                                struct itm_item *i = inv_get_next_item(me->inventory, NULL);
+                                icon = i->icon;
+                                attr_mod = i->icon_attr;
+                                modified = true;
+                            }
                         }
                     }
                 }
 
-                if (modified == false) {
+                /* test colours */
+                {
                     if (me->test_var == 2) {
                         attr_mod = COLOR_PAIR(DPL_COLOUR_BGB_RED);
                         modified = true;

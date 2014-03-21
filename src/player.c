@@ -13,8 +13,15 @@
 #include "monster_action.h"
 #include "tiles.h"
 #include "ai.h"
+#include "spawn.h"
 
 static bool plr_action_loop(struct msr_monster *player, void *controller);
+
+struct spwn_monster_item items[] = {  
+    {.id=ITEM_ID_FLAK_JACKET,.min=1,.max=1,.wear=true}, 
+    {.id=ITEM_ID_LAS_GUN,.min=1,.max=1,.wear=true}, 
+    {.id=ITEM_ID_BASIC_AMMO_LAS,.min=1,.max=3,.wear=false},
+    {0,0,0,0,} };
 
 void plr_init(struct pl_player *plr, char *name, enum msr_race race, enum msr_gender gender) {
     struct monster_controller mc = {
@@ -25,10 +32,18 @@ void plr_init(struct pl_player *plr, char *name, enum msr_race race, enum msr_ge
     if (plr->player == NULL) {
         plr->name = name;
         plr->player = msr_create(MSR_ID_BASIC_FERAL);
+        plr->player->unique_name = name;
+
+        int i = 0;
+        while (items[i].max != 0) {
+            spwn_add_item_to_monster(plr->player, &items[i], gbl_game->spawn_random);
+            i++;
+        }
     }
 
     msr_assign_controller(plr->player, &mc);
 
+    plr->player->is_player = true;
     plr->player->icon = '@';
     plr->player->icon_attr = COLOR_PAIR(DPL_COLOUR_NORMAL) | A_BOLD;
     plr->player->faction = 0;

@@ -8,9 +8,6 @@
 #include "random.h"
 #include "coord.h"
 
-#define TILE_FLOOR 0
-#define TILE_WALL 1
- 
 typedef struct {
     int r1_cutoff, r2_cutoff;
     int reps;
@@ -30,10 +27,10 @@ static struct random *cave_random = NULL;
  
 static int randpick(void)
 {
-    if(random_int32(cave_random)%100 < fillprob)
-        return TILE_WALL;
-    else
-        return TILE_FLOOR;
+    if(random_int32(cave_random)%100 < fillprob) {
+        return TILE_ID_CONCRETE_WALL;
+    }
+    return TILE_ID_CONCRETE_FLOOR;
 }
  
 static void initmap(void)
@@ -55,12 +52,12 @@ static void initmap(void)
 
     for(yi=0; yi<size_y; yi++)
         for(xi=0; xi<size_x; xi++)
-            grid2[yi][xi] = TILE_WALL;
+            grid2[yi][xi] = TILE_ID_CONCRETE_WALL;
 
     for(yi=0; yi<size_y; yi++)
-        grid[yi][0] = grid[yi][size_x-1] = TILE_WALL;
+        grid[yi][0] = grid[yi][size_x-1] = TILE_ID_BORDER_WALL;
     for(xi=0; xi<size_x; xi++)
-        grid[0][xi] = grid[size_y-1][xi] = TILE_WALL;
+        grid[0][xi] = grid[size_y-1][xi] = TILE_ID_BORDER_WALL;
 }
 
 static void exitmap(void)
@@ -89,7 +86,7 @@ static void generation(void)
             for(ii=-1; ii<=1; ii++)
                 for(jj=-1; jj<=1; jj++)
                 {
-                    if(grid[yi+ii][xi+jj] != TILE_FLOOR)
+                    if(grid[yi+ii][xi+jj] != TILE_ID_CONCRETE_FLOOR)
                     adjcount_r1++;
                 }
             for(ii=yi-2; ii<=yi+2; ii++)
@@ -99,13 +96,13 @@ static void generation(void)
                         continue;
                     if(ii<0 || jj<0 || ii>=size_y || jj>=size_x)
                         continue;
-                    if(grid[ii][jj] != TILE_FLOOR)
+                    if(grid[ii][jj] != TILE_ID_CONCRETE_FLOOR)
                         adjcount_r2++;
                 }
             if(adjcount_r1 >= params->r1_cutoff || adjcount_r2 <= params->r2_cutoff)
-                grid2[yi][xi] = TILE_WALL;
+                grid2[yi][xi] = TILE_ID_CONCRETE_WALL;
             else
-                grid2[yi][xi] = TILE_FLOOR;
+                grid2[yi][xi] = TILE_ID_CONCRETE_FLOOR;
         }
     for(yi=1; yi<size_y-1; yi++)
         for(xi=1; xi<size_x-1; xi++)
@@ -140,9 +137,9 @@ static void printmap(void)
         for(xi=0; xi<size_x; xi++)
         {
             switch(grid[yi][xi]) {
-                case TILE_WALL:  putchar('#'); break;
+                case TILE_ID_CONCRETE_WALL:  putchar('#'); break;
                 default:
-                case TILE_FLOOR: putchar('.'); break;
+                case TILE_ID_CONCRETE_FLOOR: putchar('.'); break;
             }
         }
         putchar('\n');
@@ -220,25 +217,18 @@ bool cave_generate_map(struct dc_map *map, struct random *r, enum dc_dungeon_typ
             generation();
     }
 
-    for(yi=0; yi<size_y; yi++) {
-        coord_t c = cd_create(0,yi);
-        sd_get_map_me(&c,map)->tile = ts_get_tile_specific(TILE_ID_BORDER_WALL);
-    }
-    for(xi=0; xi<size_x; xi++) {
-        coord_t c = cd_create(xi,0);
-        sd_get_map_me(&c,map)->tile = ts_get_tile_specific(TILE_ID_BORDER_WALL);
-    }
-
-    for(yi=1; yi<size_y; yi++)
+    for(yi=0; yi<size_y; yi++)
     {
-        for(xi=1; xi<size_x; xi++)
+        for(xi=0; xi<size_x; xi++)
         {
             coord_t c = cd_create(xi,yi);
-            switch(grid[yi][xi]) {
-                case TILE_WALL:  sd_get_map_me(&c,map)->tile = ts_get_tile_type(TILE_TYPE_WALL); break;
-                default:
-                case TILE_FLOOR: sd_get_map_me(&c,map)->tile = ts_get_tile_type(TILE_TYPE_FLOOR); break;
+            if (grid[yi][xi] == TILE_ID_CONCRETE_WALL) {
+                if(random_int32(cave_random)%100 < 2) {
+                    grid[yi][xi] = TILE_ID_CONCRETE_WALL_LIT;
+                }
             }
+
+            sd_get_map_me(&c,map)->tile = ts_get_tile_specific(grid[yi][xi]);
         }
     }
 

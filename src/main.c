@@ -78,6 +78,7 @@ int main(int argc, char *argv[]) {
         ui_create(cols, lines);
     }
 
+    getch();
     game_exit();
 
     lg_printf("Goodbye :)");
