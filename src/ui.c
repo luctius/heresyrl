@@ -505,8 +505,10 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dc_map *map, coord_t *
                 else {
                     ign_cnt = 0;
                     target = ai_get_nearest_enemy(plr->player, ign_cnt, map);
-                    e_pos = target->pos; 
-                    ign_cnt++;
+                    if (target != NULL) {
+                        e_pos = target->pos; 
+                        ign_cnt++;
+                    }
                 }
             } 
             break;

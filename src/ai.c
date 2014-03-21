@@ -1,4 +1,5 @@
 #include <sys/param.h>
+#include <string.h>
 
 #include "ai.h"
 #include "pathfinding.h"
@@ -13,11 +14,20 @@
 
 
 /* TODO: use sight.c to make sure visibility is the same for players and npcs */
-struct msr_monster *ai_get_nearest_enemy(struct msr_monster *monster, int ignore_cnt, struct dc_map *map) {
+static struct msr_monster *ai_get_enemy_near(struct msr_monster *monster, struct msr_monster *last, struct dc_map *map) {
     struct msr_monster *target = NULL;
+
+    bool found_last = false;
+    if (last == NULL) found_last = true;
 
     int far_radius = msr_get_far_sight_range(monster);
     while ( (target = msrlst_get_next_monster(target) ) != NULL) {
+        if (target == last) {
+            found_last = true;
+            continue;
+        }
+        if (found_last == false) continue;
+
         if (target->faction == monster->faction) continue; /* ignore same faction */
         if (cd_equal(&target->pos, &monster->pos) ) continue; /* ignore current position*/
         if (cd_pyth(&target->pos, &monster->pos) > far_radius) continue; /* ignore out of maximum radius */
@@ -28,12 +38,38 @@ struct msr_monster *ai_get_nearest_enemy(struct msr_monster *monster, int ignore
         }
 
         if (los_has_sight(&monster->pos, &target->pos, map) == true) {
-            ignore_cnt--;
-            if (ignore_cnt < 0) return target;
+            return target;
         }
     }
-    if (ignore_cnt > 0) return NULL;
-    return target;
+    return NULL;
+}
+
+struct msr_monster *ai_get_nearest_enemy(struct msr_monster *monster, int ignore_cnt, struct dc_map *map) {
+    struct msr_monster *target_best[ignore_cnt+1];
+    struct msr_monster *target = NULL;
+
+    memset(target_best, 0x0, sizeof(struct msr_monster *) * (ignore_cnt +1) );
+
+    /* 
+       get the <ignore_cnt> nearest enemies, then return the last one.
+     */
+    for (int i = 0; i < ignore_cnt+1; i++) {
+        while ( (target = ai_get_enemy_near(monster, target, map) ) != NULL) {
+
+            /* check if target allready exists in the array */
+            bool pass = false;
+            for (int j = 0; j < i; j++) if (target_best[j] == target) pass = true;
+            if (pass) continue; /* if so, continue */
+
+            if (target_best[i] == NULL) { target_best[i] = target; continue; }
+            if (cd_pyth(&target->pos, &monster->pos) > cd_pyth(&target_best[i]->pos, &monster->pos) ) continue; /* ignore out of maximum radius */
+
+            target_best[i] = target;
+        }
+        if (target_best[i] == NULL)  return NULL;
+        target = NULL;
+    }
+    return target_best[ignore_cnt];
 }
 
 struct msr_monster *ai_get_nearest_monster(coord_t *pos, int radius, int ignore_cnt, struct dc_map *map) {
@@ -156,6 +192,26 @@ static bool ai_beast_loop(struct msr_monster *monster, void *controller) {
         }
     }
 
+    if (msr_weapon_type_check(monster, WEAPON_TYPE_RANGED) ) {
+        struct msr_monster *enemy = NULL;
+        struct itm_item *item = fght_get_weapon(monster, WEAPON_TYPE_RANGED, FGHT_MAIN_HAND);
+        if (item == NULL) item = fght_get_weapon(monster, WEAPON_TYPE_RANGED, FGHT_OFF_HAND);
+        struct item_weapon_specific *wpn = &item->specific.weapon;
+
+        if (wpn->magazine_left == 0 || wpn->jammed) {
+            struct itm_item *items[] = {item};
+            has_action = ma_do_reload_carried(monster, NULL);
+            if (has_action == false) has_action = ma_do_drop(monster, items, 1);
+            monster->wpn_sel = MSR_WEAPON_SELECT_CREATURE1;
+        }
+
+        if ( (enemy = ai_get_nearest_enemy(monster, 0, map) ) != NULL) {
+            lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "ai", "[uid: %d, tid: %d] sees an enemy (ranged)", monster->uid, monster->template_id);
+            has_action = ma_do_fire(monster, &enemy->pos);
+        }
+    }
+
+
     if (msr_weapon_type_check(monster, WEAPON_TYPE_MELEE) ) {
         struct msr_monster *enemy = NULL;
         if ( (enemy = ai_get_nearest_enemy(monster, 0, map) ) != NULL) {
@@ -177,24 +233,6 @@ static bool ai_beast_loop(struct msr_monster *monster, void *controller) {
                     has_action = true;
                 }
             }
-        }
-    }
-
-    if (msr_weapon_type_check(monster, WEAPON_TYPE_RANGED) ) {
-        struct msr_monster *enemy = NULL;
-        struct itm_item *item = fght_get_weapon(monster, WEAPON_TYPE_RANGED, FGHT_MAIN_HAND);
-        if (item == NULL) item = fght_get_weapon(monster, WEAPON_TYPE_RANGED, FGHT_OFF_HAND);
-        struct item_weapon_specific *wpn = &item->specific.weapon;
-
-        if (wpn->magazine_left == 0 || wpn->jammed) {
-            struct itm_item *items[] = {item};
-            has_action == ma_do_reload_carried(monster, NULL);
-            if (has_action == false) ma_do_drop(monster, items, 1);
-        }
-
-        if ( (enemy = ai_get_nearest_enemy(monster, 0, map) ) != NULL) {
-            lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "ai", "[uid: %d, tid: %d] sees an enemy (ranged)", monster->uid, monster->template_id);
-            has_action = ma_do_fire(monster, &enemy->pos);
         }
     }
 
