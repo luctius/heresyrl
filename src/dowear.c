@@ -126,6 +126,7 @@ bool dw_wear_item(struct msr_monster *monster, struct itm_item *item) {
 
         /* Do check here */
         if (msr_weapons_check(monster) == false) msr_weapon_next_selection(monster);
+        else if (monster->wpn_sel == MSR_WEAPON_SELECT_CREATURE1) msr_weapon_next_selection(monster);
     }
 
     return retval;
