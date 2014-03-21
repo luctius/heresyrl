@@ -8,6 +8,7 @@
 #include "fight.h"
 #include "inventory.h"
 #include "ui.h"
+#include "sight.h"
 #include "input.h"
 #include "game.h"
 #include "monster_action.h"
@@ -48,6 +49,8 @@ void plr_init(struct pl_player *plr, char *name, enum msr_race race, enum msr_ge
     plr->player->icon_attr = get_colour(TERM_COLOUR_WHITE);
     plr->player->faction = 0;
     plr->player_map_pos = cd_create(0,0);
+    plr->player->characteristic[MSR_CHAR_PERCEPTION].base_value = 80;
+    plr->player->characteristic[MSR_CHAR_AGILITY].base_value = 80;
 }
 
 struct pf_context *plr_map(struct pl_player *plr, struct dc_map *map) {
@@ -117,7 +120,8 @@ static bool plr_action_loop(struct msr_monster *player, void *controller) {
                             if (item_list_sz > 0) {
                                 has_action = ma_do_pickup(player, item_list, item_list_sz);
                             }
-                            lg_printf("Done.");
+                            if (stop) lg_printf("Stop.");
+                            else lg_printf("Done.");
                         }
                     }
                     else You(player, "see nothing there.");

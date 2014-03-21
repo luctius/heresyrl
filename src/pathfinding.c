@@ -137,7 +137,7 @@ static bool pf_astar_loop(struct pf_context *ctx, coord_t *end) {
             return true;
         }
 
-        //lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "pf", "entering (%d,%d) -> [st: %d/ cst: %d/dst: %d/scr: %d]", point.x, point.y, me->state, me->cost, me->distance, me->score);
+        lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "pf", "entering (%d,%d) -> [st: %d/ cst: %d/dst: %d/scr: %d]", point.x, point.y, me->state, me->cost, me->distance, me->score);
 
         me->state = PF_ENTITY_STATE_CLOSED;
 
@@ -165,7 +165,7 @@ static bool pf_astar_loop(struct pf_context *ctx, coord_t *end) {
                 me_new->state = PF_ENTITY_STATE_OPEN;
             }
 
-            //lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "pf", "tested (%d,%d) -> [st: %d/ cst: %d/dst: %d/scr: %d]", pos.x, pos.y, me_new->state, me_new->cost, me_new->distance, me_new->score);
+            lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "pf", "tested (%d,%d) -> [st: %d/ cst: %d/dst: %d/scr: %d]", pos.x, pos.y, me_new->state, me_new->cost, me_new->distance, me_new->score);
         }
     }
 
@@ -188,7 +188,7 @@ static bool pf_backtrace(struct pf_map *map, coord_t *end, coord_t coord_lst[], 
             coord_lst[i-1].y = point.y;
         }
 
-        //lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "pf", "entering p(%d,%d, [%d] ) -> [st: %d/ cst: %d/dst: %d]", point.x, point.y, i, me->state, me->cost, me->distance);
+        lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "pf", "entering p(%d,%d, [%d] ) -> [st: %d/ cst: %d/dst: %d]", point.x, point.y, i, me->state, me->cost, me->distance);
         if (me->cost >= PF_BLOCKED) return false;
         if (me->distance == 0) return true;
 
@@ -205,7 +205,7 @@ static bool pf_backtrace(struct pf_map *map, coord_t *end, coord_t coord_lst[], 
                     best_pos.y = pos.y;
                 }
             }
-            //lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "pf", "testing p(%d,%d) -> [st: %d/ cst: %d/dst: %d]", pos.x, pos.y, me->state, me->cost, me->distance);
+            lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "pf", "testing p(%d,%d) -> [st: %d/ cst: %d/dst: %d]", pos.x, pos.y, me->state, me->cost, me->distance);
         }
 
         point.x = best_pos.x;

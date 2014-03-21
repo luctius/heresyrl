@@ -222,17 +222,17 @@ bool msr_remove_item(struct msr_monster *monster, struct itm_item *item) {
 
 int msr_get_near_sight_range(struct msr_monster *monster) {
     if (msr_verify_monster(monster) == false) return -1;
-    return ( (msr_calculate_characteristic_bonus(monster, MSR_CHAR_PERCEPTION) * 2) ) +1;
+    return ( (msr_calculate_characteristic(monster, MSR_CHAR_PERCEPTION) * 1.5f) / 10) +1;
 }
 
 int msr_get_medium_sight_range(struct msr_monster *monster) {
     if (msr_verify_monster(monster) == false) return -1;
-    return ( (msr_calculate_characteristic_bonus(monster, MSR_CHAR_PERCEPTION) * 3) ) +1;
+    return ( (msr_calculate_characteristic(monster, MSR_CHAR_PERCEPTION) * 2) / 10) +1;
 }
 
 int msr_get_far_sight_range(struct msr_monster *monster) {
     if (msr_verify_monster(monster) == false) return -1;
-    return ( (msr_calculate_characteristic_bonus(monster, MSR_CHAR_PERCEPTION) * 4) ) +1;
+    return ( (msr_calculate_characteristic(monster, MSR_CHAR_PERCEPTION) * 2.5f) / 10) +1;
 }
 
 bool msr_drop_inventory(struct msr_monster *monster, struct dc_map *map) {
@@ -560,5 +560,5 @@ bool msr_set_talent(struct msr_monster *monster, bitfield_t talent) {
 
 uint8_t msr_get_movement_rate(struct msr_monster *monster) {
     if (msr_verify_monster(monster) == false) return false;
-    return msr_calculate_characteristic_bonus(monster, MSR_CHAR_AGILITY) * 10;
+    return MIN( (msr_calculate_characteristic_bonus(monster, MSR_CHAR_AGILITY) * 10), 90);
 }
