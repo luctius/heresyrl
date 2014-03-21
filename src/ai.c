@@ -169,7 +169,8 @@ bool ai_generate_astar(struct pf_context **pf_ctx, struct dc_map *map, coord_t *
 }
 
 struct beast_ai_struct {
-    int something;
+    coord_t last_pos;
+    int time_last_pos;
     struct pf_context *pf_ctx;
 };
 
@@ -216,6 +217,9 @@ static bool ai_beast_loop(struct msr_monster *monster, void *controller) {
         struct msr_monster *enemy = NULL;
         if ( (enemy = ai_get_nearest_enemy(monster, 0, map) ) != NULL) {
             lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "ai", "[uid: %d, tid: %d] sees an enemy (melee)", monster->uid, monster->template_id);
+            ai->last_pos = enemy->pos;
+            ai->time_last_pos = 1;
+
             if (cd_pyth(&monster->pos, &enemy->pos) > 1) {
                 int radius = msr_get_near_sight_range(monster) + msr_get_far_sight_range(monster) +1;
                 if (ai_generate_astar(&ai->pf_ctx, map, &monster->pos, &enemy->pos, 0) == true) {
@@ -233,6 +237,18 @@ static bool ai_beast_loop(struct msr_monster *monster, void *controller) {
                     has_action = true;
                 }
             }
+        }
+        else if (ai->time_last_pos > 0) {
+            if (ai_generate_astar(&ai->pf_ctx, map, &monster->pos, &ai->last_pos, 0) == true) {
+                coord_t *coord_lst;
+                int coord_lst_sz = pf_calculate_path(ai->pf_ctx, &monster->pos, &ai->last_pos, &coord_lst);
+                if (coord_lst_sz > 1) {
+                    has_action = ma_do_move(monster, &coord_lst[1]);
+                    free(coord_lst);
+                }
+            }
+            ai->time_last_pos++;
+            if (cd_pyth(&monster->pos, &ai->last_pos) == 0) ai->time_last_pos = 0; /* forget enemy, we lost him */
         }
     }
 
