@@ -240,6 +240,7 @@ bool msr_drop_inventory(struct msr_monster *monster, struct dc_map *map) {
                 if (itm_insert_item(item, map, &monster->pos) == false) {
                     itm_destroy(item);
                 }
+                item = NULL;
             }
         }
     }
