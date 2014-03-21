@@ -204,6 +204,8 @@ bool ma_do_drop(struct msr_monster *monster, struct itm_item *items[], int nr_it
         }
     }
 
+    if (msr_get_energy(monster) == MSR_ENERGY_FULL) return false;
+
     monster->controller.interruptable = false;
     return true;
 }
