@@ -231,26 +231,18 @@ static void mapwin_display_map_noref(struct dc_map *map, coord_t *player) {
             struct tl_tile *tile = me->tile;
 
             if ( (me->visible == true) || (me->discovered == true) || (map_see == true) ) {
-                int attr_mod = tile->icon_attr;
+                int attr_mod = get_colour(TERM_COLOUR_L_DARK);
                 char icon = tile->icon;
                 bool modified = false;
 
                 if (me->icon_override != -1) icon = me->icon_override;
                 if (me->icon_attr_override != -1) {
-                    attr_mod = me->icon_attr_override;
-                    modified = true;
-                }
-                
-                /* Modify wall colour */
-                if (modified == false) {
                     if (me->visible == true) {
-                        if (TILE_HAS_ATTRIBUTE(tile, TILE_ATTR_TRAVERSABLE) == false) {
-                            attr_mod = get_colour(TERM_COLOUR_UMBER);
-                            modified = true;
-                        }
+                        attr_mod = me->icon_attr_override;
+                        modified = true;
                     }
                 }
-
+                
                 /* First see monster */
                 if (modified == false) {
                     if ( (me->visible == true) || (map_see) ) {
@@ -290,8 +282,10 @@ static void mapwin_display_map_noref(struct dc_map *map, coord_t *player) {
                 if (modified == false) {
                     if (me->visible == true) {
                         if (me->light_level > 0) {
-                            attr_mod = get_colour(TERM_COLOUR_YELLOW);
-                            modified = true;
+                            if (TILE_HAS_ATTRIBUTE(tile, TILE_ATTR_TRAVERSABLE) ){
+                                attr_mod = get_colour(TERM_COLOUR_YELLOW);
+                                modified = true;
+                            }
                         }
                     }
                 }
@@ -299,19 +293,8 @@ static void mapwin_display_map_noref(struct dc_map *map, coord_t *player) {
                 /* Otherwise visible traversable tiles */
                 if (modified == false) {
                     if (me->visible == true) {
-                        if (TILE_HAS_ATTRIBUTE(tile, TILE_ATTR_TRAVERSABLE) == true){
-                            attr_mod |= A_BOLD;
-                            modified = true;
-                        }
-                    }
-                }
-
-                /* finaly, if out of direct sight, dim tile */
-                if (modified == false) {
-                    if (me->visible == false) {
-                        if (TILE_HAS_ATTRIBUTE(tile, TILE_ATTR_TRAVERSABLE) ){
-                            attr_mod |= A_DIM;
-                        }
+                        attr_mod = tile->icon_attr;
+                        modified = true;
                     }
                 }
 
