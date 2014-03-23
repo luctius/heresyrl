@@ -187,7 +187,7 @@ bool ma_do_drop(struct msr_monster *monster, struct itm_item *items[], int nr_it
                         hand_string = "hands";
                     }
                     You(monster, "let %s fall from your %s.", items[i]->ld_name, hand_string);
-                    Monster(monster, "dropped %s from %s %s.", items[i]->ld_name, msr_gender_string(monster), hand_string);
+                    Monster(monster, "dropped %s from %s %s.", items[i]->ld_name, msr_gender_name(monster, true), hand_string);
                 }
             }
 

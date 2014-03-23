@@ -218,6 +218,7 @@ static void msg_init_internal(void) {
 }
 
 void msg_init(struct msr_monster *m, struct msr_monster *t) {
+    msg_exit();
     msg_init_internal();
 
     /* check if the message should be accepted; 
@@ -250,20 +251,22 @@ void msg_exit(void) {
     }
     if (active) {
         struct log_entry *le = gbl_log->log_fd;
-        if (le_is_equal(le, gbl_log->log_last) ) {
-            gbl_log->log_last->repeat++;
-            gbl_log->log_last->turn = gbl_game->turn;
-            le_free(le);
-            gbl_log->log_fd = NULL;
+        if (le != NULL) {
+            if (le_is_equal(le, gbl_log->log_last) ) {
+                gbl_log->log_last->repeat++;
+                gbl_log->log_last->turn = gbl_game->turn;
+                le_free(le);
+                gbl_log->log_fd = NULL;
 
-            /* There is no new entry, so we have to force an update ourselves */
-            if (gbl_log->callback != NULL) gbl_log->callback(gbl_log, le, gbl_log->priv);
-        }
-        else if (le->atom_lst_sz > 0) {
-            lg_print_to_file(gbl_log, le);
-            lg_print_to_queue(gbl_log, le);
-            gbl_log->log_last = gbl_log->log_fd;
-            gbl_log->log_fd = NULL;
+                /* There is no new entry, so we have to force an update ourselves */
+                if (gbl_log->callback != NULL) gbl_log->callback(gbl_log, le, gbl_log->priv);
+            }
+            else if (le->atom_lst_sz > 0) {
+                lg_print_to_file(gbl_log, le);
+                lg_print_to_queue(gbl_log, le);
+                gbl_log->log_last = gbl_log->log_fd;
+                gbl_log->log_fd = NULL;
+            }
         }
     }
 }

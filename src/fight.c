@@ -92,6 +92,9 @@ bool fght_do_weapon_dmg(struct random *r, struct msr_monster *monster, struct ms
     if (itm_verify_item(witem) == false) return false;
     wpn = &witem->specific.weapon;
 
+    int total_damage = 0;
+    enum msr_hit_location mhl = msr_get_hit_location(target, random_d100(r) );
+
     int dmg_die_sz = 10;
     if (wpn->nr_dmg_die == 0) dmg_die_sz = 5;
     for (int h = 0; h < hits; h++) {
@@ -99,7 +102,6 @@ bool fght_do_weapon_dmg(struct random *r, struct msr_monster *monster, struct ms
         if (wpn->nr_dmg_die == 0) dmg = random_xd5(r, 1); /*TODO Emperors fury */
 
         int dmg_add = wpn->dmg_addition;
-        enum msr_hit_location mhl = msr_get_hit_location(target, random_d100(r) );
         int penetration = wpn->penetration;
         int armour = msr_calculate_armour(target, mhl);
         int toughness = msr_calculate_characteristic_bonus(target, MSR_CHAR_TOUGHNESS);
@@ -129,18 +131,17 @@ bool fght_do_weapon_dmg(struct random *r, struct msr_monster *monster, struct ms
             }
         }
 
-        msg_plr(" and you do"); msg_plr_number(" %d ", dmg + dmg_add); msg_plr("damage.");
-
         armour = MAX((armour - penetration), 0); /* penetration only works against armour */
-        dmg = MAX((dmg + dmg_add) - (armour  + toughness), 0);
-
-        msg_msr(" and does"); msg_msr_number(" %d ", dmg); msg_msr("damage.");
-        msr_do_dmg(target, dmg, mhl, gbl_game->current_map);
+        total_damage += MAX((dmg + dmg_add) - (armour  + toughness), 0);
 
         lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "fght", "Doing %d%s+%d damage => %d, %d wnds left.", wpn->nr_dmg_die, random_die_name(dmg_die_sz), wpn->dmg_addition, dmg, target->cur_wounds);
         if (target->dead) h = hits;
     }
 
+    msg_plr(" and you do"); msg_plr_number(" %d", hits); msg_plr(" hits and a total of"); msg_plr_number(" %d", total_damage); msg_plr(" damage.");
+    msg_msr(" and does"); msg_msr_number(" %d", hits); msg_msr(" hits and a total of"); msg_msr_number(" %d", total_damage); msg_msr(" damage.");
+
+    msr_do_dmg(target, total_damage, mhl, gbl_game->current_map);
     return true;
 }
 
@@ -357,17 +358,23 @@ bool fght_melee(struct random *r, struct msr_monster *monster, struct msr_monste
     if (msr_weapon_type_check(monster, WEAPON_TYPE_MELEE) == false) return false;
     if (cd_pyth(&monster->pos, &target->pos) > 1) return false;
     int hits = 0;
-    msg_init(monster, target);
 
     /* Do damage */
+    msg_init(monster, target);
     hits = fght_melee_roll(r, monster, target, FGHT_MAIN_HAND);
     fght_do_weapon_dmg(r, monster, target, hits, FGHT_MAIN_HAND);
+    msg_exit();
+
+    msg_init(monster, target);
     hits = fght_melee_roll(r, monster, target, FGHT_OFF_HAND);
     fght_do_weapon_dmg(r, monster, target, hits, FGHT_OFF_HAND);
+    msg_exit();
+
+    msg_init(monster, target);
     hits = fght_melee_roll(r, monster, target, FGHT_CREATURE_HAND);
     fght_do_weapon_dmg(r, monster, target, hits, FGHT_CREATURE_HAND);
-
     msg_exit();
+
     return true;
 }
 

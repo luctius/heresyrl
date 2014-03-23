@@ -81,8 +81,8 @@ int main(int argc, char *argv[]) {
     game_exit();
 
     lg_print("Goodbye :)");
-    timeout(5000);
     getch();
+    usleep(1000000);
 
     ui_destroy();
 

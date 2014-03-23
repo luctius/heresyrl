@@ -550,7 +550,7 @@ int log_channel_to_colour(enum lg_channel ch) {
         case LG_CHANNEL_WARNING: return get_colour(TERM_COLOUR_RED);
         case LG_CHANNEL_GM: return get_colour(TERM_COLOUR_L_YELLOW);
         case LG_CHANNEL_SAY: return get_colour(TERM_COLOUR_WHITE);
-        case LG_CHANNEL_NUMBER: return get_colour(TERM_COLOUR_RED);
+        case LG_CHANNEL_NUMBER: return get_colour(TERM_COLOUR_PURPLE);
         case LG_CHANNEL_SYSTEM: return get_colour(TERM_COLOUR_L_PURPLE);
         default:
         case LG_CHANNEL_DEBUG:
@@ -570,7 +570,7 @@ void msgwin_log_refresh(struct logging *lg, struct log_entry *new_entry) {
     if (msg_win->type != HRL_WINDOW_TYPE_MESSAGE) return;
     if ( (new_entry != NULL) && (new_entry->level > LG_DEBUG_LEVEL_GAME) ) return;
 
-    int max = MIN(win_sz, log_sz);
+    int max = MIN(win_sz, log_sz) -1;
     int log_start = 0;
 
     int game_lvl_sz = 0;
