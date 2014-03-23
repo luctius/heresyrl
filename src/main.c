@@ -82,7 +82,7 @@ int main(int argc, char *argv[]) {
 
     lg_print("Goodbye :)");
     getch();
-    usleep(1000000);
+    usleep(500000);
 
     ui_destroy();
 

@@ -562,15 +562,17 @@ int log_channel_to_colour(enum lg_channel ch) {
 void msgwin_log_refresh(struct logging *lg, struct log_entry *new_entry) {
     struct queue *q = lg_queue(lg);
     int log_sz = queue_size(q);
-    int win_sz = msg_win->lines;
+    int win_sz = msg_win->lines -1;
     struct log_entry *tmp_entry = NULL;
     struct log_entry *tmpgame_entry = NULL;
+
+    /* TODO: make msg_win into a pad */
 
     if (msg_win == NULL) return;
     if (msg_win->type != HRL_WINDOW_TYPE_MESSAGE) return;
     if ( (new_entry != NULL) && (new_entry->level > LG_DEBUG_LEVEL_GAME) ) return;
 
-    int max = MIN(win_sz, log_sz) -1;
+    int max = MIN(win_sz, log_sz);
     int log_start = 0;
 
     int game_lvl_sz = 0;

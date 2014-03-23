@@ -138,8 +138,8 @@ bool fght_do_weapon_dmg(struct random *r, struct msr_monster *monster, struct ms
         if (target->dead) h = hits;
     }
 
-    msg_plr(" and you do"); msg_plr_number(" %d", hits); msg_plr(" hits and a total of"); msg_plr_number(" %d", total_damage); msg_plr(" damage.");
-    msg_msr(" and does"); msg_msr_number(" %d", hits); msg_msr(" hits and a total of"); msg_msr_number(" %d", total_damage); msg_msr(" damage.");
+    msg_plr(" and score");  msg_plr_number(" %d", hits); msg_plr(" hits and a total of"); msg_plr_number(" %d", total_damage); msg_plr(" damage.");
+    msg_msr(" and scores"); msg_msr_number(" %d", hits); msg_msr(" hits and a total of"); msg_msr_number(" %d", total_damage); msg_msr(" damage.");
 
     msr_do_dmg(target, total_damage, mhl, gbl_game->current_map);
     return true;
@@ -249,7 +249,7 @@ int fght_ranged_roll(struct random *r, struct msr_monster *monster, struct msr_m
 
         if (wpn->jammed) {
             msg_plr(" and your weapon jams.", fght_weapon_hand_name(hand) );
-            msg_msr(" and %s weapon jams", msr_gender_name(monster, true) );
+            msg_msr(" and %s weapon jams.", msr_gender_name(monster, true) );
             lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "fght", "Weapon jamm with roll %d, theshold %d, 2nd roll %d", roll, jammed_threshold, reltest);
             return -1;
         }

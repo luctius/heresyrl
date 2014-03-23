@@ -573,12 +573,14 @@ const char *msr_ldname(struct msr_monster *monster) {
 
 const char *msr_gender_name(struct msr_monster *monster, bool possesive) {
     if (msr_verify_monster(monster) == false) return "unkown";
-    if (monster->gender >= MSR_GENDER_MAX) return "its";
-    if (!sd_get_map_me(&monster->pos, gbl_game->current_map)->visible) return "its";
 
-    switch(monster->gender) {
+    enum msr_gender gender = monster->gender;
+    if (monster->gender >= MSR_GENDER_MAX) gender = MSR_GENDER_IT;
+    if (!sd_get_map_me(&monster->pos, gbl_game->current_map)->visible) gender = MSR_GENDER_IT;
+
+    switch(gender) {
         case MSR_GENDER_MALE:        return (possesive) ? "his" : "he"; break;
         case MSR_GENDER_FEMALE:      return (possesive) ? "her" : "she"; break;
-        default: case MSR_GENDER_IT: return (possesive) ? "its" : "it"; break;
+        case MSR_GENDER_IT: default: return (possesive) ? "its" : "it"; break;
     }
 }
