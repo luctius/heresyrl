@@ -116,12 +116,12 @@ bool dw_wear_item(struct msr_monster *monster, struct itm_item *item) {
 
     if (retval == true) {
         if (item->item_type == ITEM_TYPE_WEAPON) {
-            You_action(monster, "wield %s.", item->ld_name);
-            Monster_action(monster, "wields %s.", item->ld_name);
+            You(monster, "wield %s.", item->ld_name);
+            Monster(monster, "wields %s.", item->ld_name);
         }
         else {
-            You_action(monster, "wear %s.", item->ld_name);
-            Monster_action(monster, "wears %s.", item->ld_name);
+            You(monster, "wear %s.", item->ld_name);
+            Monster(monster, "wears %s.", item->ld_name);
         }
 
         /* Do check here */
@@ -142,8 +142,8 @@ static bool remove_weapon(struct msr_monster *monster, struct itm_item *item) {
 
     assert(inv_move_item_to_location(inv, item, INV_LOC_INVENTORY) == true);
 
-    You_action(monster, "remove %s.", item->ld_name);
-    Monster_action(monster, "removes %s.", item->ld_name);
+    You(monster, "remove %s.", item->ld_name);
+    Monster(monster, "removes %s.", item->ld_name);
 
     return true;
 }
@@ -157,8 +157,8 @@ static bool remove_wearable(struct msr_monster *monster, struct itm_item *item) 
 
     assert(inv_move_item_to_location(inv, item, INV_LOC_INVENTORY) == true);
 
-    You_action(monster, "remove %s.", item->ld_name);
-    Monster_action(monster, "removes %s.", item->ld_name);
+    You(monster, "remove %s.", item->ld_name);
+    Monster(monster, "removes %s.", item->ld_name);
 
     return true;
 }
@@ -193,14 +193,14 @@ bool dw_use_item(struct msr_monster *monster, struct itm_item *item) {
         if (item->specific.tool.lit == false) {
             item->specific.tool.lit = true;
 
-            You_action(monster, "light %s.", item->ld_name);
-            Monster_action(monster, "lights %s.", item->ld_name);
+            You(monster, "light %s.", item->ld_name);
+            Monster(monster, "lights %s.", item->ld_name);
         }
         else {
             item->specific.tool.lit = false;
 
             You(monster, "douse %s.", item->ld_name);
-            Monster_action(monster, "douses %s.", item->ld_name);
+            Monster(monster, "douses %s.", item->ld_name);
         }
     }
     return true;

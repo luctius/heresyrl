@@ -518,7 +518,7 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dc_map *map, coord_t *
                     mapwin_display_map(map, p_pos);
                     return true;
                 }
-                else Your(plr->player, "weapon(s) failed to fire.");
+                else msg_p(plr->player, "Your weapon(s) failed to fire.");
                 fire_mode=false;
             }
             break;
@@ -571,14 +571,26 @@ void msgwin_log_refresh(struct logging *lg) {
 
     if (game_lvl_sz > 0) {
         int y = 0;
+        int x = 0;
 
         if (last_entry != tmpgame_entry) { /*only update screen when there are msgs for the player*/
-
+            
             wclear(msg_win->win);
             for (int i = log_start; i < log_sz; i++) {
                 tmp_entry = (struct log_entry *) queue_peek_nr(q, i);
                 if ( (tmp_entry != NULL) && (tmp_entry->level <= LG_DEBUG_LEVEL_GAME) ) {
-                    mvwprintw(msg_win->win, y++,1, "%s\n", tmp_entry->string);
+                    if (x + strlen(tmp_entry->string) >= msg_win->cols) {
+                        y++;
+                        x = 0;
+                    }
+
+                    mvwprintw(msg_win->win, y,x, tmp_entry->string);
+
+                    if (tmp_entry->join == false) {
+                        y++;
+                        x = 0;
+                    }
+                    else x += strlen(tmp_entry->string);
                 }
             }
 

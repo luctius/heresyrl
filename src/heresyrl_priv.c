@@ -26,7 +26,7 @@ enum colours {
 
 static int term_colour_table[TERM_COLOUR_MAX];
 
-void generate_colours() {
+void generate_colours(void) {
         /* Prepare the color pairs */
         init_pair(CLR_PAIR_WHITE   , COLOR_WHITE   , COLOR_BLACK);
         init_pair(CLR_PAIR_RED     , COLOR_RED     , COLOR_BLACK);

@@ -8,6 +8,8 @@
 
 #include "logging.h"
 #include "game.h"
+#include "monster.h"
+#include "dungeon_creator.h"
 
 struct logging *gbl_log = NULL;
 
@@ -55,7 +57,8 @@ struct queue *lg_logging_queue(struct logging *log) {
     return log->logging_q;
 }
 
-static void lg_print_to_file(struct logging *log, enum lg_debug_levels dbg_lvl, const char* module, const char* format, va_list args) {
+static void lg_print_to_file(struct logging *log, enum lg_debug_levels dbg_lvl, enum lg_channel channel, 
+                            bool join, int repeat, const char* module, const char* format, va_list args) {
     FILE *fd = stderr;
     char *pre_format = "";
 
@@ -94,11 +97,13 @@ static void lg_print_to_file(struct logging *log, enum lg_debug_levels dbg_lvl, 
 
     fprintf(fd, pre_format, module);
     vfprintf(fd, format, args);
-    fprintf(fd, "\n");
+
+    if (join == false) fprintf(fd, "\n");
     fflush(fd);
 }
 
-static void lg_print_to_queue(struct logging *log, enum lg_debug_levels dbg_lvl, const char* module, const char* format, va_list args) {
+static void lg_print_to_queue(struct logging *log, enum lg_debug_levels dbg_lvl, enum lg_channel channel, 
+                            bool join, int repeat, const char* module, const char* format, va_list args) {
     if (log == NULL) return;
     //if (dbg_lvl > LG_DEBUG_LEVEL_GAME) return;
 
@@ -113,10 +118,15 @@ static void lg_print_to_queue(struct logging *log, enum lg_debug_levels dbg_lvl,
         entry->string = malloc(len +2);
         if (entry->string != NULL) {
             memset(entry->string, 0x0, len+2);
+
             entry->level = dbg_lvl;
+            entry->channel = channel;
+            entry->join = join;
+            entry->repeat = repeat;
             entry->module = module;
             entry->turn = 0;
             if (gbl_game != NULL) entry->turn = gbl_game->turn;
+
             strncpy(entry->string, tstring, len);
             queue_push_tail(log->logging_q, (intptr_t) entry);
 
@@ -131,26 +141,52 @@ static void lg_print_to_queue(struct logging *log, enum lg_debug_levels dbg_lvl,
     }
 }
 
-void lg_printf_basic(struct logging *log, enum lg_debug_levels dbg_lvl, const char* module, const char* format, va_list args) {
+void lg_printf_basic(struct logging *log, enum lg_debug_levels dbg_lvl, enum lg_channel channel,
+                    bool join, int repeat, const char* module, const char* format, va_list args) {
 
     if ( (log != NULL) && (dbg_lvl > log->level) ) return;
     va_list cpy;
     va_copy(cpy, args);
-    lg_print_to_file(log, dbg_lvl, module, format, args);
-    lg_print_to_queue(log, dbg_lvl, module, format, cpy);
+    lg_print_to_file(log, dbg_lvl, channel, join, repeat, module, format, args);
+    lg_print_to_queue(log, dbg_lvl, channel, join, repeat, module, format, cpy);
 }
 
 void lg_printf(const char* format, ... ) {
     va_list args;
     va_start(args, format);
-    lg_printf_basic(gbl_log, LG_DEBUG_LEVEL_GAME, "player", format, args);
+    lg_printf_basic(gbl_log, LG_DEBUG_LEVEL_GAME, LG_CHANNEL_PLAIN, false, 0, "player", format, args);
     va_end(args);
 }
 
 void lg_printf_l(int lvl, const char *module, const char* format, ... ) {
     va_list args;
     va_start(args, format);
-    lg_printf_basic(gbl_log, lvl, module , format, args);
+    lg_printf_basic(gbl_log, lvl, LG_CHANNEL_SYSTEM, false, 0, module , format, args);
     va_end(args);
+}
+
+void msg_p_basic(struct msr_monster *monster, enum lg_channel c, bool join, const char* format, ... ) {
+    if (monster->is_player) {
+        va_list args;
+        va_start(args, format);
+        lg_printf_basic(gbl_log, LG_DEBUG_LEVEL_GAME, c, join, 0, "player", format, args);
+        va_end(args);
+    }
+}
+
+void msg_m_basic(struct msr_monster *monster, struct msr_monster *target, enum lg_channel c, bool join, const char* format, ... ) {
+    bool target_is_player = false;
+    if (target != NULL) {
+        target_is_player = target->is_player;
+    }
+
+    if (monster->is_player == false) { 
+        if ( (sd_get_map_me(&monster->pos, gbl_game->current_map)->visible) || (target_is_player) ) {
+            va_list args;
+            va_start(args, format);
+            lg_printf_basic(gbl_log, LG_DEBUG_LEVEL_GAME, c, join, 0, "player", format, args);
+            va_end(args);
+        }
+    }
 }
 

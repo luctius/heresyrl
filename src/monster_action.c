@@ -155,8 +155,8 @@ bool ma_do_pickup(struct msr_monster *monster, struct itm_item *items[], int nr_
                     if (msr_give_item(monster, items[i]) == true) {
                         msr_change_energy(monster, -(MSR_ACTION_PICKUP) );
 
-                        You_action(monster, "picked up %s.", items[i]->ld_name);
-                        Monster_action(monster, "picked up %s.", items[i]->ld_name);
+                        You(monster, "picked up %s.", items[i]->ld_name);
+                        Monster(monster, "picked up %s.", items[i]->ld_name);
                     }
                     else itm_destroy(items[i]);
                 }
@@ -186,8 +186,8 @@ bool ma_do_drop(struct msr_monster *monster, struct itm_item *items[], int nr_it
                     if (monster->wpn_sel == MSR_WEAPON_SELECT_BOTH_HAND) {
                         hand_string = "hands";
                     }
-                    You_action(monster, "let %s fall from your %s.", items[i]->ld_name, hand_string);
-                    Monster_action(monster, "dropped %s from %s %s.", items[i]->ld_name, msr_gender_string(monster), hand_string);
+                    You(monster, "let %s fall from your %s.", items[i]->ld_name, hand_string);
+                    Monster(monster, "dropped %s from %s %s.", items[i]->ld_name, msr_gender_string(monster), hand_string);
                 }
             }
 
@@ -196,8 +196,8 @@ bool ma_do_drop(struct msr_monster *monster, struct itm_item *items[], int nr_it
                     if (itm_insert_item(items[i], gbl_game->current_map, &monster->pos) == true) {
                         msr_change_energy(monster, -(MSR_ACTION_DROP) );
 
-                        You_action(monster,"dropped %s.", items[i]->ld_name);
-                        Monster_action(monster, "dropped %s.", items[i]->ld_name);
+                        You(monster,"dropped %s.", items[i]->ld_name);
+                        Monster(monster, "dropped %s.", items[i]->ld_name);
                     }
                 }
             }
@@ -287,7 +287,7 @@ static bool ma_has_ammo(struct msr_monster *monster, struct itm_item *item) {
             int to_fill = wpn->magazine_sz - wpn->magazine_left;
             if (ammo->energy > 0) {
                 float mod = ammo->energy / (float) wpn->magazine_sz;
-                int ammo_in_pack = ammo->energy_left * mod;
+                int ammo_in_pack = round(ammo->energy_left / mod);
                 int sz = MIN(to_fill, ammo_in_pack);
                 wpn->magazine_left += sz;
                 ammo->energy_left -= (sz * mod);
@@ -339,8 +339,8 @@ bool ma_do_reload_carried(struct msr_monster *monster, struct itm_item *ammo_ite
                 if (ma_has_ammo(monster, item) == true ) {
                     cost += MSR_ACTION_RELOAD * item->use_delay;
 
-                    You_action(monster, "reload %s.", item->ld_name);
-                    Monster_action(monster, "reloads %s.", item->ld_name);
+                    You(monster, "reload %s.", item->ld_name);
+                    Monster(monster, "reloads %s.", item->ld_name);
                 } else {
                     You(monster, "do not have any ammo left for %s.", item->ld_name);
                 }
@@ -348,8 +348,8 @@ bool ma_do_reload_carried(struct msr_monster *monster, struct itm_item *ammo_ite
                 /* Do skill check here.. */
                 if (wpn->jammed == true) {
                     wpn->jammed = false;
-                    You_action(monster, "unjam %s.", item->ld_name);
-                    Monster_action(monster, "unjams %s.", item->ld_name);
+                    You(monster, "unjam %s.", item->ld_name);
+                    Monster(monster, "unjams %s.", item->ld_name);
                     
                     if (cost == 0) {
                         cost += MSR_ACTION_RELOAD * item->use_delay;

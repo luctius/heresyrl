@@ -129,14 +129,14 @@ struct itm_item static_item_list[] = {
 
     /* Ammo */
     /*    ID                    short name    long name                                                    description    availability                quality           weight,cost,delay*/
-    ITEM(ITEM_ID_PISTOL_AMMO_SP,  "solid pistol ammo","A clip of solid projectile pistol ammo",ITM_DESC_PISTOL_AMMO_SP, ITEM_AVAILABILITY_AVERAGE,ITEM_QUALITY_AVERAGE,  0,     1,   0),
+    ITEM(ITEM_ID_PISTOL_AMMO_SP,  "solid pistol ammo","a clip of solid projectile pistol ammo",ITM_DESC_PISTOL_AMMO_SP, ITEM_AVAILABILITY_AVERAGE,ITEM_QUALITY_AVERAGE,  0,     1,   0),
         /*      ammo Type      energy level*/
         AMMO(AMMO_TYPE_PISTOL_SP,     0), ITEM_END,
 
-    ITEM(ITEM_ID_PISTOL_AMMO_LAS,  "pistol charge pack","A pistol charge pack",                ITM_DESC_PISTOL_AMMO_LAS,ITEM_AVAILABILITY_AVERAGE,ITEM_QUALITY_AVERAGE,  0,     1,   0),
+    ITEM(ITEM_ID_PISTOL_AMMO_LAS,  "pistol charge pack","a pistol charge pack",                ITM_DESC_PISTOL_AMMO_LAS,ITEM_AVAILABILITY_AVERAGE,ITEM_QUALITY_AVERAGE,  0,     1,   0),
         AMMO(AMMO_TYPE_PISTOL_LAS,     1000), ITEM_END,
 
-    ITEM(ITEM_ID_BASIC_AMMO_LAS,  "basic charge pack","A basic weapon charge pack",            ITM_DESC_BASIC_AMMO_LAS, ITEM_AVAILABILITY_AVERAGE,ITEM_QUALITY_AVERAGE,  0,     1,   0),
+    ITEM(ITEM_ID_BASIC_AMMO_LAS,  "basic charge pack","a basic weapon charge pack",            ITM_DESC_BASIC_AMMO_LAS, ITEM_AVAILABILITY_AVERAGE,ITEM_QUALITY_AVERAGE,  0,     1,   0),
         AMMO(AMMO_TYPE_BASIC_LAS,     1000), ITEM_END,
 };
 

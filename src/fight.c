@@ -63,11 +63,11 @@ struct itm_item *fght_get_working_weapon(struct msr_monster *monster, enum item_
 
     if (type == WEAPON_TYPE_RANGED) {
         if (item->specific.weapon.jammed == true) {
-            Your(monster, "%s-hand weapon is jammed.", fght_weapon_hand_name(hand) );
+            msg_p(monster, "Your %s-hand weapon is jammed.", fght_weapon_hand_name(hand) );
             return NULL;
         }
         if (item->specific.weapon.magazine_left == 0) {
-            Your(monster, "%s-hand weapon is empty.", fght_weapon_hand_name(hand) );
+            msg_p(monster, "Your %s-hand weapon is empty.", fght_weapon_hand_name(hand) );
             return NULL;
         }
     }
@@ -82,15 +82,15 @@ bool fght_do_weapon_dmg(struct random *r, struct msr_monster *monster, struct ms
     if (hits < 1) return false;
 
     struct item_weapon_specific *wpn = NULL;
-    struct itm_item *weapon_item = NULL;
+    struct itm_item *witem = NULL;
 
     for (int i = 0; i < WEAPON_TYPE_MAX; i++) {
-        weapon_item = fght_get_working_weapon(monster, i, hand);
-        if (weapon_item != NULL) i = WEAPON_TYPE_MAX;
+        witem = fght_get_working_weapon(monster, i, hand);
+        if (witem != NULL) i = WEAPON_TYPE_MAX;
     }
-    if (weapon_item == NULL) return false;
-    if (itm_verify_item(weapon_item) == false) return false;
-    wpn = &weapon_item->specific.weapon;
+    if (witem == NULL) return false;
+    if (itm_verify_item(witem) == false) return false;
+    wpn = &witem->specific.weapon;
 
     int dmg_die_sz = 10;
     if (wpn->nr_dmg_die == 0) dmg_die_sz = 5;
@@ -103,18 +103,17 @@ bool fght_do_weapon_dmg(struct random *r, struct msr_monster *monster, struct ms
         int penetration = wpn->penetration;
         int armour = msr_calculate_armour(target, mhl);
         int toughness = msr_calculate_characteristic_bonus(target, MSR_CHAR_TOUGHNESS);
-        struct itm_item *armour_item = msr_get_armour_from_hitloc(target, mhl);
-        struct item_wearable_specific *amr = NULL;
-        if ( (armour_item != NULL) && (wearable_is_type(armour_item, WEARABLE_TYPE_ARMOUR) ) ) amr = &armour_item->specific.wearable;
+        struct itm_item *aitem = msr_get_armour_from_hitloc(target, mhl);
 
         {
             /* Modifiers to damage here */
             {
                 /* Add strength bonus */
-                if ( (wpn->weapon_type == WEAPON_TYPE_MELEE) || (wpn->weapon_type == WEAPON_TYPE_THROWN) ) dmg_add += msr_calculate_characteristic_bonus(monster, MSR_CHAR_STRENGTH);
+                
+                if ( wpn_is_type(witem, WEAPON_TYPE_MELEE) || wpn_is_type(witem, WEAPON_TYPE_THROWN) ) dmg_add += msr_calculate_characteristic_bonus(monster, MSR_CHAR_STRENGTH);
 
                 /* Best Quality gains +1 damage */
-                if (weapon_item->quality >= ITEM_QUALITY_BEST) dmg_add += FGHT_MODIFIER_QUALITY_TO_DMG_BEST;
+                if (itm_has_quality(witem, ITEM_QUALITY_BEST) ) dmg_add += FGHT_MODIFIER_QUALITY_TO_DMG_BEST;
 
             }
 
@@ -125,15 +124,16 @@ bool fght_do_weapon_dmg(struct random *r, struct msr_monster *monster, struct ms
             /* Modifiers to armour here */
             {
                 /* Armour counts double against primitive weapons, primitive armour counts as half against weapons, except against each other. */
-                if ( (wpn->special_quality & WEAPON_SPEC_QUALITY_PRIMITIVE) > 0) armour *= 2;
-                if ( (amr != NULL) && ( (amr->special_quality & WEARABLE_SPEC_QUALITY_PRIMITIVE) > 0) ) armour /= 2;
+                if (wpn_has_spc_quality(witem, WEAPON_SPEC_QUALITY_PRIMITIVE) > 0) armour *= 2;
+                if ( (aitem != NULL) && wbl_has_spc_quality(aitem, WEARABLE_SPEC_QUALITY_PRIMITIVE) > 0) armour /= 2;
             }
         }
 
-        You_action(monster, "do %d damage.", dmg + dmg_add);
+        msg_pc(monster, " and you do"); msg_p_basic(monster, true, LG_CHANNEL_NUMBER, "%d", dmg + dmg_add); msg_p(monster, "damage.");
+        msg_tgt_mc(monster, target, " and does"); msg_m_basic(monster, target, true, LG_CHANNEL_NUMBER, "%d", dmg + dmg_add); msg_tgt_m(monster, target, "damage.");
+
         armour = MAX((armour - penetration), 0); /* penetration only works against armour */
         dmg = MAX((dmg + dmg_add) - (armour  + toughness), 0);
-        Monster_action_end(monster, "does %d damage.", dmg);
         msr_do_dmg(target, dmg, mhl, gbl_game->current_map);
 
         lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "fght", "Doing %d%s+%d damage => %d, %d wnds left.", wpn->nr_dmg_die, random_die_name(dmg_die_sz), wpn->dmg_addition, dmg, target->cur_wounds);
@@ -143,21 +143,13 @@ bool fght_do_weapon_dmg(struct random *r, struct msr_monster *monster, struct ms
     return true;
 }
 
-int fght_ranged_calc_tohit(struct random *r, struct msr_monster *monster, struct msr_monster *target, enum fght_hand hand, int ammo) {
-    if (msr_verify_monster(monster) == false) return -1;
-    if (msr_verify_monster(target) == false) return -1;
-    if (ammo == 0) return -1;
-    if (msr_weapon_type_check(monster, WEAPON_TYPE_RANGED) == false) return -1;
-    struct dc_map_entity *me = sd_get_map_me(&target->pos, gbl_game->current_map);
-    struct item_weapon_specific *wpn = NULL;
-    struct itm_item *item = NULL;
+int fght_ranged_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght_hand hand) {
+    struct dc_map_entity *me = sd_get_map_me(tpos, gbl_game->current_map);
+    struct msr_monster *target = me->monster;
 
-    item = fght_get_working_weapon(monster, WEAPON_TYPE_RANGED, hand);
-    if (item == NULL) return -1;
-
-    wpn = &item->specific.weapon;
-    You_action(monster, "fire at %s with your %s", target->ld_name, item->sd_name);
-    Monster_action(monster, "fires at you with his %s", item->sd_name);
+    struct itm_item *witem = fght_get_working_weapon(monster, WEAPON_TYPE_RANGED, hand);
+    if (witem == NULL) return -1;
+    struct item_weapon_specific *wpn = &witem->specific.weapon;
 
     int to_hit = msr_calculate_characteristic(monster, MSR_CHAR_BALISTIC_SKILL);
     int to_hit_mod = 0;
@@ -177,55 +169,75 @@ int fght_ranged_calc_tohit(struct random *r, struct msr_monster *monster, struct
         if (wpn->rof_set == WEAPON_ROF_SETTING_AUTO) to_hit_mod += FGHT_RANGED_MODIFIER_ROF_AUTO;
 
         /* Target size modifiers */
-        if (target->size == MSR_SIZE_AVERAGE) to_hit_mod += FGHT_MODIFIER_SIZE_AVERAGE;
-        else if (target->size == MSR_SIZE_MASSIVE) to_hit_mod += FGHT_MODIFIER_SIZE_MASSIVE;
-        else if (target->size == MSR_SIZE_ENORMOUS) to_hit_mod += FGHT_MODIFIER_SIZE_ENORMOUS;
-        else if (target->size == MSR_SIZE_HULKING) to_hit_mod += FGHT_MODIFIER_SIZE_HULKING;
-        else if (target->size == MSR_SIZE_SCRAWY) to_hit_mod += FGHT_MODIFIER_SIZE_SCRAWNY;
-        else if (target->size == MSR_SIZE_PUNY) to_hit_mod += FGHT_MODIFIER_SIZE_PUNY;
-        else if (target->size == MSR_SIZE_MINISCULE) to_hit_mod += FGHT_MODIFIER_SIZE_MINISCULE;
+        if (target != NULL) {
+            if (target->size == MSR_SIZE_AVERAGE) to_hit_mod += FGHT_MODIFIER_SIZE_AVERAGE;
+            else if (target->size == MSR_SIZE_MASSIVE) to_hit_mod += FGHT_MODIFIER_SIZE_MASSIVE;
+            else if (target->size == MSR_SIZE_ENORMOUS) to_hit_mod += FGHT_MODIFIER_SIZE_ENORMOUS;
+            else if (target->size == MSR_SIZE_HULKING) to_hit_mod += FGHT_MODIFIER_SIZE_HULKING;
+            else if (target->size == MSR_SIZE_SCRAWY) to_hit_mod += FGHT_MODIFIER_SIZE_SCRAWNY;
+            else if (target->size == MSR_SIZE_PUNY) to_hit_mod += FGHT_MODIFIER_SIZE_PUNY;
+            else if (target->size == MSR_SIZE_MINISCULE) to_hit_mod += FGHT_MODIFIER_SIZE_MINISCULE;
+        }
 
         /* Shooting Distances */
-        int distance = cd_pyth(&monster->pos, &target->pos);
-        if (distance == FGHT_MELEE_RANGE) to_hit_mod += FGHT_RANGED_MODIFIER_MELEE;
+        int distance = cd_pyth(&monster->pos, tpos);
+        if ( (distance == FGHT_MELEE_RANGE) && (!wpn_is_catergory(witem, WEAPON_CATEGORY_PISTOL) ) ) to_hit_mod += FGHT_RANGED_MODIFIER_MELEE;
         else if (distance >= (wpn->range * 3) ) to_hit_mod += FGHT_RANGED_MODIFIER_EXTREME_RANGE;
         else if (distance >= (wpn->range * 2) ) to_hit_mod += FGHT_RANGED_MODIFIER_LONG_RANGE;
         else if (distance <= FGHT_POINT_BLANK_RANGE) to_hit_mod += FGHT_RANGED_MODIFIER_POINT_BLACK;
         else if (distance <= (wpn->range * 0.5) ) to_hit_mod += FGHT_RANGED_MODIFIER_SHORT_RANGE;
 
         /* Add lighting modifiers */
-        if (me->in_sight == false) to_hit_mod += FGHT_MODIFIER_VISION_COMPLETE_DARKNESS;
-        if (me->visible == false)  to_hit_mod += FGHT_MODIFIER_VISION_DARKNESS;
-        if ( (me->in_sight == true) && (me->light_level == 0) ) to_hit_mod += FGHT_MODIFIER_VISION_SHADOWS;
+        if (!me->in_sight) to_hit_mod += FGHT_MODIFIER_VISION_COMPLETE_DARKNESS;
+        if (!me->visible)  to_hit_mod += FGHT_MODIFIER_VISION_DARKNESS;
+        if ( (me->in_sight) && (me->light_level == 0) ) to_hit_mod += FGHT_MODIFIER_VISION_SHADOWS;
 
         /* Quality modifiers */
-        if (item->quality == ITEM_QUALITY_BEST) to_hit_mod += FGHT_MODIFIER_QUALITY_TO_HIT_BEST;
-        else if (item->quality == ITEM_QUALITY_GOOD) to_hit_mod += FGHT_MODIFIER_QUALITY_TO_HIT_GOOD;
-        else if (item->quality == ITEM_QUALITY_POOR) to_hit_mod += FGHT_MODIFIER_QUALITY_TO_HIT_POOR;
+        if (itm_has_quality(witem,      ITEM_QUALITY_BEST) ) to_hit_mod += FGHT_MODIFIER_QUALITY_TO_HIT_BEST;
+        else if (itm_has_quality(witem, ITEM_QUALITY_GOOD) ) to_hit_mod += FGHT_MODIFIER_QUALITY_TO_HIT_GOOD;
+        else if (itm_has_quality(witem, ITEM_QUALITY_POOR) ) to_hit_mod += FGHT_MODIFIER_QUALITY_TO_HIT_POOR;
 
         /* Weapon talent of used weapon */
-        if (msr_check_talent(monster, wpn->wpn_talent) == false) to_hit_mod -= FGHT_MODIFIER_UNTRAINED_WEAPON;
+        if (msr_has_talent(monster, wpn->wpn_talent) ) to_hit_mod -= FGHT_MODIFIER_UNTRAINED_WEAPON;
 
         /* Maximum modifier, keep these at the end! */
         if (to_hit_mod < -FGHT_MODIFIER_MAX) to_hit_mod = -FGHT_MODIFIER_MAX;
         if (to_hit_mod > FGHT_MODIFIER_MAX)  to_hit_mod = FGHT_MODIFIER_MAX;
 
-        to_hit += to_hit_mod;
     }
+    return to_hit + to_hit_mod;
+}
 
+int fght_ranged_roll(struct random *r, struct msr_monster *monster, struct msr_monster *target, enum fght_hand hand, int ammo) {
+    if (msr_verify_monster(monster) == false) return -1;
+    if (msr_verify_monster(target) == false) return -1;
+    if (ammo == 0) return -1;
+    if (msr_weapon_type_check(monster, WEAPON_TYPE_RANGED) == false) return -1;
+    struct dc_map_entity *me = sd_get_map_me(&target->pos, gbl_game->current_map);
+    struct item_weapon_specific *wpn = NULL;
+    struct itm_item *witem = NULL;
+
+    witem = fght_get_working_weapon(monster, WEAPON_TYPE_RANGED, hand);
+    if (witem == NULL) return -1;
+
+    wpn = &witem->specific.weapon;
+    You_c(monster, "fire at %s with your %s", msr_ldname(target), witem->sd_name);
+    Monster_tgt_c(monster, target, "fires at %s with %s %s", msr_ldname(target), msr_gender_name(target, true), witem->sd_name);
+
+    int to_hit = fght_ranged_calc_tohit(monster, &target->pos, hand);
     int roll = random_d100(r);
 
     /* Calculate jamming threshold*/
     int jammed_threshold = FGHT_RANGED_JAM;
     if ( (wpn->rof_set == WEAPON_ROF_SETTING_SEMI) || (wpn->rof_set == WEAPON_ROF_SETTING_AUTO) ) jammed_threshold = MIN(FGHT_RANGED_JAM_SEMI,jammed_threshold);
-    if ( (wpn->special_quality & WEAPON_SPEC_QUALITY_UNRELIABLE) > 0) jammed_threshold = MIN(FGHT_RANGED_JAM_UNRELIABLE, jammed_threshold);
-    if (item->quality == ITEM_QUALITY_POOR) jammed_threshold = MIN(to_hit, jammed_threshold);
+    if (wpn_has_spc_quality(witem, WEAPON_SPEC_QUALITY_UNRELIABLE) ) jammed_threshold = MIN(FGHT_RANGED_JAM_UNRELIABLE, jammed_threshold);
+    if (itm_has_quality(witem, ITEM_QUALITY_POOR) ) jammed_threshold = MIN(to_hit, jammed_threshold);
 
     /* Do jamming test */
     if (roll >= jammed_threshold) {
         int reltest = -1;
         wpn->jammed = true;
-        if ( (wpn->special_quality & WEAPON_SPEC_QUALITY_RELIABLE) > 0) {
+        if (wpn_has_spc_quality(witem, WEAPON_SPEC_QUALITY_RELIABLE) ) {
             /* If the weapon is reliable, it only jamms on a 10 on a d10, when there is a chance to jam */
             if ( (reltest = random_xd10(r,1) ) <= 9) {
                 wpn->jammed = false;
@@ -233,16 +245,16 @@ int fght_ranged_calc_tohit(struct random *r, struct msr_monster *monster, struct
         }
 
         if (wpn->jammed) {
-            You_action_end(monster, "and your weapon jams.", fght_weapon_hand_name(hand) );
-            Monster_action_end(monster, "and his weapon jams", item->sd_name); /*TODO gender*/
+            msg_p(monster, " and your weapon jams.", fght_weapon_hand_name(hand) );
+            msg_tgt_m(monster, target, " and %s weapon jams", msr_gender_name(monster, true) );
             lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "fght", "Weapon jamm with roll %d, theshold %d, 2nd roll %d", roll, jammed_threshold, reltest);
             return -1;
         }
     }
 
     if (to_hit <= 0) {
-        You_action_end(monster, "and miss the shot by a huge margin.");
-        Monster_action_end(monster, "and missed you with a huge margin.");
+        msg_p(monster, " and miss the shot by a huge margin.");
+        msg_tgt_m(monster, target, " and misses %s by a huge margin.", msr_ldname(target) );
         return -1;
     }
 
@@ -259,25 +271,19 @@ int fght_ranged_calc_tohit(struct random *r, struct msr_monster *monster, struct
         return -1;
     }
 
-    You_action_end(monster, "and miss.");
-    Monster_action_end(monster, "and he misses."); /*TODO gender*/
+    msg_p(monster, " and miss.");
+    msg_tgt_m(monster, target, " and %s misses.", msr_gender_name(monster, false) );
 
-    return -1;
+    return 0;
 }
 
-int fght_melee_calc_tohit(struct random *r, struct msr_monster *monster, struct msr_monster *target, enum fght_hand hand) {
-    if (msr_verify_monster(monster) == false) return -1;
-    if (msr_verify_monster(target) == false) return -1;
-    if (msr_weapon_type_check(monster, WEAPON_TYPE_MELEE) == false) return -1;
-    struct item_weapon_specific *wpn = NULL;
-    struct itm_item *item = NULL;
+int fght_melee_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght_hand hand) {
+    struct dc_map_entity *me = sd_get_map_me(tpos, gbl_game->current_map);
+    struct msr_monster *target = me->monster;
 
-    item = fght_get_working_weapon(monster, WEAPON_TYPE_MELEE, hand);
-    if (item == NULL) return -1;
-
-    wpn = &item->specific.weapon;
-    You_action(monster, "slash at %s with your %s", target->ld_name, item->sd_name);
-    Monster_action(monster, "slashes at you with his %s", item->sd_name);
+    struct itm_item *witem = fght_get_working_weapon(monster, WEAPON_TYPE_MELEE, hand);
+    if (witem == NULL) return -1;
+    struct item_weapon_specific *wpn = &witem->specific.weapon;
 
     int to_hit = msr_calculate_characteristic(monster, MSR_CHAR_WEAPON_SKILL);
     int to_hit_mod = 0;
@@ -287,30 +293,48 @@ int fght_melee_calc_tohit(struct random *r, struct msr_monster *monster, struct 
 
         /* Offhand Weapon */
         if (hand == FGHT_OFF_HAND) to_hit_mod += FGHT_MODIFIER_OFF_HAND;
-        if ( (wpn->special_quality & WEAPON_SPEC_QUALITY_UNARMED) > 0) to_hit_mod += FGHT_MELEE_UNARMED;
+        if (wpn_has_spc_quality(witem, WEAPON_SPEC_QUALITY_UNARMED) ) to_hit_mod += FGHT_MELEE_UNARMED;
 
-        if (target->size == MSR_SIZE_AVERAGE) to_hit_mod += FGHT_MODIFIER_SIZE_AVERAGE;
-        else if (target->size == MSR_SIZE_MASSIVE) to_hit_mod += FGHT_MODIFIER_SIZE_MASSIVE;
-        else if (target->size == MSR_SIZE_ENORMOUS) to_hit_mod += FGHT_MODIFIER_SIZE_ENORMOUS;
-        else if (target->size == MSR_SIZE_HULKING) to_hit_mod += FGHT_MODIFIER_SIZE_HULKING;
-        else if (target->size == MSR_SIZE_SCRAWY) to_hit_mod += FGHT_MODIFIER_SIZE_SCRAWNY;
-        else if (target->size == MSR_SIZE_PUNY) to_hit_mod += FGHT_MODIFIER_SIZE_PUNY;
-        else if (target->size == MSR_SIZE_MINISCULE) to_hit_mod += FGHT_MODIFIER_SIZE_MINISCULE;
+        if (target != NULL) {
+            if (target->size == MSR_SIZE_AVERAGE) to_hit_mod += FGHT_MODIFIER_SIZE_AVERAGE;
+            else if (target->size == MSR_SIZE_MASSIVE) to_hit_mod += FGHT_MODIFIER_SIZE_MASSIVE;
+            else if (target->size == MSR_SIZE_ENORMOUS) to_hit_mod += FGHT_MODIFIER_SIZE_ENORMOUS;
+            else if (target->size == MSR_SIZE_HULKING) to_hit_mod += FGHT_MODIFIER_SIZE_HULKING;
+            else if (target->size == MSR_SIZE_SCRAWY) to_hit_mod += FGHT_MODIFIER_SIZE_SCRAWNY;
+            else if (target->size == MSR_SIZE_PUNY) to_hit_mod += FGHT_MODIFIER_SIZE_PUNY;
+            else if (target->size == MSR_SIZE_MINISCULE) to_hit_mod += FGHT_MODIFIER_SIZE_MINISCULE;
+        }
 
         /* Weapon talent of used weapon */
-        if (msr_check_talent(monster, wpn->wpn_talent) == false) to_hit_mod -= FGHT_MODIFIER_UNTRAINED_WEAPON;
+        if (msr_has_talent(monster, wpn->wpn_talent) ) to_hit_mod -= FGHT_MODIFIER_UNTRAINED_WEAPON;
 
         /* Maximum modifier, keep these at the end! */
         if (to_hit_mod < -FGHT_MODIFIER_MAX) to_hit_mod = -FGHT_MODIFIER_MAX;
         if (to_hit_mod > FGHT_MODIFIER_MAX)  to_hit_mod = FGHT_MODIFIER_MAX;
 
-        to_hit += to_hit_mod;
     }
+    return to_hit + to_hit_mod;
+}
 
+int fght_melee_roll(struct random *r, struct msr_monster *monster, struct msr_monster *target, enum fght_hand hand) {
+    if (msr_verify_monster(monster) == false) return -1;
+    if (msr_verify_monster(target) == false) return -1;
+    if (msr_weapon_type_check(monster, WEAPON_TYPE_MELEE) == false) return -1;
+    struct item_weapon_specific *wpn = NULL;
+    struct itm_item *witem = NULL;
+
+    witem = fght_get_working_weapon(monster, WEAPON_TYPE_MELEE, hand);
+    if (witem == NULL) return -1;
+
+    wpn = &witem->specific.weapon;
+    You_c(monster, "slash at %s with your %s", target->ld_name, witem->sd_name);
+    Monster_c(monster, "slashes at you with his %s", witem->sd_name);
+
+    int to_hit = fght_melee_calc_tohit(monster, &target->pos, hand);
     int roll = random_d100(r);
     if (to_hit <= 0) {
-        You_action_end(monster, "and miss by a huge margin.");
-        Monster_action_end(monster, "and missed you with a huge margin.");
+        msg_p(monster, " and miss by a huge margin.");
+        msg_m(monster, " and missed %s with a huge margin.", msr_ldname(target) );
         return -1;
     }
 
@@ -319,8 +343,8 @@ int fght_melee_calc_tohit(struct random *r, struct msr_monster *monster, struct 
         return 1;
     }
 
-    You_action_end(monster, "and miss.");
-    Monster_action_end(monster, "and he misses.");
+    msg_p(monster, " and miss.");
+    msg_m(monster, " and %s misses.", msr_gender_name(monster, false) );
 
     return -1;
 }
@@ -334,11 +358,11 @@ bool fght_melee(struct random *r, struct msr_monster *monster, struct msr_monste
     int hits = 0;
 
     /* Do damage */
-    hits = fght_melee_calc_tohit(r, monster, target, FGHT_MAIN_HAND);
+    hits = fght_melee_roll(r, monster, target, FGHT_MAIN_HAND);
     fght_do_weapon_dmg(r, monster, target, hits, FGHT_MAIN_HAND);
-    hits = fght_melee_calc_tohit(r, monster, target, FGHT_OFF_HAND);
+    hits = fght_melee_roll(r, monster, target, FGHT_OFF_HAND);
     fght_do_weapon_dmg(r, monster, target, hits, FGHT_OFF_HAND);
-    hits = fght_melee_calc_tohit(r, monster, target, FGHT_CREATURE_HAND);
+    hits = fght_melee_roll(r, monster, target, FGHT_CREATURE_HAND);
     fght_do_weapon_dmg(r, monster, target, hits, FGHT_CREATURE_HAND);
 
     return true;
@@ -372,16 +396,20 @@ int fght_shoot(struct random *r, struct msr_monster *monster, struct dc_map *map
     int unblocked_length = 0;
 
     int i = 1;
-    int hits = -1;
+    bool animate = false;
     while ((i < path_len) && (blocked == false)) {
         if (sd_get_map_me(&path[i], map)->monster != NULL) {
             struct msr_monster *target = sd_get_map_me(&path[i], map)->monster;
+            int hits = 0;
 
             /* Do damage */
-            hits = fght_ranged_calc_tohit(r, monster, target, FGHT_MAIN_HAND, ammo1);
+            hits = fght_ranged_roll(r, monster, target, FGHT_MAIN_HAND, ammo1);
             fght_do_weapon_dmg(r, monster, target, hits, FGHT_MAIN_HAND);
-            hits = fght_ranged_calc_tohit(r, monster, target, FGHT_OFF_HAND, ammo2);
+            if (hits >= 0) animate = true;
+
+            hits = fght_ranged_roll(r, monster, target, FGHT_OFF_HAND, ammo2);
             fght_do_weapon_dmg(r, monster, target, hits, FGHT_OFF_HAND);
+            if (hits >= 0) animate = true;
 
             /* For now, always stop at the first monster. 
                later on we can continue but then we have 
@@ -397,7 +425,7 @@ int fght_shoot(struct random *r, struct msr_monster *monster, struct dc_map *map
         i++;
     }
 
-    if (hits >= 0) ui_animate_projectile(map, path, unblocked_length, '*');
+    if (animate) ui_animate_projectile(map, path, unblocked_length +1, '*');
 
     return unblocked_length;
 }

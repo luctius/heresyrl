@@ -24,25 +24,6 @@
 typedef uint_least64_t bitfield_t;
 #define bitfield_width (sizeof(bitfield_t) * CHAR_BIT)
 
-/*
-   These macros require:
-#include "game.h"
-#include "dungeon_creator.h"
-#include "monster.h"
- */
-/* If monster is player, output it, else stay silent. */
-#define You(monster, format, args...) do { if (monster->is_player == true) { lg_printf("%s " format "\n", "You",  ##args); } } while (0)
-/* If monster is player, output it, else stay silent. */
-#define Your(monster, format, args...) do { if (monster->is_player == true) { lg_printf("%s " format "\n", "Your",  ##args); } } while (0)
-/* If monster is player, output it, else stay silent. */
-#define You_action(monster, format, args...) do { if (monster->is_player == true) { lg_printf("%s " format, "You",  ##args); } } while (0)
-#define You_action_continue(monster, format, args...) do { if (monster->is_player == true) { lg_printf(" " format, ##args); } } while (0)
-#define You_action_end(monster, format, args...) do { if (monster->is_player == true) { lg_printf(" " format "\n", ##args); } } while (0)
-/* if monster is a monster, but is on a visible square, output it. */
-#define Monster_action(monster, format, args...) do { if (monster->is_player == false) { if (sd_get_map_me(&monster->pos, gbl_game->current_map)->visible) lg_printf("%s " format, monster->ld_name,  ##args); } } while (0)
-#define Monster_action_continue(monster, format, args...) do { if (monster->is_player == false) { if (sd_get_map_me(&monster->pos, gbl_game->current_map)->visible) lg_printf(" " format,  ##args); } } while (0)
-#define Monster_action_end(monster, format, args...) do { if (monster->is_player == false) { if (sd_get_map_me(&monster->pos, gbl_game->current_map)->visible) lg_printf(" " format "\n", ##args); } } while (0)
-
 struct gm_game;
 struct tl_tile;
 struct msr_monster;
@@ -137,5 +118,7 @@ inline int pyth(int side1, int side2) {
     int b = abs(side2);
     return (a > b) ? a : b;
 }
+
+void generate_colours(void);
 
 #endif /*HERESYRL_DEF_H_*/

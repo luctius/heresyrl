@@ -163,6 +163,10 @@ coord_t itm_get_pos(struct itm_item *item) {
             return cd_create(0,0);
     }
 }
+bool itm_has_quality(struct itm_item *item, enum item_quality q) {
+    if (itm_verify_item(item) == false) return false;
+    return ( (item->quality & q) >0);
+}
 
 bool wpn_is_type(struct itm_item *item, enum item_weapon_type type) {
     if (item == NULL) return false;
@@ -194,11 +198,23 @@ bool wpn_ranged_next_rof_set(struct itm_item *item) {
     return true;
 }
 
-bool wearable_is_type(struct itm_item *item, enum item_wearable_type type) {
+bool wpn_has_spc_quality(struct itm_item *item, enum weapon_special_quality q) {
+    if (itm_verify_item(item) == false) return false;
+    if (item->item_type != ITEM_TYPE_WEAPON) return false;
+    return ( (item->specific.weapon.special_quality & q) > 0);
+}
+
+bool wbl_is_type(struct itm_item *item, enum item_wearable_type type) {
     if (itm_verify_item(item) == false) return false;
     if (item->item_type != ITEM_TYPE_WEARABLE) return false;
     if (item->specific.wearable.wearable_type == type) return true;
     return false;
+}
+
+bool wbl_has_spc_quality(struct itm_item *item, enum wearable_special_quality q) {
+    if (itm_verify_item(item) == false) return false;
+    if (item->item_type != ITEM_TYPE_WEARABLE) return false;
+    return ( (item->specific.wearable.special_quality & q) > 0);
 }
 
 bool ammo_is_type(struct itm_item *item, enum item_ammo_type type) {

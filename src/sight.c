@@ -38,7 +38,7 @@ static void apply_far_player_sight(void *vmap, int x, int y, int dx, int dy, voi
     struct dc_map *map = (struct dc_map *) vmap;
     struct msr_monster *monster = (struct msr_monster *) isrc;
     int radius = msr_get_medium_sight_range(monster);
-    if (pyth(dx,dy) < radius) return; /*we are now applying far sight; ignore everything in near and direct sight*/
+    if (pyth(dx,dy) < radius) return; /*we are now applying far sight; ignore everything in medum and direct sight*/
 
     coord_t c = cd_create(x,y);
 
@@ -49,8 +49,8 @@ static void apply_far_player_sight(void *vmap, int x, int y, int dx, int dy, voi
     }
     else {
         if (sd_get_map_me(&c,map)->monster != NULL) {
-            /* Do some checks against monster on location to see if it is visible, later...*/
-            if (msr_skill_check(monster, SKILLS_AWARENESS, -10) == true) {
+            if (msr_skill_check(monster, SKILLS_AWARENESS, -10) >= 0) {
+                /*TODO scatter*/
                 sd_get_map_me(&c,map)->icon_override = '?';
             }
         }
@@ -72,8 +72,8 @@ static void apply_medium_player_sight(void *vmap, int x, int y, int dx, int dy, 
     }
     else {
         if (sd_get_map_me(&c,map)->monster != NULL) {
-            /* Do some checks against monster on location to see if it is visible, later...*/
-            if (msr_skill_check(monster, SKILLS_AWARENESS, 0) == true) {
+            if (msr_skill_check(monster, SKILLS_AWARENESS, 0) >= 0) {
+                /*TODO scatter*/
                 sd_get_map_me(&c,map)->icon_override = '?';
             }
         }

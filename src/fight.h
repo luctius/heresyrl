@@ -93,6 +93,8 @@ enum fght_hand {
     FGHT_MAX_HAND,
 };
 
+int fght_ranged_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght_hand hand);
+
 bool fght_do_dmg(struct random *r, struct msr_monster *monster, struct msr_monster *target, int hits, enum fght_hand hand);
 int fght_shoot(struct random *r, struct msr_monster *monster, struct dc_map *map, coord_t *e);
 bool fght_melee(struct random *r, struct msr_monster *monster, struct msr_monster *target);

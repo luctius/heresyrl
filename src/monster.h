@@ -137,7 +137,7 @@ bool msr_give_item(struct msr_monster *monster, struct itm_item *item);
 bool msr_remove_item(struct msr_monster *monster, struct itm_item *item);
 
 bool msr_characteristic_check(struct msr_monster *monster, enum msr_characteristic chr);
-bool msr_skill_check(struct msr_monster *monster, enum skills skill, int mod);
+int msr_skill_check(struct msr_monster *monster, enum skills skill, int mod);
 
 int msr_calculate_characteristic(struct msr_monster *monster, enum msr_characteristic chr);
 int msr_calculate_characteristic_bonus(struct msr_monster *monster, enum msr_characteristic chr);
@@ -155,15 +155,18 @@ int msr_get_far_sight_range(struct msr_monster *monster);
 char *msr_gender_string(struct msr_monster *monster);
 bool msr_do_skill_check(struct msr_monster *monster, enum skills skill, int modifiers);
 
-bool msr_check_creature_trait(struct msr_monster *monster,  bitfield_t trait);
-bool msr_check_talent(struct msr_monster *monster,  bitfield_t talent);
+bool msr_has_creature_trait(struct msr_monster *monster,  bitfield_t trait);
+bool msr_has_talent(struct msr_monster *monster,  bitfield_t talent);
 bool msr_set_talent(struct msr_monster *monster, bitfield_t talent);
-enum skill_rate msr_check_skill(struct msr_monster *monster,  enum skills skill);
+enum skill_rate msr_has_skill(struct msr_monster *monster,  enum skills skill);
 bool msr_set_skill(struct msr_monster *monster, enum skills skill, enum skill_rate);
 uint8_t msr_get_movement_rate(struct msr_monster *monster);
 
 bool msr_weapons_check(struct msr_monster *monster);
 bool msr_weapon_type_check(struct msr_monster *monster, enum item_weapon_type type);
 bool msr_weapon_next_selection(struct msr_monster *monster);
+
+const char *msr_ldname(struct msr_monster *monster);
+const char *msr_gender_name(struct msr_monster *monster, bool possesive);
 
 #endif /*MONSTER_H_*/

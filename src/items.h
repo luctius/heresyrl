@@ -264,12 +264,18 @@ bool itm_insert_item(struct itm_item *item, struct dc_map *map, coord_t *pos);
 bool itm_remove_item(struct itm_item *item, struct dc_map *map, coord_t *pos);
 coord_t itm_get_pos(struct itm_item *item);
 
+bool itm_has_quality(struct itm_item *item, enum item_quality q);
+
 bool wpn_is_type(struct itm_item *item, enum item_weapon_type type);
 bool wpn_is_catergory(struct itm_item *item, enum item_weapon_category cat);
 bool wpn_ranged_weapon_rof_set_check(struct itm_item *item);
 bool wpn_ranged_next_rof_set(struct itm_item *item);
+bool wpn_has_upgrade(struct itm_item *item, enum weapon_upgrades u);
+bool wpn_has_spc_quality(struct itm_item *item, enum weapon_special_quality q);
 
-bool wearable_is_type(struct itm_item *item, enum item_wearable_type type);
+bool wbl_is_type(struct itm_item *item, enum item_wearable_type type);
+bool wbl_has_spc_quality(struct itm_item *item, enum wearable_special_quality q);
+
 bool ammo_is_type(struct itm_item *item, enum item_ammo_type type);
 bool tool_is_type(struct itm_item *item, enum item_tool_type type);
 #endif /*ITEMS_H_*/

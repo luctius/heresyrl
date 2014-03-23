@@ -306,7 +306,7 @@ int msr_calculate_armour(struct msr_monster *monster, enum msr_hit_location mhl)
     int armour = 0;
 
     if (item != NULL) {
-        if (wearable_is_type(item, WEARABLE_TYPE_ARMOUR) == true) {
+        if (wbl_is_type(item, WEARABLE_TYPE_ARMOUR) == true) {
             armour += item->specific.wearable.damage_reduction;
         }
     }
@@ -332,8 +332,8 @@ static bool msr_die(struct msr_monster *monster, struct dc_map *map) {
     if (msr_verify_monster(monster) == false) return false;
     if (dc_verify_map(map) == false) return false;
 
-    You_action(monster, "died...");
-    Monster_action(monster, "dies.");
+    You(monster, "died...");
+    Monster(monster, "dies.");
 
     msr_drop_inventory(monster, map);
     msr_remove_monster(monster, map);
@@ -368,12 +368,12 @@ bool msr_characteristic_check(struct msr_monster *monster, enum msr_characterist
     return ((random_int32(gbl_game->game_random)%100) < charac);
 }
 
-bool msr_skill_check(struct msr_monster *monster, enum skills skill, int mod) {
+int msr_skill_check(struct msr_monster *monster, enum skills skill, int mod) {
     if (msr_verify_monster(monster) == false) return false;
     int charac = msr_calculate_characteristic(monster, MSR_CHAR_PERCEPTION); /*TODO lookup table for charac <> skill*/
     assert(charac >= 0);
 
-    enum skill_rate r = msr_check_skill(monster, skill);
+    enum skill_rate r = msr_has_skill(monster, skill);
     switch(r) {
         case MSR_SKILL_RATE_EXPERT:     charac += 10;
         case MSR_SKILL_RATE_ADVANCED:   charac += 10;
@@ -399,7 +399,7 @@ int msr_calculate_characteristic_bonus(struct msr_monster *monster, enum msr_cha
     return ( (monster->characteristic[chr].base_value + (monster->characteristic[chr].advancement * 5)) / 10);
 }
 
-enum skill_rate msr_check_skill(struct msr_monster *monster, enum skills skill) {
+enum skill_rate msr_has_skill(struct msr_monster *monster, enum skills skill) {
     enum skill_rate r = MSR_SKILL_RATE_NONE;
     if ((monster->skills[MSR_SKILL_RATE_BASIC]    & skill) > 0) r = MSR_SKILL_RATE_BASIC;
     if ((monster->skills[MSR_SKILL_RATE_ADVANCED] & skill) > 0) r = MSR_SKILL_RATE_ADVANCED;
@@ -540,12 +540,12 @@ static struct itm_item *msr_unarmed_weapon(struct msr_monster *monster) {
     return item;
 }
 
-bool msr_check_creature_trait(struct msr_monster *monster,  bitfield_t trait) {
+bool msr_has_creature_trait(struct msr_monster *monster,  bitfield_t trait) {
     if (msr_verify_monster(monster) == false) return false;
     return ( (monster->creature_traits & trait) > 0);
 }
 
-bool msr_check_talent(struct msr_monster *monster,  bitfield_t talent) {
+bool msr_has_talent(struct msr_monster *monster,  bitfield_t talent) {
     if (msr_verify_monster(monster) == false) return false;
     int idx = (talent >> (bitfield_width - 4) ) & 0x0F; 
     return ( (monster->talents[idx] & talent) > 0);
@@ -561,4 +561,24 @@ bool msr_set_talent(struct msr_monster *monster, bitfield_t talent) {
 uint8_t msr_get_movement_rate(struct msr_monster *monster) {
     if (msr_verify_monster(monster) == false) return false;
     return MIN( (msr_calculate_characteristic_bonus(monster, MSR_CHAR_AGILITY) * 10), 90);
+}
+
+const char *msr_ldname(struct msr_monster *monster) {
+    if (msr_verify_monster(monster) == false) return "unkown";
+
+    if (monster->is_player) return "you";
+    if (!sd_get_map_me(&monster->pos, gbl_game->current_map)->visible) return "something";
+    return monster->ld_name;
+}
+
+const char *msr_gender_name(struct msr_monster *monster, bool possesive) {
+    if (msr_verify_monster(monster) == false) return "unkown";
+    if (monster->gender >= MSR_GENDER_MAX) return "its";
+    if (!sd_get_map_me(&monster->pos, gbl_game->current_map)->visible) return "its";
+
+    switch(monster->gender) {
+        case MSR_GENDER_MALE:        return (possesive) ? "his" : "he"; break;
+        case MSR_GENDER_FEMALE:      return (possesive) ? "her" : "she"; break;
+        default: case MSR_GENDER_IT: return (possesive) ? "its" : "it"; break;
+    }
 }
