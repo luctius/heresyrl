@@ -63,11 +63,11 @@ struct itm_item *fght_get_working_weapon(struct msr_monster *monster, enum item_
 
     if (type == WEAPON_TYPE_RANGED) {
         if (item->specific.weapon.jammed == true) {
-            msg_p(monster, "Your %s-hand weapon is jammed.", fght_weapon_hand_name(hand) );
+            msg_plr("Your %s-hand weapon is jammed.", fght_weapon_hand_name(hand) );
             return NULL;
         }
         if (item->specific.weapon.magazine_left == 0) {
-            msg_p(monster, "Your %s-hand weapon is empty.", fght_weapon_hand_name(hand) );
+            msg_plr("Your %s-hand weapon is empty.", fght_weapon_hand_name(hand) );
             return NULL;
         }
     }
@@ -129,11 +129,12 @@ bool fght_do_weapon_dmg(struct random *r, struct msr_monster *monster, struct ms
             }
         }
 
-        msg_pc(monster, " and you do"); msg_p_basic(monster, true, LG_CHANNEL_NUMBER, "%d", dmg + dmg_add); msg_p(monster, "damage.");
-        msg_tgt_mc(monster, target, " and does"); msg_m_basic(monster, target, true, LG_CHANNEL_NUMBER, "%d", dmg + dmg_add); msg_tgt_m(monster, target, "damage.");
+        msg_plr(" and you do"); msg_plr_number(" %d ", dmg + dmg_add); msg_plr("damage.");
 
         armour = MAX((armour - penetration), 0); /* penetration only works against armour */
         dmg = MAX((dmg + dmg_add) - (armour  + toughness), 0);
+
+        msg_msr(" and does"); msg_msr_number(" %d ", dmg); msg_msr("damage.");
         msr_do_dmg(target, dmg, mhl, gbl_game->current_map);
 
         lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "fght", "Doing %d%s+%d damage => %d, %d wnds left.", wpn->nr_dmg_die, random_die_name(dmg_die_sz), wpn->dmg_addition, dmg, target->cur_wounds);
@@ -221,8 +222,9 @@ int fght_ranged_roll(struct random *r, struct msr_monster *monster, struct msr_m
     if (witem == NULL) return -1;
 
     wpn = &witem->specific.weapon;
-    You_c(monster, "fire at %s with your %s", msr_ldname(target), witem->sd_name);
-    Monster_tgt_c(monster, target, "fires at %s with %s %s", msr_ldname(target), msr_gender_name(target, true), witem->sd_name);
+
+    msg_plr("You fire at %s with your %s", msr_ldname(target), witem->sd_name);
+    msg_msr("%s fires at %s with %s %s", msr_ldname(monster), msr_ldname(target), msr_gender_name(target, true), witem->sd_name);
 
     int to_hit = fght_ranged_calc_tohit(monster, &target->pos, hand);
     int roll = random_d100(r);
@@ -245,16 +247,16 @@ int fght_ranged_roll(struct random *r, struct msr_monster *monster, struct msr_m
         }
 
         if (wpn->jammed) {
-            msg_p(monster, " and your weapon jams.", fght_weapon_hand_name(hand) );
-            msg_tgt_m(monster, target, " and %s weapon jams", msr_gender_name(monster, true) );
+            msg_plr(" and your weapon jams.", fght_weapon_hand_name(hand) );
+            msg_msr(" and %s weapon jams", msr_gender_name(monster, true) );
             lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "fght", "Weapon jamm with roll %d, theshold %d, 2nd roll %d", roll, jammed_threshold, reltest);
             return -1;
         }
     }
 
     if (to_hit <= 0) {
-        msg_p(monster, " and miss the shot by a huge margin.");
-        msg_tgt_m(monster, target, " and misses %s by a huge margin.", msr_ldname(target) );
+        msg_plr(" and miss the shot by a huge margin.");
+        msg_msr(" and misses %s by a huge margin.", msr_ldname(target) );
         return -1;
     }
 
@@ -271,8 +273,8 @@ int fght_ranged_roll(struct random *r, struct msr_monster *monster, struct msr_m
         return -1;
     }
 
-    msg_p(monster, " and miss.");
-    msg_tgt_m(monster, target, " and %s misses.", msr_gender_name(monster, false) );
+    msg_plr(" and miss.");
+    msg_msr(" and %s misses.", msr_gender_name(monster, false) );
 
     return 0;
 }
@@ -325,16 +327,16 @@ int fght_melee_roll(struct random *r, struct msr_monster *monster, struct msr_mo
 
     witem = fght_get_working_weapon(monster, WEAPON_TYPE_MELEE, hand);
     if (witem == NULL) return -1;
-
     wpn = &witem->specific.weapon;
-    You_c(monster, "slash at %s with your %s", target->ld_name, witem->sd_name);
-    Monster_c(monster, "slashes at you with his %s", witem->sd_name);
+
+    msg_plr("You slash at %s with your %s", msr_ldname(target), witem->sd_name);
+    msg_msr("%s slashes at you with his %s", msr_ldname(monster), witem->sd_name);
 
     int to_hit = fght_melee_calc_tohit(monster, &target->pos, hand);
     int roll = random_d100(r);
     if (to_hit <= 0) {
-        msg_p(monster, " and miss by a huge margin.");
-        msg_m(monster, " and missed %s with a huge margin.", msr_ldname(target) );
+        msg_plr(" and miss by a huge margin.");
+        msg_msr(" and missed %s with a huge margin.", msr_ldname(target) );
         return -1;
     }
 
@@ -343,9 +345,8 @@ int fght_melee_roll(struct random *r, struct msr_monster *monster, struct msr_mo
         return 1;
     }
 
-    msg_p(monster, " and miss.");
-    msg_m(monster, " and %s misses.", msr_gender_name(monster, false) );
-
+    msg_plr(" and miss.");
+    msg_msr(" and %s misses.", msr_gender_name(monster, false) );
     return -1;
 }
 
@@ -356,6 +357,7 @@ bool fght_melee(struct random *r, struct msr_monster *monster, struct msr_monste
     if (msr_weapon_type_check(monster, WEAPON_TYPE_MELEE) == false) return false;
     if (cd_pyth(&monster->pos, &target->pos) > 1) return false;
     int hits = 0;
+    msg_init(monster, target);
 
     /* Do damage */
     hits = fght_melee_roll(r, monster, target, FGHT_MAIN_HAND);
@@ -365,6 +367,7 @@ bool fght_melee(struct random *r, struct msr_monster *monster, struct msr_monste
     hits = fght_melee_roll(r, monster, target, FGHT_CREATURE_HAND);
     fght_do_weapon_dmg(r, monster, target, hits, FGHT_CREATURE_HAND);
 
+    msg_exit();
     return true;
 }
 
@@ -402,14 +405,19 @@ int fght_shoot(struct random *r, struct msr_monster *monster, struct dc_map *map
             struct msr_monster *target = sd_get_map_me(&path[i], map)->monster;
             int hits = 0;
 
+
             /* Do damage */
+            msg_init(monster, target);
             hits = fght_ranged_roll(r, monster, target, FGHT_MAIN_HAND, ammo1);
             fght_do_weapon_dmg(r, monster, target, hits, FGHT_MAIN_HAND);
             if (hits >= 0) animate = true;
+            msg_exit();
 
+            msg_init(monster, target);
             hits = fght_ranged_roll(r, monster, target, FGHT_OFF_HAND, ammo2);
             fght_do_weapon_dmg(r, monster, target, hits, FGHT_OFF_HAND);
             if (hits >= 0) animate = true;
+            msg_exit();
 
             /* For now, always stop at the first monster. 
                later on we can continue but then we have 

@@ -4,6 +4,7 @@
 #include <ncurses.h>
 #include <unistd.h>
 #include <sys/param.h>
+#include <string.h>
 
 #include "ui.h"
 #include "heresyrl_def.h"
@@ -133,7 +134,7 @@ bool ui_create(int cols, int lines) {
             char_win = win_create(char_lines, char_cols, 1, map_cols+1, HRL_WINDOW_TYPE_CHARACTER);
             msg_win = win_create(msg_lines, msg_cols-1, map_lines, 1, HRL_WINDOW_TYPE_MESSAGE);
             lg_set_callback(gbl_log, NULL, msgwin_log_callback);
-            msgwin_log_refresh(gbl_log);
+            msgwin_log_refresh(gbl_log, NULL);
             return true;
         }
         else {
@@ -518,7 +519,7 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dc_map *map, coord_t *
                     mapwin_display_map(map, p_pos);
                     return true;
                 }
-                else msg_p(plr->player, "Your weapon(s) failed to fire.");
+                else Your(plr->player, "weapon(s) failed to fire.");
                 fire_mode=false;
             }
             break;
@@ -544,9 +545,22 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dc_map *map, coord_t *
     return false;
 }
 
-static struct log_entry *last_entry;
-void msgwin_log_refresh(struct logging *lg) {
-    struct queue *q = lg_logging_queue(lg);
+int log_channel_to_colour(enum lg_channel ch) {
+    switch (ch) {
+        case LG_CHANNEL_WARNING: return get_colour(TERM_COLOUR_RED);
+        case LG_CHANNEL_GM: return get_colour(TERM_COLOUR_L_YELLOW);
+        case LG_CHANNEL_SAY: return get_colour(TERM_COLOUR_WHITE);
+        case LG_CHANNEL_NUMBER: return get_colour(TERM_COLOUR_RED);
+        case LG_CHANNEL_SYSTEM: return get_colour(TERM_COLOUR_L_PURPLE);
+        default:
+        case LG_CHANNEL_DEBUG:
+        case LG_CHANNEL_MAX:
+        case LG_CHANNEL_PLAIN: return get_colour(TERM_COLOUR_SLATE);
+    }
+}
+
+void msgwin_log_refresh(struct logging *lg, struct log_entry *new_entry) {
+    struct queue *q = lg_queue(lg);
     int log_sz = queue_size(q);
     int win_sz = msg_win->lines;
     struct log_entry *tmp_entry = NULL;
@@ -554,6 +568,7 @@ void msgwin_log_refresh(struct logging *lg) {
 
     if (msg_win == NULL) return;
     if (msg_win->type != HRL_WINDOW_TYPE_MESSAGE) return;
+    if ( (new_entry != NULL) && (new_entry->level > LG_DEBUG_LEVEL_GAME) ) return;
 
     int max = MIN(win_sz, log_sz);
     int log_start = 0;
@@ -571,32 +586,33 @@ void msgwin_log_refresh(struct logging *lg) {
 
     if (game_lvl_sz > 0) {
         int y = 0;
-        int x = 0;
+        int x = 1;
 
-        if (last_entry != tmpgame_entry) { /*only update screen when there are msgs for the player*/
-            
-            wclear(msg_win->win);
-            for (int i = log_start; i < log_sz; i++) {
-                tmp_entry = (struct log_entry *) queue_peek_nr(q, i);
-                if ( (tmp_entry != NULL) && (tmp_entry->level <= LG_DEBUG_LEVEL_GAME) ) {
-                    if (x + strlen(tmp_entry->string) >= msg_win->cols) {
-                        y++;
-                        x = 0;
+        wclear(msg_win->win);
+        for (int i = log_start; i < log_sz; i++) {
+            tmp_entry = (struct log_entry *) queue_peek_nr(q, i);
+            if ( (tmp_entry != NULL) && (tmp_entry->level <= LG_DEBUG_LEVEL_GAME) ) {
+                for (int l = 0; l < tmp_entry->atom_lst_sz; l++) {
+                    struct log_atom *a = &tmp_entry->atom_lst[l];
+                    if (a != NULL) {
+                        if (x + strlen(a->string) >= msg_win->cols) { y++; x = 1; }
+                        int colour = log_channel_to_colour(a->channel);
+
+                        wattron(msg_win->win, colour);
+                        mvwprintw(msg_win->win, y,x, a->string);
+                        wattroff(msg_win->win, colour);
+                        x += strlen(a->string);
                     }
-
-                    mvwprintw(msg_win->win, y,x, tmp_entry->string);
-
-                    if (tmp_entry->join == false) {
-                        y++;
-                        x = 0;
-                    }
-                    else x += strlen(tmp_entry->string);
                 }
+                if (tmp_entry->repeat > 1) {
+                    mvwprintw(msg_win->win, y,x, " (x%d)", tmp_entry->repeat);
+                }
+                y++; 
+                x = 1;
             }
-
-            wrefresh(msg_win->win);
-            last_entry = tmpgame_entry;
         }
+
+        wrefresh(msg_win->win);
     }
 }
 
@@ -604,7 +620,7 @@ void msgwin_log_callback(struct logging *lg, struct log_entry *entry, void *priv
     FIX_UNUSED(entry);
     FIX_UNUSED(priv);
 
-    msgwin_log_refresh(lg);
+    msgwin_log_refresh(lg, entry);
 }
 
 void charwin_refresh() {

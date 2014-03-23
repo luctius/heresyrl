@@ -12,32 +12,6 @@
 #include "tiles.h"
 #include "random.h"
 
-static bool sv_save_log(FILE *file, int indent) {
-    if (file == NULL) return false;
-    if (gbl_log == NULL) return false;
-    struct queue *q = lg_logging_queue(gbl_log);
-    if (q == NULL) return false;
-
-    fprintf(file, "%*s" "log={\n", indent, ""); { indent += 2;
-        fprintf(file, "%*s" "sz=%d,\n",  indent, "", queue_size(q) );
-        for (int i = 0; i < queue_size(q); i++) {
-            fprintf(file, "%*s" "{", indent, ""); { indent += 2;
-                struct log_entry *te = (struct log_entry *) queue_peek_nr(q, i);
-                if (te != NULL) {
-                    fprintf(file, "turn=%d,", te->turn);
-                    fprintf(file, "level=%d,", te->level);
-                    fprintf(file, "module=\"%s\",", te->module);
-                    fprintf(file, "string=\"%s\",", te->string);
-                }
-
-            } indent -= 2; fprintf(file, "},\n");
-        }
-
-    } indent -= 2; fprintf(file, "%*s" "},\n", indent, "");
-    fflush(file);
-    return true;
-}
-
 static bool sv_save_player(FILE *file, int indent, struct pl_player *plr) {
     if (file == NULL) return false;
 
@@ -200,7 +174,6 @@ bool sv_save_game(const char *filename, struct gm_game *gm) {
         fprintf(file, "%*s" "maps={\n", indent, ""); { indent += 2;
             sv_save_map(file, indent, gm->current_map);
         } indent -= 2; fprintf(file, "%*s" "},\n", indent, "");
-        sv_save_log(file, indent);
     } indent -= 2; fprintf(file, "%*s" "}\n", indent, "");
     fflush(file);
     return true;

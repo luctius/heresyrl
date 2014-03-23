@@ -83,7 +83,7 @@ static bool plr_action_loop(struct msr_monster *player, void *controller) {
         gbl_game->running = false;
     }
 
-    lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "plr", "plr_action_loop");
+    lg_debug("plr_action_loop");
     while (gbl_game->running && (has_action == false) ) {
         mapwin_display_map(map, player_pos);
         charwin_refresh();
@@ -102,7 +102,7 @@ static bool plr_action_loop(struct msr_monster *player, void *controller) {
                             bool pickup = false;
 
                             if (pickup_all == false) {
-                                lg_printf("Pickup %s? (Y)es/(N)o/(A)ll/(q)uit", item->ld_name);
+                                System_msg("Pickup %s? (Y)es/(N)o/(A)ll/(q)uit", item->ld_name);
                                 switch (inp_get_input() ) {
                                     case INP_KEY_ESCAPE: stop = true; break;
                                     case INP_KEY_ALL:    pickup_all = true; break;
@@ -120,8 +120,8 @@ static bool plr_action_loop(struct msr_monster *player, void *controller) {
                             if (item_list_sz > 0) {
                                 has_action = ma_do_pickup(player, item_list, item_list_sz);
                             }
-                            if (stop) lg_printf("Stop.");
-                            else lg_printf("Done.");
+                            if (stop) System_msg("Stop.");
+                            else System_msg("Done.");
                         }
                     }
                     else You(player, "see nothing there.");

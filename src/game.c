@@ -109,7 +109,7 @@ bool game_exit() {
 
     if (gbl_game->args_info->no_save_flag == false) {
         if (sv_save_game(gbl_game->args_info->save_file_arg, gbl_game) == true) {
-            lg_printf("Game Saved.");
+            lg_print("Game Saved.");
         }
     }
 

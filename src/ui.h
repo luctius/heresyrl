@@ -14,7 +14,7 @@ void mapwin_overlay_examine_cursor(struct dc_map *map, coord_t *p_pos);
 bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dc_map *map, coord_t *p_pos);
 
 void msgwin_log_callback(struct logging *log, struct log_entry *entry, void *priv);
-void msgwin_log_refresh(struct logging *log);
+void msgwin_log_refresh(struct logging *log, struct log_entry *le);
 
 void charwin_refresh(void);
 bool invwin_inventory(struct dc_map *map, struct pl_player *plr);

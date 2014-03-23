@@ -104,10 +104,10 @@ struct itm_item static_item_list[] = {
         /*                 CATEGORY             xd10  +X     dmg type              upgrades               special qualities             talent */
         CREATURE_MELEE(WEAPON_CATEGORY_2H_MELEE,0,    -3,  WEAPON_DMG_TYPE_IMPACT, WEAPON_UPGRADE_NONE,   WEAPON_SPEC_QUALITY_UNARMED), ITEM_END,
 
-    ITEM(ITEM_ID_CREATURE_BITE_UNTRAINED,  "",    "",     "",                  0,                         0,                    0,    0,   0),
+    ITEM(ITEM_ID_CREATURE_BITE_UNTRAINED,"teeth","teeth",     "",                  0,                         0,                    0,    0,   0),
         CREATURE_MELEE(WEAPON_CATEGORY_2H_MELEE,1,    -3,  WEAPON_DMG_TYPE_RENDING, WEAPON_UPGRADE_NONE,  WEAPON_SPEC_QUALITY_UNARMED), ITEM_END,
 
-    ITEM(ITEM_ID_CREATURE_BITE_TRAINED,  "",    "",     "",                  0,                           0,                    0,    0,   0),
+    ITEM(ITEM_ID_CREATURE_BITE_TRAINED,"teeth","teeth",     "",                  0,                           0,                    0,    0,   0),
         CREATURE_MELEE(WEAPON_CATEGORY_2H_MELEE,1,    0,  WEAPON_DMG_TYPE_RENDING, WEAPON_UPGRADE_NONE,   WEAPON_SPEC_QUALITY_NONE), ITEM_END,
 
     /* Melee */

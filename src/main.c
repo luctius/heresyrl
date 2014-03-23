@@ -80,7 +80,7 @@ int main(int argc, char *argv[]) {
 
     game_exit();
 
-    lg_printf("Goodbye :)");
+    lg_print("Goodbye :)");
     timeout(5000);
     getch();
 
