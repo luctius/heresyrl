@@ -1,6 +1,9 @@
-#include "stdlib.h"
-#include "stdio.h"
-#include "stdbool.h"
+#define __STDC_FORMAT_MACROS 
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdbool.h>
+#include <inttypes.h>
 
 #include "save.h"
 #include "monster.h"
@@ -28,15 +31,21 @@ static bool sv_save_monsters(FILE *file, int indent) {
     fprintf(file, "%*s" "monsters={\n", indent, ""); { indent += 2;
         struct msr_monster *m = NULL;
         while ( (m = msrlst_get_next_monster(m) ) != NULL) {
-            fprintf(file, "%*s" "{uid=%d,template_id=%d,race=%d,size=%d,cur_wounds=%d,max_wounds=%d,",  indent, "", 
-                    m->uid, m->template_id,m->race,m->size,m->cur_wounds,m->max_wounds);
-            /*fprintf(file,"creature_talents=%lld,race_traits=%lld,combat_talents=%lld,career_talents=%lld,",
-                    m->creature_talents, m->race_traits,m->combat_talents,m->career_talents);*/
+            fprintf(file, "%*s" "{uid=%d,template_id=%d,race=%d,size=%d,gender=%d,cur_wounds=%d,max_wounds=%d,",  indent, "", 
+                    m->uid, m->template_id,m->race,m->size,m->gender,m->cur_wounds,m->max_wounds);
             fprintf(file,"fatepoints=%d,is_player=%d,wpn_sel=%d,pos={x=%d,y=%d,},", m->fatepoints,m->is_player,m->wpn_sel,m->pos.x,m->pos.y);
+            if (m->unique_name != NULL) fprintf(file, "uname\"%s\",creature_traits=%"PRIu64",",m->unique_name, m->creature_traits);
+
+            int tmax = ((TALENTS_MAX >> TALENTS_IDX_OFFSET) & 0x0F)+1;
+            fprintf(file,"talents={sz=%d,", tmax);
+            for (int i = 0; i < tmax; i++) {
+                fprintf(file,"%" PRIu64 ",", m->talents[i]);
+            }
+            fprintf(file, "},");
 
             fprintf(file,"skills={sz=%d,", MSR_SKILL_RATE_MAX);
             for (int i = 0; i < MSR_SKILL_RATE_MAX; i++) {
-                fprintf(file,"%d,", m->skills[i]);
+                fprintf(file,"%"PRIu64",", m->skills[i]);
             }
             fprintf(file, "},");
 
@@ -52,7 +61,7 @@ static bool sv_save_monsters(FILE *file, int indent) {
                 struct itm_item *item = NULL;
                 for (int i = 0; i < invsz; i++) {
                     item = inv_get_next_item(m->inventory, item);
-                    if (item != NULL) fprintf(file, "{uid=%d,position=%d},", item->uid, inv_get_item_locations(m->inventory, item) );
+                    if (item != NULL) fprintf(file, "{uid=%d,position=%"PRIu64"},", item->uid, inv_get_item_locations(m->inventory, item) );
                 }
                 fprintf(file, "sz=%d,", invsz);
                 fprintf(file, "},");
@@ -80,8 +89,8 @@ static bool sv_save_items(FILE *file, int indent) {
                 switch(item->item_type) {
                     case ITEM_TYPE_WEAPON: {
                             struct item_weapon_specific *wpn = &item->specific.weapon;
-                            fprintf(file, "weapon={magazine_left=%d,jammed=%d,special_quality=%d,upgrades=%d,rof_set=%d},",
-                                    wpn->magazine_left,wpn->jammed,wpn->special_quality,wpn->upgrades,wpn->rof_set);
+                            fprintf(file, "weapon={magazine_left=%d,ammo_used_template_id=%d,jammed=%d,special_quality=%"PRIu64",upgrades=%"PRIu64",rof_set=%d},",
+                                    wpn->magazine_left,wpn->ammo_used_template_id,wpn->jammed,wpn->special_quality,wpn->upgrades,wpn->rof_set);
                         } break;
                     case ITEM_TYPE_WEARABLE: {
                             /*struct item_wearable_specific *wear = &item->specific.wearable;

@@ -260,7 +260,6 @@ static bool load_game(lua_State *L, struct gm_game *g) {
 }
 
 static bool load_player(lua_State *L, struct pl_player *plr) {
-    uint64_t t;
     if (L == NULL) return false;
 
     char *name_ptr;
@@ -295,6 +294,7 @@ static bool load_items_list(lua_State *L) {
                     lua_intexpr(L, &t, "game.items[%d].weapon.upgrades", i+1); wpn->upgrades = t;
                     lua_intexpr(L, &t, "game.items[%d].weapon.rof_set", i+1); wpn->rof_set = t;
                     lua_intexpr(L, &t, "game.items[%d].weapon.jammed", i+1); wpn->jammed = t;
+                    lua_intexpr(L, &t, "game.items[%d].weapon.ammo_used_template_id", i+1); wpn->ammo_used_template_id = t;
                     if (wpn_ranged_weapon_rof_set_check(item) == false) wpn_ranged_weapon_rof_set_check(item);
                 } break;
             case ITEM_TYPE_WEARABLE: {
@@ -336,6 +336,7 @@ static bool load_monsters(lua_State *L, struct dc_map *map, struct gm_game *g) {
         lua_intexpr(L, &t, "game.monsters[%d].uid", i+1); monster->uid = t;
         lua_intexpr(L, &t, "game.monsters[%d].race", i+1); monster->race = t;
         lua_intexpr(L, &t, "game.monsters[%d].size", i+1); monster->size = t;
+        lua_intexpr(L, &t, "game.monsters[%d].gender", i+1); monster->gender = t;
         lua_intexpr(L, &t, "game.monsters[%d].cur_wounds", i+1); monster->cur_wounds = t;
         lua_intexpr(L, &t, "game.monsters[%d].max_wounds", i+1); monster->max_wounds = t;
         lua_intexpr(L, &t, "game.monsters[%d].fatepoints", i+1); monster->fatepoints = t;
@@ -343,8 +344,8 @@ static bool load_monsters(lua_State *L, struct dc_map *map, struct gm_game *g) {
         lua_intexpr(L, &t, "game.monsters[%d].race_traits", i+1); monster->race_traits = t;
         lua_intexpr(L, &t, "game.monsters[%d].combat_talents", i+1); monster->combat_talents = t;
         lua_intexpr(L, &t, "game.monsters[%d].career_talents", i+1); monster->career_talents = t;
-        lua_intexpr(L, &t, "game.monsters[%d].creature_talents", i+1); monster->creature_talents = t;
         */
+        lua_intexpr(L, &t, "game.monsters[%d].creature_traits", i+1); monster->creature_traits = t;
         lua_intexpr(L, &t, "game.monsters[%d].is_player", i+1); monster->is_player = t;
         lua_intexpr(L, &t, "game.monsters[%d].pos.x", i+1); monster->pos.x = t;
         lua_intexpr(L, &t, "game.monsters[%d].pos.y", i+1); monster->pos.y = t;
@@ -354,6 +355,15 @@ static bool load_monsters(lua_State *L, struct dc_map *map, struct gm_game *g) {
             for (int j = 0; j < skills_sz; j++) {
                 if (lua_intexpr(L, &t, "game.monsters[%d].skills[%d]", i+1, j+1) == 1) {
                     monster->skills[j] = t;
+                }
+            }
+        }
+
+        if (lua_intexpr(L, &t, "game.monsters[%d].talents.sz", i+1) == 1) {
+            int talents_sz = t;
+            for (int j = 0; j < talents_sz; j++) {
+                if (lua_intexpr(L, &t, "game.monsters[%d].talents[%d]", i+1, j+1) == 1) {
+                    monster->talents[j] = t;
                 }
             }
         }
