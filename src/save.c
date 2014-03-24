@@ -34,7 +34,7 @@ static bool sv_save_monsters(FILE *file, int indent) {
             fprintf(file, "%*s" "{uid=%d,template_id=%d,race=%d,size=%d,gender=%d,cur_wounds=%d,max_wounds=%d,",  indent, "", 
                     m->uid, m->template_id,m->race,m->size,m->gender,m->cur_wounds,m->max_wounds);
             fprintf(file,"fatepoints=%d,is_player=%d,wpn_sel=%d,pos={x=%d,y=%d,},", m->fatepoints,m->is_player,m->wpn_sel,m->pos.x,m->pos.y);
-            if (m->unique_name != NULL) fprintf(file, "uname\"%s\",creature_traits=%"PRIu64",",m->unique_name, m->creature_traits);
+            if (m->unique_name != NULL) fprintf(file, "uname=\"%s\",creature_traits=%"PRIu64",",m->unique_name, m->creature_traits);
 
             int tmax = ((TALENTS_MAX >> TALENTS_IDX_OFFSET) & 0x0F)+1;
             fprintf(file,"talents={sz=%d,", tmax);
