@@ -107,7 +107,7 @@ struct msr_monster {
     bool dead;
     int energy;
 
-    bitfield_t talents[((TALENTS_MAX >> 27) & 0x0F)+1];
+    bitfield_t talents[((TALENTS_MAX >> TALENTS_IDX_OFFSET) & 0x0F)+1];
     bitfield_t skills[MSR_SKILL_RATE_MAX];
     bitfield_t creature_traits;
     struct msr_char characteristic[MSR_CHAR_MAX];

@@ -114,26 +114,26 @@ static void lg_print_to_file(struct logging *log_ctx, struct log_entry *entry) {
     switch (entry->level)
     {
         case LG_DEBUG_LEVEL_GAME:
-            pre_format = "[%s" ":Game] ";
+            pre_format = "[%s" ":Game][%d] ";
             break;
         case LG_DEBUG_LEVEL_DEBUG:
-            pre_format = "[%s" ":Debug] ";
+            pre_format = "[%s" ":Debug][%d] ";
             break;
         case LG_DEBUG_LEVEL_INFORMATIONAL:
-            pre_format = "[%s" "] ";
+            pre_format = "[%s" "][%d] ";
             break;
         case LG_DEBUG_LEVEL_WARNING:
-            pre_format = "[%s" ":Warning] ";
+            pre_format = "[%s" ":Warning][%d] ";
             break;
         case LG_DEBUG_LEVEL_ERROR:
-            pre_format = "[%s" ":Error] ";
+            pre_format = "[%s" ":Error][%d] ";
             break;
         default:
-            pre_format ="[%s" ":Unknown] ";
+            pre_format ="[%s" ":Unknown][%d] ";
             break;
     }
 
-    fprintf(fd, pre_format, entry->module);
+    fprintf(fd, pre_format, entry->module, entry->turn);
     for (int i = 0; i < entry->atom_lst_sz; i++) {
         fprintf(fd, "%s", entry->atom_lst[i].string);
     }

@@ -17,9 +17,9 @@
 static int tohit_desc_ctr = 0;
 static const char *tohit_descr_lst[MAX_TO_HIT_MODS];
 
-#define CALC_TOHIT_INIT() do { tohit_desc_ctr = 0; } while (0);
+#define CALC_TOHIT_INIT() do { tohit_desc_ctr = 0; lg_print("calculating hit (%s)", __func__); } while (0);
 /* WARNING: no ';' at the end!*/
-#define CALC_TOHIT(expr, mod, msg) if (expr) {to_hit_mod += mod; tohit_descr_lst[tohit_desc_ctr++] = msg; lg_debug(msg); assert(tohit_desc_ctr < MAX_TO_HIT_MODS); }
+#define CALC_TOHIT(expr, mod, msg) if (expr) {to_hit_mod += mod; tohit_descr_lst[tohit_desc_ctr++] = msg; lg_print(msg " (%d)", mod); assert(tohit_desc_ctr < MAX_TO_HIT_MODS); }
 
 int fght_ranged_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght_hand hand) {
     struct dc_map_entity *me = sd_get_map_me(tpos, gbl_game->current_map);
@@ -57,6 +57,7 @@ int fght_ranged_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght
 
         /* Shooting Distances */
         int distance = cd_pyth(&monster->pos, tpos);
+        lg_debug("distance == %d", distance);
 
             /* normally you would not be able to fire with a normal weapon and get this penaly with a pistol, but that is too harsh since you cannot disengage. */
             /* TODO add check for other enemies in melee. */
@@ -67,8 +68,8 @@ int fght_ranged_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght
             else CALC_TOHIT(distance <= (wpn->range * 0.5), FGHT_RANGED_MODIFIER_SHORT_RANGE, "target is at short range")
 
         /* Lighting modifiers */
-        CALC_TOHIT(!me->in_sight, FGHT_MODIFIER_VISION_COMPLETE_DARKNESS, "target is in complete darkness")
-        else CALC_TOHIT(!me->visible, FGHT_MODIFIER_VISION_DARKNESS, "target is in darkness")
+        CALC_TOHIT(me->in_sight == false, FGHT_MODIFIER_VISION_COMPLETE_DARKNESS, "target is in complete darkness")
+        else CALC_TOHIT(me->visible == false, FGHT_MODIFIER_VISION_DARKNESS, "target is in darkness")
         else CALC_TOHIT((me->in_sight) && (me->light_level == 0), FGHT_MODIFIER_VISION_SHADOWS, "target is in shadows")
 
         /* Quality modifiers */
@@ -77,7 +78,7 @@ int fght_ranged_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght
         else CALC_TOHIT(itm_has_quality(witem, ITEM_QUALITY_POOR), FGHT_MODIFIER_QUALITY_TO_HIT_POOR, "your weapon is of poor quality")
 
         /* Weapon talent of used weapon */
-        CALC_TOHIT(msr_has_talent(monster, wpn->wpn_talent), FGHT_MODIFIER_UNTRAINED_WEAPON, "you are untrained in this weapon")
+        CALC_TOHIT(msr_has_talent(monster, wpn->wpn_talent) == false, FGHT_MODIFIER_UNTRAINED_WEAPON, "you are untrained in this weapon")
 
         /* Maximum modifier, keep these at the end! */
         if (to_hit_mod < -FGHT_MODIFIER_MAX) to_hit_mod = -FGHT_MODIFIER_MAX;
@@ -120,12 +121,12 @@ int fght_melee_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght_
         }
 
         /* Add lighting modifiers */
-        CALC_TOHIT(!me->in_sight, FGHT_MODIFIER_VISION_COMPLETE_DARKNESS, "target is in complete darkness")
-        else CALC_TOHIT(!me->visible, FGHT_MODIFIER_VISION_DARKNESS, "target is in darkness")
+        CALC_TOHIT(me->in_sight == false, FGHT_MODIFIER_VISION_COMPLETE_DARKNESS, "target is in complete darkness")
+        else CALC_TOHIT(me->visible == false, FGHT_MODIFIER_VISION_DARKNESS, "target is in darkness")
         else CALC_TOHIT((me->in_sight) && (me->light_level == 0), FGHT_MODIFIER_VISION_SHADOWS, "target is in shadows")
 
         /* Weapon talent of used weapon */
-        CALC_TOHIT(msr_has_talent(monster, wpn->wpn_talent), FGHT_MODIFIER_UNTRAINED_WEAPON, "you are untrained in this weapon")
+        CALC_TOHIT(msr_has_talent(monster, wpn->wpn_talent) == false, FGHT_MODIFIER_UNTRAINED_WEAPON, "you are untrained in this weapon")
 
         /* Maximum modifier, keep these at the end! */
         if (to_hit_mod < -FGHT_MODIFIER_MAX) to_hit_mod = -FGHT_MODIFIER_MAX;
@@ -195,6 +196,7 @@ bool fght_do_weapon_dmg(struct random *r, struct msr_monster *monster, struct ms
             }
         }
 
+        lg_print("armour %d, penetration %d, toughness %d, dmg %d, dmg_add %d", armour, penetration, toughness, dmg, dmg_add);
         armour = MAX((armour - penetration), 0); /* penetration only works against armour */
         total_damage += MAX((dmg + dmg_add) - (armour  + toughness), 0);
 
@@ -233,6 +235,8 @@ int fght_ranged_roll(struct random *r, struct msr_monster *monster, struct msr_m
     if ( (wpn->rof_set == WEAPON_ROF_SETTING_SEMI) || (wpn->rof_set == WEAPON_ROF_SETTING_AUTO) ) jammed_threshold = MIN(FGHT_RANGED_JAM_SEMI,jammed_threshold);
     if (wpn_has_spc_quality(witem, WEAPON_SPEC_QUALITY_UNRELIABLE) ) jammed_threshold = MIN(FGHT_RANGED_JAM_UNRELIABLE, jammed_threshold);
     if (itm_has_quality(witem, ITEM_QUALITY_POOR) ) jammed_threshold = MIN(to_hit, jammed_threshold);
+
+    lg_print("roll %d vs to hit %d, jamm_threshold %d", roll, to_hit, jammed_threshold);
 
     /* Do jamming test */
     if (roll >= jammed_threshold) {

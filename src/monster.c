@@ -547,13 +547,13 @@ bool msr_has_creature_trait(struct msr_monster *monster,  bitfield_t trait) {
 
 bool msr_has_talent(struct msr_monster *monster,  bitfield_t talent) {
     if (msr_verify_monster(monster) == false) return false;
-    int idx = (talent >> (bitfield_width - 4) ) & 0x0F; 
-    return ( (monster->talents[idx] & talent) > 0);
+    int idx = (talent >> TALENTS_IDX_OFFSET) & 0x0F; 
+    return ( (monster->talents[idx] & talent) == talent);
 }
 
 bool msr_set_talent(struct msr_monster *monster, bitfield_t talent) {
     if (msr_verify_monster(monster) == false) return false;
-    int idx = (talent >> (bitfield_width - 4) ) & 0x0F; 
+    int idx = (talent >> TALENTS_IDX_OFFSET) & 0x0F; 
     monster->talents[idx] |= talent;
     return true;
 }

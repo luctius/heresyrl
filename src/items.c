@@ -165,7 +165,7 @@ coord_t itm_get_pos(struct itm_item *item) {
 }
 bool itm_has_quality(struct itm_item *item, enum item_quality q) {
     if (itm_verify_item(item) == false) return false;
-    return ( (item->quality & q) >0);
+    return (item->quality == q);
 }
 
 bool wpn_is_type(struct itm_item *item, enum item_weapon_type type) {

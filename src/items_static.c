@@ -27,7 +27,7 @@
 #define CREATURE_MELEE(wpn_cat,dmg_die,dmg_add,_dmg_type,_penetration,special) .icon=' ',.stacked_quantity=0, .max_quantity=1,\
             .item_type=ITEM_TYPE_WEAPON, .dropable=false, .specific.weapon={.weapon_type=WEAPON_TYPE_MELEE,\
             .weapon_category=wpn_cat, .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=0,\
-            .penetration=_penetration, .special_quality=special, .wpn_talent=TALENTS0_CREATURE_WEAPON_TALENT, }
+            .penetration=_penetration, .special_quality=special, .wpn_talent=T0_CREATURE_WEAPON_TALENT, }
 
 #define MELEE(wpn_cat,dmg_die,dmg_add,_dmg_type,_penetration,_upgrades,special,talent) .icon='|',.stacked_quantity=0, .max_quantity=1,\
             .item_type=ITEM_TYPE_WEAPON, .specific.weapon={.weapon_type=WEAPON_TYPE_MELEE, .weapon_category=wpn_cat, \
@@ -40,7 +40,7 @@
             .rof[WEAPON_ROF_SETTING_SINGLE]=rof_single, .rof[WEAPON_ROF_SETTING_SEMI]=rof_semi, .rof[WEAPON_ROF_SETTING_AUTO]=rof_auto, \
             .rof_set=WEAPON_ROF_SETTING_SINGLE, .magazine_sz=mag_sz, .magazine_left=mag_sz, .penetration=_penetration, \
             .ammo_type=AMMO_TYPE_PISTOL_SP, .ammo_used_template_id=ITEM_ID_PISTOL_AMMO_SP, .special_quality=special, .upgrades=_upgrades, \
-            .wpn_talent=TALENTS0_PISTOL_WEAPON_TRAINING_SOLID_PROJECTILE, .jammed=false,}
+            .wpn_talent=T0_PISTOL_WEAPON_TRAINING_SP, .jammed=false,}
 
 #define PISTOL_LAS(_dmg_type,dmg_die,dmg_add,_range,rof_single,rof_semi,rof_auto,mag_sz,_penetration,_upgrades,special) \
             .icon='|', .stacked_quantity=0, .max_quantity=1, .item_type=ITEM_TYPE_WEAPON, .specific.weapon={ \
@@ -48,7 +48,7 @@
             .rof[WEAPON_ROF_SETTING_SINGLE]=rof_single, .rof[WEAPON_ROF_SETTING_SEMI]=rof_semi, .rof[WEAPON_ROF_SETTING_AUTO]=rof_auto, \
             .rof_set=WEAPON_ROF_SETTING_SINGLE, .magazine_sz=mag_sz, .magazine_left=mag_sz, .penetration=_penetration, \
             .ammo_type=AMMO_TYPE_PISTOL_LAS, .ammo_used_template_id=ITEM_ID_PISTOL_AMMO_LAS, .special_quality=special, .upgrades=_upgrades, \
-            .wpn_talent=TALENTS0_PISTOL_WEAPON_TRAINING_LAS, .jammed=false,}
+            .wpn_talent=T0_PISTOL_WEAPON_TRAINING_LAS, .jammed=false,}
 
 #define BASIC_LAS(_dmg_type,dmg_die,dmg_add,_range,rof_single,rof_semi,rof_auto,mag_sz,_penetration,_upgrades,special) \
             .icon='|', .stacked_quantity=0, .max_quantity=1, .item_type=ITEM_TYPE_WEAPON, .specific.weapon={ \
@@ -56,7 +56,7 @@
             .rof[WEAPON_ROF_SETTING_SINGLE]=rof_single, .rof[WEAPON_ROF_SETTING_SEMI]=rof_semi, .rof[WEAPON_ROF_SETTING_AUTO]=rof_auto, \
             .rof_set=WEAPON_ROF_SETTING_SINGLE, .magazine_sz=mag_sz, .magazine_left=mag_sz, .penetration=_penetration, \
             .ammo_type=AMMO_TYPE_BASIC_LAS, .ammo_used_template_id=ITEM_ID_BASIC_AMMO_LAS, .special_quality=special, .upgrades=_upgrades, \
-            .wpn_talent=TALENTS0_BASIC_WEAPON_TRAINING_LAS, .jammed=false,}
+            .wpn_talent=T0_BASIC_WEAPON_TRAINING_LAS, .jammed=false,}
 
 #define AMMO(_ammo_type,_energy) .icon='^', .stacked_quantity=1, .max_quantity=100,\
             .item_type=ITEM_TYPE_AMMO, .specific.ammo={ .ammo_type=_ammo_type, .energy=_energy, .energy_left=_energy,}
