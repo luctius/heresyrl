@@ -223,7 +223,7 @@ bool cave_generate_map(struct dc_map *map, struct random *r, enum dc_dungeon_typ
         {
             coord_t c = cd_create(xi,yi);
             if (grid[yi][xi] == TILE_ID_CONCRETE_WALL) {
-                if(random_int32(cave_random)%100 < 2) {
+                if(random_int32(cave_random)%100 < 1) {
                     grid[yi][xi] = TILE_ID_CONCRETE_WALL_LIT;
                 }
             }

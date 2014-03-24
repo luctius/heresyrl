@@ -11,7 +11,7 @@
 #include "random.h"
 #include "ui.h"
 #include "game.h"
-#include "los.h"
+#include "sight.h"
 
 #define MAX_TO_HIT_MODS (30)
 static int tohit_desc_ctr = 0;
@@ -362,8 +362,8 @@ int fght_shoot(struct random *r, struct msr_monster *monster, struct dc_map *map
         wpn->magazine_left -= ammo2;
     }
 
-    coord_t path[MAX(map->size.x, map->size.y)];
-    int path_len = lof_calc_path(&monster->pos, e, path, ARRAY_SZ(path));
+    coord_t *path;
+    int path_len = sgt_los_path(gbl_game->sight, gbl_game->current_map, &monster->pos, e, &path);
     bool blocked = false;
     int unblocked_length = 0;
 
@@ -403,6 +403,7 @@ int fght_shoot(struct random *r, struct msr_monster *monster, struct dc_map *map
     }
 
     if (animate) ui_animate_projectile(map, path, unblocked_length +1, '*');
+    if (path_len > 0) free(path);
 
     return unblocked_length;
 }

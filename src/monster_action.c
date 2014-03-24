@@ -89,7 +89,11 @@ bool ma_do_move(struct msr_monster *monster, coord_t *pos) {
 }
 
 bool ma_do_idle(struct msr_monster *monster) {
-    return ma_do_guard(monster);
+    if (msr_verify_monster(monster) == false) return false;
+
+    msr_change_energy(monster, -(MSR_ACTION_IDLE) );
+    monster->controller.interruptable = true;
+    return true;
 }
 
 bool ma_do_guard(struct msr_monster *monster) {

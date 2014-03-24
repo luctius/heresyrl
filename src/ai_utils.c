@@ -8,10 +8,9 @@
 #include "dungeon_creator.h"
 #include "los.h"
 #include "tiles.h"
+#include "sight.h"
 
 #include "game.h"
-
-
 
 /* TODO: use sight.c to make sure visibility is the same for players and npcs */
 static struct msr_monster *aiu_get_enemy_near(struct msr_monster *monster, struct msr_monster *last, struct dc_map *map) {
@@ -37,7 +36,7 @@ static struct msr_monster *aiu_get_enemy_near(struct msr_monster *monster, struc
             if (cd_pyth(&target->pos, &monster->pos) >= msr_get_near_sight_range(monster) ) continue;
         }
 
-        if (los_has_sight(&monster->pos, &target->pos, map) == true) {
+        if (sgt_has_los(gbl_game->sight, map, &monster->pos, &target->pos) == true) {
             return target;
         }
     }
@@ -79,7 +78,7 @@ struct msr_monster *aiu_get_nearest_monster(coord_t *pos, int radius, int ignore
         if (cd_equal(&target->pos, pos) ) continue; /* ignore current position*/
         if (cd_pyth(&target->pos, pos) > radius) continue; /* ignore out of radius */
 
-        if (los_has_sight(pos, &target->pos, map) == true) {
+        if (sgt_has_los(gbl_game->sight, map, pos, &target->pos) == true) {
             ignore_cnt--;
             if (ignore_cnt < 0) return target;
         }

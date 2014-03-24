@@ -22,7 +22,7 @@
 #include "dowear.h"
 #include "game.h"
 #include "ai_utils.h"
-#include "los.h"
+#include "sight.h"
 #include "monster_action.h"
 
 #define MAP_MIN_COLS 20
@@ -265,18 +265,6 @@ static void mapwin_display_map_noref(struct dc_map *map, coord_t *player) {
                     }
                 }
 
-                /* test colours */
-                {
-                    if (me->test_var == 2) {
-                        attr_mod = get_colour(TERM_COLOUR_BLUE);
-                        modified = true;
-                    }
-                    if (me->test_var == 1) {
-                        attr_mod = get_colour(TERM_COLOUR_RED);
-                        modified = true;
-                    }
-                }
-
                 if (modified == false) {
                     if (me->visible == true) {
                         if (me->light_level > 0) {
@@ -292,6 +280,18 @@ static void mapwin_display_map_noref(struct dc_map *map, coord_t *player) {
                 if (modified == false) {
                     if (me->visible == true) {
                         attr_mod = tile->icon_attr;
+                        modified = true;
+                    }
+                }
+
+                /* test colours */
+                {
+                    if (me->test_var == 2) {
+                        attr_mod = get_colour(TERM_COLOUR_BLUE);
+                        modified = true;
+                    }
+                    if (me->test_var == 1) {
+                        attr_mod = get_colour(TERM_COLOUR_RED);
                         modified = true;
                     }
                 }
@@ -467,7 +467,7 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dc_map *map, coord_t *
     int scr_y = get_viewport(last_ppos.y, map_win->lines, map->size.y);
 
     int length = 0;
-    coord_t path[MAX(map->size.x, map->size.y)];
+    coord_t *path;
     int path_len = 0;
 
     do {
@@ -517,12 +517,12 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dc_map *map, coord_t *
         if (e_pos.x < 0) e_pos.x = 0;
         if (e_pos.x >= map->size.x) e_pos.x = map->size.x -1;
 
-        length = cd_pyth(p_pos, &e_pos) +1;
-        path_len = lof_calc_path(p_pos, &e_pos, path, ARRAY_SZ(path));
-        for (int i = 0; i < MIN(path_len, length); i++) {
+        path_len = sgt_los_path(gbl_game->sight, gbl_game->current_map, p_pos, &e_pos, &path);
+        for (int i = 0; i < path_len; i++) {
             mvwchgat(map_win->win, path[i].y - scr_y, path[i].x - scr_x, 1, A_NORMAL, get_colour(TERM_COLOUR_BG_RED), NULL);
             lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "mapwin", "fire_mode: [%d/%d] c (%d,%d) -> (%d,%d)", i, path_len, path[i].x, path[i].y, path[i].x - scr_x, path[i].y - scr_y);
         }
+        if (path_len > 0) free(path);
         wrefresh(map_win->win);
     }
     while((ch = inp_get_input()) != INP_KEY_ESCAPE && fire_mode);
