@@ -56,7 +56,7 @@ void plr_init(struct pl_player *plr, char *name, enum msr_race race, enum msr_ge
 
 struct pf_context *plr_map(struct pl_player *plr, struct dc_map *map) {
     if (cd_equal(&plr->player_map_pos, & plr->player->pos) == false) {
-        if (ai_generate_dijkstra(&plr->player_map, map, &plr->player->pos, 0) == true) {
+        if (aiu_generate_dijkstra(&plr->player_map, map, &plr->player->pos, 0) == true) {
             plr->player_map_pos = plr->player->pos;
         }
     }

@@ -78,13 +78,10 @@ int main(int argc, char *argv[]) {
         getmaxyx(stdscr, lines, cols);
         ui_create(cols, lines);
     }
-
-    game_exit();
-
-    lg_print("Goodbye :)");
-    getch();
+    GM_msg("Goodbye.");
     usleep(500000);
 
+    game_exit();
     ui_destroy();
 
     clear();

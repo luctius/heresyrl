@@ -5,8 +5,8 @@ basic career and homeworld system
 effect system
 character screen        -- initial screen done
 basic chargen
-better ingame message system
-ai
+better ingame message system -- done
+ai                      -- initial system is done
 
 
 ideas:
@@ -21,5 +21,4 @@ warp artifacts
 warp based grenades
 
 bugs:
-fix unarmed, check melee action cost
 fght descriptors per weapon (fire,slash,spit,spray,chop ... )

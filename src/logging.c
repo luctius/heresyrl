@@ -120,7 +120,7 @@ static void lg_print_to_file(struct logging *log_ctx, struct log_entry *entry) {
             pre_format = "[%s" ":Debug][%d] ";
             break;
         case LG_DEBUG_LEVEL_INFORMATIONAL:
-            pre_format = "[%s" "][%d] ";
+            pre_format = "[%s" ":Info][%d] ";
             break;
         case LG_DEBUG_LEVEL_WARNING:
             pre_format = "[%s" ":Warning][%d] ";

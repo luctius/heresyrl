@@ -97,6 +97,7 @@ void msg_init(struct msr_monster *m, struct msr_monster *t);
 void msg_exit(void);
 void msg_add(enum msg_fd fd, enum lg_channel c, const char *format, ...);
 
+#define GM_msg(f, a...) do {msg_init(gbl_game->player_data.player,NULL); msg_add(MSG_PLR_FD, LG_CHANNEL_GM, f, ##a); msg_exit(); } while (0)
 #define System_msg(f, a...) do {msg_init(gbl_game->player_data.player,NULL); msg_add(MSG_PLR_FD, LG_CHANNEL_SYSTEM, f, ##a); msg_exit(); } while (0)
 #define You(m, f, a...) do {msg_init(m,NULL); msg_add(MSG_PLR_FD, LG_CHANNEL_PLAIN, "You " f, ##a); msg_exit(); } while (0)
 #define Your(m, f, a...) do {msg_init(m,NULL); msg_add(MSG_PLR_FD, LG_CHANNEL_PLAIN, "Your " f, ##a); msg_exit(); } while (0)

@@ -120,6 +120,10 @@ bool inv_add_stack(struct inv_inventory *inv, struct itm_item *item) {
     if (item->max_quantity == 0) return false;
     if (item->stacked_quantity == 0) return false;
 
+    /*
+       We want to check if we can add some of this item to one allready in the inventory.
+     */
+
     struct itm_item *i = NULL;
     while ( (i = inv_get_next_item(inv, i) ) != NULL ) {
         if (i->template_id == item->template_id) {
@@ -251,6 +255,7 @@ bitfield_t inv_get_item_locations(struct inv_inventory *inv, struct itm_item *it
     return INV_LOC_NONE;
 }
 
+/* return true if this item is in another location than INV_LOC_INVENTORY */
 bool inv_item_worn(struct inv_inventory *inv, struct itm_item *item) {
     if (inv_verify_inventory(inv) == false) return false;
     if (itm_verify_item(item) == false) return false;
@@ -268,6 +273,7 @@ bool inv_item_worn(struct inv_inventory *inv, struct itm_item *item) {
     return false;
 }
 
+/* return true if the weapon is in either the main or the off hand */
 bool inv_item_wielded(struct inv_inventory *inv, struct itm_item *item) {
     if (inv_verify_inventory(inv) == false) return false;
     if (itm_verify_item(item) == false) return false;

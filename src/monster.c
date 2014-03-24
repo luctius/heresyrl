@@ -370,19 +370,32 @@ bool msr_characteristic_check(struct msr_monster *monster, enum msr_characterist
 
 int msr_skill_check(struct msr_monster *monster, enum skills skill, int mod) {
     if (msr_verify_monster(monster) == false) return false;
-    int charac = msr_calculate_characteristic(monster, MSR_CHAR_PERCEPTION); /*TODO lookup table for charac <> skill*/
+
+    /*TODO lookup table for charac <> skill */
+    int charac = msr_calculate_characteristic(monster, MSR_CHAR_PERCEPTION);
     assert(charac >= 0);
+    lg_print("You characteristic is (%d)", charac);
+
+    lg_print("Check modifier is: %d (%d)", mod, charac + mod);
+    charac += mod;
 
     enum skill_rate r = msr_has_skill(monster, skill);
     switch(r) {
-        case MSR_SKILL_RATE_EXPERT:     charac += 10;
-        case MSR_SKILL_RATE_ADVANCED:   charac += 10;
-        case MSR_SKILL_RATE_BASIC:      break;
-        case MSR_SKILL_RATE_NONE:       charac /= 2; break;
+        case MSR_SKILL_RATE_EXPERT:     charac += 20; lg_print("You are an expert (%d)", charac); break;
+        case MSR_SKILL_RATE_ADVANCED:   charac += 10; lg_print("You are advanced (%d)", charac); break;
+        case MSR_SKILL_RATE_BASIC:      lg_print("You have the skill (%d)", charac); break;
+        case MSR_SKILL_RATE_NONE:       charac /= 2; lg_print("You do not have this skill (%d)", charac); break;
         default: assert(false); break;
     }
 
-    return ((random_int32(gbl_game->game_random)%100) < charac);
+    uint32_t roll = (random_int32(gbl_game->game_random)%100);
+    int result = charac - roll;
+    int DoS = result /10;
+    if (roll < charac) DoS += 1;
+
+    lg_print("roll %d, result %d, DoS %d", roll, result, DoS);
+
+    return DoS;
 }
 
 int msr_calculate_characteristic(struct msr_monster *monster, enum msr_characteristic chr) {

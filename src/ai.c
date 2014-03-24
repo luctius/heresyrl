@@ -51,7 +51,7 @@ static bool ai_beast_loop(struct msr_monster *monster, void *controller) {
             monster->wpn_sel = MSR_WEAPON_SELECT_CREATURE1;
         }
 
-        if ( (enemy = ai_get_nearest_enemy(monster, 0, map) ) != NULL) {
+        if ( (enemy = aiu_get_nearest_enemy(monster, 0, map) ) != NULL) {
             lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "ai", "[uid: %d, tid: %d] sees an enemy (ranged)", monster->uid, monster->template_id);
             has_action = ma_do_fire(monster, &enemy->pos);
         }
@@ -60,14 +60,14 @@ static bool ai_beast_loop(struct msr_monster *monster, void *controller) {
 
     if (msr_weapon_type_check(monster, WEAPON_TYPE_MELEE) ) {
         struct msr_monster *enemy = NULL;
-        if ( (enemy = ai_get_nearest_enemy(monster, 0, map) ) != NULL) {
+        if ( (enemy = aiu_get_nearest_enemy(monster, 0, map) ) != NULL) {
             lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "ai", "[uid: %d, tid: %d] sees an enemy (melee)", monster->uid, monster->template_id);
             ai->last_pos = enemy->pos;
             ai->time_last_pos = 1;
 
             if (cd_pyth(&monster->pos, &enemy->pos) > 1) {
                 int radius = msr_get_near_sight_range(monster) + msr_get_far_sight_range(monster) +1;
-                if (ai_generate_astar(&ai->pf_ctx, map, &monster->pos, &enemy->pos, 0) == true) {
+                if (aiu_generate_astar(&ai->pf_ctx, map, &monster->pos, &enemy->pos, 0) == true) {
                     coord_t *coord_lst;
                     int coord_lst_sz =  pf_calculate_path(ai->pf_ctx, &monster->pos, &enemy->pos, &coord_lst);
                     if (coord_lst_sz > 1) {
@@ -84,7 +84,7 @@ static bool ai_beast_loop(struct msr_monster *monster, void *controller) {
             }
         }
         else if (ai->time_last_pos > 0) {
-            if (ai_generate_astar(&ai->pf_ctx, map, &monster->pos, &ai->last_pos, 0) == true) {
+            if (aiu_generate_astar(&ai->pf_ctx, map, &monster->pos, &ai->last_pos, 0) == true) {
                 coord_t *coord_lst;
                 int coord_lst_sz = pf_calculate_path(ai->pf_ctx, &monster->pos, &ai->last_pos, &coord_lst);
                 if (coord_lst_sz > 1) {

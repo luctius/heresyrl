@@ -14,7 +14,7 @@
 
 
 /* TODO: use sight.c to make sure visibility is the same for players and npcs */
-static struct msr_monster *ai_get_enemy_near(struct msr_monster *monster, struct msr_monster *last, struct dc_map *map) {
+static struct msr_monster *aiu_get_enemy_near(struct msr_monster *monster, struct msr_monster *last, struct dc_map *map) {
     struct msr_monster *target = NULL;
 
     bool found_last = false;
@@ -34,7 +34,7 @@ static struct msr_monster *ai_get_enemy_near(struct msr_monster *monster, struct
 
         /* if the target tile is not lit, ignore it if it is further than near_sight_range*/
         if (sd_get_map_me(&target->pos, map)->light_level == 0) {
-            if (cd_pyth(&target->pos, &monster->pos) > msr_get_near_sight_range(monster) ) continue;
+            if (cd_pyth(&target->pos, &monster->pos) >= msr_get_near_sight_range(monster) ) continue;
         }
 
         if (los_has_sight(&monster->pos, &target->pos, map) == true) {
@@ -44,7 +44,7 @@ static struct msr_monster *ai_get_enemy_near(struct msr_monster *monster, struct
     return NULL;
 }
 
-struct msr_monster *ai_get_nearest_enemy(struct msr_monster *monster, int ignore_cnt, struct dc_map *map) {
+struct msr_monster *aiu_get_nearest_enemy(struct msr_monster *monster, int ignore_cnt, struct dc_map *map) {
     struct msr_monster *target_best[ignore_cnt+1];
     struct msr_monster *target = NULL;
 
@@ -54,7 +54,7 @@ struct msr_monster *ai_get_nearest_enemy(struct msr_monster *monster, int ignore
        get the <ignore_cnt> nearest enemies, then return the last one.
      */
     for (int i = 0; i < ignore_cnt+1; i++) {
-        while ( (target = ai_get_enemy_near(monster, target, map) ) != NULL) {
+        while ( (target = aiu_get_enemy_near(monster, target, map) ) != NULL) {
 
             /* check if target allready exists in the array */
             bool pass = false;
@@ -72,7 +72,7 @@ struct msr_monster *ai_get_nearest_enemy(struct msr_monster *monster, int ignore
     return target_best[ignore_cnt];
 }
 
-struct msr_monster *ai_get_nearest_monster(coord_t *pos, int radius, int ignore_cnt, struct dc_map *map) {
+struct msr_monster *aiu_get_nearest_monster(coord_t *pos, int radius, int ignore_cnt, struct dc_map *map) {
     struct msr_monster *target = NULL;
 
     while ( (target = msrlst_get_next_monster(target) ) != NULL) {
@@ -87,7 +87,7 @@ struct msr_monster *ai_get_nearest_monster(coord_t *pos, int radius, int ignore_
     return target;
 }
 
-static unsigned int ai_traversable_callback(void *vmap, coord_t *coord) {
+static unsigned int aiu_traversable_callback(void *vmap, coord_t *coord) {
     if (vmap == NULL) return PF_BLOCKED;
     if (coord == NULL) return PF_BLOCKED;
     struct dc_map *map = (struct dc_map *) vmap;
@@ -102,7 +102,7 @@ static unsigned int ai_traversable_callback(void *vmap, coord_t *coord) {
 }
 
 
-bool ai_generate_dijkstra(struct pf_context **pf_ctx, struct dc_map *map, coord_t *start, int radius) {
+bool aiu_generate_dijkstra(struct pf_context **pf_ctx, struct dc_map *map, coord_t *start, int radius) {
     if (dc_verify_map(map) == false) return false;
 
     struct pf_settings pf_set = { 
@@ -115,7 +115,7 @@ bool ai_generate_dijkstra(struct pf_context **pf_ctx, struct dc_map *map, coord_
             .y = map->size.y,
         },
         .map = map,
-        .pf_traversable_callback = ai_traversable_callback,
+        .pf_traversable_callback = aiu_traversable_callback,
     };
 
     if (radius > 0) {
@@ -135,7 +135,7 @@ bool ai_generate_dijkstra(struct pf_context **pf_ctx, struct dc_map *map, coord_
     return false;
 }
 
-bool ai_generate_astar(struct pf_context **pf_ctx, struct dc_map *map, coord_t *start, coord_t *end, int radius) {
+bool aiu_generate_astar(struct pf_context **pf_ctx, struct dc_map *map, coord_t *start, coord_t *end, int radius) {
     if (dc_verify_map(map) == false) return false;
 
     struct pf_settings pf_set = { 
@@ -148,7 +148,7 @@ bool ai_generate_astar(struct pf_context **pf_ctx, struct dc_map *map, coord_t *
             .y = map->size.y,
         },
         .map = map,
-        .pf_traversable_callback = ai_traversable_callback,
+        .pf_traversable_callback = aiu_traversable_callback,
     };
 
     if (radius > 0) {

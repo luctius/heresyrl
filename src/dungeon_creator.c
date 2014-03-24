@@ -275,7 +275,7 @@ bool dc_generate_map(struct dc_map *map, enum dc_dungeon_type type, int level, u
     coord_t end = { .x = map->stair_down.x, .y = map->stair_down.y};
 
     struct pf_context *pf_ctx = NULL;
-    if (ai_generate_dijkstra(&pf_ctx, map, &start, 0) ) {
+    if (aiu_generate_dijkstra(&pf_ctx, map, &start, 0) ) {
         if (pf_calculate_path(pf_ctx, &start, &end, NULL) > 1) {
             lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "dc", "Stairs reachable.");
         }

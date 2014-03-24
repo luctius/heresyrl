@@ -325,36 +325,41 @@ static WINDOW *mapwin_examine(struct dc_map_entity *me) {
     touchwin(char_win->win);
     wclear(mapwin_ex);
 
-    mvwprintw(mapwin_ex, y_ctr++, 1, "Upon a %s.", me->tile->ld_name);
+    if (me->visible || me->in_sight) {
+        mvwprintw(mapwin_ex, y_ctr++, 1, "Upon a %s.", me->tile->ld_name);
 
-    if (me->monster != NULL) {
-        y_ctr++;
+        if (me->visible) {
+            if (me->monster != NULL) {
+                y_ctr++;
 
-        if (me->monster->is_player == true) {
-            mvwprintw(mapwin_ex, y_ctr++, 1, "You see yourself.");
-        } else {
-            mvwprintw(mapwin_ex, y_ctr++, 1, "You see %s.", me->monster->ld_name);
-            y_ctr++;
+                if (me->monster->is_player == true) {
+                    mvwprintw(mapwin_ex, y_ctr++, 1, "You see yourself.");
+                } else {
+                    mvwprintw(mapwin_ex, y_ctr++, 1, "You see %s.", me->monster->ld_name);
+                    y_ctr++;
 
-            char **desc;
-            int *len_lines;
-            int len = strwrap(me->monster->description, char_win->cols, &desc, &len_lines);
-            for (int i = 0; i < len; i++) {
-                mvwprintw(mapwin_ex, y_ctr++, 0, desc[i]);
+                    char **desc;
+                    int *len_lines;
+                    int len = strwrap(me->monster->description, char_win->cols, &desc, &len_lines);
+                    for (int i = 0; i < len; i++) {
+                        mvwprintw(mapwin_ex, y_ctr++, 0, desc[i]);
+                    }
+                    free(desc);
+                    free(len_lines);
+                }
             }
-            free(desc);
-            free(len_lines);
-        }
-    }
 
-    if ( (inv_inventory_size(me->inventory) > 0) && (TILE_HAS_ATTRIBUTE(me->tile, TILE_ATTR_TRAVERSABLE) ) ) {
-        y_ctr++;
-        mvwprintw(mapwin_ex, y_ctr++, 1, "The %s contains:", me->tile->sd_name);
-        struct itm_item *i = NULL;
-        while ( (i = inv_get_next_item(me->inventory, i) ) != NULL) {
-            mvwprintw(mapwin_ex, y_ctr++, 1, " - %s", i->ld_name);
+            if ( (inv_inventory_size(me->inventory) > 0) && (TILE_HAS_ATTRIBUTE(me->tile, TILE_ATTR_TRAVERSABLE) ) ) {
+                y_ctr++;
+                mvwprintw(mapwin_ex, y_ctr++, 1, "The %s contains:", me->tile->sd_name);
+                struct itm_item *i = NULL;
+                while ( (i = inv_get_next_item(me->inventory, i) ) != NULL) {
+                    mvwprintw(mapwin_ex, y_ctr++, 1, " - %s", i->ld_name);
+                }
+            }
         }
     }
+    else mvwprintw(mapwin_ex, y_ctr++, 1, "You can not see this place.");
 
     wrefresh(mapwin_ex);
     return mapwin_ex;
@@ -452,7 +457,7 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dc_map *map, coord_t *
 
     /*find nearest enemy....*/
     int ign_cnt = 0;
-    struct msr_monster *target = ai_get_nearest_enemy(plr->player, ign_cnt, map);
+    struct msr_monster *target = aiu_get_nearest_enemy(plr->player, ign_cnt, map);
     if (target != NULL) {
         e_pos = target->pos;
         ign_cnt++;
@@ -479,13 +484,13 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dc_map *map, coord_t *
             case INP_KEY_LEFT:       e_pos.x--; break;
             case INP_KEY_TAB: {
 
-                if ( (target = ai_get_nearest_enemy(plr->player, ign_cnt, map) ) != NULL) {
+                if ( (target = aiu_get_nearest_enemy(plr->player, ign_cnt, map) ) != NULL) {
                     e_pos = target->pos; 
                     ign_cnt++; 
                 }
                 else {
                     ign_cnt = 0;
-                    target = ai_get_nearest_enemy(plr->player, ign_cnt, map);
+                    target = aiu_get_nearest_enemy(plr->player, ign_cnt, map);
                     if (target != NULL) {
                         e_pos = target->pos; 
                         ign_cnt++;
