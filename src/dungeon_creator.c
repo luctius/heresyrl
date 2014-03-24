@@ -249,21 +249,6 @@ bool dc_clear_map_visibility(struct dc_map *map, coord_t *start, coord_t *end) {
     return true;
 }
 
-static unsigned int dc_traversable_callback(void *vmap, coord_t *coord) {
-    if (vmap == NULL) return PF_BLOCKED;
-    if (coord == NULL) return PF_BLOCKED;
-    struct dc_map *map = (struct dc_map *) vmap;
-
-    unsigned int cost = PF_BLOCKED;
-    coord_t c = cd_create(coord->x, coord->y);
-    if (TILE_HAS_ATTRIBUTE(sd_get_map_tile(&c, map),TILE_ATTR_TRAVERSABLE) == true) {
-        cost = sd_get_map_tile(&c, map)->movement_cost;
-    }
-    if (TILE_HAS_ATTRIBUTE(sd_get_map_tile(&c, map),TILE_ATTR_BORDER) == true) cost = PF_BLOCKED;
-
-    return cost;
-}
-
 bool dc_generate_map(struct dc_map *map, enum dc_dungeon_type type, int level, unsigned long seed) {
     if (dc_verify_map(map) == false) return false;
 

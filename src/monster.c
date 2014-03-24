@@ -407,7 +407,7 @@ enum skill_rate msr_has_skill(struct msr_monster *monster, enum skills skill) {
     return r;
 }
 
-char *msr_gender_string(struct msr_monster *monster) {
+const char *msr_gender_string(struct msr_monster *monster) {
     if (msr_verify_monster(monster) == false) return "nil";
     switch (monster->gender) {
         case MSR_GENDER_MALE: return "Male";

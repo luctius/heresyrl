@@ -5,6 +5,7 @@
 #include <ncurses.h>
 #include <time.h>
 #include <signal.h>
+#include <unistd.h>
 
 #include "heresyrl_def.h"
 #include "cmdline.h"
@@ -20,8 +21,8 @@
 #include "input.h"
 #include "monster_action.h"
 
-static void sigfunc(int signal) {
-    FIX_UNUSED(signal);
+static void sigfunc(int s) {
+    FIX_UNUSED(s);
 
     gbl_game->running = false;
 }

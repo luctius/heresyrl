@@ -13,7 +13,7 @@
 #include "game.h"
 #include "monster_action.h"
 #include "tiles.h"
-#include "ai.h"
+#include "ai_utils.h"
 #include "spawn.h"
 
 static bool plr_action_loop(struct msr_monster *player, void *controller);

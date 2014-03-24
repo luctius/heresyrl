@@ -82,7 +82,6 @@ static void apply_medium_player_sight(void *vmap, int x, int y, int dx, int dy, 
 
 static void apply_near_player_sight(void *vmap, int x, int y, int dx, int dy, void *isrc) {
     struct dc_map *map = (struct dc_map *) vmap;
-    struct msr_monster *monster = (struct msr_monster *) isrc;
 
     coord_t c = cd_create(x,y);
     sd_get_map_me(&c,map)->discovered = true;

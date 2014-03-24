@@ -31,38 +31,38 @@ struct logging {
 };
 
 struct logging *lg_init(char *logfile, enum lg_debug_levels lvl, int max_size) {
-    struct logging *log = calloc(1, sizeof(struct logging) );
-    if (log == NULL) return NULL;
+    struct logging *log_ctx = calloc(1, sizeof(struct logging) );
+    if (log_ctx == NULL) return NULL;
 
-    log->level = lvl;
-    log->logging_q_sz = max_size;
-    log->logging_q = queue_init_simple(log->logging_q_sz+1);
-    log->log_file = fopen(logfile, "w");
-    if (log->log_file == NULL) {
+    log_ctx->level = lvl;
+    log_ctx->logging_q_sz = max_size;
+    log_ctx->logging_q = queue_init_simple(log_ctx->logging_q_sz+1);
+    log_ctx->log_file = fopen(logfile, "w");
+    if (log_ctx->log_file == NULL) {
         fprintf(stderr, "Could not open logfile %s\n", logfile);
         exit(1);
     }
-    log->callback = NULL;
+    log_ctx->callback = NULL;
 
-    return log;
+    return log_ctx;
 }
 
-void lg_exit(struct logging *log) {
-    if (log == NULL) return;
-    queue_exit(log->logging_q);
-    fclose(log->log_file);
-    free(log);
+void lg_exit(struct logging *log_ctx) {
+    if (log_ctx == NULL) return;
+    queue_exit(log_ctx->logging_q);
+    fclose(log_ctx->log_file);
+    free(log_ctx);
 }
 
-void lg_set_callback(struct logging *log, void *priv, callback_event ce) {
-    if (log == NULL) return;
+void lg_set_callback(struct logging *log_ctx, void *priv, callback_event ce) {
+    if (log_ctx == NULL) return;
 
-    log->priv = priv;
-    log->callback = ce;
+    log_ctx->priv = priv;
+    log_ctx->callback = ce;
 }
 
-struct queue *lg_queue(struct logging *log) {
-    return log->logging_q;
+struct queue *lg_queue(struct logging *log_ctx) {
+    return log_ctx->logging_q;
 }
 
 static bool le_is_equal(struct log_entry *a, struct log_entry *b) {
@@ -96,14 +96,14 @@ static void le_free(struct log_entry *e) {
     free(e);
 }
 
-static void lg_print_to_file(struct logging *log, struct log_entry *entry) {
+static void lg_print_to_file(struct logging *log_ctx, struct log_entry *entry) {
     FILE *fd = stderr;
-    char *pre_format = "";
+    const char *pre_format = "";
 
-    if (log != NULL)
+    if (log_ctx != NULL)
     {
-        if (entry->level > log->level) return;
-        fd = log->log_file;
+        if (entry->level > log_ctx->level) return;
+        fd = log_ctx->log_file;
     }
 
     if (fd == NULL && (entry->level == LG_DEBUG_LEVEL_ERROR || entry->level == LG_DEBUG_LEVEL_WARNING || entry->level == LG_DEBUG_LEVEL_GAME) ) fd = stderr;
@@ -129,7 +129,7 @@ static void lg_print_to_file(struct logging *log, struct log_entry *entry) {
             pre_format = "[%s" ":Error] ";
             break;
         default:
-            "[%s" ":Unknown] ";
+            pre_format ="[%s" ":Unknown] ";
             break;
     }
 
@@ -137,29 +137,29 @@ static void lg_print_to_file(struct logging *log, struct log_entry *entry) {
     for (int i = 0; i < entry->atom_lst_sz; i++) {
         fprintf(fd, "%s", entry->atom_lst[i].string);
     }
-    if (entry->repeat > 0) fprintf(fd, " x%d", entry->repeat);
+    if (entry->repeat > 1) fprintf(fd, " x%d", entry->repeat);
     fprintf(fd, "\n");
     fflush(fd);
 }
 
-static void lg_print_to_queue(struct logging *log, struct log_entry *entry) {
-    if (log == NULL) return;
+static void lg_print_to_queue(struct logging *log_ctx, struct log_entry *entry) {
+    if (log_ctx == NULL) return;
     //if (dbg_lvl > LG_DEBUG_LEVEL_GAME) return;
 
-    queue_push_tail(log->logging_q, (intptr_t) entry);
+    queue_push_tail(log_ctx->logging_q, (intptr_t) entry);
 
-    if (log->callback != NULL) log->callback(log, entry, log->priv);
+    if (log_ctx->callback != NULL) log_ctx->callback(log_ctx, entry, log_ctx->priv);
 
-    while (queue_size(log->logging_q) > log->logging_q_sz) {
-        struct log_entry *tmp = (struct log_entry *) queue_pop_head(log->logging_q);
+    while (queue_size(log_ctx->logging_q) > log_ctx->logging_q_sz) {
+        struct log_entry *tmp = (struct log_entry *) queue_pop_head(log_ctx->logging_q);
         le_free(tmp);
     }
 }
 
 #define STRING_MAX 500
-void lg_printf_basic(struct logging *log, enum lg_debug_levels dbg_lvl, const char* module, const char* format, va_list args) {
+void lg_printf_basic(struct logging *log_ctx, enum lg_debug_levels dbg_lvl, const char* module, const char* format, va_list args) {
 
-    if ( (log != NULL) && (dbg_lvl > log->level) ) return;
+    if ( (log_ctx != NULL) && (dbg_lvl > log_ctx->level) ) return;
     struct log_entry *le = calloc(1, sizeof(struct log_entry) );
     if (le == NULL) return;
 
@@ -186,8 +186,8 @@ void lg_printf_basic(struct logging *log, enum lg_debug_levels dbg_lvl, const ch
     vsnprintf(la->string, STRING_MAX, format, args);
     la->string = realloc(la->string, strlen(la->string) +1);
 
-    lg_print_to_file(log, le);
-    lg_print_to_queue(log, le);
+    lg_print_to_file(log_ctx, le);
+    lg_print_to_queue(log_ctx, le);
 }
 
 void lg_printf_l(int lvl, const char *module, const char* format, ... ) {

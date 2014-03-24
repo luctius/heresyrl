@@ -9,11 +9,12 @@
 #define FGHT_MELEE_RANGE (1)
 #define FGHT_POINT_BLANK_RANGE (3)
 
-#define FGHT_MELEE_UNARMED  (-20)
+#define FGHT_MODIFIER_MELEE_UNARMED  (-20)
 
 #define FGHT_RANGED_JAM (95)
 #define FGHT_RANGED_JAM_SEMI (93)
 #define FGHT_RANGED_JAM_UNRELIABLE (90)
+#define FGHT_RANGED_MODIFIER_ROF_SINGLE (0)
 #define FGHT_RANGED_MODIFIER_ROF_SEMI (20)
 #define FGHT_RANGED_MODIFIER_ROF_AUTO (10)
 #define FGHT_RANGED_MODIFIER_MELEE    (-20)
@@ -93,7 +94,9 @@ enum fght_hand {
     FGHT_MAX_HAND,
 };
 
+const char *fght_get_tohit_mod_description(int idx);
 int fght_ranged_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght_hand hand);
+int fght_melee_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght_hand hand);
 
 bool fght_do_dmg(struct random *r, struct msr_monster *monster, struct msr_monster *target, int hits, enum fght_hand hand);
 int fght_shoot(struct random *r, struct msr_monster *monster, struct dc_map *map, coord_t *e);

@@ -74,8 +74,6 @@ static struct hrl_window *win_create(int height, int width, int starty, int star
 static void win_destroy(struct hrl_window *window);
 
 static void win_generate_colours(void) {
-    int i = 1;
-
     if (colours_generated == false) {
         colours_generated = true;
         lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "ui", "generating colours");
@@ -420,7 +418,6 @@ void ui_animate_projectile(struct dc_map *map, coord_t path[], int path_len, cha
     if (gbl_game == NULL) return;
     if (gbl_game->player_data.player == NULL) return;
 
-    coord_t *p_pos = &gbl_game->player_data.player->pos;
     int scr_x = get_viewport(last_ppos.x, map_win->cols, map->size.x);
     int scr_y = get_viewport(last_ppos.y, map_win->lines, map->size.y);
 
@@ -669,7 +666,7 @@ void charwin_refresh() {
                     int single = wpn->rof[WEAPON_ROF_SETTING_SINGLE];
                     int semi = wpn->rof[WEAPON_ROF_SETTING_SEMI];
                     int aut = wpn->rof[WEAPON_ROF_SETTING_AUTO];
-                    char *set = (wpn->rof_set == WEAPON_ROF_SETTING_SINGLE) ? "single" : 
+                    const char *set = (wpn->rof_set == WEAPON_ROF_SETTING_SINGLE) ? "single" : 
                                 (wpn->rof_set == WEAPON_ROF_SETTING_SEMI) ? "semi": "auto";
                     char semi_str[4]; snprintf(semi_str, 3, "%d", semi);
                     char auto_str[4]; snprintf(auto_str, 3, "%d", aut);
@@ -706,7 +703,7 @@ void charwin_refresh() {
 /* Beware of dragons here..... */
 
 struct inv_show_item {
-    char *location;
+    const char *location;
     struct itm_item *item;
 };
 

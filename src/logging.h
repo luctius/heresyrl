@@ -60,7 +60,7 @@ struct log_entry {
     int turn;
     int repeat;
 
-    char *module;
+    const char *module;
     
     struct log_atom *atom_lst;
     int atom_lst_sz;

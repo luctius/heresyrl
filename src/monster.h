@@ -38,7 +38,7 @@ enum msr_characteristic {
 enum msr_size {
     MSR_SIZE_MINISCULE,
     MSR_SIZE_PUNY,
-    MSR_SIZE_SCRAWY,
+    MSR_SIZE_SCRAWNY,
     MSR_SIZE_AVERAGE,
     MSR_SIZE_HULKING,
     MSR_SIZE_ENORMOUS,
@@ -152,7 +152,6 @@ bool msr_change_energy(struct msr_monster *monster, int energy);
 int msr_get_near_sight_range(struct msr_monster *monster);
 int msr_get_medium_sight_range(struct msr_monster *monster);
 int msr_get_far_sight_range(struct msr_monster *monster);
-char *msr_gender_string(struct msr_monster *monster);
 bool msr_do_skill_check(struct msr_monster *monster, enum skills skill, int modifiers);
 
 bool msr_has_creature_trait(struct msr_monster *monster,  bitfield_t trait);
@@ -167,6 +166,7 @@ bool msr_weapon_type_check(struct msr_monster *monster, enum item_weapon_type ty
 bool msr_weapon_next_selection(struct msr_monster *monster);
 
 const char *msr_ldname(struct msr_monster *monster);
+const char *msr_gender_string(struct msr_monster *monster); /*obsolete?*/
 const char *msr_gender_name(struct msr_monster *monster, bool possesive);
 
 #endif /*MONSTER_H_*/
