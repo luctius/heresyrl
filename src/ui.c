@@ -21,7 +21,7 @@
 #include "input.h"
 #include "dowear.h"
 #include "game.h"
-#include "ai.h"
+#include "ai_utils.h"
 #include "los.h"
 #include "monster_action.h"
 

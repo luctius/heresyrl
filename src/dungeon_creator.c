@@ -10,7 +10,7 @@
 #include "dungeon_creator.h"
 #include "dungeon_cave.h"
 #include "tiles.h"
-#include "ai.h"
+#include "ai_utils.h"
 #include "random.h"
 #include "pathfinding.h"
 #include "inventory.h"
