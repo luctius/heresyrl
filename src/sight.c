@@ -86,6 +86,7 @@ static bool dig_apply_player_sight(struct digital_fov_set *set, coord_t *point, 
     }
 
     if (me->visible == false && me->monster != NULL) {
+        lg_print("Awareness check on (%d,%d)", point->x, point->y);
         if (msr_skill_check(monster, SKILLS_AWARENESS, mod) >= 0) {
             /*TODO scatter*/
             me->icon_override = '?';

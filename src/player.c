@@ -97,25 +97,31 @@ static bool plr_action_loop(struct msr_monster *player, void *controller) {
                         int item_list_sz = 0;
                         bool stop = false;
                         bool pickup_all = false;
+                        
+                        if (inv_inventory_size(inv) > 1) {
+                            while ( ( (item = inv_get_next_item(inv, item) ) != NULL) && (stop == false) ){
+                                bool pickup = false;
 
-                        while ( ( (item = inv_get_next_item(inv, item) ) != NULL) && (stop == false) ){
-                            bool pickup = false;
+                                if (pickup_all == false) {
+                                    System_msg("Pickup %s? (Y)es/(N)o/(A)ll/(q)uit", item->ld_name);
+                                    switch (inp_get_input() ) {
+                                        case INP_KEY_ESCAPE: stop = true; break;
+                                        case INP_KEY_ALL:    pickup_all = true; break;
+                                        case INP_KEY_YES:    pickup = true; break;
+                                        case INP_KEY_NO:
+                                        default: break;
+                                    }
+                                }
 
-                            if (pickup_all == false) {
-                                System_msg("Pickup %s? (Y)es/(N)o/(A)ll/(q)uit", item->ld_name);
-                                switch (inp_get_input() ) {
-                                    case INP_KEY_ESCAPE: stop = true; break;
-                                    case INP_KEY_ALL:    pickup_all = true; break;
-                                    case INP_KEY_YES:    pickup = true; break;
-                                    case INP_KEY_NO:
-                                    default: break;
+                                if (pickup || pickup_all) {
+                                    item_list[item_list_sz++] = item;
                                 }
                             }
-
-                            if (pickup || pickup_all) {
-                                item_list[item_list_sz++] = item;
-                            }
                         }
+                        else {
+                            item_list[item_list_sz++] = inv_get_next_item(inv, item);
+                        }
+
                         if ( (stop == true) || (item == NULL) ) {
                             if (item_list_sz > 0) {
                                 has_action = ma_do_pickup(player, item_list, item_list_sz);

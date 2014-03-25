@@ -57,16 +57,17 @@ int fght_ranged_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght
 
         /* Shooting Distances */
         int distance = cd_pyth(&monster->pos, tpos);
+        int dis_in_meters = cd_pyth(&monster->pos, tpos) * FGHT_RANGE_MULTIPLIER;
         lg_debug("distance == %d", distance);
 
             /* normally you would not be able to fire with a normal weapon and get this penaly with a pistol, but that is too harsh since you cannot disengage. */
             /* TODO add check for other enemies in melee. */
             CALC_TOHIT( (distance == FGHT_MELEE_RANGE) && (!wpn_is_catergory(witem, WEAPON_CATEGORY_PISTOL) ), FGHT_RANGED_MODIFIER_MELEE, "you are in melee combat")
             else CALC_TOHIT( (distance == FGHT_MELEE_RANGE), 0, "you are in melee combat with a pistol")
-            else CALC_TOHIT(distance >= (wpn->range * 3), FGHT_RANGED_MODIFIER_EXTREME_RANGE, "target is at extreme range")
-            else CALC_TOHIT(distance >= (wpn->range * 2), FGHT_RANGED_MODIFIER_LONG_RANGE, "target is at long range")
+            else CALC_TOHIT(dis_in_meters >= (wpn->range * 3), FGHT_RANGED_MODIFIER_EXTREME_RANGE, "target is at extreme range")
+            else CALC_TOHIT(dis_in_meters >= (wpn->range * 2), FGHT_RANGED_MODIFIER_LONG_RANGE, "target is at long range")
             else CALC_TOHIT(distance <= FGHT_POINT_BLANK_RANGE, FGHT_RANGED_MODIFIER_POINT_BLACK, "target is at point-blank range")
-            else CALC_TOHIT(distance <= (wpn->range * 0.5), FGHT_RANGED_MODIFIER_SHORT_RANGE, "target is at short range")
+            else CALC_TOHIT(dis_in_meters <= (wpn->range * 0.5), FGHT_RANGED_MODIFIER_SHORT_RANGE, "target is at short range")
 
         /* Lighting modifiers */
         CALC_TOHIT(me->in_sight == false, FGHT_MODIFIER_VISION_COMPLETE_DARKNESS, "target is in complete darkness")
