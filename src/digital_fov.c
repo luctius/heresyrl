@@ -491,8 +491,24 @@ bool digital_los(struct digital_fov_set *set, coord_t *src, coord_t *dst, bool a
   dx_abs = abs(dx);
   dy_abs = abs(dy);
 
-  if ((dx_abs <= 1) && (dy_abs <= 1))
-    return false;
+  if ((dx_abs <= 1) && (dy_abs <= 1)) {
+      p.x = src->x;
+      p.y = src->y;
+      if (set->is_opaque(set, &p, src) == false) {
+          return false;
+      }
+      else if (apply) set->apply(set, &p, src);
+
+      if (dx_abs == 1 || dy_abs == 1) {
+          p.x += dx;
+          p.y += dy;
+          if (set->is_opaque(set, &p, src) == false) {
+              return false;
+          }
+          else if (apply) set->apply(set, &p, src);
+      }
+      return true;
+  }
 
   if (dx >= 0)
   {

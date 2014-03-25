@@ -281,6 +281,8 @@ int sgt_los_path(struct sgt_sight *sight, struct dc_map *map, coord_t *s, coord_
     if (dc_verify_map(map) == false) return -1;
     coord_t end = *e;
 
+    if (sgt_has_los(sight, map, s,e) == false) return -1;
+
     if (continue_path) {
         int dx = e->x - s->x;
         int dy = e->y - s->y;
