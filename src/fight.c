@@ -363,7 +363,7 @@ int fght_shoot(struct random *r, struct msr_monster *monster, struct dc_map *map
     }
 
     coord_t *path;
-    int path_len = sgt_los_path(gbl_game->sight, gbl_game->current_map, &monster->pos, e, &path);
+    int path_len = sgt_los_path(gbl_game->sight, gbl_game->current_map, &monster->pos, e, &path, false);
     bool blocked = false;
     int unblocked_length = 0;
 

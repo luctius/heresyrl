@@ -472,6 +472,7 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dc_map *map, coord_t *
 
     do {
         mapwin_display_map_noref(map, &plr->player->pos);
+
         lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "mapwin", "entering fire_mode (%d,%d) -> (%d,%d)", p_pos->x, p_pos->y, e_pos.x, e_pos.y);
         switch (ch) {
             case INP_KEY_UP_LEFT:    e_pos.y--; e_pos.x--; break;
@@ -517,12 +518,14 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dc_map *map, coord_t *
         if (e_pos.x < 0) e_pos.x = 0;
         if (e_pos.x >= map->size.x) e_pos.x = map->size.x -1;
 
-        path_len = sgt_los_path(gbl_game->sight, gbl_game->current_map, p_pos, &e_pos, &path);
+        path_len = sgt_los_path(gbl_game->sight, gbl_game->current_map, p_pos, &e_pos, &path, false);
         for (int i = 0; i < path_len; i++) {
             mvwchgat(map_win->win, path[i].y - scr_y, path[i].x - scr_x, 1, A_NORMAL, get_colour(TERM_COLOUR_BG_RED), NULL);
-            lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "mapwin", "fire_mode: [%d/%d] c (%d,%d) -> (%d,%d)", i, path_len, path[i].x, path[i].y, path[i].x - scr_x, path[i].y - scr_y);
+            //lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "mapwin", "fire_mode: [%d/%d] c (%d,%d) -> (%d,%d)", i, path_len, path[i].x, path[i].y, path[i].x - scr_x, path[i].y - scr_y);
         }
         if (path_len > 0) free(path);
+
+        mvwchgat(map_win->win, e_pos.y - scr_y, e_pos.x - scr_x, 1, A_NORMAL, get_colour(TERM_COLOUR_BG_RED), NULL);
         wrefresh(map_win->win);
     }
     while((ch = inp_get_input()) != INP_KEY_ESCAPE && fire_mode);

@@ -6,7 +6,6 @@
 #include "monster.h"
 #include "items.h"
 #include "dungeon_creator.h"
-#include "los.h"
 #include "tiles.h"
 #include "sight.h"
 

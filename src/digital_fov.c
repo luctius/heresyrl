@@ -1,3 +1,4 @@
+/*
 digital FOV with recursive shadowcasting tech demo
 Copyright (C) 2010 Oohara Yuuma <oohara@libra.interq.or.jp>
 
@@ -16,6 +17,7 @@ are met:
 3. This notice may not be removed or altered from any redistribution.
 
 Altered by Cor Peters (2014)
+*/
 
 /* FILE */
 #include <stdio.h>
@@ -24,7 +26,7 @@ Altered by Cor Peters (2014)
 /* memcpy */
 #include <string.h>
 
-#include "digital-fov.h"
+#include "digital_fov.h"
 
 struct _rays
 {
@@ -72,9 +74,8 @@ static int rays_add_top_wall(rays *rp, int u, int v);
 static int grid_is_illegal(int x, int y, int map_size_x, int map_size_y);
 static int which_side_of_line(int ax, int ay, int bx, int by,
                               int x, int y);
-static int digital_fov_recursive_body(int **map,
+static int digital_fov_recursive_body(struct digital_fov_set *set, coord_t *src,
                                       int map_size_x, int map_size_y,
-                                      int **map_fov,
                                       int center_x, int center_y, int radius,
                                       int dir,
                                       int u_start,
@@ -412,14 +413,19 @@ which_side_of_line(int ax, int ay, int bx, int by,
     - (by - ay) * (x - ax);
 }
 
-int
-digital_los(int **map, int map_size_x, int map_size_y,
-            int ax, int ay, int bx, int by)
+bool digital_los(struct digital_fov_set *set, coord_t *src, coord_t *dst, bool apply)
 {
   /* summary:
    * A ray that passes (0, 0) and (X, Y) passes no grid other than
    * (x, (x * Y) / X) and (x, (x * Y) / X + 1).
    */
+  int ax = src->x;
+  int ay = src->y;
+  int bx = dst->x;
+  int by = dst->y;
+  int map_size_x = set->size.x;
+  int map_size_y = set->size.y;
+
   int dx;
   int dy;
   int dx_abs;
@@ -438,6 +444,7 @@ digital_los(int **map, int map_size_x, int map_size_y,
   int grid1_is_illegal;
   int r;
   int result;
+  coord_t p;
 
   int bottom_ray_touch_top_wall_u;
   int bottom_ray_touch_top_wall_v;
@@ -472,12 +479,12 @@ digital_los(int **map, int map_size_x, int map_size_y,
   int *bottom_wall_array_u = NULL;
   int *bottom_wall_array_v = NULL;
 
-  if (map == NULL)
-    return 0;
+  if (set == NULL)
+    return false;
   if (grid_is_illegal(ax, ay, map_size_x, map_size_y))
-    return 0;
+    return false;
   if (grid_is_illegal(bx, by, map_size_x, map_size_y))
-    return 0;
+    return false;
 
   dx = bx - ax;
   dy = by - ay;
@@ -485,7 +492,7 @@ digital_los(int **map, int map_size_x, int map_size_y,
   dy_abs = abs(dy);
 
   if ((dx_abs <= 1) && (dy_abs <= 1))
-    return 1;
+    return false;
 
   if (dx >= 0)
   {
@@ -536,14 +543,14 @@ digital_los(int **map, int map_size_x, int map_size_y,
   top_wall_array_u = (int *) malloc(sizeof(int) * (du_abs + 1));
   if (top_wall_array_u == NULL)
   {
-    return 0;
+    return false;
   }
   top_wall_array_v = (int *) malloc(sizeof(int) * (du_abs + 1));
   if (top_wall_array_v == NULL)
   {
     free(top_wall_array_u);
     top_wall_array_u = NULL;
-    return 0;
+    return false;
   }
   bottom_wall_array_u = (int *) malloc(sizeof(int) * (du_abs + 1));
   if (bottom_wall_array_u == NULL)
@@ -552,7 +559,7 @@ digital_los(int **map, int map_size_x, int map_size_y,
     top_wall_array_u = NULL;
     free(top_wall_array_v);
     top_wall_array_v = NULL;
-    return 0;
+    return false;
   }
   bottom_wall_array_v = (int *) malloc(sizeof(int) * (du_abs + 1));
   if (bottom_wall_array_v == NULL)
@@ -563,7 +570,7 @@ digital_los(int **map, int map_size_x, int map_size_y,
     top_wall_array_v = NULL;
     free(bottom_wall_array_u);
     bottom_wall_array_u = NULL;
-    return 0;
+    return false;
   }
 
   bottom_ray_touch_top_wall_u = 0;
@@ -587,7 +594,7 @@ digital_los(int **map, int map_size_x, int map_size_y,
   b_ray_t = 0;
   t_ray_b = 0;
 
-  result = 1;
+  result = true;
 
   v = 0;
   r = 0;
@@ -659,14 +666,17 @@ digital_los(int **map, int map_size_x, int map_size_y,
                                    top_ray_touch_top_wall_v,
                                    u, v) < 0)))
       {
-        result = 0;
+        result = false;
         break;
       }
+
+      p.x = x0;
+      p.y = y0;
       if ((grid0_is_illegal)
-          || (map[x0][y0] != 0))
+          || (set->is_opaque(set, &p, src) == false))
       {
         if (u < du_abs)
-          result = 0;
+          result = false;
         break;
       }
     }
@@ -696,13 +706,15 @@ digital_los(int **map, int map_size_x, int map_size_y,
                                        top_ray_touch_top_wall_v,
                                        u, v + 1) < 0))))
       {
-        result = 0;
+        result = false;
         break;
       }
 
+      p.x = x0;
+      p.y = y0;
       /* update top and bottom ray */
       if ((grid0_is_illegal)
-          || (map[x0][y0] != 0))
+          || (set->is_opaque(set, &p, src) == false))
       {
         if (which_side_of_line(bottom_ray_touch_top_wall_u,
                                bottom_ray_touch_top_wall_v,
@@ -731,8 +743,12 @@ digital_los(int **map, int map_size_x, int map_size_y,
           }
         }
       }
+      else if (apply) set->apply(set, &p, src);
+
+      p.x = x1;
+      p.y = y1;
       if ((grid1_is_illegal)
-          || (map[x1][y1] != 0))
+          || (set->is_opaque(set, &p, src) == false))
       {
         if (which_side_of_line(top_ray_touch_bottom_wall_u,
                                top_ray_touch_bottom_wall_v,
@@ -761,10 +777,13 @@ digital_los(int **map, int map_size_x, int map_size_y,
           }
         }
       }
+      else if (apply) set->apply(set, &p, src);
 
+      p.x = x0;
+      p.y = y0;
       /* remember wall */
       if ((grid0_is_illegal)
-          || (map[x0][y0] != 0))
+          || (set->is_opaque(set, &p, src) == false))
       {
         if (which_side_of_line(top_ray_touch_bottom_wall_u,
                                top_ray_touch_bottom_wall_v,
@@ -774,7 +793,7 @@ digital_los(int **map, int map_size_x, int map_size_y,
         {
           /* the new bottom wall blocks all rays */
           if (u < du_abs)
-            result = 0;
+            result = false;
           break;
         }
 
@@ -808,8 +827,12 @@ digital_los(int **map, int map_size_x, int map_size_y,
           bottom_wall_num--;
         }
       }
+      else if (apply) set->apply(set, &p, src);
+
+      p.x = x1;
+      p.y = y1;
       if ((grid1_is_illegal)
-          || (map[x1][y1] != 0))
+          || (set->is_opaque(set, &p, src) == false))
       {
         if (which_side_of_line(bottom_ray_touch_top_wall_u,
                                bottom_ray_touch_top_wall_v,
@@ -819,7 +842,7 @@ digital_los(int **map, int map_size_x, int map_size_y,
         {
           /* the new top wall blocks all rays */
           if (u < du_abs)
-            result = 0;
+            result = false;
           break;
         }
 
@@ -853,6 +876,7 @@ digital_los(int **map, int map_size_x, int map_size_y,
           top_wall_num--;
         }
       }
+      else if (apply) set->apply(set, &p, src);
     }
   }
 
@@ -871,10 +895,8 @@ digital_los(int **map, int map_size_x, int map_size_y,
 /* this function deletes rp if it is not NULL
  * return 0 on success, 1 on error
  */
-static int
-digital_fov_recursive_body(int **map,
+static int digital_fov_recursive_body(struct digital_fov_set *set, coord_t *src,
                            int map_size_x, int map_size_y,
-                           int **map_fov,
                            int center_x, int center_y, int radius,
                            int dir,
                            int u_start,
@@ -897,19 +919,14 @@ digital_fov_recursive_body(int **map,
   int previous_grid_is_wall;
   int new_top_wall_found;
   int new_top_wall_v;
+  coord_t p;
 
   rays *rp_child = NULL;
 
   if (rp == NULL)
     return 1;
 
-  if (map == NULL)
-  {
-    rays_delete(rp);
-    rp = NULL;
-    return 1;
-  }
-  if (map_fov == NULL)
+  if (set == NULL)
   {
     rays_delete(rp);
     rp = NULL;
@@ -1001,11 +1018,16 @@ digital_fov_recursive_body(int **map,
 
       illegal = grid_is_illegal(x, y, map_size_x, map_size_y);
 
-      if (!illegal)
-        map_fov[x - center_x + radius][y - center_y + radius] = 1;
+      if (!illegal) {
+        p.x = x;// - center_x + radius;
+        p.y = y;// - center_y + radius;
+        set->apply(set, &p, src);
+      }
 
+      p.x = x;
+      p.y = y;
       if ((illegal)
-          || (map[x][y] != 0))
+          || (set->is_opaque(set, &p, src) == false))
       {
         if (!previous_grid_is_wall)
         {
@@ -1030,9 +1052,8 @@ digital_fov_recursive_body(int **map,
             }
             rays_copy(rp_child, rp);
             rays_add_top_wall(rp_child, u, new_top_wall_v);
-            if (digital_fov_recursive_body(map,
+            if (digital_fov_recursive_body(set, src,
                                            map_size_x, map_size_y,
-                                           map_fov,
                                            center_x, center_y, radius,
                                            dir,
                                            u + 1,
@@ -1067,51 +1088,44 @@ digital_fov_recursive_body(int **map,
   return 0;
 }
 
-int
-digital_fov(int **map, int map_size_x, int map_size_y,
-            int **map_fov,
-            int center_x, int center_y, int radius)
+bool digital_fov(struct digital_fov_set *set, coord_t *src, int radius)
 {
+  int center_x = src->x;
+  int center_y = src->y;
+  int map_size_x = set->size.x;
+  int map_size_y = set->size.y;
   int x;
   int y;
   int dir;
   int error_found;
   rays *rp = NULL;
 
-  if (map == NULL)
-    return 1;
-  if (map_fov == NULL)
-    return 1;
+  if (set == NULL)
+    return false;
   if (radius < 0)
-    return 1;
-
-  for (x = center_x - radius; x <= center_x + radius; x++)
-  {
-    for (y = center_y - radius; y <= center_y + radius; y++)
-    {
-      map_fov[x - center_x + radius][y - center_y + radius] = 0;
-    }
-  }
+    return false;
 
   if (grid_is_illegal(center_x, center_y, map_size_x, map_size_y))
-    return 1;
+    return false;
 
-  map_fov[0 + radius][0 + radius] = 1;
+  coord_t p;
+  set->apply(set, src, src);
 
-  error_found = 0;
+  error_found = true;
   for (dir = 0; dir < 8; dir++)
   {
     rp = rays_new(radius);
     if (rp == NULL)
-      return 1;
-    if (digital_fov_recursive_body(map,
+      return false;
+    if (digital_fov_recursive_body(set, src,
                                    map_size_x, map_size_y,
-                                   map_fov,
                                    center_x, center_y, radius,
                                    dir,
                                    1,
-                                   rp) != 0)
-      error_found = 1;
+                                   rp) != 0) {
+      error_found = false;
+    }
+
     rp = NULL;
   }
 

@@ -1,6 +1,8 @@
 #ifndef __DIGITAL_FOV_H__
 #define __DIGITAL_FOV_H__
 
+#include "coord.h"
+
 /* the digital FOV (Field Of Vision)
  * (http://roguebasin.roguelikedevelopment.org/index.php?title=Digital_field_of_view)
  *
@@ -24,8 +26,10 @@
  * return non-zero if the grid (bx, by) can be seen from the grid (ax, ay),
  * 0 otherwise
  */
+/*
 int digital_los(int **map, int map_size_x, int map_size_y,
                 int ax, int ay, int bx, int by);
+*/
 
 /* map_fov must be a 2-dimension array of size
  * (2 * radius + 1, 2 * radius + 1).
@@ -42,8 +46,22 @@ int digital_los(int **map, int map_size_x, int map_size_y,
  * at most once
  * return 0 on success, 1 on error
  */
+/*
 int digital_fov(int **map, int map_size_x, int map_size_y,
                 int **map_fov,
                 int center_x, int center_y, int radius);
+*/
+
+struct digital_fov_set {
+    void *source;
+    void *map;
+    coord_t size;
+
+    bool (*is_opaque)(struct digital_fov_set *set, coord_t *point, coord_t *origin);
+    bool (*apply)(struct digital_fov_set *set, coord_t *point, coord_t *origin);
+};
+
+bool digital_fov(struct digital_fov_set *set, coord_t *src, int radius);
+bool digital_los(struct digital_fov_set *set, coord_t *src, coord_t *dst, bool apply);
 
 #endif /* not __DIGITAL_FOV_H__ */
