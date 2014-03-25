@@ -443,7 +443,7 @@ bool digital_los(struct digital_fov_set *set, coord_t *src, coord_t *dst, bool a
   int grid0_is_illegal;
   int grid1_is_illegal;
   int r;
-  int result;
+  bool result;
   coord_t p;
 
   int bottom_ray_touch_top_wall_u;
@@ -672,13 +672,12 @@ bool digital_los(struct digital_fov_set *set, coord_t *src, coord_t *dst, bool a
 
       p.x = x0;
       p.y = y0;
-      if ((grid0_is_illegal)
-          || (set->is_opaque(set, &p, src) == false))
+      if ((grid0_is_illegal) || (set->is_opaque(set, &p, src) == false))
       {
-        if (u < du_abs)
-          result = false;
+        if (u < du_abs) result = false;
         break;
       }
+      else if (apply) set->apply(set, &p, src);
     }
     else
     {
@@ -713,8 +712,7 @@ bool digital_los(struct digital_fov_set *set, coord_t *src, coord_t *dst, bool a
       p.x = x0;
       p.y = y0;
       /* update top and bottom ray */
-      if ((grid0_is_illegal)
-          || (set->is_opaque(set, &p, src) == false))
+      if ((grid0_is_illegal) || (set->is_opaque(set, &p, src) == false))
       {
         if (which_side_of_line(bottom_ray_touch_top_wall_u,
                                bottom_ray_touch_top_wall_v,
@@ -747,8 +745,7 @@ bool digital_los(struct digital_fov_set *set, coord_t *src, coord_t *dst, bool a
 
       p.x = x1;
       p.y = y1;
-      if ((grid1_is_illegal)
-          || (set->is_opaque(set, &p, src) == false))
+      if ((grid1_is_illegal) || (set->is_opaque(set, &p, src) == false))
       {
         if (which_side_of_line(top_ray_touch_bottom_wall_u,
                                top_ray_touch_bottom_wall_v,
@@ -782,8 +779,7 @@ bool digital_los(struct digital_fov_set *set, coord_t *src, coord_t *dst, bool a
       p.x = x0;
       p.y = y0;
       /* remember wall */
-      if ((grid0_is_illegal)
-          || (set->is_opaque(set, &p, src) == false))
+      if ((grid0_is_illegal) || (set->is_opaque(set, &p, src) == false))
       {
         if (which_side_of_line(top_ray_touch_bottom_wall_u,
                                top_ray_touch_bottom_wall_v,
@@ -792,8 +788,7 @@ bool digital_los(struct digital_fov_set *set, coord_t *src, coord_t *dst, bool a
                                u, v + 1) >= 0)
         {
           /* the new bottom wall blocks all rays */
-          if (u < du_abs)
-            result = false;
+          if (u < du_abs) result = false;
           break;
         }
 
@@ -813,17 +808,14 @@ bool digital_los(struct digital_fov_set *set, coord_t *src, coord_t *dst, bool a
                                  bottom_wall_array_u[bottom_wall_num - 1],
                                  bottom_wall_array_v[bottom_wall_num - 1],
                                  bottom_wall_array_u[bottom_wall_num - 2],
-                                 bottom_wall_array_v[bottom_wall_num - 2])
-              > 0)
-            break;
+                                 bottom_wall_array_v[bottom_wall_num - 2]) > 0) break;
 
           /* bottom_wall_array[bottom_wall_num - 2] is no longer relevant */
-          bottom_wall_array_u[bottom_wall_num - 2]
-            = bottom_wall_array_u[bottom_wall_num - 1];
-          bottom_wall_array_v[bottom_wall_num - 2]
-            = bottom_wall_array_v[bottom_wall_num - 1];
-          if (t_ray_b == bottom_wall_num - 2)
+          bottom_wall_array_u[bottom_wall_num - 2] = bottom_wall_array_u[bottom_wall_num - 1];
+          bottom_wall_array_v[bottom_wall_num - 2] = bottom_wall_array_v[bottom_wall_num - 1];
+          if (t_ray_b == bottom_wall_num - 2) {
             t_ray_b--;
+          }
           bottom_wall_num--;
         }
       }
@@ -831,8 +823,7 @@ bool digital_los(struct digital_fov_set *set, coord_t *src, coord_t *dst, bool a
 
       p.x = x1;
       p.y = y1;
-      if ((grid1_is_illegal)
-          || (set->is_opaque(set, &p, src) == false))
+      if ((grid1_is_illegal) || (set->is_opaque(set, &p, src) == false))
       {
         if (which_side_of_line(bottom_ray_touch_top_wall_u,
                                bottom_ray_touch_top_wall_v,
@@ -841,8 +832,7 @@ bool digital_los(struct digital_fov_set *set, coord_t *src, coord_t *dst, bool a
                                u, v + 1) <= 0)
         {
           /* the new top wall blocks all rays */
-          if (u < du_abs)
-            result = false;
+          if (u < du_abs) result = false;
           break;
         }
 
@@ -862,17 +852,14 @@ bool digital_los(struct digital_fov_set *set, coord_t *src, coord_t *dst, bool a
                                  top_wall_array_u[top_wall_num - 1],
                                  top_wall_array_v[top_wall_num - 1],
                                  top_wall_array_u[top_wall_num - 2],
-                                 top_wall_array_v[top_wall_num - 2])
-              < 0)
-            break;
+                                 top_wall_array_v[top_wall_num - 2]) < 0) break;
 
           /* top_wall_array[top_wall_num - 2] is no longer relevant */
-          top_wall_array_u[top_wall_num - 2]
-            = top_wall_array_u[top_wall_num - 1];
-          top_wall_array_v[top_wall_num - 2]
-            = top_wall_array_v[top_wall_num - 1];
-          if (b_ray_t == top_wall_num - 2)
+          top_wall_array_u[top_wall_num - 2] = top_wall_array_u[top_wall_num - 1];
+          top_wall_array_v[top_wall_num - 2] = top_wall_array_v[top_wall_num - 1];
+          if (b_ray_t == top_wall_num - 2) {
             b_ray_t--;
+          }
           top_wall_num--;
         }
       }
@@ -1039,6 +1026,7 @@ static int digital_fov_recursive_body(struct digital_fov_set *set, coord_t *src,
       }
       else
       {
+        set->apply(set, &p, src);
         if (previous_grid_is_wall)
         {
           if (new_top_wall_found)

@@ -40,4 +40,17 @@ inline int cd_pyth(coord_t *a, coord_t *b) {
     return pyth(s1, s2);
 }
 
+inline coord_t cd_delta(coord_t *a, coord_t *b) {
+    coord_t c;
+    c.x = a->x - b->x;
+    c.y = a->y - b->y;
+    return c;
+}
+
+inline coord_t cd_delta_abs(coord_t *a, coord_t *b) {
+    coord_t c;
+    c.x = abs(a->x - b->x);
+    c.y = abs(a->y - b->y);
+    return c;
+}
 #endif /* COORD_H */
