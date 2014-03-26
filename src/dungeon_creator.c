@@ -273,6 +273,7 @@ static bool dc_tunnel(struct dc_map *map, coord_t plist[], int plsz, struct tl_t
     for (int i = 0; i < plsz; i++) {
         sd_get_map_me(&plist[i], map)->tile = tl; //ts_get_tile_type(TILE_TYPE_FLOOR);
     }
+    return true;
 }
 
 static bool dc_get_tunnel_path(struct dc_map *map, struct pf_context *pf_ctx) {
@@ -353,35 +354,23 @@ bool dc_generate_map(struct dc_map *map, enum dc_dungeon_type type, int level, u
     bool map_is_good = false;
     struct pf_context *pf_ctx = NULL;
 
-    for (int i = 0; (i < 20) && (map_is_good == false); i++)
+    while (map_is_good == false)
     {
         if (aiu_generate_dijkstra(&pf_ctx, map, &start, 0) ) {
             if (pf_calculate_reachability(pf_ctx) == true) {
                 map_is_good = true;
+                assert(pf_calculate_path(pf_ctx, &start, &end, NULL) > 1);
             }
             else {
                 dc_get_tunnel_path(map, pf_ctx);
             }
-            /*
-            if (pf_calculate_path(pf_ctx, &start, &end, NULL) > 1) {
-                lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "dc", "Stairs reachable.");
-            }
-            else {
-                lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "dc", "Stairs not reachable.");
-                dc_generate_map(map, type, level, random_int32(r) );
-            }
-            */
+
         }
     }
 
-    if (map_is_good == false) {
-        lg_print("map is *not* good!");
-        pf_calculate_reachability(pf_ctx);
-    }
-    else lg_print("map *is* good!");
-
     pf_exit(pf_ctx);
     random_exit(r);
+
     return true;
 }
 

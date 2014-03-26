@@ -38,51 +38,65 @@ static const coord_t pf_coord_lo_table[] = {
     { 1,-1}, { 1,0}, { 1,1},
 };
 
-static bool pf_flood_map_point(struct pf_context *ctx, coord_t *point, coord_t *target) {
+static bool pf_flood_map_point(struct pf_context *ctx, coord_t *point, coord_t *end) {
     if (ctx == NULL) return false;
     if (point == NULL) return false;
-    if (target == NULL) return false;
-    if ( (point->x < 0) || (point->x >= ctx->map.size.x) ) return false;
-    if ( (point->y < 0) || (point->y >= ctx->map.size.y) ) return false;
-    if ( (point->x == target->x) && (point->y == target->y) ) return true;
+    if (end == NULL) return false;
+    if (cd_within_bound(point, &ctx->map.size) == false) return false;
+    if ( (point->x == end->x) && (point->y == end->y) ) return true;
 
     struct pf_map *map = &ctx->map;
     struct pf_map_entity *me = pf_get_index(point, map);
-    if (me->state == PF_ENTITY_STATE_CLOSED) return false;
-    if (me->distance >= ctx->maximum_distance) return false;
-    me->state = PF_ENTITY_STATE_CLOSED;
-    //lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "pf", "entering (%d,%d) -> [st: %d/ cst: %d/dst: %d]", point->x, point->y, me->state, me->cost, me->distance);
 
+    if ( (point->x == PF_BLOCKED) || (point->y == PF_BLOCKED) ) {
+        /* failed to find any open node... */
+        return false;
+    }
+    else if (me->distance >= ctx->maximum_distance) {
+        /* We have gone too far, let another try to solve it. */
+        return false;   
+    }
+    else if ( (point->x == end->x) && (point->y == end->y) ) {
+        /* found our goal, yeey! */
+        return true;
+    }
+
+    me->state = PF_ENTITY_STATE_CLOSED;
+
+    /* calculate around current point */
     coord_t pos, pos_cbk;
     for (unsigned int i = 0; i < ARRAY_SZ(pf_coord_lo_table); i++) {
         pos.x = pf_coord_lo_table[i].x + point->x;
         pos.y = pf_coord_lo_table[i].y + point->y;
-        me = pf_get_index(&pos, map);
+
+        if (cd_within_bound(&pos, &map->size) == false) continue;
+        struct pf_map_entity *me_new = pf_get_index(&pos, map);
         
         pos_cbk.x = pos.x +ctx->set.map_start.x;
         pos_cbk.y = pos.y +ctx->set.map_start.y;
-        unsigned int cost = pf_get_index(point, map)->cost + ctx->set.pf_traversable_callback(ctx->set.map, &pos_cbk);
-        if (cost >= PF_BLOCKED) {
-            me->cost = cost;
-            me->distance = pf_get_index(point, map)->distance + 1;
-            me->state = PF_ENTITY_STATE_CLOSED;
+        unsigned int cost = ctx->set.pf_traversable_callback(ctx->set.map, &pos_cbk);
+
+        /* If the new cost is better, OR it was in the free state, update it */
+        if ( ( (me->cost +cost) < me_new->cost) || (me_new->state == PF_ENTITY_STATE_FREE) ) {
+            me_new->cost = cost + me->cost;
+            me_new->distance = me->distance +1;
+            me_new->state = PF_ENTITY_STATE_OPEN;
+
         }
-        else if ( (cost < me->cost) || (me->cost == 0) ) {
-            me->cost = cost;
-            me->distance = pf_get_index(point, map)->distance + 1;
-            {//if (me->state == PF_ENTITY_STATE_FREE) {
-                me->state = PF_ENTITY_STATE_OPEN;
-            }
+
+        if (me_new->cost >= PF_BLOCKED) {
+            me_new->state = PF_ENTITY_STATE_CLOSED;
         }
-        //lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "pf", "p(%d,%d) -> [st: %d/ cst: %d/dst: %d]", pos.x, pos.y, me->state, me->cost, me->distance);
     }
 
     for (unsigned int i = 0; i < ARRAY_SZ(pf_coord_lo_table); i++) {
         pos.x = pf_coord_lo_table[i].x + point->x;
         pos.y = pf_coord_lo_table[i].y + point->y;
+
+        if (cd_within_bound(&pos, &map->size) == false) continue;
         me = pf_get_index(&pos, map);
         if (me->state == PF_ENTITY_STATE_OPEN) {
-            if (pf_flood_map_point(ctx, &pos, target) == true) return true;
+            if (pf_flood_map_point(ctx, &pos, end) == true) return true;
         }
     }
 
@@ -147,10 +161,7 @@ static bool pf_astar_loop(struct pf_context *ctx, coord_t *end) {
             pos.x = pf_coord_lo_table[i].x + point.x;
             pos.y = pf_coord_lo_table[i].y + point.y;
 
-            if (pos.x >= map->size.x) continue;
-            if (pos.y >= map->size.y) continue;
-            if (pos.x < 0) continue;
-            if (pos.y < 0) continue;
+            if (cd_within_bound(&pos, &map->size) == false) continue;
             struct pf_map_entity *me_new = pf_get_index(&pos, map);
             
             pos_cbk.x = pos.x +ctx->set.map_start.x;
@@ -262,7 +273,7 @@ bool pf_dijkstra_map(struct pf_context *ctx, coord_t *start) {
     map->map = calloc(map->size.x * map->size.y, sizeof(struct pf_map_entity) );
     if (map->map == NULL) return false;
 
-    ctx->maximum_distance = pyth(map->size.x, map->size.y);
+    ctx->maximum_distance = pyth(map->size.x, map->size.y) * 2;
 
     pf_get_index(start, map)->cost = 1;
     pf_get_index(start, map)->distance = 0;
