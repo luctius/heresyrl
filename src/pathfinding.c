@@ -199,7 +199,20 @@ static bool pf_backtrace(struct pf_map *map, coord_t *end, coord_t coord_lst[], 
             pos.y = pf_coord_lo_table[j].y + point.y;
             me = pf_get_index(&pos, map);
             if (me->state != PF_ENTITY_STATE_FREE) {
+                bool found_best = false;
+
                 if (best > me->cost) {
+                    found_best = true;
+                }
+                else if (best == me->cost) {
+                    coord_t dp = cd_delta_abs(&pos, end);
+                    coord_t dbp = cd_delta_abs(&best_pos, end);
+                    if ( (dp.x + dp.y) < (dbp.x + dbp.y) ) {
+                        found_best = true;
+                    }
+                }
+
+                if (found_best) {
                     best = me->cost;
                     best_pos.x = pos.x;
                     best_pos.y = pos.y;

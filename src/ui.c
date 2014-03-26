@@ -473,7 +473,6 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dc_map *map, coord_t *
     do {
         mapwin_display_map_noref(map, &plr->player->pos);
 
-        lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "mapwin", "entering fire_mode (%d,%d) -> (%d,%d)", p_pos->x, p_pos->y, e_pos.x, e_pos.y);
         switch (ch) {
             case INP_KEY_UP_LEFT:    e_pos.y--; e_pos.x--; break;
             case INP_KEY_UP:         e_pos.y--; break;
@@ -517,6 +516,8 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dc_map *map, coord_t *
         if (e_pos.y >= map->size.y) e_pos.y = map->size.y -1;
         if (e_pos.x < 0) e_pos.x = 0;
         if (e_pos.x >= map->size.x) e_pos.x = map->size.x -1;
+
+        lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "mapwin", "entering fire_mode (%d,%d) -> (%d,%d)", p_pos->x, p_pos->y, e_pos.x, e_pos.y);
 
         path_len = sgt_los_path(gbl_game->sight, gbl_game->current_map, p_pos, &e_pos, &path, false);
         for (int i = 0; i < path_len; i++) {
