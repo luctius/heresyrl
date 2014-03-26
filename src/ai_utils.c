@@ -90,6 +90,8 @@ static unsigned int aiu_traversable_callback(void *vmap, coord_t *coord) {
     if (coord == NULL) return PF_BLOCKED;
     struct dc_map *map = (struct dc_map *) vmap;
 
+    sd_get_map_me(coord,map)->test_var = 2;
+
     unsigned int cost = PF_BLOCKED;
     if (TILE_HAS_ATTRIBUTE(sd_get_map_tile(coord, map),TILE_ATTR_TRAVERSABLE) == true) {
         cost = sd_get_map_tile(coord, map)->movement_cost;

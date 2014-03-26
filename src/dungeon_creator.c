@@ -241,12 +241,88 @@ bool dc_clear_map_visibility(struct dc_map *map, coord_t *start, coord_t *end) {
             sd_get_map_me(&c,map)->in_sight = false;
             sd_get_map_me(&c,map)->visible = false;
             sd_get_map_me(&c,map)->light_level = 0;
-            sd_get_map_me(&c,map)->test_var = 0;
+            //sd_get_map_me(&c,map)->test_var = 0;
             sd_get_map_me(&c,map)->icon_override = -1;
             sd_get_map_me(&c,map)->icon_attr_override = -1;
         }
     }
     return true;
+}
+
+/*
+   This callback is used to create a path through rock and 
+   rescue a locked in section of the map.
+   Hence it will only return a PF_BLOCKED when it has 
+   reached the sides of the map.
+ */
+unsigned int tunnel_callback(void *vmap, coord_t *coord) {
+    if (vmap == NULL) return PF_BLOCKED;
+    if (coord == NULL) return PF_BLOCKED;
+    struct dc_map *map = (struct dc_map *) vmap;
+
+    if (TILE_HAS_ATTRIBUTE(sd_get_map_tile(coord, map),TILE_ATTR_BORDER) == true) return PF_BLOCKED;
+    return 1;
+}
+
+static bool dc_tunnel(struct dc_map *map, coord_t plist[], int plsz, struct tl_tile *tl) {
+    if (plist == NULL) return false;
+    if (tl == NULL) return false;
+    if (plsz == 0) return false;
+
+    /* cpoy the given tile over the path. */
+    for (int i = 0; i < plsz; i++) {
+        sd_get_map_me(&plist[i], map)->tile = tl; //ts_get_tile_type(TILE_TYPE_FLOOR);
+    }
+}
+
+static bool dc_get_tunnel_path(struct dc_map *map, struct pf_context *pf_ctx) {
+    if (dc_verify_map(map) == false) return false;
+
+    bool retval = false;
+
+    /* get a coords from a place we did not reach with our flooding*/
+    coord_t nftl;
+    if (pf_get_non_flooded_tile(pf_ctx, &nftl) == true) {
+
+        /* get coords of a place we DID reach, so we can connect to that*/
+        coord_t ftl;
+        if (pf_get_closest_flooded_tile(pf_ctx, &nftl, &ftl) == true) {
+
+            /*save current, probably generic, callback*/
+            struct pf_settings *set = pf_get_settings(pf_ctx);
+            void *tcbk = set->pf_traversable_callback;
+
+            /*set our tunneling callback*/
+            set->pf_traversable_callback = tunnel_callback;
+
+            /*run the pathfinding algorithm*/
+            if (pf_astar_map(pf_ctx, &nftl, &ftl) == true) {
+                int sz = 0;
+
+                /*retreive the path */
+                coord_t *plist = NULL;
+                if ( (sz = pf_calculate_path (pf_ctx, &nftl, &ftl, &plist) ) > 0) {
+
+                    /* HACK:
+                       this is the tile we will copy.
+                       i assume the map does only contain 
+                       generic tiles...
+                     */
+                    struct tl_tile *tl = sd_get_map_tile(&ftl, map);
+
+                    if (dc_tunnel(map, plist, sz, tl) == true) {
+                        retval = true;
+                    }
+                    free(plist);
+                }
+            }
+
+            /* restore callback*/
+            set->pf_traversable_callback = tcbk;
+        }
+    }
+
+    return retval;
 }
 
 bool dc_generate_map(struct dc_map *map, enum dc_dungeon_type type, int level, unsigned long seed) {
@@ -274,16 +350,35 @@ bool dc_generate_map(struct dc_map *map, enum dc_dungeon_type type, int level, u
     coord_t start = { .x = map->stair_up.x, .y = map->stair_up.y};
     coord_t end = { .x = map->stair_down.x, .y = map->stair_down.y};
 
+    bool map_is_good = false;
     struct pf_context *pf_ctx = NULL;
-    if (aiu_generate_dijkstra(&pf_ctx, map, &start, 0) ) {
-        if (pf_calculate_path(pf_ctx, &start, &end, NULL) > 1) {
-            lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "dc", "Stairs reachable.");
-        }
-        else {
-            lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "dc", "Stairs not reachable.");
-            dc_generate_map(map, type, level, random_int32(r) );
+
+    for (int i = 0; (i < 20) && (map_is_good == false); i++)
+    {
+        if (aiu_generate_dijkstra(&pf_ctx, map, &start, 0) ) {
+            if (pf_calculate_reachability(pf_ctx) == true) {
+                map_is_good = true;
+            }
+            else {
+                dc_get_tunnel_path(map, pf_ctx);
+            }
+            /*
+            if (pf_calculate_path(pf_ctx, &start, &end, NULL) > 1) {
+                lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "dc", "Stairs reachable.");
+            }
+            else {
+                lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "dc", "Stairs not reachable.");
+                dc_generate_map(map, type, level, random_int32(r) );
+            }
+            */
         }
     }
+
+    if (map_is_good == false) {
+        lg_print("map is *not* good!");
+        pf_calculate_reachability(pf_ctx);
+    }
+    else lg_print("map *is* good!");
 
     pf_exit(pf_ctx);
     random_exit(r);

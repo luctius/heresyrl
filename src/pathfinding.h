@@ -23,8 +23,21 @@ struct pf_settings {
 
 struct pf_context;
 
+/*
+   Allocates memory for struct pf_context and copies 
+   the settings into them.
+ */
 struct pf_context *pf_init(struct pf_settings *pf_set);
+
+/*
+   Frees the pf_context struct and does deinitialisation.
+ */
 void pf_exit(struct pf_context *ctx);
+
+/*
+   Retreives the settings from within the pf_context struct.
+ */
+struct pf_settings *pf_get_settings(struct pf_context *ctx);
 
 /*
 Prepares a full dijkstra map of the area, calculating the distance to start from all the (reachable) points
@@ -37,6 +50,22 @@ Prereq: pf_dijkstra_map
 Checks the map if every traversable square is reachable.
 */
 bool pf_calculate_reachability(struct pf_context *ctx);
+
+/*
+Prereq: pf_dijkstra_map AND pf_calculate_reachability == false
+Gives the coordinates of 'a' traversable tile which has not been 
+reached by dijkstra. Should only be called after pf_calculate_reachability.
+Return true when it finds such a tile, else false.
+*/
+bool pf_get_non_flooded_tile(struct pf_context *ctx, coord_t *nft);
+
+/*
+Prereq: pf_dijkstra_map
+Gives the coordinates of a traversable tile which /has/ been reach 
+by dijkstra and it closest to the given tile.
+return true on succes, false otherwise.
+*/
+bool pf_get_closest_flooded_tile(struct pf_context *ctx, coord_t *target, coord_t *out);
 
 /*
 Prepares a A* map of the area, calculating the distance to start from the squares it needs to reach end.
@@ -61,5 +90,6 @@ If it is NULL it will not be used.
 returns the length of the path
 */
 int pf_calculate_path(struct pf_context *ctx, coord_t *start, coord_t *end, coord_t **coord_lst);
+
 
 #endif /* PATHFINDING_H */

@@ -245,6 +245,11 @@ void pf_exit(struct pf_context *ctx) {
     free(ctx);
 }
 
+struct pf_settings *pf_get_settings(struct pf_context *ctx) {
+    if (ctx == NULL) return NULL;
+    return &ctx->set;
+}
+
 bool pf_dijkstra_map(struct pf_context *ctx, coord_t *start) {
     if (ctx == NULL) return false;
     if (ctx->set.pf_traversable_callback == NULL) return false;
@@ -266,31 +271,6 @@ bool pf_dijkstra_map(struct pf_context *ctx, coord_t *start) {
 
     lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "pf","start at (%d,%d)", start->x,  start->y);
     pf_flood_map_point(ctx, start, &dummy);
-    return true;
-}
-
-bool pf_calculate_reachability(struct pf_context *ctx) {
-    if (ctx == NULL) return false;
-    if (ctx->set.pf_traversable_callback == NULL) return false;
-    if ( (ctx->set.map_end.x == 0) && (ctx->set.map_end.y == 0) ) return false;
-
-    /* Find a starting point. */
-    coord_t target;
-    for (int xi = 0; xi < ctx->map.size.x; xi++) {
-        for (int yi = 0; yi < ctx->map.size.y; yi++) {
-            target.x = xi;
-            target.y = yi;
-            if (pf_get_index(&target, &ctx->map)->state == PF_ENTITY_STATE_FREE){
-                target.x += ctx->set.map_start.x;
-                target.y += ctx->set.map_start.y;
-
-                if (ctx->set.pf_traversable_callback(ctx->set.map, &target) < PF_BLOCKED) {
-                    lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "pf", "fail at (%d,%d)", target.x,  target.y);
-                    return false;
-                }
-            }
-        }
-    }
     return true;
 }
 
@@ -353,5 +333,97 @@ int pf_calculate_path(struct pf_context *ctx, coord_t *start, coord_t *end, coor
 
     if (length == -1) free(list);
     return length;
+}
+
+bool pf_calculate_reachability(struct pf_context *ctx) {
+    if (ctx == NULL) return false;
+    if (ctx->set.pf_traversable_callback == NULL) return false;
+    if ( (ctx->set.map_end.x == 0) && (ctx->set.map_end.y == 0) ) return false;
+
+    /* Find a starting point. */
+    coord_t target;
+    for (int xi = 0; xi < ctx->map.size.x; xi++) {
+        for (int yi = 0; yi < ctx->map.size.y; yi++) {
+            target.x = xi;
+            target.y = yi;
+            if (pf_get_index(&target, &ctx->map)->state == PF_ENTITY_STATE_FREE){
+                target.x += ctx->set.map_start.x;
+                target.y += ctx->set.map_start.y;
+
+                if (ctx->set.pf_traversable_callback(ctx->set.map, &target) < PF_BLOCKED) {
+                    lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "pf", "fail at (%d,%d)", target.x,  target.y);
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
+}
+
+bool pf_get_non_flooded_tile(struct pf_context *ctx, coord_t *nft) {
+    coord_t target = { .x = 0, .y = 0, };
+
+    if (ctx == NULL) return false;
+    if (ctx->set.pf_traversable_callback == NULL) return false;
+    if ( (ctx->set.map_end.x == 0) && (ctx->set.map_end.y == 0) ) return false;
+
+    /* Find a starting point. */
+    for (int xi = 0; xi < ctx->map.size.x; xi++) {
+        for (int yi = 0; yi < ctx->map.size.y; yi++) {
+            target.x = xi;
+            target.y = yi;
+            if (pf_get_index(&target, &ctx->map)->state == PF_ENTITY_STATE_FREE){
+                coord_t t_cbk;
+                t_cbk.x = target.x + ctx->set.map_start.x;
+                t_cbk.y = target.y + ctx->set.map_start.y;
+
+                if (ctx->set.pf_traversable_callback(ctx->set.map, &t_cbk) < PF_BLOCKED) {
+                    *nft = target;
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
+bool pf_get_closest_flooded_tile(struct pf_context *ctx, coord_t *target, coord_t *out) {
+    coord_t best = { .x = 0, .y = 0, };
+    int best_dist = INT_MAX;
+
+    if (ctx == NULL) return false;
+    if (ctx->set.pf_traversable_callback == NULL) return false;
+    if ( (ctx->set.map_end.x == 0) && (ctx->set.map_end.y == 0) ) return false;
+
+    coord_t test;
+    /* Find a starting point. */
+    for (int xi = 0; xi < ctx->map.size.x; xi++) {
+        for (int yi = 0; yi < ctx->map.size.y; yi++) {
+            test.x = xi;
+            test.y = yi;
+            if (pf_get_index(&test, &ctx->map)->state != PF_ENTITY_STATE_FREE) {
+
+                int test_dist = cd_pyth(&test, target);
+                if (test_dist < best_dist ) {
+                    coord_t t_cbk;
+                    t_cbk.x = test.x + ctx->set.map_start.x;
+                    t_cbk.y = test.y + ctx->set.map_start.y;
+                    if (ctx->set.pf_traversable_callback(ctx->set.map, &t_cbk) < PF_BLOCKED) {
+                        best.x = test.x;
+                        best.y = test.y;
+                        best_dist = test_dist;
+                    }
+                }
+            }
+        }
+    }
+
+    if (best_dist != INT_MAX) {
+        *out = best;
+        return true;
+    }
+
+    return false;
 }
 

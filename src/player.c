@@ -51,7 +51,7 @@ void plr_init(struct pl_player *plr, char *name, enum msr_race race, enum msr_ge
     plr->player_map_pos = cd_create(0,0);
     plr->player->characteristic[MSR_CHAR_PERCEPTION].base_value = 40;
     plr->player->characteristic[MSR_CHAR_AGILITY].base_value = 40;
-    plr->player->characteristic[MSR_CHAR_TOUGHNESS].base_value = 40;
+    plr->player->characteristic[MSR_CHAR_TOUGHNESS].base_value = 80;
 }
 
 struct pf_context *plr_map(struct pl_player *plr, struct dc_map *map) {
