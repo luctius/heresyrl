@@ -281,7 +281,7 @@ int sgt_los_path(struct sgt_sight *sight, struct dc_map *map, coord_t *s, coord_
     }
 
     bool found = false;
-    for (int i = 0; (i < wlst_sz) && (found == false); i++) {
+    for (int i = 1; (i < wlst_sz) && (found == false); i++) {
        blst1_sz = bresenham(map, s, &wlst[i], blst1, path_sz);
        blst2_sz = bresenham(map, &wlst[i], e, blst2, path_sz);
        if ( (blst1_sz > 0) && (blst2_sz > 0) ) found = true;
@@ -292,6 +292,15 @@ int sgt_los_path(struct sgt_sight *sight, struct dc_map *map, coord_t *s, coord_
     path_sz = blst1_sz + blst2_sz +2;
     *path_lst = calloc(path_sz, sizeof(coord_t) );
     if (*path_lst == NULL) return -1;
+
+    /* 
+       Known bug:
+       On some lines, there is a unnecesary step
+       This would require another loop and do a 
+       look-ahead check fo a neighbour.
+
+       I might do that later...
+     */
 
     int pidx = 0;
     for (int i = 0; i < blst1_sz; i++, pidx++) {
@@ -427,13 +436,15 @@ int wu_line(coord_t *s, coord_t *e, coord_t plst[], int plst_sz) {
   double dy = (double)y2 - (double)y1;
 
   int length = 0;
-  if (dx == dy) return -1;
 
   if ( fabs(dx) > fabs(dy) ) {
     if ( x2 < x1 ) {
       swap_(x1, x2);
       swap_(y1, y2);
     }
+
+    if (dx == 0) return -1;
+
     double gradient = dy / dx;
     double xend = round_(x1);
     double yend = y1 + gradient*(xend - x1);
@@ -468,6 +479,9 @@ int wu_line(coord_t *s, coord_t *e, coord_t plst[], int plst_sz) {
       swap_(x1, x2);
       swap_(y1, y2);
     }
+
+    if (dy == 0) return -1;
+
     double gradient = dx / dy;
     double yend = round_(y1);
     double xend = x1 + gradient*(yend - y1);
