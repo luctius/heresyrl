@@ -1,5 +1,3 @@
-#include <ncurses.h>
-
 #include "player.h"
 #include "dungeon_creator.h"
 #include "monster.h"

@@ -260,13 +260,25 @@ int wu_line(coord_t *s, coord_t *e, coord_t plst[], int plst_sz);
 int sgt_los_path(struct sgt_sight *sight, struct dc_map *map, coord_t *s, coord_t *e, coord_t *path_lst[], bool continue_path) {
     if (sight == NULL) return -1;
     if (dc_verify_map(map) == false) return -1;
-    coord_t begin = *s;
-    coord_t end = *e;
 
     if (sd_get_map_me(s,map)->visible == false) return -1;
     if (sd_get_map_me(e,map)->visible == false) return -1;
     if ( (sd_get_map_tile(s,map)->attributes & TILE_ATTR_OPAGUE) == 0) return -1;
     if ( (sd_get_map_tile(e,map)->attributes & TILE_ATTR_OPAGUE) == 0) return -1;
+
+    /* 
+        HACK, this fixes a bug where later in 
+        continue path, there are not enough points
+        to really continue.
+        fix later
+     */
+    if (cd_neighbour(s, e) == true) {
+        *path_lst = calloc(2, sizeof(coord_t) );
+        if (*path_lst == NULL) return -1;
+        (*path_lst)[0] = *s;
+        (*path_lst)[1] = *e;
+        return 2;
+    }
 
     int path_sz = (cd_pyth(s,e) +2 )* 4;
     coord_t wlst[path_sz];
@@ -295,6 +307,10 @@ int sgt_los_path(struct sgt_sight *sight, struct dc_map *map, coord_t *s, coord_
     }
 
     path_sz = blst1_sz + blst2_sz +2;
+    if (continue_path) {
+        path_sz = MAX(map->size.x, map->size.y);
+    }
+
     *path_lst = calloc(path_sz, sizeof(coord_t) );
     if (*path_lst == NULL) return -1;
 
@@ -318,7 +334,8 @@ int sgt_los_path(struct sgt_sight *sight, struct dc_map *map, coord_t *s, coord_
     (*path_lst)[pidx++] = *s;
     int max = (blst1_sz + blst2_sz -1);
     int i = 1;
-    while (i < max) {
+    found = false;
+    while ( (i < max) && (found == false) ) {
         coord_t *point = &blst1[i];
         lg_debug("normal point (%d.%d)", point->x, point->y);
 
@@ -339,15 +356,45 @@ int sgt_los_path(struct sgt_sight *sight, struct dc_map *map, coord_t *s, coord_
         if (cd_neighbour(point, e) == true) {
             (*path_lst)[pidx++] = *e;
             lg_debug("good");
-            return pidx;
+            found = true;
         }
         i++;
     }
 
-    lg_debug("fail");
+    if (continue_path && pidx > 1) {
+        /*  
+            get a point from the original list,
+            take the delta of it and its predecessor,
+            add that to the previous point we put in
+            at the end of the list. This creates a 
+            coninues path untill an obstacle is found.
+         */
+        int i = pidx;
+        bool blocked = false;
+        int j = i;
+        while ( (i < path_sz) && (blocked == false) ) {
+            if ( (i % pidx) == 0) { i++; continue; }
+            coord_t point = (*path_lst)[i % pidx];
+            coord_t point_prev = (*path_lst)[ (i-1) % pidx];
+            coord_t point_last = (*path_lst)[j-1];
+
+            coord_t d = cd_delta(&point, &point_prev);
+
+            point.x = point_last.x + d.x;
+            point.y = point_last.y + d.y;
+
+            (*path_lst)[j] = point;
+            i++;
+            j++;
+
+            if ( (sd_get_map_tile(&point,map)->attributes & TILE_ATTR_OPAGUE) == 0) {
+                blocked = true;
+                pidx = j;
+            }
+        }
+    }
+    
     return pidx;
-    free(*path_lst);
-    return -1;
 }
 
 bool sgt_has_los(struct sgt_sight *sight, struct dc_map *map, coord_t *s, coord_t *e) {
@@ -407,7 +454,8 @@ int bresenham(struct dc_map *map, coord_t *s, coord_t *e, coord_t plist[], int p
     signed char const iy = ((delta_y > 0) - (delta_y < 0));
     delta_y = abs(delta_y) << 1;
 
-    if (plist_idx < plist_sz) plist[plist_idx++] = cd_create(x1,y1);
+    plist[plist_idx++] = *s;
+    if (plist_idx >= plist_sz) return -1;
 
     if (delta_x >= delta_y)
     {
@@ -453,6 +501,7 @@ int bresenham(struct dc_map *map, coord_t *s, coord_t *e, coord_t plist[], int p
             if (plist_idx >= plist_sz) return -1;
         }
     }
+
     return plist_idx;
 }
 

@@ -217,7 +217,7 @@ int fght_ranged_roll(struct random *r, struct msr_monster *monster, struct msr_m
     if (msr_verify_monster(monster) == false) return -1;
     if (msr_verify_monster(target) == false) return -1;
     if (ammo == 0) return -1;
-    if (msr_weapon_type_check(monster, WEAPON_TYPE_RANGED) == false) return -1;
+    if (msr_weapon_type_check(monster, WEAPON_TYPE_RANGED) == false) return 0;
     struct item_weapon_specific *wpn = NULL;
     struct itm_item *witem = NULL;
 
@@ -262,7 +262,7 @@ int fght_ranged_roll(struct random *r, struct msr_monster *monster, struct msr_m
     if (to_hit <= 0) {
         msg_plr(" and miss the shot by a huge margin.");
         msg_msr(" and misses %s by a huge margin.", msr_ldname(target) );
-        return -1;
+        return 0;
     }
 
     lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "fght", "Shot attempt with calcBS: %d => %d", roll, to_hit);
@@ -364,35 +364,43 @@ int fght_shoot(struct random *r, struct msr_monster *monster, struct dc_map *map
     }
 
     coord_t *path;
-    int path_len = sgt_los_path(gbl_game->sight, gbl_game->current_map, &monster->pos, e, &path, false);
+    int path_len = sgt_los_path(gbl_game->sight, gbl_game->current_map, &monster->pos, e, &path, true);
     bool blocked = false;
     int unblocked_length = 0;
 
     int i = 1;
-    bool animate = false;
-    while ((i < path_len) && (blocked == false)) {
+    int blocked_i = 0;
+    bool animate = true;
+    while ((i < path_len) && ( (blocked == false) || (blocked_i > i -4) ) ) {
         if (sd_get_map_me(&path[i], map)->monster != NULL) {
-            struct msr_monster *target = sd_get_map_me(&path[i], map)->monster;
-            int hits = 0;
+            if (blocked == false) {
+                struct msr_monster *target = sd_get_map_me(&path[i], map)->monster;
+                int hits = 0;
 
+                /* Do damage */
+                msg_init(monster, target);
+                hits = fght_ranged_roll(r, monster, target, FGHT_MAIN_HAND, ammo1);
+                fght_do_weapon_dmg(r, monster, target, hits, FGHT_MAIN_HAND);
+                if (hits < 0) animate = false;
+                msg_exit();
 
-            /* Do damage */
-            msg_init(monster, target);
-            hits = fght_ranged_roll(r, monster, target, FGHT_MAIN_HAND, ammo1);
-            fght_do_weapon_dmg(r, monster, target, hits, FGHT_MAIN_HAND);
-            if (hits >= 0) animate = true;
-            msg_exit();
+                msg_init(monster, target);
+                hits = fght_ranged_roll(r, monster, target, FGHT_OFF_HAND, ammo2);
+                fght_do_weapon_dmg(r, monster, target, hits, FGHT_OFF_HAND);
+                if (hits < 0) animate = false;
+                msg_exit();
 
-            msg_init(monster, target);
-            hits = fght_ranged_roll(r, monster, target, FGHT_OFF_HAND, ammo2);
-            fght_do_weapon_dmg(r, monster, target, hits, FGHT_OFF_HAND);
-            if (hits >= 0) animate = true;
-            msg_exit();
+                if (animate == true) {
+                    //do blood
+                }
 
-            /* For now, always stop at the first monster. 
-               later on we can continue but then we have 
-               to keep track of the ammo once...*/
-            blocked = true;
+                /* For now, always stop at the first monster. 
+                   later on we can continue but then we have 
+                   to keep track of the ammo once...*/
+                blocked = true;
+                blocked_i = i;
+            }
+            //else do blood
         }
         if (TILE_HAS_ATTRIBUTE(sd_get_map_tile(&path[i], map), TILE_ATTR_TRAVERSABLE) == false) {
             blocked = true;

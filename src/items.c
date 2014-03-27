@@ -118,16 +118,14 @@ bool itm_insert_item(struct itm_item *item, struct dc_map *map, coord_t *pos) {
     if (item->dropable == false) return false;
 
     struct dc_map_entity *target = sd_get_map_me(pos, map);
-    {  //if (TILE_HAS_ATTRIBUTE(target->tile, TILE_ATTR_TRAVERSABLE) ) {
-        if (inv_has_item(target->inventory, item) == false) {
-            if (inv_add_item(target->inventory, item) == true) {
-                item->owner_type = ITEM_OWNER_MAP;
-                item->owner.owner_map_entity = target;
-                retval = true;
+    if (inv_has_item(target->inventory, item) == false) {
+        if (inv_add_item(target->inventory, item) == true) {
+            item->owner_type = ITEM_OWNER_MAP;
+            item->owner.owner_map_entity = target;
+            retval = true;
 
-                lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "itm", "Inserting item %s (%c) [uid:%d, tid:%d] to (%d,%d)", 
-                        item->sd_name, item->icon, item->uid, item->template_id, pos->x, pos->y);
-            }
+            lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "itm", "Inserting item %s (%c) [uid:%d, tid:%d] to (%d,%d)", 
+                    item->sd_name, item->icon, item->uid, item->template_id, pos->x, pos->y);
         }
     }
 

@@ -432,7 +432,7 @@ void ui_animate_projectile(struct dc_map *map, coord_t path[], int path_len, cha
             mvwaddch(map_win->win, path[i].y - scr_y, path[i].x - scr_x, p);
             wrefresh(map_win->win);
             mvwaddch(map_win->win, path[i].y - scr_y, path[i].x - scr_x, oldch);
-            usleep(10000);
+            usleep(100000);
         }
     }
 }
