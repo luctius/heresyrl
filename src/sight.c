@@ -15,6 +15,10 @@
 #define SHADOW_FOV
 //#define DIGITAL_FOV
 
+#if defined (SHADOW_FOV) && defined(DIGITAL_FOV)
+    #undef DIGITAL_FOV
+#endif
+
 struct sgt_sight {
     fov_settings_type fov_settings;
 };
@@ -190,11 +194,9 @@ bool sgt_calculate_light_source(struct sgt_sight *sight, struct dc_map *map, str
     coord_t c = itm_get_pos(item);
 
 #ifdef SHADOW_FOV
-    /*
     fov_settings_set_opacity_test_function(&sight->fov_settings, sc_check_opaque);
     fov_settings_set_apply_lighting_function(&sight->fov_settings, sc_apply_light_source);
     fov_circle(&sight->fov_settings, map, item, c.x, c.y, item->specific.tool.light_luminem);
-    */
 #endif
 
 #ifdef DIGITAL_FOV
@@ -281,13 +283,16 @@ int sgt_los_path(struct sgt_sight *sight, struct dc_map *map, coord_t *s, coord_
     }
 
     bool found = false;
-    for (int i = 1; (i < wlst_sz) && (found == false); i++) {
+    for (int i = 0; (i < wlst_sz) && (found == false); i++) {
        blst1_sz = bresenham(map, s, &wlst[i], blst1, path_sz);
        blst2_sz = bresenham(map, &wlst[i], e, blst2, path_sz);
        if ( (blst1_sz > 0) && (blst2_sz > 0) ) found = true;
     }
 
-    if (found == false) return -1;
+    if (found == false) {
+        lg_debug("brenenham failed");
+        return -1;   
+    }
 
     path_sz = blst1_sz + blst2_sz +2;
     *path_lst = calloc(path_sz, sizeof(coord_t) );
@@ -302,17 +307,47 @@ int sgt_los_path(struct sgt_sight *sight, struct dc_map *map, coord_t *s, coord_
        I might do that later...
      */
 
+    /* create one big list, easier for the next step */
+    for (int i = 1; i < blst2_sz; i++) {
+        blst1[blst1_sz +i] = blst2[i];
+    }
+
+    /* Here we copy the list to the target location and if 
+       possible remove nodes we can skip. */
     int pidx = 0;
-    for (int i = 0; i < blst1_sz; i++, pidx++) {
-        (*path_lst)[pidx] = blst1[i];
+    (*path_lst)[pidx++] = *s;
+    int max = (blst1_sz + blst2_sz -1);
+    int i = 1;
+    while (i < max) {
+        coord_t *point = &blst1[i];
+        lg_debug("normal point (%d.%d)", point->x, point->y);
+
+        if (i+1 < max) {
+            /* lookahead and skip node if possible */
+            if (cd_neighbour(&blst1[i-1], &blst1[i+1]) ) {
+                point = &blst1[i+1];
+                i++; /* need to do 2 steps here */
+
+                lg_debug("skip to point (%d.%d)", point->x, point->y);
+            }
+        }
+
+        /* assign found point */
+        (*path_lst)[pidx++] = *point;
+
+        /* skip early if possible */
+        if (cd_neighbour(point, e) == true) {
+            (*path_lst)[pidx++] = *e;
+            lg_debug("good");
+            return pidx;
+        }
+        i++;
     }
 
-    for (int i = 1; i < blst2_sz; i++, pidx++) {
-        (*path_lst)[pidx] = blst2[i];
-    }
-
-    lg_debug("good");
+    lg_debug("fail");
     return pidx;
+    free(*path_lst);
+    return -1;
 }
 
 bool sgt_has_los(struct sgt_sight *sight, struct dc_map *map, coord_t *s, coord_t *e) {
