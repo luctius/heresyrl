@@ -53,4 +53,12 @@ inline coord_t cd_delta_abs(coord_t *a, coord_t *b) {
     c.y = abs(a->y - b->y);
     return c;
 }
+
+inline bool cd_neighbour(coord_t *a, coord_t *b) {
+    coord_t c = cd_delta_abs(a,b);
+    if (c.x > 1) return false;
+    if (c.y > 1) return false;
+    return true;
+}
+
 #endif /* COORD_H */

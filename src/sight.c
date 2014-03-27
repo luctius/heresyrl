@@ -252,156 +252,8 @@ bool sgt_calculate_player_sight(struct sgt_sight *sight, struct dc_map *map, str
     return true;
 }
 
-#ifdef DIGITAL_FOV
-struct los_apply_ctx {
-    int dist_ctr;
-    int max_dist;
-    coord_t *plist;
-};
-
-static bool dig_los_apply(struct digital_fov_set *set, coord_t *point, coord_t *origin) {
-    struct los_apply_ctx *ctx = set->source;
-    struct dc_map *map = set->map;
-
-    if (ctx == NULL) return false;
-    if (ctx->plist == NULL) return false;
-    if (dc_verify_map(map) == false) return false;
-    if (cd_within_bound(point, &map->size) == false) return false;
-    if (ctx->dist_ctr >= ctx->max_dist) return false;
-    ctx->plist[ctx->dist_ctr++] = *point;
-
-    return true;
-}
-
-static bool find_projectile_path_rec_backtr(coord_t blocklst[], int bl_idx, coord_t plist[], int pl_idx, coord_t *s, coord_t *e) {
-    /*
-       We have a list of coords from which we want to make a smooth line.
-       we search the next n coords or untill we hit one which is too far.
-       we try to get a dx +dy as big as possible, but not one which brings 
-       us farther from s than we are.
-     */
-
-    if (pl_idx == 1) {
-        lg_debug("done");
-        return true;
-    }
-
-    coord_t *point = &plist[pl_idx];
-
-    lg_debug("I'm (%d,%d) %d, %d", point->x, point->y, bl_idx, pl_idx);
-
-    while (true) {
-        int best_idx = -1;
-        float best_dist = 1000;
-        for (int i = 0; i <= MIN(8, bl_idx); i++) {
-            coord_t *cp = &blocklst[bl_idx - i];
-            coord_t c_dist = cd_delta_abs(cp, point);
-
-            lg_debug("testing[%d] (%d,%d)", bl_idx - i, cp->x, cp->y);
-            if (c_dist.x <= 1 && c_dist.y <= 1 && cd_equal(point, cp) == false) {
-                coord_t bda = cd_delta_abs(cp, s);
-                coord_t pda = cd_delta_abs(point, s);
-
-                lg_debug("checking if i'm not making it worse (%d,%d)", cp->x, cp->y);
-                if ( (bda.x <= pda.x) && (bda.y <= pda.y) ) {
-                    lg_debug("Nope, it's good");
-                    float d1 = sqrt( ( (cp->x - s->x) * (cp->x - s->x) ) * ( (cp->y - s->y) * (cp->y - s->y) ) );
-                    if (d1 < best_dist) {
-                        lg_debug("this is the best! (%d,%d)", cp->x, cp->y);
-                        plist[pl_idx-1] = *cp;
-                        best_dist = d1;
-                        best_idx = bl_idx - i;
-                    }
-                    else lg_debug("%f >= %f :S", d1, best_dist);
-                }
-            }
-        }
-
-        if (best_idx == -1) return false;
-
-        coord_t bda = cd_delta_abs(&blocklst[best_idx], s);
-        coord_t pda = cd_delta_abs(point, s);
-        if ( (bda.x > pda.x) || (bda.y > pda.y) ) {
-            lg_debug("this 'best' is _really_ bad..");
-            return false;
-        }
-
-        if (find_projectile_path_rec_backtr(blocklst, best_idx, plist, pl_idx-1,s,e) == false) {
-            blocklst[best_idx].x = -100;
-            blocklst[best_idx].y = -100;
-            best_dist = 1000;
-            lg_debug("best was a dead end");
-        }
-        else return true;
-    }
-
-    return false;
-}
-
-int sgt_los_path(struct sgt_sight *sight, struct dc_map *map, coord_t *s, coord_t *e, coord_t *path_lst[], bool continue_path) {
-    if (sight == NULL) return -1;
-    if (dc_verify_map(map) == false) return -1;
-    coord_t end = *e;
-
-    if (sgt_has_los(sight, map, s,e) == false) return -1;
-
-    if (continue_path) {
-        int dx = e->x - s->x;
-        int dy = e->y - s->y;
-        while ( (e->x > 0) && (e->y > 0) && (e->x < map->size.x) && (e->y < map->size.y) ) {
-            e->x += dx;
-            e->y += dy;
-        }
-    }
-
-    struct los_apply_ctx actx = {
-        .dist_ctr = 0,
-        .max_dist = cd_pyth(s, &end) * 4,
-    };
-
-    struct digital_fov_set set = {
-        .source = &actx,
-        .map = map,
-        .size = map->size,
-        .is_opaque = dig_check_opaque_los,
-        .apply = dig_los_apply,
-    };
-
-    coord_t *pathblock_lst = calloc(actx.max_dist *2, sizeof(coord_t) );
-    if (pathblock_lst == NULL) return -1;
-    actx.plist = pathblock_lst;
-
-    if (cd_pyth(s,e) > 1) {
-        if (digital_los(&set, s, &end, true) == false) {
-            free(pathblock_lst);
-            return -1;
-        }
-    }
-    else actx.dist_ctr = 1;
-
-    if (actx.dist_ctr > 0) {
-        int dist = cd_pyth(s,&end) +1;
-        *path_lst = calloc(dist, sizeof(coord_t) );
-        if (*path_lst == NULL) {
-            free(pathblock_lst);
-            return -1;
-        }
-
-        if (actx.dist_ctr > 1) {
-            (*path_lst)[dist-1] = end;
-            find_projectile_path_rec_backtr(pathblock_lst, actx.dist_ctr-2, *path_lst, dist-1,s, &end);
-        }
-        (*path_lst)[0] = *s;
-    }
-    free(pathblock_lst);
-
-
-    return cd_pyth(s, &end)+1;
-}
-#endif
-
-#ifdef SHADOW_FOV
-int bresenham(struct dc_map *map, int x1, int y1, int const x2, int const y2, coord_t plist[], int plist_sz);
+int bresenham(struct dc_map *map, coord_t *s, coord_t *e, coord_t plist[], int plist_sz);
+int wu_line(coord_t *s, coord_t *e, coord_t plst[], int plst_sz);
 
 int sgt_los_path(struct sgt_sight *sight, struct dc_map *map, coord_t *s, coord_t *e, coord_t *path_lst[], bool continue_path) {
     if (sight == NULL) return -1;
@@ -409,27 +261,50 @@ int sgt_los_path(struct sgt_sight *sight, struct dc_map *map, coord_t *s, coord_
     coord_t begin = *s;
     coord_t end = *e;
 
-    if (sgt_has_los(sight, map, s,e) == false) return -1;
+    if (sd_get_map_me(s,map)->visible == false) return -1;
+    if (sd_get_map_me(e,map)->visible == false) return -1;
+    if ( (sd_get_map_tile(s,map)->attributes & TILE_ATTR_OPAGUE) == 0) return -1;
+    if ( (sd_get_map_tile(e,map)->attributes & TILE_ATTR_OPAGUE) == 0) return -1;
 
-    if (continue_path) {
-        int dx = e->x - s->x;
-        int dy = e->y - s->y;
-        while ( (e->x > 0) && (e->y > 0) && (e->x < map->size.x) && (e->y < map->size.y) ) {
-            begin.x += dx;
-            begin.y += dy;
-        }
+    int path_sz = (cd_pyth(s,e) +2 )* 4;
+    coord_t wlst[path_sz];
+    coord_t blst1[path_sz];
+    coord_t blst2[path_sz];
+    int blst1_sz = 0;
+    int blst2_sz = 0;
+
+    int wlst_sz = wu_line(s,e, wlst, path_sz);
+    if (wlst_sz == -1) {
+        lg_debug("wu line failed");
+        wlst_sz = 1;
+        wlst[0] = *s;
     }
 
-    int path_sz = 0;
-    struct pf_context *pf_ctx = NULL;
-    if (aiu_generate_astar(&pf_ctx, map, s, e, 0) == true) {
-        path_sz = pf_calculate_path(pf_ctx, s, e, path_lst);
+    bool found = false;
+    for (int i = 0; (i < wlst_sz) && (found == false); i++) {
+       blst1_sz = bresenham(map, s, &wlst[i], blst1, path_sz);
+       blst2_sz = bresenham(map, &wlst[i], e, blst2, path_sz);
+       if ( (blst1_sz > 0) && (blst2_sz > 0) ) found = true;
     }
 
-    return path_sz;
+    if (found == false) return -1;
+
+    path_sz = blst1_sz + blst2_sz +2;
+    *path_lst = calloc(path_sz, sizeof(coord_t) );
+    if (*path_lst == NULL) return -1;
+
+    int pidx = 0;
+    for (int i = 0; i < blst1_sz; i++, pidx++) {
+        (*path_lst)[pidx] = blst1[i];
+    }
+
+    for (int i = 1; i < blst2_sz; i++, pidx++) {
+        (*path_lst)[pidx] = blst2[i];
+    }
+
+    lg_debug("good");
+    return pidx;
 }
-
-#endif
 
 bool sgt_has_los(struct sgt_sight *sight, struct dc_map *map, coord_t *s, coord_t *e) {
     if (sight == NULL) return false;
@@ -472,7 +347,11 @@ bool sgt_has_lof(struct sgt_sight *sight, struct dc_map *map, coord_t *s, coord_
 }
 
 
-int bresenham(struct dc_map *map, int x1, int y1, int const x2, int const y2, coord_t plist[], int plist_sz) {
+int bresenham(struct dc_map *map, coord_t *s, coord_t *e, coord_t plist[], int plist_sz) {
+    int x1 = s->x;
+    int y1 = s->y;
+    int x2 = e->x;
+    int y2 = e->y;
     int plist_idx = 0;
     int delta_x = (x2 - x1);
     // if x1 == x2, then it does not matter what we set here
@@ -503,14 +382,9 @@ int bresenham(struct dc_map *map, int x1, int y1, int const x2, int const y2, co
             error += delta_y;
             x1 += ix;
 
-            coord_t point = cd_create(x1,y1);
-            if ( (sd_get_map_tile(&point,map)->attributes & TILE_ATTR_OPAGUE) > 0) {
-                if (plist_idx < plist_sz) {
-                    plist[plist_idx++] = point;
-                    sd_get_map_me(&point,map)->test_var = 2;
-                }
-            }
-            else return -1;
+            plist[plist_idx++] = cd_create(x1,y1);
+            if ( (sd_get_map_tile(&plist[plist_idx-1],map)->attributes & TILE_ATTR_OPAGUE) == 0) return -1;
+            if (plist_idx >= plist_sz) return -1;
         }
     }
     else
@@ -530,16 +404,105 @@ int bresenham(struct dc_map *map, int x1, int y1, int const x2, int const y2, co
             error += delta_x;
             y1 += iy;
 
-            coord_t point = cd_create(x1,y1);
-            if ( (sd_get_map_tile(&point,map)->attributes & TILE_ATTR_OPAGUE) > 0) {
-                if (plist_idx < plist_sz) {
-                    plist[plist_idx++] = point;
-                    sd_get_map_me(&point,map)->test_var = 2;
-                }
-            }
-            else return -1;
+            plist[plist_idx++] = cd_create(x1,y1);
+            if ( (sd_get_map_tile(&plist[plist_idx-1],map)->attributes & TILE_ATTR_OPAGUE) == 0) return -1;
+            if (plist_idx >= plist_sz) return -1;
         }
     }
     return plist_idx;
 }
 
+#define ipart_(X) ((int)(X))
+#define round_(X) ((int)(((double)(X))+0.5))
+#define fpart_(X) (((double)(X))-(double)ipart_(X))
+#define rfpart_(X) (1.0-fpart_(X))
+ 
+#define swap_(a, b) do{ __typeof__(a) tmp;  tmp = a; a = b; b = tmp; }while(0)
+int wu_line(coord_t *s, coord_t *e, coord_t plst[], int plst_sz) {
+  unsigned int x1 = s->x;
+  unsigned int y1 = s->y;
+  unsigned int x2 = e->x;
+  unsigned int y2 = e->y;
+  double dx = (double)x2 - (double)x1;
+  double dy = (double)y2 - (double)y1;
+
+  int length = 0;
+  if (dx == dy) return -1;
+
+  if ( fabs(dx) > fabs(dy) ) {
+    if ( x2 < x1 ) {
+      swap_(x1, x2);
+      swap_(y1, y2);
+    }
+    double gradient = dy / dx;
+    double xend = round_(x1);
+    double yend = y1 + gradient*(xend - x1);
+    double xgap = rfpart_(x1 + 0.5);
+    int xpxl1 = xend;
+    int ypxl1 = ipart_(yend);
+
+    plst[length++] = cd_create(xpxl1,ypxl1);
+    plst[length++] = cd_create(xpxl1,ypxl1+1);
+
+    double intery = yend + gradient;
+ 
+    xend = round_(x2);
+    yend = y2 + gradient*(xend - x2);
+    xgap = fpart_(x2+0.5);
+    int xpxl2 = xend;
+    int ypxl2 = ipart_(yend);
+
+    plst[length++] = cd_create(xpxl2,ypxl2);
+    plst[length++] = cd_create(xpxl2,ypxl2+1);
+ 
+    int x;
+    for(x=xpxl1+1; x <= (xpxl2-1); x++) {
+      plst[length++] = cd_create(x,ipart_(intery) );
+      plst[length++] = cd_create(x,ipart_(intery) +1);
+
+      intery += gradient;
+
+    }
+  } else {
+    if ( y2 < y1 ) {
+      swap_(x1, x2);
+      swap_(y1, y2);
+    }
+    double gradient = dx / dy;
+    double yend = round_(y1);
+    double xend = x1 + gradient*(yend - y1);
+    double ygap = rfpart_(y1 + 0.5);
+    int ypxl1 = yend;
+    int xpxl1 = ipart_(xend);
+
+    plst[length++] = cd_create(xpxl1,ypxl1);
+    plst[length++] = cd_create(xpxl1,ypxl1+1);
+
+    double interx = xend + gradient;
+ 
+    yend = round_(y2);
+    xend = x2 + gradient*(yend - y2);
+    ygap = fpart_(y2+0.5);
+    int ypxl2 = yend;
+    int xpxl2 = ipart_(xend);
+
+    plst[length++] = cd_create(xpxl2,ypxl2);
+    plst[length++] = cd_create(xpxl2,ypxl2+1);
+ 
+    int y;
+    for(y=ypxl1+1; y <= (ypxl2-1); y++) {
+      plst[length++] = cd_create(ipart_(interx), y);
+      plst[length++] = cd_create(ipart_(interx) +1, y);
+
+      interx += gradient;
+    }
+  }
+
+  return length;
+}
+#undef swap_
+#undef plot_
+#undef ipart_
+#undef fpart_
+#undef round_
+#undef rfpart_

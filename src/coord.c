@@ -7,3 +7,4 @@ extern inline bool cd_within_bound(coord_t *a, coord_t *max);
 extern inline int cd_pyth(coord_t *a, coord_t *b);
 extern inline coord_t cd_delta(coord_t *a, coord_t *b);
 extern inline coord_t cd_delta_abs(coord_t *a, coord_t *b);
+extern inline bool cd_neighbour(coord_t *a, coord_t *b);
