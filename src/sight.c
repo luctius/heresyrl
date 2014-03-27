@@ -12,8 +12,8 @@
 #include "fov.h"
 #include "digital_fov.h"
 
-//#define SHADOW_FOV
-#define DIGITAL_FOV
+#define SHADOW_FOV
+//#define DIGITAL_FOV
 
 struct sgt_sight {
     fov_settings_type fov_settings;
@@ -420,90 +420,11 @@ int sgt_los_path(struct sgt_sight *sight, struct dc_map *map, coord_t *s, coord_
         }
     }
 
-    coord_t delta[] = { {0,0},
-        {-1,1},  {0,1},  {1,1},
-        {-1,0},          {1,0},
-        {-1,-1}, {0,-1}, {1,-1},
-    };
-
-    int path_max_sz = (cd_pyth(s, e) +8) * 2;
-    coord_t initial_path_list[path_max_sz];
-
-    /*
-       We brute force ourselves into a projectile path from a start point
-       and an endpoint *around* the given points (we test those first btw).
-
-       When we have a valid path, travel it backwards to find the optimal one.
-     */
-    bool found = false;
-    int path_sz = -1;
-    int init_path_sz = -1;
-    for (int i = 0; i < ARRAY_SZ(delta) && (found == false); i++) {
-        lg_debug("try %d from (%d,%d) => (%d,%d)", i, s->x,s->y,e->x,e->y);
-        end.x = e->x + delta[i].x;
-        end.y = e->y + delta[i].y;
-        if (cd_within_bound(&begin, &map->size) == false) continue;
-        if (cd_within_bound(&end, &map->size) == false) continue;
-
-        init_path_sz = bresenham(map, end.x, end.y,s->x, s->y, initial_path_list, path_max_sz);
-        if (init_path_sz < 0) {
-            lg_debug("begin (%d,%d) end (%d,%d) not good", s->x, s->y, end.x,end.y);
-        }
-        else {
-            found = true;
-            lg_debug("begin (%d,%d) end (%d,%d) *is* good", s->x, s->y, end.x,end.y);
-        }
+    int path_sz = 0;
+    struct pf_context *pf_ctx = NULL;
+    if (aiu_generate_astar(&pf_ctx, map, s, e, 0) == true) {
+        path_sz = pf_calculate_path(pf_ctx, s, e, path_lst);
     }
-    
-    if (found == false) {
-        lg_debug("hopeless");
-        return -1;
-    }
-
-    for (int i = init_path_sz -1; i >= 0; i--) {
-        lg_debug("initplist[%d] (%d,%d)", i, initial_path_list[i].x, initial_path_list[i].y);
-    }
-
-    path_sz = cd_pyth(s,e) +2;
-    *path_lst = calloc(path_sz +1, sizeof(coord_t) );
-    if (*path_lst == NULL) return -1;
-    coord_t *plist = *path_lst;
-
-    plist[path_sz -1] = *e;
-    for (int i = path_sz -2; i >= 0; i--) {
-        int ipl_idx = 0;
-        coord_t last = plist[i+1];
-        coord_t *best = &last;
-        coord_t src_dist = cd_delta_abs(best, s);
-
-        /* consider the next 3 points in the array */
-        for (int j = ipl_idx; j < initial_path_list && j <= ipl_idx+3; j++) {
-            coord_t *cp = &initial_path_list[j];
-            coord_t c_dist = cd_delta_abs(cp, &last);
-
-            /* the step cannot be greater than dx: +1, dy: +1*/
-            if (c_dist.x <= 1 && c_dist.y <= 1) {
-                c_dist = cd_delta_abs(cp, s);
-                if (cd_pyth(cp,s) < cd_pyth(best,s) ) {
-                    best = cp;
-                    src_dist = c_dist;
-                }
-                else if (cd_pyth(cp,s) == cd_pyth(best,s) ) {
-                    if ( (c_dist.x < src_dist.x) || (c_dist.y < src_dist.y) ) {
-                        best = cp;
-                        src_dist = c_dist;
-                        ipl_idx = j+1;
-                    }
-                }
-            }
-        }
-        plist[i] = *best;
-
-        if (src_dist.x <= 1 && src_dist.y <= 1) {
-            i = -1;
-        }
-    }
-    plist[0] = *s;
 
     return path_sz;
 }

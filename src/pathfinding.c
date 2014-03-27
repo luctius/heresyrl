@@ -32,10 +32,14 @@ static inline struct pf_map_entity *pf_get_index(coord_t *p, struct pf_map *map)
     return &map->map[(p->x * map->size.y) + p->y];
 }
 
-static const coord_t pf_coord_lo_table[] = {
-    {-1,-1}, {-1,0}, {-1,1}, 
-    { 0,-1},         { 0,1}, 
-    { 1,-1}, { 1,0}, { 1,1},
+static const coord_t pf_coord_lo_table_card[] = {
+    {-1,0}, { 0,-1}, { 0,1},  { 1,0}, 
+    { 1,-1}, { 1,1}, {-1,-1},  {-1,1}, 
+};
+
+static const coord_t pf_coord_lo_table_diag[] = {
+    { 1,-1}, { 1,1}, {-1,-1},  {-1,1}, 
+    {-1,0}, { 0,-1}, { 0,1},  { 1,0}, 
 };
 
 static bool pf_flood_map_point(struct pf_context *ctx, coord_t *point, coord_t *end) {
@@ -65,9 +69,9 @@ static bool pf_flood_map_point(struct pf_context *ctx, coord_t *point, coord_t *
 
     /* calculate around current point */
     coord_t pos, pos_cbk;
-    for (unsigned int i = 0; i < ARRAY_SZ(pf_coord_lo_table); i++) {
-        pos.x = pf_coord_lo_table[i].x + point->x;
-        pos.y = pf_coord_lo_table[i].y + point->y;
+    for (unsigned int i = 0; i < ARRAY_SZ(pf_coord_lo_table_card); i++) {
+        pos.x = pf_coord_lo_table_card[i].x + point->x;
+        pos.y = pf_coord_lo_table_card[i].y + point->y;
 
         if (cd_within_bound(&pos, &map->size) == false) continue;
         struct pf_map_entity *me_new = pf_get_index(&pos, map);
@@ -89,9 +93,9 @@ static bool pf_flood_map_point(struct pf_context *ctx, coord_t *point, coord_t *
         }
     }
 
-    for (unsigned int i = 0; i < ARRAY_SZ(pf_coord_lo_table); i++) {
-        pos.x = pf_coord_lo_table[i].x + point->x;
-        pos.y = pf_coord_lo_table[i].y + point->y;
+    for (unsigned int i = 0; i < ARRAY_SZ(pf_coord_lo_table_card); i++) {
+        pos.x = pf_coord_lo_table_card[i].x + point->x;
+        pos.y = pf_coord_lo_table_card[i].y + point->y;
 
         if (cd_within_bound(&pos, &map->size) == false) continue;
         me = pf_get_index(&pos, map);
@@ -157,9 +161,9 @@ static bool pf_astar_loop(struct pf_context *ctx, coord_t *end) {
 
         /* calculate around current point */
         coord_t pos, pos_cbk;
-        for (unsigned int i = 0; i < ARRAY_SZ(pf_coord_lo_table); i++) {
-            pos.x = pf_coord_lo_table[i].x + point.x;
-            pos.y = pf_coord_lo_table[i].y + point.y;
+        for (unsigned int i = 0; i < ARRAY_SZ(pf_coord_lo_table_card); i++) {
+            pos.x = pf_coord_lo_table_card[i].x + point.x;
+            pos.y = pf_coord_lo_table_card[i].y + point.y;
 
             if (cd_within_bound(&pos, &map->size) == false) continue;
             struct pf_map_entity *me_new = pf_get_index(&pos, map);
@@ -205,9 +209,21 @@ static bool pf_backtrace(struct pf_map *map, coord_t *end, coord_t coord_lst[], 
 
         unsigned int best = PF_BLOCKED;
         coord_t pos, best_pos;
-        for (unsigned int j = 0; j < ARRAY_SZ(pf_coord_lo_table); j++) {
-            pos.x = pf_coord_lo_table[j].x + point.x;
-            pos.y = pf_coord_lo_table[j].y + point.y;
+
+        int lo_table_max = ARRAY_SZ(pf_coord_lo_table_card);
+        coord_t *lo_table = pf_coord_lo_table_card;
+
+        {
+            coord_t d = cd_delta_abs(&point, end);
+            if ( abs(d.x - d.y) / ( (float) d.x + d.y) < 0.5) {
+                lo_table_max = ARRAY_SZ(pf_coord_lo_table_diag);
+                lo_table = pf_coord_lo_table_diag;
+            }
+        }
+
+        for (unsigned int j = 0; j < lo_table_max; j++) {
+            pos.x = lo_table[j].x + point.x;
+            pos.y = lo_table[j].y + point.y;
             me = pf_get_index(&pos, map);
             if (me->state != PF_ENTITY_STATE_FREE) {
                 bool found_best = false;
