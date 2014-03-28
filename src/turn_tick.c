@@ -4,10 +4,21 @@
 #include "coord.h"
 #include "game.h"
 
+bool tt_interrupt_event(uint32_t monster_uid) {
+    struct msr_monster *monster = NULL;
+    while ( (monster = msrlst_get_next_monster(monster) ) != NULL) {
+        if (monster->uid == monster_uid) {
+            if (monster->controller.interruptable) {
+                monster->controller.interrupted = true;
+            }
+        }
+    }
+    return false;
+}
+
 void tt_process_monsters(struct dc_map *map) {
     struct msr_monster *monster = NULL;
 
-    /*TODO make a generic loop out of this one*/
     while ( (monster = msrlst_get_next_monster(monster) ) != NULL) {
         if (monster->dead) {
 
@@ -38,19 +49,19 @@ void tt_process_monsters(struct dc_map *map) {
     }
 }
 
-bool tt_interrupt_event(uint32_t monster_uid) {
-    struct msr_monster *monster = NULL;
-    while ( (monster = msrlst_get_next_monster(monster) ) != NULL) {
-        if (monster->uid == monster_uid) {
-            if (monster->controller.interruptable) {
-                monster->controller.interrupted = true;
+void tt_process_items(struct dc_map *map) {
+    struct itm_item *item = NULL;
+
+    while ( (item = itmlst_get_next_item(item) ) != NULL) {
+        if (item->energy_action == true) {
+            itm_change_energy(item, -TT_ENERGY_TICK);
+
+            if (itm_get_energy(item) < 0) {
+                item->energy_action = false;
+                itm_energy_action(item, map);
             }
         }
     }
-    return false;
-}
-
-void tt_process_items(struct dc_map *map) {
 }
 
 void tt_process(struct dc_map *map) {

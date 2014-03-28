@@ -16,8 +16,8 @@
 
 #define LIGHT(_tool_type,_energy,_light_luminem) \
             .icon='(', .stacked_quantity=1, .max_quantity=100, .item_type=ITEM_TYPE_TOOL, \
-            .specific.tool={ .tool_type=_tool_type, .energy=_energy, .energy_left=_energy, \
-            .light_luminem=_light_luminem, .lit=false,}
+            .specific.tool={ .tool_type=_tool_type, .energy=_energy, .light_luminem=_light_luminem, \
+            .lit=false,}
 
 #define ARMOUR(_damage_reduction,_locations,_special_quality) \
             .icon=']', .stacked_quantity=0, .max_quantity=1, .item_type=ITEM_TYPE_WEARABLE, \
@@ -70,7 +70,7 @@ struct itm_item static_item_list[] = {
         LIGHT(TOOL_TYPE_LIGHT,  65000,     10), ITEM_END,
 
     ITEM(ITEM_ID_GLOW_GLOBE,    "glow globe",    "a glow globe", ITM_DESC_GLOW_GLOBE,  ITEM_AVAILABILITY_AVERAGE, ITEM_QUALITY_AVERAGE, 1,     1,   1),
-        LIGHT(TOOL_TYPE_LIGHT,   100,      10), ITEM_END,
+        LIGHT(TOOL_TYPE_LIGHT,   1000,      10), ITEM_END,
 
     /* Wearables */
     /*    ID                     short name  long name                       description          availability               quality          weight,cost,delay*/

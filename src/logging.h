@@ -80,6 +80,7 @@ void lg_exit(struct logging *log);
 void lg_set_debug_lvl(struct logging *log, enum lg_debug_levels lvl);
 void lg_set_callback(struct logging *log, void *priv, callback_event ce);
 
+#define msg(f, a...) lg_printf_l(LG_DEBUG_LEVEL_GAME, __FILE__, f, ##a)
 #define lg_print(f, a...) lg_printf_l(LG_DEBUG_LEVEL_INFORMATIONAL, __FILE__, f, ##a)
 #define lg_debug(f, a...) lg_printf_l(LG_DEBUG_LEVEL_DEBUG, __FILE__, f, ##a)
 #define lg_warning(f, a...) lg_printf_l(LG_DEBUG_LEVEL_WARNING, __FILE__, f, ##a)

@@ -4,6 +4,7 @@
 #include "items.h"
 #include "inventory.h"
 #include "game.h"
+#include "turn_tick.h"
 #include "dungeon_creator.h"
 
 static bool wield_melee_weapon(struct msr_monster *monster, struct itm_item *item) {
@@ -191,16 +192,29 @@ bool dw_use_item(struct msr_monster *monster, struct itm_item *item) {
 
     if (item->item_type == ITEM_TYPE_TOOL && item->specific.tool.tool_type == TOOL_TYPE_LIGHT) {
         if (item->specific.tool.lit == false) {
+            if (item->specific.tool.energy == 0) {
+                msg("The %s has is out of juice.", item->sd_name);
+                return false;
+            }
+
             item->specific.tool.lit = true;
+            item->energy = item->specific.tool.energy_left * TT_ENERGY_TURN;
+            item->energy_action = true;
 
             You(monster, "light %s.", item->ld_name);
             Monster(monster, "lights %s.", item->ld_name);
         }
         else {
             item->specific.tool.lit = false;
+            item->energy_action = false;
+            item->specific.tool.energy = 0;
 
-            You(monster, "douse %s.", item->ld_name);
-            Monster(monster, "douses %s.", item->ld_name);
+            if (item->energy > 0) {
+                item->specific.tool.energy_left = item->energy / TT_ENERGY_TURN;
+
+                You(monster, "douse %s.", item->ld_name);
+                Monster(monster, "douses %s.", item->ld_name);
+            }
         }
     }
     return true;

@@ -166,6 +166,45 @@ bool itm_has_quality(struct itm_item *item, enum item_quality q) {
     return (item->quality == q);
 }
 
+bool itm_energy_action(struct itm_item *item, struct dc_map *map) {
+    if (itm_verify_item(item) == false) return false;
+    if (item->energy > 0) return false;
+
+    /*
+       this should be given it's own place, but for now lets hack it.
+     */
+    switch(item->item_type) {
+        case ITEM_TYPE_TOOL:
+            if (tool_is_type(item, TOOL_TYPE_LIGHT) ) {
+                item->specific.tool.energy_left = 0;
+                item->specific.tool.lit = false;
+                msg("A %s switches off as it runs out of juice.", item->sd_name);
+            }
+        case ITEM_TYPE_WEAPON:
+        case ITEM_TYPE_WEARABLE:
+        case ITEM_TYPE_AMMO:
+        case ITEM_TYPE_FOOD:
+        default: return false;
+    }
+
+    return true;
+}
+
+/* change the item's energy by this much, true if succefull. */
+bool itm_change_energy(struct itm_item *item, int energy) {
+    if (itm_verify_item(item) == false) return false;
+    if (item->energy_action == false) return false;
+
+    item->energy += energy;
+    return true;
+}
+
+int itm_get_energy(struct itm_item *item) {
+    if (itm_verify_item(item) == false) return -1;
+    if (item->energy_action == false) return -1;
+    return item->energy;
+}
+
 bool wpn_is_type(struct itm_item *item, enum item_weapon_type type) {
     if (item == NULL) return false;
     if (itm_verify_item(item) == false) return false;

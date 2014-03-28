@@ -211,8 +211,6 @@ bool sgt_calculate_light_source(struct sgt_sight *sight, struct dc_map *map, str
     digital_fov(&set, &c, item->specific.tool.light_luminem);
 #endif
 
-    sd_get_map_me(&c,map)->icon_attr_override = get_colour(TERM_COLOUR_YELLOW);
-
     return true;
 }
 

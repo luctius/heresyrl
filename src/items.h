@@ -238,6 +238,18 @@ struct itm_item {
     /* total amount of time this item exists, in energy*/
     unsigned long age;
 
+    /* 
+       amount of energy this item has, 
+       if energy_action == false, this is not used.
+
+       if energy_action == true, there is an action attached 
+       to this item when its energy reaches <= 0.
+
+       this can be used by grenades and torches for example.
+     */
+    bool energy_action;
+    int energy;
+
     /* whether or not this item appears on the ground after a creature is dead. */
     bool dropable;
 
@@ -293,6 +305,14 @@ coord_t itm_get_pos(struct itm_item *item);
 
 /* true if this item has this quality*/
 bool itm_has_quality(struct itm_item *item, enum item_quality q);
+
+/* fuctions which is called when item->energy reaches zero and enery_action = true. */
+bool itm_energy_action(struct itm_item *item, struct dc_map *map);
+
+/* change the item's energy by this much, true if succefull.  */
+bool itm_change_energy(struct itm_item *item, int energy);
+
+int itm_get_energy(struct itm_item *item);
 
 /* true if the item is a weapon and is of this weapon type */
 bool wpn_is_type(struct itm_item *item, enum item_weapon_type type);
