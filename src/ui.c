@@ -76,7 +76,7 @@ static void win_destroy(struct hrl_window *window);
 static void win_generate_colours(void) {
     if (colours_generated == false) {
         colours_generated = true;
-        lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "ui", "generating colours");
+        lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "ui", "generating colours, we do %d, max is %d", TERM_COLOUR_MAX, COLOR_PAIRS);
 
         generate_colours();
     }
@@ -409,7 +409,7 @@ void mapwin_overlay_examine_cursor(struct dc_map *map, coord_t *p_pos) {
 
         lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "ui", "examining pos: (%d,%d), plr (%d,%d)", e_pos.x, e_pos.y, p_pos->x, p_pos->y);
         chtype oldch = mvwinch(map_win->win, e_pos.y - scr_y, e_pos.x - scr_x);
-        mvwchgat(map_win->win, e_pos.y - scr_y, e_pos.x - scr_x, 1, A_NORMAL, get_colour(TERM_COLOUR_BG_RED) , NULL);
+        mvwaddch(map_win->win, e_pos.y - scr_y, e_pos.x - scr_x, (oldch & 0xFF) | get_colour(TERM_COLOUR_BG_RED) );
         wrefresh(map_win->win);
         mvwaddch(map_win->win, e_pos.y - scr_y, e_pos.x - scr_x, oldch);
     }
@@ -417,6 +417,41 @@ void mapwin_overlay_examine_cursor(struct dc_map *map, coord_t *p_pos) {
 
     delwin(map_win_ex);
     wrefresh(map_win->win);
+}
+
+void ui_animate_explosion(struct dc_map *map, coord_t path[], int path_len) {
+    if (gbl_game == NULL) return;
+    if (gbl_game->player_data.player == NULL) return;
+
+    int scr_x = get_viewport(last_ppos.x, map_win->cols, map->size.x);
+    int scr_y = get_viewport(last_ppos.y, map_win->lines, map->size.y);
+
+    chtype chlist[path_len];
+
+    for (int i = 0; i < path_len; i++) {
+        if (sd_get_map_me(&path[i],map)->visible == true) {
+            chlist[i] = mvwinch(map_win->win, path[i].y - scr_y, path[i].x - scr_x);
+            mvwaddch(map_win->win, path[i].y - scr_y, path[i].x - scr_x, chlist[i] | get_colour(TERM_COLOUR_BG_YELLOW) );
+        }
+    }
+
+    wrefresh(map_win->win);
+    usleep(50000);
+
+    for (int i = 0; i < path_len; i++) {
+        if (sd_get_map_me(&path[i],map)->visible == true) {
+            mvwaddch(map_win->win, path[i].y - scr_y, path[i].x - scr_x, chlist[i] | get_colour(TERM_COLOUR_BG_RED) );
+        }
+    }
+
+    wrefresh(map_win->win);
+    usleep(50000);
+
+    for (int i = 0; i < path_len; i++) {
+        if (sd_get_map_me(&path[i],map)->visible == true) {
+            mvwaddch(map_win->win, path[i].y - scr_y, path[i].x - scr_x, chlist[i]);
+        }
+    }
 }
 
 void ui_animate_projectile(struct dc_map *map, coord_t path[], int path_len, int p) {
@@ -429,10 +464,10 @@ void ui_animate_projectile(struct dc_map *map, coord_t path[], int path_len, int
     for (int i = 1; i < path_len; i++) {
         if (sd_get_map_me(&path[i],map)->visible == true) {
             chtype oldch = mvwinch(map_win->win, path[i].y - scr_y, path[i].x - scr_x);
-            mvwaddch(map_win->win, path[i].y - scr_y, path[i].x - scr_x, p | get_colour(TERM_COLOUR_L_RED) );
+            mvwaddch(map_win->win, path[i].y - scr_y, path[i].x - scr_x, p | get_colour(TERM_COLOUR_RED) );
             wrefresh(map_win->win);
             mvwaddch(map_win->win, path[i].y - scr_y, path[i].x - scr_x, oldch);
-            usleep(100000);
+            usleep(20000);
         }
     }
 }
@@ -520,13 +555,13 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dc_map *map, coord_t *
         lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "mapwin", "entering fire_mode (%d,%d) -> (%d,%d)", p_pos->x, p_pos->y, e_pos.x, e_pos.y);
 
         path_len = sgt_los_path(gbl_game->sight, gbl_game->current_map, p_pos, &e_pos, &path, false);
-        for (int i = 0; i < path_len; i++) {
-            mvwchgat(map_win->win, path[i].y - scr_y, path[i].x - scr_x, 1, A_NORMAL, get_colour(TERM_COLOUR_BG_RED), NULL);
-            //lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "mapwin", "fire_mode: [%d/%d] c (%d,%d) -> (%d,%d)", i, path_len, path[i].x, path[i].y, path[i].x - scr_x, path[i].y - scr_y);
+        for (int i = 1; i < path_len; i++) {
+
+            mvwaddch(map_win->win, path[i].y - scr_y, path[i].x - scr_x, '*' | get_colour(TERM_COLOUR_RED) );
         }
         if (path_len > 0) free(path);
 
-        mvwchgat(map_win->win, e_pos.y - scr_y, e_pos.x - scr_x, 1, A_NORMAL, get_colour(TERM_COLOUR_BG_RED), NULL);
+        mvwaddch(map_win->win, e_pos.y - scr_y, e_pos.x - scr_x, '*' | get_colour(TERM_COLOUR_RED) );
         wrefresh(map_win->win);
     }
     while((ch = inp_get_input()) != INP_KEY_ESCAPE && fire_mode);

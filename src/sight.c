@@ -12,8 +12,8 @@
 #include "fov.h"
 #include "digital_fov.h"
 
-#define SHADOW_FOV
-//#define DIGITAL_FOV
+//#define SHADOW_FOV
+#define DIGITAL_FOV
 
 #if defined (SHADOW_FOV) && defined(DIGITAL_FOV)
     #undef DIGITAL_FOV
@@ -54,6 +54,7 @@ static bool dig_apply_player_sight(struct digital_fov_set *set, coord_t *point, 
 
     struct dc_map_entity *me = sd_get_map_me(point,map);
     int mod = 0;
+    me->in_sight = true;
 
     if (me->light_level > 0) {
         me->visible = true;
@@ -63,16 +64,13 @@ static bool dig_apply_player_sight(struct digital_fov_set *set, coord_t *point, 
     int range = cd_pyth(point, origin);
     if (range < msr_get_near_sight_range(monster)) {
         me->discovered = true;
-        me->in_sight = true;
         me->visible = true;
     }
     else if (range < msr_get_medium_sight_range(monster)) {
-        me->in_sight = true;
         me->discovered = true;
         mod = -20;
     }
     else {
-        me->in_sight = true;
         mod = -30;
     }
 
@@ -162,10 +160,22 @@ static void sc_apply_light_source(void *vmap, int x, int y, int dx, int dy, void
     if (dc_verify_map(map) == false) return;
     if (cd_within_bound(&c, &map->size) == false) return;
     if (itm_verify_item(item) == false) return;
+    if (item->type != ITEM_TYPE_TOOL) return;
     if ( (item->specific.tool.light_luminem - pyth(dx, dy) ) <= 0) return;
 
     sd_get_map_me(&c,map)->light_level = item->specific.tool.light_luminem - pyth(dx, dy);
 }
+
+static void sc_apply_explosion(void *vmap, int x, int y, int dx, int dy, void *isrc) {
+    struct dc_map *map = (struct dc_map *) vmap;
+    struct itm_item *item = (struct itm_item *) isrc;
+
+    coord_t c = cd_create(x,y);
+    if (dc_verify_map(map) == false) return;
+    if (cd_within_bound(&c, &map->size) == false) return;
+    if (itm_verify_item(item) == false) return;
+}
+
 #endif
 
 struct sgt_sight *sgt_init(void) {
@@ -252,9 +262,29 @@ bool sgt_calculate_player_sight(struct sgt_sight *sight, struct dc_map *map, str
     return true;
 }
 
+bool sgt_explosion(struct sgt_sight *sight, struct dc_map *map, struct itm_item *item) {
+    if (sight == NULL) return false;
+    if (dc_verify_map(map) == false) return false;
+    if (itm_verify_item(item) == false) return false;
+    coord_t c = itm_get_pos(item);
+    int radius = 2;
+
+#ifdef SHADOW_FOV
+    fov_settings_set_opacity_test_function(&sight->fov_settings, sc_check_opaque);
+    fov_settings_set_apply_lighting_function(&sight->fov_settings, sc_apply_explosion);
+    fov_circle(&sight->fov_settings, map, item, c.x, c.y, radius);
+#endif
+
+    return true;
+}
+
 int bresenham(struct dc_map *map, coord_t *s, coord_t *e, coord_t plist[], int plist_sz);
 int wu_line(coord_t *s, coord_t *e, coord_t plst[], int plst_sz);
 
+/*
+TODO BUG:
+the code checks for opaque, but a projectile requires traversable.
+*/
 int sgt_los_path(struct sgt_sight *sight, struct dc_map *map, coord_t *s, coord_t *e, coord_t *path_lst[], bool continue_path) {
     if (sight == NULL) return -1;
     if (dc_verify_map(map) == false) return -1;
@@ -313,7 +343,7 @@ int sgt_los_path(struct sgt_sight *sight, struct dc_map *map, coord_t *s, coord_
     if (*path_lst == NULL) return -1;
 
     /* 
-       Known bug:
+       TODO Known bug:
        On some lines, there is a unnecesary step
        This would require another loop and do a 
        look-ahead check fo a neighbour.
@@ -395,11 +425,45 @@ int sgt_los_path(struct sgt_sight *sight, struct dc_map *map, coord_t *s, coord_
     return pidx;
 }
 
+coord_t sgt_scatter(struct sgt_sight *sight, struct dc_map *map, struct random *r, coord_t *p, int radius) {
+    /* Do not try forever. */
+    int i_max = radius * radius;
+    coord_t c;
+
+    for (int i; i < i_max; i++)  {
+        /* get a random point within radius */
+        int dx = random_int32(r) % radius;
+        int dy = random_int32(r) % radius;
+
+        /* create the point relative to p */
+        c = cd_create(p->x + dx, p->y +dy);
+
+        /* require a point within map */
+        if (cd_within_bound(&c, map) == false) continue;
+
+        /* require an traversable point */
+        if ( (sd_get_map_tile(&c,map)->attributes & TILE_ATTR_TRAVERSABLE) == 0) continue;
+
+        /* require line of sight */
+        if (sgt_has_los(sight, map, p, &c) == false) continue;
+
+        return c;
+    }
+    
+    c = cd_create(0,0);
+    return c;
+}
+
 bool sgt_has_los(struct sgt_sight *sight, struct dc_map *map, coord_t *s, coord_t *e) {
     if (sight == NULL) return false;
     if (dc_verify_map(map) == false) return false;
 
 #ifdef SHADOW_FOV
+    coord_t *path;
+    if (sgt_los_path(sight, map, s, e, &path, false) > 0) {
+        free(path);
+        return true;
+    }
     return false;
 
 #elif defined (DIGITAL_FOV)
@@ -420,6 +484,11 @@ bool sgt_has_lof(struct sgt_sight *sight, struct dc_map *map, coord_t *s, coord_
     if (dc_verify_map(map) == false) return false;
 
 #ifdef SHADOW_FOV
+    coord_t *path;
+    if (sgt_los_path(sight, map, s, e, &path, false) > 0) {
+        free(path);
+        return true;
+    }
     return false;
 
 #elif defined(DIGITAL_FOV)

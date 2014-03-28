@@ -70,7 +70,7 @@ int fght_ranged_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght
             else CALC_TOHIT(distance <= FGHT_POINT_BLANK_RANGE, FGHT_RANGED_MODIFIER_POINT_BLACK, "target is at point-blank range")
             else CALC_TOHIT(dis_in_meters <= (wpn->range * 0.5), FGHT_RANGED_MODIFIER_SHORT_RANGE, "target is at short range")
 
-        /* Lighting modifiers */
+        /* Lighting modifiers */ /* TODO: These are based around the player, make them player agnostic */
         CALC_TOHIT(me->in_sight == false, FGHT_MODIFIER_VISION_COMPLETE_DARKNESS, "target is in complete darkness")
         else CALC_TOHIT(me->visible == false, FGHT_MODIFIER_VISION_DARKNESS, "target is in darkness")
         else CALC_TOHIT((me->in_sight) && (me->light_level == 0), FGHT_MODIFIER_VISION_SHADOWS, "target is in shadows")

@@ -6,11 +6,11 @@
 #include <heresyrl_def.h>
 
 typedef struct coord {
-    int x;
-    int y;
+    short x;
+    short y;
 } coord_t;
 
-inline coord_t cd_create(int x, int y) {
+inline coord_t cd_create(short x, short y) {
     coord_t c = { .x = x, .y = y,};
     return c;
 }
@@ -34,7 +34,7 @@ inline bool cd_within_bound(coord_t *a, coord_t *b) {
     return true;
 }
 
-inline int cd_pyth(coord_t *a, coord_t *b) {
+inline short cd_pyth(coord_t *a, coord_t *b) {
     int s1 = abs(a->x - b->x);
     int s2 = abs(a->y - b->y);
     return pyth(s1, s2);

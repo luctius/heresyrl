@@ -5,8 +5,6 @@
 #include "pathfinding.h"
 #include "coord.h"
 
-coord_t aiu_scatter(struct dc_map *map, coord_t *pos);
-
 struct msr_monster *aiu_get_nearest_enemy(struct msr_monster *monster, int ignore_cnt, struct dc_map *map);
 struct msr_monster *aiu_get_nearest_monster(coord_t *pos, int radius, int ignore_cnt, struct dc_map *map);
 
