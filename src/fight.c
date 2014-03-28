@@ -359,14 +359,78 @@ bool fght_melee(struct random *r, struct msr_monster *monster, struct msr_monste
     return true;
 }
 
-int fght_shoot(struct random *r, struct msr_monster *monster, struct dc_map *map, coord_t *e) {
-    if (msr_verify_monster(monster) == false) return -1;
-    if (dc_verify_map(map) == false) return -1;
-    if (e == NULL) return -1;
-    if (msr_weapon_type_check(monster, WEAPON_TYPE_RANGED) == false) return -1;
+#if 0
+bool fght_throw(struct random *r, struct msr_monster *monster, struct dc_map *map, coord_t *e, struct itm_item *item) {
+    if (msr_verify_monster(monster) == false) return false;
+    if (dc_verify_map(map) == false) return false;
+    if (cd_within_bound(e, &map->size) == false) return false;
+    if (sgt_has_los(gbl_game->sight, map, &monster->pos, e) == false) return false;
+
+    bool has_hit = false;
+
+    /*
+       There are two types of throwing.
+       - direct with weapons.
+       - utility items or grenades.
+
+       the first require an item in hand and a valid target.
+       the second just throw at a square.
+
+       if it is an weapon, we just check if we hit.
+       if it is not, there is a change of scatter.
+     */
+
+    if (msr_weapon_type_check(monster, WEAPON_TYPE_THROWN) == true) {
+
+        /* if we are throwing a weapon...  */
+        for (int w = 0; w < FGHT_MAX_HAND; w++) {
+            enum fght_hand hand = wpn_hand_list[w];
+
+            /* init compound message */
+            msg_init(monster, target);
+
+            /* check of we can hit the target */
+            //hits = fght_throw_roll(r, monster, target, hand);
+
+            /* Do the actual damage if we did score a hit. */
+            /*
+            if (hits > 0) {
+                if (fght_do_weapon_dmg(r, monster, target, hits, hand) == true) {
+                    hit_something = true;
+                }
+            }
+            */
+
+            /* exit compound message */
+            msg_exit();
+        }
+    }
+
+    /* Genereate a path our projectile will take. Start at 
+       the shooter position, and continue the same path 
+       untill an obstacle is found.*/
+    coord_t *path;
+    int path_len = sgt_los_path(gbl_game->sight, map, &monster->pos, e, &path, false);
+    ui_animate_projectile(map, path, path_len, '*');
+
+    /* if the path was succesfully created, free it here */
+    if (path_len > 0) free(path);
+
+    if (unblocked_length >= 0) return true;
+    return false;
+    return true;
+}
+#endif
+
+bool fght_shoot(struct random *r, struct msr_monster *monster, struct dc_map *map, coord_t *e) {
+    if (msr_verify_monster(monster) == false) return false;
+    if (dc_verify_map(map) == false) return false;
+    if (cd_within_bound(&monster->pos, e) == false) return false;
+    if (msr_weapon_type_check(monster, WEAPON_TYPE_RANGED) == false) return false;
+    if (sgt_has_los(gbl_game->sight, map, &monster->pos, e) == false) return false;
     struct itm_item *item1 = fght_get_working_weapon(monster, WEAPON_TYPE_RANGED, FGHT_MAIN_HAND);
     struct itm_item *item2 = fght_get_working_weapon(monster, WEAPON_TYPE_RANGED, FGHT_OFF_HAND);
-    if ( (item1 == NULL) && (item2 == NULL) ) return -1;
+    if ( (item1 == NULL) && (item2 == NULL) ) return false;
     int ammo1 = 0;
     int ammo2 = 0;
 
@@ -386,7 +450,7 @@ int fght_shoot(struct random *r, struct msr_monster *monster, struct dc_map *map
        the shooter position, and continue the same path 
        untill an obstacle is found.*/
     coord_t *path;
-    int path_len = sgt_los_path(gbl_game->sight, gbl_game->current_map, &monster->pos, e, &path, true);
+    int path_len = sgt_los_path(gbl_game->sight, map, &monster->pos, e, &path, true);
 
     /*  
         Here we loop over the
@@ -454,8 +518,8 @@ int fght_shoot(struct random *r, struct msr_monster *monster, struct dc_map *map
     /* if the path was succesfully created, free it here */
     if (path_len > 0) free(path);
 
-    /* return the nr of tiles the projectile traveled */
-    return unblocked_length;
+    if (unblocked_length >= 0) return true;
+    return false;
 }
 
 const char *fght_weapon_hand_name(enum fght_hand hand) {

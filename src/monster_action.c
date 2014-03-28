@@ -211,7 +211,7 @@ bool ma_do_fire(struct msr_monster *monster, coord_t *pos) {
         }
     }
 
-    if (fght_shoot(gbl_game->game_random, monster, gbl_game->current_map, pos) < 0) {
+    if (fght_shoot(gbl_game->game_random, monster, gbl_game->current_map, pos) == false) {
         return false;
     }
 

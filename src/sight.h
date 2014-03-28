@@ -10,7 +10,7 @@ struct sgt_sight;
 struct sgt_sight *sgt_init(void);
 void sgt_exit(struct sgt_sight *sight);
 
-/* loops through the items list, looking for light sources and applies the light. */
+/* loops through the items list, looking for light sources and applies the light on the map. */
 bool sgt_calculate_all_light_sources(struct sgt_sight *sight, struct dc_map *map);
 
 bool sgt_calculate_light_source(struct sgt_sight *sight, struct dc_map *map, struct itm_item *item);
@@ -34,6 +34,9 @@ bool sgt_calculate_player_sight(struct sgt_sight *sight, struct dc_map *map, str
 
 /* returns a traversable point within radius and line of sight from point p */
 coord_t sgt_scatter(struct sgt_sight *sight, struct dc_map *map, struct random *r, coord_t *p, int radius);
+
+/* returns an list of grids affected by the 'explosion' at point pos  of size radius */
+int sgt_explosion(struct sgt_sight *sight, struct dc_map *map, coord_t *pos, int radius, coord_t *grid_list[]);
 
 /*
    calculates a path from s to e.  path_list must be the address of a 

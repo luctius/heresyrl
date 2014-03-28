@@ -101,8 +101,10 @@ int fght_ranged_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght
 int fght_melee_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght_hand hand);
 
 bool fght_do_dmg(struct random *r, struct msr_monster *monster, struct msr_monster *target, int hits, enum fght_hand hand);
-int fght_shoot(struct random *r, struct msr_monster *monster, struct dc_map *map, coord_t *e);
+bool fght_shoot(struct random *r, struct msr_monster *monster, struct dc_map *map, coord_t *e);
 bool fght_melee(struct random *r, struct msr_monster *monster, struct msr_monster *target);
+bool fght_throw(struct random *r, struct msr_monster *monster, struct dc_map *map, coord_t *e, struct itm_item *item);
+
 struct itm_item *fght_get_weapon(struct msr_monster *monster, enum item_weapon_type type, enum fght_hand hand);
 struct itm_item *fght_get_working_weapon(struct msr_monster *monster, enum item_weapon_type type, enum fght_hand hand); /* checks on emptiness and jammedness */
 const char *fght_weapon_hand_name(enum fght_hand hand);

@@ -1,5 +1,6 @@
 #include <math.h>
 #include <sys/param.h>
+#include <assert.h>
 
 #include "sight.h"
 #include "items.h"
@@ -10,27 +11,20 @@
 #include "pathfinding.h"
 #include "game.h"
 #include "fov.h"
+#include "random.h"
 #include "digital_fov.h"
-
-//#define SHADOW_FOV
-#define DIGITAL_FOV
-
-#if defined (SHADOW_FOV) && defined(DIGITAL_FOV)
-    #undef DIGITAL_FOV
-#endif
 
 struct sgt_sight {
     fov_settings_type fov_settings;
 };
 
-#ifdef DIGITAL_FOV
 static bool dig_check_opaque_lof(struct digital_fov_set *set, coord_t *point, coord_t *origin) {
     struct dc_map *map = set->map;
 
     if (dc_verify_map(map) == false) return false;
     if (cd_within_bound(point, &map->size) == false) return false;
 
-    if ( (sd_get_map_tile(point,map)->attributes & TILE_ATTR_OPAGUE) == 0) return false;
+    if ( (sd_get_map_tile(point,map)->attributes & TILE_ATTR_TRAVERSABLE) == 0) return false;
     if (sd_get_map_me(point,map)->monster != NULL) return false;
     return true;
 }
@@ -96,94 +90,35 @@ static bool dig_apply_light_source(struct digital_fov_set *set, coord_t *point, 
     sd_get_map_me(point,map)->light_level = item->specific.tool.light_luminem - cd_pyth(point, origin);
     return true;
 }
-#endif
 
-#ifdef SHADOW_FOV
-static bool sc_check_opaque(void *vmap, int x, int y) {
-    struct dc_map *map = (struct dc_map *) vmap;
+struct sgt_explosion_struct {
+    coord_t *list;
+    short list_sz;
+    short list_idx;
+};
 
-    coord_t c = cd_create(x,y);
+static bool dig_apply_explosion(struct digital_fov_set *set, coord_t *point, coord_t *origin) {
+    struct dc_map *map = set->map;
+    struct sgt_explosion_struct *ex = set->source;
+
     if (dc_verify_map(map) == false) return false;
-    if (cd_within_bound(&c, &map->size) == false) return false;
+    if (cd_within_bound(point, &map->size) == false) return false;
+    if (ex->list_idx >= ex->list_sz) return false;
+    if ( (sd_get_map_tile(point,map)->attributes & TILE_ATTR_TRAVERSABLE) == 0) return false;
 
-    return !( (sd_get_map_tile(&c,map)->attributes & TILE_ATTR_OPAGUE) > 0);
+    ex->list[ex->list_idx++] = *point;
+
+    return true;
 }
-
-static void sc_apply_player_sight(void *vmap, int x, int y, int dx, int dy, void *vsrc) {
-    struct dc_map *map = vmap;
-    struct msr_monster *monster = vsrc;
-    coord_t point = cd_create(x,y);
-
-    if (dc_verify_map(map) == false) return;
-    if (cd_within_bound(&point, &map->size) == false) return;
-    if (msr_verify_monster(monster) == false) return;
-
-    struct dc_map_entity *me = sd_get_map_me(&point,map);
-    int mod = 0;
-
-    if (me->light_level > 0) {
-        me->visible = true;
-        me->discovered = true;
-    }
-
-    int range = pyth(dx, dy);
-    if (range < msr_get_near_sight_range(monster)) {
-        me->discovered = true;
-        me->in_sight = true;
-        me->visible = true;
-    }
-    else if (range < msr_get_medium_sight_range(monster)) {
-        me->in_sight = true;
-        me->discovered = true;
-        mod = -20;
-    }
-    else {
-        me->in_sight = true;
-        mod = -30;
-    }
-
-    if (me->visible == false && me->monster != NULL) {
-        lg_print("Awareness check on (%d,%d)", point.x, point.y);
-        if (msr_skill_check(monster, SKILLS_AWARENESS, mod) >= 0) {
-            /*TODO scatter*/
-            me->icon_override = '?';
-        }
-    }
-    return;
-}
-
-static void sc_apply_light_source(void *vmap, int x, int y, int dx, int dy, void *isrc) {
-    struct dc_map *map = (struct dc_map *) vmap;
-    struct itm_item *item = (struct itm_item *) isrc;
-
-    coord_t c = cd_create(x,y);
-    if (dc_verify_map(map) == false) return;
-    if (cd_within_bound(&c, &map->size) == false) return;
-    if (itm_verify_item(item) == false) return;
-    if (item->type != ITEM_TYPE_TOOL) return;
-    if ( (item->specific.tool.light_luminem - pyth(dx, dy) ) <= 0) return;
-
-    sd_get_map_me(&c,map)->light_level = item->specific.tool.light_luminem - pyth(dx, dy);
-}
-
-static void sc_apply_explosion(void *vmap, int x, int y, int dx, int dy, void *isrc) {
-    struct dc_map *map = (struct dc_map *) vmap;
-    struct itm_item *item = (struct itm_item *) isrc;
-
-    coord_t c = cd_create(x,y);
-    if (dc_verify_map(map) == false) return;
-    if (cd_within_bound(&c, &map->size) == false) return;
-    if (itm_verify_item(item) == false) return;
-}
-
-#endif
 
 struct sgt_sight *sgt_init(void) {
     struct sgt_sight *retval = malloc(sizeof(struct sgt_sight) );
     if (retval != NULL) {
+        /*
         fov_settings_init(&retval->fov_settings);
         retval->fov_settings.corner_peek = FOV_CORNER_PEEK;
         retval->fov_settings.opaque_apply = FOV_OPAQUE_APPLY;
+        */
     }
     return retval;
 }
@@ -203,13 +138,6 @@ bool sgt_calculate_light_source(struct sgt_sight *sight, struct dc_map *map, str
     if (item->specific.tool.lit != true) return false;
     coord_t c = itm_get_pos(item);
 
-#ifdef SHADOW_FOV
-    fov_settings_set_opacity_test_function(&sight->fov_settings, sc_check_opaque);
-    fov_settings_set_apply_lighting_function(&sight->fov_settings, sc_apply_light_source);
-    fov_circle(&sight->fov_settings, map, item, c.x, c.y, item->specific.tool.light_luminem);
-#endif
-
-#ifdef DIGITAL_FOV
     struct digital_fov_set set = {
         .source = item,
         .map = map,
@@ -219,7 +147,6 @@ bool sgt_calculate_light_source(struct sgt_sight *sight, struct dc_map *map, str
     };
 
     digital_fov(&set, &c, item->specific.tool.light_luminem);
-#endif
 
     return true;
 }
@@ -240,14 +167,6 @@ bool sgt_calculate_player_sight(struct sgt_sight *sight, struct dc_map *map, str
     if (dc_verify_map(map) == false) return false;
     if (msr_verify_monster(monster) == false) return false;
 
-#ifdef SHADOW_FOV
-    fov_settings_set_opacity_test_function(&sight->fov_settings, sc_check_opaque);
-    fov_settings_set_apply_lighting_function(&sight->fov_settings, sc_apply_player_sight);
-    fov_circle(&sight->fov_settings, map, monster, monster->pos.x, monster->pos.y, msr_get_far_sight_range(monster) );
-    sc_apply_player_sight(map, monster->pos.x, monster->pos.y, 0,0, monster);
-#endif
-
-#ifdef DIGITAL_FOV
     struct digital_fov_set set = {
         .source = monster,
         .map = map,
@@ -256,26 +175,45 @@ bool sgt_calculate_player_sight(struct sgt_sight *sight, struct dc_map *map, str
         .apply = dig_apply_player_sight,
     };
 
-    digital_fov(&set, &monster->pos, msr_get_far_sight_range(monster) );
-#endif
-
-    return true;
+    return digital_fov(&set, &monster->pos, msr_get_far_sight_range(monster) );
 }
 
-bool sgt_explosion(struct sgt_sight *sight, struct dc_map *map, struct itm_item *item) {
+int sgt_explosion(struct sgt_sight *sight, struct dc_map *map, coord_t *pos, int radius, coord_t *grid_list[]) {
     if (sight == NULL) return false;
     if (dc_verify_map(map) == false) return false;
-    if (itm_verify_item(item) == false) return false;
-    coord_t c = itm_get_pos(item);
-    int radius = 2;
 
-#ifdef SHADOW_FOV
-    fov_settings_set_opacity_test_function(&sight->fov_settings, sc_check_opaque);
-    fov_settings_set_apply_lighting_function(&sight->fov_settings, sc_apply_explosion);
-    fov_circle(&sight->fov_settings, map, item, c.x, c.y, radius);
-#endif
+    *grid_list = calloc(radius * 4, sizeof(coord_t) );
+    if (*grid_list == NULL) return -1;
 
-    return true;
+
+    struct sgt_explosion_struct ex = {
+        .list = *grid_list,
+        .list_sz = radius * 4,
+        .list_idx = 0,
+    };
+
+    struct digital_fov_set set = {
+        .source = &ex,
+        .map = map,
+        .size = map->size,
+        .is_opaque = dig_check_opaque_lof,
+        .apply = dig_apply_explosion,
+    };
+
+    if (digital_fov(&set, pos, radius) == false) {
+        free(*grid_list);
+        return -1;
+    }
+
+    /* 
+       we are probably not using a lot of the space allocated.
+       thus we request a smaller block. If we do that correctly,
+       we should save the old pointer, but we do not because we
+       are lazy. assert for now that it is succesfull.
+     */
+    *grid_list = realloc(*grid_list, ex.list_idx * sizeof(coord_t) );
+    assert(*grid_list != NULL);
+    return ex.list_idx;
 }
 
 int bresenham(struct dc_map *map, coord_t *s, coord_t *e, coord_t plist[], int plist_sz);
@@ -397,7 +335,7 @@ int sgt_los_path(struct sgt_sight *sight, struct dc_map *map, coord_t *s, coord_
             at the end of the list. This creates a 
             coninues path untill an obstacle is found.
          */
-        int i = pidx;
+        i = pidx;
         bool blocked = false;
         int j = i;
         while ( (i < path_sz) && (blocked == false) ) {
@@ -439,7 +377,7 @@ coord_t sgt_scatter(struct sgt_sight *sight, struct dc_map *map, struct random *
         c = cd_create(p->x + dx, p->y +dy);
 
         /* require a point within map */
-        if (cd_within_bound(&c, map) == false) continue;
+        if (cd_within_bound(&c, &map->size) == false) continue;
 
         /* require an traversable point */
         if ( (sd_get_map_tile(&c,map)->attributes & TILE_ATTR_TRAVERSABLE) == 0) continue;
@@ -458,15 +396,6 @@ bool sgt_has_los(struct sgt_sight *sight, struct dc_map *map, coord_t *s, coord_
     if (sight == NULL) return false;
     if (dc_verify_map(map) == false) return false;
 
-#ifdef SHADOW_FOV
-    coord_t *path;
-    if (sgt_los_path(sight, map, s, e, &path, false) > 0) {
-        free(path);
-        return true;
-    }
-    return false;
-
-#elif defined (DIGITAL_FOV)
     struct digital_fov_set set = {
         .source = NULL,
         .map = map,
@@ -476,22 +405,12 @@ bool sgt_has_los(struct sgt_sight *sight, struct dc_map *map, coord_t *s, coord_
     };
 
     return digital_los(&set, s, e, false);
-#endif
 }
 
 bool sgt_has_lof(struct sgt_sight *sight, struct dc_map *map, coord_t *s, coord_t *e) {
     if (sight == NULL) return false;
     if (dc_verify_map(map) == false) return false;
 
-#ifdef SHADOW_FOV
-    coord_t *path;
-    if (sgt_los_path(sight, map, s, e, &path, false) > 0) {
-        free(path);
-        return true;
-    }
-    return false;
-
-#elif defined(DIGITAL_FOV)
     struct digital_fov_set set = {
         .source = NULL,
         .map = map,
@@ -501,7 +420,6 @@ bool sgt_has_lof(struct sgt_sight *sight, struct dc_map *map, coord_t *s, coord_
     };
 
     return digital_los(&set, s, e, false);
-#endif
 }
 
 
