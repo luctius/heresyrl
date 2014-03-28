@@ -12,6 +12,7 @@
 #include "ui.h"
 #include "game.h"
 #include "sight.h"
+#include "turn_tick.h"
 
 #define MAX_TO_HIT_MODS (30)
 static int tohit_desc_ctr = 0;
@@ -27,7 +28,10 @@ int fght_ranged_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght
     struct msr_monster *target = me->monster;
 
     struct itm_item *witem = fght_get_working_weapon(monster, WEAPON_TYPE_RANGED, hand);
-    if (witem == NULL) return -1;
+    if (witem == NULL) {
+        witem = fght_get_working_weapon(monster, WEAPON_TYPE_THROWN, hand);
+        if (witem == NULL) return -1;
+    }
     struct item_weapon_specific *wpn = &witem->specific.weapon;
 
     int to_hit = msr_calculate_characteristic(monster, MSR_CHAR_BALISTIC_SKILL);
@@ -41,9 +45,11 @@ int fght_ranged_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght
         CALC_TOHIT(hand == FGHT_OFF_HAND, FGHT_MODIFIER_OFF_HAND, "using off-hand")
 
         /* weapon settings */
-        CALC_TOHIT(wpn->rof_set == WEAPON_ROF_SETTING_SINGLE, FGHT_RANGED_MODIFIER_ROF_SINGLE, "using single shot")
-        else CALC_TOHIT(wpn->rof_set == WEAPON_ROF_SETTING_SEMI, FGHT_RANGED_MODIFIER_ROF_SEMI, "using semi automatic")
-        else CALC_TOHIT(wpn->rof_set == WEAPON_ROF_SETTING_AUTO, FGHT_RANGED_MODIFIER_ROF_AUTO, "using full automatic")
+        if (wpn->weapon_type == WEAPON_TYPE_RANGED) {
+            CALC_TOHIT(wpn->rof_set == WEAPON_ROF_SETTING_SINGLE, FGHT_RANGED_MODIFIER_ROF_SINGLE, "using single shot")
+            else CALC_TOHIT(wpn->rof_set == WEAPON_ROF_SETTING_SEMI, FGHT_RANGED_MODIFIER_ROF_SEMI, "using semi automatic")
+            else CALC_TOHIT(wpn->rof_set == WEAPON_ROF_SETTING_AUTO, FGHT_RANGED_MODIFIER_ROF_AUTO, "using full automatic")
+        }
 
         /* Target size modifiers */
         if (target != NULL) {
@@ -59,16 +65,21 @@ int fght_ranged_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght
         /* Shooting Distances */
         int distance = cd_pyth(&monster->pos, tpos);
         int dis_in_meters = cd_pyth(&monster->pos, tpos) * FGHT_RANGE_MULTIPLIER;
-        lg_debug("distance == %d", distance);
+        int weapon_range = wpn->range;
+
+        /* Thrown weapon range is calculated by a range number times their strength bonus */
+        if (wpn->weapon_type == WEAPON_TYPE_THROWN) weapon_range *= msr_calculate_characteristic_bonus(monster, MSR_CHAR_STRENGTH);
+
+        lg_debug("distance: %d, wpn_range: %d", distance, weapon_range);
 
             /* normally you would not be able to fire with a normal weapon and get this penaly with a pistol, but that is too harsh since you cannot disengage. */
             /* TODO add check for other enemies in melee. */
-            CALC_TOHIT( (distance == FGHT_MELEE_RANGE) && (!wpn_is_catergory(witem, WEAPON_CATEGORY_PISTOL) ), FGHT_RANGED_MODIFIER_MELEE, "you are in melee combat")
-            else CALC_TOHIT( (distance == FGHT_MELEE_RANGE), 0, "you are in melee combat with a pistol")
-            else CALC_TOHIT(dis_in_meters >= (wpn->range * 3), FGHT_RANGED_MODIFIER_EXTREME_RANGE, "target is at extreme range")
-            else CALC_TOHIT(dis_in_meters >= (wpn->range * 2), FGHT_RANGED_MODIFIER_LONG_RANGE, "target is at long range")
+            CALC_TOHIT( (distance == FGHT_MELEE_RANGE) && (wpn_is_catergory(witem, WEAPON_CATEGORY_PISTOL) ), 0, "you are in melee combat with a pistol")
+            else CALC_TOHIT( (distance == FGHT_MELEE_RANGE), FGHT_RANGED_MODIFIER_MELEE, "you are in melee combat")
+            else CALC_TOHIT(dis_in_meters >= (weapon_range * 3), FGHT_RANGED_MODIFIER_EXTREME_RANGE, "target is at extreme range")
+            else CALC_TOHIT(dis_in_meters >= (weapon_range * 2), FGHT_RANGED_MODIFIER_LONG_RANGE, "target is at long range")
             else CALC_TOHIT(distance <= FGHT_POINT_BLANK_RANGE, FGHT_RANGED_MODIFIER_POINT_BLACK, "target is at point-blank range")
-            else CALC_TOHIT(dis_in_meters <= (wpn->range * 0.5), FGHT_RANGED_MODIFIER_SHORT_RANGE, "target is at short range")
+            else CALC_TOHIT(dis_in_meters <= (weapon_range * 0.5), FGHT_RANGED_MODIFIER_SHORT_RANGE, "target is at short range")
 
         /* Lighting modifiers */ /* TODO: These are based around the player, make them player agnostic */
         CALC_TOHIT(me->in_sight == false, FGHT_MODIFIER_VISION_COMPLETE_DARKNESS, "target is in complete darkness")
@@ -144,25 +155,18 @@ const char *fght_get_tohit_mod_description(int idx) {
     return tohit_descr_lst[idx];
 }
 
-bool fght_do_weapon_dmg(struct random *r, struct msr_monster *monster, struct msr_monster *target, int hits, enum fght_hand hand) {
-    if (msr_verify_monster(monster) == false) return false;
-    if (msr_verify_monster(target) == false) return false;
-    if (r == NULL) return false;
-    if (hits < 1) return false;
+/* Monster can be NULL if the weapon is an indirect damage weapon such as a grenade. */
+int fght_calc_dmg(struct random *r, struct msr_monster *monster, struct msr_monster *target, int hits, struct itm_item *witem, enum msr_hit_location mhl) {
+    if (msr_verify_monster(target) == false) return -1;
+    if (itm_verify_item(witem) == false) return -1;
+    if (r == NULL) return -1;
+    if (hits < 1) return -1;
+    struct item_weapon_specific *wpn = &witem->specific.weapon;
 
-    struct item_weapon_specific *wpn = NULL;
-    struct itm_item *witem = NULL;
-
-    /* This function is weapon type agnostic, but since we know 
-       we did hit with this hand, we don't really care how 
-       we hit. */
-    for (int i = 0; i < WEAPON_TYPE_MAX; i++) {
-        witem = fght_get_working_weapon(monster, i, hand);
-        if (witem != NULL) i = WEAPON_TYPE_MAX;
+    if (wpn->weapon_category != WEAPON_CATEGORY_THROWN_GRENADE) {
+        /* Do additional check if the weapon is a direct instead of an indirect weapon */
+        if (msr_verify_monster(monster) == false) return -1;
     }
-    if (witem == NULL) return false;
-    if (itm_verify_item(witem) == false) return false;
-    wpn = &witem->specific.weapon;
 
     /* 
        retreive hit location.
@@ -177,7 +181,6 @@ bool fght_do_weapon_dmg(struct random *r, struct msr_monster *monster, struct ms
         leave it like this.
      */
     int total_damage = 0;
-    enum msr_hit_location mhl = msr_get_hit_location(target, random_d100(r) );
 
     int dmg_die_sz = 10;
     if (wpn->nr_dmg_die == 0) dmg_die_sz = 5;
@@ -221,11 +224,38 @@ bool fght_do_weapon_dmg(struct random *r, struct msr_monster *monster, struct ms
         lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "fght", "Doing %d%s+%d damage => %d, %d wnds left.", wpn->nr_dmg_die, random_die_name(dmg_die_sz), wpn->dmg_addition, dmg, target->cur_wounds);
         if (target->dead) h = hits;
     }
+    return total_damage;
+}
 
-    msg_plr(" and score");  msg_plr_number(" %d", hits); msg_plr(" hits and a total of"); msg_plr_number(" %d", total_damage); msg_plr(" damage.");
-    msg_msr(" and scores"); msg_msr_number(" %d", hits); msg_msr(" hits and a total of"); msg_msr_number(" %d", total_damage); msg_msr(" damage.");
+bool fght_do_weapon_dmg(struct random *r, struct msr_monster *monster, struct msr_monster *target, int hits, enum fght_hand hand) {
+    if (msr_verify_monster(monster) == false) return false;
+    if (msr_verify_monster(target) == false) return false;
+    if (r == NULL) return false;
+    if (hits < 1) return false;
 
-    msr_do_dmg(target, total_damage, mhl, gbl_game->current_map);
+    struct item_weapon_specific *wpn = NULL;
+    struct itm_item *witem = NULL;
+
+    /* This function is weapon type agnostic, but since we know 
+       we did hit with this hand, we don't really care with what */
+    for (int i = 0; i < WEAPON_TYPE_MAX; i++) {
+        witem = fght_get_working_weapon(monster, i, hand);
+        if (witem != NULL) i = WEAPON_TYPE_MAX;
+    }
+    if (witem == NULL) return false;
+    if (itm_verify_item(witem) == false) return false;
+    wpn = &witem->specific.weapon;
+
+    /* exclude grenades, because the are not direct damage weapons. */
+    if (wpn->weapon_category == WEAPON_CATEGORY_THROWN_GRENADE) return false;
+
+    enum msr_hit_location mhl = msr_get_hit_location(target, random_d100(r));
+    int total_damage = fght_calc_dmg(r, monster, target, hits, witem, mhl);
+    if (total_damage >= 0) {
+        msg_plr(" and score");  msg_plr_number(" %d", hits); msg_plr(" hits and a total of"); msg_plr_number(" %d", total_damage); msg_plr(" damage.");
+        msg_msr(" and scores"); msg_msr_number(" %d", hits); msg_msr(" hits and a total of"); msg_msr_number(" %d", total_damage); msg_msr(" damage.");
+        msr_do_dmg(target, total_damage, mhl, gbl_game->current_map);
+    }
     return true;
 }
 
@@ -270,7 +300,7 @@ int fght_ranged_roll(struct random *r, struct msr_monster *monster, struct msr_m
         if (wpn->jammed) {
             msg_plr(" and your weapon jams.", fght_weapon_hand_name(hand) );
             msg_msr(" and %s weapon jams.", msr_gender_name(monster, true) );
-            lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "fght", "Weapon jamm with roll %d, theshold %d, 2nd roll %d", roll, jammed_threshold, reltest);
+            lg_debug("Weapon jamm with roll %d, theshold %d, 2nd roll %d", roll, jammed_threshold, reltest);
             return -1;
         }
     }
@@ -281,7 +311,7 @@ int fght_ranged_roll(struct random *r, struct msr_monster *monster, struct msr_m
         return 0;
     }
 
-    lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "fght", "Shot attempt with calcBS: %d => %d", roll, to_hit);
+    lg_debug("Shot attempt with calcBS: %d => %d", roll, to_hit);
     if (roll < to_hit) {
         int dos = (to_hit - roll) / 10;
 
@@ -295,7 +325,7 @@ int fght_ranged_roll(struct random *r, struct msr_monster *monster, struct msr_m
     }
 
     msg_plr(" and miss.");
-    msg_msr(" and %s misses.", msr_gender_name(monster, false) );
+    msg_msr(" and %s misses.", msr_gender_name(target, false) );
 
     return 0;
 }
@@ -320,13 +350,45 @@ int fght_melee_roll(struct random *r, struct msr_monster *monster, struct msr_mo
         return -1;
     }
 
-    lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "fght", "Melee attempt with calcWS: %d => %d", roll, to_hit);
+    lg_debug("Melee attempt with calcWS: %d => %d", roll, to_hit);
     if (roll < to_hit) {
         return 1;
     }
 
     msg_plr(" and miss.");
-    msg_msr(" and %s misses.", msr_gender_name(monster, false) );
+    msg_msr(" and %s misses.", msr_gender_name(target, false) );
+    return -1;
+}
+
+int fght_thrown_roll(struct random *r, struct msr_monster *monster, coord_t *pos, struct itm_item *witem, enum fght_hand hand) {
+    if (msr_verify_monster(monster) == false) return -1;
+
+    msg_plr("You throw an %s", witem->sd_name);
+    msg_msr("%s throws an %s", msr_ldname(monster), witem->sd_name);
+
+    struct msr_monster *target = sd_get_map_me(pos, gbl_game->current_map)->monster;
+    if (monster != NULL) {
+        if (msr_verify_monster(target) == true) {
+            msg_plr(" at %s", msr_ldname(target) );
+            msg_msr(" at %s", msr_ldname(target) );
+        }
+    }
+
+    int to_hit = fght_ranged_calc_tohit(monster, pos, hand);
+    int roll = random_d100(r);
+    if (to_hit <= 0) {
+        msg_plr(" and miss by a huge margin.");
+        msg_msr(" and misses by a huge margin.");
+        return -1;
+    }
+
+    lg_debug("Throw attempt with calcBS: %d => %d", roll, to_hit);
+    if (roll < to_hit) {
+        return 1;
+    }
+
+    msg_plr(" and miss.");
+    msg_msr(" and misses.");
     return -1;
 }
 
@@ -344,7 +406,7 @@ bool fght_melee(struct random *r, struct msr_monster *monster, struct msr_monste
         enum fght_hand hand = wpn_hand_list[w];
 
         /* init compound message */
-        msg_init(monster, target);
+        msg_init(&monster->pos, &target->pos);
 
         /* check of we can hit the target */
         hits = fght_melee_roll(r, monster, target, hand);
@@ -359,73 +421,103 @@ bool fght_melee(struct random *r, struct msr_monster *monster, struct msr_monste
     return true;
 }
 
-#if 0
-bool fght_throw(struct random *r, struct msr_monster *monster, struct dc_map *map, coord_t *e, struct itm_item *item) {
+/*
+   We assume that the throwing weapon has been equiped 
+   before use, ma_do_throw should do that for the player 
+   with a slight cost.
+ */
+bool fght_throw_weapon(struct random *r, struct msr_monster *monster, struct dc_map *map, coord_t *e, enum fght_hand hand) {
     if (msr_verify_monster(monster) == false) return false;
     if (dc_verify_map(map) == false) return false;
     if (cd_within_bound(e, &map->size) == false) return false;
     if (sgt_has_los(gbl_game->sight, map, &monster->pos, e) == false) return false;
-
-    bool has_hit = false;
-
-    /*
-       There are two types of throwing.
-       - direct with weapons.
-       - utility items or grenades.
-
-       the first require an item in hand and a valid target.
-       the second just throw at a square.
-
-       if it is an weapon, we just check if we hit.
-       if it is not, there is a change of scatter.
-     */
+    coord_t end = *e;
 
     if (msr_weapon_type_check(monster, WEAPON_TYPE_THROWN) == true) {
+        struct itm_item *witem = fght_get_working_weapon(monster, WEAPON_TYPE_RANGED, hand);
 
-        /* if we are throwing a weapon...  */
-        for (int w = 0; w < FGHT_MAX_HAND; w++) {
-            enum fght_hand hand = wpn_hand_list[w];
+        /* Generate a path our projectile will take. Start at 
+           the shooter position, and continue the same path 
+           untill an obstacle is found.*/
+        coord_t *path;
+        int path_len = sgt_los_path(gbl_game->sight, map, &monster->pos, &end, &path, false);
+        ui_animate_projectile(map, path, path_len);
 
-            /* init compound message */
-            msg_init(monster, target);
+        /* if the path was succesfully created, free it here */
+        if (path_len > 0) free(path);
 
-            /* check of we can hit the target */
-            //hits = fght_throw_roll(r, monster, target, hand);
+        /* init compound message */
+        msg_init(&monster->pos, e);
 
-            /* Do the actual damage if we did score a hit. */
-            /*
-            if (hits > 0) {
-                if (fght_do_weapon_dmg(r, monster, target, hits, hand) == true) {
-                    hit_something = true;
-                }
+        /* check of we can hit the target */
+        int hits = fght_thrown_roll(r, monster, e, witem, hand);
+
+        /* Do the actual damage if we did score a hit. */
+        if (hits > 0) {
+            /* and if there actually is an enemy there... */
+            struct msr_monster *target = sd_get_map_me(e, map)->monster;
+            if (target != NULL) {
+                fght_do_weapon_dmg(r, monster, target, hits, hand);
             }
-            */
-
-            /* exit compound message */
-            msg_exit();
         }
+        else {
+            /* if we miss, scatter the object */
+            end = sgt_scatter(gbl_game->sight, map, r, e, random_xd5(r, 1) );
+
+            /* I first wanted to do the animation in one go, scatter them animate the whole path
+               But it is very possible that the scattered target is out of LoS of the origin.  */
+            path = NULL;
+            path_len = sgt_los_path(gbl_game->sight, map, e, &end, &path, false);
+            ui_animate_projectile(map, path, path_len);
+
+            /* if the path was succesfully created, free it here */
+            if (path_len > 0) free(path);
+        }
+
+        /* create a copy of the item to place it on the map. */
+        struct itm_item *witem_copy = itm_create(witem->template_id);
+        if (witem_copy != NULL) {
+            /* copy any changes from the item to its copy */
+            witem_copy->energy = witem->energy;
+            /* set the number of items in the stack to 1*/
+            witem_copy->stacked_quantity = 1;
+
+            /* decrease that number from the item in the monsters hand */
+            witem->stacked_quantity -= 1;
+            if (witem->stacked_quantity == 0) {
+                /* remove the item from monsters inventory if that was the last one */
+                if (msr_remove_item(monster, witem) ) itm_destroy(witem);
+            }
+
+            /* if the item is an grenade */
+            if (wpn_is_catergory(witem, WEAPON_CATEGORY_THROWN_GRENADE) ) {
+
+                /* set the fuse. the item processing loop will then handle 
+                   the explosion.  This does mean that the throwing code has
+                   has to set the energy. If that is not done, we set it here 
+                   to a defualt value. This does mean that you cannot just throw 
+                   a grenade and expect it not to explode, but that is a use 
+                   case I doubt many will use.  */
+                if (witem_copy->energy <= 0)  witem_copy->energy = TT_ENERGY_TICK;
+                witem_copy->energy_action = true;
+            }
+
+            /* and place it on the target/scatter position */
+            itm_insert_item(witem_copy, gbl_game->current_map, &end);
+        }
+
+        /* exit compound message */
+        msg_exit();
+        return true;
     }
-
-    /* Genereate a path our projectile will take. Start at 
-       the shooter position, and continue the same path 
-       untill an obstacle is found.*/
-    coord_t *path;
-    int path_len = sgt_los_path(gbl_game->sight, map, &monster->pos, e, &path, false);
-    ui_animate_projectile(map, path, path_len, '*');
-
-    /* if the path was succesfully created, free it here */
-    if (path_len > 0) free(path);
-
-    if (unblocked_length >= 0) return true;
+    
     return false;
-    return true;
 }
-#endif
 
 bool fght_shoot(struct random *r, struct msr_monster *monster, struct dc_map *map, coord_t *e) {
     if (msr_verify_monster(monster) == false) return false;
     if (dc_verify_map(map) == false) return false;
-    if (cd_within_bound(&monster->pos, e) == false) return false;
+    if (cd_within_bound(&monster->pos, &map->size) == false) return false;
     if (msr_weapon_type_check(monster, WEAPON_TYPE_RANGED) == false) return false;
     if (sgt_has_los(gbl_game->sight, map, &monster->pos, e) == false) return false;
     struct itm_item *item1 = fght_get_working_weapon(monster, WEAPON_TYPE_RANGED, FGHT_MAIN_HAND);
@@ -466,7 +558,7 @@ bool fght_shoot(struct random *r, struct msr_monster *monster, struct dc_map *ma
         /* check if there is a monster on the current tile */
         if (blocked == false) {
 
-            /*  */
+            /* check for a valid target */
             if (sd_get_map_me(&path[i], map)->monster != NULL) {
 
                 /* get the monster on the tile as our target */
@@ -478,7 +570,7 @@ bool fght_shoot(struct random *r, struct msr_monster *monster, struct dc_map *ma
                 for (int w = 0; w < FGHT_MAX_HAND; w++) {
                     enum fght_hand hand = wpn_hand_list[w];
                     /* init a compound message */
-                    msg_init(monster, target);
+                    msg_init(&monster->pos, e);
 
                     /* do weapon checks and roll tohit */
                     hits = fght_ranged_roll(r, monster, target, hand, ammo1);
@@ -486,7 +578,6 @@ bool fght_shoot(struct random *r, struct msr_monster *monster, struct dc_map *ma
                     /* do damage */
                     if (hits >= 0) {
                         if (fght_do_weapon_dmg(r, monster, target, hits, hand) ) has_hit = true;
-                        ui_animate_projectile(map, path, unblocked_length +1, '*');
                         //we can also splatter some blood on the target's tile
                     }
 
@@ -516,7 +607,10 @@ bool fght_shoot(struct random *r, struct msr_monster *monster, struct dc_map *ma
     }
 
     /* if the path was succesfully created, free it here */
-    if (path_len > 0) free(path);
+    if (path_len > 0) {
+        ui_animate_projectile(map, path, unblocked_length +1);
+        free(path);
+    }
 
     if (unblocked_length >= 0) return true;
     return false;

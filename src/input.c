@@ -34,7 +34,7 @@ enum inp_keys inp_get_input(void) {
         case 'j': case 50:  case KEY_DOWN:  return INP_KEY_DOWN; break; 
         case 'b': case 49:  case KEY_END:   return INP_KEY_DOWN_LEFT; break;
         case 'h': case 52:  case KEY_LEFT:  return INP_KEY_LEFT; break;
-        case '.': case 53:                   return INP_KEY_WAIT; break;
+        case '.': case 53:                  return INP_KEY_WAIT; break;
 
         case 'q':
         case 27:        return INP_KEY_ESCAPE; break;
@@ -43,17 +43,21 @@ enum inp_keys inp_get_input(void) {
         case 'x':       return INP_KEY_EXAMINE; break;
         case 'f':       return INP_KEY_FIRE; break;
         case 'd':       return INP_KEY_DROP; break;
+        case 't':       return INP_KEY_THROW; break;
         case 'w':       return INP_KEY_WEAR; break;
         case 'U':       return INP_KEY_USE; break;
         case 'r':       return INP_KEY_RELOAD; break;
         case 'R':       return INP_KEY_UNLOAD; break;
         case '[':       return INP_KEY_WEAPON_SETTING; break;
         case ']':       return INP_KEY_WEAPON_SELECT; break;
+        case '\\':      return INP_KEY_AMMO_SELECT; break;
 
         case ' ':
         case '\n':
-        case 'Y':       return INP_KEY_YES; break;
-        case 'N':       return INP_KEY_NO; break;
+        case 'O':
+        case 'o':       return INP_KEY_YES; break;
+        case 'C':
+        case 'c':       return INP_KEY_NO; break;
         case 'A':
         case 'a':       return INP_KEY_ALL; break;
 

@@ -47,7 +47,7 @@ bool ma_do_drop(struct msr_monster *monster, struct itm_item *items[], int nr_it
 bool ma_do_pickup(struct msr_monster *monster, struct itm_item *items[], int nr_items);
 
 bool ma_do_guard(struct msr_monster *monster);
-bool ma_do_throw(struct msr_monster *monster, coord_t *pos);
+bool ma_do_throw(struct msr_monster *monster, coord_t *pos, struct itm_item *item);
 bool ma_do_melee(struct msr_monster *monster, coord_t *pos);
 bool ma_do_fire(struct msr_monster *monster, coord_t *pos);
 

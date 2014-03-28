@@ -217,24 +217,34 @@ static void msg_init_internal(void) {
     le->atom_lst = NULL;
 }
 
-void msg_init(struct msr_monster *m, struct msr_monster *t) {
+void msg_init(coord_t *origin, coord_t *target) {
     msg_exit();
     msg_init_internal();
 
-    /* check if the message should be accepted; 
-       which is if the player is eiter involved, 
-       or if he can see it. But m should NOT be 
-       player itself, otherwise we have 2x the
-       messages */
-    if (m->is_player == true) {
-        gbl_log->log_fds_active[MSG_PLR_FD] = true;
-        return;
+    struct dc_map_entity *me = sd_get_map_me(origin, gbl_game->current_map);
+
+    /* 
+       this message system has two channels.
+       One for the player and one for monsters.
+
+       if origin is a player, accept the player channel.
+       if the player is otherwise involved, accept it in
+       the monster channel. otherwise discard the messages.
+     */
+
+    if (me->monster != NULL) {
+        /*if origin it the player, accept it as a player msg*/
+        if (me->monster->is_player == true) {
+            gbl_log->log_fds_active[MSG_PLR_FD] = true;
+            return;
+        }
     }
 
-    struct dc_map_entity *me = sd_get_map_me(&m->pos, gbl_game->current_map);
+    /* if the origin is visible by the player, accept it */
     if (me->visible) gbl_log->log_fds_active[MSG_MSR_FD] = true;
-    else if (t != NULL) {
-        me = sd_get_map_me(&t->pos, gbl_game->current_map);
+    else if (target != NULL) {
+        /* Or of the target is visible by the player (or maybe even the player itself), accept it.*/
+        me = sd_get_map_me(target, gbl_game->current_map);
         if (me->visible) gbl_log->log_fds_active[MSG_MSR_FD] = true;
     }
 }

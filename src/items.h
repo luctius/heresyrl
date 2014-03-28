@@ -141,12 +141,19 @@ enum weapon_dmg_type {
 };
 
 enum item_weapon_category {
+    /* Ranged weapons*/
     WEAPON_CATEGORY_PISTOL,
     WEAPON_CATEGORY_BASIC,
     WEAPON_CATEGORY_HEAVY,
+
+    /* Melee weapons*/
     WEAPON_CATEGORY_1H_MELEE,
     WEAPON_CATEGORY_2H_MELEE,
-    WEAPON_CATEGORY_THROWN,
+
+    /* thrown weapons*/
+    WEAPON_CATEGORY_THROWN_WEAPON,
+    WEAPON_CATEGORY_THROWN_GRENADE,
+
     WEAPON_CATEGORY_MAX,
     WEAPON_CATEGORY_RANDOM,
 };
@@ -306,7 +313,7 @@ coord_t itm_get_pos(struct itm_item *item);
 /* true if this item has this quality*/
 bool itm_has_quality(struct itm_item *item, enum item_quality q);
 
-/* fuctions which is called when item->energy reaches zero and enery_action = true. */
+/* fuctions which is called when item->energy reaches zero and energy_action = true. */
 bool itm_energy_action(struct itm_item *item, struct dc_map *map);
 
 /* change the item's energy by this much, true if succefull.  */

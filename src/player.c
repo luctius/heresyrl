@@ -102,7 +102,7 @@ static bool plr_action_loop(struct msr_monster *player, void *controller) {
                                 bool pickup = false;
 
                                 if (pickup_all == false) {
-                                    System_msg("Pickup %s? (Y)es/(N)o/(A)ll/(q)uit", item->ld_name);
+                                    System_msg("Pickup %s? (o)k/(c)ancel/(a)ll/(q)uit", item->ld_name);
                                     switch (inp_get_input() ) {
                                         case INP_KEY_ESCAPE: stop = true; break;
                                         case INP_KEY_ALL:    pickup_all = true; break;
@@ -138,6 +138,8 @@ static bool plr_action_loop(struct msr_monster *player, void *controller) {
                 mapwin_overlay_examine_cursor(gbl_game->current_map, player_pos); break;
             case INP_KEY_FIRE:
                 has_action = mapwin_overlay_fire_cursor(gbl_game, gbl_game->current_map, player_pos); break;
+            case INP_KEY_THROW:
+                has_action = mapwin_overlay_throw_cursor(gbl_game, gbl_game->current_map, player_pos); break;
             case INP_KEY_STAIRS_DOWN:
                 if (sd_get_map_tile(player_pos, gbl_game->current_map)->type == TILE_TYPE_STAIRS_DOWN) {
                     You(player, "see a broken stairway."); } break;

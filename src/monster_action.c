@@ -194,6 +194,65 @@ bool ma_do_melee(struct msr_monster *monster, coord_t *target_pos) {
     return true;
 }
 
+bool ma_do_throw(struct msr_monster *monster, coord_t *pos, struct itm_item *item) {
+    if (msr_verify_monster(monster) == false) return false;
+    if (itm_verify_item(item) == false) return false;
+    if (wpn_is_type(item, WEAPON_TYPE_THROWN) == false)  return false; /*only allow thrown weapons for now*/
+    if (pos == NULL) return false;
+    struct itm_item *item_bkp = NULL;
+    enum fght_hand hand = FGHT_MAIN_HAND;
+    int cost = MSR_ACTION_THROW;
+    bool change = false;
+    bool thrown = false;
+    bitfield_t locs;
+
+    /* Check in which hand the item is, or, if it is not, 
+       exchange the main hand weapon temporarily with this item*/
+    item_bkp = inv_get_item_from_location(monster->inventory, INV_LOC_MAINHAND_WIELD);
+    if (item_bkp != item) {
+
+        /* check off hand*/
+        if (inv_get_item_from_location(monster->inventory, INV_LOC_OFFHAND_WIELD) == item) {
+            hand = FGHT_OFF_HAND;
+        }
+        else {
+            /*item is not in any hand, we will switch it with the main hand weapon */
+            change = true;
+
+            /* save item locations */
+            locs = inv_get_item_locations(monster->inventory, item_bkp);
+
+            /* move current weapon to inventory */
+            inv_move_item_to_location(monster->inventory, item_bkp, INV_LOC_INVENTORY);
+
+            /* move thrown weapon to main hand*/
+            inv_move_item_to_location(monster->inventory, item, INV_LOC_MAINHAND_WIELD);
+        }
+    }
+
+    /* do the action*/
+    thrown = fght_throw_weapon(gbl_game->game_random, monster, gbl_game->current_map, pos, hand);
+
+    if (change) {
+        /* check if the item still exists (mainly if there is anythin left in the stack. )*/
+        if (inv_has_item(monster->inventory, item) == true) {
+            /* return weapon back to inventory */
+            inv_move_item_to_location(monster->inventory, item, INV_LOC_INVENTORY);
+        }
+
+        /* move the backup weapon back to its location*/
+        inv_move_item_to_location(monster->inventory, item_bkp, locs);
+    }
+
+    /* if the action failed, return failure */
+    if (thrown == false) return false;
+
+    /* else we are done*/
+    msr_change_energy(monster, -(cost) );
+    monster->controller.interruptable = false;
+    return true;
+}
+
 bool ma_do_fire(struct msr_monster *monster, coord_t *pos) {
     if (msr_verify_monster(monster) == false) return false;
     if (pos == NULL) return false;

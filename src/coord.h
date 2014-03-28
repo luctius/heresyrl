@@ -1,9 +1,14 @@
 #ifndef COORD_H
 #define COORD_H
 
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <limits.h>
 #include <stdbool.h>
 #include <math.h>
-#include <heresyrl_def.h>
+#include <sys/param.h>
 
 typedef struct coord {
     short x;
@@ -37,7 +42,7 @@ inline bool cd_within_bound(coord_t *a, coord_t *b) {
 inline short cd_pyth(coord_t *a, coord_t *b) {
     int s1 = abs(a->x - b->x);
     int s2 = abs(a->y - b->y);
-    return pyth(s1, s2);
+    return MAX(s1, s2);
 }
 
 inline coord_t cd_delta(coord_t *a, coord_t *b) {

@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+
 #include "pathfinding.h"
 #include "heresyrl_def.h"
 
@@ -48,11 +49,7 @@ static bool pf_flood_map_point(struct pf_context *ctx, coord_t *point, coord_t *
     struct pf_map *map = &ctx->map;
     struct pf_map_entity *me = pf_get_index(point, map);
 
-    if ( (point->x == PF_BLOCKED) || (point->y == PF_BLOCKED) ) {
-        /* failed to find any open node... */
-        return false;
-    }
-    else if (me->distance >= ctx->maximum_distance) {
+    if (me->distance >= ctx->maximum_distance) {
         /* We have gone too far, let another try to solve it. */
         return false;   
     }
@@ -104,7 +101,7 @@ static bool pf_flood_map_point(struct pf_context *ctx, coord_t *point, coord_t *
 }
 
 static coord_t get_best_open_node(struct pf_map *map) {
-    coord_t cd_best = { .x=PF_BLOCKED, .y=PF_BLOCKED, };
+    coord_t cd_best = { .x= -1, .y= -1, };
     unsigned int score = PF_BLOCKED;
     unsigned int cost = PF_BLOCKED;
 
@@ -142,7 +139,7 @@ static bool pf_astar_loop(struct pf_context *ctx, coord_t *end) {
         coord_t point = get_best_open_node(map);
         struct pf_map_entity *me = pf_get_index(&point, map);
 
-        if ( (point.x == PF_BLOCKED) || (point.y == PF_BLOCKED) ) {
+        if ( (point.x == -1) || (point.y == -1) ) {
             /* failed to find any open node... */
             return false;
         }

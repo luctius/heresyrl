@@ -125,7 +125,7 @@ struct sgt_sight *sgt_init(void) {
 
 void sgt_exit(struct sgt_sight *sight) {
     if (sight != NULL) {
-        fov_settings_free(&sight->fov_settings);
+        //fov_settings_free(&sight->fov_settings);
         free(sight);
     }
 }
@@ -366,29 +366,30 @@ int sgt_los_path(struct sgt_sight *sight, struct dc_map *map, coord_t *s, coord_
 coord_t sgt_scatter(struct sgt_sight *sight, struct dc_map *map, struct random *r, coord_t *p, int radius) {
     /* Do not try forever. */
     int i_max = radius * radius;
-    coord_t c;
+    coord_t c = *p;
 
-    for (int i; i < i_max; i++)  {
-        /* get a random point within radius */
-        int dx = random_int32(r) % radius;
-        int dy = random_int32(r) % radius;
+    if (radius > 0) {
+        for (int i; i < i_max; i++)  {
+            /* get a random point within radius */
+            int dx = random_int32(r) % radius;
+            int dy = random_int32(r) % radius;
 
-        /* create the point relative to p */
-        c = cd_create(p->x + dx, p->y +dy);
+            /* create the point relative to p */
+            c = cd_create(p->x + dx, p->y +dy);
 
-        /* require a point within map */
-        if (cd_within_bound(&c, &map->size) == false) continue;
+            /* require a point within map */
+            if (cd_within_bound(&c, &map->size) == false) continue;
 
-        /* require an traversable point */
-        if ( (sd_get_map_tile(&c,map)->attributes & TILE_ATTR_TRAVERSABLE) == 0) continue;
+            /* require an traversable point */
+            if ( (sd_get_map_tile(&c,map)->attributes & TILE_ATTR_TRAVERSABLE) == 0) continue;
 
-        /* require line of sight */
-        if (sgt_has_los(sight, map, p, &c) == false) continue;
+            /* require line of sight */
+            if (sgt_has_los(sight, map, p, &c) == false) continue;
 
-        return c;
+            return c;
+        }
     }
-    
-    c = cd_create(0,0);
+
     return c;
 }
 

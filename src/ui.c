@@ -454,7 +454,7 @@ void ui_animate_explosion(struct dc_map *map, coord_t path[], int path_len) {
     }
 }
 
-void ui_animate_projectile(struct dc_map *map, coord_t path[], int path_len, int p) {
+void ui_animate_projectile(struct dc_map *map, coord_t path[], int path_len) {
     if (gbl_game == NULL) return;
     if (gbl_game->player_data.player == NULL) return;
 
@@ -464,7 +464,7 @@ void ui_animate_projectile(struct dc_map *map, coord_t path[], int path_len, int
     for (int i = 1; i < path_len; i++) {
         if (sd_get_map_me(&path[i],map)->visible == true) {
             chtype oldch = mvwinch(map_win->win, path[i].y - scr_y, path[i].x - scr_x);
-            mvwaddch(map_win->win, path[i].y - scr_y, path[i].x - scr_x, p | get_colour(TERM_COLOUR_RED) );
+            mvwaddch(map_win->win, path[i].y - scr_y, path[i].x - scr_x, '*' | get_colour(TERM_COLOUR_RED) );
             wrefresh(map_win->win);
             mvwaddch(map_win->win, path[i].y - scr_y, path[i].x - scr_x, oldch);
             usleep(20000);
@@ -557,6 +557,98 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dc_map *map, coord_t *
         path_len = sgt_los_path(gbl_game->sight, gbl_game->current_map, p_pos, &e_pos, &path, false);
         for (int i = 1; i < path_len; i++) {
 
+            mvwaddch(map_win->win, path[i].y - scr_y, path[i].x - scr_x, '*' | get_colour(TERM_COLOUR_RED) );
+        }
+        if (path_len > 0) free(path);
+
+        mvwaddch(map_win->win, e_pos.y - scr_y, e_pos.x - scr_x, '*' | get_colour(TERM_COLOUR_RED) );
+        wrefresh(map_win->win);
+    }
+    while((ch = inp_get_input()) != INP_KEY_ESCAPE && fire_mode);
+
+    return false;
+}
+
+bool mapwin_overlay_throw_cursor(struct gm_game *g, struct dc_map *map, coord_t *p_pos) {
+    int ch = '0';
+    bool fire_mode = true;
+    if (map_win == NULL) return false;
+    if (g == NULL) return false;
+    if (dc_verify_map(map) == false) return false;
+    if (p_pos == NULL) return false;
+    if (map_win->type != HRL_WINDOW_TYPE_MAP) return false;
+
+    struct pl_player *plr = &g->player_data;
+    if (plr == NULL) return false;
+    coord_t e_pos = *p_pos;
+
+    /*find nearest enemy....*/
+    int ign_cnt = 0;
+    struct msr_monster *target = aiu_get_nearest_enemy(plr->player, ign_cnt, map);
+    if (target != NULL) {
+        e_pos = target->pos;
+        ign_cnt++;
+    }
+
+    int scr_x = get_viewport(last_ppos.x, map_win->cols, map->size.x);
+    int scr_y = get_viewport(last_ppos.y, map_win->lines, map->size.y);
+
+    int length = 0;
+    coord_t *path;
+    int path_len = 0;
+
+    do {
+        mapwin_display_map_noref(map, &plr->player->pos);
+
+        switch (ch) {
+            case INP_KEY_UP_LEFT:    e_pos.y--; e_pos.x--; break;
+            case INP_KEY_UP:         e_pos.y--; break;
+            case INP_KEY_UP_RIGHT:   e_pos.y--; e_pos.x++; break;
+            case INP_KEY_RIGHT:      e_pos.x++; break;
+            case INP_KEY_DOWN_RIGHT: e_pos.y++; e_pos.x++; break;
+            case INP_KEY_DOWN:       e_pos.y++; break;
+            case INP_KEY_DOWN_LEFT:  e_pos.y++; e_pos.x--; break;
+            case INP_KEY_LEFT:       e_pos.x--; break;
+            case INP_KEY_TAB: {
+
+                if ( (target = aiu_get_nearest_enemy(plr->player, ign_cnt, map) ) != NULL) {
+                    e_pos = target->pos; 
+                    ign_cnt++; 
+                }
+                else {
+                    ign_cnt = 0;
+                    target = aiu_get_nearest_enemy(plr->player, ign_cnt, map);
+                    if (target != NULL) {
+                        e_pos = target->pos; 
+                        ign_cnt++;
+                    }
+                }
+            } 
+            break;
+            case INP_KEY_YES:
+            case INP_KEY_THROW: {
+                System_msg("Not yet implemented");
+                /*
+                if (ma_do_throw(plr->player, &e_pos, NULL) == true) { //TODO select item to throw
+                    mapwin_display_map(map, p_pos);
+                    return true;
+                }
+                else Your(plr->player, "unable to throw that.");
+                */
+                fire_mode=false;
+            }
+            break;
+            default: break;
+        }
+        if (fire_mode == false) break;
+
+        if (e_pos.y < 0) e_pos.y = 0;
+        if (e_pos.y >= map->size.y) e_pos.y = map->size.y -1;
+        if (e_pos.x < 0) e_pos.x = 0;
+        if (e_pos.x >= map->size.x) e_pos.x = map->size.x -1;
+
+        path_len = sgt_los_path(gbl_game->sight, gbl_game->current_map, p_pos, &e_pos, &path, false);
+        for (int i = 1; i < path_len; i++) {
             mvwaddch(map_win->win, path[i].y - scr_y, path[i].x - scr_x, '*' | get_colour(TERM_COLOUR_RED) );
         }
         if (path_len > 0) free(path);

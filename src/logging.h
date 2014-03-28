@@ -4,6 +4,7 @@
 #include <stdarg.h>
 
 #include "queue.h"
+#include "coord.h"
 
 struct msr_monster;
 struct itm_item;
@@ -94,17 +95,17 @@ enum msg_fd {
     MSG_MAX_FD,
 };
 
-void msg_init(struct msr_monster *m, struct msr_monster *t);
+void msg_init(coord_t *origin, coord_t *target);
 void msg_exit(void);
 void msg_add(enum msg_fd fd, enum lg_channel c, const char *format, ...);
 
-#define GM_msg(f, a...) do {msg_init(gbl_game->player_data.player,NULL); msg_add(MSG_PLR_FD, LG_CHANNEL_GM, f, ##a); msg_exit(); } while (0)
-#define System_msg(f, a...) do {msg_init(gbl_game->player_data.player,NULL); msg_add(MSG_PLR_FD, LG_CHANNEL_SYSTEM, f, ##a); msg_exit(); } while (0)
-#define You(m, f, a...) do {msg_init(m,NULL); msg_add(MSG_PLR_FD, LG_CHANNEL_PLAIN, "You " f, ##a); msg_exit(); } while (0)
-#define Your(m, f, a...) do {msg_init(m,NULL); msg_add(MSG_PLR_FD, LG_CHANNEL_PLAIN, "Your " f, ##a); msg_exit(); } while (0)
-#define You_msg(m, f, a...) do {msg_init(m,NULL); msg_add(MSG_PLR_FD, LG_CHANNEL_PLAIN, f, ##a); msg_exit(); } while (0)
-#define Monster(m, f, a...) do {if (!m->is_player) { msg_init(m,NULL); msg_add(MSG_MSR_FD, LG_CHANNEL_PLAIN, "%s " f, msr_ldname(m), ##a); msg_exit(); } } while (0)
-#define Monster_tgt(m, t, f, a...) do {if (!m->is_player) { msg_init(m,t); msg_add(MSG_MSR_FD, LG_CHANNEL_PLAIN, "%s " f, msr_ldname(m), ##a); msg_exit(); } } while (0)
+#define GM_msg(f, a...) do {msg_init(&gbl_game->player_data.player->pos,NULL); msg_add(MSG_PLR_FD, LG_CHANNEL_GM, f, ##a); msg_exit(); } while (0)
+#define System_msg(f, a...) do {msg_init(&gbl_game->player_data.player->pos,NULL); msg_add(MSG_PLR_FD, LG_CHANNEL_SYSTEM, f, ##a); msg_exit(); } while (0)
+#define You(m, f, a...) do {msg_init(&m->pos,NULL); msg_add(MSG_PLR_FD, LG_CHANNEL_PLAIN, "You " f, ##a); msg_exit(); } while (0)
+#define Your(m, f, a...) do {msg_init(&m->pos,NULL); msg_add(MSG_PLR_FD, LG_CHANNEL_PLAIN, "Your " f, ##a); msg_exit(); } while (0)
+#define You_msg(m, f, a...) do {msg_init(&m->pos,NULL); msg_add(MSG_PLR_FD, LG_CHANNEL_PLAIN, f, ##a); msg_exit(); } while (0)
+#define Monster(m, f, a...) do {if (!m->is_player) { msg_init(&m->pos,NULL); msg_add(MSG_MSR_FD, LG_CHANNEL_PLAIN, "%s " f, msr_ldname(m), ##a); msg_exit(); } } while (0)
+#define Monster_tgt(m, t, f, a...) do {if (!m->is_player) { msg_init(&m->pos,&t->pos); msg_add(MSG_MSR_FD, LG_CHANNEL_PLAIN, "%s " f, msr_ldname(m), ##a); msg_exit(); } } while (0)
 
 #define msg_plr(f, a...)         msg_add(MSG_PLR_FD, LG_CHANNEL_PLAIN, f, ##a)
 #define msg_plr_system(f, a...)  msg_add(MSG_PLR_FD, LG_CHANNEL_SYSTEM, f, ##a)
