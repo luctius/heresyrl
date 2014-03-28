@@ -41,6 +41,9 @@ enum item_ids {
     /* Basic weapons */
     ITEM_ID_LAS_GUN,
 
+    /* Thrown */
+    ITEM_ID_FRAG_GRENADE,
+
     /* Ammo */
     ITEM_ID_ARROW,
     ITEM_ID_PISTOL_AMMO_SP,

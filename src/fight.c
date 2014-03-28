@@ -282,6 +282,7 @@ int fght_ranged_roll(struct random *r, struct msr_monster *monster, struct msr_m
     int jammed_threshold = FGHT_RANGED_JAM;
     if ( (wpn->rof_set == WEAPON_ROF_SETTING_SEMI) || (wpn->rof_set == WEAPON_ROF_SETTING_AUTO) ) jammed_threshold = MIN(FGHT_RANGED_JAM_SEMI,jammed_threshold);
     if (wpn_has_spc_quality(witem, WEAPON_SPEC_QUALITY_UNRELIABLE) ) jammed_threshold = MIN(FGHT_RANGED_JAM_UNRELIABLE, jammed_threshold);
+    if (msr_has_talent(monster, wpn->wpn_talent) == false) jammed_threshold = MIN(FGHT_RANGED_JAM_UNRELIABLE, jammed_threshold);
     if (itm_has_quality(witem, ITEM_QUALITY_POOR) ) jammed_threshold = MIN(to_hit, jammed_threshold);
 
     lg_print("roll %d vs to hit %d, jamm_threshold %d", roll, to_hit, jammed_threshold);

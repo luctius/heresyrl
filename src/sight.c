@@ -70,9 +70,15 @@ static bool dig_apply_player_sight(struct digital_fov_set *set, coord_t *point, 
 
     if (me->visible == false && me->monster != NULL) {
         lg_print("Awareness check on (%d,%d)", point->x, point->y);
-        if (msr_skill_check(monster, SKILLS_AWARENESS, mod) >= 0) {
-            /*TODO scatter*/
-            me->icon_override = '?';
+        int DoS = 0;
+        if ( (DoS = msr_skill_check(monster, SKILLS_AWARENESS, mod) ) >= 0) {
+            int radius = 4 - DoS;
+
+            if (radius > 0) {
+                coord_t sp = sgt_scatter(gbl_game->sight, map, gbl_game->game_random, point, radius);
+                sd_get_map_me(&sp, map)->icon_override = '?';
+            }
+            else me->icon_override = '?';
         }
     }
     return true;

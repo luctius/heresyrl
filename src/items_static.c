@@ -32,7 +32,12 @@
 #define MELEE(wpn_cat,dmg_die,dmg_add,_dmg_type,_penetration,_upgrades,special,talent) .icon='|',.stacked_quantity=0, .max_quantity=1,\
             .item_type=ITEM_TYPE_WEAPON, .specific.weapon={.weapon_type=WEAPON_TYPE_MELEE, .weapon_category=wpn_cat, \
             .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=0, .penetration=_penetration, \
-            .special_quality=special .upgrades=_upgrades, .wpn_talent=talent, }
+            .special_quality=special, .upgrades=_upgrades, .wpn_talent=talent, }
+
+#define THROWN(wpn_cat,dmg_die,dmg_add,_penetration,_range,_dmg_type,_upgrades,special,talent) .icon='|',.stacked_quantity=0, .max_quantity=100,\
+            .item_type=ITEM_TYPE_WEAPON, .specific.weapon={.weapon_type=WEAPON_TYPE_THROWN, .weapon_category=wpn_cat, \
+            .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=_range, .penetration=_penetration, \
+            .special_quality=special, .upgrades=_upgrades, .wpn_talent=talent, }
 
 #define PISTOL_SP(_dmg_type,dmg_die,dmg_add,_range,rof_single,rof_semi,rof_auto,mag_sz,_penetration,_upgrades,special) \
             .icon='|', .stacked_quantity=0, .max_quantity=1, .item_type=ITEM_TYPE_WEAPON, .specific.weapon={ \
@@ -110,6 +115,11 @@ struct itm_item static_item_list[] = {
         CREATURE_MELEE(WEAPON_CATEGORY_2H_MELEE,1,    0,  WEAPON_DMG_TYPE_RENDING, WEAPON_UPGRADE_NONE,   WEAPON_SPEC_QUALITY_NONE), ITEM_END,
 
     /* Melee */
+
+    /* Thrown */
+    ITEM(ITEM_ID_FRAG_GRENADE,  "frag grenade","a frag grenade","",           0,                         0,                     5,    10,   1),
+        /*                 CATEGORY           xd10  +X  pen, range   dmg type                upgrades               special qualities             talent */
+        THROWN(WEAPON_CATEGORY_THROWN_GRENADE,  2,   0,  0,   3,  WEAPON_DMG_TYPE_EXPLOSIVE, WEAPON_UPGRADE_NONE, WEAPON_SPEC_QUALITY_BLAST_1, T0_CREATURE_WEAPON_TALENT), ITEM_END,
 
     /* Pistols */
     /*    ID                            short name         long name          description           availability            quality   weight,cost,delay*/

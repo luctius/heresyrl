@@ -173,13 +173,22 @@ bool ma_do_melee(struct msr_monster *monster, coord_t *target_pos) {
 
     struct itm_item *item = NULL;
     int cost = MSR_ACTION_MELEE;
+
+    /* 
+       Here we check with how many weapons we try to hit.
+       If it is more than one, the cost of the action increases.
+       In addition, we nerf creatures by having them have the higher cost
+       anyway.
+
+       we should include weapon talents here too.
+     */
     int hand_lst[] = {FGHT_MAIN_HAND, FGHT_OFF_HAND,};
     int hits = 0;
-
     for (unsigned int i = 0; i < ARRAY_SZ(hand_lst); i++) {
         item = fght_get_working_weapon(monster, WEAPON_TYPE_MELEE, hand_lst[i]);
         if (item != NULL) {
             hits++;
+            if (hand_lst[i] == MSR_WEAPON_SELECT_CREATURE1) hits++;
         }
     }
 
@@ -187,6 +196,7 @@ bool ma_do_melee(struct msr_monster *monster, coord_t *target_pos) {
         return false;
     }
 
+    /* if we do only one attack, we have a lower cost */
     if (hits == 1) cost = MSR_ACTION_SINGLE_MELEE;
 
     msr_change_energy(monster, -(cost) );
