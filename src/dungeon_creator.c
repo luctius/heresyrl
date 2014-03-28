@@ -21,6 +21,10 @@ extern inline struct dc_map_entity *sd_get_map_me(coord_t *c, struct dc_map *map
 extern inline struct tl_tile *sd_get_map_tile(coord_t *c, struct dc_map *map);
 static bool dc_clear_map_unsafe(struct dc_map *map);
 
+/* 
+   These checks are used to ensure that the structure passed is correct.
+   Both in type and that another function has not overstepped its bounds.
+ */
 #define MAP_PRE_CHECK (13300)
 #define MAP_POST_CHECK (3600)
 #define MAPENTITY_PRE_CHECK (320)
@@ -58,6 +62,9 @@ bool dc_free_map(struct dc_map *map) {
     return true;
 }
 
+/* 
+   This sets the map to default values.
+ */
 static bool dc_clear_map_unsafe(struct dc_map *map) {
     coord_t c = cd_create(0,0);
     for (c.x = 0; c.x < map->size.x; c.x++) {
@@ -78,6 +85,10 @@ static bool dc_clear_map_unsafe(struct dc_map *map) {
             if (sd_get_map_me(&c,map)->inventory != NULL) inv_exit(sd_get_map_me(&c,map)->inventory);
             sd_get_map_me(&c,map)->inventory = inv_init(inv_loc_tile);
 
+            /*
+                HACK: This is a hack to give map squares items based on their attributes.
+                I should find a better place for this.
+             */
             if (sd_get_map_tile(&c,map) != NULL) {
                 if (TILE_HAS_ATTRIBUTE(sd_get_map_tile(&c,map), TILE_ATTR_LIGHT_SOURCE) ) {
                     struct itm_item *i = itm_create(ITEM_ID_FIXED_LIGHT);
@@ -94,6 +105,10 @@ static bool dc_clear_map_unsafe(struct dc_map *map) {
     return true;
 }
 
+/* 
+   As with every verify function, check if the 
+   intergrity of the passed struct is correct.
+ */
 bool dc_verify_map(struct dc_map *map) {
     assert(map != NULL);
     assert(map->map_pre == MAP_PRE_CHECK);
@@ -165,6 +180,14 @@ static bool dc_generate_map_simple(struct dc_map *map, struct random *r, enum dc
     return true;
 }
 
+/* 
+   Here we add stairs, supports only 2 at a time, for now.
+   randomly selects a tile, puts down the up stairs,
+   then tries a few times untill the distance is satisfying 
+   or untill we run out of tries.
+
+   then it places the stairs.
+ */
 static void dc_add_stairs(struct dc_map *map, struct random *r) {
     if (dc_verify_map(map) == false) return;
 
@@ -226,6 +249,9 @@ bool dc_clear_map(struct dc_map *map) {
     return dc_clear_map_unsafe(map);
 }
 
+/*
+    resets visibility values.
+ */
 bool dc_clear_map_visibility(struct dc_map *map, coord_t *start, coord_t *end) {
     if (dc_verify_map(map) == false) return false;
 
@@ -264,12 +290,16 @@ unsigned int tunnel_callback(void *vmap, coord_t *coord) {
     return 1;
 }
 
+/*
+   Given a path to tunnel, it will replace the original tile 
+   pointer with the given one, thus tunneling a path throught walls.
+ */
 static bool dc_tunnel(struct dc_map *map, coord_t plist[], int plsz, struct tl_tile *tl) {
     if (plist == NULL) return false;
     if (tl == NULL) return false;
     if (plsz == 0) return false;
 
-    /* cpoy the given tile over the path. */
+    /* copy the given tile over the path. */
     for (int i = 0; i < plsz; i++) {
         sd_get_map_me(&plist[i], map)->tile = tl; //ts_get_tile_type(TILE_TYPE_FLOOR);
     }
@@ -356,6 +386,11 @@ bool dc_generate_map(struct dc_map *map, enum dc_dungeon_type type, int level, u
 
     while (map_is_good == false)
     {
+        /*
+           We flood the map and rescue nonflooded segments untill we can find 
+           no more non-flooded tiles. This takes a long time though, 
+           and can probably be optimised.
+         */
         if (aiu_generate_dijkstra(&pf_ctx, map, &start, 0) ) {
             if (pf_calculate_reachability(pf_ctx) == true) {
                 map_is_good = true;

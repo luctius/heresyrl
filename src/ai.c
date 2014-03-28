@@ -12,11 +12,19 @@
 #include "game.h"
 #include "monster_action.h"
 
+/* 
+   For now, this file contains every ai posible, 
+   and gives an monster its ai based on race.
+   We can later modify it by given out on other parameters.
+ */
+
+/* state context of the beast ai */
 struct beast_ai_struct {
     coord_t last_pos;
     int time_last_pos;
     struct pf_context *pf_ctx;
 };
+
 static bool ai_beast_loop(struct msr_monster *monster, void *controller) {
     if (monster->dead == true) {
         msr_clear_controller(monster);

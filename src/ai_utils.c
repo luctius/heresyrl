@@ -11,6 +11,10 @@
 
 #include "game.h"
 
+/* 
+   This file contains helper functions for the ai, and for automated actions for the player.
+ */
+
 /* TODO: use sight.c to make sure visibility is the same for players and npcs */
 static struct msr_monster *aiu_get_enemy_near(struct msr_monster *monster, struct msr_monster *last, struct dc_map *map) {
     struct msr_monster *target = NULL;
@@ -98,7 +102,6 @@ static unsigned int aiu_traversable_callback(void *vmap, coord_t *coord) {
 
     return cost;
 }
-
 
 bool aiu_generate_dijkstra(struct pf_context **pf_ctx, struct dc_map *map, coord_t *start, int radius) {
     if (dc_verify_map(map) == false) return false;

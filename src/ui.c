@@ -419,7 +419,7 @@ void mapwin_overlay_examine_cursor(struct dc_map *map, coord_t *p_pos) {
     wrefresh(map_win->win);
 }
 
-void ui_animate_projectile(struct dc_map *map, coord_t path[], int path_len, char p) {
+void ui_animate_projectile(struct dc_map *map, coord_t path[], int path_len, int p) {
     if (gbl_game == NULL) return;
     if (gbl_game->player_data.player == NULL) return;
 
@@ -429,7 +429,7 @@ void ui_animate_projectile(struct dc_map *map, coord_t path[], int path_len, cha
     for (int i = 1; i < path_len; i++) {
         if (sd_get_map_me(&path[i],map)->visible == true) {
             chtype oldch = mvwinch(map_win->win, path[i].y - scr_y, path[i].x - scr_x);
-            mvwaddch(map_win->win, path[i].y - scr_y, path[i].x - scr_x, p);
+            mvwaddch(map_win->win, path[i].y - scr_y, path[i].x - scr_x, p | get_colour(TERM_COLOUR_L_RED) );
             wrefresh(map_win->win);
             mvwaddch(map_win->win, path[i].y - scr_y, path[i].x - scr_x, oldch);
             usleep(100000);
@@ -629,7 +629,7 @@ void charwin_refresh() {
     mvwprintw(char_win->win, y++,x, "Gender    %s", msr_gender_string(player) );
     mvwprintw(char_win->win, y++,x, "Homeworld %s", "Void Born");
     mvwprintw(char_win->win, y++,x, "Career    %s", "Thug");
-    mvwprintw(char_win->win, y++,x, "Turn      %d.%d", gbl_game->turn / MSR_ENERGY_TURN, gbl_game->turn % MSR_ENERGY_TURN);
+    mvwprintw(char_win->win, y++,x, "Turn      %d.%d", gbl_game->turn / TT_ENERGY_TURN, gbl_game->turn % TT_ENERGY_TURN);
 
     y++;
     int ws, bs, str, tgh, agi, intel, per, wil/*, fel*/;

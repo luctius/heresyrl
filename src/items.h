@@ -162,19 +162,19 @@ struct item_weapon_specific {
     enum item_weapon_type weapon_type;
     enum item_weapon_category weapon_category;
     enum weapon_dmg_type dmg_type;
-    uint8_t nr_dmg_die; /*0 is 1d5*/
-    int8_t dmg_addition;
-    uint8_t range;
-    uint8_t rof[WEAPON_ROF_SETTING_MAX];
-    enum wpn_rof_setting rof_set;
+    uint8_t nr_dmg_die;     /*0 is 1d5*/
+    int8_t dmg_addition;    /* this is the +X in 1d10 +X*/
+    uint8_t range;          /* range in meters*/
+    uint8_t rof[WEAPON_ROF_SETTING_MAX]; /* number of bullers spend (and possible it) with each setting. single must either be 0 or 1. */
+    enum wpn_rof_setting rof_set;       /* the current setting, single. semi or auto. */
     uint8_t magazine_sz;
     uint8_t magazine_left;
     uint8_t penetration;
     enum item_ammo_type ammo_type;
-    uint32_t ammo_used_template_id;
+    uint32_t ammo_used_template_id; /* item template id of the ammo currently used. this is used to unload the ammo and check for special attributes. */
     bitfield_t special_quality;
     bitfield_t upgrades;
-    bitfield_t wpn_talent;
+    bitfield_t wpn_talent;  /* talent required for this weapon to operate.*/
     bool jammed;
 };
 
@@ -215,7 +215,10 @@ enum item_owner {
 struct itm_item {
     int item_pre;
 
-    uint32_t uid;
+    /* unique id of this item instance. */
+    uint32_t uid; 
+
+    /* id of the items base copy. */
     uint32_t template_id;
     enum item_types item_type;
     /*enum item_material material;*/
@@ -231,9 +234,14 @@ struct itm_item {
     float use_delay;
     uint8_t stacked_quantity;
     uint8_t max_quantity;
+
+    /* total amount of time this item exists, in energy*/
     unsigned long age;
+
+    /* whether or not this item appears on the ground after a creature is dead. */
     bool dropable;
 
+    /* description of the owner of this item*/
     enum item_owner owner_type;
     union owner_union {
         struct dc_map_entity *owner_map_entity;
@@ -251,32 +259,70 @@ struct itm_item {
     int item_post;
 };
 
+/* global init/exit of items list*/
 void itmlst_items_list_init(void);
 void itmlst_items_list_exit(void);
+
+/* get next item from global items list.
+   if prev == NULL, get the first item, 
+   otherwise the item after prev. */
 struct itm_item *itmlst_get_next_item(struct itm_item *prev);
+/* search the items list for the item with this uid. */
 struct itm_item *itmlst_item_by_uid(uint32_t uid);
 
+/* generate an item by its general type*/
 struct itm_item *itm_generate(enum item_types type);
+
+/* create an item instance of this template id*/
 struct itm_item *itm_create(int template_id);
+
+/* destroy the item and remove it from the global item list */
 void itm_destroy(struct itm_item *item);
+
+/*i verify struct intergrity*/
 bool itm_verify_item(struct itm_item *item);
+
+/* instert item at map pos, and change ownership*/
 bool itm_insert_item(struct itm_item *item, struct dc_map *map, coord_t *pos);
+
+/* remove item from pos, and remove any ownership info. */
 bool itm_remove_item(struct itm_item *item, struct dc_map *map, coord_t *pos);
+
+/* get the grid position this item is on */
 coord_t itm_get_pos(struct itm_item *item);
 
+/* true if this item has this quality*/
 bool itm_has_quality(struct itm_item *item, enum item_quality q);
 
+/* true if the item is a weapon and is of this weapon type */
 bool wpn_is_type(struct itm_item *item, enum item_weapon_type type);
+
+/* true if the item is a weapon and is of this weapon catergory */
 bool wpn_is_catergory(struct itm_item *item, enum item_weapon_category cat);
+
+/* check if the rof settings of this weapon makes sense. */
 bool wpn_ranged_weapon_rof_set_check(struct itm_item *item);
+
+/* cycle to the next valid rof setting */
 bool wpn_ranged_next_rof_set(struct itm_item *item);
+
+/* true if the weapon has this upgrade*/
 bool wpn_has_upgrade(struct itm_item *item, enum weapon_upgrades u);
+
+/* true if the weapon has this special quality*/
 bool wpn_has_spc_quality(struct itm_item *item, enum weapon_special_quality q);
 
+/* true if this item is wearable and is of this type*/
 bool wbl_is_type(struct itm_item *item, enum item_wearable_type type);
+
+/* true if the wearable has this special quality*/
 bool wbl_has_spc_quality(struct itm_item *item, enum wearable_special_quality q);
 
+/* true if the item is ammo, and the ammo is of this type */
 bool ammo_is_type(struct itm_item *item, enum item_ammo_type type);
+
+/* true if the item is a tool, and the tool is of this type */
 bool tool_is_type(struct itm_item *item, enum item_tool_type type);
+
 #endif /*ITEMS_H_*/
 

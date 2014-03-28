@@ -25,7 +25,7 @@ void game_init(struct pl_player *plr, unsigned long initial_seed) {
             gbl_game->turn = 0;
             msrlst_monster_list_init();
             itmlst_items_list_init();
-            ma_init();
+            tt_init();
 
             gbl_game->running = true;
 
@@ -99,7 +99,7 @@ bool game_init_map(void) {
 
 bool game_new_tick(void) {
     if (gbl_game == NULL) return false;
-    gbl_game->turn += MSR_ENERGY_TICK;
+    gbl_game->turn += TT_ENERGY_TICK;
 
     return true;
 }
@@ -113,7 +113,7 @@ bool game_exit() {
         }
     }
 
-    ma_exit();
+    tt_exit();
     dc_free_map(gbl_game->current_map);
 
     msrlst_monster_list_exit();

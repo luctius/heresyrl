@@ -11,6 +11,7 @@
 #include "items.h"
 #include "random.h"
 #include "tiles.h"
+#include "turn_tick.h"
 #include "inventory.h"
 #include "items_static.h"
 
@@ -80,7 +81,7 @@ struct msr_monster *msr_create(uint32_t template_id) {
         m->monster.controller.controller_cb = NULL;
         m->monster.pos = cd_create(0,0);
         m->monster.uid = msrlst_next_id();
-        m->monster.energy = MSR_ENERGY_FULL;
+        m->monster.energy = TT_ENERGY_FULL;
         m->monster.faction = 1;
         m->monster.inventory = NULL;
 
@@ -180,18 +181,19 @@ bool msr_move_monster(struct msr_monster *monster, struct dc_map *map, coord_t *
     struct dc_map_entity *me_future = sd_get_map_me(pos, map);
 
     if (TILE_HAS_ATTRIBUTE(me_future->tile, TILE_ATTR_TRAVERSABLE) ) {
-        int x_diff = abs(monster->pos.x - pos->x);
-        int y_diff = abs(monster->pos.y - pos->y);
-        if ( (x_diff > 1) || (y_diff > 1) ) return false; /*Speed of one for now*/
-        coord_t mon_pos_new = cd_add(&monster->pos, pos);
+        /*Speed of one for now*/
+        if (cd_neighbour(&monster->pos, pos) == false) return false;
+        /*coord_t mon_pos_new = cd_add(&monster->pos, pos);*/
 
         if (msr_insert_monster(monster, map, pos) == true) {
             me_current->monster = NULL;
             retval = true;
         }
+        /*
         else if (msr_move_monster(me_future->monster, map, &mon_pos_new) ) {
             retval = msr_move_monster(monster, map, pos);
         }
+        */
     }
 
     return retval;
@@ -436,6 +438,8 @@ bool msr_weapons_check(struct msr_monster *monster) {
     if (monster->wpn_sel >= MSR_WEAPON_SELECT_MAX) return false;
 
     struct inv_inventory *inv = monster->inventory;
+
+    /* check if the monster has any weapons */
     if ( (inv_loc_empty(inv, INV_LOC_MAINHAND_WIELD) == true) && (inv_loc_empty(inv, INV_LOC_OFFHAND_WIELD) == true) ) {
         if (inv_loc_empty(inv, INV_LOC_CREATURE_WIELD1) == true) return false;
         monster->wpn_sel = MSR_WEAPON_SELECT_CREATURE1;

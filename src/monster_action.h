@@ -5,32 +5,35 @@
 
 #include "heresyrl_def.h"
 #include "monster.h"
+#include "turn_tick.h"
 #include "coord.h"
 
 enum MSR_ACTION_COSTS {
-    MSR_ACTION_MOVE   = MSR_ENERGY_TURN, /* minus agility bonus * 10 */
-    MSR_ACTION_IDLE   = MSR_ENERGY_TURN / 4,
-    MSR_ACTION_WEAR   = MSR_ENERGY_TURN, /* times use_delay */ 
-    MSR_ACTION_REMOVE = MSR_ENERGY_TURN, /* times use_delay */
-    MSR_ACTION_PICKUP = MSR_ENERGY_TURN, /* times nr items */
-    MSR_ACTION_DROP   = MSR_ENERGY_TURN, /* times nr items */
-    MSR_ACTION_USE    = MSR_ENERGY_TURN, /* times use_delay */
-    MSR_ACTION_RELOAD = MSR_ENERGY_TURN, /* times use_delay */
-    MSR_ACTION_UNLOAD = MSR_ENERGY_TURN, /* times use_delay */
+    MSR_ACTION_MOVE   = TT_ENERGY_TURN, /* minus agility bonus * 10 */
+    MSR_ACTION_IDLE   = TT_ENERGY_TURN / 4,
+    MSR_ACTION_WEAR   = TT_ENERGY_TURN, /* times use_delay */ 
+    MSR_ACTION_REMOVE = TT_ENERGY_TURN, /* times use_delay */
+    MSR_ACTION_PICKUP = TT_ENERGY_TURN, /* times nr items */
+    MSR_ACTION_DROP   = TT_ENERGY_TURN, /* times nr items */
+    MSR_ACTION_USE    = TT_ENERGY_TURN, /* times use_delay */
+    MSR_ACTION_RELOAD = TT_ENERGY_TURN, /* times use_delay */
+    MSR_ACTION_UNLOAD = TT_ENERGY_TURN, /* times use_delay */
 
-    MSR_ACTION_GUARD  = MSR_ENERGY_TURN,
-    MSR_ACTION_THROW  = MSR_ENERGY_TURN,
-    MSR_ACTION_MELEE  = MSR_ENERGY_TURN,
-    MSR_ACTION_FIRE   = MSR_ENERGY_TURN,
-    MSR_ACTION_SINGLE_SHOT  = (MSR_ENERGY_TURN / 2) + MSR_ENERGY_TICK,
-    MSR_ACTION_SINGLE_MELEE = (MSR_ENERGY_TURN / 2) + MSR_ENERGY_TICK,
+    MSR_ACTION_GUARD  = TT_ENERGY_TURN,
+    MSR_ACTION_THROW  = TT_ENERGY_TURN,
+    MSR_ACTION_MELEE  = TT_ENERGY_TURN,
+    MSR_ACTION_FIRE   = TT_ENERGY_TURN,
+    MSR_ACTION_SINGLE_SHOT  = (TT_ENERGY_TURN / 2) + TT_ENERGY_TICK,
+    MSR_ACTION_SINGLE_MELEE = (TT_ENERGY_TURN / 2) + TT_ENERGY_TICK,
 };
 
-void ma_init(void);
-void ma_exit(void);
-
-bool ma_process(void);
-bool ma_interrupt_event(uint32_t monster_uid);
+/*
+   These functions make the monster do a 
+   move and substract the correct energy.
+   Thi should only be done in the monsters 
+   callback and it should do only one such 
+   an action.
+ */
 
 bool ma_do_move(struct msr_monster *monster, coord_t *pos);
 int ma_do_move_cost(struct msr_monster *monster, coord_t *pos);

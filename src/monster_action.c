@@ -14,59 +14,7 @@
 #include "coord.h"
 #include "game.h"
 #include "dowear.h"
-
-void ma_init(void) {
-}
-
-void ma_exit(void) {
-}
-
-bool ma_process(void) {
-    struct msr_monster *monster = NULL;
-
-    /*TODO make a generic loop out of this one*/
-    while ( (monster = msrlst_get_next_monster(monster) ) != NULL) {
-        if (monster->dead) {
-
-            /* Clean-up monsters which can be cleaned up. */
-            if (monster->controller.controller_cb == NULL) {
-                struct msr_monster *dead_monster = monster;
-                monster = msrlst_get_next_monster(monster);
-
-                msr_destroy(dead_monster, gbl_game->current_map);
-                continue;
-            }
-        }
-
-        bool do_action = false;
-
-        if (msr_get_energy(monster) < MSR_ENERGY_FULL) msr_change_energy(monster, MSR_ENERGY_TICK);
-
-        if (msr_get_energy(monster) >= MSR_ENERGY_FULL) do_action = true;
-        if (monster->controller.interrupted == true) do_action = true;
-
-        if (do_action || monster->dead) {
-            if (monster->controller.controller_cb != NULL) {
-                monster->controller.controller_cb(monster, monster->controller.controller_ctx);
-            }
-            monster->controller.interrupted = false;
-        }
-
-    }
-    return true;
-}
-
-bool mt_interrupt_event(uint32_t monster_uid) {
-    struct msr_monster *monster = NULL;
-    while ( (monster = msrlst_get_next_monster(monster) ) != NULL) {
-        if (monster->uid == monster_uid) {
-            if (monster->controller.interruptable) {
-                monster->controller.interrupted = true;
-            }
-        }
-    }
-    return false;
-}
+#include "turn_tick.h"
 
 bool ma_do_move(struct msr_monster *monster, coord_t *pos) {
     if (msr_verify_monster(monster) == false) return false;
@@ -208,7 +156,7 @@ bool ma_do_drop(struct msr_monster *monster, struct itm_item *items[], int nr_it
         }
     }
 
-    if (msr_get_energy(monster) == MSR_ENERGY_FULL) return false;
+    if (msr_get_energy(monster) == TT_ENERGY_FULL) return false;
 
     monster->controller.interruptable = false;
     return true;

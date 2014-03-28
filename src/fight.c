@@ -17,6 +17,7 @@
 static int tohit_desc_ctr = 0;
 static const char *tohit_descr_lst[MAX_TO_HIT_MODS];
 
+/* These macro's collect the reasons for the calculated tohit and put them in the tohit_descr_lst, so that the gui can give a list of reasons. */
 #define CALC_TOHIT_INIT() do { tohit_desc_ctr = 0; lg_print("calculating hit (%s)", __func__); } while (0);
 /* WARNING: no ';' at the end!*/
 #define CALC_TOHIT(expr, mod, msg) if (expr) {to_hit_mod += mod; tohit_descr_lst[tohit_desc_ctr++] = msg; lg_print(msg " (%d)", mod); assert(tohit_desc_ctr < MAX_TO_HIT_MODS); }
@@ -137,6 +138,7 @@ int fght_melee_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght_
     return to_hit + to_hit_mod;
 }
 
+/* retreive an description from the description array. when there is no more, it return NULL */
 const char *fght_get_tohit_mod_description(int idx) {
     if (idx >= tohit_desc_ctr) return NULL;
     return tohit_descr_lst[idx];
@@ -151,6 +153,9 @@ bool fght_do_weapon_dmg(struct random *r, struct msr_monster *monster, struct ms
     struct item_weapon_specific *wpn = NULL;
     struct itm_item *witem = NULL;
 
+    /* This function is weapon type agnostic, but since we know 
+       we did hit with this hand, we don't really care how 
+       we hit. */
     for (int i = 0; i < WEAPON_TYPE_MAX; i++) {
         witem = fght_get_working_weapon(monster, i, hand);
         if (witem != NULL) i = WEAPON_TYPE_MAX;
@@ -159,6 +164,18 @@ bool fght_do_weapon_dmg(struct random *r, struct msr_monster *monster, struct ms
     if (itm_verify_item(witem) == false) return false;
     wpn = &witem->specific.weapon;
 
+    /* 
+       retreive hit location.
+        TODO: right now it only gives 1 hit location per 
+        attempt, even with burst for example. The dark
+        heresy rules state that a hit location table 
+        should be used.
+
+        Not using such a system gives advantage to 
+        burst and auto fire because they do more 
+        damage to a certain location. For now I'll 
+        leave it like this.
+     */
     int total_damage = 0;
     enum msr_hit_location mhl = msr_get_hit_location(target, random_d100(r) );
 
@@ -178,7 +195,6 @@ bool fght_do_weapon_dmg(struct random *r, struct msr_monster *monster, struct ms
             /* Modifiers to damage here */
             {
                 /* Add strength bonus */
-                
                 if ( wpn_is_type(witem, WEAPON_TYPE_MELEE) || wpn_is_type(witem, WEAPON_TYPE_THROWN) ) dmg_add += msr_calculate_characteristic_bonus(monster, MSR_CHAR_STRENGTH);
 
                 /* Best Quality gains +1 damage */
@@ -314,6 +330,8 @@ int fght_melee_roll(struct random *r, struct msr_monster *monster, struct msr_mo
     return -1;
 }
 
+static enum fght_hand wpn_hand_list[FGHT_MAX_HAND] = { FGHT_MAIN_HAND, FGHT_OFF_HAND, FGHT_CREATURE_HAND, };
+
 bool fght_melee(struct random *r, struct msr_monster *monster, struct msr_monster *target) {
     if (msr_verify_monster(monster) == false) return false;
     if (msr_verify_monster(target) == false) return false;
@@ -322,21 +340,21 @@ bool fght_melee(struct random *r, struct msr_monster *monster, struct msr_monste
     if (cd_pyth(&monster->pos, &target->pos) > 1) return false;
     int hits = 0;
 
-    /* Do damage */
-    msg_init(monster, target);
-    hits = fght_melee_roll(r, monster, target, FGHT_MAIN_HAND);
-    fght_do_weapon_dmg(r, monster, target, hits, FGHT_MAIN_HAND);
-    msg_exit();
+    for (int w = 0; w < FGHT_MAX_HAND; w++) {
+        enum fght_hand hand = wpn_hand_list[w];
 
-    msg_init(monster, target);
-    hits = fght_melee_roll(r, monster, target, FGHT_OFF_HAND);
-    fght_do_weapon_dmg(r, monster, target, hits, FGHT_OFF_HAND);
-    msg_exit();
+        /* init compound message */
+        msg_init(monster, target);
 
-    msg_init(monster, target);
-    hits = fght_melee_roll(r, monster, target, FGHT_CREATURE_HAND);
-    fght_do_weapon_dmg(r, monster, target, hits, FGHT_CREATURE_HAND);
-    msg_exit();
+        /* check of we can hit the target */
+        hits = fght_melee_roll(r, monster, target, hand);
+
+        /* Do the actual damage if we did score a hit. */
+        if (hits > 0) fght_do_weapon_dmg(r, monster, target, hits, hand);
+
+        /* exit compound message */
+        msg_exit();
+    }
 
     return true;
 }
@@ -352,6 +370,7 @@ int fght_shoot(struct random *r, struct msr_monster *monster, struct dc_map *map
     int ammo1 = 0;
     int ammo2 = 0;
 
+    /* Check if we can actually shoot and substract ammo from our attempt. */
     if (item1 != NULL) {
         struct item_weapon_specific *wpn = &item1->specific.weapon;
         ammo1 = MIN(wpn->magazine_left, wpn->rof[wpn->rof_set]);
@@ -363,47 +382,68 @@ int fght_shoot(struct random *r, struct msr_monster *monster, struct dc_map *map
         wpn->magazine_left -= ammo2;
     }
 
+    /* Genereate a path our projectile will take. Start at 
+       the shooter position, and continue the same path 
+       untill an obstacle is found.*/
     coord_t *path;
     int path_len = sgt_los_path(gbl_game->sight, gbl_game->current_map, &monster->pos, e, &path, true);
-    bool blocked = false;
-    int unblocked_length = 0;
 
+    /*  
+        Here we loop over the
+     */
     int i = 1;
     int blocked_i = 0;
-    bool animate = true;
-    while ((i < path_len) && ( (blocked == false) || (blocked_i > i -4) ) ) {
-        if (sd_get_map_me(&path[i], map)->monster != NULL) {
-            if (blocked == false) {
+    bool has_hit = false;
+    bool blocked = false;
+    int unblocked_length = 0;
+    int max_continue_length = 4; //maximum nr of tiles we continue after hitting a monster
+    while ((i < path_len) && ( (blocked == false) || (blocked_i > i - (max_continue_length) ) ) ) {
+
+        /* check if there is a monster on the current tile */
+        if (blocked == false) {
+
+            /*  */
+            if (sd_get_map_me(&path[i], map)->monster != NULL) {
+
+                /* get the monster on the tile as our target */
                 struct msr_monster *target = sd_get_map_me(&path[i], map)->monster;
                 int hits = 0;
 
-                /* Do damage */
-                msg_init(monster, target);
-                hits = fght_ranged_roll(r, monster, target, FGHT_MAIN_HAND, ammo1);
-                fght_do_weapon_dmg(r, monster, target, hits, FGHT_MAIN_HAND);
-                if (hits < 0) animate = false;
-                msg_exit();
 
-                msg_init(monster, target);
-                hits = fght_ranged_roll(r, monster, target, FGHT_OFF_HAND, ammo2);
-                fght_do_weapon_dmg(r, monster, target, hits, FGHT_OFF_HAND);
-                if (hits < 0) animate = false;
-                msg_exit();
+                /* Do damage with our weapon, if any */
+                for (int w = 0; w < FGHT_MAX_HAND; w++) {
+                    enum fght_hand hand = wpn_hand_list[w];
+                    /* init a compound message */
+                    msg_init(monster, target);
 
-                if (animate == true) {
-                    //do blood
+                    /* do weapon checks and roll tohit */
+                    hits = fght_ranged_roll(r, monster, target, hand, ammo1);
+
+                    /* do damage */
+                    if (hits >= 0) {
+                        if (fght_do_weapon_dmg(r, monster, target, hits, hand) ) has_hit = true;
+                        ui_animate_projectile(map, path, unblocked_length +1, '*');
+                        //we can also splatter some blood on the target's tile
+                    }
+
+                    /* close and flush our compaind message */
+                    msg_exit();
                 }
 
-                /* For now, always stop at the first monster. 
-                   later on we can continue but then we have 
-                   to keep track of the ammo once...*/
-                blocked = true;
-                blocked_i = i;
+                if (has_hit) {
+                    /* continue our path if nothing hit */
+                    blocked = true;
+                    blocked_i = i;
+                }
             }
-            //else do blood
         }
+
         if (TILE_HAS_ATTRIBUTE(sd_get_map_tile(&path[i], map), TILE_ATTR_TRAVERSABLE) == false) {
             blocked = true;
+
+            if (has_hit) {
+                /* here we can splatter blood against a wall behind the victim */
+            }
         }
         if (blocked == false) {
             unblocked_length++;
@@ -411,9 +451,10 @@ int fght_shoot(struct random *r, struct msr_monster *monster, struct dc_map *map
         i++;
     }
 
-    if (animate) ui_animate_projectile(map, path, unblocked_length +1, '*');
+    /* if the path was succesfully created, free it here */
     if (path_len > 0) free(path);
 
+    /* return the nr of tiles the projectile traveled */
     return unblocked_length;
 }
 
@@ -426,6 +467,11 @@ const char *fght_weapon_hand_name(enum fght_hand hand) {
     return "unknown";
 }
 
+/* 
+   Given a monster, a type of weapon and a hand, 
+   check if that weapon type exists in our monsters 
+   hand and return it.
+ */
 struct itm_item *fght_get_weapon(struct msr_monster *monster, enum item_weapon_type type, enum fght_hand hand) {
     if (msr_verify_monster(monster) == false) return NULL;
     if (msr_weapons_check(monster) == false) return NULL;
@@ -460,6 +506,10 @@ struct itm_item *fght_get_weapon(struct msr_monster *monster, enum item_weapon_t
     return item;
 }
 
+/*  
+    same as fght_get_weapon except we also check 
+    if the weapon is in working condition.
+ */
 struct itm_item *fght_get_working_weapon(struct msr_monster *monster, enum item_weapon_type type, enum fght_hand hand) {
     struct itm_item *item = fght_get_weapon(monster, type, hand);
     if (item == NULL) return NULL;

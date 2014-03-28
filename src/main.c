@@ -19,7 +19,7 @@
 #include "tiles.h"
 #include "inventory.h"
 #include "input.h"
-#include "monster_action.h"
+#include "turn_tick.h"
 
 static void sigfunc(int s) {
     FIX_UNUSED(s);
@@ -72,7 +72,7 @@ int main(int argc, char *argv[]) {
     sigaction( SIGINT,  &setmask, (struct sigaction *) NULL );      /* Interrupt (Ctrl-C) */
 
     while(gbl_game->running == true) {
-        ma_process();
+        tt_process(gbl_game->current_map);
         if (gbl_game->running) game_new_tick();
 
         getmaxyx(stdscr, lines, cols);
