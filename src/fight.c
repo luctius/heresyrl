@@ -10,19 +10,27 @@
 #include "game.h"
 #include "turn_tick.h"
 #include "fov/sight.h"
-#include "ui/ui.h"
+#include "ui/animate.h"
 #include "dungeon/dungeon_map.h"
 #include "monster/monster.h"
 #include "items/items.h"
 
 #define MAX_TO_HIT_MODS (30)
 static int tohit_desc_ctr = 0;
-static const char *tohit_descr_lst[MAX_TO_HIT_MODS];
+static struct tohit_desc tohit_descr_lst[MAX_TO_HIT_MODS];
 
 /* These macro's collect the reasons for the calculated tohit and put them in the tohit_descr_lst, so that the gui can give a list of reasons. */
 #define CALC_TOHIT_INIT() do { tohit_desc_ctr = 0; lg_print("calculating hit (%s)", __func__); } while (0);
 /* WARNING: no ';' at the end!*/
-#define CALC_TOHIT(expr, mod, msg) if (expr) {to_hit_mod += mod; tohit_descr_lst[tohit_desc_ctr++] = msg; lg_print(msg " (%d)", mod); assert(tohit_desc_ctr < MAX_TO_HIT_MODS); }
+#define CALC_TOHIT(expr, mod, msg) \
+    if (expr) { \
+        to_hit_mod += mod; \
+        tohit_descr_lst[tohit_desc_ctr].description = msg; \
+        tohit_descr_lst[tohit_desc_ctr].modifier = mod; \
+        tohit_desc_ctr++; \
+        lg_print(msg " (%d)", mod); \
+        assert(tohit_desc_ctr < MAX_TO_HIT_MODS); \
+    }
 
 int fght_ranged_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght_hand hand) {
     struct dm_map_entity *me = dm_get_map_me(tpos, gbl_game->current_map);
@@ -151,9 +159,9 @@ int fght_melee_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght_
 }
 
 /* retreive an description from the description array. when there is no more, it return NULL */
-const char *fght_get_tohit_mod_description(int idx) {
+struct tohit_desc *fght_get_tohit_mod_description(int idx) {
     if (idx >= tohit_desc_ctr) return NULL;
-    return tohit_descr_lst[idx];
+    return &tohit_descr_lst[idx];
 }
 
 /* Monster can be NULL if the weapon is an indirect damage weapon such as a grenade. */

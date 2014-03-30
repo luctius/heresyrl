@@ -2,12 +2,12 @@
 #include <stdbool.h>
 #include <assert.h>
 #include <ncurses.h>
-#include <unistd.h>
 #include <sys/param.h>
 #include <string.h>
 
 #include "ui.h"
-#include "heresyrl_def.h"
+#include "ui_common.h"
+
 #include "cmdline.h"
 #include "tiles.h"
 #include "fight.h"
@@ -25,62 +25,8 @@
 #include "items/items.h"
 #include "dungeon/dungeon_map.h"
 
-#define MAP_MIN_COLS 20
-#define MAP_MAX_COLS 100
-#define MAP_COLS_FACTOR 0.90f
-
-#define MAP_MIN_LINES 22
-#define MAP_MAX_LINES 0
-#define MAP_LINES_FACTOR 0.90f
-
-#define MSG_MIN_COLS 40
-#define MSG_MAX_COLS 100
-#define MSG_COLS_FACTOR 0.95f
-
-#define MSG_MIN_LINES 2
-#define MSG_MAX_LINES 0
-#define MSG_LINES_FACTOR 0.10f
-
-#define CHAR_MIN_COLS 31
-#define CHAR_MAX_COLS 31
-#define CHAR_COLS_FACTOR 0.05f
-
-#define CHAR_MIN_LINES 30
-#define CHAR_MAX_LINES 30
-#define CHAR_LINES_FACTOR 1.00f
-
-enum window_type {
-    HRL_WINDOW_TYPE_MAP,
-    HRL_WINDOW_TYPE_CHARACTER,
-    HRL_WINDOW_TYPE_MESSAGE,
-    HRL_WINDOW_TYPE_MAX,
-};
-
-struct hrl_window {
-    WINDOW *win;
-    int cols;
-    int lines;
-    int y;
-    int x;
-    enum window_type type;
-};
-
-static struct hrl_window *map_win = NULL;
-static struct hrl_window *char_win = NULL;
-static struct hrl_window *msg_win = NULL;
-static bool colours_generated = false;
-
 static struct hrl_window *win_create(int height, int width, int starty, int startx, enum window_type type);
 static void win_destroy(struct hrl_window *window);
-
-static void win_generate_colours(void) {
-    if (colours_generated == false) {
-        colours_generated = true;
-        lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "ui", "generating colours, we do %d, max is %d", TERM_COLOUR_MAX, COLOR_PAIRS);
-
-        generate_colours();
-    }
-}
 
 static int hdr_lines = 0;
 static int hdr_cols = 0;
@@ -186,16 +132,6 @@ void update_screen(void) {
     charwin_refresh();
 }
 
-static int get_viewport(int p, int vps, int mps) {
-    int hvps = round(vps / 2.0f);
-
-    if (mps < vps) return 0;
-    if (p < hvps) return 0;
-    if (p > (mps - hvps) ) return mps - vps;
-    return p - hvps;
-}
-
-static coord_t last_ppos = {0,0};
 static void mapwin_display_map_noref(struct dm_map *map, coord_t *player) {
     coord_t scr_c = cd_create(0,0);
 
@@ -417,59 +353,6 @@ void mapwin_overlay_examine_cursor(struct dm_map *map, coord_t *p_pos) {
 
     delwin(map_win_ex);
     wrefresh(map_win->win);
-}
-
-void ui_animate_explosion(struct dm_map *map, coord_t path[], int path_len) {
-    if (gbl_game == NULL) return;
-    if (gbl_game->player_data.player == NULL) return;
-
-    int scr_x = get_viewport(last_ppos.x, map_win->cols, map->size.x);
-    int scr_y = get_viewport(last_ppos.y, map_win->lines, map->size.y);
-
-    chtype chlist[path_len];
-
-    for (int i = 0; i < path_len; i++) {
-        if (dm_get_map_me(&path[i],map)->visible == true) {
-            chlist[i] = mvwinch(map_win->win, path[i].y - scr_y, path[i].x - scr_x);
-            mvwaddch(map_win->win, path[i].y - scr_y, path[i].x - scr_x, chlist[i] | get_colour(TERM_COLOUR_BG_YELLOW) );
-        }
-    }
-
-    wrefresh(map_win->win);
-    usleep(50000);
-
-    for (int i = 0; i < path_len; i++) {
-        if (dm_get_map_me(&path[i],map)->visible == true) {
-            mvwaddch(map_win->win, path[i].y - scr_y, path[i].x - scr_x, chlist[i] | get_colour(TERM_COLOUR_BG_RED) );
-        }
-    }
-
-    wrefresh(map_win->win);
-    usleep(50000);
-
-    for (int i = 0; i < path_len; i++) {
-        if (dm_get_map_me(&path[i],map)->visible == true) {
-            mvwaddch(map_win->win, path[i].y - scr_y, path[i].x - scr_x, chlist[i]);
-        }
-    }
-}
-
-void ui_animate_projectile(struct dm_map *map, coord_t path[], int path_len) {
-    if (gbl_game == NULL) return;
-    if (gbl_game->player_data.player == NULL) return;
-
-    int scr_x = get_viewport(last_ppos.x, map_win->cols, map->size.x);
-    int scr_y = get_viewport(last_ppos.y, map_win->lines, map->size.y);
-
-    for (int i = 1; i < path_len; i++) {
-        if (dm_get_map_me(&path[i],map)->visible == true) {
-            chtype oldch = mvwinch(map_win->win, path[i].y - scr_y, path[i].x - scr_x);
-            mvwaddch(map_win->win, path[i].y - scr_y, path[i].x - scr_x, '*' | get_colour(TERM_COLOUR_RED) );
-            wrefresh(map_win->win);
-            mvwaddch(map_win->win, path[i].y - scr_y, path[i].x - scr_x, oldch);
-            usleep(20000);
-        }
-    }
 }
 
 bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dm_map *map, coord_t *p_pos) {

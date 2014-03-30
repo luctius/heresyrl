@@ -31,7 +31,9 @@ heresyrl_SOURCES =  \
                     fov/digital_fov.c \
                     fov/fov.c \
                     items/items.c \
-                    ui/ui.c
+                    ui/ui.c \
+                    ui/ui_common.c \
+                    ui/animate.c 
 
 heresyrl_CFLAGS = $(lua_CFLAGS) -ggdb -O0 -Wall -Wextra -Wformat=2 -Wswitch-default -Wcast-align -Wpointer-arith -Wbad-function-cast -Wstrict-prototypes -Winline -Wundef -Wnested-externs -Wcast-qual -Wshadow -Wwrite-strings  -Wunreachable-code -Wstrict-aliasing=2 -Wno-uninitialized
 heresyrl_LDADD = $(top_srcdir)/utils/libutils.la $(INTI_LIBS) -lm $(lua_LIBS)

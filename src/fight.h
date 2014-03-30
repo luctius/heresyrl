@@ -96,7 +96,12 @@ enum fght_hand {
     FGHT_MAX_HAND,
 };
 
-const char *fght_get_tohit_mod_description(int idx);
+struct tohit_desc {
+    const char *description;
+    int modifier;
+};
+
+struct tohit_desc *fght_get_tohit_mod_description(int idx);
 int fght_ranged_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght_hand hand);
 int fght_melee_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght_hand hand);
 
