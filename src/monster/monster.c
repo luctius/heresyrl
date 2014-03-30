@@ -13,7 +13,7 @@
 #include "inventory.h"
 #include "items/items.h"
 #include "items/items_static.h"
-#include "dungeon/dungeon_creator.h"
+#include "dungeon/dungeon_map.h"
 
 static LIST_HEAD(monster_list, msr_monster_list_entry) monster_list_head;
 static bool monster_list_initialised = false;
@@ -116,9 +116,9 @@ struct msr_monster *msr_create(uint32_t template_id) {
     return NULL;
 }
 
-void msr_destroy(struct msr_monster *monster, struct dc_map *map) {
+void msr_destroy(struct msr_monster *monster, struct dm_map *map) {
     if (msr_verify_monster(monster) == false) return;
-    if (dc_verify_map(map) == false) return;
+    if (dm_verify_map(map) == false) return;
     struct msr_monster_list_entry *target_mle = container_of(monster, struct msr_monster_list_entry, monster);
 
     msr_remove_monster(monster, map);
@@ -150,13 +150,13 @@ void msr_clear_controller(struct msr_monster *monster) {
     memset(&monster->controller, 0x0, sizeof(struct monster_controller) );
 }
 
-bool msr_insert_monster(struct msr_monster *monster, struct dc_map *map, coord_t *pos) {
+bool msr_insert_monster(struct msr_monster *monster, struct dm_map *map, coord_t *pos) {
     bool retval = false;
     if (msr_verify_monster(monster) == false) return false;
-    if (dc_verify_map(map) == false) return false;
+    if (dm_verify_map(map) == false) return false;
     if (cd_within_bound(pos, &map->size) == false) return false;
 
-    struct dc_map_entity *me_future = sd_get_map_me(pos, map);
+    struct dm_map_entity *me_future = dm_get_map_me(pos, map);
     if (TILE_HAS_ATTRIBUTE(me_future->tile, TILE_ATTR_TRAVERSABLE) ) {
         if (me_future->monster == NULL) {
             me_future->monster = monster;
@@ -170,15 +170,15 @@ bool msr_insert_monster(struct msr_monster *monster, struct dc_map *map, coord_t
     return retval;
 }
 
-bool msr_move_monster(struct msr_monster *monster, struct dc_map *map, coord_t *pos) {
+bool msr_move_monster(struct msr_monster *monster, struct dm_map *map, coord_t *pos) {
     bool retval = false;
     if (msr_verify_monster(monster) == false) return false;
-    if (dc_verify_map(map) == false) return false;
+    if (dm_verify_map(map) == false) return false;
     if (cd_within_bound(pos, &map->size) == false) return false;
     if (cd_equal(&monster->pos, pos) == true ) return false;
 
-    struct dc_map_entity *me_current = sd_get_map_me(&monster->pos, map);
-    struct dc_map_entity *me_future = sd_get_map_me(pos, map);
+    struct dm_map_entity *me_current = dm_get_map_me(&monster->pos, map);
+    struct dm_map_entity *me_future = dm_get_map_me(pos, map);
 
     if (TILE_HAS_ATTRIBUTE(me_future->tile, TILE_ATTR_TRAVERSABLE) ) {
         /*Speed of one for now*/
@@ -237,9 +237,9 @@ int msr_get_far_sight_range(struct msr_monster *monster) {
     return ( (msr_calculate_characteristic(monster, MSR_CHAR_PERCEPTION) * 2.5f) / 10) +1;
 }
 
-bool msr_drop_inventory(struct msr_monster *monster, struct dc_map *map) {
+bool msr_drop_inventory(struct msr_monster *monster, struct dm_map *map) {
     if (msr_verify_monster(monster) == false) return false;
-    if (dc_verify_map(map) == false) return false;
+    if (dm_verify_map(map) == false) return false;
 
     struct itm_item *item = NULL;
     while ( (item = inv_get_next_item(monster->inventory, item) ) != NULL) {
@@ -256,12 +256,12 @@ bool msr_drop_inventory(struct msr_monster *monster, struct dc_map *map) {
     return true;
 }
 
-bool msr_remove_monster(struct msr_monster *monster, struct dc_map *map) {
+bool msr_remove_monster(struct msr_monster *monster, struct dm_map *map) {
     bool retval = false;
     if (msr_verify_monster(monster) == false) return false;
-    if (dc_verify_map(map) == false) return false;
+    if (dm_verify_map(map) == false) return false;
 
-    struct dc_map_entity *me_current = sd_get_map_me(&monster->pos, map);
+    struct dm_map_entity *me_current = dm_get_map_me(&monster->pos, map);
     if (me_current->monster == monster) {
         lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "Monster", "removed (%d,%d)", monster->pos.x, monster->pos.y);
         me_current->monster = NULL;
@@ -330,9 +330,9 @@ enum msr_hit_location msr_get_hit_location(struct msr_monster *monster, int hit_
     return MSR_HITLOC_HEAD;
 }
 
-static bool msr_die(struct msr_monster *monster, struct dc_map *map) {
+static bool msr_die(struct msr_monster *monster, struct dm_map *map) {
     if (msr_verify_monster(monster) == false) return false;
-    if (dc_verify_map(map) == false) return false;
+    if (dm_verify_map(map) == false) return false;
 
     You(monster, "died...");
     Monster(monster, "dies.");
@@ -344,7 +344,7 @@ static bool msr_die(struct msr_monster *monster, struct dc_map *map) {
     return true;
 }
 
-bool msr_do_dmg(struct msr_monster *monster, int dmg, enum msr_hit_location mhl, struct dc_map *map) {
+bool msr_do_dmg(struct msr_monster *monster, int dmg, enum msr_hit_location mhl, struct dm_map *map) {
     if (msr_verify_monster(monster) == false) return false;
 
     if (dmg > 0) {
@@ -584,7 +584,7 @@ const char *msr_ldname(struct msr_monster *monster) {
     if (msr_verify_monster(monster) == false) return "unkown";
 
     if (monster->is_player) return "you";
-    if (!sd_get_map_me(&monster->pos, gbl_game->current_map)->visible) return "something";
+    if (!dm_get_map_me(&monster->pos, gbl_game->current_map)->visible) return "something";
     return monster->ld_name;
 }
 
@@ -593,7 +593,7 @@ const char *msr_gender_name(struct msr_monster *monster, bool possesive) {
 
     enum msr_gender gender = monster->gender;
     if (monster->gender >= MSR_GENDER_MAX) gender = MSR_GENDER_IT;
-    if (!sd_get_map_me(&monster->pos, gbl_game->current_map)->visible) gender = MSR_GENDER_IT;
+    if (!dm_get_map_me(&monster->pos, gbl_game->current_map)->visible) gender = MSR_GENDER_IT;
 
     switch(gender) {
         case MSR_GENDER_MALE:        return (possesive) ? "his" : "he"; break;

@@ -11,7 +11,7 @@
 #include "turn_tick.h"
 #include "fov/sight.h"
 #include "ui/ui.h"
-#include "dungeon/dungeon_creator.h"
+#include "dungeon/dungeon_map.h"
 #include "monster/monster.h"
 #include "items/items.h"
 
@@ -25,7 +25,7 @@ static const char *tohit_descr_lst[MAX_TO_HIT_MODS];
 #define CALC_TOHIT(expr, mod, msg) if (expr) {to_hit_mod += mod; tohit_descr_lst[tohit_desc_ctr++] = msg; lg_print(msg " (%d)", mod); assert(tohit_desc_ctr < MAX_TO_HIT_MODS); }
 
 int fght_ranged_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght_hand hand) {
-    struct dc_map_entity *me = sd_get_map_me(tpos, gbl_game->current_map);
+    struct dm_map_entity *me = dm_get_map_me(tpos, gbl_game->current_map);
     struct msr_monster *target = me->monster;
 
     struct itm_item *witem = fght_get_working_weapon(monster, WEAPON_TYPE_RANGED, hand);
@@ -104,7 +104,7 @@ int fght_ranged_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght
 }
 
 int fght_melee_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght_hand hand) {
-    struct dc_map_entity *me = sd_get_map_me(tpos, gbl_game->current_map);
+    struct dm_map_entity *me = dm_get_map_me(tpos, gbl_game->current_map);
     struct msr_monster *target = me->monster;
 
     struct itm_item *witem = fght_get_working_weapon(monster, WEAPON_TYPE_MELEE, hand);
@@ -368,7 +368,7 @@ int fght_thrown_roll(struct random *r, struct msr_monster *monster, coord_t *pos
     msg_plr("You throw an %s", witem->sd_name);
     msg_msr("%s throws an %s", msr_ldname(monster), witem->sd_name);
 
-    struct msr_monster *target = sd_get_map_me(pos, gbl_game->current_map)->monster;
+    struct msr_monster *target = dm_get_map_me(pos, gbl_game->current_map)->monster;
     if (monster != NULL) {
         if (msr_verify_monster(target) == true) {
             msg_plr(" at %s", msr_ldname(target) );
@@ -428,9 +428,9 @@ bool fght_melee(struct random *r, struct msr_monster *monster, struct msr_monste
    before use, ma_do_throw should do that for the player 
    with a slight cost.
  */
-bool fght_throw_weapon(struct random *r, struct msr_monster *monster, struct dc_map *map, coord_t *e, enum fght_hand hand) {
+bool fght_throw_weapon(struct random *r, struct msr_monster *monster, struct dm_map *map, coord_t *e, enum fght_hand hand) {
     if (msr_verify_monster(monster) == false) return false;
-    if (dc_verify_map(map) == false) return false;
+    if (dm_verify_map(map) == false) return false;
     if (cd_within_bound(e, &map->size) == false) return false;
     if (sgt_has_los(gbl_game->sight, map, &monster->pos, e) == false) return false;
     coord_t end = *e;
@@ -457,7 +457,7 @@ bool fght_throw_weapon(struct random *r, struct msr_monster *monster, struct dc_
         /* Do the actual damage if we did score a hit. */
         if (hits > 0) {
             /* and if there actually is an enemy there... */
-            struct msr_monster *target = sd_get_map_me(e, map)->monster;
+            struct msr_monster *target = dm_get_map_me(e, map)->monster;
             if (target != NULL) {
                 fght_do_weapon_dmg(r, monster, target, hits, hand);
             }
@@ -516,9 +516,9 @@ bool fght_throw_weapon(struct random *r, struct msr_monster *monster, struct dc_
     return false;
 }
 
-bool fght_shoot(struct random *r, struct msr_monster *monster, struct dc_map *map, coord_t *e) {
+bool fght_shoot(struct random *r, struct msr_monster *monster, struct dm_map *map, coord_t *e) {
     if (msr_verify_monster(monster) == false) return false;
-    if (dc_verify_map(map) == false) return false;
+    if (dm_verify_map(map) == false) return false;
     if (cd_within_bound(&monster->pos, &map->size) == false) return false;
     if (msr_weapon_type_check(monster, WEAPON_TYPE_RANGED) == false) return false;
     if (sgt_has_los(gbl_game->sight, map, &monster->pos, e) == false) return false;
@@ -561,10 +561,10 @@ bool fght_shoot(struct random *r, struct msr_monster *monster, struct dc_map *ma
         if (blocked == false) {
 
             /* check for a valid target */
-            if (sd_get_map_me(&path[i], map)->monster != NULL) {
+            if (dm_get_map_me(&path[i], map)->monster != NULL) {
 
                 /* get the monster on the tile as our target */
-                struct msr_monster *target = sd_get_map_me(&path[i], map)->monster;
+                struct msr_monster *target = dm_get_map_me(&path[i], map)->monster;
                 int hits = 0;
 
 
@@ -595,7 +595,7 @@ bool fght_shoot(struct random *r, struct msr_monster *monster, struct dc_map *ma
             }
         }
 
-        if (TILE_HAS_ATTRIBUTE(sd_get_map_tile(&path[i], map), TILE_ATTR_TRAVERSABLE) == false) {
+        if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(&path[i], map), TILE_ATTR_TRAVERSABLE) == false) {
             blocked = true;
 
             if (has_hit) {

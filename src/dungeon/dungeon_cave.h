@@ -6,6 +6,6 @@
 
 #include "heresyrl_def.h"
 
-bool cave_generate_map(struct dc_map *map, struct random *r, enum dc_dungeon_type type, int level);
+bool cave_generate_map(struct dm_map *map, struct random *r, enum dm_dungeon_type type, int level);
 
 #endif /*DUNGEON_CAVE_H_*/

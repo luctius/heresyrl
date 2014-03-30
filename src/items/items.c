@@ -7,7 +7,7 @@
 #include "random.h"
 #include "tiles.h"
 #include "inventory.h"
-#include "dungeon/dungeon_creator.h"
+#include "dungeon/dungeon_map.h"
 #include "monster/monster.h"
 
 struct itm_item_list_entry {
@@ -110,14 +110,14 @@ bool itm_verify_item(struct itm_item *item) {
     return true;
 }
 
-bool itm_insert_item(struct itm_item *item, struct dc_map *map, coord_t *pos) {
+bool itm_insert_item(struct itm_item *item, struct dm_map *map, coord_t *pos) {
     bool retval = false;
     if (itm_verify_item(item) == false) return false;
-    if (dc_verify_map(map) == false) return false;
+    if (dm_verify_map(map) == false) return false;
     if (cd_within_bound(pos, &map->size) == false) return false;
     if (item->dropable == false) return false;
 
-    struct dc_map_entity *target = sd_get_map_me(pos, map);
+    struct dm_map_entity *target = dm_get_map_me(pos, map);
     if (inv_has_item(target->inventory, item) == false) {
         if (inv_add_item(target->inventory, item) == true) {
             item->owner_type = ITEM_OWNER_MAP;
@@ -132,13 +132,13 @@ bool itm_insert_item(struct itm_item *item, struct dc_map *map, coord_t *pos) {
     return retval;
 }
 
-bool itm_remove_item(struct itm_item *item, struct dc_map *map, coord_t *pos) {
+bool itm_remove_item(struct itm_item *item, struct dm_map *map, coord_t *pos) {
     bool retval = false;
     if (itm_verify_item(item) == false) return false;
-    if (dc_verify_map(map) == false) return false;
+    if (dm_verify_map(map) == false) return false;
     if (cd_within_bound(pos, &map->size) == false) return false;
 
-    struct dc_map_entity *target = sd_get_map_me(pos, map);
+    struct dm_map_entity *target = dm_get_map_me(pos, map);
     if (inv_has_item(target->inventory, item) == true) {
         lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "itm", "removed (%d,%d)", pos->x, pos->y);
         if (inv_remove_item(target->inventory, item) ) {
@@ -166,7 +166,7 @@ bool itm_has_quality(struct itm_item *item, enum item_quality q) {
     return (item->quality == q);
 }
 
-bool itm_energy_action(struct itm_item *item, struct dc_map *map) {
+bool itm_energy_action(struct itm_item *item, struct dm_map *map) {
     if (itm_verify_item(item) == false) return false;
     if (item->energy > 0) return false;
 

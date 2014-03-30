@@ -29,14 +29,14 @@ struct tl_tile;
 struct msr_monster;
 struct itm_item;
 struct inv_inventory;
-struct dc_map_entity;
-struct dc_map;
+struct dm_map_entity;
+struct dm_map;
 struct random;
 struct sgt_sight;
 struct pl_player;
 
 enum tile_types;
-enum dc_dungeon_type;
+enum dm_dungeon_type;
 enum msr_gender;
 enum msr_race;
 enum msr_weapon_selection;
@@ -60,7 +60,7 @@ struct gm_game {
 
     struct sgt_sight *sight;
 
-    struct dc_map *current_map;
+    struct dm_map *current_map;
     struct pl_player player_data;
     int turn;
     bool running;

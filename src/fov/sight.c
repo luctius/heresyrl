@@ -9,7 +9,7 @@
 #include "random.h"
 #include "digital_fov.h"
 #include "items/items.h"
-#include "dungeon/dungeon_creator.h"
+#include "dungeon/dungeon_map.h"
 #include "monster/monster.h"
 
 struct sgt_sight {
@@ -17,34 +17,34 @@ struct sgt_sight {
 };
 
 static bool dig_check_opaque_lof(struct digital_fov_set *set, coord_t *point, coord_t *origin) {
-    struct dc_map *map = set->map;
+    struct dm_map *map = set->map;
 
-    if (dc_verify_map(map) == false) return false;
+    if (dm_verify_map(map) == false) return false;
     if (cd_within_bound(point, &map->size) == false) return false;
 
-    if ( (sd_get_map_tile(point,map)->attributes & TILE_ATTR_TRAVERSABLE) == 0) return false;
-    if (sd_get_map_me(point,map)->monster != NULL) return false;
+    if ( (dm_get_map_tile(point,map)->attributes & TILE_ATTR_TRAVERSABLE) == 0) return false;
+    if (dm_get_map_me(point,map)->monster != NULL) return false;
     return true;
 }
 
 static bool dig_check_opaque_los(struct digital_fov_set *set, coord_t *point, coord_t *origin) {
-    struct dc_map *map = set->map;
+    struct dm_map *map = set->map;
 
-    if (dc_verify_map(map) == false) return false;
+    if (dm_verify_map(map) == false) return false;
     if (cd_within_bound(point, &map->size) == false) return false;
 
-    return ( (sd_get_map_tile(point,map)->attributes & TILE_ATTR_OPAGUE) > 0);
+    return ( (dm_get_map_tile(point,map)->attributes & TILE_ATTR_OPAGUE) > 0);
 }
 
 static bool dig_apply_player_sight(struct digital_fov_set *set, coord_t *point, coord_t *origin) {
-    struct dc_map *map = set->map;
+    struct dm_map *map = set->map;
     struct msr_monster *monster = set->source;
 
-    if (dc_verify_map(map) == false) return false;
+    if (dm_verify_map(map) == false) return false;
     if (cd_within_bound(point, &map->size) == false) return false;
     if (msr_verify_monster(monster) == false) return false;
 
-    struct dc_map_entity *me = sd_get_map_me(point,map);
+    struct dm_map_entity *me = dm_get_map_me(point,map);
     int mod = 0;
     me->in_sight = true;
 
@@ -74,7 +74,7 @@ static bool dig_apply_player_sight(struct digital_fov_set *set, coord_t *point, 
 
             if (radius > 0) {
                 coord_t sp = sgt_scatter(gbl_game->sight, map, gbl_game->game_random, point, radius);
-                sd_get_map_me(&sp, map)->icon_override = '?';
+                dm_get_map_me(&sp, map)->icon_override = '?';
             }
             else me->icon_override = '?';
         }
@@ -83,15 +83,15 @@ static bool dig_apply_player_sight(struct digital_fov_set *set, coord_t *point, 
 }
 
 static bool dig_apply_light_source(struct digital_fov_set *set, coord_t *point, coord_t *origin) {
-    struct dc_map *map = set->map;
+    struct dm_map *map = set->map;
     struct itm_item *item = set->source;
 
-    if (dc_verify_map(map) == false) return false;
+    if (dm_verify_map(map) == false) return false;
     if (cd_within_bound(point, &map->size) == false) return false;
     if (itm_verify_item(item) == false) return false;
     if ( (item->specific.tool.light_luminem - cd_pyth(point, origin) ) <= 0) return false;
 
-    sd_get_map_me(point,map)->light_level = item->specific.tool.light_luminem - cd_pyth(point, origin);
+    dm_get_map_me(point,map)->light_level = item->specific.tool.light_luminem - cd_pyth(point, origin);
     return true;
 }
 
@@ -102,13 +102,13 @@ struct sgt_explosion_struct {
 };
 
 static bool dig_apply_explosion(struct digital_fov_set *set, coord_t *point, coord_t *origin) {
-    struct dc_map *map = set->map;
+    struct dm_map *map = set->map;
     struct sgt_explosion_struct *ex = set->source;
 
-    if (dc_verify_map(map) == false) return false;
+    if (dm_verify_map(map) == false) return false;
     if (cd_within_bound(point, &map->size) == false) return false;
     if (ex->list_idx >= ex->list_sz) return false;
-    if ( (sd_get_map_tile(point,map)->attributes & TILE_ATTR_TRAVERSABLE) == 0) return false;
+    if ( (dm_get_map_tile(point,map)->attributes & TILE_ATTR_TRAVERSABLE) == 0) return false;
 
     ex->list[ex->list_idx++] = *point;
 
@@ -134,9 +134,9 @@ void sgt_exit(struct sgt_sight *sight) {
     }
 }
 
-bool sgt_calculate_light_source(struct sgt_sight *sight, struct dc_map *map, struct itm_item *item) {
+bool sgt_calculate_light_source(struct sgt_sight *sight, struct dm_map *map, struct itm_item *item) {
     if (sight == NULL) return false;
-    if (dc_verify_map(map) == false) return false;
+    if (dm_verify_map(map) == false) return false;
     if (itm_verify_item(item) == false) return false;
     if (tool_is_type(item, TOOL_TYPE_LIGHT) == false) return false;
     if (item->specific.tool.lit != true) return false;
@@ -155,9 +155,9 @@ bool sgt_calculate_light_source(struct sgt_sight *sight, struct dc_map *map, str
     return true;
 }
 
-bool sgt_calculate_all_light_sources(struct sgt_sight *sight, struct dc_map *map) {
+bool sgt_calculate_all_light_sources(struct sgt_sight *sight, struct dm_map *map) {
     if (sight == NULL) return false;
-    if (dc_verify_map(map) == false) return false;
+    if (dm_verify_map(map) == false) return false;
 
     struct itm_item *item = NULL;
     while ( (item = itmlst_get_next_item(item) ) != NULL){
@@ -166,9 +166,9 @@ bool sgt_calculate_all_light_sources(struct sgt_sight *sight, struct dc_map *map
     return true;
 }
 
-bool sgt_calculate_player_sight(struct sgt_sight *sight, struct dc_map *map, struct msr_monster *monster) {
+bool sgt_calculate_player_sight(struct sgt_sight *sight, struct dm_map *map, struct msr_monster *monster) {
     if (sight == NULL) return false;
-    if (dc_verify_map(map) == false) return false;
+    if (dm_verify_map(map) == false) return false;
     if (msr_verify_monster(monster) == false) return false;
 
     struct digital_fov_set set = {
@@ -182,9 +182,9 @@ bool sgt_calculate_player_sight(struct sgt_sight *sight, struct dc_map *map, str
     return digital_fov(&set, &monster->pos, msr_get_far_sight_range(monster) );
 }
 
-int sgt_explosion(struct sgt_sight *sight, struct dc_map *map, coord_t *pos, int radius, coord_t *grid_list[]) {
+int sgt_explosion(struct sgt_sight *sight, struct dm_map *map, coord_t *pos, int radius, coord_t *grid_list[]) {
     if (sight == NULL) return false;
-    if (dc_verify_map(map) == false) return false;
+    if (dm_verify_map(map) == false) return false;
 
     *grid_list = calloc(radius * 4, sizeof(coord_t) );
     if (*grid_list == NULL) return -1;
@@ -220,21 +220,21 @@ int sgt_explosion(struct sgt_sight *sight, struct dc_map *map, coord_t *pos, int
     return ex.list_idx;
 }
 
-int bresenham(struct dc_map *map, coord_t *s, coord_t *e, coord_t plist[], int plist_sz);
+int bresenham(struct dm_map *map, coord_t *s, coord_t *e, coord_t plist[], int plist_sz);
 int wu_line(coord_t *s, coord_t *e, coord_t plst[], int plst_sz);
 
 /*
 TODO BUG:
 the code checks for opaque, but a projectile requires traversable.
 */
-int sgt_los_path(struct sgt_sight *sight, struct dc_map *map, coord_t *s, coord_t *e, coord_t *path_lst[], bool continue_path) {
+int sgt_los_path(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_t *e, coord_t *path_lst[], bool continue_path) {
     if (sight == NULL) return -1;
-    if (dc_verify_map(map) == false) return -1;
+    if (dm_verify_map(map) == false) return -1;
 
-    if (sd_get_map_me(s,map)->visible == false) return -1;
-    if (sd_get_map_me(e,map)->visible == false) return -1;
-    if ( (sd_get_map_tile(s,map)->attributes & TILE_ATTR_OPAGUE) == 0) return -1;
-    if ( (sd_get_map_tile(e,map)->attributes & TILE_ATTR_OPAGUE) == 0) return -1;
+    if (dm_get_map_me(s,map)->visible == false) return -1;
+    if (dm_get_map_me(e,map)->visible == false) return -1;
+    if ( (dm_get_map_tile(s,map)->attributes & TILE_ATTR_OPAGUE) == 0) return -1;
+    if ( (dm_get_map_tile(e,map)->attributes & TILE_ATTR_OPAGUE) == 0) return -1;
 
     /* 
         HACK, this fixes a bug where later in 
@@ -357,7 +357,7 @@ int sgt_los_path(struct sgt_sight *sight, struct dc_map *map, coord_t *s, coord_
             i++;
             j++;
 
-            if ( (sd_get_map_tile(&point,map)->attributes & TILE_ATTR_OPAGUE) == 0) {
+            if ( (dm_get_map_tile(&point,map)->attributes & TILE_ATTR_OPAGUE) == 0) {
                 blocked = true;
                 pidx = j;
             }
@@ -367,7 +367,7 @@ int sgt_los_path(struct sgt_sight *sight, struct dc_map *map, coord_t *s, coord_
     return pidx;
 }
 
-coord_t sgt_scatter(struct sgt_sight *sight, struct dc_map *map, struct random *r, coord_t *p, int radius) {
+coord_t sgt_scatter(struct sgt_sight *sight, struct dm_map *map, struct random *r, coord_t *p, int radius) {
     /* Do not try forever. */
     int i_max = radius * radius;
     coord_t c = *p;
@@ -385,7 +385,7 @@ coord_t sgt_scatter(struct sgt_sight *sight, struct dc_map *map, struct random *
             if (cd_within_bound(&c, &map->size) == false) continue;
 
             /* require an traversable point */
-            if ( (sd_get_map_tile(&c,map)->attributes & TILE_ATTR_TRAVERSABLE) == 0) continue;
+            if ( (dm_get_map_tile(&c,map)->attributes & TILE_ATTR_TRAVERSABLE) == 0) continue;
 
             /* require line of sight */
             if (sgt_has_los(sight, map, p, &c) == false) continue;
@@ -397,9 +397,9 @@ coord_t sgt_scatter(struct sgt_sight *sight, struct dc_map *map, struct random *
     return c;
 }
 
-bool sgt_has_los(struct sgt_sight *sight, struct dc_map *map, coord_t *s, coord_t *e) {
+bool sgt_has_los(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_t *e) {
     if (sight == NULL) return false;
-    if (dc_verify_map(map) == false) return false;
+    if (dm_verify_map(map) == false) return false;
 
     struct digital_fov_set set = {
         .source = NULL,
@@ -412,9 +412,9 @@ bool sgt_has_los(struct sgt_sight *sight, struct dc_map *map, coord_t *s, coord_
     return digital_los(&set, s, e, false);
 }
 
-bool sgt_has_lof(struct sgt_sight *sight, struct dc_map *map, coord_t *s, coord_t *e) {
+bool sgt_has_lof(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_t *e) {
     if (sight == NULL) return false;
-    if (dc_verify_map(map) == false) return false;
+    if (dm_verify_map(map) == false) return false;
 
     struct digital_fov_set set = {
         .source = NULL,
@@ -428,7 +428,7 @@ bool sgt_has_lof(struct sgt_sight *sight, struct dc_map *map, coord_t *s, coord_
 }
 
 
-int bresenham(struct dc_map *map, coord_t *s, coord_t *e, coord_t plist[], int plist_sz) {
+int bresenham(struct dm_map *map, coord_t *s, coord_t *e, coord_t plist[], int plist_sz) {
     int x1 = s->x;
     int y1 = s->y;
     int x2 = e->x;
@@ -465,7 +465,7 @@ int bresenham(struct dc_map *map, coord_t *s, coord_t *e, coord_t plist[], int p
             x1 += ix;
 
             plist[plist_idx++] = cd_create(x1,y1);
-            if ( (sd_get_map_tile(&plist[plist_idx-1],map)->attributes & TILE_ATTR_OPAGUE) == 0) return -1;
+            if ( (dm_get_map_tile(&plist[plist_idx-1],map)->attributes & TILE_ATTR_OPAGUE) == 0) return -1;
             if (plist_idx >= plist_sz) return -1;
         }
     }
@@ -487,7 +487,7 @@ int bresenham(struct dc_map *map, coord_t *s, coord_t *e, coord_t plist[], int p
             y1 += iy;
 
             plist[plist_idx++] = cd_create(x1,y1);
-            if ( (sd_get_map_tile(&plist[plist_idx-1],map)->attributes & TILE_ATTR_OPAGUE) == 0) return -1;
+            if ( (dm_get_map_tile(&plist[plist_idx-1],map)->attributes & TILE_ATTR_OPAGUE) == 0) return -1;
             if (plist_idx >= plist_sz) return -1;
         }
     }

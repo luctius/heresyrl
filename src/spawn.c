@@ -9,7 +9,7 @@
 #include "random.h"
 #include "dowear.h"
 #include "ai/ai.h"
-#include "dungeon/dungeon_creator.h"
+#include "dungeon/dungeon_map.h"
 #include "items/items.h"
 #include "monster/monster.h"
 
@@ -81,8 +81,8 @@ bool spwn_add_item_to_monster(struct msr_monster *monster, struct spwn_monster_i
     return false;
 }
 
-bool spwn_populate_map(struct dc_map *map, struct random *r, uint32_t monster_chance, uint32_t item_chance) {
-    if (dc_verify_map(map) == false) return false;
+bool spwn_populate_map(struct dm_map *map, struct random *r, uint32_t monster_chance, uint32_t item_chance) {
+    if (dm_verify_map(map) == false) return false;
     if (r == NULL) return false;
     coord_t c;
     int idx;
@@ -96,7 +96,7 @@ bool spwn_populate_map(struct dc_map *map, struct random *r, uint32_t monster_ch
             if (cd_pyth(&player->pos, &c) <= nogo_radius) continue; /* no npc's too close to the player*/
 
             if ( (random_int32(r) % 10000) <= monster_chance) {
-                if (TILE_HAS_ATTRIBUTE(sd_get_map_me(&c,map)->tile, TILE_ATTR_TRAVERSABLE) == true) {
+                if (TILE_HAS_ATTRIBUTE(dm_get_map_me(&c,map)->tile, TILE_ATTR_TRAVERSABLE) == true) {
                     idx = spawn_monster(random_float(r) );
                     struct msr_monster *monster = msr_create(monster_weights[idx].id);
 
@@ -113,7 +113,7 @@ bool spwn_populate_map(struct dc_map *map, struct random *r, uint32_t monster_ch
             }
 
             if ( (random_int32(r) % 10000) <= item_chance) {
-                if (TILE_HAS_ATTRIBUTE(sd_get_map_me(&c,map)->tile, TILE_ATTR_TRAVERSABLE) == true) {
+                if (TILE_HAS_ATTRIBUTE(dm_get_map_me(&c,map)->tile, TILE_ATTR_TRAVERSABLE) == true) {
                     idx = spawn_item(random_float(r) );
                     struct itm_item *item = itm_create(item_weights[idx].id);
 

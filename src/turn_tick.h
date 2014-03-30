@@ -15,7 +15,7 @@ enum tt_energy {
 void tt_init(void);
 void tt_exit(void);
 
-void tt_process(struct dc_map *map);
+void tt_process(struct dm_map *map);
 bool tt_interrupt_monster(uint32_t monster_uid);
 
 #endif /* TURN_TICK_H */

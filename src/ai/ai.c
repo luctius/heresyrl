@@ -10,7 +10,7 @@
 #include "monster/monster.h"
 #include "monster/monster_action.h"
 #include "items/items.h"
-#include "dungeon/dungeon_creator.h"
+#include "dungeon/dungeon_map.h"
 
 
 /* 
@@ -30,7 +30,7 @@ static bool ai_beast_loop(struct msr_monster *monster, void *controller) {
     if (monster->dead == true) {
         msr_clear_controller(monster);
     }
-    struct dc_map *map = gbl_game->current_map;
+    struct dm_map *map = gbl_game->current_map;
     struct beast_ai_struct *ai = controller;
     bool has_action = false;
     monster->wpn_sel = MSR_WEAPON_SELECT_CREATURE1;
@@ -92,7 +92,7 @@ static bool ai_human_loop(struct msr_monster *monster, void *controller) {
     if (monster->dead == true) {
         msr_clear_controller(monster);
     }
-    struct dc_map *map = gbl_game->current_map;
+    struct dm_map *map = gbl_game->current_map;
     struct human_ai_struct *ai = controller;
     bool has_action = false;
     monster->wpn_sel = MSR_WEAPON_SELECT_CREATURE1;

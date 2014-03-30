@@ -7,7 +7,7 @@
 #include "fov/sight.h"
 #include "monster/monster.h"
 #include "items/items.h"
-#include "dungeon/dungeon_creator.h"
+#include "dungeon/dungeon_map.h"
 
 #include "game.h"
 
@@ -16,7 +16,7 @@
  */
 
 /* TODO: use sight.c to make sure visibility is the same for players and npcs */
-static struct msr_monster *aiu_get_enemy_near(struct msr_monster *monster, struct msr_monster *last, struct dc_map *map) {
+static struct msr_monster *aiu_get_enemy_near(struct msr_monster *monster, struct msr_monster *last, struct dm_map *map) {
     struct msr_monster *target = NULL;
 
     bool found_last = false;
@@ -35,7 +35,7 @@ static struct msr_monster *aiu_get_enemy_near(struct msr_monster *monster, struc
         if (cd_pyth(&target->pos, &monster->pos) > far_radius) continue; /* ignore out of maximum radius */
 
         /* if the target tile is not lit, ignore it if it is further than near_sight_range*/
-        if (sd_get_map_me(&target->pos, map)->light_level == 0) {
+        if (dm_get_map_me(&target->pos, map)->light_level == 0) {
             if (cd_pyth(&target->pos, &monster->pos) >= msr_get_near_sight_range(monster) ) continue;
         }
 
@@ -46,7 +46,7 @@ static struct msr_monster *aiu_get_enemy_near(struct msr_monster *monster, struc
     return NULL;
 }
 
-struct msr_monster *aiu_get_nearest_enemy(struct msr_monster *monster, int ignore_cnt, struct dc_map *map) {
+struct msr_monster *aiu_get_nearest_enemy(struct msr_monster *monster, int ignore_cnt, struct dm_map *map) {
     struct msr_monster *target_best[ignore_cnt+1];
     struct msr_monster *target = NULL;
 
@@ -74,7 +74,7 @@ struct msr_monster *aiu_get_nearest_enemy(struct msr_monster *monster, int ignor
     return target_best[ignore_cnt];
 }
 
-struct msr_monster *aiu_get_nearest_monster(coord_t *pos, int radius, int ignore_cnt, struct dc_map *map) {
+struct msr_monster *aiu_get_nearest_monster(coord_t *pos, int radius, int ignore_cnt, struct dm_map *map) {
     struct msr_monster *target = NULL;
 
     while ( (target = msrlst_get_next_monster(target) ) != NULL) {
@@ -92,19 +92,19 @@ struct msr_monster *aiu_get_nearest_monster(coord_t *pos, int radius, int ignore
 static unsigned int aiu_traversable_callback(void *vmap, coord_t *coord) {
     if (vmap == NULL) return PF_BLOCKED;
     if (coord == NULL) return PF_BLOCKED;
-    struct dc_map *map = (struct dc_map *) vmap;
+    struct dm_map *map = (struct dm_map *) vmap;
 
     unsigned int cost = PF_BLOCKED;
-    if (TILE_HAS_ATTRIBUTE(sd_get_map_tile(coord, map),TILE_ATTR_TRAVERSABLE) == true) {
-        cost = sd_get_map_tile(coord, map)->movement_cost;
+    if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(coord, map),TILE_ATTR_TRAVERSABLE) == true) {
+        cost = dm_get_map_tile(coord, map)->movement_cost;
     }
-    if (TILE_HAS_ATTRIBUTE(sd_get_map_tile(coord, map),TILE_ATTR_BORDER) == true) cost = PF_BLOCKED;
+    if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(coord, map),TILE_ATTR_BORDER) == true) cost = PF_BLOCKED;
 
     return cost;
 }
 
-bool aiu_generate_dijkstra(struct pf_context **pf_ctx, struct dc_map *map, coord_t *start, int radius) {
-    if (dc_verify_map(map) == false) return false;
+bool aiu_generate_dijkstra(struct pf_context **pf_ctx, struct dm_map *map, coord_t *start, int radius) {
+    if (dm_verify_map(map) == false) return false;
 
     struct pf_settings pf_set = { 
         .map_start = { 
@@ -136,8 +136,8 @@ bool aiu_generate_dijkstra(struct pf_context **pf_ctx, struct dc_map *map, coord
     return false;
 }
 
-bool aiu_generate_astar(struct pf_context **pf_ctx, struct dc_map *map, coord_t *start, coord_t *end, int radius) {
-    if (dc_verify_map(map) == false) return false;
+bool aiu_generate_astar(struct pf_context **pf_ctx, struct dm_map *map, coord_t *start, coord_t *end, int radius) {
+    if (dm_verify_map(map) == false) return false;
 
     struct pf_settings pf_set = { 
         .map_start = { 

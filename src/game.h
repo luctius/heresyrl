@@ -9,7 +9,7 @@
 
 #include "player.h"
 
-struct dc_map;
+struct dm_map;
 struct sgt_sight;
 struct logging;
 

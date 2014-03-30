@@ -21,7 +21,7 @@ heresyrl_SOURCES =  \
                     spawn.c \
                     turn_tick.c \
                     dungeon/dungeon_cave.c \
-                    dungeon/dungeon_creator.c \
+                    dungeon/dungeon_map.c \
                     ai/ai.c \
                     ai/ai_utils.c \
                     ai/pathfinding.c \

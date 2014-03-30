@@ -16,7 +16,7 @@ bool tt_interrupt_event(uint32_t monster_uid) {
     return false;
 }
 
-void tt_process_monsters(struct dc_map *map) {
+void tt_process_monsters(struct dm_map *map) {
     struct msr_monster *monster = NULL;
 
     while ( (monster = msrlst_get_next_monster(monster) ) != NULL) {
@@ -49,7 +49,7 @@ void tt_process_monsters(struct dc_map *map) {
     }
 }
 
-void tt_process_items(struct dc_map *map) {
+void tt_process_items(struct dm_map *map) {
     struct itm_item *item = NULL;
 
     while ( (item = itmlst_get_next_item(item) ) != NULL) {
@@ -64,7 +64,7 @@ void tt_process_items(struct dc_map *map) {
     }
 }
 
-void tt_process(struct dc_map *map) {
+void tt_process(struct dm_map *map) {
     tt_process_items(map);
 
     tt_process_monsters(map);

@@ -5,7 +5,7 @@
 #include "inventory.h"
 #include "game.h"
 #include "turn_tick.h"
-#include "dungeon/dungeon_creator.h"
+#include "dungeon/dungeon_map.h"
 
 static bool wield_melee_weapon(struct msr_monster *monster, struct itm_item *item) {
     if (msr_verify_monster(monster) == false) return false;

@@ -3,7 +3,7 @@
 #include <assert.h>
  
 #include "dungeon_cave.h"
-#include "dungeon_creator.h"
+#include "dungeon_map.h"
 #include "tiles.h"
 #include "random.h"
 #include "coord.h"
@@ -183,10 +183,10 @@ static int generate(int argc, char **argv)
 }
 */
 
-bool cave_generate_map(struct dc_map *map, struct random *r, enum dc_dungeon_type type, int level) {
+bool cave_generate_map(struct dm_map *map, struct random *r, enum dm_dungeon_type type, int level) {
     int ii, jj, yi, xi;
 
-    if (type != DC_DUNGEON_TYPE_CAVE) return -1;
+    if (type != DM_DUNGEON_TYPE_CAVE) return -1;
 
     size_x     = map->size.x;
     size_y     = map->size.y;
@@ -228,7 +228,7 @@ bool cave_generate_map(struct dc_map *map, struct random *r, enum dc_dungeon_typ
                 }
             }
 
-            sd_get_map_me(&c,map)->tile = ts_get_tile_specific(grid[yi][xi]);
+            dm_get_map_me(&c,map)->tile = ts_get_tile_specific(grid[yi][xi]);
         }
     }
 

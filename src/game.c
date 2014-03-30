@@ -6,7 +6,7 @@
 #include "load.h"
 #include "spawn.h"
 #include "random.h"
-#include "dungeon/dungeon_creator.h"
+#include "dungeon/dungeon_map.h"
 #include "items/items.h"
 #include "monster/monster.h"
 #include "monster/monster_action.h"
@@ -76,8 +76,8 @@ bool game_init_map(void) {
     int y = 100;
 
     if (gbl_game->current_map == NULL) {
-        gbl_game->current_map = dc_alloc_map(x,y);
-        dc_generate_map(gbl_game->current_map, DC_DUNGEON_TYPE_CAVE, 1, random_int32(gbl_game->map_random) );
+        gbl_game->current_map = dm_alloc_map(x,y);
+        dm_generate_map(gbl_game->current_map, DM_DUNGEON_TYPE_CAVE, 1, random_int32(gbl_game->map_random) );
     }
 
     plr_init(&gbl_game->player_data, "Tester", MSR_RACE_HUMAN, MSR_GENDER_MALE);
@@ -85,12 +85,12 @@ bool game_init_map(void) {
 
     coord_t c = cd_create(0,0);
     if (cd_equal(&gbl_game->player_data.player->pos, &c) == true) {
-        if (dc_tile_instance(gbl_game->current_map, TILE_TYPE_STAIRS_UP, 0, &c) == false) exit(1);
+        if (dm_tile_instance(gbl_game->current_map, TILE_TYPE_STAIRS_UP, 0, &c) == false) exit(1);
         if (msr_insert_monster(gbl_game->player_data.player, gbl_game->current_map, &c) == false) exit(1);
         spwn_populate_map(gbl_game->current_map, gbl_game->spawn_random, 100, 10);
     }
 
-    dc_clear_map_visibility(gbl_game->current_map, &c, &gbl_game->current_map->size);
+    dm_clear_map_visibility(gbl_game->current_map, &c, &gbl_game->current_map->size);
     sgt_calculate_all_light_sources(gbl_game->sight, gbl_game->current_map);
     sgt_calculate_player_sight(gbl_game->sight, gbl_game->current_map, gbl_game->player_data.player);
 
@@ -114,7 +114,7 @@ bool game_exit() {
     }
 
     tt_exit();
-    dc_free_map(gbl_game->current_map);
+    dm_free_map(gbl_game->current_map);
 
     msrlst_monster_list_exit();
     itmlst_items_list_exit();

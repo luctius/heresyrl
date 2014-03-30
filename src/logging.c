@@ -10,7 +10,7 @@
 #include "logging.h"
 #include "game.h"
 #include "monster/monster.h"
-#include "dungeon/dungeon_creator.h"
+#include "dungeon/dungeon_map.h"
 
 struct logging *gbl_log = NULL;
 
@@ -221,7 +221,7 @@ void msg_init(coord_t *origin, coord_t *target) {
     msg_exit();
     msg_init_internal();
 
-    struct dc_map_entity *me = sd_get_map_me(origin, gbl_game->current_map);
+    struct dm_map_entity *me = dm_get_map_me(origin, gbl_game->current_map);
 
     /* 
        this message system has two channels.
@@ -244,7 +244,7 @@ void msg_init(coord_t *origin, coord_t *target) {
     if (me->visible) gbl_log->log_fds_active[MSG_MSR_FD] = true;
     else if (target != NULL) {
         /* Or of the target is visible by the player (or maybe even the player itself), accept it.*/
-        me = sd_get_map_me(target, gbl_game->current_map);
+        me = dm_get_map_me(target, gbl_game->current_map);
         if (me->visible) gbl_log->log_fds_active[MSG_MSR_FD] = true;
     }
 }

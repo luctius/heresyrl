@@ -17,7 +17,7 @@
 #include "monster/monster.h"
 #include "items/items.h"
 #include "inventory.h"
-#include "dungeon/dungeon_creator.h"
+#include "dungeon/dungeon_map.h"
 
 /** 
 * Evaluates a Lua expression and returns the string result. 
@@ -320,7 +320,7 @@ static bool load_items_list(lua_State *L) {
     return true;
 }
 
-static bool load_monsters(lua_State *L, struct dc_map *map, struct gm_game *g) {
+static bool load_monsters(lua_State *L, struct dm_map *map, struct gm_game *g) {
     uint64_t t;
     if (L == NULL) return false;
     if (lua_intexpr(L, &t, "game.monsters.sz") == 0) return false;
@@ -405,7 +405,7 @@ static bool load_monsters(lua_State *L, struct dc_map *map, struct gm_game *g) {
     return true;
 }
 
-static bool load_map(lua_State *L, struct dc_map **m, int mapid) {
+static bool load_map(lua_State *L, struct dm_map **m, int mapid) {
     if (L == NULL) return false;
     uint64_t t;
     int map_sz = 0, x_sz, y_sz, type, seed, threat;
@@ -422,20 +422,20 @@ static bool load_map(lua_State *L, struct dc_map **m, int mapid) {
         if (lua_intexpr(L, &t, "game.maps[%d].threat", mapid) == 0) t = 1;
         threat = t;
 
-        *m = dc_alloc_map(x_sz, y_sz);
+        *m = dm_alloc_map(x_sz, y_sz);
         if (*m != NULL) {
-            struct dc_map *map = *m;
-            dc_generate_map(map, type, threat, seed);
-            dc_clear_map(map);
+            struct dm_map *map = *m;
+            dm_generate_map(map, type, threat, seed);
+            dm_clear_map(map);
 
             for (int i = 0; i < map_sz; i++) {
                 coord_t pos;
                 lua_intexpr(L, &t, "game.maps[%d].map[%d].pos.x", mapid, i+1); pos.x = t;
                 lua_intexpr(L, &t, "game.maps[%d].map[%d].pos.y", mapid, i+1); pos.y = t;
                 if ( (pos.x < map->size.x) && (pos.y < map->size.y) ) {
-                    sd_get_map_me(&pos, map)->pos = pos;
-                    lua_intexpr(L, &t, "game.maps[%d].map[%d].tile.id", mapid, i+1); sd_get_map_me(&pos, map)->tile = ts_get_tile_specific(t);
-                    lua_intexpr(L, &t, "game.maps[%d].map[%d].discovered", mapid, i+1); sd_get_map_me(&pos, map)->discovered = t;
+                    dm_get_map_me(&pos, map)->pos = pos;
+                    lua_intexpr(L, &t, "game.maps[%d].map[%d].tile.id", mapid, i+1); dm_get_map_me(&pos, map)->tile = ts_get_tile_specific(t);
+                    lua_intexpr(L, &t, "game.maps[%d].map[%d].discovered", mapid, i+1); dm_get_map_me(&pos, map)->discovered = t;
 
                     if (lua_intexpr(L, &t, "game.maps[%d].map[%d].items.sz", mapid, i+1) == 1) {
                         int items_sz = t;

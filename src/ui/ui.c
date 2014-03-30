@@ -23,7 +23,7 @@
 #include "monster/monster.h"
 #include "monster/monster_action.h"
 #include "items/items.h"
-#include "dungeon/dungeon_creator.h"
+#include "dungeon/dungeon_map.h"
 
 #define MAP_MIN_COLS 20
 #define MAP_MAX_COLS 100
@@ -196,11 +196,11 @@ static int get_viewport(int p, int vps, int mps) {
 }
 
 static coord_t last_ppos = {0,0};
-static void mapwin_display_map_noref(struct dc_map *map, coord_t *player) {
+static void mapwin_display_map_noref(struct dm_map *map, coord_t *player) {
     coord_t scr_c = cd_create(0,0);
 
     if (map_win == NULL) return;
-    if (dc_verify_map(map) == false) return;
+    if (dm_verify_map(map) == false) return;
     if (player == NULL) return;
     if (map_win->type != HRL_WINDOW_TYPE_MAP) return;
 
@@ -225,7 +225,7 @@ static void mapwin_display_map_noref(struct dc_map *map, coord_t *player) {
     for (int xi = 0; xi < x_max; xi++) {
         for (int yi = 0; yi < y_max; yi++) {
             coord_t map_c = cd_create(xi+scr_c.x, yi+scr_c.y);
-            struct dc_map_entity *me = sd_get_map_me(&map_c, map);
+            struct dm_map_entity *me = dm_get_map_me(&map_c, map);
             struct tl_tile *tile = me->tile;
 
             if ( (me->visible == true) || (me->discovered == true) || (map_see == true) ) {
@@ -304,9 +304,9 @@ static void mapwin_display_map_noref(struct dc_map *map, coord_t *player) {
     }
 }
 
-void mapwin_display_map(struct dc_map *map, coord_t *player) {
+void mapwin_display_map(struct dm_map *map, coord_t *player) {
     if (map_win == NULL) return;
-    if (dc_verify_map(map) == false) return;
+    if (dm_verify_map(map) == false) return;
     if (player == NULL) return;
     if (map_win->type != HRL_WINDOW_TYPE_MAP) return;
 
@@ -315,7 +315,7 @@ void mapwin_display_map(struct dc_map *map, coord_t *player) {
     wrefresh(map_win->win);
 }
 
-static WINDOW *mapwin_examine(struct dc_map_entity *me) {
+static WINDOW *mapwin_examine(struct dm_map_entity *me) {
     if (char_win == NULL) return NULL;
     if (me == NULL) return NULL;
     if (char_win->type != HRL_WINDOW_TYPE_CHARACTER) return NULL;
@@ -365,13 +365,13 @@ static WINDOW *mapwin_examine(struct dc_map_entity *me) {
     return mapwin_ex;
 }
 
-void mapwin_overlay_examine_cursor(struct dc_map *map, coord_t *p_pos) {
+void mapwin_overlay_examine_cursor(struct dm_map *map, coord_t *p_pos) {
     int ch = '0';
     bool examine_mode = true;
 
     if (map_win == NULL) return;
     if (char_win == NULL) return;
-    if (dc_verify_map(map) == false) return;
+    if (dm_verify_map(map) == false) return;
     if (p_pos == NULL) return;
     if (map_win->type != HRL_WINDOW_TYPE_MAP) return;
     if (char_win->type != HRL_WINDOW_TYPE_CHARACTER) return;
@@ -405,7 +405,7 @@ void mapwin_overlay_examine_cursor(struct dc_map *map, coord_t *p_pos) {
         if (e_pos.x >= map->size.x) e_pos.x = map->size.x -1;
 
         delwin(map_win_ex);
-        map_win_ex = mapwin_examine(sd_get_map_me(&e_pos, map) );
+        map_win_ex = mapwin_examine(dm_get_map_me(&e_pos, map) );
 
         lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "ui", "examining pos: (%d,%d), plr (%d,%d)", e_pos.x, e_pos.y, p_pos->x, p_pos->y);
         chtype oldch = mvwinch(map_win->win, e_pos.y - scr_y, e_pos.x - scr_x);
@@ -419,7 +419,7 @@ void mapwin_overlay_examine_cursor(struct dc_map *map, coord_t *p_pos) {
     wrefresh(map_win->win);
 }
 
-void ui_animate_explosion(struct dc_map *map, coord_t path[], int path_len) {
+void ui_animate_explosion(struct dm_map *map, coord_t path[], int path_len) {
     if (gbl_game == NULL) return;
     if (gbl_game->player_data.player == NULL) return;
 
@@ -429,7 +429,7 @@ void ui_animate_explosion(struct dc_map *map, coord_t path[], int path_len) {
     chtype chlist[path_len];
 
     for (int i = 0; i < path_len; i++) {
-        if (sd_get_map_me(&path[i],map)->visible == true) {
+        if (dm_get_map_me(&path[i],map)->visible == true) {
             chlist[i] = mvwinch(map_win->win, path[i].y - scr_y, path[i].x - scr_x);
             mvwaddch(map_win->win, path[i].y - scr_y, path[i].x - scr_x, chlist[i] | get_colour(TERM_COLOUR_BG_YELLOW) );
         }
@@ -439,7 +439,7 @@ void ui_animate_explosion(struct dc_map *map, coord_t path[], int path_len) {
     usleep(50000);
 
     for (int i = 0; i < path_len; i++) {
-        if (sd_get_map_me(&path[i],map)->visible == true) {
+        if (dm_get_map_me(&path[i],map)->visible == true) {
             mvwaddch(map_win->win, path[i].y - scr_y, path[i].x - scr_x, chlist[i] | get_colour(TERM_COLOUR_BG_RED) );
         }
     }
@@ -448,13 +448,13 @@ void ui_animate_explosion(struct dc_map *map, coord_t path[], int path_len) {
     usleep(50000);
 
     for (int i = 0; i < path_len; i++) {
-        if (sd_get_map_me(&path[i],map)->visible == true) {
+        if (dm_get_map_me(&path[i],map)->visible == true) {
             mvwaddch(map_win->win, path[i].y - scr_y, path[i].x - scr_x, chlist[i]);
         }
     }
 }
 
-void ui_animate_projectile(struct dc_map *map, coord_t path[], int path_len) {
+void ui_animate_projectile(struct dm_map *map, coord_t path[], int path_len) {
     if (gbl_game == NULL) return;
     if (gbl_game->player_data.player == NULL) return;
 
@@ -462,7 +462,7 @@ void ui_animate_projectile(struct dc_map *map, coord_t path[], int path_len) {
     int scr_y = get_viewport(last_ppos.y, map_win->lines, map->size.y);
 
     for (int i = 1; i < path_len; i++) {
-        if (sd_get_map_me(&path[i],map)->visible == true) {
+        if (dm_get_map_me(&path[i],map)->visible == true) {
             chtype oldch = mvwinch(map_win->win, path[i].y - scr_y, path[i].x - scr_x);
             mvwaddch(map_win->win, path[i].y - scr_y, path[i].x - scr_x, '*' | get_colour(TERM_COLOUR_RED) );
             wrefresh(map_win->win);
@@ -472,12 +472,12 @@ void ui_animate_projectile(struct dc_map *map, coord_t path[], int path_len) {
     }
 }
 
-bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dc_map *map, coord_t *p_pos) {
+bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dm_map *map, coord_t *p_pos) {
     int ch = '0';
     bool fire_mode = true;
     if (map_win == NULL) return false;
     if (g == NULL) return false;
-    if (dc_verify_map(map) == false) return false;
+    if (dm_verify_map(map) == false) return false;
     if (p_pos == NULL) return false;
     if (map_win->type != HRL_WINDOW_TYPE_MAP) return false;
 
@@ -569,12 +569,12 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dc_map *map, coord_t *
     return false;
 }
 
-bool mapwin_overlay_throw_cursor(struct gm_game *g, struct dc_map *map, coord_t *p_pos) {
+bool mapwin_overlay_throw_cursor(struct gm_game *g, struct dm_map *map, coord_t *p_pos) {
     int ch = '0';
     bool fire_mode = true;
     if (map_win == NULL) return false;
     if (g == NULL) return false;
-    if (dc_verify_map(map) == false) return false;
+    if (dm_verify_map(map) == false) return false;
     if (p_pos == NULL) return false;
     if (map_win->type != HRL_WINDOW_TYPE_MAP) return false;
 
@@ -903,7 +903,7 @@ static WINDOW *invwin_examine(struct hrl_window *window, struct itm_item *item) 
     return invwin_ex;
 }
 
-bool invwin_inventory(struct dc_map *map, struct pl_player *plr) {
+bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
     if (map_win == NULL) return false;
     if (plr == NULL) return false;
     if (map_win->type != HRL_WINDOW_TYPE_MAP) return false;

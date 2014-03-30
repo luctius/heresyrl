@@ -166,7 +166,7 @@ struct msr_monster *msrlst_get_next_monster(struct msr_monster *prev);
 struct msr_monster *msr_create(uint32_t template_id);
 
 /* remove monster from map and global monster list. */
-void msr_destroy(struct msr_monster *monster, struct dc_map *map);
+void msr_destroy(struct msr_monster *monster, struct dm_map *map);
 
 /* verify monster structure. */
 bool msr_verify_monster(struct msr_monster *monster);
@@ -178,13 +178,13 @@ void msr_assign_controller(struct msr_monster *monster, struct monster_controlle
 void msr_clear_controller(struct msr_monster *monster);
 
 /* inster monster on this map pos, set monster->pos to that pos. */
-bool msr_insert_monster(struct msr_monster *monster, struct dc_map *map, coord_t *pos);
+bool msr_insert_monster(struct msr_monster *monster, struct dm_map *map, coord_t *pos);
 
 /* check if we can move to that position, then remove monster from current map pos*/
-bool msr_move_monster(struct msr_monster *monster, struct dc_map *map, coord_t *pos);
+bool msr_move_monster(struct msr_monster *monster, struct dm_map *map, coord_t *pos);
 
 /* remove monster from map, monster->pos = {0,0} */
-bool msr_remove_monster(struct msr_monster *monster, struct dc_map *map);
+bool msr_remove_monster(struct msr_monster *monster, struct dm_map *map);
 
 /* put this item in monsters inventory. */
 bool msr_give_item(struct msr_monster *monster, struct itm_item *item);
@@ -211,7 +211,7 @@ struct itm_item *msr_get_armour_from_hitloc(struct msr_monster *monster, enum ms
 int msr_calculate_armour(struct msr_monster *monster, enum msr_hit_location hitloc);
 
 /* do damage to that hit location, including critical hits, and handle the first part of monster death. */
-bool msr_do_dmg(struct msr_monster *monster, int dmg, enum msr_hit_location mhl, struct dc_map *map);
+bool msr_do_dmg(struct msr_monster *monster, int dmg, enum msr_hit_location mhl, struct dm_map *map);
 
 /* given a number between 0 and 99, return the monsters hit location*/
 enum msr_hit_location msr_get_hit_location(struct msr_monster *monster, int hit_roll);

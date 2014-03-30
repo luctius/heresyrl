@@ -5,7 +5,7 @@ VERSION=0.1.0
 
 AC_CONFIG_HEADERS([config.h])
 
-AM_INIT_AUTOMAKE($PACKAGE, $VERSION)
+AM_INIT_AUTOMAKE($PACKAGE, $VERSION, [subdir-objects])
 
 # Checks for programs.
 AC_PROG_MAKE_SET
@@ -68,3 +68,4 @@ AC_CONFIG_FILES([Makefile
                  src/Makefile 
                  heresyrl.ggo])
 AC_OUTPUT
+

@@ -20,7 +20,7 @@
 #include "ui/ui.h"
 #include "items/items.h"
 #include "monster/monster.h"
-#include "dungeon/dungeon_creator.h"
+#include "dungeon/dungeon_map.h"
 
 static void sigfunc(int s) {
     FIX_UNUSED(s);

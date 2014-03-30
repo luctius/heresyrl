@@ -13,7 +13,7 @@
 #include "random.h"
 #include "monster/monster.h"
 #include "items/items.h"
-#include "dungeon/dungeon_creator.h"
+#include "dungeon/dungeon_map.h"
 
 static bool sv_save_player(FILE *file, int indent, struct pl_player *plr) {
     if (file == NULL) return false;
@@ -119,9 +119,9 @@ static bool sv_save_items(FILE *file, int indent) {
     return true;
 }
 
-static bool sv_save_map(FILE *file, int indent, struct dc_map *map) {
+static bool sv_save_map(FILE *file, int indent, struct dm_map *map) {
     if (file == NULL) return false;
-    if (dc_verify_map(map) == false) return false;
+    if (dm_verify_map(map) == false) return false;
     int sz = 0;
 
     fprintf(file, "%*s" "{\n", indent, ""); { indent += 2;
@@ -134,7 +134,7 @@ static bool sv_save_map(FILE *file, int indent, struct dc_map *map) {
             coord_t c;
             for (c.x = 0; c.x < map->size.x; c.x++) {
                 for (c.y = 0; c.y < map->size.y; c.y++) {
-                    struct dc_map_entity *me = sd_get_map_me(&c, map);
+                    struct dm_map_entity *me = dm_get_map_me(&c, map);
                     if (me->discovered == true || inv_inventory_size(me->inventory) > 0) {
                         fprintf(file, "%*s" "{pos={x=%d,y=%d,},discovered=%d,tile={id=%d,},",  indent, "", me->pos.x, me->pos.y, me->discovered, me->tile->id);
                         int invsz = 0;

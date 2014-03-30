@@ -15,14 +15,14 @@
 #include "dowear.h"
 #include "turn_tick.h"
 #include "ui/ui.h"
-#include "dungeon/dungeon_creator.h"
+#include "dungeon/dungeon_map.h"
 
 bool ma_do_move(struct msr_monster *monster, coord_t *pos) {
     if (msr_verify_monster(monster) == false) return false;
     if (pos == NULL) return false;
 
     if (msr_move_monster(monster, gbl_game->current_map, pos) == true) {
-        struct dc_map_entity *me = sd_get_map_me(&monster->pos, gbl_game->current_map);
+        struct dm_map_entity *me = dm_get_map_me(&monster->pos, gbl_game->current_map);
         struct itm_item *item = NULL;
         while ( (item = inv_get_next_item(me->inventory, item) ) != NULL) {
             You(monster, "see %s lying here.", item->ld_name);
@@ -101,7 +101,7 @@ bool ma_do_pickup(struct msr_monster *monster, struct itm_item *items[], int nr_
     if (nr_items == 0) return false;
 
     for (int i = 0; i< nr_items; i++) {
-        struct dc_map_entity *me = sd_get_map_me(&monster->pos, gbl_game->current_map);
+        struct dm_map_entity *me = dm_get_map_me(&monster->pos, gbl_game->current_map);
         if (me != NULL) {
             if (inv_has_item(me->inventory, items[i]) == true) {
                 if (inv_remove_item(me->inventory, items[i]) == true) {
@@ -165,10 +165,10 @@ bool ma_do_drop(struct msr_monster *monster, struct itm_item *items[], int nr_it
 
 bool ma_do_melee(struct msr_monster *monster, coord_t *target_pos) {
     if (gbl_game == NULL) return false;
-    if (dc_verify_map(gbl_game->current_map) == false) return false;
+    if (dm_verify_map(gbl_game->current_map) == false) return false;
     if (msr_verify_monster(monster) == false) return false;
     if (target_pos == NULL) return false;
-    struct msr_monster *target = sd_get_map_me(target_pos, gbl_game->current_map)->monster;
+    struct msr_monster *target = dm_get_map_me(target_pos, gbl_game->current_map)->monster;
     if (target == NULL) return false;
     if (msr_verify_monster(target) == false) return false;
 
@@ -435,7 +435,7 @@ bool ma_do_unload(struct msr_monster *monster, struct itm_item *weapon_item) {
 
     /* or handle items on the ground*/
     if (item == NULL) {
-        struct dc_map_entity *me = sd_get_map_me(&monster->pos, gbl_game->current_map);
+        struct dm_map_entity *me = dm_get_map_me(&monster->pos, gbl_game->current_map);
         while ( (item = inv_get_next_item(me->inventory, item) ) != NULL) {
             if (itm_verify_item(item) == true) {
                 wpn = &item->specific.weapon;

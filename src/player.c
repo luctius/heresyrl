@@ -8,7 +8,7 @@
 #include "tiles.h"
 #include "spawn.h"
 #include "ai/ai_utils.h"
-#include "dungeon/dungeon_creator.h"
+#include "dungeon/dungeon_map.h"
 #include "monster/monster.h"
 #include "monster/monster_static.h"
 #include "monster/monster_action.h"
@@ -53,7 +53,7 @@ void plr_init(struct pl_player *plr, char *name, enum msr_race race, enum msr_ge
     plr->player->characteristic[MSR_CHAR_TOUGHNESS].base_value = 80;
 }
 
-struct pf_context *plr_map(struct pl_player *plr, struct dc_map *map) {
+struct pf_context *plr_map(struct pl_player *plr, struct dm_map *map) {
     if (cd_equal(&plr->player_map_pos, & plr->player->pos) == false) {
         if (aiu_generate_dijkstra(&plr->player_map, map, &plr->player->pos, 0) == true) {
             plr->player_map_pos = plr->player->pos;
@@ -65,13 +65,13 @@ struct pf_context *plr_map(struct pl_player *plr, struct dc_map *map) {
 static bool plr_action_loop(struct msr_monster *player, void *controller) {
     if (player == NULL) return false;
     if (controller == NULL) return false;
-    struct dc_map *map = gbl_game->current_map;
+    struct dm_map *map = gbl_game->current_map;
     struct pl_player *plr = controller;
     int ch;
     bool has_action = false;
 
     coord_t zero = cd_create(0,0);
-    //dc_clear_map_visibility(map, &zero, &map->size);
+    //dm_clear_map_visibility(map, &zero, &map->size);
     sgt_calculate_all_light_sources(gbl_game->sight, map);
     sgt_calculate_player_sight(gbl_game->sight, map, player);
 
@@ -89,7 +89,7 @@ static bool plr_action_loop(struct msr_monster *player, void *controller) {
 
         switch (ch = inp_get_input() ) { 
             case INP_KEY_PICKUP: {
-                    struct inv_inventory *inv = sd_get_map_me(&pos, map)->inventory;
+                    struct inv_inventory *inv = dm_get_map_me(&pos, map)->inventory;
                     if ( (inv_inventory_size(inv) ) > 0) {
                         struct itm_item *item = NULL;
                         struct itm_item *item_list[inv_inventory_size(inv)];
@@ -141,10 +141,10 @@ static bool plr_action_loop(struct msr_monster *player, void *controller) {
             case INP_KEY_THROW:
                 has_action = mapwin_overlay_throw_cursor(gbl_game, gbl_game->current_map, player_pos); break;
             case INP_KEY_STAIRS_DOWN:
-                if (sd_get_map_tile(player_pos, gbl_game->current_map)->type == TILE_TYPE_STAIRS_DOWN) {
+                if (dm_get_map_tile(player_pos, gbl_game->current_map)->type == TILE_TYPE_STAIRS_DOWN) {
                     You(player, "see a broken stairway."); } break;
             case INP_KEY_STAIRS_UP:
-                if (sd_get_map_tile(player_pos, gbl_game->current_map)->type == TILE_TYPE_STAIRS_UP) {
+                if (dm_get_map_tile(player_pos, gbl_game->current_map)->type == TILE_TYPE_STAIRS_UP) {
                     You(player, "see a broken stairway."); } break;
             case INP_KEY_RELOAD: 
                 has_action = ma_do_reload_carried(player, NULL); break;
@@ -197,7 +197,7 @@ static bool plr_action_loop(struct msr_monster *player, void *controller) {
         pos = player->pos;
     }
 
-    dc_clear_map_visibility(map, &zero, &map->size);
+    dm_clear_map_visibility(map, &zero, &map->size);
     sgt_calculate_all_light_sources(gbl_game->sight, map);
     sgt_calculate_player_sight(gbl_game->sight, map, player);
 

@@ -263,7 +263,7 @@ struct itm_item {
     /* description of the owner of this item*/
     enum item_owner owner_type;
     union owner_union {
-        struct dc_map_entity *owner_map_entity;
+        struct dm_map_entity *owner_map_entity;
         struct msr_monster *owner_monster;
     } owner;
 
@@ -302,10 +302,10 @@ void itm_destroy(struct itm_item *item);
 bool itm_verify_item(struct itm_item *item);
 
 /* instert item at map pos, and change ownership*/
-bool itm_insert_item(struct itm_item *item, struct dc_map *map, coord_t *pos);
+bool itm_insert_item(struct itm_item *item, struct dm_map *map, coord_t *pos);
 
 /* remove item from pos, and remove any ownership info. */
-bool itm_remove_item(struct itm_item *item, struct dc_map *map, coord_t *pos);
+bool itm_remove_item(struct itm_item *item, struct dm_map *map, coord_t *pos);
 
 /* get the grid position this item is on */
 coord_t itm_get_pos(struct itm_item *item);
@@ -314,7 +314,7 @@ coord_t itm_get_pos(struct itm_item *item);
 bool itm_has_quality(struct itm_item *item, enum item_quality q);
 
 /* fuctions which is called when item->energy reaches zero and energy_action = true. */
-bool itm_energy_action(struct itm_item *item, struct dc_map *map);
+bool itm_energy_action(struct itm_item *item, struct dm_map *map);
 
 /* change the item's energy by this much, true if succefull.  */
 bool itm_change_energy(struct itm_item *item, int energy);
