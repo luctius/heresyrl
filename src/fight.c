@@ -1,6 +1,8 @@
 #include <sys/param.h>
 #include <assert.h>
 
+#include <ui/ui.h>
+
 #include "fight.h"
 #include "heresyrl_def.h"
 #include "dungeon_creator.h"
@@ -9,7 +11,6 @@
 #include "tiles.h"
 #include "inventory.h"
 #include "random.h"
-#include "ui.h"
 #include "game.h"
 #include "sight.h"
 #include "turn_tick.h"

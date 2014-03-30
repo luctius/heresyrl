@@ -4,13 +4,14 @@
 #include <sys/param.h>
 #include <assert.h>
 
+#include <ui/ui.h>
+
 #include "monster_action.h"
 #include "monster.h"
 #include "items.h"
 #include "dungeon_creator.h"
 #include "tiles.h"
 #include "inventory.h"
-#include "ui.h"
 #include "coord.h"
 #include "game.h"
 #include "dowear.h"

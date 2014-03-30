@@ -7,9 +7,10 @@
 #include <signal.h>
 #include <unistd.h>
 
+#include <ui/ui.h>
+
 #include "heresyrl_def.h"
 #include "cmdline.h"
-#include "ui.h"
 #include "dungeon_creator.h"
 #include "logging.h"
 #include "monster.h"

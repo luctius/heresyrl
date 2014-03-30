@@ -1,3 +1,5 @@
+#include <ui/ui.h>
+
 #include "player.h"
 #include "dungeon_creator.h"
 #include "monster.h"
@@ -5,7 +7,6 @@
 #include "items.h"
 #include "fight.h"
 #include "inventory.h"
-#include "ui.h"
 #include "sight.h"
 #include "input.h"
 #include "game.h"
