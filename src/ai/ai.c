@@ -4,13 +4,14 @@
 #include "ai.h"
 #include "ai_utils.h"
 #include "pathfinding.h"
-#include "monster.h"
-#include "items.h"
-#include "dungeon_creator.h"
 #include "tiles.h"
-
 #include "game.h"
-#include "monster_action.h"
+
+#include "monster/monster.h"
+#include "monster/monster_action.h"
+#include "items/items.h"
+#include "dungeon/dungeon_creator.h"
+
 
 /* 
    For now, this file contains every ai posible, 

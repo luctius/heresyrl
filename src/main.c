@@ -7,20 +7,20 @@
 #include <signal.h>
 #include <unistd.h>
 
-#include <ui/ui.h>
 
 #include "heresyrl_def.h"
 #include "cmdline.h"
-#include "dungeon_creator.h"
 #include "logging.h"
-#include "monster.h"
 #include "game.h"
-#include "items.h"
 #include "coord.h"
 #include "tiles.h"
 #include "inventory.h"
 #include "input.h"
 #include "turn_tick.h"
+#include "ui/ui.h"
+#include "items/items.h"
+#include "monster/monster.h"
+#include "dungeon/dungeon_creator.h"
 
 static void sigfunc(int s) {
     FIX_UNUSED(s);

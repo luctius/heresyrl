@@ -4,14 +4,14 @@
 #include "spawn.h"
 #include "logging.h"
 #include "game.h"
-#include "dungeon_creator.h"
 #include "tiles.h"
-#include "items.h"
-#include "monster.h"
 #include "spawn_static.h"
 #include "random.h"
-#include "ai.h"
 #include "dowear.h"
+#include "ai/ai.h"
+#include "dungeon/dungeon_creator.h"
+#include "items/items.h"
+#include "monster/monster.h"
 
 #include "spawn_static.c"
 

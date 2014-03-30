@@ -2,13 +2,13 @@
 #include <string.h>
 #include <sys/queue.h>
 
-#include "dungeon_creator.h"
 #include "items.h"
 #include "items_static.h"
 #include "random.h"
-#include "monster.h"
 #include "tiles.h"
 #include "inventory.h"
+#include "dungeon/dungeon_creator.h"
+#include "monster/monster.h"
 
 struct itm_item_list_entry {
     struct itm_item item;

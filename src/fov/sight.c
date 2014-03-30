@@ -3,16 +3,14 @@
 #include <assert.h>
 
 #include "sight.h"
-#include "items.h"
 #include "tiles.h"
-#include "dungeon_creator.h"
-#include "monster.h"
-#include "ai_utils.h"
-#include "pathfinding.h"
 #include "game.h"
 #include "fov.h"
 #include "random.h"
 #include "digital_fov.h"
+#include "items/items.h"
+#include "dungeon/dungeon_creator.h"
+#include "monster/monster.h"
 
 struct sgt_sight {
     fov_settings_type fov_settings;

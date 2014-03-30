@@ -1,6 +1,6 @@
 #include "turn_tick.h"
-#include "monster.h"
-#include "items.h"
+#include "monster/monster.h"
+#include "items/items.h"
 #include "coord.h"
 #include "game.h"
 

@@ -2,8 +2,9 @@
 #define SPAWN_H
 
 #include <stdint.h>
+
 #include "heresyrl_def.h"
-#include "items_static.h"
+#include "items/items_static.h"
 
 struct spwn_monster_item {
     enum item_ids id;

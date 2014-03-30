@@ -10,10 +10,7 @@
 #include "heresyrl_def.h"
 #include "cmdline.h"
 #include "tiles.h"
-#include "monster.h"
-#include "items.h"
 #include "fight.h"
-#include "dungeon_creator.h"
 #include "logging.h"
 #include "player.h"
 #include "inventory.h"
@@ -21,9 +18,12 @@
 #include "input.h"
 #include "dowear.h"
 #include "game.h"
-#include "ai_utils.h"
-#include "sight.h"
-#include "monster_action.h"
+#include "ai/ai_utils.h"
+#include "fov/sight.h"
+#include "monster/monster.h"
+#include "monster/monster_action.h"
+#include "items/items.h"
+#include "dungeon/dungeon_creator.h"
 
 #define MAP_MIN_COLS 20
 #define MAP_MAX_COLS 100

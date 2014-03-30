@@ -10,12 +10,12 @@
 #include "dungeon_creator.h"
 #include "dungeon_cave.h"
 #include "tiles.h"
-#include "ai_utils.h"
 #include "random.h"
-#include "pathfinding.h"
+#include "ai/ai_utils.h"
+#include "ai/pathfinding.h"
 #include "inventory.h"
-#include "items.h"
-#include "items_static.h"
+#include "items/items.h"
+#include "items/items_static.h"
 
 extern inline struct dc_map_entity *sd_get_map_me(coord_t *c, struct dc_map *map);
 extern inline struct tl_tile *sd_get_map_tile(coord_t *c, struct dc_map *map);

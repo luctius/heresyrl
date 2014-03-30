@@ -5,9 +5,8 @@
 #include <string.h>
 
 #include "inventory.h"
-#include "items.h"
-
-#include "items_static.h"
+#include "items/items.h"
+#include "items/items_static.h"
 
 #define inv_loc(loc) (1<<loc)
 

@@ -1,8 +1,8 @@
 #ifndef SPAWN_STATIC_H
 #define SPAWN_STATIC_H
 
-#include "items_static.h"
-#include "monster_static.h"
+#include "items/items_static.h"
+#include "monster/monster_static.h"
 #include "spawn.h"
 
 struct spwn_item {

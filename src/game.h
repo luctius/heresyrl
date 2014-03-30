@@ -13,25 +13,6 @@ struct dc_map;
 struct sgt_sight;
 struct logging;
 
-struct gm_game {
-    unsigned long initial_seed;
-    struct random *game_random;
-    struct random *map_random;
-    struct random *spawn_random;
-    struct random *ai_random;
-
-    struct sgt_sight *sight;
-
-    struct dc_map *current_map;
-    struct pl_player player_data;
-    int turn;
-    bool running;
-
-    struct gengetopt_args_info *args_info;
-};
-
-extern struct gm_game *gbl_game;
-
 void game_init(struct pl_player *plr, unsigned long initial_seed);
 
 bool game_load(void);

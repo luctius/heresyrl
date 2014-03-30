@@ -4,18 +4,18 @@
 #include <sys/param.h>
 #include <assert.h>
 
-#include <ui/ui.h>
 
 #include "monster_action.h"
 #include "monster.h"
-#include "items.h"
-#include "dungeon_creator.h"
+#include "items/items.h"
 #include "tiles.h"
 #include "inventory.h"
 #include "coord.h"
 #include "game.h"
 #include "dowear.h"
 #include "turn_tick.h"
+#include "ui/ui.h"
+#include "dungeon/dungeon_creator.h"
 
 bool ma_do_move(struct msr_monster *monster, coord_t *pos) {
     if (msr_verify_monster(monster) == false) return false;

@@ -43,6 +43,33 @@ enum msr_weapon_selection;
 enum item_weapon_type;
 enum wpn_rof_setting;
 
+struct pl_player {
+    char *name;
+    struct msr_monster *player;
+
+    struct pf_context *player_map;
+    coord_t player_map_pos;
+};
+
+struct gm_game {
+    unsigned long initial_seed;
+    struct random *game_random;
+    struct random *map_random;
+    struct random *spawn_random;
+    struct random *ai_random;
+
+    struct sgt_sight *sight;
+
+    struct dc_map *current_map;
+    struct pl_player player_data;
+    int turn;
+    bool running;
+
+    struct gengetopt_args_info *args_info;
+};
+
+extern struct gm_game *gbl_game;
+
 extern int get_colour(int cc);
 enum term_colours {
     TERM_COLOUR_DARK,

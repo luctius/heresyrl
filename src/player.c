@@ -1,19 +1,18 @@
-#include <ui/ui.h>
-
 #include "player.h"
-#include "dungeon_creator.h"
-#include "monster.h"
-#include "monster_static.h"
-#include "items.h"
+#include "ui/ui.h"
 #include "fight.h"
 #include "inventory.h"
-#include "sight.h"
+#include "fov/sight.h"
 #include "input.h"
 #include "game.h"
-#include "monster_action.h"
 #include "tiles.h"
-#include "ai_utils.h"
 #include "spawn.h"
+#include "ai/ai_utils.h"
+#include "dungeon/dungeon_creator.h"
+#include "monster/monster.h"
+#include "monster/monster_static.h"
+#include "monster/monster_action.h"
+#include "items/items.h"
 
 static bool plr_action_loop(struct msr_monster *player, void *controller);
 

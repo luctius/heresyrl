@@ -1,16 +1,16 @@
 #include "game.h"
 #include "cmdline.h"
-#include "dungeon_creator.h"
-#include "items.h"
-#include "monster.h"
-#include "random.h"
-#include "sight.h"
 #include "player.h"
 #include "tiles.h"
 #include "save.h"
 #include "load.h"
 #include "spawn.h"
-#include "monster_action.h"
+#include "random.h"
+#include "dungeon/dungeon_creator.h"
+#include "items/items.h"
+#include "monster/monster.h"
+#include "monster/monster_action.h"
+#include "fov/sight.h"
 
 #define LOAD 1
 #define SAVE 1

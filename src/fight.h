@@ -2,7 +2,7 @@
 #define FIGHT_H
 
 #include "heresyrl_def.h"
-#include "monster.h"
+#include "monster/monster.h"
 #include "coord.h"
 
 #define FGHT_RANGE_MULTIPLIER (0.25f)

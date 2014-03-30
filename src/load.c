@@ -10,14 +10,14 @@
 #include "logging.h"
 #include "load.h"
 #include "save.h"
-#include "monster.h"
-#include "items.h"
-#include "inventory.h"
-#include "dungeon_creator.h"
 #include "coord.h"
 #include "player.h"
 #include "tiles.h"
 #include "random.h"
+#include "monster/monster.h"
+#include "items/items.h"
+#include "inventory.h"
+#include "dungeon/dungeon_creator.h"
 
 /** 
 * Evaluates a Lua expression and returns the string result. 

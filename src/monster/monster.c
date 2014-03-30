@@ -6,14 +6,14 @@
 #include <assert.h>
 
 #include "monster.h"
-#include "dungeon_creator.h"
 #include "game.h"
-#include "items.h"
 #include "random.h"
 #include "tiles.h"
 #include "turn_tick.h"
 #include "inventory.h"
-#include "items_static.h"
+#include "items/items.h"
+#include "items/items_static.h"
+#include "dungeon/dungeon_creator.h"
 
 static LIST_HEAD(monster_list, msr_monster_list_entry) monster_list_head;
 static bool monster_list_initialised = false;

@@ -9,8 +9,8 @@
 
 #include "logging.h"
 #include "game.h"
-#include "monster.h"
-#include "dungeon_creator.h"
+#include "monster/monster.h"
+#include "dungeon/dungeon_creator.h"
 
 struct logging *gbl_log = NULL;
 

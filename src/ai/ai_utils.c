@@ -3,11 +3,11 @@
 
 #include "ai_utils.h"
 #include "pathfinding.h"
-#include "monster.h"
-#include "items.h"
-#include "dungeon_creator.h"
 #include "tiles.h"
-#include "sight.h"
+#include "fov/sight.h"
+#include "monster/monster.h"
+#include "items/items.h"
+#include "dungeon/dungeon_creator.h"
 
 #include "game.h"
 

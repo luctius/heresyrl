@@ -4,19 +4,12 @@ bin_PROGRAMS = heresyrl
 heresyrl_SOURCES =  \
                     cmdline.c \
                     main.c \
-                    dungeon_creator.c \
                     logging.c \
                     tiles.c \
-                    monster.c \
                     random.c \
                     heresyrl_priv.c \
-                    dungeon_cave.c \
                     game.c \
                     player.c \
-                    items.c \
-                    fov.c \
-                    sight.c \
-                    pathfinding.c \
                     coord.c \
                     fight.c \
                     inventory.c \
@@ -26,12 +19,18 @@ heresyrl_SOURCES =  \
                     load.c \
                     save.c \
                     spawn.c \
-                    monster_action.c \
-                    ai.c \
-                    ai_utils.c \
-                    digital_fov.c \
-                    digital_fov_other.c \
                     turn_tick.c \
+                    dungeon/dungeon_cave.c \
+                    dungeon/dungeon_creator.c \
+                    ai/ai.c \
+                    ai/ai_utils.c \
+                    ai/pathfinding.c \
+                    monster/monster_action.c \
+                    monster/monster.c \
+                    fov/sight.c \
+                    fov/digital_fov.c \
+                    fov/fov.c \
+                    items/items.c \
                     ui/ui.c
 
 heresyrl_CFLAGS = $(lua_CFLAGS) -ggdb -O0 -Wall -Wextra -Wformat=2 -Wswitch-default -Wcast-align -Wpointer-arith -Wbad-function-cast -Wstrict-prototypes -Winline -Wundef -Wnested-externs -Wcast-qual -Wshadow -Wwrite-strings  -Wunreachable-code -Wstrict-aliasing=2 -Wno-uninitialized
