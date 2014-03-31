@@ -5,10 +5,18 @@
 
 #include "coord.h"
 
+enum rpsc_fov_permisiveness {
+    RPSC_FOV_PERMISSIVE_STRICT = 1,
+    RPSC_FOV_PERMISSIVE_NORMAL = 2,
+    RPSC_FOV_PERMISSIVE_RELAXED = 3,
+};
+
 struct rpsc_fov_set {
     void *source;
     void *map;
     coord_t size;
+
+    enum rpsc_fov_permisiveness permissiveness;
 
     bool (*is_opaque)(struct rpsc_fov_set *set, coord_t *point, coord_t *origin);
     bool (*apply)(struct rpsc_fov_set *set, coord_t *point, coord_t *origin);

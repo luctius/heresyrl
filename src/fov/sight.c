@@ -3,11 +3,12 @@
 #include <assert.h>
 
 #include "sight.h"
+#include "fov.h"
+#include "digital_fov.h"
+#include "rpsc_fov.h"
 #include "tiles.h"
 #include "game.h"
-#include "fov.h"
 #include "random.h"
-#include "digital_fov.h"
 #include "items/items.h"
 #include "dungeon/dungeon_map.h"
 #include "monster/monster.h"
@@ -199,6 +200,7 @@ bool sgt_calculate_player_sight(struct sgt_sight *sight, struct dm_map *map, str
     if (dm_verify_map(map) == false) return false;
     if (msr_verify_monster(monster) == false) return false;
 
+    /*
     struct digital_fov_set set = {
         .source = monster,
         .map = map,
@@ -208,6 +210,18 @@ bool sgt_calculate_player_sight(struct sgt_sight *sight, struct dm_map *map, str
     };
 
     return digital_fov(&set, &monster->pos, msr_get_far_sight_range(monster) );
+    */
+
+    struct rpsc_fov_set set = {
+        .source = monster,
+        .permissiveness = RPSC_FOV_PERMISSIVE_NORMAL,
+        .map = map,
+        .size = map->size,
+        .is_opaque = dig_check_opaque_los,
+        .apply = dig_apply_player_sight,
+    };
+
+    return rpsc_fov(&set, &monster->pos, msr_get_far_sight_range(monster) );
 }
 
 int sgt_explosion(struct sgt_sight *sight, struct dm_map *map, coord_t *pos, int radius, coord_t *grid_list[]) {
