@@ -30,6 +30,7 @@ heresyrl_SOURCES =  \
                     fov/sight.c \
                     fov/digital_fov.c \
                     fov/fov.c \
+                    fov/rpsc_fov.c \
                     items/items.c \
                     ui/ui.c \
                     ui/ui_common.c \
