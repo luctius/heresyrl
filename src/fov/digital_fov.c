@@ -436,10 +436,10 @@ bool digital_los(struct digital_fov_set *set, coord_t *src, coord_t *dst, bool a
   int u;
   int v;
   int temp;
-  int x0;
-  int y0;
-  int x1;
-  int y1;
+  int x_0;
+  int y_0;
+  int x_1;
+  int y_1;
   int grid0_is_illegal;
   int grid1_is_illegal;
   int r;
@@ -626,47 +626,47 @@ bool digital_los(struct digital_fov_set *set, coord_t *src, coord_t *dst, bool a
       r -= du_abs;
     }
 
-    x0 = u;
-    y0 = v;
-    x1 = u;
-    y1 = v + 1;
+    x_0 = u;
+    y_0 = v;
+    x_1 = u;
+    y_1 = v + 1;
 
     if ((dir & 1) == 1)
     {
-      temp = x0;
-      x0 = y0;
-      y0 = temp;
+      temp = x_0;
+      x_0 = y_0;
+      y_0 = temp;
 
-      temp = x1;
-      x1 = y1;
-      y1 = temp;
+      temp = x_1;
+      x_1 = y_1;
+      y_1 = temp;
     }
     if ((dir & 2) == 2)
     {
-      temp = x0;
-      x0 = -y0;
-      y0 = temp;
+      temp = x_0;
+      x_0 = -y_0;
+      y_0 = temp;
 
-      temp = x1;
-      x1 = -y1;
-      y1 = temp;
+      temp = x_1;
+      x_1 = -y_1;
+      y_1 = temp;
     }
     if ((dir & 4) == 4)
     {
-      x0 = -x0;
-      y0 = -y0;
+      x_0 = -x_0;
+      y_0 = -y_0;
 
-      x1 = -x1;
-      y1 = -y1;
+      x_1 = -x_1;
+      y_1 = -y_1;
     }
 
-    x0 += ax;
-    y0 += ay;
-    x1 += ax;
-    y1 += ay;
+    x_0 += ax;
+    y_0 += ay;
+    x_1 += ax;
+    y_1 += ay;
 
-    grid0_is_illegal = grid_is_illegal(x0, y0, map_size_x, map_size_y);
-    grid1_is_illegal = grid_is_illegal(x1, y1, map_size_x, map_size_y);
+    grid0_is_illegal = grid_is_illegal(x_0, y_0, map_size_x, map_size_y);
+    grid1_is_illegal = grid_is_illegal(x_1, y_1, map_size_x, map_size_y);
 
     if (r == 0)
     {
@@ -686,8 +686,8 @@ bool digital_los(struct digital_fov_set *set, coord_t *src, coord_t *dst, bool a
         break;
       }
 
-      p.x = x0;
-      p.y = y0;
+      p.x = x_0;
+      p.y = y_0;
       if ((grid0_is_illegal) || (set->is_opaque(set, &p, src) == false))
       {
         if (u < du_abs) result = false;
@@ -725,8 +725,8 @@ bool digital_los(struct digital_fov_set *set, coord_t *src, coord_t *dst, bool a
         break;
       }
 
-      p.x = x0;
-      p.y = y0;
+      p.x = x_0;
+      p.y = y_0;
       /* update top and bottom ray */
       if ((grid0_is_illegal) || (set->is_opaque(set, &p, src) == false))
       {
@@ -759,8 +759,8 @@ bool digital_los(struct digital_fov_set *set, coord_t *src, coord_t *dst, bool a
       }
       else if (apply) set->apply(set, &p, src);
 
-      p.x = x1;
-      p.y = y1;
+      p.x = x_1;
+      p.y = y_1;
       if ((grid1_is_illegal) || (set->is_opaque(set, &p, src) == false))
       {
         if (which_side_of_line(top_ray_touch_bottom_wall_u,
@@ -792,8 +792,8 @@ bool digital_los(struct digital_fov_set *set, coord_t *src, coord_t *dst, bool a
       }
       else if (apply) set->apply(set, &p, src);
 
-      p.x = x0;
-      p.y = y0;
+      p.x = x_0;
+      p.y = y_0;
       /* remember wall */
       if ((grid0_is_illegal) || (set->is_opaque(set, &p, src) == false))
       {
@@ -837,8 +837,8 @@ bool digital_los(struct digital_fov_set *set, coord_t *src, coord_t *dst, bool a
       }
       else if (apply) set->apply(set, &p, src);
 
-      p.x = x1;
-      p.y = y1;
+      p.x = x_1;
+      p.y = y_1;
       if ((grid1_is_illegal) || (set->is_opaque(set, &p, src) == false))
       {
         if (which_side_of_line(bottom_ray_touch_top_wall_u,

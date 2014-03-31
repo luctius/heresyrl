@@ -16,20 +16,20 @@ void strict_fov(struct strict_fov_set *set, coord_t *src, int radius) {
 }
 
 bool strict_los(struct strict_fov_set *set, coord_t *src, coord_t *dst, bool apply) {
-    int sx, sy, xnext, ynext, dx, dy, x0, y0, x1, y1;
+    int sx, sy, xnext, ynext, dx, dy, x0, y0, x_1, y_1;
     float denom, dist;
     coord_t c;
     
     x0 = src->x;
     y0 = src->y;
-    x1 = dst->x;
-    y1 = dst->y;
+    x_1 = dst->x;
+    y_1 = dst->y;
 
-    dx = x1 - x0;
-    dy = y1 - y0;
-    if (x0 < x1) sx = 1;
+    dx = x_1 - x0;
+    dy = y_1 - y0;
+    if (x0 < x_1) sx = 1;
     else         sx = -1;
-    if (y0 < y1) sy = 1;
+    if (y0 < y_1) sy = 1;
     else         sy = -1;
 
     //if (apply) set->apply(set, src, src);
@@ -38,7 +38,7 @@ bool strict_los(struct strict_fov_set *set, coord_t *src, coord_t *dst, bool app
     xnext = x0;
     ynext = y0;
     denom = sqrt(dx * dx + dy * dy);
-    while (xnext != x1 || ynext != y1)
+    while (xnext != x_1 || ynext != y_1)
     {
         c.x = xnext;
         c.y = ynext;

@@ -91,6 +91,9 @@ static bool dig_apply_light_source(struct digital_fov_set *set, coord_t *point, 
     if (itm_verify_item(item) == false) return false;
     if ( (item->specific.tool.light_luminem - cd_pyth(point, origin) ) <= 0) return false;
 
+    /* Only light walls who are the origin of the light. */
+    if ( (cd_equal(point, origin) == false) && ( (dm_get_map_tile(point,map)->attributes & TILE_ATTR_OPAGUE) == 0) ) return false;
+
     dm_get_map_me(point,map)->light_level = item->specific.tool.light_luminem - cd_pyth(point, origin);
     return true;
 }
@@ -429,18 +432,18 @@ bool sgt_has_lof(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_
 
 
 int bresenham(struct dm_map *map, coord_t *s, coord_t *e, coord_t plist[], int plist_sz) {
-    int x1 = s->x;
-    int y1 = s->y;
-    int x2 = e->x;
-    int y2 = e->y;
+    int x_1 = s->x;
+    int y_1 = s->y;
+    int x_2 = e->x;
+    int y_2 = e->y;
     int plist_idx = 0;
-    int delta_x = (x2 - x1);
-    // if x1 == x2, then it does not matter what we set here
+    int delta_x = (x_2 - x_1);
+    // if x_1 == x_2, then it does not matter what we set here
     signed char const ix = ((delta_x > 0) - (delta_x < 0));
     delta_x = abs(delta_x) << 1;
 
-    int delta_y = (y2 - y1);
-    // if y1 == y2, then it does not matter what we set here
+    int delta_y = (y_2 - y_1);
+    // if y_1 == y_2, then it does not matter what we set here
     signed char const iy = ((delta_y > 0) - (delta_y < 0));
     delta_y = abs(delta_y) << 1;
 
@@ -452,19 +455,19 @@ int bresenham(struct dm_map *map, coord_t *s, coord_t *e, coord_t plist[], int p
         // error may go below zero
         int error = (delta_y - (delta_x >> 1));
 
-        while (x1 != x2)
+        while (x_1 != x_2)
         {
             if ((error >= 0) && (error || (ix > 0)))
             {
                 error -= delta_x;
-                y1 += iy;
+                y_1 += iy;
             }
             // else do nothing
 
             error += delta_y;
-            x1 += ix;
+            x_1 += ix;
 
-            plist[plist_idx++] = cd_create(x1,y1);
+            plist[plist_idx++] = cd_create(x_1,y_1);
             if ( (dm_get_map_tile(&plist[plist_idx-1],map)->attributes & TILE_ATTR_OPAGUE) == 0) return -1;
             if (plist_idx >= plist_sz) return -1;
         }
@@ -474,19 +477,19 @@ int bresenham(struct dm_map *map, coord_t *s, coord_t *e, coord_t plist[], int p
         // error may go below zero
         int error = (delta_x - (delta_y >> 1));
 
-        while (y1 != y2)
+        while (y_1 != y_2)
         {
             if ((error >= 0) && (error || (iy > 0)))
             {
                 error -= delta_y;
-                x1 += ix;
+                x_1 += ix;
             }
             // else do nothing
 
             error += delta_x;
-            y1 += iy;
+            y_1 += iy;
 
-            plist[plist_idx++] = cd_create(x1,y1);
+            plist[plist_idx++] = cd_create(x_1,y_1);
             if ( (dm_get_map_tile(&plist[plist_idx-1],map)->attributes & TILE_ATTR_OPAGUE) == 0) return -1;
             if (plist_idx >= plist_sz) return -1;
         }
@@ -502,27 +505,26 @@ int bresenham(struct dm_map *map, coord_t *s, coord_t *e, coord_t plist[], int p
  
 #define swap_(a, b) do{ __typeof__(a) tmp;  tmp = a; a = b; b = tmp; }while(0)
 int wu_line(coord_t *s, coord_t *e, coord_t plst[], int plst_sz) {
-  unsigned int x1 = s->x;
-  unsigned int y1 = s->y;
-  unsigned int x2 = e->x;
-  unsigned int y2 = e->y;
-  double dx = (double)x2 - (double)x1;
-  double dy = (double)y2 - (double)y1;
+  unsigned int x_1 = s->x;
+  unsigned int y_1 = s->y;
+  unsigned int x_2 = e->x;
+  unsigned int y_2 = e->y;
+  double dx = (double)x_2 - (double)x_1;
+  double dy = (double)y_2 - (double)y_1;
 
   int length = 0;
 
   if ( fabs(dx) > fabs(dy) ) {
-    if ( x2 < x1 ) {
-      swap_(x1, x2);
-      swap_(y1, y2);
+    if ( x_2 < x_1 ) {
+      swap_(x_1, x_2);
+      swap_(y_1, y_2);
     }
 
     if (dx == 0) return -1;
 
     double gradient = dy / dx;
-    double xend = round_(x1);
-    double yend = y1 + gradient*(xend - x1);
-    double xgap = rfpart_(x1 + 0.5);
+    double xend = round_(x_1);
+    double yend = y_1 + gradient*(xend - x_1);
     int xpxl1 = xend;
     int ypxl1 = ipart_(yend);
 
@@ -531,9 +533,8 @@ int wu_line(coord_t *s, coord_t *e, coord_t plst[], int plst_sz) {
 
     double intery = yend + gradient;
  
-    xend = round_(x2);
-    yend = y2 + gradient*(xend - x2);
-    xgap = fpart_(x2+0.5);
+    xend = round_(x_2);
+    yend = y_2 + gradient*(xend - x_2);
     int xpxl2 = xend;
     int ypxl2 = ipart_(yend);
 
@@ -549,17 +550,16 @@ int wu_line(coord_t *s, coord_t *e, coord_t plst[], int plst_sz) {
 
     }
   } else {
-    if ( y2 < y1 ) {
-      swap_(x1, x2);
-      swap_(y1, y2);
+    if ( y_2 < y_1 ) {
+      swap_(x_1, x_2);
+      swap_(y_1, y_2);
     }
 
     if (dy == 0) return -1;
 
     double gradient = dx / dy;
-    double yend = round_(y1);
-    double xend = x1 + gradient*(yend - y1);
-    double ygap = rfpart_(y1 + 0.5);
+    double yend = round_(y_1);
+    double xend = x_1 + gradient*(yend - y_1);
     int ypxl1 = yend;
     int xpxl1 = ipart_(xend);
 
@@ -568,9 +568,8 @@ int wu_line(coord_t *s, coord_t *e, coord_t plst[], int plst_sz) {
 
     double interx = xend + gradient;
  
-    yend = round_(y2);
-    xend = x2 + gradient*(yend - y2);
-    ygap = fpart_(y2+0.5);
+    yend = round_(y_2);
+    xend = x_2 + gradient*(yend - y_2);
     int ypxl2 = yend;
     int xpxl2 = ipart_(xend);
 

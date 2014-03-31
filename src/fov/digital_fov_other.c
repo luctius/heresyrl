@@ -80,8 +80,8 @@ digital_fov_brute_body(struct digital_fov_set *set, coord_t *src,
   int temp;
   int x0;
   int y0;
-  int x1;
-  int y1;
+  int x_1;
+  int y_1;
   int grid0_is_illegal;
   int grid1_is_illegal;
   int r;
@@ -122,8 +122,8 @@ digital_fov_brute_body(struct digital_fov_set *set, coord_t *src,
 
         x0 = u;
         y0 = v;
-        x1 = u;
-        y1 = v + 1;
+        x_1 = u;
+        y_1 = v + 1;
 
         if ((dir & 1) == 1)
         {
@@ -131,9 +131,9 @@ digital_fov_brute_body(struct digital_fov_set *set, coord_t *src,
           x0 = y0;
           y0 = temp;
 
-          temp = x1;
-          x1 = y1;
-          y1 = temp;
+          temp = x_1;
+          x_1 = y_1;
+          y_1 = temp;
         }
         if ((dir & 2) == 2)
         {
@@ -141,26 +141,26 @@ digital_fov_brute_body(struct digital_fov_set *set, coord_t *src,
           x0 = -y0;
           y0 = temp;
 
-          temp = x1;
-          x1 = -y1;
-          y1 = temp;
+          temp = x_1;
+          x_1 = -y_1;
+          y_1 = temp;
         }
         if ((dir & 4) == 4)
         {
           x0 = -x0;
           y0 = -y0;
 
-          x1 = -x1;
-          y1 = -y1;
+          x_1 = -x_1;
+          y_1 = -y_1;
         }
 
         x0 += center_x;
         y0 += center_y;
-        x1 += center_x;
-        y1 += center_y;
+        x_1 += center_x;
+        y_1 += center_y;
 
         grid0_is_illegal= grid_is_illegal(x0, y0, map_size_x, map_size_y);
-        grid1_is_illegal= grid_is_illegal(x1, y1, map_size_x, map_size_y);
+        grid1_is_illegal= grid_is_illegal(x_1, y_1, map_size_x, map_size_y);
 
         if (r + s_min < p)
         {
@@ -175,9 +175,9 @@ digital_fov_brute_body(struct digital_fov_set *set, coord_t *src,
         if (r + s_max >= p)
         {
           if (!grid1_is_illegal)
-            //map_fov[x1 - center_x + radius][y1 - center_y + radius] = 1;
-            point.x = x1;
-            point.y = y1;
+            //map_fov[x_1 - center_x + radius][y_1 - center_y + radius] = 1;
+            point.x = x_1;
+            point.y = y_1;
             set->apply(set, &point, src);
         }
 
@@ -200,8 +200,8 @@ digital_fov_brute_body(struct digital_fov_set *set, coord_t *src,
               s_min = p - r;
           }
 
-          point.x = x1;
-          point.y = y1;
+          point.x = x_1;
+          point.y = y_1;
           if ((grid1_is_illegal)
               || (set->is_opaque(set, &point, src) == false))
           {
@@ -286,8 +286,8 @@ digital_fov_beam_body(struct digital_fov_set *set, coord_t *src,
   int temp;
   int x0;
   int y0;
-  int x1;
-  int y1;
+  int x_1;
+  int y_1;
   int grid0_is_illegal;
   int grid1_is_illegal;
   int this_ray_lights_grid0;
@@ -406,8 +406,8 @@ digital_fov_beam_body(struct digital_fov_set *set, coord_t *src,
 
       x0 = u;
       y0 = v;
-      x1 = u;
-      y1 = v + 1;
+      x_1 = u;
+      y_1 = v + 1;
 
       if ((dir & 1) == 1)
       {
@@ -415,9 +415,9 @@ digital_fov_beam_body(struct digital_fov_set *set, coord_t *src,
         x0 = y0;
         y0 = temp;
 
-        temp = x1;
-        x1 = y1;
-        y1 = temp;
+        temp = x_1;
+        x_1 = y_1;
+        y_1 = temp;
       }
       if ((dir & 2) == 2)
       {
@@ -425,26 +425,26 @@ digital_fov_beam_body(struct digital_fov_set *set, coord_t *src,
         x0 = -y0;
         y0 = temp;
 
-        temp = x1;
-        x1 = -y1;
-        y1 = temp;
+        temp = x_1;
+        x_1 = -y_1;
+        y_1 = temp;
       }
       if ((dir & 4) == 4)
       {
         x0 = -x0;
         y0 = -y0;
 
-        x1 = -x1;
-        y1 = -y1;
+        x_1 = -x_1;
+        y_1 = -y_1;
       }
 
       x0 += center_x;
       y0 += center_y;
-      x1 += center_x;
-      y1 += center_y;
+      x_1 += center_x;
+      y_1 += center_y;
 
       grid0_is_illegal = grid_is_illegal(x0, y0, map_size_x, map_size_y);
-      grid1_is_illegal = grid_is_illegal(x1, y1, map_size_x, map_size_y);
+      grid1_is_illegal = grid_is_illegal(x_1, y_1, map_size_x, map_size_y);
 
       this_ray_lights_grid0 = 0;
       this_ray_lights_grid1 = 0;
@@ -519,10 +519,10 @@ digital_fov_beam_body(struct digital_fov_set *set, coord_t *src,
                                    top_ray_touch_top_wall_v,
                                    u, v + 1) < 0))
         {
-          point.x = x1;
-          point.y = y1;
+          point.x = x_1;
+          point.y = y_1;
           set->apply(set, &point, src);
-          //map_fov[x1 - center_x + radius][y1 - center_y + radius] = 1;
+          //map_fov[x_1 - center_x + radius][y_1 - center_y + radius] = 1;
           this_ray_lights_grid1 = 1;
         }
 
@@ -567,8 +567,8 @@ digital_fov_beam_body(struct digital_fov_set *set, coord_t *src,
           }
         }
 
-        point.x = x1;
-        point.y =y1;
+        point.x = x_1;
+        point.y =y_1;
         if ((grid1_is_illegal)
               || (set->is_opaque(set, &point, src) == false))
         {
@@ -647,8 +647,8 @@ digital_fov_beam_body(struct digital_fov_set *set, coord_t *src,
           }
         }
 
-        point.x = x1;
-        point.y = y1;
+        point.x = x_1;
+        point.y = y_1;
         if ((grid1_is_illegal)
               || (set->is_opaque(set, &point, src) == false))
         {
