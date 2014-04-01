@@ -6,9 +6,9 @@
 #include "coord.h"
 
 enum rpsc_fov_permisiveness {
-    RPSC_FOV_PERMISSIVE_STRICT = 1,
-    RPSC_FOV_PERMISSIVE_NORMAL = 2,
-    RPSC_FOV_PERMISSIVE_RELAXED = 3,
+    RPSC_FOV_PERMISSIVE_STRICT,
+    RPSC_FOV_PERMISSIVE_NORMAL,
+    RPSC_FOV_PERMISSIVE_RELAXED,
 };
 
 struct rpsc_fov_set {
@@ -22,7 +22,7 @@ struct rpsc_fov_set {
     bool (*apply)(struct rpsc_fov_set *set, coord_t *point, coord_t *origin);
 };
 
-bool rpsc_fov(struct rpsc_fov_set *set, coord_t *src, int radius);
-bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst, bool apply);
+void rpsc_fov(struct rpsc_fov_set *set, coord_t *src, int radius);
+bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst);
 
 #endif /* RPSC_FOV_H */

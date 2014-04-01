@@ -18,6 +18,97 @@ struct sgt_sight {
 };
 
 /* checks if this is a walkable path, without a monster.  */
+static bool rpsc_check_opaque_lof(struct rpsc_fov_set *set, coord_t *point, coord_t *origin) {
+    struct dm_map *map = set->map;
+
+    /* verify map structure */
+    if (dm_verify_map(map) == false) return false;
+    /* check if this point is within the map boundries. */
+    if (cd_within_bound(point, &map->size) == false) return false;
+
+    /* if the point is not traversable, return false */
+    if ( (dm_get_map_tile(point,map)->attributes & TILE_ATTR_TRAVERSABLE) == 0) return false;
+
+    /* if there is a monster, return false */
+    if (dm_get_map_me(point,map)->monster != NULL) return false;
+
+    /* it's a good lof point*/
+    return true;
+}
+
+/* check if there is a line of sight path on this point */
+static bool rpsc_check_opaque_los(struct rpsc_fov_set *set, coord_t *point, coord_t *origin) {
+    struct dm_map *map = set->map;
+
+    /* verify map structure */
+    if (dm_verify_map(map) == false) return false;
+    /* check if this point is within the map boundries. */
+    if (cd_within_bound(point, &map->size) == false) return false;
+
+    /* if it is opague, return true, else return false. */
+    return ( (dm_get_map_tile(point,map)->attributes & TILE_ATTR_OPAGUE) > 0);
+}
+
+static bool rpsc_apply_player_sight(struct rpsc_fov_set *set, coord_t *point, coord_t *origin) {
+    struct dm_map *map = set->map;
+    struct msr_monster *monster = set->source;
+
+    /* verify map structure */
+    if (dm_verify_map(map) == false) return false;
+    /* check if this point is within map boundries. */
+    if (cd_within_bound(point, &map->size) == false) return false;
+    /*verify monster structure */
+    if (msr_verify_monster(monster) == false) return false;
+
+    /* get map entity*/
+    struct dm_map_entity *me = dm_get_map_me(point,map);
+    /* awareness check difficulty starts at zero */
+    int mod = 0;
+    /*every map point touched here is in sight.*/
+    me->in_sight = true;
+
+    if (me->light_level > 0) {
+        /* if there is light, we can see everything.*/
+        me->visible = true;
+        me->discovered = true;
+    }
+
+    int range = cd_pyth(point, origin);
+    if (range < msr_get_near_sight_range(monster)) {
+        /* if it is in our near sight, we can see everything.*/
+        me->discovered = true;
+        me->visible = true;
+    }
+    else if (range < msr_get_medium_sight_range(monster)) {
+        /* in our medium sight we can see the map features.*/
+        me->discovered = true;
+        mod = -20;
+    }
+    else {
+        /* in our far sight without light, we have a chance of seeing movemnt (monsters).*/
+        mod = -30;
+    }
+
+    /* check if we can see a monster in the dark */
+    if (me->visible == false && me->monster != NULL) {
+        lg_print("Awareness check on (%d,%d)", point->x, point->y);
+        int DoS = 0;
+        /*do an awareness check*/
+        if ( (DoS = msr_skill_check(monster, SKILLS_AWARENESS, mod) ) >= 0) {
+            /* the scatter radius decreases depending on the number of successes in our roll*/
+            int radius = 4 - DoS;
+
+            if (radius > 0) {
+                /* if the roll was a success, scatter the blip. */
+                coord_t sp = sgt_scatter(gbl_game->sight, map, gbl_game->game_random, point, radius);
+                dm_get_map_me(&sp, map)->icon_override = '?';
+            }
+        }
+    }
+    return true;
+}
+
+/* checks if this is a walkable path, without a monster.  */
 static bool dig_check_opaque_lof(struct digital_fov_set *set, coord_t *point, coord_t *origin) {
     struct dm_map *map = set->map;
 
@@ -217,11 +308,12 @@ bool sgt_calculate_player_sight(struct sgt_sight *sight, struct dm_map *map, str
         .permissiveness = RPSC_FOV_PERMISSIVE_NORMAL,
         .map = map,
         .size = map->size,
-        .is_opaque = dig_check_opaque_los,
-        .apply = dig_apply_player_sight,
+        .is_opaque = rpsc_check_opaque_los,
+        .apply = rpsc_apply_player_sight,
     };
 
-    return rpsc_fov(&set, &monster->pos, msr_get_far_sight_range(monster) );
+    rpsc_fov(&set, &monster->pos, msr_get_near_sight_range(monster) ); /*TODO far sight*/
+    return true;
 }
 
 int sgt_explosion(struct sgt_sight *sight, struct dm_map *map, coord_t *pos, int radius, coord_t *grid_list[]) {
@@ -486,6 +578,7 @@ bool sgt_has_los(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_
     if (sight == NULL) return false;
     if (dm_verify_map(map) == false) return false;
 
+    /*
     struct digital_fov_set set = {
         .source = NULL,
         .map = map,
@@ -495,12 +588,25 @@ bool sgt_has_los(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_
     };
 
     return digital_los(&set, s, e, false);
+    */
+
+    struct rpsc_fov_set set = {
+        .source = s,
+        .permissiveness = RPSC_FOV_PERMISSIVE_NORMAL,
+        .map = map,
+        .size = map->size,
+        .is_opaque = rpsc_check_opaque_los,
+        .apply = NULL,
+    };
+
+    return rpsc_los(&set, s, e );
 }
 
 bool sgt_has_lof(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_t *e) {
     if (sight == NULL) return false;
     if (dm_verify_map(map) == false) return false;
 
+    /*
     struct digital_fov_set set = {
         .source = NULL,
         .map = map,
@@ -510,6 +616,18 @@ bool sgt_has_lof(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_
     };
 
     return digital_los(&set, s, e, false);
+    */
+
+    struct rpsc_fov_set set = {
+        .source = s,
+        .permissiveness = RPSC_FOV_PERMISSIVE_NORMAL,
+        .map = map,
+        .size = map->size,
+        .is_opaque = rpsc_check_opaque_lof,
+        .apply = NULL,
+    };
+
+    return rpsc_los(&set, s, e );
 }
 
 
