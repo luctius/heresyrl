@@ -138,7 +138,7 @@ static void rpsc_fov_octant(struct rpsc_fov_set *set, coord_t *src, int radius, 
                 point = cd_create(src->x + (row * oct_mod->x), src->y + (cell * oct_mod->y));
             }
 
-            if (cd_within_bound(&point, &set->size) && ( (row>>1) + cell <= radius) ) {
+            if (cd_within_bound(&point, &set->size) && ( ( (row + cell) ) <= radius) ) {
                 struct angle_set as = offset_to_angle_set(row, cell);
                 bool blocked = false;
 
