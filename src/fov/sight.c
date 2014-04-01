@@ -312,7 +312,7 @@ bool sgt_calculate_player_sight(struct sgt_sight *sight, struct dm_map *map, str
         .apply = rpsc_apply_player_sight,
     };
 
-    rpsc_fov(&set, &monster->pos, msr_get_near_sight_range(monster) ); /*TODO far sight*/
+    rpsc_fov(&set, &monster->pos, msr_get_medium_sight_range(monster) );
     return true;
 }
 

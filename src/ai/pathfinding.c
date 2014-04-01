@@ -49,6 +49,7 @@ static bool pf_flood_map_point(struct pf_context *ctx, coord_t *point, coord_t *
     struct pf_map *map = &ctx->map;
     struct pf_map_entity *me = pf_get_index(point, map);
 
+
     if (me->distance >= ctx->maximum_distance) {
         /* We have gone too far, let another try to solve it. */
         return false;   
@@ -269,7 +270,6 @@ bool pf_dijkstra_map(struct pf_context *ctx, coord_t *start) {
     map->size.y = ctx->set.map_end.y - ctx->set.map_start.y;
     map->map = calloc(map->size.x * map->size.y, sizeof(struct pf_map_entity) );
     if (map->map == NULL) return false;
-
     ctx->maximum_distance = pyth(map->size.x, map->size.y) * 2;
 
     pf_get_index(start, map)->cost = 1;
@@ -279,6 +279,7 @@ bool pf_dijkstra_map(struct pf_context *ctx, coord_t *start) {
 
     lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "pf","start at (%d,%d)", start->x,  start->y);
     pf_flood_map_point(ctx, start, &dummy);
+
     return true;
 }
 
