@@ -39,10 +39,9 @@ struct rpsc_octant_quad octant_lo_table[OCTANT_MAX] = {
     [OCTANT_NNE] = { .x =  1, .y = -1, .flip = true,  },
 };
 
-typedef uint_fast32_t angle_t;
-#define ANGLE_MAX UINT_FAST16_MAX
-#define FP_MAX 0xFFFF
-#define FP_HALF (FP_MAX>>1)
+typedef uint_fast16_t angle_t;
+#define FP_MAX UINT16_MAX
+#define FP_HALF ( (FP_MAX>>1) & ~0xF)
 #define ANGLE_RANGE FP_HALF
 
 struct angle_set {
@@ -67,10 +66,15 @@ enum rpsc_octant get_octant(coord_t *src, coord_t *dst) {
 
 static inline struct angle_set offset_to_angle_set(int row, int cell) {
     struct angle_set set;
-    angle_t range = ANGLE_RANGE / (row +1);
+    angle_t max_range = ANGLE_RANGE;
+    angle_t range = max_range / (row +1);
     set.near = range * cell;
     set.far  = set.near + range;
     set.center = set.near + (range / 2);
+
+    assert(set.near < set.center);
+    assert(set.center < set.far);
+    assert(set.near < set.far);
     return set;
 }
 
@@ -81,9 +85,7 @@ static inline int angle_set_to_cell(struct angle_set *set, int row_new, bool fli
     return cell;
 }
 
-inline static bool angle_is_blocked(struct angle_set *test_set, struct angle_set *blocked_set) {
-    lg_debug("test (%d,%d,%d), blocked (%d,%d,%d)", test_set->near, test_set->center, test_set->far, blocked_set->near, blocked_set->center, blocked_set->far);
-
+inline static bool angle_is_blocked(struct rpsc_fov_set *set, struct angle_set *test_set, struct angle_set *blocked_set) {
     if (test_set->far < blocked_set->near) return false;
     if (test_set->near > blocked_set->far) return false;
 
@@ -91,11 +93,24 @@ inline static bool angle_is_blocked(struct angle_set *test_set, struct angle_set
     bool center_blocked = false;
     bool far_blocked = false;
 
-    if ( (test_set->near > blocked_set->near) && (test_set->near < blocked_set->far) ) near_blocked = true;
-    if ( (test_set->center > blocked_set->near) && (test_set->center < blocked_set->far) ) center_blocked = true;
-    if ( (test_set->far > blocked_set->near) && (test_set->far < blocked_set->far) ) far_blocked = true;
+    if (set->visible_on_equal) {
+        if ( (test_set->near   > blocked_set->near) && (test_set->near   < blocked_set->far) ) near_blocked = true;
+        if ( (test_set->center > blocked_set->near) && (test_set->center < blocked_set->far) ) center_blocked = true;
+        if ( (test_set->far    > blocked_set->near) && (test_set->far    < blocked_set->far) ) far_blocked = true;
+    }
+    else {
+        if ( (test_set->near   >= blocked_set->near) && (test_set->near   <= blocked_set->far) ) near_blocked = true;
+        if ( (test_set->center >= blocked_set->near) && (test_set->center <= blocked_set->far) ) center_blocked = true;
+        if ( (test_set->far    >= blocked_set->near) && (test_set->far    <= blocked_set->far) ) far_blocked = true;
+    }
 
-    //if (center_blocked == false) return false;
+    if (set->permissiveness == RPSC_FOV_PERMISSIVE_RELAXED) {
+        return (near_blocked && center_blocked && far_blocked);
+    }
+    else if (set->permissiveness == RPSC_FOV_PERMISSIVE_STRICT) {
+        return (near_blocked || center_blocked || far_blocked);
+    }
+
     return (near_blocked && center_blocked) || (center_blocked && far_blocked);
 }
 
@@ -109,16 +124,62 @@ inline static bool extend_block(struct angle_set *blocked_set, struct angle_set 
     /* extend block */
     if (current_set->near < blocked_set->near) blocked_set->near = current_set->near;
     if (current_set->far > blocked_set->far) blocked_set->far = current_set->far;
+
+    assert(blocked_set->near < blocked_set->center);
+    assert(blocked_set->center < blocked_set->far);
+    assert(blocked_set->near < blocked_set->far);
     return true;
 }
 
+static int scrub_blocked_list(struct angle_set *list, int list_sz) {
+    bool scrubbed[list_sz];
+    int max_not_scrubbed = -1;
+
+    for (int i = list_sz -1; i >= 0; i--) {
+        struct angle_set *a = &list[i];
+        bool combined = false;
+        scrubbed[i] = false;
+
+        for (int j = 0; (j < list_sz -1) && (combined == false); j++) {
+            if (i == j) continue;
+
+            if ( ( (a->near >= list[j].near) && (a->near <= list[j].far) ) ||
+                 ( (a->far <= list[j].far)   && (a->far >= list[j].near) ) ) {
+                extend_block(&list[j], a);
+                list_sz--;
+                combined = true;
+            }
+        }
+
+        if (combined == true) {
+            scrubbed[i] = true;
+        }
+        else if (max_not_scrubbed < i) max_not_scrubbed = i;
+    }
+
+    /* out list may be discontinues, move non-scrubbed angle sets to the front */
+    if (max_not_scrubbed >= list_sz) {
+        for (int i = max_not_scrubbed; i >= 0; i--) {
+            if (scrubbed[i] == false) {
+                bool moved = false;
+
+                for (int j = 0; (j < list_sz) && (moved == false); j++) {
+                    if (scrubbed[j] == true) {
+                        list[j] = list[i];
+                        scrubbed[j] = false;
+                        moved = true;
+                    }
+                }
+            }
+        }
+    }
+
+    return list_sz;
+}
+
 static void rpsc_fov_octant(struct rpsc_fov_set *set, coord_t *src, int radius, enum rpsc_octant octant) {
-    struct angle_set blocked_list[radius +1];
-
-    lg_debug("src (%d,%d)", src->x, src->y);
-
+    struct angle_set blocked_list[radius *2];
     int obstacles_total = 0;
-    int obstacles_last_line = 0;
     struct rpsc_octant_quad *oct_mod = &octant_lo_table[octant];
 
     for (int row = 1; row <= radius; row++) {
@@ -137,15 +198,17 @@ static void rpsc_fov_octant(struct rpsc_fov_set *set, coord_t *src, int radius, 
                 struct angle_set as = offset_to_angle_set(row, cell);
                 bool blocked = false;
 
-                lg_debug("testing point (%d,%d) ll: %d tot: %d", point.x, point.y, obstacles_last_line, obstacles_total);
-                lg_debug("angle_set (%d,%d,%d)", as.near, as.center, as.far);
+                for (int i = 0; (i < obstacles_total) && (blocked == false); i++) {
+                    if (angle_is_blocked(set, &as, &blocked_list[i]) ) {
+                        if (set->not_visible_blocks_vision) {
+                            if (set->is_opaque(set, &point, src) == false) {
+                                blocked_list[obstacles_total + obstacles_this_line] = as;
+                                obstacles_this_line++;
+                            }
+                        }
 
-                for (int i = 0; (i < obstacles_last_line) && (blocked == false); i++) {
-                    if (angle_is_blocked(&as, &blocked_list[i]) ) {
-                        extend_block(&blocked_list[i], &as);
                         blocked = true;
                         nr_blocked++;
-                        lg_debug("blocked (%d,%d)", point.x, point.y);
                     }
                 }
 
@@ -157,19 +220,16 @@ static void rpsc_fov_octant(struct rpsc_fov_set *set, coord_t *src, int radius, 
                     if (set->is_opaque(set, &point, src) == false) {
                         blocked_list[obstacles_total + obstacles_this_line] = as;
                         obstacles_this_line++;
-                        lg_debug("point (%d,%d) is obstacle", point.x, point.y);
                     }
                 }
             }
             else nr_blocked++;
-
-            if ( (nr_blocked + obstacles_this_line) == row_max) {
-                lg_debug("all point are blocked, bailing");
-                return;
-            }
         }
-        obstacles_total += obstacles_this_line;
-        obstacles_last_line = obstacles_total;
+    
+        obstacles_total = scrub_blocked_list(blocked_list, obstacles_total + obstacles_this_line);
+        if ( (obstacles_total == 1) && (blocked_list[0].near == 0) && (blocked_list[0].far == ANGLE_RANGE) ) {
+            return;
+        }
     }
     return;
 }
@@ -177,6 +237,7 @@ static void rpsc_fov_octant(struct rpsc_fov_set *set, coord_t *src, int radius, 
 void rpsc_fov(struct rpsc_fov_set *set, coord_t *src, int radius) {
     if (set->apply != NULL) set->apply(set, src, src);
 
+    //rpsc_fov_octant(set,src,radius, OCTANT_SWW);
     for (int i = 0; i < OCTANT_MAX; i++) {
         lg_debug("------------ < %d > ----------------------", i);
         rpsc_fov_octant(set,src,radius, i);
@@ -211,7 +272,7 @@ bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst) {
         if (set->apply != NULL) set->apply(set, &point, src);
 
         if (set->is_opaque(set, &point, src) == false) {
-            if (angle_is_blocked(&as_dst, &as) ) {
+            if (angle_is_blocked(set, &as_dst, &as) ) {
                 visible = false;
             }
         }

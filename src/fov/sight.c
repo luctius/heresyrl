@@ -108,6 +108,24 @@ static bool rpsc_apply_player_sight(struct rpsc_fov_set *set, coord_t *point, co
     return true;
 }
 
+static bool rpsc_apply_light_source(struct rpsc_fov_set *set, coord_t *point, coord_t *origin) {
+    struct dm_map *map = set->map;
+    struct itm_item *item = set->source;
+
+    if (dm_verify_map(map) == false) return false;
+    if (cd_within_bound(point, &map->size) == false) return false;
+    if (itm_verify_item(item) == false) return false;
+    if ( (item->specific.tool.light_luminem - cd_pyth(point, origin) ) <= 0) return false;
+
+    /* Only light walls who are the origin of the light. */
+    if ( (cd_equal(point, origin) == false) && ( (dm_get_map_tile(point,map)->attributes & TILE_ATTR_OPAGUE) == 0) ) return false;
+
+    dm_get_map_me(point,map)->light_level = item->specific.tool.light_luminem - cd_pyth(point, origin);
+    return true;
+}
+
+#if 0
+
 /* checks if this is a walkable path, without a monster.  */
 static bool dig_check_opaque_lof(struct digital_fov_set *set, coord_t *point, coord_t *origin) {
     struct dm_map *map = set->map;
@@ -215,13 +233,30 @@ static bool dig_apply_light_source(struct digital_fov_set *set, coord_t *point, 
     return true;
 }
 
+#endif
+
 struct sgt_explosion_struct {
     coord_t *list;
     short list_sz;
     short list_idx;
 };
 
-static bool dig_apply_explosion(struct digital_fov_set *set, coord_t *point, coord_t *origin) {
+/*static bool dig_apply_explosion(struct digital_fov_set *set, coord_t *point, coord_t *origin) {
+    struct dm_map *map = set->map;
+    struct sgt_explosion_struct *ex = set->source;
+
+    if (dm_verify_map(map) == false) return false;
+    if (cd_within_bound(point, &map->size) == false) return false;
+    if (ex->list_idx >= ex->list_sz) return false;
+    if ( (dm_get_map_tile(point,map)->attributes & TILE_ATTR_TRAVERSABLE) == 0) return false;
+
+    ex->list[ex->list_idx++] = *point;
+
+    return true;
+}
+*/
+
+static bool rpsc_apply_explosion(struct rpsc_fov_set *set, coord_t *point, coord_t *origin) {
     struct dm_map *map = set->map;
     struct sgt_explosion_struct *ex = set->source;
 
@@ -262,6 +297,7 @@ bool sgt_calculate_light_source(struct sgt_sight *sight, struct dm_map *map, str
     if (item->specific.tool.lit != true) return false;
     coord_t c = itm_get_pos(item);
 
+    /*
     struct digital_fov_set set = {
         .source = item,
         .map = map,
@@ -271,6 +307,20 @@ bool sgt_calculate_light_source(struct sgt_sight *sight, struct dm_map *map, str
     };
 
     digital_fov(&set, &c, item->specific.tool.light_luminem);
+    */
+
+    struct rpsc_fov_set set = {
+        .source = item,
+        .permissiveness = RPSC_FOV_PERMISSIVE_NORMAL,
+        .visible_on_equal = true,
+        .not_visible_blocks_vision = true,
+        .map = map,
+        .size = map->size,
+        .is_opaque = rpsc_check_opaque_los,
+        .apply = rpsc_apply_light_source,
+    };
+
+    rpsc_fov(&set, &c, item->specific.tool.light_luminem);
 
     return true;
 }
@@ -306,6 +356,8 @@ bool sgt_calculate_player_sight(struct sgt_sight *sight, struct dm_map *map, str
     struct rpsc_fov_set set = {
         .source = monster,
         .permissiveness = RPSC_FOV_PERMISSIVE_NORMAL,
+        .visible_on_equal = true,
+        .not_visible_blocks_vision = true,
         .map = map,
         .size = map->size,
         .is_opaque = rpsc_check_opaque_los,
@@ -339,6 +391,7 @@ int sgt_explosion(struct sgt_sight *sight, struct dm_map *map, coord_t *pos, int
         .list_idx = 0,
     };
 
+#if 0
     /* setup the fov structure */
     struct digital_fov_set set = {
         .source = &ex,
@@ -353,6 +406,20 @@ int sgt_explosion(struct sgt_sight *sight, struct dm_map *map, coord_t *pos, int
         free(*grid_list);
         return -1;
     }
+#endif
+
+    struct rpsc_fov_set set = {
+        .source = &ex,
+        .permissiveness = RPSC_FOV_PERMISSIVE_NORMAL,
+        .visible_on_equal = true,
+        .not_visible_blocks_vision = true,
+        .map = map,
+        .size = map->size,
+        .is_opaque = rpsc_check_opaque_lof,
+        .apply = rpsc_apply_explosion,
+    };
+
+    rpsc_fov(&set, pos, radius);
 
     /* 
        we are probably not using a lot of the space allocated.

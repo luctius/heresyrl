@@ -17,6 +17,8 @@ struct rpsc_fov_set {
     coord_t size;
 
     enum rpsc_fov_permisiveness permissiveness;
+    bool visible_on_equal;
+    bool not_visible_blocks_vision;
 
     bool (*is_opaque)(struct rpsc_fov_set *set, coord_t *point, coord_t *origin);
     bool (*apply)(struct rpsc_fov_set *set, coord_t *point, coord_t *origin);
