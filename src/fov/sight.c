@@ -233,15 +233,13 @@ static bool dig_apply_light_source(struct digital_fov_set *set, coord_t *point, 
     return true;
 }
 
-#endif
-
 struct sgt_explosion_struct {
     coord_t *list;
     short list_sz;
     short list_idx;
 };
 
-/*static bool dig_apply_explosion(struct digital_fov_set *set, coord_t *point, coord_t *origin) {
+static bool dig_apply_explosion(struct digital_fov_set *set, coord_t *point, coord_t *origin) {
     struct dm_map *map = set->map;
     struct sgt_explosion_struct *ex = set->source;
 
@@ -254,7 +252,14 @@ struct sgt_explosion_struct {
 
     return true;
 }
-*/
+
+#endif
+
+struct sgt_explosion_struct {
+    coord_t *list;
+    short list_sz;
+    short list_idx;
+};
 
 static bool rpsc_apply_explosion(struct rpsc_fov_set *set, coord_t *point, coord_t *origin) {
     struct dm_map *map = set->map;
@@ -266,6 +271,27 @@ static bool rpsc_apply_explosion(struct rpsc_fov_set *set, coord_t *point, coord
     if ( (dm_get_map_tile(point,map)->attributes & TILE_ATTR_TRAVERSABLE) == 0) return false;
 
     ex->list[ex->list_idx++] = *point;
+
+    return true;
+}
+
+struct sgt_projectile_path_struct {
+    coord_t *list;
+    short list_sz;
+    short list_idx;
+};
+
+static bool rpsc_apply_projectile_path(struct rpsc_fov_set *set, coord_t *point, coord_t *origin) {
+    struct dm_map *map = set->map;
+    struct sgt_projectile_path_struct *pp = set->source;
+
+    if (dm_verify_map(map) == false) return false;
+    if (cd_within_bound(point, &map->size) == false) return false;
+    if (pp->list_idx >= pp->list_sz) return false;
+    if ( (dm_get_map_tile(point,map)->attributes & TILE_ATTR_TRAVERSABLE) == 0) return false;
+
+    pp->list[pp->list_idx++] = *point;
+    lg_debug("added point (%d,%d) to idx %d", point->x, point->y, pp->list_idx-1);
 
     return true;
 }
@@ -432,6 +458,60 @@ int sgt_explosion(struct sgt_sight *sight, struct dm_map *map, coord_t *pos, int
     return ex.list_idx;
 }
 
+int sgt_los_path(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_t *e, coord_t *path_lst[], bool continue_path) {
+    if (sight == NULL) return false;
+    if (dm_verify_map(map) == false) return false;
+
+    if (cd_equal(s,e) == true) return 0;
+
+    /* allocate the total number of grids within the path.
+     this should be way to many but at this point we do not 
+     now how many there are.
+     */
+    *path_lst = calloc(cd_pyth(s,e) * 2, sizeof(coord_t) );
+    if (*path_lst == NULL) return -1;
+
+
+    /*create the projectile path struct, containing 
+      - a list for the grids for the path
+      - the maximum size of that list.
+      - a index counter for that list.
+     */
+    struct sgt_projectile_path_struct ex = {
+        .list = *path_lst,
+        .list_sz = cd_pyth(s,e) * 2,
+        .list_idx = 0,
+    };
+
+    struct rpsc_fov_set set = {
+        .source = &ex,
+        .permissiveness = RPSC_FOV_PERMISSIVE_NORMAL,
+        .visible_on_equal = true,
+        .not_visible_blocks_vision = true,
+        .map = map,
+        .size = map->size,
+        .is_opaque = rpsc_check_opaque_lof,
+        .apply = rpsc_apply_projectile_path,
+    };
+
+    if (rpsc_los(&set, s, e) == false || ex.list_idx == 0) {
+        free (*path_lst);
+        return -1;
+    }
+
+    /* 
+       we are probably not using a lot of the space allocated.
+       thus we request a smaller block. If we do that correctly,
+       we should save the old pointer, but we do not because we
+       are lazy. assert for now that it is succesfull.
+     */
+    *path_lst = realloc(*path_lst, ex.list_idx * sizeof(coord_t) );
+    assert(*path_lst != NULL);
+    return ex.list_idx;
+}
+
+
+#if 0
 int bresenham(struct dm_map *map, coord_t *s, coord_t *e, coord_t plist[], int plist_sz);
 int wu_line(coord_t *s, coord_t *e, coord_t plst[], int plst_sz);
 
@@ -605,6 +685,7 @@ int sgt_los_path(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_
     /* return the length of the path*/
     return pidx;
 }
+#endif
 
 coord_t sgt_scatter(struct sgt_sight *sight, struct dm_map *map, struct random *r, coord_t *p, int radius) {
     /* Do not try forever. */

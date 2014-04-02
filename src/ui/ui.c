@@ -377,7 +377,7 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dm_map *map, coord_t *
     int ign_cnt = 0;
     struct msr_monster *target = aiu_get_nearest_enemy(plr->player, ign_cnt, map);
     if (target != NULL) {
-        e_pos = target->pos;
+        //TODO e_pos = target->pos;
         ign_cnt++;
     }
 
@@ -435,11 +435,13 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dm_map *map, coord_t *
         if (e_pos.x < 0) e_pos.x = 0;
         if (e_pos.x >= map->size.x) e_pos.x = map->size.x -1;
 
-        lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "mapwin", "entering fire_mode (%d,%d) -> (%d,%d)", p_pos->x, p_pos->y, e_pos.x, e_pos.y);
+        lg_debug("entering fire_mode (%d,%d) -> (%d,%d)", p_pos->x, p_pos->y, e_pos.x, e_pos.y);
+
+        mvwaddch(map_win->win, p_pos->y - scr_y, p_pos->x - scr_x, '*' | get_colour(TERM_COLOUR_BLUE) );
 
         path_len = sgt_los_path(gbl_game->sight, gbl_game->current_map, p_pos, &e_pos, &path, false);
         for (int i = 1; i < path_len; i++) {
-
+            lg_debug("point[%d] in projectile path: (%d,%d)", i, path[i].x, path[i].y);
             mvwaddch(map_win->win, path[i].y - scr_y, path[i].x - scr_x, '*' | get_colour(TERM_COLOUR_RED) );
         }
         if (path_len > 0) free(path);

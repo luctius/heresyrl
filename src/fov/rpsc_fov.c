@@ -39,8 +39,8 @@ struct rpsc_octant_quad octant_lo_table[OCTANT_MAX] = {
     [OCTANT_NNE] = { .x =  1, .y = -1, .flip = true,  },
 };
 
-typedef uint_fast16_t angle_t;
-#define FP_MAX UINT16_MAX
+typedef uint_fast32_t angle_t;
+#define FP_MAX UINT_FAST32_MAX
 #define FP_HALF ( (FP_MAX>>1) & ~0xF)
 #define ANGLE_RANGE FP_HALF
 
@@ -53,12 +53,14 @@ struct angle_set {
 enum rpsc_octant get_octant(coord_t *src, coord_t *dst) {
     coord_t delta = cd_delta_abs(src, dst);
 
-    for (int i = 0; i < OCTANT_MAX; i+=2) {
+    for (int i = 0; i < OCTANT_MAX; i++) {
         struct rpsc_octant_quad *oct_mod = &octant_lo_table[i];
+        bool flip = (delta.x >= delta.y);
         if ( (src->x + (delta.x * oct_mod->x) == dst->x) && 
              (src->y + (delta.y * oct_mod->y) == dst->y) ) {
-            if (delta.x <= delta.y) return i;
-            return i+1;
+            if (flip == oct_mod->flip) {
+                return i;   
+            }
         }
     }
     return 0;
@@ -81,7 +83,7 @@ static inline struct angle_set offset_to_angle_set(int row, int cell) {
 static inline int angle_set_to_cell(struct angle_set *set, int row_new, bool flip) {
     angle_t new_range = ANGLE_RANGE / (row_new +1);
     int cell = set->center / new_range;
-    if ( (set->center - cell) > (new_range / 2) ) cell += 1;
+    //if ( (set->center - cell) > (new_range / 2) ) cell += 1;
     return cell;
 }
 
@@ -186,6 +188,7 @@ static void rpsc_fov_octant(struct rpsc_fov_set *set, coord_t *src, int radius, 
         int obstacles_this_line = 0;
         int nr_blocked = 0;
         int row_max = row+1;
+        if (oct_mod->flip == true) row_max = row;
 
         for (int cell = 0; cell < row_max; cell++) {
             int delta_cell_sqr = cell*cell;
@@ -239,9 +242,7 @@ void rpsc_fov(struct rpsc_fov_set *set, coord_t *src, int radius) {
 
     //rpsc_fov_octant(set,src,radius, OCTANT_SWW);
     for (int i = 0; i < OCTANT_MAX; i++) {
-        lg_debug("------------ < %d > ----------------------", i);
         rpsc_fov_octant(set,src,radius, i);
-        lg_debug("------------ < %d > ----------------------", i);
     }
 }
 
@@ -249,6 +250,9 @@ bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst) {
     enum rpsc_octant octant = get_octant(src, dst);
     struct rpsc_octant_quad *oct_mod = &octant_lo_table[octant];
     bool visible = true;
+
+    if (set->apply != NULL) lg_debug("-------------with apply start in octand %d----------", octant);
+    if (set->apply != NULL) set->apply(set, src, src);
 
     coord_t delta = cd_delta_abs(src, dst);
     int cell_dst = delta.x;
@@ -260,8 +264,12 @@ bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst) {
 
     struct angle_set as_dst = offset_to_angle_set(row_dst, cell_dst);
 
-    for (int row = 0; (row <= row_dst) && (visible == true); row++) {
+    lg_debug("los: (%d,%d) -> (%d,%d), length: %d", src->x,src->y,dst->x,dst->y, row_dst);
+
+    for (int row = 1; (row <= row_dst-1) && (visible == true); row++) {
         int cell = angle_set_to_cell(&as_dst, row, oct_mod->flip);
+        lg_debug("row %d, cell %d", row, cell);
+
         struct angle_set as = offset_to_angle_set(row, cell);
 
         coord_t point = cd_create(src->x + (cell * oct_mod->x), src->y + (row * oct_mod->y));
@@ -269,14 +277,21 @@ bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst) {
             point = cd_create(src->x + (row * oct_mod->x), src->y + (cell * oct_mod->y));
         }
 
+        if (cd_equal(&point, src) ) continue;
+
+        lg_debug("next point is (%d,%d)", point.x,point.y);
         if (set->apply != NULL) set->apply(set, &point, src);
 
         if (set->is_opaque(set, &point, src) == false) {
-            if (angle_is_blocked(set, &as_dst, &as) ) {
+            lg_debug("(%d,%d) is an obstacle", point.x,point.y);
+            //if (angle_is_blocked(set, &as_dst, &as) ) {
                 visible = false;
-            }
+            //}
         }
     }
+
+    if (set->apply != NULL) set->apply(set, dst, src);
+    if (set->apply != NULL) lg_debug("-------------with apply end----------");
 
     return visible;
 }
