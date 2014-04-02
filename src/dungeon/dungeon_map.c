@@ -38,6 +38,7 @@ struct dm_map *dm_alloc_map(int x_sz, int y_sz) {
     int sz = sizeof(struct dm_map) + ( (x_sz) * y_sz * sizeof(*(((struct dm_map*)0)->map)) ) ;
     struct dm_map *map = malloc(sz);
     if (map == NULL) return NULL;
+    memset(map, 0x0, sz);
 
     map->map_pre = MAP_PRE_CHECK;
     map->map_post = MAP_POST_CHECK;
