@@ -10,14 +10,14 @@ enum rpsc_octant {
     OCTANT_NNW,
     OCTANT_NWW,
 
-    OCTANT_SSW,
     OCTANT_SWW,
+    OCTANT_SSW,
 
-    OCTANT_SEE,
     OCTANT_SSE,
+    OCTANT_SEE,
 
-    OCTANT_NNE,
     OCTANT_NEE,
+    OCTANT_NNE,
 
     OCTANT_MAX,
 };
@@ -26,21 +26,23 @@ struct rpsc_octant_quad {
     int x;
     int y;
     bool flip;
+    const char *desc;
 };
 
 struct rpsc_octant_quad octant_lo_table[OCTANT_MAX] = {
-    [OCTANT_NNW] = { .x = -1, .y = -1, .flip = false, },
-    [OCTANT_NWW] = { .x = -1, .y = -1, .flip = true,  },
-    [OCTANT_SWW] = { .x = -1, .y =  1, .flip = false, },
-    [OCTANT_SSW] = { .x = -1, .y =  1, .flip = true,  },
-    [OCTANT_SSE] = { .x =  1, .y =  1, .flip = false, },
-    [OCTANT_SEE] = { .x =  1, .y =  1, .flip = true,  },
-    [OCTANT_NEE] = { .x =  1, .y = -1, .flip = false, },
-    [OCTANT_NNE] = { .x =  1, .y = -1, .flip = true,  },
+    [OCTANT_NNW] = { .x = -1, .y = -1, .flip = false, .desc = "north north west", },
+    [OCTANT_NWW] = { .x = -1, .y = -1, .flip = true,  .desc = "north west west",  },
+    [OCTANT_SWW] = { .x = -1, .y =  1, .flip = false, .desc = "south west west",  },
+    [OCTANT_SSW] = { .x = -1, .y =  1, .flip = true,  .desc = "south south west", },
+    [OCTANT_SSE] = { .x =  1, .y =  1, .flip = false, .desc = "south south east", },
+    [OCTANT_SEE] = { .x =  1, .y =  1, .flip = true,  .desc = "south east east",  },
+    [OCTANT_NNE] = { .x =  1, .y = -1, .flip = false,  .desc = "north north east", },
+    [OCTANT_NEE] = { .x =  1, .y = -1, .flip = true, .desc = "north east east",  },
 };
 
 typedef uint_fast32_t angle_t;
-#define FP_MAX UINT_FAST32_MAX
+//#define FP_MAX UINT_FAST32_MAX
+#define FP_MAX UINT16_MAX
 #define FP_HALF ( (FP_MAX>>1) & ~0xF)
 #define ANGLE_RANGE FP_HALF
 
@@ -69,14 +71,13 @@ enum rpsc_octant get_octant(coord_t *src, coord_t *dst) {
 static inline struct angle_set offset_to_angle_set(int row, int cell) {
     struct angle_set set;
     angle_t max_range = ANGLE_RANGE;
-    angle_t range = max_range / (row +1);
+    angle_t range = (max_range / (row +1) );
     set.near = range * cell;
     set.far  = set.near + range;
     set.center = set.near + (range / 2);
 
     assert(set.near < set.center);
     assert(set.center < set.far);
-    assert(set.near < set.far);
     return set;
 }
 
@@ -129,12 +130,13 @@ inline static bool extend_block(struct angle_set *blocked_set, struct angle_set 
 
     assert(blocked_set->near < blocked_set->center);
     assert(blocked_set->center < blocked_set->far);
-    assert(blocked_set->near < blocked_set->far);
     return true;
 }
 
 static int scrub_blocked_list(struct angle_set *list, int list_sz) {
     int max_not_scrubbed = -1;
+
+    lg_debug("scrub start, list sz is %d", list_sz);
 
     for (int i = list_sz -1; i >= 0; i--) {
         struct angle_set *a = &list[i];
@@ -148,12 +150,14 @@ static int scrub_blocked_list(struct angle_set *list, int list_sz) {
                 extend_block(&list[j], a);
                 list_sz--;
                 combined = true;
+                lg_debug("combining [%d] (%d,%d,%d) with [%d] (%d,%d,%d)", i, a->near, a->center, a->far, j, list[j].near, list[j].center, list[j].far);
             }
         }
 
-        if ( (combined == false) && (max_not_scrubbed < i) ) max_not_scrubbed = i;
+        if ( (combined == false) && (max_not_scrubbed < i) ) max_not_scrubbed = i+1;
     }
 
+    lg_debug("scrub end, list sz is %d", MAX(list_sz, max_not_scrubbed));
     return MAX(list_sz, max_not_scrubbed);
 }
 
@@ -162,29 +166,35 @@ static void rpsc_fov_octant(struct rpsc_fov_set *set, coord_t *src, int radius, 
     int obstacles_total = 0;
     struct rpsc_octant_quad *oct_mod = &octant_lo_table[octant];
 
+    lg_debug("-------------start in octand %s----------", oct_mod->desc);
+
     for (int row = 1; row <= radius; row++) {
         int obstacles_this_line = 0;
         int nr_blocked = 0;
         int row_max = row+1;
-        if (oct_mod->flip == true) row_max = row;
 
         for (int cell = 0; cell < row_max; cell++) {
-            int delta_cell_sqr = cell*cell;
             coord_t point = cd_create(src->x + (cell * oct_mod->x), src->y + (row * oct_mod->y));
             if (oct_mod->flip) {
                 point = cd_create(src->x + (row * oct_mod->x), src->y + (cell * oct_mod->y));
             }
+
+            lg_debug("row %d, cell %d, point (%d,%d)", row, cell, point.x,point.y);
 
             if (cd_within_bound(&point, &set->size) ) {
                 struct angle_set as = offset_to_angle_set(row, cell);
                 bool blocked = false;
 
                 for (int i = 0; (i < obstacles_total) && (blocked == false); i++) {
+                    lg_debug("test (%d,%d,%d) vs [%d] (%d,%d,%d)", as.near, as.center, as.far, i, blocked_list[i].near, blocked_list[i].center, blocked_list[i].far);
                     if (angle_is_blocked(set, &as, &blocked_list[i]) ) {
+
+                        lg_debug("blocked by [%d]", i);
                         if (set->not_visible_blocks_vision) {
                             if (set->is_opaque(set, &point, src) == false) {
                                 blocked_list[obstacles_total + obstacles_this_line] = as;
                                 obstacles_this_line++;
+                                lg_debug("becomes obstacle [%d]", obstacles_this_line + obstacles_total -1);
                             }
                         }
 
@@ -201,6 +211,7 @@ static void rpsc_fov_octant(struct rpsc_fov_set *set, coord_t *src, int radius, 
                     if (set->is_opaque(set, &point, src) == false) {
                         blocked_list[obstacles_total + obstacles_this_line] = as;
                         obstacles_this_line++;
+                        lg_debug("becomes obstacle [%d]", obstacles_this_line + obstacles_total -1);
                     }
                 }
             }
@@ -218,10 +229,12 @@ static void rpsc_fov_octant(struct rpsc_fov_set *set, coord_t *src, int radius, 
 void rpsc_fov(struct rpsc_fov_set *set, coord_t *src, int radius) {
     if (set->apply != NULL) set->apply(set, src, src);
 
-    //rpsc_fov_octant(set,src,radius, OCTANT_SWW);
+    rpsc_fov_octant(set,src,radius, 1);
+    /*
     for (int i = 0; i < OCTANT_MAX; i++) {
         rpsc_fov_octant(set,src,radius, i);
     }
+    */
 }
 
 bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst) {
@@ -229,7 +242,7 @@ bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst) {
     struct rpsc_octant_quad *oct_mod = &octant_lo_table[octant];
     bool visible = true;
 
-    if (set->apply != NULL) lg_debug("-------------with apply start in octand %d----------", octant);
+    if (set->apply != NULL) lg_debug("-------------with apply start in octand %s----------", oct_mod->desc);
     if (set->apply != NULL) set->apply(set, src, src);
 
     coord_t delta = cd_delta_abs(src, dst);

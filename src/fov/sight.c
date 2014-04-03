@@ -346,7 +346,7 @@ bool sgt_calculate_light_source(struct sgt_sight *sight, struct dm_map *map, str
         .apply = rpsc_apply_light_source,
     };
 
-    rpsc_fov(&set, &c, item->specific.tool.light_luminem);
+    //TODO rpsc_fov(&set, &c, item->specific.tool.light_luminem);
 
     return true;
 }
