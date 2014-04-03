@@ -134,13 +134,11 @@ inline static bool extend_block(struct angle_set *blocked_set, struct angle_set 
 }
 
 static int scrub_blocked_list(struct angle_set *list, int list_sz) {
-    bool scrubbed[list_sz];
     int max_not_scrubbed = -1;
 
     for (int i = list_sz -1; i >= 0; i--) {
         struct angle_set *a = &list[i];
         bool combined = false;
-        scrubbed[i] = false;
 
         for (int j = 0; (j < list_sz -1) && (combined == false); j++) {
             if (i == j) continue;
@@ -153,30 +151,10 @@ static int scrub_blocked_list(struct angle_set *list, int list_sz) {
             }
         }
 
-        if (combined == true) {
-            scrubbed[i] = true;
-        }
-        else if (max_not_scrubbed < i) max_not_scrubbed = i;
+        if ( (combined == false) && (max_not_scrubbed < i) ) max_not_scrubbed = i;
     }
 
-    /* out list may be discontinues, move non-scrubbed angle sets to the front */
-    if (max_not_scrubbed >= list_sz) {
-        for (int i = max_not_scrubbed; i >= 0; i--) {
-            if (scrubbed[i] == false) {
-                bool moved = false;
-
-                for (int j = 0; (j < list_sz) && (moved == false); j++) {
-                    if (scrubbed[j] == true) {
-                        list[j] = list[i];
-                        scrubbed[j] = false;
-                        moved = true;
-                    }
-                }
-            }
-        }
-    }
-
-    return list_sz;
+    return MAX(list_sz, max_not_scrubbed);
 }
 
 static void rpsc_fov_octant(struct rpsc_fov_set *set, coord_t *src, int radius, enum rpsc_octant octant) {
