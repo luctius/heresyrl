@@ -256,14 +256,16 @@ bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst) {
     for (int row = 1; (row <= row_dst) && (visible == true); row++) {
         int center_cell = angle_set_to_cell(&as_dst, row, oct_mod->flip);
 
+        int cell_select[3] = {0,-1,1};
+
         bool applied = false;
         obstacles_this_line = 0;
-        for (int c = -1; c <= 1; c++) {
-            int cell = center_cell +c;
-            lg_debug("row %d, cell %d, c: %d", row, cell, c);
+        for (int c = 0; c <= 2; c++) {
+            int cell = center_cell +cell_select[c];
+            lg_debug(">>> row %d, cell %d, c: %d", row, cell, cell_select[c]);
             if (cell < 0) continue;
             if (cell > row) continue;
-            if (c != 0 && row == row_dst) continue;
+            if (cell_select[c] != 0 && row == row_dst) continue;
 
             coord_t point = cd_create(src->x + (cell * oct_mod->x), src->y + (row * oct_mod->y));
             if (oct_mod->flip) {
@@ -294,16 +296,16 @@ bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst) {
                 if (set->is_opaque(set, &point, src) == false) {
                     blocked_list[obstacles_total + obstacles_this_line] = as;
                     obstacles_this_line++;
-                    lg_debug("(%d,%d) is an obstacle", point.x,point.y);
                     lg_debug("becomes obstacle [%d]", obstacles_this_line + obstacles_total -1);
+                    blocked = true;
                 }
                 else if (set->apply != NULL && applied == false) {
-                    if ( (row == row_dst-1) && (cd_neighbour(&point, dst) == false) ) continue;
                     set->apply(set, &point, src);
                     applied = true;
                 }
             }
-            else {
+
+            if (blocked == true) {
                 if (cd_equal(&point,dst) ) {
                     visible = false;
                 }
