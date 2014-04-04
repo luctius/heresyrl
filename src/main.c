@@ -85,7 +85,7 @@ int main(int argc, char *argv[]) {
     game_exit();
     ui_destroy();
 
-    clear();
+    //clear();
     refresh();          //  Print it on to the real screen
     endwin();           //  End curses mode
 

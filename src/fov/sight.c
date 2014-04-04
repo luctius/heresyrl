@@ -288,7 +288,7 @@ static bool rpsc_apply_projectile_path(struct rpsc_fov_set *set, coord_t *point,
     if (dm_verify_map(map) == false) return false;
     if (cd_within_bound(point, &map->size) == false) return false;
     if (pp->list_idx >= pp->list_sz) return false;
-    if ( (dm_get_map_tile(point,map)->attributes & TILE_ATTR_TRAVERSABLE) == 0) return false;
+    //if ( (dm_get_map_tile(point,map)->attributes & TILE_ATTR_TRAVERSABLE) == 0) return false;
 
     pp->list[pp->list_idx++] = *point;
     lg_debug("added point (%d,%d) to idx %d", point->x, point->y, pp->list_idx-1);
@@ -468,7 +468,7 @@ int sgt_los_path(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_
      this should be way to many but at this point we do not 
      now how many there are.
      */
-    *path_lst = calloc(cd_pyth(s,e) * 2, sizeof(coord_t) );
+    *path_lst = calloc(cd_pyth(s,e) * 4, sizeof(coord_t) );
     if (*path_lst == NULL) return -1;
 
 
@@ -479,7 +479,7 @@ int sgt_los_path(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_
      */
     struct sgt_projectile_path_struct ex = {
         .list = *path_lst,
-        .list_sz = cd_pyth(s,e) * 2,
+        .list_sz = cd_pyth(s,e) * 4,
         .list_idx = 0,
     };
 

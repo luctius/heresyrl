@@ -36,8 +36,8 @@ struct rpsc_octant_quad octant_lo_table[OCTANT_MAX] = {
     [OCTANT_SSW] = { .x = -1, .y =  1, .flip = true,  .desc = "south south west", },
     [OCTANT_SSE] = { .x =  1, .y =  1, .flip = false, .desc = "south south east", },
     [OCTANT_SEE] = { .x =  1, .y =  1, .flip = true,  .desc = "south east east",  },
-    [OCTANT_NNE] = { .x =  1, .y = -1, .flip = false,  .desc = "north north east", },
-    [OCTANT_NEE] = { .x =  1, .y = -1, .flip = true, .desc = "north east east",  },
+    [OCTANT_NNE] = { .x =  1, .y = -1, .flip = false, .desc = "north north east", },
+    [OCTANT_NEE] = { .x =  1, .y = -1, .flip = true,  .desc = "north east east",  },
 };
 
 typedef uint_fast32_t angle_t;
@@ -76,6 +76,7 @@ static inline struct angle_set offset_to_angle_set(int row, int cell) {
     set.far  = set.near + range;
     set.center = set.near + (range / 2);
 
+    lg_debug("as[%d,%d], (%d,%d,%d)", row,cell, set.near,set.center,set.far);
     assert(set.near < set.center);
     assert(set.center < set.far);
     return set;
@@ -83,9 +84,7 @@ static inline struct angle_set offset_to_angle_set(int row, int cell) {
 
 static inline int angle_set_to_cell(struct angle_set *set, int row_new, bool flip) {
     angle_t new_range = ANGLE_RANGE / (row_new +1);
-    int cell = set->center / new_range;
-    //if ( (set->center - cell) > (new_range / 2) ) cell += 1;
-    return cell;
+    return set->center / new_range;
 }
 
 inline static bool angle_is_blocked(struct rpsc_fov_set *set, struct angle_set *test_set, struct angle_set *blocked_set) {
@@ -170,7 +169,6 @@ static void rpsc_fov_octant(struct rpsc_fov_set *set, coord_t *src, int radius, 
 
     for (int row = 1; row <= radius; row++) {
         int obstacles_this_line = 0;
-        int nr_blocked = 0;
         int row_max = row+1;
 
         for (int cell = 0; cell < row_max; cell++) {
@@ -199,7 +197,6 @@ static void rpsc_fov_octant(struct rpsc_fov_set *set, coord_t *src, int radius, 
                         }
 
                         blocked = true;
-                        nr_blocked++;
                     }
                 }
 
@@ -215,7 +212,6 @@ static void rpsc_fov_octant(struct rpsc_fov_set *set, coord_t *src, int radius, 
                     }
                 }
             }
-            else nr_blocked++;
         }
     
         obstacles_total = scrub_blocked_list(blocked_list, obstacles_total + obstacles_this_line);
@@ -229,18 +225,19 @@ static void rpsc_fov_octant(struct rpsc_fov_set *set, coord_t *src, int radius, 
 void rpsc_fov(struct rpsc_fov_set *set, coord_t *src, int radius) {
     if (set->apply != NULL) set->apply(set, src, src);
 
-    rpsc_fov_octant(set,src,radius, 1);
-    /*
     for (int i = 0; i < OCTANT_MAX; i++) {
         rpsc_fov_octant(set,src,radius, i);
     }
-    */
 }
 
 bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst) {
     enum rpsc_octant octant = get_octant(src, dst);
     struct rpsc_octant_quad *oct_mod = &octant_lo_table[octant];
     bool visible = true;
+
+    struct angle_set blocked_list[cd_pyth(src,dst) *2];
+    int obstacles_total = 0;
+    int obstacles_this_line = 0;
 
     if (set->apply != NULL) lg_debug("-------------with apply start in octand %s----------", oct_mod->desc);
     if (set->apply != NULL) set->apply(set, src, src);
@@ -254,36 +251,72 @@ bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst) {
     }
 
     struct angle_set as_dst = offset_to_angle_set(row_dst, cell_dst);
-
     lg_debug("los: (%d,%d) -> (%d,%d), length: %d", src->x,src->y,dst->x,dst->y, row_dst);
 
-    for (int row = 1; (row <= row_dst-1) && (visible == true); row++) {
-        int cell = angle_set_to_cell(&as_dst, row, oct_mod->flip);
-        lg_debug("row %d, cell %d", row, cell);
+    for (int row = 1; (row <= row_dst) && (visible == true); row++) {
+        int center_cell = angle_set_to_cell(&as_dst, row, oct_mod->flip);
 
-        struct angle_set as = offset_to_angle_set(row, cell);
+        bool applied = false;
+        obstacles_this_line = 0;
+        for (int c = -1; c <= 1; c++) {
+            int cell = center_cell +c;
+            lg_debug("row %d, cell %d, c: %d", row, cell, c);
+            if (cell < 0) continue;
+            if (cell > row) continue;
+            if (c != 0 && row == row_dst) continue;
 
-        coord_t point = cd_create(src->x + (cell * oct_mod->x), src->y + (row * oct_mod->y));
-        if (oct_mod->flip) {
-            point = cd_create(src->x + (row * oct_mod->x), src->y + (cell * oct_mod->y));
+            coord_t point = cd_create(src->x + (cell * oct_mod->x), src->y + (row * oct_mod->y));
+            if (oct_mod->flip) {
+                point = cd_create(src->x + (row * oct_mod->x), src->y + (cell * oct_mod->y));
+            }
+            lg_debug("next point is (%d,%d)", point.x,point.y);
+
+            struct angle_set as = offset_to_angle_set(row, cell);
+            bool blocked = false;
+            for (int i = 0; i < obstacles_total; i++) {
+                lg_debug("test (%d,%d,%d) vs [%d] (%d,%d,%d)", as.near, as.center, as.far, i, blocked_list[i].near, blocked_list[i].center, blocked_list[i].far);
+                if (angle_is_blocked(set, &as, &blocked_list[i]) ) {
+
+                    lg_debug("blocked by [%d]", i);
+                    if (set->not_visible_blocks_vision) {
+                        if (set->is_opaque(set, &point, src) == false) {
+                            blocked_list[obstacles_total + obstacles_this_line] = as;
+                            obstacles_this_line++;
+                            lg_debug("becomes obstacle [%d]", obstacles_this_line + obstacles_total -1);
+                        }
+                    }
+
+                    blocked = true;
+                }
+            }
+
+            if (blocked == false) {
+                if (set->is_opaque(set, &point, src) == false) {
+                    blocked_list[obstacles_total + obstacles_this_line] = as;
+                    obstacles_this_line++;
+                    lg_debug("(%d,%d) is an obstacle", point.x,point.y);
+                    lg_debug("becomes obstacle [%d]", obstacles_this_line + obstacles_total -1);
+                }
+                else if (set->apply != NULL && applied == false) {
+                    if ( (row == row_dst-1) && (cd_neighbour(&point, dst) == false) ) continue;
+                    set->apply(set, &point, src);
+                    applied = true;
+                }
+            }
+            else {
+                if (cd_equal(&point,dst) ) {
+                    visible = false;
+                }
+            }
         }
 
-        if (cd_equal(&point, src) ) continue;
-
-        lg_debug("next point is (%d,%d)", point.x,point.y);
-        if (set->apply != NULL) set->apply(set, &point, src);
-
-        if (set->is_opaque(set, &point, src) == false) {
-            lg_debug("(%d,%d) is an obstacle", point.x,point.y);
-            //if (angle_is_blocked(set, &as_dst, &as) ) {
-                visible = false;
-            //}
+        obstacles_total = scrub_blocked_list(blocked_list, obstacles_total + obstacles_this_line);
+        if ( (obstacles_total == 1) && (blocked_list[0].near <= as_dst.near) && (blocked_list[0].far >= as_dst.far) ) {
+            visible = false;
         }
     }
 
-    if (set->apply != NULL) set->apply(set, dst, src);
-    if (set->apply != NULL) lg_debug("-------------with apply end----------");
-
+   if (set->apply != NULL) lg_debug("-------------with apply end, visibility is %s----------", (visible) ? "true": "false");
     return visible;
 }
 

@@ -59,6 +59,11 @@ inline coord_t cd_delta_abs(coord_t *a, coord_t *b) {
     return c;
 }
 
+inline int cd_delta_abs_total(coord_t *a, coord_t *b) {
+    coord_t c = cd_delta_abs(a,b);
+    return c.x + c.y;
+}
+
 inline bool cd_neighbour(coord_t *a, coord_t *b) {
     coord_t c = cd_delta_abs(a,b);
     if (c.x > 1) return false;
