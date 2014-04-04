@@ -25,6 +25,7 @@ struct rpsc_fov_set {
 };
 
 void rpsc_fov(struct rpsc_fov_set *set, coord_t *src, int radius);
+void rpsc_cone(struct rpsc_fov_set *set, coord_t *src, coord_t *dst, int angle, int radius);
 bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst);
 
 #endif /* RPSC_FOV_H */

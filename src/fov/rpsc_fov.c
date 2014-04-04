@@ -82,7 +82,7 @@ static inline struct angle_set offset_to_angle_set(int row, int cell) {
     return set;
 }
 
-static inline int angle_set_to_cell(struct angle_set *set, int row_new, bool flip) {
+static inline int angle_set_to_cell(struct angle_set *set, int row_new) {
     angle_t new_range = ANGLE_RANGE / (row_new +1);
     return set->center / new_range;
 }
@@ -160,12 +160,21 @@ static int scrub_blocked_list(struct angle_set *list, int list_sz) {
     return MAX(list_sz, max_not_scrubbed);
 }
 
-static void rpsc_fov_octant(struct rpsc_fov_set *set, coord_t *src, int radius, enum rpsc_octant octant) {
+static void rpsc_fov_octant(struct rpsc_fov_set *set, coord_t *src, int radius, enum rpsc_octant octant, angle_t min_angle, angle_t max_angle) {
     struct angle_set blocked_list[radius *2];
     int obstacles_total = 0;
     struct rpsc_octant_quad *oct_mod = &octant_lo_table[octant];
 
     lg_debug("-------------start in octand %s----------", oct_mod->desc);
+
+    if (min_angle > 0) {
+        struct angle_set a = { .near = 0, .center = min_angle /2, .far = min_angle, };
+        blocked_list[obstacles_total++] = a;
+    }
+    if (max_angle < ANGLE_RANGE) {
+        struct angle_set a = { .near = max_angle, .center = max_angle + (ANGLE_RANGE - max_angle) /2, .far = ANGLE_RANGE, };
+        blocked_list[obstacles_total++] = a;
+    }
 
     for (int row = 1; row <= radius; row++) {
         int obstacles_this_line = 0;
@@ -233,10 +242,24 @@ void rpsc_fov(struct rpsc_fov_set *set, coord_t *src, int radius) {
     if (set->apply != NULL) set->apply(set, src, src);
 
     lg_debug("fov start src: (%d,%d)", src->x,src->y);
-    //rpsc_fov_octant(set,src,radius, OCTANT_SSW);
     for (int i = 0; i < OCTANT_MAX; i++) {
-        rpsc_fov_octant(set,src,radius, i);
+        rpsc_fov_octant(set,src,radius, i, 0, ANGLE_RANGE);
     }
+}
+
+void rpsc_cone(struct rpsc_fov_set *set, coord_t *src, coord_t *dst, int angle, int radius) {
+    enum rpsc_octant octant = get_octant(src, dst);
+    struct rpsc_octant_quad *oct_mod = &octant_lo_table[octant];
+    int nr_octants = angle / 45;
+
+    coord_t delta = cd_delta_abs(src, dst);
+    int cell_dst = delta.x;
+    int row_dst = delta.y;
+    if (oct_mod->flip) {
+        cell_dst = delta.y;
+        row_dst = delta.x;
+    }
+    struct angle_set as_dst = offset_to_angle_set(row_dst, cell_dst);
 }
 
 bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst) {
@@ -263,7 +286,7 @@ bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst) {
     lg_debug("los: (%d,%d) -> (%d,%d), length: %d", src->x,src->y,dst->x,dst->y, row_dst);
 
     for (int row = 1; (row <= row_dst) && (visible == true); row++) {
-        int center_cell = angle_set_to_cell(&as_dst, row, oct_mod->flip);
+        int center_cell = angle_set_to_cell(&as_dst, row);
 
         int cell_select[3] = {0,-1,1};
 
