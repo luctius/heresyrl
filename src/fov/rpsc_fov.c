@@ -32,8 +32,8 @@ struct rpsc_octant_quad {
 struct rpsc_octant_quad octant_lo_table[OCTANT_MAX] = {
     [OCTANT_NNW] = { .x = -1, .y = -1, .flip = false, .desc = "north north west", },
     [OCTANT_NWW] = { .x = -1, .y = -1, .flip = true,  .desc = "north west west",  },
-    [OCTANT_SWW] = { .x = -1, .y =  1, .flip = false, .desc = "south west west",  },
-    [OCTANT_SSW] = { .x = -1, .y =  1, .flip = true,  .desc = "south south west", },
+    [OCTANT_SWW] = { .x = -1, .y =  1, .flip = true,  .desc = "south west west",  },
+    [OCTANT_SSW] = { .x = -1, .y =  1, .flip = false, .desc = "south south west", },
     [OCTANT_SSE] = { .x =  1, .y =  1, .flip = false, .desc = "south south east", },
     [OCTANT_SEE] = { .x =  1, .y =  1, .flip = true,  .desc = "south east east",  },
     [OCTANT_NNE] = { .x =  1, .y = -1, .flip = false, .desc = "north north east", },
@@ -171,6 +171,9 @@ static void rpsc_fov_octant(struct rpsc_fov_set *set, coord_t *src, int radius, 
         int obstacles_this_line = 0;
         int row_max = row+1;
 
+        angle_t angle_min = 0;
+        angle_t angle_max = ANGLE_RANGE;
+
         for (int cell = 0; cell < row_max; cell++) {
             coord_t point = cd_create(src->x + (cell * oct_mod->x), src->y + (row * oct_mod->y));
             if (oct_mod->flip) {
@@ -183,18 +186,20 @@ static void rpsc_fov_octant(struct rpsc_fov_set *set, coord_t *src, int radius, 
                 struct angle_set as = offset_to_angle_set(row, cell);
                 bool blocked = false;
 
+                if (cell == 0) angle_min = as.near;
+                if (cell == row) angle_max = as.far;
+
                 for (int i = 0; (i < obstacles_total) && (blocked == false); i++) {
                     lg_debug("test (%d,%d,%d) vs [%d] (%d,%d,%d)", as.near, as.center, as.far, i, blocked_list[i].near, blocked_list[i].center, blocked_list[i].far);
                     if (angle_is_blocked(set, &as, &blocked_list[i]) ) {
 
                         lg_debug("blocked by [%d]", i);
                         if (set->not_visible_blocks_vision) {
-                            if (set->is_opaque(set, &point, src) == false) {
-                                blocked_list[obstacles_total + obstacles_this_line] = as;
-                                obstacles_this_line++;
-                                lg_debug("becomes obstacle [%d]", obstacles_this_line + obstacles_total -1);
-                            }
+                            blocked_list[obstacles_total + obstacles_this_line] = as;
+                            obstacles_this_line++;
+                            lg_debug("becomes obstacle [%d]", obstacles_this_line + obstacles_total -1);
                         }
+                        else lg_debug("but does not block vision");
 
                         blocked = true;
                     }
@@ -208,14 +213,16 @@ static void rpsc_fov_octant(struct rpsc_fov_set *set, coord_t *src, int radius, 
                     if (set->is_opaque(set, &point, src) == false) {
                         blocked_list[obstacles_total + obstacles_this_line] = as;
                         obstacles_this_line++;
-                        lg_debug("becomes obstacle [%d]", obstacles_this_line + obstacles_total -1);
+                        lg_debug("visible obstacle [%d]", obstacles_this_line + obstacles_total -1);
                     }
+                    else lg_debug("visible floor");
                 }
             }
         }
     
         obstacles_total = scrub_blocked_list(blocked_list, obstacles_total + obstacles_this_line);
-        if ( (obstacles_total == 1) && (blocked_list[0].near == 0) && (blocked_list[0].far == ANGLE_RANGE) ) {
+        if ( (obstacles_total == 1) && (blocked_list[0].near <= angle_min) && (blocked_list[0].far >= angle_max) ) {
+            lg_debug("done: %d,%d", blocked_list[0].near, blocked_list[0].far);
             return;
         }
     }
@@ -225,6 +232,8 @@ static void rpsc_fov_octant(struct rpsc_fov_set *set, coord_t *src, int radius, 
 void rpsc_fov(struct rpsc_fov_set *set, coord_t *src, int radius) {
     if (set->apply != NULL) set->apply(set, src, src);
 
+    lg_debug("fov start src: (%d,%d)", src->x,src->y);
+    //rpsc_fov_octant(set,src,radius, OCTANT_SSW);
     for (int i = 0; i < OCTANT_MAX; i++) {
         rpsc_fov_octant(set,src,radius, i);
     }
@@ -281,12 +290,11 @@ bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst) {
 
                     lg_debug("blocked by [%d]", i);
                     if (set->not_visible_blocks_vision) {
-                        if (set->is_opaque(set, &point, src) == false) {
-                            blocked_list[obstacles_total + obstacles_this_line] = as;
-                            obstacles_this_line++;
-                            lg_debug("becomes obstacle [%d]", obstacles_this_line + obstacles_total -1);
-                        }
+                        blocked_list[obstacles_total + obstacles_this_line] = as;
+                        obstacles_this_line++;
+                        lg_debug("becomes obstacle [%d]", obstacles_this_line + obstacles_total -1);
                     }
+                    else lg_debug("but does not block vision");
 
                     blocked = true;
                 }

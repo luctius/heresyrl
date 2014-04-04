@@ -437,8 +437,6 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dm_map *map, coord_t *
 
         lg_debug("entering fire_mode (%d,%d) -> (%d,%d)", p_pos->x, p_pos->y, e_pos.x, e_pos.y);
 
-        mvwaddch(map_win->win, p_pos->y - scr_y, p_pos->x - scr_x, '*' | get_colour(TERM_COLOUR_BLUE) );
-
         path_len = sgt_los_path(gbl_game->sight, gbl_game->current_map, p_pos, &e_pos, &path, false);
         for (int i = 1; i < path_len; i++) {
             lg_debug("point[%d] in projectile path: (%d,%d)", i, path[i].x, path[i].y);

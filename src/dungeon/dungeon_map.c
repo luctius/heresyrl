@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <assert.h>
+#include <string.h>
 #include <ncurses.h>
 
 #include "heresyrl_def.h"
