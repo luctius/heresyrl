@@ -355,6 +355,44 @@ void mapwin_overlay_examine_cursor(struct dm_map *map, coord_t *p_pos) {
     wrefresh(map_win->win);
 }
 
+void targetwin_examine(struct hrl_window *window, struct dm_map *map, struct msr_monster *player, coord_t *pos) {
+    if (window == NULL) return;
+    if (msr_verify_monster(player) == false) return;
+    if (window->type != HRL_WINDOW_TYPE_CHARACTER) return;
+    struct dm_map_entity *me = dm_get_map_me(pos, map);
+    if (me->in_sight == false) {
+        charwin_refresh();
+        return;
+    }
+
+
+    WINDOW *targetwin_ex = derwin(window->win, 0,0,0,0);
+    touchwin(window->win);
+    wclear(targetwin_ex);
+
+    if (me->monster != NULL) {
+        mvwprintw(targetwin_ex, 0, 1, "Target: %s.", msr_ldname(me->monster) );
+    }
+    else mvwprintw(targetwin_ex, 0, 1, "No Target.");
+
+    int tohit = fght_ranged_calc_tohit(player, pos, FGHT_MAIN_HAND);
+    mvwprintw(targetwin_ex, 2, 1, "Total change of hitting: %d.", tohit);
+    mvwprintw(targetwin_ex, 3, 1, "Ballistic Skill: %d", msr_calculate_characteristic(player, MSR_CHAR_BALISTIC_SKILL) );
+
+    int y = 4;
+    int idx = 0;
+    struct tohit_desc *thd = NULL;
+    char text[100];
+    while ( (thd = fght_get_tohit_mod_description(idx++) ) != NULL) {
+        int len = snprintf(text, 99, "%c %s (%d).", (thd->modifier > 0) ? '+' : '-', thd->description, thd->modifier);
+        mvwaddstr(targetwin_ex, y + idx, 1, text);
+        if (len >= window->cols) y++;
+    }
+
+    wrefresh(targetwin_ex);
+    delwin(targetwin_ex);
+}
+
 bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dm_map *map, coord_t *p_pos) {
     int ch = '0';
     bool fire_mode = true;
@@ -446,6 +484,8 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dm_map *map, coord_t *
 
         mvwaddch(map_win->win, e_pos.y - scr_y, e_pos.x - scr_x, '*' | get_colour(TERM_COLOUR_RED) );
         wrefresh(map_win->win);
+
+        targetwin_examine(char_win, gbl_game->current_map, plr->player, &e_pos);
     }
     while((ch = inp_get_input()) != INP_KEY_ESCAPE && fire_mode);
 

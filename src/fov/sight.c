@@ -325,7 +325,7 @@ int sgt_los_path(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_
         .not_visible_blocks_vision = true,
         .map = map,
         .size = map->size,
-        .is_opaque = rpsc_check_opaque_los,
+        .is_opaque = rpsc_check_opaque_lof,
         .apply = rpsc_apply_projectile_path,
     };
 
