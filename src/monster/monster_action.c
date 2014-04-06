@@ -211,6 +211,7 @@ bool ma_do_throw(struct msr_monster *monster, coord_t *pos, struct itm_item *ite
     if (wpn_is_type(item, WEAPON_TYPE_THROWN) == false)  return false; /*only allow thrown weapons for now*/
     if (pos == NULL) return false;
     struct itm_item *item_bkp = NULL;
+    enum msr_weapon_selection wsel = monster->wpn_sel;
     enum fght_hand hand = FGHT_MAIN_HAND;
     int cost = MSR_ACTION_THROW;
     bool change = false;
@@ -233,11 +234,17 @@ bool ma_do_throw(struct msr_monster *monster, coord_t *pos, struct itm_item *ite
             /* save item locations */
             locs = inv_get_item_locations(monster->inventory, item_bkp);
 
+            /* save weapon selection */
+            wsel = monster->wpn_sel;
+
             /* move current weapon to inventory */
             inv_move_item_to_location(monster->inventory, item_bkp, INV_LOC_INVENTORY);
 
             /* move thrown weapon to main hand*/
             inv_move_item_to_location(monster->inventory, item, INV_LOC_MAINHAND_WIELD);
+
+            /* set new weapon selection */
+            monster->wpn_sel = MSR_WEAPON_SELECT_MAIN_HAND;
         }
     }
 
@@ -246,13 +253,24 @@ bool ma_do_throw(struct msr_monster *monster, coord_t *pos, struct itm_item *ite
 
     if (change) {
         /* check if the item still exists (mainly if there is anythin left in the stack. )*/
-        if (inv_has_item(monster->inventory, item) == true) {
-            /* return weapon back to inventory */
-            inv_move_item_to_location(monster->inventory, item, INV_LOC_INVENTORY);
+        if (hand == FGHT_MAIN_HAND) {
+            if (inv_loc_empty(monster->inventory, INV_LOC_MAINHAND_WIELD) != true) {
+                /* return weapon back to inventory */
+                inv_move_item_to_location(monster->inventory, item, INV_LOC_INVENTORY);
+            }
+        }
+        else if (hand == FGHT_OFF_HAND) {
+            if (inv_loc_empty(monster->inventory, INV_LOC_OFFHAND_WIELD) != true) {
+                /* return weapon back to inventory */
+                inv_move_item_to_location(monster->inventory, item, INV_LOC_INVENTORY);
+            }
         }
 
         /* move the backup weapon back to its location*/
         inv_move_item_to_location(monster->inventory, item_bkp, locs);
+
+        /* restore weapon selection*/
+        monster->wpn_sel = wsel;
     }
 
     /* if the action failed, return failure */

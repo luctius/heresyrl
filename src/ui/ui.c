@@ -503,8 +503,7 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dm_map *map, coord_t *
 struct itm_item *find_throw_weapon(struct msr_monster *player, int idx) {
     struct itm_item *item = NULL;
     while ( (item = inv_get_next_item(player->inventory, item) ) != NULL) {
-        if ( (wpn_is_catergory(item, WEAPON_CATEGORY_THROWN_WEAPON) ) || 
-             (wpn_is_catergory(item, WEAPON_CATEGORY_THROWN_GRENADE) ) ) {
+        if (wpn_is_type(item, WEAPON_TYPE_THROWN) ) {
             if (idx == 0) {
                 break;
             }

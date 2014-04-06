@@ -372,12 +372,13 @@ int fght_melee_roll(struct random *r, struct msr_monster *monster, struct msr_mo
 
 int fght_thrown_roll(struct random *r, struct msr_monster *monster, coord_t *pos, struct itm_item *witem, enum fght_hand hand) {
     if (msr_verify_monster(monster) == false) return -1;
+    if (itm_verify_item(witem) == false) return -1;
 
     msg_plr("You throw an %s", witem->sd_name);
     msg_msr("%s throws an %s", msr_ldname(monster), witem->sd_name);
 
     struct msr_monster *target = dm_get_map_me(pos, gbl_game->current_map)->monster;
-    if (monster != NULL) {
+    if (target != NULL) {
         if (msr_verify_monster(target) == true) {
             msg_plr(" at %s", msr_ldname(target) );
             msg_msr(" at %s", msr_ldname(target) );
@@ -444,7 +445,8 @@ bool fght_throw_weapon(struct random *r, struct msr_monster *monster, struct dm_
     coord_t end = *e;
 
     if (msr_weapon_type_check(monster, WEAPON_TYPE_THROWN) == true) {
-        struct itm_item *witem = fght_get_working_weapon(monster, WEAPON_TYPE_RANGED, hand);
+        struct itm_item *witem = fght_get_working_weapon(monster, WEAPON_TYPE_THROWN, hand);
+        if (witem == NULL) return false;
 
         /* Generate a path our projectile will take. Start at 
            the shooter position, and continue the same path 
@@ -500,7 +502,7 @@ bool fght_throw_weapon(struct random *r, struct msr_monster *monster, struct dm_
             }
 
             /* if the item is an grenade */
-            if (wpn_is_catergory(witem, WEAPON_CATEGORY_THROWN_GRENADE) ) {
+            if (wpn_is_catergory(witem_copy, WEAPON_CATEGORY_THROWN_GRENADE) ) {
 
                 /* set the fuse. the item processing loop will then handle 
                    the explosion.  This does mean that the throwing code has
