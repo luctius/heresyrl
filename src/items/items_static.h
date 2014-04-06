@@ -42,6 +42,9 @@ enum item_ids {
     ITEM_ID_LAS_GUN,
 
     /* Thrown */
+    ITEM_ID_THROWING_KNIFE,
+
+    /* Grenages */
     ITEM_ID_FRAG_GRENADE,
 
     /* Ammo */

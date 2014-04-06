@@ -9,9 +9,9 @@
 #include "item_descriptions.h"
 
 #define ITEM(item_id,_sd_name,_ld_name,item_desc,_availability,item_quality,item_weight,item_cost,delay) \
-    [item_id]={.uid=0, .template_id=item_id, .availability=_availability, .quality=item_quality, \
-    .age=0, .weight=item_weight, .cost=item_cost, .sd_name=_sd_name, .ld_name=_ld_name, \
-    .description=item_desc, .icon_attr=TERM_COLOUR_SLATE, .use_delay=delay, .dropable=true
+            [item_id]={.uid=0, .template_id=item_id, .availability=_availability, .quality=item_quality, \
+            .age=0, .weight=item_weight, .cost=item_cost, .sd_name=_sd_name, .ld_name=_ld_name, \
+            .description=item_desc, .icon_attr=TERM_COLOUR_SLATE, .use_delay=delay, .dropable=true
 #define ITEM_END }
 
 #define LIGHT(_tool_type,_energy,_light_luminem) \
@@ -116,10 +116,16 @@ struct itm_item static_item_list[] = {
 
     /* Melee */
 
-    /* Thrown */
-    ITEM(ITEM_ID_FRAG_GRENADE,  "frag grenade","a frag grenade","",           0,                         0,                     5,    10,   1),
+
+    /* Grenades */
+    ITEM(ITEM_ID_FRAG_GRENADE,  "frag grenade","a frag grenade","",           ITEM_AVAILABILITY_AVERAGE,   ITEM_QUALITY_AVERAGE,   5,    10,   1),
         /*                 CATEGORY           xd10  +X  pen, range   dmg type                upgrades               special qualities             talent */
         THROWN(WEAPON_CATEGORY_THROWN_GRENADE,  2,   0,  0,   3,  WEAPON_DMG_TYPE_EXPLOSIVE, WEAPON_UPGRADE_NONE, WEAPON_SPEC_QUALITY_BLAST_1, T0_CREATURE_WEAPON_TALENT), ITEM_END,
+
+    /* Thrown */
+    ITEM(ITEM_ID_THROWING_KNIFE,  "throwing knife","a throwing knife","",     ITEM_AVAILABILITY_PLENTIFUL,   ITEM_QUALITY_AVERAGE, 5,    5,   1),
+        /*                 CATEGORY           xd10  +X  pen, range   dmg type                upgrades               special qualities             talent */
+        THROWN(WEAPON_CATEGORY_THROWN_WEAPON,   0,   0,  0,   5,  WEAPON_DMG_TYPE_RENDING, WEAPON_UPGRADE_NONE, WEAPON_SPEC_QUALITY_PRIMITIVE, T0_THROWN_WEAPON_TRAINING_PRIMITIVE), ITEM_END,
 
     /* Pistols */
     /*    ID                            short name         long name          description           availability            quality   weight,cost,delay*/

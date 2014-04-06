@@ -355,16 +355,17 @@ void mapwin_overlay_examine_cursor(struct dm_map *map, coord_t *p_pos) {
     wrefresh(map_win->win);
 }
 
-void targetwin_examine(struct hrl_window *window, struct dm_map *map, struct msr_monster *player, coord_t *pos) {
+void targetwin_examine(struct hrl_window *window, struct dm_map *map, struct msr_monster *player, coord_t *pos, struct itm_item *witem) {
     if (window == NULL) return;
+    if (witem == NULL) return;
     if (msr_verify_monster(player) == false) return;
+    if (itm_verify_item(witem) == false) return;
     if (window->type != HRL_WINDOW_TYPE_CHARACTER) return;
     struct dm_map_entity *me = dm_get_map_me(pos, map);
     if (me->in_sight == false) {
         charwin_refresh();
         return;
     }
-
 
     WINDOW *targetwin_ex = derwin(window->win, 0,0,0,0);
     touchwin(window->win);
@@ -387,6 +388,11 @@ void targetwin_examine(struct hrl_window *window, struct dm_map *map, struct msr
         int len = snprintf(text, 99, "%c %s (%d).", (thd->modifier > 0) ? '+' : '-', thd->description, thd->modifier);
         mvwaddstr(targetwin_ex, y + idx, 1, text);
         if (len >= window->cols) y++;
+    }
+
+    mvwprintw(targetwin_ex, window->lines -2, 1, "Calculated: %s.", witem->sd_name);
+    if (wpn_is_catergory(witem, WEAPON_CATEGORY_THROWN_GRENADE) ) {
+        mvwprintw(targetwin_ex, window->lines -1, 1, "Timer: %d.%d.", witem->energy / TT_ENERGY_TURN, witem->energy % TT_ENERGY_TURN);
     }
 
     wrefresh(targetwin_ex);
@@ -485,11 +491,27 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dm_map *map, coord_t *
         mvwaddch(map_win->win, e_pos.y - scr_y, e_pos.x - scr_x, '*' | get_colour(TERM_COLOUR_RED) );
         wrefresh(map_win->win);
 
-        targetwin_examine(char_win, gbl_game->current_map, plr->player, &e_pos);
+        struct itm_item *witem = fght_get_working_weapon(plr->player, WEAPON_TYPE_RANGED, FGHT_MAIN_HAND);
+        if (witem == NULL) witem = fght_get_working_weapon(plr->player, WEAPON_TYPE_RANGED, FGHT_OFF_HAND);
+        targetwin_examine(char_win, gbl_game->current_map, plr->player, &e_pos, witem);
     }
     while((ch = inp_get_input()) != INP_KEY_ESCAPE && fire_mode);
 
     return false;
+}
+
+struct itm_item *find_throw_weapon(struct msr_monster *player, int idx) {
+    struct itm_item *item = NULL;
+    while ( (item = inv_get_next_item(player->inventory, item) ) != NULL) {
+        if ( (wpn_is_catergory(item, WEAPON_CATEGORY_THROWN_WEAPON) ) || 
+             (wpn_is_catergory(item, WEAPON_CATEGORY_THROWN_GRENADE) ) ) {
+            if (idx == 0) {
+                break;
+            }
+            idx--;
+        }
+    }
+    return item;
 }
 
 bool mapwin_overlay_throw_cursor(struct gm_game *g, struct dm_map *map, coord_t *p_pos) {
@@ -503,6 +525,10 @@ bool mapwin_overlay_throw_cursor(struct gm_game *g, struct dm_map *map, coord_t 
 
     struct pl_player *plr = &g->player_data;
     if (plr == NULL) return false;
+    if (find_throw_weapon(plr->player, 0) == NULL) {
+        You(plr->player, "do not have a throwing weapon.");
+        return false;
+    }
     coord_t e_pos = *p_pos;
 
     /*find nearest enemy....*/
@@ -519,6 +545,9 @@ bool mapwin_overlay_throw_cursor(struct gm_game *g, struct dm_map *map, coord_t 
     int length = 0;
     coord_t *path;
     int path_len = 0;
+
+    int weapon_idx = 0;
+    struct itm_item *item = find_throw_weapon(plr->player, weapon_idx);
 
     do {
         mapwin_display_map_noref(map, &plr->player->pos);
@@ -548,16 +577,35 @@ bool mapwin_overlay_throw_cursor(struct gm_game *g, struct dm_map *map, coord_t 
                 }
             } 
             break;
+            case INP_KEY_WEAPON_SETTING: 
+                if (weapon_idx > 0) {
+                    weapon_idx -= 0;
+                    item = find_throw_weapon(plr->player, weapon_idx);
+                    item->energy = TT_ENERGY_TURN;
+                }
+                break;
+            case INP_KEY_WEAPON_SELECT: 
+                if (find_throw_weapon(plr->player, weapon_idx+1) != NULL) {
+                    weapon_idx += 1;
+                    item = find_throw_weapon(plr->player, weapon_idx);
+                    item->energy = TT_ENERGY_TURN;
+                }
+                break;
+            case INP_KEY_MINUS:
+                    item->energy -= TT_ENERGY_TURN;
+                    if (item->energy <= 0) item->energy = TT_ENERGY_TICK;
+                break;
+            case INP_KEY_PLUS:
+                    item->energy += TT_ENERGY_TURN;
+                    if (item->energy >= (TT_ENERGY_TURN * 10) ) item->energy = TT_ENERGY_TURN * 10;
+                break;
             case INP_KEY_YES:
             case INP_KEY_THROW: {
-                System_msg("Not yet implemented");
-                /*
-                if (ma_do_throw(plr->player, &e_pos, NULL) == true) { //TODO select item to throw
+                if (ma_do_throw(plr->player, &e_pos, item) == true) {
                     mapwin_display_map(map, p_pos);
                     return true;
                 }
                 else Your(plr->player, "unable to throw that.");
-                */
                 fire_mode=false;
             }
             break;
@@ -578,6 +626,8 @@ bool mapwin_overlay_throw_cursor(struct gm_game *g, struct dm_map *map, coord_t 
 
         mvwaddch(map_win->win, e_pos.y - scr_y, e_pos.x - scr_x, '*' | get_colour(TERM_COLOUR_RED) );
         wrefresh(map_win->win);
+
+        targetwin_examine(char_win, gbl_game->current_map, plr->player, &e_pos, item);
     }
     while((ch = inp_get_input()) != INP_KEY_ESCAPE && fire_mode);
 

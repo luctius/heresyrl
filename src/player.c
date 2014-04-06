@@ -21,6 +21,8 @@ struct spwn_monster_item items[] = {
     {.id=ITEM_ID_LAS_GUN,.min=1,.max=1,.wear=true}, 
     {.id=ITEM_ID_BASIC_AMMO_LAS,.min=1,.max=3,.wear=false},
     {.id=ITEM_ID_GLOW_GLOBE,.min=1,.max=1,.wear=false},
+    {.id=ITEM_ID_FRAG_GRENADE,.min=1,.max=3,.wear=false},
+    {.id=ITEM_ID_THROWING_KNIFE,.min=1,.max=3,.wear=false},
     {0,0,0,0,} };
 
 void plr_init(struct pl_player *plr, char *name, enum msr_race race, enum msr_gender gender) {

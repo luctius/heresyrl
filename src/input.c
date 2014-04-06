@@ -51,6 +51,8 @@ enum inp_keys inp_get_input(void) {
         case '[':       return INP_KEY_WEAPON_SETTING; break;
         case ']':       return INP_KEY_WEAPON_SELECT; break;
         case '\\':      return INP_KEY_AMMO_SELECT; break;
+        case '+':       return INP_KEY_PLUS; break;
+        case '-':       return INP_KEY_MINUS; break;
 
         case ' ':
         case '\n':
