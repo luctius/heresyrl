@@ -377,7 +377,7 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dm_map *map, coord_t *
     int ign_cnt = 0;
     struct msr_monster *target = aiu_get_nearest_enemy(plr->player, ign_cnt, map);
     if (target != NULL) {
-        //TODO e_pos = target->pos;
+        e_pos = target->pos;
         ign_cnt++;
     }
 

@@ -21,6 +21,8 @@ struct sgt_sight {
 static bool rpsc_check_opaque_lof(struct rpsc_fov_set *set, coord_t *point, coord_t *origin) {
     struct dm_map *map = set->map;
 
+    FIX_UNUSED(origin);
+
     /* verify map structure */
     if (dm_verify_map(map) == false) return false;
     /* check if this point is within the map boundries. */
@@ -39,6 +41,8 @@ static bool rpsc_check_opaque_lof(struct rpsc_fov_set *set, coord_t *point, coor
 /* check if there is a line of sight path on this point */
 static bool rpsc_check_opaque_los(struct rpsc_fov_set *set, coord_t *point, coord_t *origin) {
     struct dm_map *map = set->map;
+
+    FIX_UNUSED(origin);
 
     /* verify map structure */
     if (dm_verify_map(map) == false) return false;
@@ -124,137 +128,6 @@ static bool rpsc_apply_light_source(struct rpsc_fov_set *set, coord_t *point, co
     return true;
 }
 
-#if 0
-
-/* checks if this is a walkable path, without a monster.  */
-static bool dig_check_opaque_lof(struct digital_fov_set *set, coord_t *point, coord_t *origin) {
-    struct dm_map *map = set->map;
-
-    /* verify map structure */
-    if (dm_verify_map(map) == false) return false;
-    /* check if this point is within the map boundries. */
-    if (cd_within_bound(point, &map->size) == false) return false;
-
-    /* if the point is not traversable, return false */
-    if ( (dm_get_map_tile(point,map)->attributes & TILE_ATTR_TRAVERSABLE) == 0) return false;
-
-    /* if there is a monster, return false */
-    if (dm_get_map_me(point,map)->monster != NULL) return false;
-
-    /* it's a good lof point*/
-    return true;
-}
-
-/* check if there is a line of sight path on this point */
-static bool dig_check_opaque_los(struct digital_fov_set *set, coord_t *point, coord_t *origin) {
-    struct dm_map *map = set->map;
-
-    /* verify map structure */
-    if (dm_verify_map(map) == false) return false;
-    /* check if this point is within the map boundries. */
-    if (cd_within_bound(point, &map->size) == false) return false;
-
-    /* if it is opague, return true, else return false. */
-    return ( (dm_get_map_tile(point,map)->attributes & TILE_ATTR_OPAGUE) > 0);
-}
-
-static bool dig_apply_player_sight(struct digital_fov_set *set, coord_t *point, coord_t *origin) {
-    struct dm_map *map = set->map;
-    struct msr_monster *monster = set->source;
-
-    /* verify map structure */
-    if (dm_verify_map(map) == false) return false;
-    /* check if this point is within map boundries. */
-    if (cd_within_bound(point, &map->size) == false) return false;
-    /*verify monster structure */
-    if (msr_verify_monster(monster) == false) return false;
-
-    /* get map entity*/
-    struct dm_map_entity *me = dm_get_map_me(point,map);
-    /* awareness check difficulty starts at zero */
-    int mod = 0;
-    /*every map point touched here is in sight.*/
-    me->in_sight = true;
-
-    if (me->light_level > 0) {
-        /* if there is light, we can see everything.*/
-        me->visible = true;
-        me->discovered = true;
-    }
-
-    int range = cd_pyth(point, origin);
-    if (range < msr_get_near_sight_range(monster)) {
-        /* if it is in our near sight, we can see everything.*/
-        me->discovered = true;
-        me->visible = true;
-    }
-    else if (range < msr_get_medium_sight_range(monster)) {
-        /* in our medium sight we can see the map features.*/
-        me->discovered = true;
-        mod = -20;
-    }
-    else {
-        /* in our far sight without light, we have a chance of seeing movemnt (monsters).*/
-        mod = -30;
-    }
-
-    /* check if we can see a monster in the dark */
-    if (me->visible == false && me->monster != NULL) {
-        lg_print("Awareness check on (%d,%d)", point->x, point->y);
-        int DoS = 0;
-        /*do an awareness check*/
-        if ( (DoS = msr_skill_check(monster, SKILLS_AWARENESS, mod) ) >= 0) {
-            /* the scatter radius decreases depending on the number of successes in our roll*/
-            int radius = 4 - DoS;
-
-            if (radius > 0) {
-                /* if the roll was a success, scatter the blip. */
-                coord_t sp = sgt_scatter(gbl_game->sight, map, gbl_game->game_random, point, radius);
-                dm_get_map_me(&sp, map)->icon_override = '?';
-            }
-        }
-    }
-    return true;
-}
-
-static bool dig_apply_light_source(struct digital_fov_set *set, coord_t *point, coord_t *origin) {
-    struct dm_map *map = set->map;
-    struct itm_item *item = set->source;
-
-    if (dm_verify_map(map) == false) return false;
-    if (cd_within_bound(point, &map->size) == false) return false;
-    if (itm_verify_item(item) == false) return false;
-    if ( (item->specific.tool.light_luminem - cd_pyth(point, origin) ) <= 0) return false;
-
-    /* Only light walls who are the origin of the light. */
-    if ( (cd_equal(point, origin) == false) && ( (dm_get_map_tile(point,map)->attributes & TILE_ATTR_OPAGUE) == 0) ) return false;
-
-    dm_get_map_me(point,map)->light_level = item->specific.tool.light_luminem - cd_pyth(point, origin);
-    return true;
-}
-
-struct sgt_explosion_struct {
-    coord_t *list;
-    short list_sz;
-    short list_idx;
-};
-
-static bool dig_apply_explosion(struct digital_fov_set *set, coord_t *point, coord_t *origin) {
-    struct dm_map *map = set->map;
-    struct sgt_explosion_struct *ex = set->source;
-
-    if (dm_verify_map(map) == false) return false;
-    if (cd_within_bound(point, &map->size) == false) return false;
-    if (ex->list_idx >= ex->list_sz) return false;
-    if ( (dm_get_map_tile(point,map)->attributes & TILE_ATTR_TRAVERSABLE) == 0) return false;
-
-    ex->list[ex->list_idx++] = *point;
-
-    return true;
-}
-
-#endif
-
 struct sgt_explosion_struct {
     coord_t *list;
     short list_sz;
@@ -264,6 +137,8 @@ struct sgt_explosion_struct {
 static bool rpsc_apply_explosion(struct rpsc_fov_set *set, coord_t *point, coord_t *origin) {
     struct dm_map *map = set->map;
     struct sgt_explosion_struct *ex = set->source;
+
+    FIX_UNUSED(origin);
 
     if (dm_verify_map(map) == false) return false;
     if (cd_within_bound(point, &map->size) == false) return false;
@@ -284,6 +159,8 @@ struct sgt_projectile_path_struct {
 static bool rpsc_apply_projectile_path(struct rpsc_fov_set *set, coord_t *point, coord_t *origin) {
     struct dm_map *map = set->map;
     struct sgt_projectile_path_struct *pp = set->source;
+
+    FIX_UNUSED(origin);
 
     if (dm_verify_map(map) == false) return false;
     if (cd_within_bound(point, &map->size) == false) return false;
@@ -323,18 +200,6 @@ bool sgt_calculate_light_source(struct sgt_sight *sight, struct dm_map *map, str
     if (item->specific.tool.lit != true) return false;
     coord_t c = itm_get_pos(item);
 
-    /*
-    struct digital_fov_set set = {
-        .source = item,
-        .map = map,
-        .size = map->size,
-        .is_opaque = dig_check_opaque_los,
-        .apply = dig_apply_light_source,
-    };
-
-    digital_fov(&set, &c, item->specific.tool.light_luminem);
-    */
-
     struct rpsc_fov_set set = {
         .source = item,
         .permissiveness = RPSC_FOV_PERMISSIVE_NORMAL,
@@ -346,8 +211,7 @@ bool sgt_calculate_light_source(struct sgt_sight *sight, struct dm_map *map, str
         .apply = rpsc_apply_light_source,
     };
 
-    //TODO rpsc_fov(&set, &c, item->specific.tool.light_luminem);
-
+    rpsc_fov(&set, &c, item->specific.tool.light_luminem);
     return true;
 }
 
@@ -367,18 +231,6 @@ bool sgt_calculate_player_sight(struct sgt_sight *sight, struct dm_map *map, str
     if (dm_verify_map(map) == false) return false;
     if (msr_verify_monster(monster) == false) return false;
 
-    /*
-    struct digital_fov_set set = {
-        .source = monster,
-        .map = map,
-        .size = map->size,
-        .is_opaque = dig_check_opaque_los,
-        .apply = dig_apply_player_sight,
-    };
-
-    return digital_fov(&set, &monster->pos, msr_get_far_sight_range(monster) );
-    */
-
     struct rpsc_fov_set set = {
         .source = monster,
         .permissiveness = RPSC_FOV_PERMISSIVE_NORMAL,
@@ -390,7 +242,7 @@ bool sgt_calculate_player_sight(struct sgt_sight *sight, struct dm_map *map, str
         .apply = rpsc_apply_player_sight,
     };
 
-    rpsc_fov(&set, &monster->pos, msr_get_medium_sight_range(monster) );
+    rpsc_fov(&set, &monster->pos, msr_get_far_sight_range(monster) );
     return true;
 }
 
@@ -417,23 +269,6 @@ int sgt_explosion(struct sgt_sight *sight, struct dm_map *map, coord_t *pos, int
         .list_idx = 0,
     };
 
-#if 0
-    /* setup the fov structure */
-    struct digital_fov_set set = {
-        .source = &ex,
-        .map = map,
-        .size = map->size,
-        .is_opaque = dig_check_opaque_lof,
-        .apply = dig_apply_explosion,
-    };
-
-    /* calculate the fov of the explosion */
-    if (digital_fov(&set, pos, radius) == false) {
-        free(*grid_list);
-        return -1;
-    }
-#endif
-
     struct rpsc_fov_set set = {
         .source = &ex,
         .permissiveness = RPSC_FOV_PERMISSIVE_NORMAL,
@@ -441,7 +276,7 @@ int sgt_explosion(struct sgt_sight *sight, struct dm_map *map, coord_t *pos, int
         .not_visible_blocks_vision = true,
         .map = map,
         .size = map->size,
-        .is_opaque = rpsc_check_opaque_lof,
+        .is_opaque = rpsc_check_opaque_los,
         .apply = rpsc_apply_explosion,
     };
 
@@ -468,7 +303,7 @@ int sgt_los_path(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_
      this should be way to many but at this point we do not 
      now how many there are.
      */
-    *path_lst = calloc(cd_pyth(s,e) * 4, sizeof(coord_t) );
+    *path_lst = calloc(cd_pyth(s,e) * 2, sizeof(coord_t) );
     if (*path_lst == NULL) return -1;
 
 
@@ -479,7 +314,7 @@ int sgt_los_path(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_
      */
     struct sgt_projectile_path_struct ex = {
         .list = *path_lst,
-        .list_sz = cd_pyth(s,e) * 4,
+        .list_sz = cd_pyth(s,e) * 2,
         .list_idx = 0,
     };
 
@@ -490,7 +325,7 @@ int sgt_los_path(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_
         .not_visible_blocks_vision = true,
         .map = map,
         .size = map->size,
-        .is_opaque = rpsc_check_opaque_lof,
+        .is_opaque = rpsc_check_opaque_los,
         .apply = rpsc_apply_projectile_path,
     };
 
@@ -509,184 +344,6 @@ int sgt_los_path(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_
     assert(*path_lst != NULL);
     return ex.list_idx;
 }
-
-
-#if 0
-int bresenham(struct dm_map *map, coord_t *s, coord_t *e, coord_t plist[], int plist_sz);
-int wu_line(coord_t *s, coord_t *e, coord_t plst[], int plst_sz);
-
-/*
-TODO BUG:
-the code checks for opaque, but a projectile requires traversable.
-*/
-int sgt_los_path(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_t *e, coord_t *path_lst[], bool continue_path) {
-    if (sight == NULL) return -1;
-    if (dm_verify_map(map) == false) return -1;
-
-    if (dm_get_map_me(s,map)->visible == false) return -1;
-    if (dm_get_map_me(e,map)->visible == false) return -1;
-    if ( (dm_get_map_tile(s,map)->attributes & TILE_ATTR_OPAGUE) == 0) return -1;
-    if ( (dm_get_map_tile(e,map)->attributes & TILE_ATTR_OPAGUE) == 0) return -1;
-
-    /* 
-        HACK, this fixes a bug where later in 
-        continue path, there are not enough points
-        to really continue.
-        fix later
-     */
-    if (cd_neighbour(s, e) == true) {
-        *path_lst = calloc(2, sizeof(coord_t) );
-        if (*path_lst == NULL) return -1;
-        (*path_lst)[0] = *s;
-        (*path_lst)[1] = *e;
-        return 2;
-    }
-
-    int path_sz = (cd_pyth(s,e) +2 )* 4;
-    coord_t wlst[path_sz];
-    coord_t blst1[path_sz];
-    coord_t blst2[path_sz];
-    int blst1_sz = 0;
-    int blst2_sz = 0;
-
-    /* create a wu line (2 lines next to each other) */
-    int wlst_sz = wu_line(s,e, wlst, path_sz);
-    if (wlst_sz == -1) {
-        lg_debug("wu line failed");
-        wlst_sz = 1;
-        wlst[0] = *s;
-    }
-
-    /* walk all the point on the wu line, until we find 
-       a point in which both the origin and the end point 
-       are visible via bresenham lines.*/
-    bool found = false;
-    for (int i = 0; (i < wlst_sz) && (found == false); i++) {
-       blst1_sz = bresenham(map, s, &wlst[i], blst1, path_sz);
-       blst2_sz = bresenham(map, &wlst[i], e, blst2, path_sz);
-
-       /* if both have a non-zero length, we found our line.*/
-       if ( (blst1_sz > 0) && (blst2_sz > 0) ) found = true;
-    }
-
-    if (found == false) {
-        lg_debug("brenenham failed");
-        return -1;   
-    }
-
-    /* set pathsize to the sum of the length of both bresenham lines*/
-    path_sz = blst1_sz + blst2_sz +2;
-
-    if (continue_path) {
-        /* if we want to continue the path, 
-           set it first to the sum of the map boundries. */
-        path_sz = map->size.x + map->size.y;
-    }
-
-    /* allocate memory for the final path. */
-    *path_lst = calloc(path_sz, sizeof(coord_t) );
-    if (*path_lst == NULL) return -1;
-
-    /* 
-       TODO Known bug:
-       On some lines, there is a unnecesary step
-       This would require another loop and do a 
-       look-ahead check fo a neighbour.
-
-       I might do that later...
-     */
-
-    /* create one big list, easier for the next step */
-    for (int i = 1; i < blst2_sz; i++) {
-        blst1[blst1_sz +i] = blst2[i];
-    }
-
-    /* Here we copy the list to the target location and if 
-       possible remove nodes we can skip. thus creating i
-       a smooth line. */
-    int pidx = 0;
-    (*path_lst)[pidx++] = *s;
-    int max = (blst1_sz + blst2_sz -1);
-    int i = 1;
-    found = false;
-    while ( (i < max) && (found == false) ) {
-        coord_t *point = &blst1[i];
-        lg_debug("normal point (%d.%d)", point->x, point->y);
-
-        if (i+1 < max) {
-            /* lookahead and skip node if possible */
-            if (cd_neighbour(&blst1[i-1], &blst1[i+1]) ) {
-                point = &blst1[i+1];
-                i++; /* need to do 2 steps here */
-
-                lg_debug("skip to point (%d.%d)", point->x, point->y);
-            }
-        }
-
-        /* assign found point */
-        (*path_lst)[pidx++] = *point;
-
-        /* skip early if possible */
-        if (cd_neighbour(point, e) == true) {
-            (*path_lst)[pidx++] = *e;
-            lg_debug("good");
-            found = true;
-        }
-        i++;
-    }
-
-    if (continue_path && pidx > 1) {
-        /*  
-            get a point from the original list,
-            take the delta of it and its predecessor,
-            add that to the previous point we put in
-            at the end of the list. This creates a 
-            continues path untill an obstacle is found.
-         */
-        i = pidx;
-        bool blocked = false;
-        int j = i;
-        while ( (i < path_sz) && (blocked == false) ) {
-            if ( (i % pidx) == 0) { i++; continue; }
-
-            /* take a point from the original line */
-            coord_t point = (*path_lst)[i % pidx];
-            /* take the point before that */
-            coord_t point_prev = (*path_lst)[ (i-1) % pidx];
-            /* take the last point calculated. */
-            coord_t point_last = (*path_lst)[j-1];
-
-            /*calc the difference between the 2 points of the original line*/
-            coord_t d = cd_delta(&point, &point_prev);
-
-            /* apply that difference to our last point, 
-               creating a new point with the same offset.*/
-            point.x = point_last.x + d.x;
-            point.y = point_last.y + d.y;
-
-            /* put that point into our new list*/
-            (*path_lst)[j] = point;
-
-            i++;
-            j++;
-
-            /*continue untill we are blocked.*/
-            if ( (dm_get_map_tile(&point,map)->attributes & TILE_ATTR_TRAVERSABLE) == 0) {
-                blocked = true;
-                pidx = j;
-            }
-        }
-    }
-
-    /* free unsused memory*/
-    *path_lst = realloc(*path_lst, (pidx +2) * sizeof(coord_t) );
-    assert(*path_lst);
-    
-    /* return the length of the path*/
-    return pidx;
-}
-#endif
-
 coord_t sgt_scatter(struct sgt_sight *sight, struct dm_map *map, struct random *r, coord_t *p, int radius) {
     /* Do not try forever. */
     int i_max = radius * radius;
@@ -726,18 +383,6 @@ bool sgt_has_los(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_
     if (sight == NULL) return false;
     if (dm_verify_map(map) == false) return false;
 
-    /*
-    struct digital_fov_set set = {
-        .source = NULL,
-        .map = map,
-        .size = map->size,
-        .is_opaque = dig_check_opaque_los,
-        .apply = NULL,
-    };
-
-    return digital_los(&set, s, e, false);
-    */
-
     struct rpsc_fov_set set = {
         .source = s,
         .permissiveness = RPSC_FOV_PERMISSIVE_NORMAL,
@@ -754,18 +399,6 @@ bool sgt_has_lof(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_
     if (sight == NULL) return false;
     if (dm_verify_map(map) == false) return false;
 
-    /*
-    struct digital_fov_set set = {
-        .source = NULL,
-        .map = map,
-        .size = map->size,
-        .is_opaque = dig_check_opaque_lof,
-        .apply = NULL,
-    };
-
-    return digital_los(&set, s, e, false);
-    */
-
     struct rpsc_fov_set set = {
         .source = s,
         .permissiveness = RPSC_FOV_PERMISSIVE_NORMAL,
@@ -775,10 +408,10 @@ bool sgt_has_lof(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_
         .apply = NULL,
     };
 
-    return rpsc_los(&set, s, e );
+    return rpsc_los(&set, s, e);
 }
 
-
+#if 0
 int bresenham(struct dm_map *map, coord_t *s, coord_t *e, coord_t plist[], int plist_sz) {
     int x_1 = s->x;
     int y_1 = s->y;
@@ -941,3 +574,4 @@ int wu_line(coord_t *s, coord_t *e, coord_t plst[], int plst_sz) {
 #undef fpart_
 #undef round_
 #undef rfpart_
+#endif

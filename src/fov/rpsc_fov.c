@@ -285,7 +285,7 @@ bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst) {
     struct angle_set as_dst = offset_to_angle_set(row_dst, cell_dst);
     lg_debug("los: (%d,%d) -> (%d,%d), length: %d", src->x,src->y,dst->x,dst->y, row_dst);
 
-    for (int row = 1; (row <= row_dst) && (visible == true); row++) {
+    for (int row = 1; (row <= row_dst-1) && (visible == true); row++) {
         int center_cell = angle_set_to_cell(&as_dst, row);
 
         int cell_select[3] = {0,-1,1};
@@ -349,7 +349,8 @@ bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst) {
         }
     }
 
-   if (set->apply != NULL) lg_debug("-------------with apply end, visibility is %s----------", (visible) ? "true": "false");
+    if (set->apply != NULL) set->apply(set, dst, src);
+    if (set->apply != NULL) lg_debug("-------------with apply end, visibility is %s----------", (visible) ? "true": "false");
     return visible;
 }
 
