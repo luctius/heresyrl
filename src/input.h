@@ -40,8 +40,21 @@ enum inp_keys {
     INP_KEY_MAX,
 };
 
-enum inp_keys inp_get_input(void);
-enum inp_keys inp_get_input_idx(void);
+struct inp_input {
+    enum inp_keys *keylog;
+    int keylog_sz;
+    int keylog_widx;
+    int keylog_ridx;
+};
+
+struct inp_input *inp_init();
+void inp_exit(struct inp_input *i);
+void inp_add_to_log(struct inp_input *i, enum inp_keys key);
+enum inp_keys inp_get_from_log(struct inp_input *i);
+bool inp_log_has_keys(struct inp_input *i);
+
+enum inp_keys inp_get_input(struct inp_input *i);
+enum inp_keys inp_get_input_idx(struct inp_input *i);
 char inp_key_translate_idx(int idx);
 
 #endif /* INPUT_H */

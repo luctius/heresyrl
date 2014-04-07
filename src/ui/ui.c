@@ -349,7 +349,7 @@ void mapwin_overlay_examine_cursor(struct dm_map *map, coord_t *p_pos) {
         wrefresh(map_win->win);
         mvwaddch(map_win->win, e_pos.y - scr_y, e_pos.x - scr_x, oldch);
     }
-    while( ( (ch = inp_get_input()) != INP_KEY_ESCAPE) && (examine_mode == true) );
+    while( ( (ch = inp_get_input(gbl_game->input)) != INP_KEY_ESCAPE) && (examine_mode == true) );
 
     delwin(map_win_ex);
     wrefresh(map_win->win);
@@ -495,7 +495,7 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dm_map *map, coord_t *
         if (witem == NULL) witem = fght_get_working_weapon(plr->player, WEAPON_TYPE_RANGED, FGHT_OFF_HAND);
         targetwin_examine(char_win, gbl_game->current_map, plr->player, &e_pos, witem);
     }
-    while((ch = inp_get_input()) != INP_KEY_ESCAPE && fire_mode);
+    while((ch = inp_get_input(gbl_game->input)) != INP_KEY_ESCAPE && fire_mode);
 
     return false;
 }
@@ -629,7 +629,7 @@ bool mapwin_overlay_throw_cursor(struct gm_game *g, struct dm_map *map, coord_t 
 
         targetwin_examine(char_win, gbl_game->current_map, plr->player, &e_pos, item);
     }
-    while((ch = inp_get_input()) != INP_KEY_ESCAPE && fire_mode);
+    while((ch = inp_get_input(gbl_game->input)) != INP_KEY_ESCAPE && fire_mode);
 
     return false;
 }
@@ -924,7 +924,7 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
                     wrefresh(invwin);
                     delwin(invwin_ex);
 
-                    int item_idx = inp_get_input_idx();
+                    int item_idx = inp_get_input_idx(gbl_game->input);
                     if (item_idx == INP_KEY_ESCAPE) break;
                     if ((item_idx + invstart) >= invsz) break;
                     item = invlist[item_idx +invstart].item;
@@ -942,7 +942,7 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
                     delwin(invwin_ex);
                     charwin_refresh();
 
-                    int item_idx = inp_get_input_idx();
+                    int item_idx = inp_get_input_idx(gbl_game->input);
                     if (item_idx == INP_KEY_ESCAPE) break;
                     if ((item_idx + invstart) >= invsz) break;
                     item = invlist[item_idx +invstart].item;
@@ -965,7 +965,7 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
                     delwin(invwin_ex);
                     charwin_refresh();
 
-                    int item_idx = inp_get_input_idx();
+                    int item_idx = inp_get_input_idx(gbl_game->input);
                     if (item_idx == INP_KEY_ESCAPE) break;
                     if ((item_idx + invstart) >= invsz) break;
                     item = invlist[item_idx +invstart].item;
@@ -981,7 +981,7 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
                     charwin_refresh();
 
                     invsz = inv_inventory_size(plr->player->inventory);
-                    int item_idx = inp_get_input_idx();
+                    int item_idx = inp_get_input_idx(gbl_game->input);
                     if (item_idx == INP_KEY_ESCAPE) break;
                     if ((item_idx + invstart) >= invsz) break;
                     item = invlist[item_idx +invstart].item;
@@ -997,7 +997,7 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
             charwin_refresh();
         }
 
-    } while((inventory != false) && (ch = inp_get_input() ) != INP_KEY_ESCAPE);
+    } while((inventory != false) && (ch = inp_get_input(gbl_game->input) ) != INP_KEY_ESCAPE);
 
     delwin(invwin_ex);
     delwin(invwin);

@@ -10,6 +10,7 @@
 #include "logging.h"
 #include "load.h"
 #include "save.h"
+#include "input.h"
 #include "coord.h"
 #include "player.h"
 #include "tiles.h"
@@ -244,6 +245,21 @@ static bool load_game(lua_State *L, struct gm_game *g) {
     return true;
 }
 
+static bool load_input(lua_State *L, struct gm_game *g) {
+    uint64_t t;
+    if (L == NULL) return false;
+    if (lua_intexpr(L, &t, "input.keylog.sz") == 0) return false;
+
+    int sz = t;
+    for (int i = 0; i < sz; i++) {
+        lua_intexpr(L, &t, "input.keylog[%d]", i+1); inp_add_to_log(g->input, t);
+    }
+
+    g->input->keylog_widx = sz;
+    g->input->keylog_ridx = sz;
+
+    return true;
+}
 static bool load_player(lua_State *L, struct pl_player *plr) {
     if (L == NULL) return false;
 

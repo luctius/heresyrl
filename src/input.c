@@ -1,79 +1,148 @@
 #include <ncurses.h>
+#include <assert.h>
 
 #include "input.h"
 #include "logging.h"
+
+#define INP_KEYLOG_INCREASE 100
+
+static bool inp_resize_log(struct inp_input *i) {
+    i->keylog_sz += INP_KEYLOG_INCREASE;
+    i->keylog = realloc(i->keylog, i->keylog_sz * sizeof(enum inp_keys) );
+    if (i->keylog == NULL) return false;
+    return true;
+}
+
+void inp_add_to_log(struct inp_input *i, enum inp_keys key) {
+    if (i->keylog_widx == i->keylog_sz -2) {
+        assert(inp_resize_log(i) );
+    }
+
+    i->keylog[i->keylog_widx++] = key;
+}
+
+bool inp_log_has_keys(struct inp_input *i) {
+    if ( (i->keylog_ridx < i->keylog_widx) && 
+         (i->keylog_widx < i->keylog_sz) ) return true;
+    return false;
+}
+
+enum inp_keys inp_get_from_log(struct inp_input *i) {
+    return i->keylog[i->keylog_ridx++];
+}
 
 char inp_key_translate_idx(int idx) {
     if (idx <= 25) return idx+0x61;
     else if (idx <= 35) return idx+0x30;
     return -1;
 }
-enum inp_keys inp_get_input_idx(void) {
-    char ch = getch();
 
-    /* A-Z -> 0 - 25*/
-    if (ch >= 0x41 && ch <= 0x5a) return ch - 0x41;
+enum inp_keys inp_get_input_idx(struct inp_input *i) {
+    if (i == NULL) return -1;
+    enum inp_keys k = INP_KEY_ESCAPE;
 
-    /* a-z -> 0 - 25*/
-    if (ch >= 0x61 && ch <= 0x7A) return ch - 0x61;
+    if (inp_log_has_keys(i) == false) {
+        int ch = getch();
 
-    /* 0-9 -> 26 - 35*/
-    if (ch >= 0x30 && ch <= 0x39) return (ch - 0x30) +26;
+        /* A-Z -> 0 - 25*/
+        if (ch >= 0x41 && ch <= 0x5a) k = ch - 0x41;
 
-    return INP_KEY_ESCAPE;
-}
+        /* a-z -> 0 - 25*/
+        else if (ch >= 0x61 && ch <= 0x7A) k = ch - 0x61;
 
-enum inp_keys inp_get_input(void) {
-    int ch = getch();
-    switch (ch) {
-        case 'y': case 55:  case KEY_HOME:  return INP_KEY_UP_LEFT; break;
-        case 'k': case 56:  case KEY_UP:    return INP_KEY_UP; break;
-        case 'u': case 57:  case KEY_NPAGE: return INP_KEY_UP_RIGHT; break;
-        case 'l': case 54:  case KEY_RIGHT: return INP_KEY_RIGHT; break;
-        case 'n': case 51:  case KEY_PPAGE: return INP_KEY_DOWN_RIGHT; break;
-        case 'j': case 50:  case KEY_DOWN:  return INP_KEY_DOWN; break; 
-        case 'b': case 49:  case KEY_END:   return INP_KEY_DOWN_LEFT; break;
-        case 'h': case 52:  case KEY_LEFT:  return INP_KEY_LEFT; break;
-        case '.': case 53:                  return INP_KEY_WAIT; break;
+        /* 0-9 -> 26 - 35*/
+        else if (ch >= 0x30 && ch <= 0x39) k = (ch - 0x30) +26;
 
-        case 'q':
-        case 27:        return INP_KEY_ESCAPE; break;
-
-        case 'i':       return INP_KEY_INVENTORY; break;
-        case 'x':       return INP_KEY_EXAMINE; break;
-        case 'f':       return INP_KEY_FIRE; break;
-        case 'd':       return INP_KEY_DROP; break;
-        case 't':       return INP_KEY_THROW; break;
-        case 'w':       return INP_KEY_WEAR; break;
-        case 'U':       return INP_KEY_USE; break;
-        case 'r':       return INP_KEY_RELOAD; break;
-        case 'R':       return INP_KEY_UNLOAD; break;
-        case '[':       return INP_KEY_WEAPON_SETTING; break;
-        case ']':       return INP_KEY_WEAPON_SELECT; break;
-        case '\\':      return INP_KEY_AMMO_SELECT; break;
-        case '+':       return INP_KEY_PLUS; break;
-        case '-':       return INP_KEY_MINUS; break;
-
-        case ' ':
-        case '\n':
-        case 'O':
-        case 'o':       return INP_KEY_YES; break;
-        case 'C':
-        case 'c':       return INP_KEY_NO; break;
-        case 'A':
-        case 'a':       return INP_KEY_ALL; break;
-
-        case ',':
-        case 'g':       return INP_KEY_PICKUP; break;
-
-        case '>':       return INP_KEY_STAIRS_DOWN; break;
-        case '<':       return INP_KEY_STAIRS_UP; break;
-        case 24:        return INP_KEY_QUIT; break;
-        case 9:         return INP_KEY_TAB; break;
-                
-        default:
-            lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "main", "key pressed: %d.", ch);
-            break;
+        inp_add_to_log(i, k);
     }
-    return INP_KEY_NONE;
+
+    assert(inp_log_has_keys(i) );
+    return inp_get_from_log(i);
 }
+
+enum inp_keys inp_get_input(struct inp_input *i) {
+    if (i == NULL) return -1;
+    enum inp_keys k = INP_KEY_NONE;
+
+    if (inp_log_has_keys(i) == false) {
+        int ch = getch();
+        switch (ch) {
+            case 'y': case 55:  case KEY_HOME:  k = INP_KEY_UP_LEFT; break;
+            case 'k': case 56:  case KEY_UP:    k = INP_KEY_UP; break;
+            case 'u': case 57:  case KEY_NPAGE: k = INP_KEY_UP_RIGHT; break;
+            case 'l': case 54:  case KEY_RIGHT: k = INP_KEY_RIGHT; break;
+            case 'n': case 51:  case KEY_PPAGE: k = INP_KEY_DOWN_RIGHT; break;
+            case 'j': case 50:  case KEY_DOWN:  k = INP_KEY_DOWN; break; 
+            case 'b': case 49:  case KEY_END:   k = INP_KEY_DOWN_LEFT; break;
+            case 'h': case 52:  case KEY_LEFT:  k = INP_KEY_LEFT; break;
+            case '.': case 53:                  k = INP_KEY_WAIT; break;
+
+            case 'q':
+            case 27:        k = INP_KEY_ESCAPE; break;
+
+            case 'i':       k = INP_KEY_INVENTORY; break;
+            case 'x':       k = INP_KEY_EXAMINE; break;
+            case 'f':       k = INP_KEY_FIRE; break;
+            case 'd':       k = INP_KEY_DROP; break;
+            case 't':       k = INP_KEY_THROW; break;
+            case 'w':       k = INP_KEY_WEAR; break;
+            case 'U':       k = INP_KEY_USE; break;
+            case 'r':       k = INP_KEY_RELOAD; break;
+            case 'R':       k = INP_KEY_UNLOAD; break;
+            case '[':       k = INP_KEY_WEAPON_SETTING; break;
+            case ']':       k = INP_KEY_WEAPON_SELECT; break;
+            case '\\':      k = INP_KEY_AMMO_SELECT; break;
+            case '+':       k = INP_KEY_PLUS; break;
+            case '-':       k = INP_KEY_MINUS; break;
+
+            case ' ':
+            case '\n':
+            case 'O':
+            case 'o':       k = INP_KEY_YES; break;
+            case 'C':
+            case 'c':       k = INP_KEY_NO; break;
+            case 'A':
+            case 'a':       k = INP_KEY_ALL; break;
+
+            case ',':
+            case 'g':       k = INP_KEY_PICKUP; break;
+
+            case '>':       k = INP_KEY_STAIRS_DOWN; break;
+            case '<':       k = INP_KEY_STAIRS_UP; break;
+            case 24:        k = INP_KEY_QUIT; break;
+            case 9:         k = INP_KEY_TAB; break;
+                    
+            default:
+                lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "main", "key pressed: %d.", ch);
+                break;
+        }
+
+        inp_add_to_log(i, k);
+    }
+
+    assert(inp_log_has_keys(i) );
+    return inp_get_from_log(i);
+}
+
+struct inp_input *inp_init() {
+    struct inp_input *i = malloc( sizeof(struct inp_input) );
+    if (i != NULL) {
+        i->keylog = NULL;
+        i->keylog_sz = 0;
+        i->keylog_widx = 0;
+        i->keylog_ridx = 0;
+        inp_resize_log(i);
+    }
+
+    return i;
+}
+
+void inp_exit(struct inp_input *i) {
+    if (i != NULL) {
+        if (i->keylog_sz > 0) {
+            free(i->keylog);
+            free(i);
+        }
+    }
+}
+

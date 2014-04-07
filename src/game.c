@@ -1,5 +1,6 @@
 #include "game.h"
 #include "cmdline.h"
+#include "input.h"
 #include "player.h"
 #include "tiles.h"
 #include "save.h"
@@ -30,6 +31,7 @@ void game_init(struct pl_player *plr, unsigned long initial_seed) {
             gbl_game->running = true;
 
             gbl_game->sight = sgt_init();
+            gbl_game->input = inp_init();
         }
     }
 }
@@ -111,6 +113,7 @@ bool game_exit() {
     msrlst_monster_list_exit();
     itmlst_items_list_exit();
 
+    inp_exit(gbl_game->input);
     sgt_exit(gbl_game->sight);
 
     random_exit(gbl_game->random);

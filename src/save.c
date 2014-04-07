@@ -8,12 +8,30 @@
 #include "save.h"
 #include "inventory.h"
 #include "coord.h"
+#include "input.h"
 #include "player.h"
 #include "tiles.h"
 #include "random.h"
 #include "monster/monster.h"
 #include "items/items.h"
 #include "dungeon/dungeon_map.h"
+
+static bool sv_save_input(FILE *file, int indent, struct inp_input *input) {
+    if (file == NULL) return false;
+
+    fprintf(file, "%*s" "input={\n", indent, ""); { indent += 2;
+
+        fprintf(file,"%*s" "keylog={sz=%d,", indent, "", input->keylog_widx);
+        for (int i = 0; i < input->keylog_widx; i++) {
+            fprintf(file,"%d,", input->keylog[i]);
+        }
+        fprintf(file, "},");
+
+    } indent -= 2; fprintf(file, "%*s" "},\n", indent, "");
+
+    fflush(file);
+    return true;
+}
 
 static bool sv_save_player(FILE *file, int indent, struct pl_player *plr) {
     if (file == NULL) return false;
@@ -173,11 +191,16 @@ bool sv_save_game(const char *filename, struct gm_game *gm) {
                 random_get_seed(gm->random), random_get_nr_called(gm->random) );
 
         sv_save_player(file, indent, &gm->player_data);
+
         sv_save_items(file, indent);
+
         sv_save_monsters(file, indent);
+
         fprintf(file, "%*s" "maps={\n", indent, ""); { indent += 2;
             sv_save_map(file, indent, gm->current_map);
         } indent -= 2; fprintf(file, "%*s" "},\n", indent, "");
+
+        sv_save_input(file, indent, gm->input);
     } indent -= 2; fprintf(file, "%*s" "}\n", indent, "");
     fflush(file);
     return true;

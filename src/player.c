@@ -1,12 +1,12 @@
 #include "player.h"
-#include "ui/ui.h"
 #include "fight.h"
+#include "input.h"
 #include "inventory.h"
 #include "fov/sight.h"
-#include "input.h"
 #include "game.h"
 #include "tiles.h"
 #include "spawn.h"
+#include "ui/ui.h"
 #include "ai/ai_utils.h"
 #include "dungeon/dungeon_map.h"
 #include "monster/monster.h"
@@ -89,7 +89,7 @@ static bool plr_action_loop(struct msr_monster *player, void *controller) {
         mapwin_display_map(map, player_pos);
         charwin_refresh();
 
-        switch (ch = inp_get_input() ) { 
+        switch (ch = inp_get_input(gbl_game->input) ) { 
             case INP_KEY_PICKUP: {
                     struct inv_inventory *inv = dm_get_map_me(&pos, map)->inventory;
                     if ( (inv_inventory_size(inv) ) > 0) {
@@ -105,7 +105,7 @@ static bool plr_action_loop(struct msr_monster *player, void *controller) {
 
                                 if (pickup_all == false) {
                                     System_msg("Pickup %s? (o)k/(c)ancel/(a)ll/(q)uit", item->ld_name);
-                                    switch (inp_get_input() ) {
+                                    switch (inp_get_input(gbl_game->input) ) {
                                         case INP_KEY_ESCAPE: stop = true; break;
                                         case INP_KEY_ALL:    pickup_all = true; break;
                                         case INP_KEY_YES:    pickup = true; break;

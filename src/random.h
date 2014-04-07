@@ -17,7 +17,7 @@ int random_d100(struct random *r);
 unsigned long random_int32(struct random *r);
 double random_float(struct random *r);
 
-int random_get_seed(struct random *r);
+unsigned long random_get_seed(struct random *r);
 int random_get_nr_called(struct random *r);
 void random_loop_called(struct random *r, int called);
 char *random_die_name(int die_sz);

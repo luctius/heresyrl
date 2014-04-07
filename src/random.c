@@ -129,7 +129,7 @@ void random_exit(struct random *r) {
     free(r);
 }
 
-int random_get_seed(struct random *r) {
+unsigned long random_get_seed(struct random *r) {
     if (r == NULL) return -1;
     return r->seed;
 }

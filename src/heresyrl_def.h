@@ -34,6 +34,7 @@ struct dm_map;
 struct random;
 struct sgt_sight;
 struct pl_player;
+struct input;
 
 enum tile_types;
 enum dm_dungeon_type;
@@ -56,6 +57,7 @@ struct gm_game {
     struct random *random;
 
     struct sgt_sight *sight;
+    struct inp_input *input;
 
     struct dm_map *current_map;
     struct pl_player player_data;
