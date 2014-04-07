@@ -126,7 +126,7 @@ static bool sv_save_map(FILE *file, int indent, struct dm_map *map) {
 
     fprintf(file, "%*s" "{\n", indent, ""); { indent += 2;
         fprintf(file, "%*s" "size={x=%d,y=%d,},\n", indent, "", map->size.x, map->size.y);
-        fprintf(file, "%*s" "seed=%d,\n",  indent, "", map->seed);
+        fprintf(file, "%*s" "seed=%lu,\n",  indent, "", map->seed);
         fprintf(file, "%*s" "type=%d,\n",  indent, "", map->type);
         fprintf(file, "%*s" "threat_lvl=%d,\n",  indent, "", map->threat_lvl);
 
@@ -167,9 +167,9 @@ bool sv_save_game(const char *filename, struct gm_game *gm) {
 
     FILE *file = fopen(filename, "w");
     fprintf(file, "%*s" "game={\n", indent, ""); { indent += 2;
-        fprintf(file, "%*s" "version=%s,\n", indent, "", VERSION);
+        fprintf(file, "%*s" "version=\"%s\",\n", indent, "", VERSION);
         fprintf(file, "%*s" "turn=%d,\n", indent, "", gm->turn);
-        fprintf(file, "%*s" "random={seed=%d,called=%d},\n", indent, "", 
+        fprintf(file, "%*s" "random={seed=%lu,called=%d},\n", indent, "", 
                 random_get_seed(gm->random), random_get_nr_called(gm->random) );
 
         sv_save_player(file, indent, &gm->player_data);
