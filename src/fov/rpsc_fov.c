@@ -202,9 +202,21 @@ inline static bool angle_is_blocked(struct rpsc_fov_set *set, struct angle_set *
     return (near_blocked && center_blocked) || (center_blocked && far_blocked);
 }
 
-inline static bool in_radius(struct rpsc_fov_set *set, coord_t *p, coord_t *src, int radius) {
-    coord_t delta = cd_delta(p, src);
-    //if ( ( ( (row) + (cell/2) ) ) <= radius) {
+inline static bool in_radius(struct rpsc_fov_set *set, int row, int cell, int radius) {
+    if (set->visible_on_equal == false) radius -= 1;
+
+    if (set->area == RPSC_AREA_OCTAGON) {
+        if ( ( ( (row) + (cell/2) ) ) <= radius) return true;
+    }
+    else if (set->area == RPSC_AREA_CIRCLE) {
+        if ( ( (row*row) + (cell*cell) ) <= ((radius*radius) + radius) ) return true;
+    }
+    else if (set->area == RPSC_AREA_CIRCLE_STRICT) {
+        if ( ( (row*row) + (cell*cell) ) <= (radius*radius) ) return true;
+    }
+    else if (set->area == RPSC_AREA_SQUARE) {
+        if (MAX(row,cell) <= radius) return true;
+    }
     return false;
 }
 
@@ -344,8 +356,9 @@ static void rpsc_fov_octant(struct rpsc_fov_set *set, coord_t *src, int radius, 
                 for (int i = 0; (i < obstacles_total) && (blocked == false); i++) {
                     lg_debug("test (%" PRIuFAST16 ",%" PRIuFAST16 ",%" PRIuFAST16 ") vs [%d] (%" PRIuFAST16 ",%" PRIuFAST16 ",%" PRIuFAST16 ")", as.near, as.center, as.far, i, blocked_list[i].near, blocked_list[i].center, blocked_list[i].far);
 
-                    /* check if <as> if blocked */
-                    if (angle_is_blocked(set, &as, &blocked_list[i]) ) {
+                    /* check if <as> if blocked or outside the view area. */
+                    if (angle_is_blocked(set, &as, &blocked_list[i]) || 
+                       in_radius(set, row, cell, radius) == false) {
 
                         lg_debug("blocked by [%d]", i);
 
@@ -364,10 +377,8 @@ static void rpsc_fov_octant(struct rpsc_fov_set *set, coord_t *src, int radius, 
 
                 /* the cell is visible, now check if it will block others. */
                 if (blocked == false) {
-                    /* if it is within the viewable area, inform the user.  */
-                    if ( ( ( (row) + (cell/2) ) ) <= radius) {
-                        if (set->apply != NULL) set->apply(set, &point, src);
-                    }
+                    /* inform the user. */
+                    if (set->apply != NULL) set->apply(set, &point, src);
 
                     /* check if it will block others */
                     if (set->is_opaque(set, &point, src) == false) {
@@ -398,19 +409,28 @@ static void rpsc_fov_octant(struct rpsc_fov_set *set, coord_t *src, int radius, 
 }
 
 /* calculates the complete fov */
-void rpsc_fov(struct rpsc_fov_set *set, coord_t *src, int radius) {
-    if (set->apply != NULL) set->apply(set, src, src);
+bool rpsc_fov(struct rpsc_fov_set *set, coord_t *src, int radius) {
+    if (set == NULL) return false;
+    if (set->is_opaque == NULL) return false;
+    if (cd_within_bound(src, &set->size) == false) return false;
 
+    if (set->apply != NULL) set->apply(set, src, src);
     lg_debug("fov start src: (%d,%d)", src->x,src->y);
 
     /* loop through the octants and calculate each octant. */
     for (int i = 0; i < OCTANT_MAX; i++) {
         rpsc_fov_octant(set,src,radius, i, 0, ANGLE_RANGE);
     }
+    return true;
 }
 
 /* TBI */
-void rpsc_cone(struct rpsc_fov_set *set, coord_t *src, coord_t *dst, int angle, int radius) {
+bool rpsc_cone(struct rpsc_fov_set *set, coord_t *src, coord_t *dst, int angle, int radius) {
+    if (set == NULL) return false;
+    if (set->is_opaque == NULL) return false;
+    if (cd_within_bound(src, &set->size) == false) return false;
+    if (cd_within_bound(dst, &set->size) == false) return false;
+
     enum rpsc_octant octant = get_octant(src, dst);
     struct rpsc_octant_quad *oct_mod = &octant_lo_table[octant];
     int nr_octants = angle / 45;
@@ -423,6 +443,8 @@ void rpsc_cone(struct rpsc_fov_set *set, coord_t *src, coord_t *dst, int angle, 
         row_dst = delta.x;
     }
     struct angle_set as_dst = offset_to_angle_set(row_dst, cell_dst);
+
+    return true;
 }
 
 /* calculate the los from one point to another.
@@ -441,7 +463,12 @@ void rpsc_cone(struct rpsc_fov_set *set, coord_t *src, coord_t *dst, int angle, 
    1) it borders o the next center cell and 
    2) the center cell of the next row is probably directly above it anyway.
 */
-bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst) {
+bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst, int radius) {
+    if (set == NULL) return false;
+    if (set->is_opaque == NULL) return false;
+    if (cd_within_bound(src, &set->size) == false) return false;
+    if (cd_within_bound(dst, &set->size) == false) return false;
+    if (rpsc_in_radius(set, src, dst, radius) ) return false;
     bool visible = true;
 
     /* find out which octant we are in */
@@ -526,7 +553,7 @@ bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst) {
             for (int i = 0; i < obstacles_total; i++) {
                 lg_debug("test (%" PRIuFAST16 ",%" PRIuFAST16 ",%" PRIuFAST16 ") vs [%d] (%" PRIuFAST16 ",%" PRIuFAST16 ",%" PRIuFAST16 ")", as.near, as.center, as.far, i, blocked_list[i].near, blocked_list[i].center, blocked_list[i].far);
 
-                /* check if the angles of this cell border a blocked cell. */
+                /* check if the angles of this cell border a blocked cell or if it is outside the view area. */
                 if (angle_is_blocked(set, &as, &blocked_list[i]) ) {
 
                     lg_debug("blocked by [%d]", i);
@@ -553,9 +580,8 @@ bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst) {
                     visible = false;
                 }
             }
-
             /* the cell is not blocked by another. now we check it will block others. */
-            if (blocked == false) {
+            else if (blocked == false) {
                 /* it is a cell which blocks others */
                 if (set->is_opaque(set, &point, src) == false) {
                     /* add it to the obstacle list. */
@@ -577,7 +603,7 @@ bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst) {
             }
         }
 
-        if (obstacles_this_row > 0)  {
+        if (obstacles_this_row > 0 && visible == true)  {
             /* we have gathered some new blockers, lets cleanup the list. */
             obstacles_total = scrub_blocked_list(blocked_list, obstacles_total + obstacles_this_row);
 
@@ -593,3 +619,25 @@ bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst) {
     return visible;
 }
 
+bool rpsc_in_radius(struct rpsc_fov_set *set, coord_t *src, coord_t *dst, int radius) {
+    if (set == NULL) return false;
+    if (cd_within_bound(src, &set->size) == false) return false;
+    if (cd_within_bound(dst, &set->size) == false) return false;
+
+    /* find out which octant we are in */
+    enum rpsc_octant octant = get_octant(src, dst);
+    /* get the octant describtor */
+    struct rpsc_octant_quad *oct_mod = &octant_lo_table[octant];
+
+    /* find the row and cell nr of the destination, with regard to the octant we are in. */
+    coord_t delta = cd_delta_abs(src, dst);
+    int cell_dst = delta.x;
+    int row_dst = delta.y;
+    if (oct_mod->flip) {
+        cell_dst = delta.y;
+        row_dst = delta.x;
+    }
+
+    /* check radius */
+    return in_radius(set, row_dst, cell_dst, radius);
+}

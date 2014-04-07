@@ -45,12 +45,12 @@ int sgt_explosion(struct sgt_sight *sight, struct dm_map *map, coord_t *pos, int
    continue_path specifies if the path must extend past point e, 
    always up and until an obstruction.  it returns the length of the path.
  */
-int sgt_los_path(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_t *e, coord_t *path_lst[], bool continue_path);
+int sgt_los_path(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_t *e, coord_t *path_lst[], bool continue_path, int radius);
 
 /* true if point e is visible from point s.  */
-bool sgt_has_los(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_t *e);
+bool sgt_has_los(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_t *e, int radius);
 
 /* true if point e is visible and there are no obstructions from point s. */
-bool sgt_has_lof(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_t *e);
+bool sgt_has_lof(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_t *e, int radius);
 
 #endif /*SIGHT_H_*/

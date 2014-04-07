@@ -203,6 +203,7 @@ bool sgt_calculate_light_source(struct sgt_sight *sight, struct dm_map *map, str
     struct rpsc_fov_set set = {
         .source = item,
         .permissiveness = RPSC_FOV_PERMISSIVE_NORMAL,
+        .area = RPSC_AREA_CIRCLE,
         .visible_on_equal = true,
         .not_visible_blocks_vision = true,
         .map = map,
@@ -234,6 +235,7 @@ bool sgt_calculate_player_sight(struct sgt_sight *sight, struct dm_map *map, str
     struct rpsc_fov_set set = {
         .source = monster,
         .permissiveness = RPSC_FOV_PERMISSIVE_NORMAL,
+        .area = RPSC_AREA_CIRCLE,
         .visible_on_equal = true,
         .not_visible_blocks_vision = true,
         .map = map,
@@ -280,6 +282,7 @@ int sgt_explosion(struct sgt_sight *sight, struct dm_map *map, coord_t *pos, int
     struct rpsc_fov_set set = {
         .source = &ex,
         .permissiveness = RPSC_FOV_PERMISSIVE_NORMAL,
+        .area = RPSC_AREA_CIRCLE,
         .visible_on_equal = true,
         .not_visible_blocks_vision = true,
         .map = map,
@@ -301,7 +304,7 @@ int sgt_explosion(struct sgt_sight *sight, struct dm_map *map, coord_t *pos, int
     return ex.list_idx;
 }
 
-int sgt_los_path(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_t *e, coord_t *path_lst[], bool continue_path) {
+int sgt_los_path(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_t *e, coord_t *path_lst[], bool continue_path, int radius) {
     if (sight == NULL) return false;
     if (dm_verify_map(map) == false) return false;
 
@@ -329,6 +332,7 @@ int sgt_los_path(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_
     struct rpsc_fov_set set = {
         .source = &ex,
         .permissiveness = RPSC_FOV_PERMISSIVE_NORMAL,
+        .area = RPSC_AREA_CIRCLE,
         .visible_on_equal = true,
         .not_visible_blocks_vision = true,
         .map = map,
@@ -337,7 +341,7 @@ int sgt_los_path(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_
         .apply = rpsc_apply_projectile_path,
     };
 
-    if (rpsc_los(&set, s, e) == false || ex.list_idx == 0) {
+    if (rpsc_los(&set, s, e, radius) == false || ex.list_idx == 0) {
         free (*path_lst);
         return -1;
     }
@@ -376,7 +380,7 @@ coord_t sgt_scatter(struct sgt_sight *sight, struct dm_map *map, struct random *
             if ( (dm_get_map_tile(&c,map)->attributes & TILE_ATTR_TRAVERSABLE) == 0) continue;
 
             /* require line of sight */
-            if (sgt_has_los(sight, map, p, &c) == false) continue;
+            if (sgt_has_los(sight, map, p, &c, radius) == false) continue;
             
             /* we found a point which mathes our restrictions*/
             break;
@@ -387,36 +391,38 @@ coord_t sgt_scatter(struct sgt_sight *sight, struct dm_map *map, struct random *
     return c;
 }
 
-bool sgt_has_los(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_t *e) {
+bool sgt_has_los(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_t *e, int radius) {
     if (sight == NULL) return false;
     if (dm_verify_map(map) == false) return false;
 
     struct rpsc_fov_set set = {
         .source = s,
         .permissiveness = RPSC_FOV_PERMISSIVE_NORMAL,
+        .area = RPSC_AREA_CIRCLE,
         .map = map,
         .size = map->size,
         .is_opaque = rpsc_check_opaque_los,
         .apply = NULL,
     };
 
-    return rpsc_los(&set, s, e );
+    return rpsc_los(&set, s, e, radius);
 }
 
-bool sgt_has_lof(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_t *e) {
+bool sgt_has_lof(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_t *e, int radius) {
     if (sight == NULL) return false;
     if (dm_verify_map(map) == false) return false;
 
     struct rpsc_fov_set set = {
         .source = s,
         .permissiveness = RPSC_FOV_PERMISSIVE_NORMAL,
+        .area = RPSC_AREA_CIRCLE,
         .map = map,
         .size = map->size,
         .is_opaque = rpsc_check_opaque_lof,
         .apply = NULL,
     };
 
-    return rpsc_los(&set, s, e);
+    return rpsc_los(&set, s, e, radius);
 }
 
 #if 0
