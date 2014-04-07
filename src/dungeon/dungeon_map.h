@@ -35,7 +35,7 @@ struct dm_map {
     uint32_t map_pre;
 
     coord_t size;
-    unsigned int seed;
+    unsigned long seed;
     enum dm_dungeon_type type;
     int threat_lvl;
 
