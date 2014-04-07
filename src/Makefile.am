@@ -1,5 +1,7 @@
-INCLUDES=-I$(top_srcdir)/utils
+AM_CPPFLAGS=-I$(top_srcdir)/utils
 bin_PROGRAMS = heresyrl
+
+GIT_VERSION := $(shell git describe --abbrev=8 --dirty --always)
 
 heresyrl_SOURCES =  \
                     cmdline.c \
@@ -36,7 +38,7 @@ heresyrl_SOURCES =  \
                     ui/ui_common.c \
                     ui/animate.c 
 
-heresyrl_CFLAGS = $(lua_CFLAGS) -ggdb -O0 -Wall -Wextra -Wformat=2 -Wswitch-default -Wcast-align -Wpointer-arith -Wbad-function-cast -Wstrict-prototypes -Winline -Wundef -Wnested-externs -Wcast-qual -Wshadow -Wwrite-strings  -Wunreachable-code -Wstrict-aliasing=2 -Wno-uninitialized
+heresyrl_CFLAGS = $(lua_CFLAGS) -ggdb -O0 -Wall -Wextra -Wformat=2 -Wswitch-default -Wcast-align -Wpointer-arith -Wbad-function-cast -Wstrict-prototypes -Winline -Wundef -Wnested-externs -Wcast-qual -Wshadow -Wwrite-strings  -Wunreachable-code -Wstrict-aliasing=2 -Wno-uninitialized -DVERSION=\"$(GIT_VERSION)\"
 heresyrl_LDADD = $(top_srcdir)/utils/libutils.la $(INTI_LIBS) -lm $(lua_LIBS)
 
 cmdline.c cmdline.h: $(top_srcdir)/heresyrl.ggo

@@ -167,6 +167,7 @@ bool sv_save_game(const char *filename, struct gm_game *gm) {
 
     FILE *file = fopen(filename, "w");
     fprintf(file, "%*s" "game={\n", indent, ""); { indent += 2;
+        fprintf(file, "%*s" "version=%s,\n", indent, "", VERSION);
         fprintf(file, "%*s" "turn=%d,\n", indent, "", gm->turn);
         fprintf(file, "%*s" "game_random={seed=%d,called=%d},\n", indent, "", 
                 random_get_seed(gm->game_random), random_get_nr_called(gm->game_random) );
