@@ -202,20 +202,25 @@ inline static bool angle_is_blocked(struct rpsc_fov_set *set, struct angle_set *
     return (near_blocked && center_blocked) || (center_blocked && far_blocked);
 }
 
+/* check if (row,cell) is within radius with the given settings */
 inline static bool in_radius(struct rpsc_fov_set *set, int row, int cell, int radius) {
+    /* if visible_on_equal == false, we are more strict */
     if (set->visible_on_equal == false) radius -= 1;
 
     if (set->area == RPSC_AREA_OCTAGON) {
         if ( ( ( (row) + (cell/2) ) ) <= radius) return true;
     }
     else if (set->area == RPSC_AREA_CIRCLE) {
+        /* nicer circle */
         if ( ( (row*row) + (cell*cell) ) <= ((radius*radius) + radius) ) return true;
     }
     else if (set->area == RPSC_AREA_CIRCLE_STRICT) {
+        /* pythagoras circle, which does not translate well to an ascii grid. */
         if ( ( (row*row) + (cell*cell) ) <= (radius*radius) ) return true;
     }
     else if (set->area == RPSC_AREA_SQUARE) {
-        if (MAX(row,cell) <= radius) return true;
+        /* simple square, row is always bigger than the cell. */
+        if (row <= radius) return true;
     }
     return false;
 }
@@ -641,3 +646,4 @@ bool rpsc_in_radius(struct rpsc_fov_set *set, coord_t *src, coord_t *dst, int ra
     /* check radius */
     return in_radius(set, row_dst, cell_dst, radius);
 }
+
