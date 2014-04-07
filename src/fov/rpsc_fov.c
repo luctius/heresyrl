@@ -1,4 +1,5 @@
 #include <limits.h>
+#include <inttypes.h>
 #include <stdint.h>
 #include <assert.h>
 
@@ -137,7 +138,7 @@ static inline struct angle_set offset_to_angle_set(int row, int cell) {
     /* center angle is in between */
     set.center = set.near + (range / 2);
 
-    lg_debug("as[%d,%d], (%d,%d,%d)", row,cell, set.near,set.center,set.far);
+    lg_debug("as[%d,%d], (%" PRIuFAST16 ",%" PRIuFAST16 ",%" PRIuFAST16 ")", row,cell, set.near,set.center,set.far);
 
     /* some paranoia checks */
     assert(set.near < set.center);
@@ -250,7 +251,7 @@ static int scrub_blocked_list(struct angle_set *list, int list_sz) {
                 list_sz--;
                 /* we were succesfull */
                 combined = true;
-                lg_debug("combining [%d] (%d,%d,%d) with [%d] (%d,%d,%d)", i, a->near, a->center, a->far, j, list[j].near, list[j].center, list[j].far);
+                lg_debug("combining [%d] (%" PRIuFAST16 ",%" PRIuFAST16 ",%" PRIuFAST16 ") with [%d] (%" PRIuFAST16 ",%" PRIuFAST16 ",%" PRIuFAST16 ")", i, a->near, a->center, a->far, j, list[j].near, list[j].center, list[j].far);
             }
         }
 
@@ -341,7 +342,7 @@ static void rpsc_fov_octant(struct rpsc_fov_set *set, coord_t *src, int radius, 
 
                 /* loop through the blocked list and check if the current cell is blocked by any of them. */
                 for (int i = 0; (i < obstacles_total) && (blocked == false); i++) {
-                    lg_debug("test (%d,%d,%d) vs [%d] (%d,%d,%d)", as.near, as.center, as.far, i, blocked_list[i].near, blocked_list[i].center, blocked_list[i].far);
+                    lg_debug("test (%" PRIuFAST16 ",%" PRIuFAST16 ",%" PRIuFAST16 ") vs [%d] (%" PRIuFAST16 ",%" PRIuFAST16 ",%" PRIuFAST16 ")", as.near, as.center, as.far, i, blocked_list[i].near, blocked_list[i].center, blocked_list[i].far);
 
                     /* check if <as> if blocked */
                     if (angle_is_blocked(set, &as, &blocked_list[i]) ) {
@@ -387,7 +388,7 @@ static void rpsc_fov_octant(struct rpsc_fov_set *set, coord_t *src, int radius, 
             /* if there is one obstacle, which covers the minimum and maximum angle 
                used in this row, it blocks everything. Thus there is no need to continue. */
             if ( (obstacles_total == 1) && (blocked_list[0].near <= angle_min) && (blocked_list[0].far >= angle_max) ) {
-                lg_debug("done: %d,%d", blocked_list[0].near, blocked_list[0].far);
+                lg_debug("done: %" PRIuFAST16 ",%" PRIuFAST16 "", blocked_list[0].near, blocked_list[0].far);
                 return;
             }
         }
@@ -523,7 +524,7 @@ bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst) {
 
             /* loop through the obstacles and check if this cell if being blocked. */
             for (int i = 0; i < obstacles_total; i++) {
-                lg_debug("test (%d,%d,%d) vs [%d] (%d,%d,%d)", as.near, as.center, as.far, i, blocked_list[i].near, blocked_list[i].center, blocked_list[i].far);
+                lg_debug("test (%" PRIuFAST16 ",%" PRIuFAST16 ",%" PRIuFAST16 ") vs [%d] (%" PRIuFAST16 ",%" PRIuFAST16 ",%" PRIuFAST16 ")", as.near, as.center, as.far, i, blocked_list[i].near, blocked_list[i].center, blocked_list[i].far);
 
                 /* check if the angles of this cell border a blocked cell. */
                 if (angle_is_blocked(set, &as, &blocked_list[i]) ) {
