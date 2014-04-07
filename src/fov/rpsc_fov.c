@@ -3,9 +3,15 @@
 #include <stdint.h>
 #include <assert.h>
 
+//#define DEBUG
+
 #include "rpsc_fov.h"
 
+#ifdef DEBUG
 #include "logging.h"
+#else
+#define lg_debug(...) do { } while (0);
+#endif
 
 /* 
    This is an implementation of:
