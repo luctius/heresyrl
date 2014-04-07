@@ -304,7 +304,7 @@ int sgt_explosion(struct sgt_sight *sight, struct dm_map *map, coord_t *pos, int
     return ex.list_idx;
 }
 
-int sgt_los_path(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_t *e, coord_t *path_lst[], bool continue_path, int radius) {
+int sgt_los_path(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_t *e, coord_t *path_lst[], bool continue_path) {
     if (sight == NULL) return false;
     if (dm_verify_map(map) == false) return false;
 
@@ -341,7 +341,7 @@ int sgt_los_path(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_
         .apply = rpsc_apply_projectile_path,
     };
 
-    if (rpsc_los(&set, s, e, radius) == false || ex.list_idx == 0) {
+    if (rpsc_los(&set, s, e, MAX(map->size.x, map->size.y) ) == false || ex.list_idx == 0) {
         free (*path_lst);
         return -1;
     }

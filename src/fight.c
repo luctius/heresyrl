@@ -477,7 +477,7 @@ bool fght_throw_weapon(struct random *r, struct msr_monster *monster, struct dm_
     if (msr_verify_monster(monster) == false) return false;
     if (dm_verify_map(map) == false) return false;
     if (cd_within_bound(e, &map->size) == false) return false;
-    if (sgt_has_los(gbl_game->sight, map, &monster->pos, e, msr_get_far_sight_range(monster) ) == false) return false;
+    if (sgt_has_los(gbl_game->sight, map, &monster->pos, e, 1000) == false) return false;
     coord_t end = *e;
 
     lg_debug("throwing weapon to (%d,%d)", e->x, e->y);
@@ -490,7 +490,7 @@ bool fght_throw_weapon(struct random *r, struct msr_monster *monster, struct dm_
            the shooter position, and continue the same path 
            untill an obstacle is found.*/
         coord_t *path;
-        int path_len = sgt_los_path(gbl_game->sight, map, &monster->pos, &end, &path, false, msr_get_far_sight_range(monster) );
+        int path_len = sgt_los_path(gbl_game->sight, map, &monster->pos, &end, &path, false);
         ui_animate_projectile(map, path, path_len);
 
         /* if the path was succesfully created, free it here */
@@ -518,7 +518,7 @@ bool fght_throw_weapon(struct random *r, struct msr_monster *monster, struct dm_
             /* I first wanted to do the animation in one go, scatter them animate the whole path
                But it is very possible that the scattered target is out of LoS of the origin.  */
             path = NULL;
-            path_len = sgt_los_path(gbl_game->sight, map, e, &end, &path, false, msr_get_far_sight_range(monster) );
+            path_len = sgt_los_path(gbl_game->sight, map, e, &end, &path, false);
             ui_animate_projectile(map, path, path_len);
 
             /* if the path was succesfully created, free it here */
@@ -573,7 +573,7 @@ bool fght_shoot(struct random *r, struct msr_monster *monster, struct dm_map *ma
     if (dm_verify_map(map) == false) return false;
     if (cd_within_bound(&monster->pos, &map->size) == false) return false;
     if (msr_weapon_type_check(monster, WEAPON_TYPE_RANGED) == false) return false;
-    if (sgt_has_los(gbl_game->sight, map, &monster->pos, e, msr_get_far_sight_range(monster) ) == false) return false;
+    if (sgt_has_los(gbl_game->sight, map, &monster->pos, e, 1000) == false) return false;
     struct itm_item *item1 = fght_get_working_weapon(monster, WEAPON_TYPE_RANGED, FGHT_MAIN_HAND);
     struct itm_item *item2 = fght_get_working_weapon(monster, WEAPON_TYPE_RANGED, FGHT_OFF_HAND);
     if ( (item1 == NULL) && (item2 == NULL) ) return false;
@@ -596,7 +596,7 @@ bool fght_shoot(struct random *r, struct msr_monster *monster, struct dm_map *ma
        the shooter position, and continue the same path 
        untill an obstacle is found.*/
     coord_t *path;
-    int path_len = sgt_los_path(gbl_game->sight, map, &monster->pos, e, &path, true, msr_get_far_sight_range(monster) );
+    int path_len = sgt_los_path(gbl_game->sight, map, &monster->pos, e, &path, true);
 
     /*  
         Here we loop over the
