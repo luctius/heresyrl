@@ -194,11 +194,11 @@ inline static bool angle_is_blocked(struct rpsc_fov_set *set, struct angle_set *
         return (near_blocked && center_blocked && far_blocked);
     }
     else if (set->permissiveness == RPSC_FOV_PERMISSIVE_STRICT) {
-        /* blocked when 2 angles are blocked */
+        /* blocked when a angle is blocked */
         return (near_blocked || center_blocked || far_blocked);
     }
 
-    /* blocked when any angle is blocked */
+    /* blocked when any two angles are blocked */
     return (near_blocked && center_blocked) || (center_blocked && far_blocked);
 }
 
