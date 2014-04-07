@@ -597,6 +597,7 @@ bool mapwin_overlay_throw_cursor(struct gm_game *g, struct dm_map *map, coord_t 
             case INP_KEY_PLUS:
                     item->energy += TT_ENERGY_TURN;
                     if (item->energy >= (TT_ENERGY_TURN * 10) ) item->energy = TT_ENERGY_TURN * 10;
+                    if ((item->energy % TT_ENERGY_TURN) > 0) item->energy = (item->energy / TT_ENERGY_TURN) * TT_ENERGY_TURN;
                 break;
             case INP_KEY_YES:
             case INP_KEY_THROW: {
@@ -826,7 +827,13 @@ static int invwin_printlist(WINDOW *win, struct inv_show_item list[], int list_s
     if (start >= max) return -1;
 
     for (int i = 0; i < max; i++) {
-        mvwprintw(win, i, 1, "%c)  %c%s", inp_key_translate_idx(i), list[i+start].location[0], list[i+start].item->sd_name);
+        struct itm_item *item = list[i+start].item;
+        if (item->stacked_quantity > 1) {
+            mvwprintw(win, i, 1, "%c)  %c%s x%d", inp_key_translate_idx(i), list[i+start].location[0], item->sd_name, item->stacked_quantity);
+        }
+        else {
+            mvwprintw(win, i, 1, "%c)  %c%s", inp_key_translate_idx(i), list[i+start].location[0], item->sd_name);
+        }
     }
     return max;
 }

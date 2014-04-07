@@ -5,5 +5,6 @@
 #include "coord.h"
 
 void ui_animate_projectile(struct dm_map *map, coord_t path[], int path_len);
+void ui_animate_explosion(struct dm_map *map, coord_t path[], int path_len);
 
 #endif /* ANIMATE_H */

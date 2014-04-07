@@ -16,8 +16,8 @@
 
 #define LIGHT(_tool_type,_energy,_light_luminem) \
             .icon='(', .stacked_quantity=1, .max_quantity=100, .item_type=ITEM_TYPE_TOOL, \
-            .specific.tool={ .tool_type=_tool_type, .energy=_energy, .light_luminem=_light_luminem, \
-            .lit=false,}
+            .specific.tool={ .tool_type=_tool_type, .energy=_energy, .energy_left=_energy, \
+            .light_luminem=_light_luminem, .lit=false,}
 
 #define ARMOUR(_damage_reduction,_locations,_special_quality) \
             .icon=']', .stacked_quantity=0, .max_quantity=1, .item_type=ITEM_TYPE_WEARABLE, \
@@ -120,7 +120,7 @@ struct itm_item static_item_list[] = {
     /* Grenades */
     ITEM(ITEM_ID_FRAG_GRENADE,  "frag grenade","a frag grenade","",           ITEM_AVAILABILITY_AVERAGE,   ITEM_QUALITY_AVERAGE,   5,    10,   1),
         /*                 CATEGORY           xd10  +X  pen, range   dmg type                upgrades               special qualities             talent */
-        THROWN(WEAPON_CATEGORY_THROWN_GRENADE,  2,   0,  0,   3,  WEAPON_DMG_TYPE_EXPLOSIVE, WEAPON_UPGRADE_NONE, WEAPON_SPEC_QUALITY_BLAST_1, T0_CREATURE_WEAPON_TALENT), ITEM_END,
+        THROWN(WEAPON_CATEGORY_THROWN_GRENADE,  2,   0,  0,   3,  WEAPON_DMG_TYPE_EXPLOSIVE, WEAPON_UPGRADE_NONE, WEAPON_SPEC_QUALITY_BLAST_4, T0_CREATURE_WEAPON_TALENT), ITEM_END,
 
     /* Thrown */
     ITEM(ITEM_ID_THROWING_KNIFE,  "throwing knife","a throwing knife","",     ITEM_AVAILABILITY_PLENTIFUL,   ITEM_QUALITY_AVERAGE, 5,    5,   1),
