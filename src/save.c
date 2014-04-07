@@ -169,14 +169,8 @@ bool sv_save_game(const char *filename, struct gm_game *gm) {
     fprintf(file, "%*s" "game={\n", indent, ""); { indent += 2;
         fprintf(file, "%*s" "version=%s,\n", indent, "", VERSION);
         fprintf(file, "%*s" "turn=%d,\n", indent, "", gm->turn);
-        fprintf(file, "%*s" "game_random={seed=%d,called=%d},\n", indent, "", 
-                random_get_seed(gm->game_random), random_get_nr_called(gm->game_random) );
-        fprintf(file, "%*s" "map_random={seed=%d,called=%d},\n", indent, "", 
-                random_get_seed(gm->map_random), random_get_nr_called(gm->map_random) );
-        fprintf(file, "%*s" "spawn_random={seed=%d,called=%d},\n", indent, "", 
-                random_get_seed(gm->spawn_random), random_get_nr_called(gm->spawn_random) );
-        fprintf(file, "%*s" "ai_random={seed=%d,called=%d},\n", indent, "", 
-                random_get_seed(gm->ai_random), random_get_nr_called(gm->ai_random) );
+        fprintf(file, "%*s" "random={seed=%d,called=%d},\n", indent, "", 
+                random_get_seed(gm->random), random_get_nr_called(gm->random) );
 
         sv_save_player(file, indent, &gm->player_data);
         sv_save_items(file, indent);

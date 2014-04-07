@@ -38,7 +38,7 @@ void plr_init(struct pl_player *plr, char *name, enum msr_race race, enum msr_ge
 
         int i = 0;
         while (items[i].max != 0) {
-            spwn_add_item_to_monster(plr->player, &items[i], gbl_game->spawn_random);
+            spwn_add_item_to_monster(plr->player, &items[i], gbl_game->random);
             i++;
         }
     }

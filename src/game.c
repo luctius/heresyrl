@@ -38,15 +38,9 @@ bool game_load(void) {
     bool loaded = false;
     if (gbl_game == NULL) return false;
 
-    if (gbl_game->game_random != NULL) {
-        random_exit(gbl_game->game_random);
-        random_exit(gbl_game->spawn_random);
-        random_exit(gbl_game->map_random);
-        random_exit(gbl_game->ai_random);
-        gbl_game->game_random = NULL;
-        gbl_game->spawn_random = NULL;
-        gbl_game->map_random = NULL;
-        gbl_game->ai_random = NULL;
+    if (gbl_game->random != NULL) {
+        random_exit(gbl_game->random);
+        gbl_game->random = NULL;
     }
 
     if (gbl_game->args_info->no_load_flag == false) {
@@ -65,11 +59,8 @@ bool game_load(void) {
 bool game_init_map(void) {
     if (gbl_game == NULL) return false;
 
-    if (gbl_game->game_random == NULL) {
-        gbl_game->game_random = random_init_genrand(gbl_game->initial_seed);
-        gbl_game->spawn_random = random_init_genrand(random_int32(gbl_game->game_random));
-        gbl_game->map_random = random_init_genrand(random_int32(gbl_game->game_random));
-        gbl_game->ai_random = random_init_genrand(random_int32(gbl_game->game_random));
+    if (gbl_game->random == NULL) {
+        gbl_game->random = random_init_genrand(gbl_game->initial_seed);
     }
 
     int x = 100;
@@ -77,8 +68,8 @@ bool game_init_map(void) {
 
     if (gbl_game->current_map == NULL) {
         gbl_game->current_map = dm_alloc_map(x,y);
-        //dm_generate_map(gbl_game->current_map, DM_DUNGEON_TYPE_SIMPLE, 1, random_int32(gbl_game->map_random) );
-        dm_generate_map(gbl_game->current_map, DM_DUNGEON_TYPE_CAVE, 1, random_int32(gbl_game->map_random) );
+        //dm_generate_map(gbl_game->current_map, DM_DUNGEON_TYPE_SIMPLE, 1, random_int32(gbl_game->random) );
+        dm_generate_map(gbl_game->current_map, DM_DUNGEON_TYPE_CAVE, 1, random_int32(gbl_game->random) );
     }
 
     plr_init(&gbl_game->player_data, "Tester", MSR_RACE_HUMAN, MSR_GENDER_MALE);
@@ -88,7 +79,7 @@ bool game_init_map(void) {
     if (cd_equal(&gbl_game->player_data.player->pos, &c) == true) {
         if (dm_tile_instance(gbl_game->current_map, TILE_TYPE_STAIRS_UP, 0, &c) == false) exit(1);
         if (msr_insert_monster(gbl_game->player_data.player, gbl_game->current_map, &c) == false) exit(1);
-        spwn_populate_map(gbl_game->current_map, gbl_game->spawn_random, 100, 10);
+        spwn_populate_map(gbl_game->current_map, gbl_game->random, 100, 10);
     }
 
     dm_clear_map_visibility(gbl_game->current_map, &c, &gbl_game->current_map->size);
@@ -122,10 +113,7 @@ bool game_exit() {
 
     sgt_exit(gbl_game->sight);
 
-    random_exit(gbl_game->game_random);
-    random_exit(gbl_game->ai_random);
-    random_exit(gbl_game->spawn_random);
-    random_exit(gbl_game->map_random);
+    random_exit(gbl_game->random);
 
     free(gbl_game);
     return true;

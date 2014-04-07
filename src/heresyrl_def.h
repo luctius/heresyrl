@@ -53,10 +53,7 @@ struct pl_player {
 
 struct gm_game {
     unsigned long initial_seed;
-    struct random *game_random;
-    struct random *map_random;
-    struct random *spawn_random;
-    struct random *ai_random;
+    struct random *random;
 
     struct sgt_sight *sight;
 

@@ -236,25 +236,10 @@ static bool load_game(lua_State *L, struct gm_game *g) {
     if (lua_intexpr(L, &t, "game.turn") == 0) return false;
     g->turn = t;
 
-    if (lua_intexpr(L, &t, "game.game_random.seed") == 0) return false;
-    g->game_random = random_init_genrand(t);
-    if (lua_intexpr(L, &t, "game.game_random.called") == 0) return false;
-    random_loop_called(g->game_random, t);
-
-    if (lua_intexpr(L, &t, "game.map_random.seed") == 0) return false;
-    g->map_random = random_init_genrand(t);
-    if (lua_intexpr(L, &t, "game.map_random.called") == 0) return false;
-    random_loop_called(g->map_random, t);
-
-    if (lua_intexpr(L, &t, "game.spawn_random.seed") == 0) return false;
-    g->spawn_random = random_init_genrand(t);
-    if (lua_intexpr(L, &t, "game.spawn_random.called") == 0) return false;
-    random_loop_called(g->spawn_random, t);
-
-    if (lua_intexpr(L, &t, "game.ai_random.seed") == 0) return false;
-    g->ai_random = random_init_genrand(t);
-    if (lua_intexpr(L, &t, "game.ai_random.called") == 0) return false;
-    random_loop_called(g->ai_random, t);
+    if (lua_intexpr(L, &t, "game.random.seed") == 0) return false;
+    g->random = random_init_genrand(t);
+    if (lua_intexpr(L, &t, "game.random.called") == 0) return false;
+    random_loop_called(g->random, t);
 
     return true;
 }

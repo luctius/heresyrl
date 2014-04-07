@@ -183,7 +183,7 @@ bool itm_energy_action(struct itm_item *item, struct dm_map *map) {
             }
         case ITEM_TYPE_WEAPON: {
                 if (wpn_is_catergory(item, WEAPON_CATEGORY_THROWN_GRENADE) ) {
-                    fght_explosion(gbl_game->game_random, item, map);
+                    fght_explosion(gbl_game->random, item, map);
                     coord_t pos = itm_get_pos(item);
                     if (itm_remove_item(item, map, &pos) ) {
                         itm_destroy(item);

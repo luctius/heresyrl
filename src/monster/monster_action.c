@@ -197,7 +197,7 @@ bool ma_do_melee(struct msr_monster *monster, coord_t *target_pos) {
         }
     }
 
-    if (fght_melee(gbl_game->game_random, monster, target) == false) {
+    if (fght_melee(gbl_game->random, monster, target) == false) {
         return false;
     }
 
@@ -253,7 +253,7 @@ bool ma_do_throw(struct msr_monster *monster, coord_t *pos, struct itm_item *ite
     }
 
     /* do the action*/
-    thrown = fght_throw_weapon(gbl_game->game_random, monster, gbl_game->current_map, pos, hand);
+    thrown = fght_throw_weapon(gbl_game->random, monster, gbl_game->current_map, pos, hand);
 
     if (change) {
         /* check if the item still exists (mainly if there is anythin left in the stack. )*/
@@ -303,7 +303,7 @@ bool ma_do_fire(struct msr_monster *monster, coord_t *pos) {
         }
     }
 
-    if (fght_shoot(gbl_game->game_random, monster, gbl_game->current_map, pos) == false) {
+    if (fght_shoot(gbl_game->random, monster, gbl_game->current_map, pos) == false) {
         return false;
     }
 
