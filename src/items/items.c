@@ -7,6 +7,7 @@
 #include "random.h"
 #include "tiles.h"
 #include "inventory.h"
+#include "fight.h"
 #include "dungeon/dungeon_map.h"
 #include "monster/monster.h"
 
@@ -180,7 +181,15 @@ bool itm_energy_action(struct itm_item *item, struct dm_map *map) {
                 item->specific.tool.lit = false;
                 msg("A %s switches off as it runs out of juice.", item->sd_name);
             }
-        case ITEM_TYPE_WEAPON:
+        case ITEM_TYPE_WEAPON: {
+                if (wpn_is_catergory(item, WEAPON_CATEGORY_THROWN_GRENADE) ) {
+                    fght_explosion(gbl_game->game_random, item, map);
+                    coord_t pos = itm_get_pos(item);
+                    if (itm_remove_item(item, map, &pos) ) {
+                        itm_destroy(item);
+                    }
+                }
+            }
         case ITEM_TYPE_WEARABLE:
         case ITEM_TYPE_AMMO:
         case ITEM_TYPE_FOOD:

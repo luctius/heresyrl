@@ -207,7 +207,7 @@ int fght_calc_dmg(struct random *r, struct msr_monster *monster, struct msr_mons
             /* Modifiers to damage here */
             {
                 /* Add strength bonus */
-                if ( wpn_is_type(witem, WEAPON_TYPE_MELEE) || wpn_is_type(witem, WEAPON_TYPE_THROWN) ) dmg_add += msr_calculate_characteristic_bonus(monster, MSR_CHAR_STRENGTH);
+                if ( wpn_is_type(witem, WEAPON_TYPE_MELEE) || wpn_is_catergory(witem, WEAPON_CATEGORY_THROWN_WEAPON) ) dmg_add += msr_calculate_characteristic_bonus(monster, MSR_CHAR_STRENGTH);
 
                 /* Best Quality gains +1 damage */
                 if (itm_has_quality(witem, ITEM_QUALITY_BEST) ) dmg_add += FGHT_MODIFIER_QUALITY_TO_DMG_BEST;
@@ -432,6 +432,42 @@ bool fght_melee(struct random *r, struct msr_monster *monster, struct msr_monste
     return true;
 }
 
+bool fght_explosion(struct random *r, struct itm_item *bomb, struct dm_map *map) {
+    if (itm_verify_item(bomb) == false) return false;
+    if (dm_verify_map(map) == false) return false;
+
+    coord_t c = itm_get_pos(bomb);
+    int radius = 0;
+    if (wpn_has_spc_quality(bomb, WEAPON_SPEC_QUALITY_BLAST_1) == true) radius = 1;
+    if (wpn_has_spc_quality(bomb, WEAPON_SPEC_QUALITY_BLAST_2) == true) radius = 2;
+    if (wpn_has_spc_quality(bomb, WEAPON_SPEC_QUALITY_BLAST_3) == true) radius = 3;
+    if (wpn_has_spc_quality(bomb, WEAPON_SPEC_QUALITY_BLAST_4) == true) radius = 4;
+    
+    lg_debug("exploding bomb on %d,%d() with radius %d.", c.x, c.y, radius);
+
+    msg_init(&c, NULL);
+    msg_msr("%s explodes. ", bomb->ld_name);
+
+    coord_t *gridlist = NULL;
+    int gridlist_sz = sgt_explosion(gbl_game->sight, map, &c, radius, &gridlist);
+
+    for (int i = 0; i < gridlist_sz; i++) {
+        struct dm_map_entity *me = dm_get_map_me(&gridlist[i], map);
+        struct msr_monster *target = me->monster;
+        if (target != NULL) {
+            enum msr_hit_location mhl = msr_get_hit_location(target, random_d100(r));
+            int total_damage = fght_calc_dmg(r, NULL, target, 1, bomb, mhl);
+            msr_do_dmg(target, total_damage, mhl, map);
+            msg_msr("it does %d to %s. ", total_damage, msr_ldname(target) );
+        }
+    }
+
+    msg_exit();
+
+    ui_animate_explosion(map, gridlist, gridlist_sz);
+    return true;
+}
+
 /*
    We assume that the throwing weapon has been equiped 
    before use, ma_do_throw should do that for the player 
@@ -443,6 +479,8 @@ bool fght_throw_weapon(struct random *r, struct msr_monster *monster, struct dm_
     if (cd_within_bound(e, &map->size) == false) return false;
     if (sgt_has_los(gbl_game->sight, map, &monster->pos, e) == false) return false;
     coord_t end = *e;
+
+    lg_debug("throwing weapon to (%d,%d)", e->x, e->y);
 
     if (msr_weapon_type_check(monster, WEAPON_TYPE_THROWN) == true) {
         struct itm_item *witem = fght_get_working_weapon(monster, WEAPON_TYPE_THROWN, hand);
@@ -475,6 +513,7 @@ bool fght_throw_weapon(struct random *r, struct msr_monster *monster, struct dm_
         else {
             /* if we miss, scatter the object */
             end = sgt_scatter(gbl_game->sight, map, r, e, random_xd5(r, 1) );
+            lg_debug("%s is scattered towards (%d,%d)", witem->ld_name, end.x, end.y);
 
             /* I first wanted to do the animation in one go, scatter them animate the whole path
                But it is very possible that the scattered target is out of LoS of the origin.  */
@@ -499,6 +538,7 @@ bool fght_throw_weapon(struct random *r, struct msr_monster *monster, struct dm_
             if (witem->stacked_quantity == 0) {
                 /* remove the item from monsters inventory if that was the last one */
                 if (msr_remove_item(monster, witem) ) itm_destroy(witem);
+                lg_debug("no more copied in inventory, destroying last one.");
             }
 
             /* if the item is an grenade */
@@ -512,6 +552,8 @@ bool fght_throw_weapon(struct random *r, struct msr_monster *monster, struct dm_
                    case I doubt many will use.  */
                 if (witem_copy->energy <= 0)  witem_copy->energy = TT_ENERGY_TICK;
                 witem_copy->energy_action = true;
+
+                lg_debug("Setting the fuse to %d.", witem_copy->energy);
             }
 
             /* and place it on the target/scatter position */

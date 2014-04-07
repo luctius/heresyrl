@@ -250,11 +250,19 @@ int sgt_explosion(struct sgt_sight *sight, struct dm_map *map, coord_t *pos, int
     if (sight == NULL) return false;
     if (dm_verify_map(map) == false) return false;
 
+    /*handle case of radius zero*/
+    if (radius == 0) {
+        *grid_list = calloc(1, sizeof(coord_t) );
+        (*grid_list)[0] = *pos;
+        return 1;
+    }
+
     /* allocate the total number of grids within the explosion radius.
      this should be way to many but at this point we do not now how 
      many there are.
      */
-    *grid_list = calloc(radius * 4, sizeof(coord_t) );
+    int sz = (radius * 4) * (radius * 4);
+    *grid_list = calloc(sz, sizeof(coord_t) );
     if (*grid_list == NULL) return -1;
 
 
@@ -265,7 +273,7 @@ int sgt_explosion(struct sgt_sight *sight, struct dm_map *map, coord_t *pos, int
      */
     struct sgt_explosion_struct ex = {
         .list = *grid_list,
-        .list_sz = radius * 4,
+        .list_sz = sz,
         .list_idx = 0,
     };
 
