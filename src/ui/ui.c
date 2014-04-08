@@ -9,6 +9,8 @@
 #include "ui_common.h"
 
 #include "cmdline.h"
+#include "options.h"
+
 #include "tiles.h"
 #include "fight.h"
 #include "logging.h"
@@ -156,7 +158,7 @@ static void mapwin_display_map_noref(struct dm_map *map, coord_t *player) {
     scr_c.x = get_viewport(ppos.x, map_win->cols,  map->size.x);
     scr_c.y = get_viewport(ppos.y, map_win->lines, map->size.y);
 
-    bool map_see = gbl_game->args_info->map_flag;
+    bool map_see = options.debug_show_map;
 
     for (int xi = 0; xi < x_max; xi++) {
         for (int yi = 0; yi < y_max; yi++) {

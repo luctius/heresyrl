@@ -63,8 +63,6 @@ struct gm_game {
     struct pl_player player_data;
     int turn;
     bool running;
-
-    struct gengetopt_args_info *args_info;
 };
 
 extern struct gm_game *gbl_game;

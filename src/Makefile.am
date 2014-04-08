@@ -20,6 +20,7 @@ heresyrl_SOURCES =  \
                     dowear.c \
                     load.c \
                     save.c \
+                    options.c \
                     spawn.c \
                     turn_tick.c \
                     dungeon/dungeon_cave.c \

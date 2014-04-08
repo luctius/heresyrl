@@ -1,3 +1,6 @@
+#define CMDLINE_PARSER_PACKAGE "heresyrl"
+#define CMDLINE_PARSER_VERSION VERSION
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -10,6 +13,7 @@
 
 #include "heresyrl_def.h"
 #include "cmdline.h"
+#include "options.h"
 #include "logging.h"
 #include "game.h"
 #include "coord.h"
@@ -33,16 +37,17 @@ int main(int argc, char *argv[]) {
 
     if (cmdline_parser (argc, argv, &args_info) != 0) exit(1);
 
-    if (args_info.debug_flag) {
-        gbl_log = lg_init(args_info.log_file_arg, LG_DEBUG_LEVEL_DEBUG, 10000);
+    opt_parse_options(&args_info);
+
+    if (options.debug) {
+        gbl_log = lg_init(options.log_file_name, LG_DEBUG_LEVEL_DEBUG, 10000);
     }
     else {
-        gbl_log = lg_init(args_info.log_file_arg, LG_DEBUG_LEVEL_INFORMATIONAL, 10000);
+        gbl_log = lg_init(options.log_file_name, LG_DEBUG_LEVEL_INFORMATIONAL, 10000);
     }
 
  	srand(time(NULL));
     game_init(NULL, rand());
-    gbl_game->args_info = &args_info;
 
     initscr(); //  Start curses mode
     if (has_colors() == FALSE) exit(1);

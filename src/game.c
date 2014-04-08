@@ -1,5 +1,7 @@
 #include "game.h"
 #include "cmdline.h"
+#include "options.h"
+
 #include "input.h"
 #include "player.h"
 #include "tiles.h"
@@ -45,13 +47,13 @@ bool game_load(void) {
         gbl_game->random = NULL;
     }
 
-    if (gbl_game->args_info->no_load_flag == false) {
-        loaded = ld_read_save_file(gbl_game->args_info->save_file_arg, gbl_game);
+    if (options.debug_no_load == false) {
+        loaded = ld_read_save_file(options.save_file_name, gbl_game);
         if (loaded == true) {
-            lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "game", "Game loaded from %s.", gbl_game->args_info->save_file_arg);
+            lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "game", "Game loaded from %s.", options.save_file_name);
         }
         else {
-            lg_printf_l(LG_DEBUG_LEVEL_WARNING, "game", "Failed to load game from %s.", gbl_game->args_info->save_file_arg);
+            lg_printf_l(LG_DEBUG_LEVEL_WARNING, "game", "Failed to load game from %s.", options.save_file_name);
         }
     }
 
@@ -101,8 +103,8 @@ bool game_new_tick(void) {
 bool game_exit() {
     if (gbl_game == NULL) return false;
 
-    if (gbl_game->args_info->no_save_flag == false) {
-        if (sv_save_game(gbl_game->args_info->save_file_arg, gbl_game) == true) {
+    if (options.debug_no_save == false) {
+        if (sv_save_game(options.save_file_name, gbl_game) == true) {
             lg_print("Game Saved.");
         }
     }
