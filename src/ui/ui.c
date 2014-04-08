@@ -231,7 +231,7 @@ static void mapwin_examine(struct dm_map_entity *me) {
     if (char_win->type != HRL_WINDOW_TYPE_CHARACTER) return;
 
     werase(char_win->win);
-    textwin_init(char_win,0,0,0,0);
+    textwin_init(char_win,1,0,0,0);
 
     if (me->visible || me->in_sight) {
         textwin_add_text(char_win, "Upon a %s.\n", me->tile->ld_name);
@@ -285,7 +285,6 @@ void mapwin_overlay_examine_cursor(struct dm_map *map, coord_t *p_pos) {
             case INP_KEY_DOWN:       e_pos.y++; break;
             case INP_KEY_DOWN_LEFT:  e_pos.y++; e_pos.x--; break;
             case INP_KEY_LEFT:       e_pos.x--; break;
-            case INP_KEY_ESCAPE:
             case INP_KEY_YES:
             case INP_KEY_EXAMINE:    examine_mode = false; break;
             default: break;
@@ -324,7 +323,7 @@ void targetwin_examine(struct hrl_window *window, struct dm_map *map, struct msr
     }
 
     werase(window->win);
-    textwin_init(window,0,0,0,window->lines -4);
+    textwin_init(window,1,0,0,window->lines -4);
 
     if (me->monster != NULL) {
         textwin_add_text(window,"Target: %s.\n", msr_ldname(me->monster) );
@@ -344,7 +343,7 @@ void targetwin_examine(struct hrl_window *window, struct dm_map *map, struct msr
     textwin_add_text(window,"\n");
     textwin_display_text(window);
 
-    textwin_init(window,0,window->lines -4,0,0);
+    textwin_init(window,1,window->lines -4,0,0);
     textwin_add_text(window, "Calculated: %s.\n", witem->sd_name);
     if (wpn_is_catergory(witem, WEAPON_CATEGORY_THROWN_GRENADE) ) {
         textwin_add_text(window,"Timer: %d.%d.\n", witem->energy / TT_ENERGY_TURN, witem->energy % TT_ENERGY_TURN);
@@ -382,7 +381,6 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dm_map *map, coord_t *
     int scr_x = get_viewport(last_ppos.x, map_win->cols, map->size.x);
     int scr_y = get_viewport(last_ppos.y, map_win->lines, map->size.y);
 
-    int length = 0;
     coord_t *path;
     int path_len = 0;
 
@@ -495,7 +493,6 @@ bool mapwin_overlay_throw_cursor(struct gm_game *g, struct dm_map *map, coord_t 
     int scr_x = get_viewport(last_ppos.x, map_win->cols, map->size.x);
     int scr_y = get_viewport(last_ppos.y, map_win->lines, map->size.y);
 
-    int length = 0;
     coord_t *path;
     int path_len = 0;
 
@@ -675,7 +672,7 @@ void charwin_refresh() {
     if (char_win->type != HRL_WINDOW_TYPE_CHARACTER) return;
 
     werase(char_win->win);
-    textwin_init(char_win,0,0,0,0);
+    textwin_init(char_win,1,0,0,0);
 
     struct msr_monster *player = plr->player;
 
@@ -780,7 +777,7 @@ static int invwin_printlist(struct hrl_window *window, struct inv_show_item list
     }
 
     werase(window->win);
-    textwin_init(window,0,0,0,0);
+    textwin_init(window,1,0,0,0);
 
     max = MIN(max, INP_KEY_MAX_IDX);
     if (start >= max) return -1;
@@ -818,7 +815,7 @@ void invwin_examine(struct hrl_window *window, struct itm_item *item) {
     if (window->type != HRL_WINDOW_TYPE_CHARACTER) return;
 
     werase(window->win);
-    textwin_init(window,0,0,0,0);
+    textwin_init(window,1,0,0,0);
     textwin_add_text(window, "Description of %s.\n", item->ld_name);
     textwin_add_text(window, "\n");
 
@@ -948,6 +945,14 @@ void character_window(void) {
     struct pl_player *plr = &gbl_game->player_data;
     struct msr_monster *mon = plr->player;
 
+    struct hrl_window pad;
+    memmove(&pad, map_win, sizeof(struct hrl_window) );
+    pad.win = newpad(map_win->lines * 10, map_win->cols);
+    assert(pad.win != NULL);
+
+    touchwin(pad.win);
+    werase(pad.win);
+
 /*
 Name: 
 Career: 
@@ -976,29 +981,27 @@ Basic weapon traning SP     ...                  |
 
 */
 
-    werase(map_win->win);
-
     /* General Stats */
 
-    textwin_init(map_win,0,0,0,0);
-    textwin_add_text(map_win, "Name:       %s\n", plr->name);
-    textwin_add_text(map_win, "Career:     %s\n", "tester");
-    textwin_add_text(map_win, "Rank:       %s\n", "beginner");
-    textwin_add_text(map_win, "Origin:     %s\n", "computer");
-    textwin_add_text(map_win, "Divination: %s\n", "die");
-    y += textwin_display_text(map_win) +1;
+    textwin_init(&pad,1,0,0,0);
+    textwin_add_text(&pad, "Name:       %s\n", plr->name);
+    textwin_add_text(&pad, "Career:     %s\n", "tester");
+    textwin_add_text(&pad, "Rank:       %s\n", "beginner");
+    textwin_add_text(&pad, "Origin:     %s\n", "computer");
+    textwin_add_text(&pad, "Divination: %s\n", "die");
+    y += textwin_display_text(&pad) +1;
 
-    textwin_init(map_win,0,y,18,8);
-    textwin_add_text(map_win, "Wounds:   %d/%d\n", mon->cur_wounds, mon->max_wounds);
-    textwin_add_text(map_win, "Insanity:    %d\n", mon->insanity_points);
-    textwin_add_text(map_win, "XP:          %d\n", 0);
-    y_sub = textwin_display_text(map_win);
+    textwin_init(&pad,1,y,18,8);
+    textwin_add_text(&pad, "Wounds:   %d/%d\n", mon->cur_wounds, mon->max_wounds);
+    textwin_add_text(&pad, "Insanity:    %d\n", mon->insanity_points);
+    textwin_add_text(&pad, "XP:          %d\n", 0);
+    y_sub = textwin_display_text(&pad);
 
-            textwin_init(map_win,20,y,18,y_sub);
-            textwin_add_text(map_win, "Fate:       %d/%d\n", mon->fate_points,0);
-            textwin_add_text(map_win, "Corruption:    %d\n", mon->corruption_points);
-            textwin_add_text(map_win, "Spend:         %d\n", 0);
-            textwin_display_text(map_win);
+            textwin_init(&pad,20,y,18,y_sub);
+            textwin_add_text(&pad, "Fate:       %d/%d\n", mon->fate_points,0);
+            textwin_add_text(&pad, "Corruption:    %d\n", mon->corruption_points);
+            textwin_add_text(&pad, "Spend:         %d\n", 0);
+            textwin_display_text(&pad);
     y += y_sub;
 
     /* Characteristics */
@@ -1006,24 +1009,24 @@ Basic weapon traning SP     ...                  |
 
     y += 1;
     for (int i = 0; i < MSR_CHAR_MAX; i++) {
-        textwin_init(map_win,i * 6,y,6,1);
-        textwin_add_text(map_win, "[%3s] ", char_names[i]);
-        textwin_display_text(map_win);
+        textwin_init(&pad,(i * 6),y,6,1);
+        textwin_add_text(&pad, "[%3s] ", char_names[i]);
+        textwin_display_text(&pad);
     }
 
     y += 1;
     for (int i = 0; i < MSR_CHAR_MAX; i++) {
-        textwin_init(map_win,i * 6,y,6,1);
-        textwin_add_text(map_win, "[%3d] ", msr_calculate_characteristic(mon, i) );
-        textwin_display_text(map_win);
+        textwin_init(&pad,(i * 6),y,6,1);
+        textwin_add_text(&pad, "[%3d] ", msr_calculate_characteristic(mon, i) );
+        textwin_display_text(&pad);
     }
 
     y += 2;
 
     /* Skills */
-    textwin_init(map_win,0,y,0,0);
-    textwin_add_text(map_win, "Skills\n");
-    textwin_add_text(map_win, "------\n");
+    textwin_init(&pad,1,y,0,0);
+    textwin_add_text(&pad, "Skills\n");
+    textwin_add_text(&pad, "------\n");
     const char *skill_names[] = {"Awareness",       "Barter", 
                                  "Chem Use",        "Common Lore", 
                                 "Concealment",      "Demolition", 
@@ -1041,25 +1044,212 @@ Basic weapon traning SP     ...                  |
         if (names_len < strlen(skill_names[i]) ) {
             names_len = strlen(skill_names[i]);
         }
-        textwin_add_text(map_win, "%s\n", skill_names[i]);
+        textwin_add_text(&pad, "%s\n", skill_names[i]);
     }
-    y_sub = textwin_display_text(map_win);
+    y_sub = textwin_display_text(&pad);
 
-            textwin_init(map_win,names_len + 3,y,0,0);
-            textwin_add_text(map_win, "Proficiency\n");
-            textwin_add_text(map_win, "-----------\n");
+            textwin_init(&pad,names_len + 3,y,0,0);
+            textwin_add_text(&pad, "Proficiency\n");
+            textwin_add_text(&pad, "-----------\n");
             const char *skill_rate_names[] = { "untrained", "basic", "advanced", "expert" };
             for (unsigned int i = 0; i < ARRAY_SZ(skill_names); i++) {
                 enum skill_rate skillrate = msr_has_skill(mon,  (1<<i));
                 lg_debug("skill rate: %d", skillrate);
-                textwin_add_text(map_win, "%s\n", skill_rate_names[skillrate]);
+                textwin_add_text(&pad, "%s\n", skill_rate_names[skillrate]);
             }
-            y_sub += textwin_display_text(map_win);
+            y_sub = textwin_display_text(&pad);
+    y += y_sub +1;
+
+
+    /* Armour  */
+    textwin_init(&pad,1,y,0,0);
+    textwin_add_text(&pad, "Armour\n");
+    textwin_add_text(&pad, "------\n");
+    y_sub = textwin_display_text(&pad);
+
+    names_len = 0;
+    /* Armour */
+    struct itm_item *item = NULL;
+    while ( (item = inv_get_next_item(mon->inventory, item) ) != NULL) {
+        if ( (inv_item_worn(mon->inventory, item) == true) && 
+             (inv_item_wielded(mon->inventory, item) == false) ) {
+
+            textwin_init(&pad,1,y+y_sub,0,0);
+            textwin_add_text(&pad, "%s", item->ld_name);
+            textwin_display_text(&pad);
+
+            if (names_len < strlen(item->ld_name) ) {
+                names_len = strlen(item->ld_name);
+            }
+        }
+    }
+
+            textwin_init(&pad,names_len +3,y,0,0);
+            textwin_add_text(&pad, "AP\n");
+            textwin_add_text(&pad, "--\n");
+            y_sub = textwin_display_text(&pad);
+            /* Armour */
+            item = NULL;
+            while ( (item = inv_get_next_item(mon->inventory, item) ) != NULL) {
+                if ( (inv_item_worn(mon->inventory, item) == true) && 
+                     (inv_item_wielded(mon->inventory, item) == false) ) {
+                    int armour = 0;
+
+                    if (wbl_is_type(item, WEARABLE_TYPE_ARMOUR) == true) {
+                        armour = item->specific.wearable.damage_reduction;
+                    }
+
+                    textwin_init(&pad,names_len +3,y+y_sub,0,0);
+                    textwin_add_text(&pad, "%3d", armour);
+                    textwin_display_text(&pad);
+                }
+            }
+
+            textwin_init(&pad,names_len +7 ,y,0,0);
+            textwin_add_text(&pad, "Location\n");
+            textwin_add_text(&pad, "--------\n");
+            textwin_display_text(&pad);
+
+            y += y_sub;
+
+            y_sub = 0;
+            item = NULL;
+            while ( (item = inv_get_next_item(mon->inventory, item) ) != NULL) {
+                if ( (inv_item_worn(mon->inventory, item) == true) && 
+                     (inv_item_wielded(mon->inventory, item) == false) ) {
+                    bitfield_t locs = inv_get_item_locations(mon->inventory, item);
+
+                    textwin_init(&pad,names_len +7,y,0,0);
+                    bool first = true;
+                    for (enum inv_locations i = 1; i < INV_LOC_MAX; i <<= 1) {
+                        if ( (locs & i) > 0) {
+                            if (first == false) textwin_add_text(&pad, "/");
+                            textwin_add_text(&pad, "%s", inv_location_name(locs & i) );
+                            first = false;
+                        }
+                    }
+                    y_sub += textwin_display_text(&pad);
+                }
+            }
     y += y_sub;
 
 
 
-    inp_get_input(gbl_game->input);
+
+    /* Controls */
+
+    int line = 0;
+    bool watch = true;
+    while(watch == true) {
+        prefresh(pad.win, line,0,1,1,pad.lines,pad.cols);
+
+        switch (inp_get_input(gbl_game->input) ) {
+            case INP_KEY_UP_RIGHT:   line += 20; break;
+            case INP_KEY_DOWN_RIGHT: line -= 20; break;
+            case INP_KEY_UP:         line--; break;
+            case INP_KEY_DOWN:       line++; break;
+            case INP_KEY_ESCAPE:
+            case INP_KEY_QUIT:
+            case INP_KEY_NO:
+            case INP_KEY_YES: watch = false; break;
+            default: break;
+        }
+
+        if (line < 0) line = 0;
+        if (line > (y - pad.lines) ) line = y - pad.lines;
+    }
+
+    delwin(pad.win);
+}
+
+
+void log_window(void) {
+    struct queue *q = lg_queue(gbl_log);
+    int y = 0;
+    int log_sz = queue_size(q);
+    struct log_entry *tmp_entry = NULL;
+
+    struct hrl_window pad;
+    memmove(&pad, map_win, sizeof(struct hrl_window) );
+    pad.win = newpad(MAX(log_sz * 2, map_win->lines) , map_win->cols);
+    assert(pad.win != NULL);
+
+    touchwin(pad.win);
+    werase(pad.win);
+
+    textwin_init(&pad,1,0,0,log_sz);
+    if (log_sz > 0) {
+        for (int i = log_sz; i > 0; i--) {
+            tmp_entry = (struct log_entry *) queue_peek_nr(q, i-1);
+            if (tmp_entry != NULL) {
+                const char *pre_format;
+
+                switch (tmp_entry->level)
+                {
+                    case LG_DEBUG_LEVEL_GAME:
+                        pre_format = "[%s" ":Game][%d] ";
+                        break;
+                    case LG_DEBUG_LEVEL_DEBUG:
+                        pre_format = "[%s" ":Debug][%d] ";
+                        break;
+                    case LG_DEBUG_LEVEL_INFORMATIONAL:
+                        pre_format = "[%s" ":Info][%d] ";
+                        break;
+                    case LG_DEBUG_LEVEL_WARNING:
+                        pre_format = "[%s" ":Warning][%d] ";
+                        break;
+                    case LG_DEBUG_LEVEL_ERROR:
+                        pre_format = "[%s" ":Error][%d] ";
+                        break;
+                    default:
+                        pre_format ="[%s" ":Unknown][%d] ";
+                        break;
+                }
+
+                textwin_add_text(&pad, pre_format, tmp_entry->module, tmp_entry->turn);
+
+                for (int l = 0; l < tmp_entry->atom_lst_sz; l++) {
+                    struct log_atom *a = &tmp_entry->atom_lst[l];
+                    if (a != NULL) {
+                        textwin_add_text(&pad, "%s", a->string);
+                    }
+                }
+                if (tmp_entry->repeat > 1) {
+                    textwin_add_text(&pad, " (x%d)", tmp_entry->repeat);
+                }
+                textwin_add_text(&pad, "\n");
+            }
+        }
+    }
+    else textwin_add_text(&pad, "Empty\n");
+    y += textwin_display_text(&pad) +1;
+
+    lg_debug("log sz: %d", y);
+
+    int line = 0;
+    bool watch = true;
+    while(watch == true) {
+        prefresh(pad.win, line,0,1,1,pad.lines,pad.cols);
+
+        switch (inp_get_input(gbl_game->input) ) {
+            case INP_KEY_UP_RIGHT:   line += 20; break;
+            case INP_KEY_DOWN_RIGHT: line -= 20; break;
+            case INP_KEY_UP:         line--; break;
+            case INP_KEY_DOWN:       line++; break;
+            case INP_KEY_ESCAPE:
+            case INP_KEY_QUIT:
+            case INP_KEY_NO:
+            case INP_KEY_YES: watch = false; break;
+            default: break;
+        }
+
+        lg_debug("line %d", line);
+        if (line < 0) line = 0;
+        if (line > (y - pad.lines) ) line = y - pad.lines;
+        lg_debug("line %d after correction", line);
+    }
+
+    delwin(pad.win);
 }
 
 void levelup_selection_window(void) {

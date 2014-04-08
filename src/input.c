@@ -28,7 +28,7 @@ bool inp_log_has_keys(struct inp_input *i) {
 
     if ( (i->keylog_ridx < i->keylog_widx) && 
          (i->keylog_widx < i->keylog_sz) ) {
-        usleep(options.play_delay);
+        if (options.play_recording == true) usleep(options.play_delay);
         return true;
     }
     options.play_recording = false;
@@ -89,6 +89,7 @@ enum inp_keys inp_get_input(struct inp_input *i) {
             case 27:        k = INP_KEY_ESCAPE; break;
 
             case '@':       k = INP_KEY_CHARACTER; break;
+            case 'L':       k = INP_KEY_LOG; break;
             case 'i':       k = INP_KEY_INVENTORY; break;
             case 'x':       k = INP_KEY_EXAMINE; break;
             case 'f':       k = INP_KEY_FIRE; break;

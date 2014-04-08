@@ -35,9 +35,9 @@ void textwin_init(struct hrl_window *win, int sx, int sy, int ex, int ey) {
     win->text_sy = sy;
 
     if (ex > sx) ex = ex - sx;
-    else ex = win->cols - sx;
-    if (ey > sy )ey = ey - sy;
-    else ey = win->lines - sy;
+    else ex = win->cols;
+    if (ey > sy) ey = ey - sy;
+    else ey = win->lines;
 
     win->text_ex = ex;
     win->text_ey = ey;

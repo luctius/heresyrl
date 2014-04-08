@@ -29,7 +29,10 @@
 static void sigfunc(int s) {
     FIX_UNUSED(s);
 
-    System_msg("Please press Ctrl-X to quit\n");
+    if (options.play_recording == true) {
+        gbl_game->running = false;
+    }
+    else System_msg("Please press Ctrl-X to quit\n");
 }
 
 int main(int argc, char *argv[]) {
@@ -90,7 +93,7 @@ int main(int argc, char *argv[]) {
     game_exit();
     ui_destroy();
 
-    //clear();
+    clear();
     refresh();          //  Print it on to the real screen
     endwin();           //  End curses mode
 

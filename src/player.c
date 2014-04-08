@@ -138,6 +138,8 @@ static bool plr_action_loop(struct msr_monster *player, void *controller) {
                 has_action = invwin_inventory(gbl_game->current_map, &gbl_game->player_data); break;
             case INP_KEY_CHARACTER:
                 character_window(); break;
+            case INP_KEY_LOG:
+                log_window(); break;
             case INP_KEY_EXAMINE:
                 mapwin_overlay_examine_cursor(gbl_game->current_map, player_pos); break;
             case INP_KEY_FIRE:
