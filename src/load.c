@@ -171,7 +171,7 @@ static lua_State *conf_open(const char *file)
     lua_State *L = luaL_newstate();
     if (L == NULL)
     {
-        lg_printf_l(LG_DEBUG_LEVEL_ERROR, "load", "Bailing out! No memory.");
+        lg_error("load", "Bailing out! No memory.");
         return L;
     }
 
@@ -184,19 +184,19 @@ static lua_State *conf_open(const char *file)
         }
         else if (err == LUA_ERRSYNTAX)
         {
-            lg_printf_l(LG_DEBUG_LEVEL_ERROR, "load", "syntax error in config file: %s", file);
+            lg_error("load", "syntax error in config file: %s", file);
         }
         else if (err == LUA_ERRERR)
         {
-            lg_printf_l(LG_DEBUG_LEVEL_ERROR, "load", "general LUA error when accessing config file: %s", file);
+            lg_error("load", "general LUA error when accessing config file: %s", file);
         }
         else if (err == LUA_ERRMEM)
         {
-            lg_printf_l(LG_DEBUG_LEVEL_ERROR, "load", "out of memory when accessing config file: %s", file);
+            lg_error("load", "out of memory when accessing config file: %s", file);
         }
         else
         {
-            lg_printf_l(LG_DEBUG_LEVEL_ERROR, "load", "Unkown LUA error(%d) when accessing config file: %s", err, file);
+            lg_error("load", "Unkown LUA error(%d) when accessing config file: %s", err, file);
         }
         lua_close(L);
         L = NULL;
@@ -207,25 +207,25 @@ static lua_State *conf_open(const char *file)
         {
             if (err == LUA_ERRRUN)
             {
-                lg_printf_l(LG_DEBUG_LEVEL_ERROR, "load", "Run error when executing config file: %s", file);
+                lg_error("load", "Run error when executing config file: %s", file);
             }
             else if (err == LUA_ERRERR)
             {
-                lg_printf_l(LG_DEBUG_LEVEL_ERROR, "load", "general LUA error when executing config file: %s", file);
+                lg_error("load", "general LUA error when executing config file: %s", file);
             }
             else if (err == LUA_ERRMEM)
             {
-                lg_printf_l(LG_DEBUG_LEVEL_ERROR, "load", "out of memory when executing config file: %s", file);
+                lg_error("load", "out of memory when executing config file: %s", file);
             }
             else
             {
-                lg_printf_l(LG_DEBUG_LEVEL_ERROR, "load", "unkown error(%d) when executing config file: %s", err, file);
+                lg_error("load", "unkown error(%d) when executing config file: %s", err, file);
             }
 
             lua_close(L);
             L = NULL;
         }
-        else lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "load", "loaded config file in memory; parsing now...");
+        else lg_debug("load", "loaded config file in memory; parsing now...");
     }
 
     return L;
@@ -235,7 +235,7 @@ static bool load_game(lua_State *L, struct gm_game *g) {
     uint64_t t;
     if (L == NULL) return false;
 
-    char *version_ptr;
+    const char *version_ptr;
     if ( (version_ptr = lua_stringexpr(L,"noname", "game.version") ) == NULL) return false;
     if (strcmp(version_ptr, VERSION) != 0) lg_warning("Warning: save game version and current version do not match!");
 
@@ -275,7 +275,7 @@ static bool load_input(lua_State *L, struct gm_game *g) {
 static bool load_player(lua_State *L, struct pl_player *plr) {
     if (L == NULL) return false;
 
-    char *name_ptr;
+    const char *name_ptr;
     if ( (name_ptr = lua_stringexpr(L,"noname", "game.player.name") ) == NULL) return false;
     plr->name = malloc(strlen(name_ptr) );
     strcpy(plr->name,name_ptr);
