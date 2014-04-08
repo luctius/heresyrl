@@ -341,7 +341,7 @@ int sgt_los_path(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_
         .apply = rpsc_apply_projectile_path,
     };
 
-    if (rpsc_los(&set, s, e, MAX(map->size.x, map->size.y) ) == false || ex.list_idx == 0) {
+    if (rpsc_los(&set, s, e) == false || ex.list_idx == 0) {
         free (*path_lst);
         return -1;
     }
@@ -405,7 +405,8 @@ bool sgt_has_los(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_
         .apply = NULL,
     };
 
-    return rpsc_los(&set, s, e, radius);
+    if (rpsc_in_radius(&set, s, e, radius) == false) return false;
+    return rpsc_los(&set, s, e);
 }
 
 bool sgt_has_lof(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_t *e, int radius) {
@@ -422,7 +423,8 @@ bool sgt_has_lof(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_
         .apply = NULL,
     };
 
-    return rpsc_los(&set, s, e, radius);
+    if (rpsc_in_radius(&set, s, e, radius) == false) return false;
+    return rpsc_los(&set, s, e);
 }
 
 #if 0

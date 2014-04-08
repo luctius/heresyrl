@@ -61,7 +61,7 @@ bool rpsc_cone(struct rpsc_fov_set *set, coord_t *src, coord_t *dst, int angle, 
    if apply within set is not NULL, it will give the path from src to dst.
    This path will be created on the go, thus when it return with false, the path should be ignored.
  */
-bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst, int radius);
+bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst);
 
 /* check if the point dst is within radius of src given the current area settings and radius. */
 bool rpsc_in_radius(struct rpsc_fov_set *set, coord_t *src, coord_t *dst, int radius);

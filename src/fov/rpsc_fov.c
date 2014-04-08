@@ -474,12 +474,11 @@ bool rpsc_cone(struct rpsc_fov_set *set, coord_t *src, coord_t *dst, int angle, 
    1) it borders o the next center cell and 
    2) the center cell of the next row is probably directly above it anyway.
 */
-bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst, int radius) {
+bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst) {
     if (set == NULL) return false;
     if (set->is_opaque == NULL) return false;
     if (cd_within_bound(src, &set->size) == false) return false;
     if (cd_within_bound(dst, &set->size) == false) return false;
-    if (rpsc_in_radius(set, src, dst, radius) ) return false;
     bool visible = true;
 
     /* find out which octant we are in */
