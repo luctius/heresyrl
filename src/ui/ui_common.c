@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <sys/param.h>
 
 #include "ui_common.h"
 #include "linewrap.h"
@@ -27,10 +28,22 @@ void win_generate_colours(void) {
     }
 }
 
-void textwin_init(struct hrl_window *win) {
+void textwin_init(struct hrl_window *win, int sx, int sy, int ex, int ey) {
     free(win->text);
+
+    win->text_sx = sx;
+    win->text_sy = sy;
+
+    if (ex > sx) ex = ex - sx;
+    else ex = win->cols - sx;
+    if (ey > sy )ey = ey - sy;
+    else ey = win->lines - sy;
+
+    win->text_ex = ex;
+    win->text_ey = ey;
+
     win->text = NULL;
-    win->text_sz = win->cols * win->lines * sizeof(char);
+    win->text_sz = win->text_ex * win->text_ey * sizeof(char);
     win->text = malloc(win->text_sz);
     win->text_idx = 0;
 }
@@ -45,19 +58,19 @@ void textwin_add_text(struct hrl_window *win, const char *format, ...) {
     va_end(args);
 }
 
-void textwin_display_text(struct hrl_window *win) {
-    if (win == NULL) return;
-    werase(win->win);
+int textwin_display_text(struct hrl_window *win) {
+    int lines_used = 0;
+    if (win == NULL) return 0;
 
     assert(win->text != NULL);
 
     char **desc;
     int *len_lines;
-    int len = strwrap(win->text, win->cols -1, &desc, &len_lines);
-    if (len > 0) {
-        for (int i = 0; i < len; i++) {
+    lines_used = strwrap(win->text, win->text_ex -1, &desc, &len_lines);
+    if (lines_used > 0) {
+        for (int i = 0; i < MIN(lines_used, win->text_ey); i++) {
             for (int j = 0; j < len_lines[i]; j++) {
-                mvwaddch(win->win, i, j, desc[i][j]);
+                mvwaddch(win->win, win->text_sy + i, win->text_sx + j, desc[i][j]);
             }
         }
     }
@@ -69,6 +82,8 @@ void textwin_display_text(struct hrl_window *win) {
     free(win->text);
     win->text = NULL;
     win->text_sz = win->text_idx = 0;
+
+    return lines_used;
 }
 
 struct hrl_window *win_create(int height, int width, int starty, int startx, enum window_type type) {

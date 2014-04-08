@@ -63,11 +63,11 @@ enum ammo_upgrades {
 };
 
 enum skill_rate {
-    MSR_SKILL_RATE_NONE     = (0),
-    MSR_SKILL_RATE_BASIC    = (1<<0),
-    MSR_SKILL_RATE_ADVANCED = (1<<1),
-    MSR_SKILL_RATE_EXPERT   = (1<<2),
-    MSR_SKILL_RATE_MAX      = (1<<2)+1,
+    MSR_SKILL_RATE_NONE,
+    MSR_SKILL_RATE_BASIC,
+    MSR_SKILL_RATE_ADVANCED,
+    MSR_SKILL_RATE_EXPERT,
+    MSR_SKILL_RATE_MAX,
 };
 
 enum skills {

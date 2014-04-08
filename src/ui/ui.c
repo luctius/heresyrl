@@ -230,7 +230,8 @@ static void mapwin_examine(struct dm_map_entity *me) {
     if (me == NULL) return;
     if (char_win->type != HRL_WINDOW_TYPE_CHARACTER) return;
 
-    textwin_init(char_win);
+    werase(char_win->win);
+    textwin_init(char_win,0,0,0,0);
 
     if (me->visible || me->in_sight) {
         textwin_add_text(char_win, "Upon a %s.\n", me->tile->ld_name);
@@ -322,7 +323,8 @@ void targetwin_examine(struct hrl_window *window, struct dm_map *map, struct msr
         return;
     }
 
-    textwin_init(window);
+    werase(window->win);
+    textwin_init(window,0,0,0,window->lines -4);
 
     if (me->monster != NULL) {
         textwin_add_text(window,"Target: %s.\n", msr_ldname(me->monster) );
@@ -340,7 +342,9 @@ void targetwin_examine(struct hrl_window *window, struct dm_map *map, struct msr
     }
 
     textwin_add_text(window,"\n");
+    textwin_display_text(window);
 
+    textwin_init(window,0,window->lines -4,0,0);
     textwin_add_text(window, "Calculated: %s.\n", witem->sd_name);
     if (wpn_is_catergory(witem, WEAPON_CATEGORY_THROWN_GRENADE) ) {
         textwin_add_text(window,"Timer: %d.%d.\n", witem->energy / TT_ENERGY_TURN, witem->energy % TT_ENERGY_TURN);
@@ -670,7 +674,8 @@ void charwin_refresh() {
     if (plr == NULL) return;
     if (char_win->type != HRL_WINDOW_TYPE_CHARACTER) return;
 
-    textwin_init(char_win);
+    werase(char_win->win);
+    textwin_init(char_win,0,0,0,0);
 
     struct msr_monster *player = plr->player;
 
@@ -774,7 +779,8 @@ static int invwin_printlist(struct hrl_window *window, struct inv_show_item list
         return 0;
     }
 
-    textwin_init(window);
+    werase(window->win);
+    textwin_init(window,0,0,0,0);
 
     max = MIN(max, INP_KEY_MAX_IDX);
     if (start >= max) return -1;
@@ -811,7 +817,8 @@ void invwin_examine(struct hrl_window *window, struct itm_item *item) {
     if (itm_verify_item(item) == false) return;
     if (window->type != HRL_WINDOW_TYPE_CHARACTER) return;
 
-    textwin_init(window);
+    werase(window->win);
+    textwin_init(window,0,0,0,0);
     textwin_add_text(window, "Description of %s.\n", item->ld_name);
     textwin_add_text(window, "\n");
 
@@ -936,8 +943,13 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
 }
 
 void character_window(void) {
+    int y = 0;
+    int y_sub = 0;
+    struct pl_player *plr = &gbl_game->player_data;
+    struct msr_monster *mon = plr->player;
 
 /*
+Name: 
 Career: 
 Rank:
 Origin: 
@@ -963,6 +975,80 @@ Talent                      Note                 |
 Basic weapon traning SP     ...                  |
 
 */
+
+    werase(map_win->win);
+
+    /* General Stats */
+
+    textwin_init(map_win,0,0,0,0);
+    textwin_add_text(map_win, "Name:       %s\n", plr->name);
+    textwin_add_text(map_win, "Career:     %s\n", "tester");
+    textwin_add_text(map_win, "Rank:       %s\n", "beginner");
+    textwin_add_text(map_win, "Origin:     %s\n", "computer");
+    textwin_add_text(map_win, "Divination: %s\n", "die");
+    y += textwin_display_text(map_win) +1;
+
+    textwin_init(map_win,0,y,18,8);
+    textwin_add_text(map_win, "Wounds:   %d/%d\n", mon->cur_wounds, mon->max_wounds);
+    textwin_add_text(map_win, "Insanity:    %d\n", mon->insanity_points);
+    textwin_add_text(map_win, "XP:          %d\n", 0);
+    y_sub = textwin_display_text(map_win);
+
+            textwin_init(map_win,20,y,18,y_sub);
+            textwin_add_text(map_win, "Fate:       %d/%d\n", mon->fate_points,0);
+            textwin_add_text(map_win, "Corruption:    %d\n", mon->corruption_points);
+            textwin_add_text(map_win, "Spend:         %d\n", 0);
+            textwin_display_text(map_win);
+    y += y_sub;
+
+    /* Characteristics */
+    const char *char_names[] = {"Ws", "Bs", "Str", "Tgh", "Agi", "Int", "Per", "Wil", "Per"};
+
+    y += 1;
+    for (int i = 0; i < MSR_CHAR_MAX; i++) {
+        textwin_init(map_win,i * 6,y,6,1);
+        textwin_add_text(map_win, "[%3s] ", char_names[i]);
+        textwin_display_text(map_win);
+    }
+
+    y += 1;
+    for (int i = 0; i < MSR_CHAR_MAX; i++) {
+        textwin_init(map_win,i * 6,y,6,1);
+        textwin_add_text(map_win, "[%3d] ", msr_calculate_characteristic(mon, i) );
+        textwin_display_text(map_win);
+    }
+
+    y += 2;
+
+    /* Skills */
+    textwin_init(map_win,0,y,0,0);
+    textwin_add_text(map_win, "Skills\n");
+    textwin_add_text(map_win, "------\n");
+    const char *skill_names[] = {"Awareness", "Barter", "Chem Use", "Common Lore", "Concealment", "Demolition", "Disguise", "Dodge", "Evaluate", "Forbidden Lore", "Invocation", "Logic", "Medicae", "Psyscience", "Scholastic Lore", "Search", "Security", "Silent Move", "Survival", "Tech Use", "Tracking"};
+    unsigned int names_len = 0;
+    for (unsigned int i = 0; i < ARRAY_SZ(skill_names); i++) {
+        if (names_len < strlen(skill_names[i]) ) {
+            names_len = strlen(skill_names[i]);
+        }
+        textwin_add_text(map_win, "%s\n", skill_names[i]);
+    }
+    y_sub = textwin_display_text(map_win);
+
+            textwin_init(map_win,names_len + 3,y,0,0);
+            textwin_add_text(map_win, "Proficiency\n");
+            textwin_add_text(map_win, "-----------\n");
+            const char *skill_rate_names[] = { "untrained", "basic", "advanced", "expert" };
+            for (unsigned int i = 0; i < ARRAY_SZ(skill_names); i++) {
+                enum skill_rate skillrate = msr_has_skill(mon,  (1<<i));
+                lg_debug("skill rate: %d", skillrate);
+                textwin_add_text(map_win, "%s\n", skill_rate_names[skillrate]);
+            }
+            y_sub += textwin_display_text(map_win);
+    y += y_sub;
+
+
+
+    inp_get_input(gbl_game->input);
 }
 
 void levelup_selection_window(void) {

@@ -23,6 +23,7 @@ enum inp_keys {
     INP_KEY_RELOAD,
     INP_KEY_UNLOAD,
     INP_KEY_INVENTORY,
+    INP_KEY_CHARACTER,
     INP_KEY_PICKUP,
     INP_KEY_DROP,
     INP_KEY_USE,

@@ -48,6 +48,10 @@ struct hrl_window {
     char *text;
     int text_sz;
     int text_idx;
+    int text_sx;
+    int text_sy;
+    int text_ex;
+    int text_ey;
 };
 
 extern struct hrl_window *map_win;
@@ -58,9 +62,9 @@ extern coord_t last_ppos;
 int get_viewport(int p, int vps, int mps);
 void win_generate_colours(void);
 
-void textwin_init(struct hrl_window *win);
+void textwin_init(struct hrl_window *win, int sx, int sy, int ex, int ey);
 void textwin_add_text(struct hrl_window *win, const char *format, ...);
-void textwin_display_text(struct hrl_window *win);
+int textwin_display_text(struct hrl_window *win);
 
 struct hrl_window *win_create(int height, int width, int starty, int startx, enum window_type type);
 void win_destroy(struct hrl_window *window);

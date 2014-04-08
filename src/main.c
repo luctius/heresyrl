@@ -29,7 +29,7 @@
 static void sigfunc(int s) {
     FIX_UNUSED(s);
 
-    gbl_game->running = false;
+    System_msg("Please press Ctrl-X to quit\n");
 }
 
 int main(int argc, char *argv[]) {
