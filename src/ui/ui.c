@@ -669,19 +669,18 @@ void charwin_refresh() {
     struct pl_player *plr = &gbl_game->player_data;
     if (plr == NULL) return;
     if (char_win->type != HRL_WINDOW_TYPE_CHARACTER) return;
-    werase(char_win->win);
+
+    textwin_init(char_win);
 
     struct msr_monster *player = plr->player;
 
-    int y = 0;
-    int x = 0;
-    mvwprintw(char_win->win, y++,x, "Name      %s", plr->name);
-    mvwprintw(char_win->win, y++,x, "Gender    %s", msr_gender_string(player) );
-    mvwprintw(char_win->win, y++,x, "Homeworld %s", "Void Born");
-    mvwprintw(char_win->win, y++,x, "Career    %s", "Thug");
-    mvwprintw(char_win->win, y++,x, "Turn      %d.%d", gbl_game->turn / TT_ENERGY_TURN, gbl_game->turn % TT_ENERGY_TURN);
+    textwin_add_text(char_win, "Name      %s\n", plr->name);
+    textwin_add_text(char_win, "Gender    %s\n", msr_gender_string(player) );
+    textwin_add_text(char_win, "Homeworld %s\n", "Void Born");
+    textwin_add_text(char_win, "Career    %s\n", "Thug");
+    textwin_add_text(char_win, "Turn      %d.%d\n", gbl_game->turn / TT_ENERGY_TURN, gbl_game->turn % TT_ENERGY_TURN);
+    textwin_add_text(char_win, "\n");
 
-    y++;
     int ws, bs, str, tgh, agi, intel, per, wil/*, fel*/;
     ws = msr_calculate_characteristic(player, MSR_CHAR_WEAPON_SKILL);
     bs = msr_calculate_characteristic(player, MSR_CHAR_BALISTIC_SKILL);
@@ -692,21 +691,22 @@ void charwin_refresh() {
     per = msr_calculate_characteristic(player, MSR_CHAR_PERCEPTION);
     wil = msr_calculate_characteristic(player, MSR_CHAR_WILLPOWER);
     /*fel = msr_calculate_characteristic(player, MSR_CHAR_FELLOWSHIP);*/
-    mvwprintw(char_win->win, y++,x, "WS   %d   BS   %d", ws,bs);
-    mvwprintw(char_win->win, y++,x, "Str  %d   Tgh  %d", str, tgh);
-    mvwprintw(char_win->win, y++,x, "Agi  %d   Int  %d", agi, intel);
-    mvwprintw(char_win->win, y++,x, "Per  %d   Wil  %d", per, wil);
-    //mvwprintw(char_win->win, y++,x, "Fellowship   [%d]%d", chr/10, chr%10);
+    textwin_add_text(char_win, "WS   %d   BS   %d\n", ws,bs);
+    textwin_add_text(char_win, "Str  %d   Tgh  %d\n", str, tgh);
+    textwin_add_text(char_win, "Agi  %d   Int  %d\n", agi, intel);
+    textwin_add_text(char_win, "Per  %d   Wil  %d\n", per, wil);
+    //textwin_add_text(char_win, "Fellowship   [%d]%d", chr/10, chr%10);
+    textwin_add_text(char_win, "\n");
 
-    y++;
-    mvwprintw(char_win->win, y++,x, "Wounds    [%2d/%2d]", player->cur_wounds, player->max_wounds);
-    mvwprintw(char_win->win, y++,x, "Armour [%d][%d][%d][%d][%d][%d]", 
+    textwin_add_text(char_win, "Wounds    [%2d/%2d]\n", player->cur_wounds, player->max_wounds);
+    textwin_add_text(char_win, "Armour [%d][%d][%d][%d][%d][%d]\n", 
                                             msr_calculate_armour(player, MSR_HITLOC_HEAD),
                                             msr_calculate_armour(player, MSR_HITLOC_CHEST),
                                             msr_calculate_armour(player, MSR_HITLOC_LEFT_ARM),
                                             msr_calculate_armour(player, MSR_HITLOC_RIGHT_ARM),
                                             msr_calculate_armour(player, MSR_HITLOC_LEFT_LEG),
                                             msr_calculate_armour(player, MSR_HITLOC_RIGHT_LEG) );
+    textwin_add_text(char_win, "\n");
 
     struct itm_item *item;
     for (int i = 0; i<2; i++) {
@@ -714,14 +714,13 @@ void charwin_refresh() {
         if (i == 1) loc = INV_LOC_OFFHAND_WIELD;
         if ( (item == inv_get_item_from_location(player->inventory, loc) ) ) continue; /*ignore off=hand when wielding 2h weapon.*/
 
-        y++;
         if ( (item = inv_get_item_from_location(player->inventory, loc) ) != NULL) {
             if (item->item_type == ITEM_TYPE_WEAPON) {
                 struct item_weapon_specific *wpn = &item->specific.weapon;
-                mvwprintw(char_win->win, y++,x, "%s Wpn: %s", (i==0) ? "Main" : "Secondary", item->sd_name);
-                mvwprintw(char_win->win, y++,x, "  Dmg: %dD10 +%d   Pen: %d", wpn->nr_dmg_die, wpn->dmg_addition, wpn->penetration);
+                textwin_add_text(char_win, "%s Wpn: %s\n", (i==0) ? "Main" : "Secondary", item->sd_name);
+                textwin_add_text(char_win, "  Dmg: %dD10 +%d   Pen: %d\n", wpn->nr_dmg_die, wpn->dmg_addition, wpn->penetration);
                 if (wpn->weapon_type == WEAPON_TYPE_RANGED) {
-                    mvwprintw(char_win->win, y++,x, "  Ammo: %d/%d", wpn->magazine_left, wpn->magazine_sz);
+                    textwin_add_text(char_win, "  Ammo: %d/%d\n", wpn->magazine_left, wpn->magazine_sz);
                     int single = wpn->rof[WEAPON_ROF_SETTING_SINGLE];
                     int semi = wpn->rof[WEAPON_ROF_SETTING_SEMI];
                     int aut = wpn->rof[WEAPON_ROF_SETTING_AUTO];
@@ -729,34 +728,35 @@ void charwin_refresh() {
                                 (wpn->rof_set == WEAPON_ROF_SETTING_SEMI) ? "semi": "auto";
                     char semi_str[4]; snprintf(semi_str, 3, "%d", semi);
                     char auto_str[4]; snprintf(auto_str, 3, "%d", aut);
-                    mvwprintw(char_win->win, y++,x, "  Setting: %s (%s/%s/%s)", set, 
+                    textwin_add_text(char_win, "  Setting: %s (%s/%s/%s)\n", set, 
                             (single > 0) ? "S" : "-", (semi > 0) ? semi_str : "-", (aut > 0) ? auto_str : "-");
                 }
             }
         }
+        textwin_add_text(char_win, "\n");
     }
 
     if ( ( (item = inv_get_item_from_location(player->inventory, INV_LOC_MAINHAND_WIELD) ) != NULL) ||
          ( (item = inv_get_item_from_location(player->inventory, INV_LOC_OFFHAND_WIELD) ) != NULL) ) {
-        y++;
         switch (player->wpn_sel) {
             case MSR_WEAPON_SELECT_OFF_HAND:
-                mvwprintw(char_win->win, y++,x, "Using off-hand.");
+                textwin_add_text(char_win, "Using off-hand.\n");
                 break;
             case MSR_WEAPON_SELECT_MAIN_HAND:
-                mvwprintw(char_win->win, y++,x, "Using main-hand.");
+                textwin_add_text(char_win, "Using main-hand.\n");
                 break;
             case MSR_WEAPON_SELECT_BOTH_HAND:
             case MSR_WEAPON_SELECT_DUAL_HAND:
-                mvwprintw(char_win->win, y++,x, "Using both hands.");
+                textwin_add_text(char_win, "Using both hands.\n");
                 break;
             case MSR_WEAPON_SELECT_CREATURE1:
-                mvwprintw(char_win->win, y++,x, "Unarmed.");
+                textwin_add_text(char_win, "Unarmed.\n");
             default: break;
         }
     }
+    textwin_add_text(char_win, "\n");
 
-    wrefresh(char_win->win);
+    textwin_display_text(char_win);
 }
 
 /* Beware of dragons here..... */
@@ -766,25 +766,27 @@ struct inv_show_item {
     struct itm_item *item;
 };
 
-static int invwin_printlist(WINDOW *win, struct inv_show_item list[], int list_sz, int start, int end) {
+static int invwin_printlist(struct hrl_window *window, struct inv_show_item list[], int list_sz, int start, int end) {
     int max = MIN(list_sz, end);
+
     if (list_sz == 0) {
-        mvwprintw(win, 1, 1, "%s", "Your inventory is empty");
+        mvwprintw(window->win, 1, 1, "Your inventory is empty");
         return 0;
     }
+
+    textwin_init(window);
 
     max = MIN(max, INP_KEY_MAX_IDX);
     if (start >= max) return -1;
 
     for (int i = 0; i < max; i++) {
         struct itm_item *item = list[i+start].item;
-        if (item->stacked_quantity > 1) {
-            mvwprintw(win, i, 1, "%c)  %c%s x%d", inp_key_translate_idx(i), list[i+start].location[0], item->sd_name, item->stacked_quantity);
-        }
-        else {
-            mvwprintw(win, i, 1, "%c)  %c%s", inp_key_translate_idx(i), list[i+start].location[0], item->sd_name);
-        }
+        textwin_add_text(window, "%c)  %c%s", inp_key_translate_idx(i), list[i+start].location[0], item->sd_name);
+        if (item->stacked_quantity > 1) textwin_add_text(window, " x%d", item->stacked_quantity);
+        textwin_add_text(window, "\n");
     }
+
+    textwin_display_text(window);
     return max;
 }
 
@@ -804,32 +806,20 @@ static void inv_create_list(struct inv_inventory *inventory, struct inv_show_ite
     }
 }
 
-static WINDOW *invwin_examine(struct hrl_window *window, struct itm_item *item) {
-    if (window == NULL) return NULL;
-    if (itm_verify_item(item) == false) return NULL;
-    if (window->type != HRL_WINDOW_TYPE_CHARACTER) return NULL;
+void invwin_examine(struct hrl_window *window, struct itm_item *item) {
+    if (window == NULL) return;
+    if (itm_verify_item(item) == false) return;
+    if (window->type != HRL_WINDOW_TYPE_CHARACTER) return;
 
-    WINDOW *invwin_ex = derwin(window->win, 0,0,0,0);
-    touchwin(window->win);
-    wclear(invwin_ex);
-    mvwprintw(invwin_ex, 0, 1, "Description of %s.", item->ld_name);
+    textwin_init(window);
+    textwin_add_text(window, "Description of %s.\n", item->ld_name);
 
-    char **desc;
-    int *len_lines;
-    int len = strwrap(item->description, window->cols, &desc, &len_lines);
-    if (len > 0) {
-        for (int i = 0; i < len; i++) {
-            mvwprintw(invwin_ex, 2+i, 0, desc[i]);
-        }
+    if (strlen(item->description) > 0) {
+        textwin_add_text(window, "%s.\n", item->description);
     }
-    else {
-        mvwprintw(invwin_ex, 2, 0, "No description available.");
-    }
+    else textwin_add_text(window, "No description available.\n");
 
-    free(desc);
-    free(len_lines);
-    wrefresh(invwin_ex);
-    return invwin_ex;
+    textwin_display_text(window);
 }
 
 bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
@@ -839,9 +829,6 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
     int invstart = 0;
     struct itm_item *item = NULL;
     bool inventory = true;
-
-    WINDOW *invwin = derwin(map_win->win, map_win->lines, map_win->cols / 2, 0, 0);
-    WINDOW *invwin_ex = NULL;
 
     int winsz = map_win->lines -4;
     int dislen = winsz;
@@ -854,15 +841,15 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
 
         mapwin_display_map_noref(map, &plr->player->pos);
         touchwin(map_win->win);
-        wclear(invwin);
-        if ( (dislen = invwin_printlist(invwin, invlist, invsz, invstart, invstart +winsz) ) == -1) {
+        if ( (dislen = invwin_printlist(map_win, invlist, invsz, invstart, invstart +winsz) ) == -1) {
             invstart = 0;
-            dislen = invwin_printlist(invwin, invlist, invsz, invstart, invstart +winsz);
+            dislen = invwin_printlist(map_win, invlist, invsz, invstart, invstart +winsz);
         }
-        mvwprintw(invwin, winsz +1, 1, "[q] exit, [space] next page.");
-        mvwprintw(invwin, winsz +2, 1, "[d] drop, [x] examine.");
-        mvwprintw(invwin, winsz +3, 1, "[U] use,  [w] wield/wear.");
-        wrefresh(invwin);
+        mvwprintw(map_win->win, winsz +1, 1, "[q] exit, [space] next page.");
+        mvwprintw(map_win->win, winsz +2, 1, "[d] drop, [x] examine.");
+        mvwprintw(map_win->win, winsz +3, 1, "[U] use,  [w] wield/wear.");
+        wrefresh(map_win->win);
+        bool examine = false;
 
         /* TODO clean this shit up */
         switch (ch) {
@@ -870,35 +857,28 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
             case INP_KEY_INVENTORY: inventory = false; break;
             case INP_KEY_UP_RIGHT: 
             case INP_KEY_USE: {
-                    mvwprintw(invwin, winsz, 1, "Use which item?.");
-                    wrefresh(invwin);
-                    delwin(invwin_ex);
+                    mvwprintw(map_win->win, winsz, 1, "Use which item?.");
+                    wrefresh(map_win->win);
 
                     int item_idx = inp_get_input_idx(gbl_game->input);
                     if (item_idx == INP_KEY_ESCAPE) break;
                     if ((item_idx + invstart) >= invsz) break;
                     item = invlist[item_idx +invstart].item;
                     free(invlist);
-                    delwin(invwin);
-                    charwin_refresh();
                     mapwin_display_map(map, &plr->player->pos);
 
                     return ma_do_use(plr->player, item);
                 }
                 break;
             case INP_KEY_WEAR: {
-                    mvwprintw(invwin, winsz, 1, "Wear which item?.");
-                    wrefresh(invwin);
-                    delwin(invwin_ex);
-                    charwin_refresh();
+                    mvwprintw(map_win->win, winsz, 1, "Wear which item?.");
+                    wrefresh(map_win->win);
 
                     int item_idx = inp_get_input_idx(gbl_game->input);
                     if (item_idx == INP_KEY_ESCAPE) break;
                     if ((item_idx + invstart) >= invsz) break;
                     item = invlist[item_idx +invstart].item;
                     free(invlist);
-                    delwin(invwin);
-                    charwin_refresh();
                     mapwin_display_map(map, &plr->player->pos);
 
                     if (inv_item_worn(plr->player->inventory, item) == true) {
@@ -910,10 +890,8 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
                 } 
                 break;
             case INP_KEY_EXAMINE: {
-                    mvwprintw(invwin, winsz, 1, "Examine which item?.");
-                    wrefresh(invwin);
-                    delwin(invwin_ex);
-                    charwin_refresh();
+                    mvwprintw(map_win->win, winsz, 1, "Examine which item?.");
+                    wrefresh(map_win->win);
 
                     int item_idx = inp_get_input_idx(gbl_game->input);
                     if (item_idx == INP_KEY_ESCAPE) break;
@@ -921,14 +899,13 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
                     item = invlist[item_idx +invstart].item;
                     free(invlist);
 
-                    invwin_ex = invwin_examine(char_win, invlist[item_idx +invstart].item);
+                    invwin_examine(char_win, invlist[item_idx +invstart].item);
+                    examine = true;
                 } 
                 break;
             case INP_KEY_DROP: {
-                    mvwprintw(invwin, winsz, 1, "Drop which item?.");
-                    wrefresh(invwin);
-                    delwin(invwin_ex);
-                    charwin_refresh();
+                    mvwprintw(map_win->win, winsz, 1, "Drop which item?.");
+                    wrefresh(map_win->win);
 
                     invsz = inv_inventory_size(plr->player->inventory);
                     int item_idx = inp_get_input_idx(gbl_game->input);
@@ -943,14 +920,9 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
             default: break;
         }
 
-        if (invwin_ex == NULL) {
-            charwin_refresh();
-        }
+        if (examine == false) charwin_refresh();
 
     } while((inventory != false) && (ch = inp_get_input(gbl_game->input) ) != INP_KEY_ESCAPE);
-
-    delwin(invwin_ex);
-    delwin(invwin);
 
     mapwin_display_map(map, &plr->player->pos);
     charwin_refresh();
