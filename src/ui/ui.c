@@ -991,7 +991,7 @@ Basic weapon traning SP     ...                  |
     textwin_add_text(&pad, "Divination: %s\n", "die");
     y += textwin_display_text(&pad) +1;
 
-    textwin_init(&pad,1,y,18,8);
+    textwin_init(&pad,1,y,18,10);
     textwin_add_text(&pad, "Wounds:   %d/%d\n", mon->cur_wounds, mon->max_wounds);
     textwin_add_text(&pad, "Insanity:    %d\n", mon->insanity_points);
     textwin_add_text(&pad, "XP:          %d\n", 0);
