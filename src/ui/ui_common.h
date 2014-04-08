@@ -54,5 +54,6 @@ extern struct hrl_window *msg_win;
 extern coord_t last_ppos;
 int get_viewport(int p, int vps, int mps);
 void win_generate_colours(void);
+void exwin_display_text(char *text);
 
 #endif /* UI_COMMON_H */

@@ -25,3 +25,13 @@ void win_generate_colours(void) {
     }
 }
 
+void exwin_display_text(char *text) {
+    if (char_win == NULL) return;
+    if (char_win->type != HRL_WINDOW_TYPE_CHARACTER) return;
+    werase(char_win->win);
+
+
+
+    wrefresh(char_win->win);
+}
+

@@ -718,8 +718,8 @@ void msgwin_log_callback(struct logging *lg, struct log_entry *entry, void *priv
 
 void charwin_refresh() {
     if (char_win == NULL) return;
-     struct pl_player *plr = &gbl_game->player_data;
-     if (plr == NULL) return;
+    struct pl_player *plr = &gbl_game->player_data;
+    if (plr == NULL) return;
     if (char_win->type != HRL_WINDOW_TYPE_CHARACTER) return;
     werase(char_win->win);
 
