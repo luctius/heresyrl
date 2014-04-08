@@ -1024,7 +1024,18 @@ Basic weapon traning SP     ...                  |
     textwin_init(map_win,0,y,0,0);
     textwin_add_text(map_win, "Skills\n");
     textwin_add_text(map_win, "------\n");
-    const char *skill_names[] = {"Awareness", "Barter", "Chem Use", "Common Lore", "Concealment", "Demolition", "Disguise", "Dodge", "Evaluate", "Forbidden Lore", "Invocation", "Logic", "Medicae", "Psyscience", "Scholastic Lore", "Search", "Security", "Silent Move", "Survival", "Tech Use", "Tracking"};
+    const char *skill_names[] = {"Awareness",       "Barter", 
+                                 "Chem Use",        "Common Lore", 
+                                "Concealment",      "Demolition", 
+                                "Disguise",         "Dodge", 
+                                "Evaluate",         "Forbidden Lore", 
+                                "Invocation",       "Logic", 
+                                "Medicae",          "Psyscience", 
+                                "Scholastic Lore",  "Search", 
+                                "Security",         "Silent Move", 
+                                "Survival",         "Tech Use", 
+                                "Tracking"};
+
     unsigned int names_len = 0;
     for (unsigned int i = 0; i < ARRAY_SZ(skill_names); i++) {
         if (names_len < strlen(skill_names[i]) ) {
