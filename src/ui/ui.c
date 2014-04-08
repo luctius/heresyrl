@@ -813,6 +813,7 @@ void invwin_examine(struct hrl_window *window, struct itm_item *item) {
 
     textwin_init(window);
     textwin_add_text(window, "Description of %s.\n", item->ld_name);
+    textwin_add_text(window, "\n");
 
     if (strlen(item->description) > 0) {
         textwin_add_text(window, "%s.\n", item->description);
@@ -919,6 +920,10 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
                 break;
             default: break;
         }
+
+        wmove(map_win->win, winsz, 0);
+        wclrtoeol(map_win->win);
+        wrefresh(map_win->win);
 
         if (examine == false) charwin_refresh();
 
