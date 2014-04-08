@@ -47,7 +47,7 @@ struct inp_input {
     int keylog_ridx;
 };
 
-struct inp_input *inp_init();
+struct inp_input *inp_init(void);
 void inp_exit(struct inp_input *i);
 void inp_add_to_log(struct inp_input *i, enum inp_keys key);
 enum inp_keys inp_get_from_log(struct inp_input *i);

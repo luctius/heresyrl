@@ -1,7 +1,9 @@
 #include <ncurses.h>
 #include <assert.h>
+#include <unistd.h>
 
 #include "input.h"
+#include "options.h"
 #include "logging.h"
 
 #define INP_KEYLOG_INCREASE 100
@@ -22,8 +24,14 @@ void inp_add_to_log(struct inp_input *i, enum inp_keys key) {
 }
 
 bool inp_log_has_keys(struct inp_input *i) {
+    lg_debug("keylog has %d unread key strokes", i->keylog_widx - i->keylog_ridx);
+
     if ( (i->keylog_ridx < i->keylog_widx) && 
-         (i->keylog_widx < i->keylog_sz) ) return true;
+         (i->keylog_widx < i->keylog_sz) ) {
+        usleep(options.play_delay);
+        return true;
+    }
+    options.play_recording = false;
     return false;
 }
 
@@ -117,14 +125,18 @@ enum inp_keys inp_get_input(struct inp_input *i) {
                 break;
         }
 
-        inp_add_to_log(i, k);
+        if (k != INP_KEY_QUIT) inp_add_to_log(i, k);
     }
 
-    assert(inp_log_has_keys(i) );
-    return inp_get_from_log(i);
+    if (k != INP_KEY_QUIT) {
+        assert(inp_log_has_keys(i) );
+        return inp_get_from_log(i);
+    }
+
+    return k;
 }
 
-struct inp_input *inp_init() {
+struct inp_input *inp_init(void) {
     struct inp_input *i = malloc( sizeof(struct inp_input) );
     if (i != NULL) {
         i->keylog = NULL;

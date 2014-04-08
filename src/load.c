@@ -10,6 +10,7 @@
 #include "logging.h"
 #include "load.h"
 #include "save.h"
+#include "options.h"
 #include "input.h"
 #include "coord.h"
 #include "player.h"
@@ -234,13 +235,16 @@ static bool load_game(lua_State *L, struct gm_game *g) {
     uint64_t t;
     if (L == NULL) return false;
 
-    if (lua_intexpr(L, &t, "game.turn") == 0) return false;
-    g->turn = t;
-
     if (lua_intexpr(L, &t, "game.random.seed") == 0) return false;
     g->random = random_init_genrand(t);
-    if (lua_intexpr(L, &t, "game.random.called") == 0) return false;
-    random_loop_called(g->random, t);
+
+    if (options.play_recording == false) {
+        if (lua_intexpr(L, &t, "game.turn") == 0) return false;
+        g->turn = t;
+
+        if (lua_intexpr(L, &t, "game.random.called") == 0) return false;
+        random_loop_called(g->random, t);
+    }
 
     return true;
 }
@@ -248,15 +252,19 @@ static bool load_game(lua_State *L, struct gm_game *g) {
 static bool load_input(lua_State *L, struct gm_game *g) {
     uint64_t t;
     if (L == NULL) return false;
-    if (lua_intexpr(L, &t, "input.keylog.sz") == 0) return false;
+
+    if (lua_intexpr(L, &t, "game.input.keylog.sz") == 0) return false;
 
     int sz = t;
     for (int i = 0; i < sz; i++) {
-        lua_intexpr(L, &t, "input.keylog[%d]", i+1); inp_add_to_log(g->input, t);
+        lua_intexpr(L, &t, "game.input.keylog[%d]", i+1); inp_add_to_log(g->input, t);
     }
 
     g->input->keylog_widx = sz;
     g->input->keylog_ridx = sz;
+    if (options.play_recording) g->input->keylog_ridx = 0;
+
+    lg_debug("keylog size: %d", sz);
 
     return true;
 }
@@ -469,10 +477,14 @@ bool ld_read_save_file(const char *path, struct gm_game *g) {
     
     if (L != NULL) {
         load_game(L, g);
-        load_player(L, &g->player_data);
-        load_items_list(L);
-        load_map(L, &g->current_map, 1);
-        load_monsters(L, g->current_map, g);
+        load_input(L, g);
+
+        if (options.play_recording == false) {
+            load_player(L, &g->player_data);
+            load_items_list(L);
+            load_map(L, &g->current_map, 1);
+            load_monsters(L, g->current_map, g);
+        }
         lua_close(L);
     }
     return true;
