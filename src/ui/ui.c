@@ -27,9 +27,6 @@
 #include "items/items.h"
 #include "dungeon/dungeon_map.h"
 
-static struct hrl_window *win_create(int height, int width, int starty, int startx, enum window_type type);
-static void win_destroy(struct hrl_window *window);
-
 static int hdr_lines = 0;
 static int hdr_cols = 0;
 bool ui_create(int cols, int lines) {
@@ -102,31 +99,6 @@ void ui_destroy() {
     if (map_win != NULL) win_destroy(map_win);
     if (char_win != NULL) win_destroy(char_win);
     if (msg_win != NULL) win_destroy(msg_win);
-}
-
-static struct hrl_window *win_create(int height, int width, int starty, int startx, enum window_type type) {
-    struct hrl_window *retval = malloc(sizeof(struct hrl_window) );
-
-    if (retval != NULL) {
-        clear();
-        refresh();
-
-        retval->cols = width;
-        retval->lines =height;
-        retval->y = starty;
-        retval->x = startx;
-        retval->type = type;
-        retval->win = newwin(retval->lines, retval->cols, starty, startx);
-        wrefresh(retval->win);
-    }
-
-    return retval;
-}
-
-void win_destroy(struct hrl_window *window) {
-    wrefresh(window->win);
-    delwin(window->win);
-    free(window);
 }
 
 void update_screen(void) {
@@ -253,54 +225,38 @@ void mapwin_display_map(struct dm_map *map, coord_t *player) {
     wrefresh(map_win->win);
 }
 
-static WINDOW *mapwin_examine(struct dm_map_entity *me) {
-    if (char_win == NULL) return NULL;
-    if (me == NULL) return NULL;
-    if (char_win->type != HRL_WINDOW_TYPE_CHARACTER) return NULL;
-    int y_ctr = 0;
+static void mapwin_examine(struct dm_map_entity *me) {
+    if (char_win == NULL) return;
+    if (me == NULL) return;
+    if (char_win->type != HRL_WINDOW_TYPE_CHARACTER) return;
 
-    WINDOW *mapwin_ex = derwin(char_win->win, 0,0,0,0);
-    touchwin(char_win->win);
-    wclear(mapwin_ex);
+    textwin_init(char_win);
 
     if (me->visible || me->in_sight) {
-        mvwprintw(mapwin_ex, y_ctr++, 1, "Upon a %s.", me->tile->ld_name);
+        textwin_add_text(char_win, "Upon a %s.\n", me->tile->ld_name);
 
         if (me->visible) {
             if (me->monster != NULL) {
-                y_ctr++;
 
                 if (me->monster->is_player == true) {
-                    mvwprintw(mapwin_ex, y_ctr++, 1, "You see yourself.");
+                    textwin_add_text(char_win, "You see yourself.\n");
                 } else {
-                    mvwprintw(mapwin_ex, y_ctr++, 1, "You see %s.", me->monster->ld_name);
-                    y_ctr++;
-
-                    char **desc;
-                    int *len_lines;
-                    int len = strwrap(me->monster->description, char_win->cols, &desc, &len_lines);
-                    for (int i = 0; i < len; i++) {
-                        mvwprintw(mapwin_ex, y_ctr++, 0, desc[i]);
-                    }
-                    free(desc);
-                    free(len_lines);
+                    textwin_add_text(char_win, "You see %s.\n", me->monster->ld_name);
                 }
             }
 
             if ( (inv_inventory_size(me->inventory) > 0) && (TILE_HAS_ATTRIBUTE(me->tile, TILE_ATTR_TRAVERSABLE) ) ) {
-                y_ctr++;
-                mvwprintw(mapwin_ex, y_ctr++, 1, "The %s contains:", me->tile->sd_name);
+                textwin_add_text(char_win, "The %s contains:", me->tile->sd_name);
                 struct itm_item *i = NULL;
                 while ( (i = inv_get_next_item(me->inventory, i) ) != NULL) {
-                    mvwprintw(mapwin_ex, y_ctr++, 1, " - %s", i->ld_name);
+                    textwin_add_text(char_win, " - %s", i->ld_name);
                 }
             }
         }
     }
-    else mvwprintw(mapwin_ex, y_ctr++, 1, "You can not see this place.");
+    else textwin_add_text(char_win, "You can not see this place.");
 
-    wrefresh(mapwin_ex);
-    return mapwin_ex;
+    textwin_display_text(char_win);
 }
 
 void mapwin_overlay_examine_cursor(struct dm_map *map, coord_t *p_pos) {
@@ -317,8 +273,6 @@ void mapwin_overlay_examine_cursor(struct dm_map *map, coord_t *p_pos) {
     coord_t e_pos = *p_pos;
     int scr_x = get_viewport(last_ppos.x, map_win->cols, map->size.x);
     int scr_y = get_viewport(last_ppos.y, map_win->lines, map->size.y);
-
-    WINDOW *map_win_ex = NULL;
 
     do {
         switch (ch) {
@@ -342,18 +296,16 @@ void mapwin_overlay_examine_cursor(struct dm_map *map, coord_t *p_pos) {
         if (e_pos.x < 0) e_pos.x = 0;
         if (e_pos.x >= map->size.x) e_pos.x = map->size.x -1;
 
-        delwin(map_win_ex);
-        map_win_ex = mapwin_examine(dm_get_map_me(&e_pos, map) );
-
         lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "ui", "examining pos: (%d,%d), plr (%d,%d)", e_pos.x, e_pos.y, p_pos->x, p_pos->y);
         chtype oldch = mvwinch(map_win->win, e_pos.y - scr_y, e_pos.x - scr_x);
         mvwaddch(map_win->win, e_pos.y - scr_y, e_pos.x - scr_x, (oldch & 0xFF) | get_colour(TERM_COLOUR_BG_RED) );
         wrefresh(map_win->win);
         mvwaddch(map_win->win, e_pos.y - scr_y, e_pos.x - scr_x, oldch);
+
+        mapwin_examine(dm_get_map_me(&e_pos, map) );
     }
     while( ( (ch = inp_get_input(gbl_game->input)) != INP_KEY_ESCAPE) && (examine_mode == true) );
 
-    delwin(map_win_ex);
     wrefresh(map_win->win);
 }
 
@@ -364,41 +316,37 @@ void targetwin_examine(struct hrl_window *window, struct dm_map *map, struct msr
     if (itm_verify_item(witem) == false) return;
     if (window->type != HRL_WINDOW_TYPE_CHARACTER) return;
     struct dm_map_entity *me = dm_get_map_me(pos, map);
+
     if (me->in_sight == false) {
         charwin_refresh();
         return;
     }
 
-    WINDOW *targetwin_ex = derwin(window->win, 0,0,0,0);
-    touchwin(window->win);
-    wclear(targetwin_ex);
+    textwin_init(window);
 
     if (me->monster != NULL) {
-        mvwprintw(targetwin_ex, 0, 1, "Target: %s.", msr_ldname(me->monster) );
+        textwin_add_text(window,"Target: %s.\n", msr_ldname(me->monster) );
     }
-    else mvwprintw(targetwin_ex, 0, 1, "No Target.");
+    else textwin_add_text(window,"No Target.\n");
 
     int tohit = fght_ranged_calc_tohit(player, pos, FGHT_MAIN_HAND);
-    mvwprintw(targetwin_ex, 2, 1, "Total change of hitting: %d.", tohit);
-    mvwprintw(targetwin_ex, 3, 1, "Ballistic Skill: %d", msr_calculate_characteristic(player, MSR_CHAR_BALISTIC_SKILL) );
+    textwin_add_text(window,"Total change of hitting: %d.\n", tohit);
+    textwin_add_text(window,"Ballistic Skill: %d\n\n", msr_calculate_characteristic(player, MSR_CHAR_BALISTIC_SKILL) );
 
-    int y = 4;
     int idx = 0;
     struct tohit_desc *thd = NULL;
-    char text[100];
     while ( (thd = fght_get_tohit_mod_description(idx++) ) != NULL) {
-        int len = snprintf(text, 99, "%c %s (%d).", (thd->modifier > 0) ? '+' : '-', thd->description, thd->modifier);
-        mvwaddstr(targetwin_ex, y + idx, 1, text);
-        if (len >= window->cols) y++;
+        textwin_add_text(window,"%c %s (%d).\n", (thd->modifier > 0) ? '+' : '-', thd->description, thd->modifier);
     }
 
-    mvwprintw(targetwin_ex, window->lines -2, 1, "Calculated: %s.", witem->sd_name);
+    textwin_add_text(window,"\n");
+
+    textwin_add_text(window, "Calculated: %s.\n", witem->sd_name);
     if (wpn_is_catergory(witem, WEAPON_CATEGORY_THROWN_GRENADE) ) {
-        mvwprintw(targetwin_ex, window->lines -1, 1, "Timer: %d.%d.", witem->energy / TT_ENERGY_TURN, witem->energy % TT_ENERGY_TURN);
+        textwin_add_text(window,"Timer: %d.%d.\n", witem->energy / TT_ENERGY_TURN, witem->energy % TT_ENERGY_TURN);
     }
 
-    wrefresh(targetwin_ex);
-    delwin(targetwin_ex);
+    textwin_display_text(window);
 }
 
 bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dm_map *map, coord_t *p_pos) {
