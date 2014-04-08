@@ -4,7 +4,7 @@
 
 #define MONSTER(tid,_icon,_sd_name,_ld_name,desc,_gender,maxwounds) \
     [tid]={.uid=0, .template_id=tid, .icon=_icon, .sd_name=_sd_name, .ld_name=_ld_name, .description=desc,\
-        .gender=_gender, .cur_wounds=maxwounds, .max_wounds=maxwounds, .fatepoints=0,
+        .gender=_gender, .cur_wounds=maxwounds, .max_wounds=maxwounds, .fate_points=0,
 #define MONSTER_END }
 
 #define CHARACTERISTICS(ws,bs,st,tg,ag,in,pr,wl,fl) \

@@ -352,7 +352,9 @@ static bool load_monsters(lua_State *L, struct dm_map *map, struct gm_game *g) {
         lua_intexpr(L, &t, "game.monsters[%d].gender", i+1); monster->gender = t;
         lua_intexpr(L, &t, "game.monsters[%d].cur_wounds", i+1); monster->cur_wounds = t;
         lua_intexpr(L, &t, "game.monsters[%d].max_wounds", i+1); monster->max_wounds = t;
-        lua_intexpr(L, &t, "game.monsters[%d].fatepoints", i+1); monster->fatepoints = t;
+        lua_intexpr(L, &t, "game.monsters[%d].fate_points", i+1); monster->fate_points = t;
+        lua_intexpr(L, &t, "game.monsters[%d].insanity_points", i+1); monster->insanity_points = t;
+        lua_intexpr(L, &t, "game.monsters[%d].corruption_points", i+1); monster->corruption_points = t;
         /*
         lua_intexpr(L, &t, "game.monsters[%d].race_traits", i+1); monster->race_traits = t;
         lua_intexpr(L, &t, "game.monsters[%d].combat_talents", i+1); monster->combat_talents = t;

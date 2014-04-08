@@ -116,7 +116,10 @@ struct msr_monster {
     int8_t max_wounds;
 
     /* current number of fatepoints, not used. */
-    uint8_t fatepoints;
+    uint8_t fate_points;
+
+    uint8_t insanity_points;
+    uint8_t corruption_points;
 
     /* true if the monster is dead and to be cleaned up. */
     bool dead;

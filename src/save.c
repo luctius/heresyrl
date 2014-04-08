@@ -51,7 +51,12 @@ static bool sv_save_monsters(FILE *file, int indent) {
         while ( (m = msrlst_get_next_monster(m) ) != NULL) {
             fprintf(file, "%*s" "{uid=%d,template_id=%d,race=%d,size=%d,gender=%d,cur_wounds=%d,max_wounds=%d,",  indent, "", 
                     m->uid, m->template_id,m->race,m->size,m->gender,m->cur_wounds,m->max_wounds);
-            fprintf(file,"fatepoints=%d,is_player=%d,wpn_sel=%d,pos={x=%d,y=%d,},", m->fatepoints,m->is_player,m->wpn_sel,m->pos.x,m->pos.y);
+            fprintf(file,"fate_points=%d,", m->fate_points);
+            fprintf(file,"insanity_points=%d,", m->insanity_points);
+            fprintf(file,"corruption_points=%d,", m->corruption_points);
+            fprintf(file,"is_player=%d,", m->is_player);
+            fprintf(file,"wpn_sel=%d,", m->wpn_sel);
+            fprintf(file,"pos={x=%d,y=%d,},", m->pos.x,m->pos.y);
             if (m->unique_name != NULL) fprintf(file, "uname=\"%s\",creature_traits=%"PRIu64",",m->unique_name, m->creature_traits);
 
             int tmax = ((TALENTS_MAX >> TALENTS_IDX_OFFSET) & 0x0F)+1;
