@@ -100,14 +100,13 @@ void ui_destroy() {
 }
 
 void update_screen(void) {
-    werase(map_win->win);
-    werase(char_win->win);
+    if (gbl_game->running) {
+        mapwin_display_map(gbl_game->current_map, &gbl_game->player_data.player->pos);
+        charwin_refresh();
 
-    mapwin_display_map(gbl_game->current_map, &gbl_game->player_data.player->pos);
-    charwin_refresh();
-
-    wrefresh(map_win->win);
-    wrefresh(char_win->win);
+        wrefresh(map_win->win);
+        wrefresh(char_win->win);
+    }
 }
 
 static void mapwin_display_map_noref(struct dm_map *map, coord_t *player) {

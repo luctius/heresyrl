@@ -17,6 +17,10 @@ struct opt_options options = {
     .debug_no_load  = false,
     .debug_no_save  = false,
 
+    .play_recording = false,
+    .play_delay     = 1,
+    .play_stop      = 0,
+
     .refresh = true,
 
     .log_file_name  = NULL,
@@ -44,6 +48,7 @@ void opt_parse_options(struct gengetopt_args_info *args_info) {
 
     options.play_recording = args_info->play_recording_flag;
     options.play_delay     = args_info->play_delay_arg;
+    options.play_stop      = args_info->play_stop_arg;
     
     if (options.play_delay == 0) options.refresh = false;
 

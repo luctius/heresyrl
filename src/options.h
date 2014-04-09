@@ -12,7 +12,8 @@ struct opt_options {
     bool debug_no_save;
 
     bool play_recording;
-    size_t play_delay;
+    int  play_delay;
+    int  play_stop;
     bool refresh;
 
     char *log_file_name;

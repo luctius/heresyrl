@@ -34,9 +34,13 @@ bool inp_log_has_keys(struct inp_input *i) {
         return true;
     }
 
-    options.play_recording = false;
+    if (options.play_recording == true) {
+        options.play_recording = false;
+        options.refresh = true;
 
-    update_screen();
+        update_screen();
+    }
+
     return false;
 }
 
@@ -62,6 +66,13 @@ int inp_input_to_idx(enum inp_keys k) {
     else if (isdigit(k) ) ret = (k - 0x30) +26;
 
     return ret;
+}
+
+bool inp_keylog_stop(struct inp_input *i) {
+    if (i == NULL) return false;
+
+    i->keylog_ridx = i->keylog_widx;
+    return true;
 }
 
 enum inp_keys inp_get_input_idx(struct inp_input *i) {
@@ -157,21 +168,13 @@ enum inp_keys inp_get_input(struct inp_input *i) {
         }
         if (k != INP_KEY_QUIT) inp_add_to_log(i, k);
     }
-    /*
-    else if (options.play_recording) {
-        timeout(1);
-        k = getch();
-        ungetch(k);
-        timeout(0);
-    }
-    */
-
 
     if (k != INP_KEY_QUIT) {
         assert(inp_log_has_keys(i) );
         return inp_get_from_log(i);
     }
-    else return INP_KEY_NONE;
+
+    return k;
 }
 
 struct inp_input *inp_init(void) {
