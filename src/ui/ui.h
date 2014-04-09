@@ -20,4 +20,6 @@ void msgwin_log_refresh(struct logging *log, struct log_entry *le);
 void charwin_refresh(void);
 bool invwin_inventory(struct dm_map *map, struct pl_player *plr);
 
+void character_window(void);
+void log_window(void);
 #endif /* UI_H */

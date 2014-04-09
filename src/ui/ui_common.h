@@ -23,11 +23,11 @@
 #define MSG_LINES_FACTOR 0.10f
 
 #define CHAR_MIN_COLS 31
-#define CHAR_MAX_COLS 31
+#define CHAR_MAX_COLS 50
 #define CHAR_COLS_FACTOR 0.05f
 
 #define CHAR_MIN_LINES 30
-#define CHAR_MAX_LINES 30
+#define CHAR_MAX_LINES 90
 #define CHAR_LINES_FACTOR 1.00f
 
 enum window_type {

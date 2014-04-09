@@ -36,7 +36,7 @@ bool ui_create(int cols, int lines) {
         hdr_lines = lines;
         hdr_cols = cols;
 
-        if ( (lines < 25) || (cols < 40) ) {
+        if ( (lines < 24) || (cols < 40) ) {
             endwin();           /*  End curses mode       */
             fprintf(stderr, "Terminal is too small, minimum is 40x25, this terminal is %dx%d.\n", cols, lines);
             exit(1);
@@ -121,7 +121,8 @@ static void mapwin_display_map_noref(struct dm_map *map, coord_t *player) {
 
     /* Only change viewport if the difference between the last change is big enough */
     coord_t ppos = *player;
-    if (cd_pyth(&last_ppos, &ppos) > 10) {
+    int view_pos_diff = MAX(map_win->cols, map_win->lines) / 10;
+    if (cd_pyth(&last_ppos, &ppos) > view_pos_diff) {
         last_ppos = ppos;
     }
     else { ppos = last_ppos; }
@@ -498,6 +499,7 @@ bool mapwin_overlay_throw_cursor(struct gm_game *g, struct dm_map *map, coord_t 
 
     int weapon_idx = 0;
     struct itm_item *item = find_throw_weapon(plr->player, weapon_idx);
+    item->energy = TT_ENERGY_TURN;
 
     do {
         mapwin_display_map_noref(map, &plr->player->pos);
@@ -677,8 +679,6 @@ void charwin_refresh() {
     struct msr_monster *player = plr->player;
 
     textwin_add_text(char_win, "Name      %s\n", plr->name);
-    textwin_add_text(char_win, "Gender    %s\n", msr_gender_string(player) );
-    textwin_add_text(char_win, "Homeworld %s\n", "Void Born");
     textwin_add_text(char_win, "Career    %s\n", "Thug");
     textwin_add_text(char_win, "Turn      %d.%d\n", gbl_game->turn / TT_ENERGY_TURN, gbl_game->turn % TT_ENERGY_TURN);
     textwin_add_text(char_win, "\n");
@@ -719,10 +719,11 @@ void charwin_refresh() {
         if ( (item = inv_get_item_from_location(player->inventory, loc) ) != NULL) {
             if (item->item_type == ITEM_TYPE_WEAPON) {
                 struct item_weapon_specific *wpn = &item->specific.weapon;
-                textwin_add_text(char_win, "%s Wpn: %s\n", (i==0) ? "Main" : "Secondary", item->sd_name);
-                textwin_add_text(char_win, "  Dmg: %dD10 +%d   Pen: %d\n", wpn->nr_dmg_die, wpn->dmg_addition, wpn->penetration);
+                textwin_add_text(char_win, "%s Wpn: %s\n", (i==0) ? "Main" : "Sec.", item->sd_name);
+                textwin_add_text(char_win, " Dmg %dD10+%d,%d", wpn->nr_dmg_die, wpn->dmg_addition, wpn->penetration);
                 if (wpn->weapon_type == WEAPON_TYPE_RANGED) {
-                    textwin_add_text(char_win, "  Ammo: %d/%d\n", wpn->magazine_left, wpn->magazine_sz);
+                    textwin_add_text(char_win, "  Ammo %d/%d\n", wpn->magazine_left, wpn->magazine_sz);
+
                     int single = wpn->rof[WEAPON_ROF_SETTING_SINGLE];
                     int semi = wpn->rof[WEAPON_ROF_SETTING_SEMI];
                     int aut = wpn->rof[WEAPON_ROF_SETTING_AUTO];
@@ -730,9 +731,10 @@ void charwin_refresh() {
                                 (wpn->rof_set == WEAPON_ROF_SETTING_SEMI) ? "semi": "auto";
                     char semi_str[4]; snprintf(semi_str, 3, "%d", semi);
                     char auto_str[4]; snprintf(auto_str, 3, "%d", aut);
-                    textwin_add_text(char_win, "  Setting: %s (%s/%s/%s)\n", set, 
+                    textwin_add_text(char_win, " Setting: %s (%s/%s/%s)\n", set, 
                             (single > 0) ? "S" : "-", (semi > 0) ? semi_str : "-", (aut > 0) ? auto_str : "-");
                 }
+                else textwin_add_text(char_win, "\n");
             }
         }
         textwin_add_text(char_win, "\n");
@@ -985,7 +987,9 @@ Basic weapon traning SP     ...                  |
 
     textwin_init(&pad,1,0,0,0);
     textwin_add_text(&pad, "Name:       %s\n", plr->name);
+    textwin_add_text(&pad, "Gender      %s\n", msr_gender_string(mon) );
     textwin_add_text(&pad, "Career:     %s\n", "tester");
+    textwin_add_text(&pad, "Homeworld   %s\n", "Void Born");
     textwin_add_text(&pad, "Rank:       %s\n", "beginner");
     textwin_add_text(&pad, "Origin:     %s\n", "computer");
     textwin_add_text(&pad, "Divination: %s\n", "die");
@@ -1008,14 +1012,14 @@ Basic weapon traning SP     ...                  |
     const char *char_names[] = {"Ws", "Bs", "Str", "Tgh", "Agi", "Int", "Per", "Wil", "Per"};
 
     y += 1;
-    for (int i = 0; i < MSR_CHAR_MAX; i++) {
+    for (int i = 0; i < MSR_CHAR_MAX -1; i++) {
         textwin_init(&pad,(i * 6),y,6,1);
         textwin_add_text(&pad, "[%3s] ", char_names[i]);
         textwin_display_text(&pad);
     }
 
     y += 1;
-    for (int i = 0; i < MSR_CHAR_MAX; i++) {
+    for (int i = 0; i < MSR_CHAR_MAX -1; i++) {
         textwin_init(&pad,(i * 6),y,6,1);
         textwin_add_text(&pad, "[%3d] ", msr_calculate_characteristic(mon, i) );
         textwin_display_text(&pad);
@@ -1182,31 +1186,33 @@ void log_window(void) {
         for (int i = log_sz; i > 0; i--) {
             tmp_entry = (struct log_entry *) queue_peek_nr(q, i-1);
             if (tmp_entry != NULL) {
-                const char *pre_format;
+                if (options.debug) {
+                    const char *pre_format;
 
-                switch (tmp_entry->level)
-                {
-                    case LG_DEBUG_LEVEL_GAME:
-                        pre_format = "[%s" ":Game][%d] ";
-                        break;
-                    case LG_DEBUG_LEVEL_DEBUG:
-                        pre_format = "[%s" ":Debug][%d] ";
-                        break;
-                    case LG_DEBUG_LEVEL_INFORMATIONAL:
-                        pre_format = "[%s" ":Info][%d] ";
-                        break;
-                    case LG_DEBUG_LEVEL_WARNING:
-                        pre_format = "[%s" ":Warning][%d] ";
-                        break;
-                    case LG_DEBUG_LEVEL_ERROR:
-                        pre_format = "[%s" ":Error][%d] ";
-                        break;
-                    default:
-                        pre_format ="[%s" ":Unknown][%d] ";
-                        break;
+                    switch (tmp_entry->level)
+                    {
+                        case LG_DEBUG_LEVEL_GAME:
+                            pre_format = "[%s" ":Game][%d] ";
+                            break;
+                        case LG_DEBUG_LEVEL_DEBUG:
+                            pre_format = "[%s" ":Debug][%d] ";
+                            break;
+                        case LG_DEBUG_LEVEL_INFORMATIONAL:
+                            pre_format = "[%s" ":Info][%d] ";
+                            break;
+                        case LG_DEBUG_LEVEL_WARNING:
+                            pre_format = "[%s" ":Warning][%d] ";
+                            break;
+                        case LG_DEBUG_LEVEL_ERROR:
+                            pre_format = "[%s" ":Error][%d] ";
+                            break;
+                        default:
+                            pre_format ="[%s" ":Unknown][%d] ";
+                            break;
+                    }
+
+                    textwin_add_text(&pad, pre_format, tmp_entry->module, tmp_entry->turn);
                 }
-
-                textwin_add_text(&pad, pre_format, tmp_entry->module, tmp_entry->turn);
 
                 for (int l = 0; l < tmp_entry->atom_lst_sz; l++) {
                     struct log_atom *a = &tmp_entry->atom_lst[l];
@@ -1223,8 +1229,6 @@ void log_window(void) {
     }
     else textwin_add_text(&pad, "Empty\n");
     y += textwin_display_text(&pad) +1;
-
-    lg_debug("log sz: %d", y);
 
     int line = 0;
     bool watch = true;
@@ -1243,10 +1247,8 @@ void log_window(void) {
             default: break;
         }
 
-        lg_debug("line %d", line);
         if (line < 0) line = 0;
         if (line > (y - pad.lines) ) line = y - pad.lines;
-        lg_debug("line %d after correction", line);
     }
 
     delwin(pad.win);

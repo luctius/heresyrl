@@ -102,7 +102,9 @@ enum inp_keys inp_get_input(struct inp_input *i) {
             case '[':       k = INP_KEY_WEAPON_SETTING; break;
             case ']':       k = INP_KEY_WEAPON_SELECT; break;
             case '\\':      k = INP_KEY_AMMO_SELECT; break;
-            case '+':       k = INP_KEY_PLUS; break;
+            case '+':       
+            case '=':       k = INP_KEY_PLUS; break;
+            case '_':       
             case '-':       k = INP_KEY_MINUS; break;
 
             case ' ':
