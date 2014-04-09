@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <assert.h>
 
-//#define DEBUG
+#define DEBUG
 
 #include "rpsc_fov.h"
 
@@ -96,8 +96,8 @@ struct rpsc_octant_quad octant_lo_table[OCTANT_MAX] = {
     instead of using floating point, we use a 16bit integer (and even more when available)
 */
 typedef uint_fast16_t angle_t;
-#define FP_MAX UINT_FAST16_MAX
-//#define FP_MAX UINT16_MAX /* use this when debugging to avoid becoming number crazy */
+//#define FP_MAX UINT_FAST16_MAX
+#define FP_MAX UINT16_MAX /* use this when debugging to avoid becoming number crazy */
 #define FP_HALF ( (FP_MAX>>1) & ~0xF)
 #define ANGLE_RANGE FP_HALF
 
@@ -532,6 +532,7 @@ bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst) {
         /* loop throught the 3 cells of this row */
         for (int c = 0; c <= 2; c++) {
             bool blocked = false;
+            bool destination = false;
 
             /* get the cell we are interrested in. */
             int cell = center_cell +cell_select[c];
@@ -555,6 +556,8 @@ bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst) {
                 point = cd_create(src->x + (row * oct_mod->x), src->y + (cell * oct_mod->y));
             }
             lg_debug("next point is (%d,%d)", point.x,point.y);
+
+            if (cd_equal(&point,dst) ) destination = true;
 
             /* the angles for this cell. */
             struct angle_set as = offset_to_angle_set(row, cell);
@@ -583,17 +586,17 @@ bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst) {
                 }
             }
 
-            if (blocked == true) {
-                if (cd_equal(&point,dst) ) {
-                    /* if this cell is the destination, than it is 
-                       a done deal if it itself is blocked. */
-                    visible = false;
-                }
-            }
             /* the cell is not blocked by another. now we check it will block others. */
-            else if (blocked == false) {
-                /* it is a cell which blocks others */
-                if (set->is_opaque(set, &point, src) == false) {
+            if (blocked == false) {
+                /* 
+                   We check if this cell will block others (i.e. is a wall).
+                   Given a strict is_opaque funciton however, the target square 
+                   could also be blocked (for example to check line of fire, but the 
+                   target square also has an actor).
+
+                   Thus we do not do block the target square.
+                 */
+                if ( (set->is_opaque(set, &point, src) == false) && (destination == false) ) {
                     /* add it to the obstacle list. */
                     blocked_list[obstacles_total + obstacles_this_row] = as;
                     obstacles_this_row++;
@@ -610,6 +613,12 @@ bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst) {
                     set->apply(set, &point, src);
                     applied = true;
                 }
+            }
+
+            if ( (blocked) && (destination) ) {
+                /* if this cell is the destination, than it is 
+                   a done deal if it itself is blocked. */
+                visible = false;
             }
         }
 
