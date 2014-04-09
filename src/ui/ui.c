@@ -8,7 +8,6 @@
 #include "ui.h"
 #include "ui_common.h"
 
-#include "cmdline.h"
 #include "options.h"
 
 #include "tiles.h"
@@ -16,7 +15,6 @@
 #include "logging.h"
 #include "player.h"
 #include "inventory.h"
-#include "linewrap.h"
 #include "input.h"
 #include "dowear.h"
 #include "game.h"
@@ -678,7 +676,7 @@ void charwin_refresh() {
 
     struct msr_monster *player = plr->player;
 
-    textwin_add_text(char_win, "Name      %s\n", plr->name);
+    textwin_add_text(char_win, "Name      %s\n", player->unique_name);
     textwin_add_text(char_win, "Career    %s\n", "Thug");
     textwin_add_text(char_win, "Turn      %d.%d\n", gbl_game->turn / TT_ENERGY_TURN, gbl_game->turn % TT_ENERGY_TURN);
     textwin_add_text(char_win, "\n");
@@ -986,25 +984,24 @@ Basic weapon traning SP     ...                  |
     /* General Stats */
 
     textwin_init(&pad,1,0,0,0);
-    textwin_add_text(&pad, "Name:       %s\n", plr->name);
+    textwin_add_text(&pad, "Name:       %s\n", mon->unique_name);
     textwin_add_text(&pad, "Gender      %s\n", msr_gender_string(mon) );
     textwin_add_text(&pad, "Career:     %s\n", "tester");
-    textwin_add_text(&pad, "Homeworld   %s\n", "Void Born");
     textwin_add_text(&pad, "Rank:       %s\n", "beginner");
     textwin_add_text(&pad, "Origin:     %s\n", "computer");
     textwin_add_text(&pad, "Divination: %s\n", "die");
     y += textwin_display_text(&pad) +1;
 
-    textwin_init(&pad,1,y,18,10);
+    textwin_init(&pad,1,y,20,10);
     textwin_add_text(&pad, "Wounds:   %d/%d\n", mon->cur_wounds, mon->max_wounds);
-    textwin_add_text(&pad, "Insanity:    %d\n", mon->insanity_points);
-    textwin_add_text(&pad, "XP:          %d\n", 0);
+    textwin_add_text(&pad, "Insanity:  %d\n", mon->insanity_points);
+    textwin_add_text(&pad, "XP:        %d\n", plr->xp_current / TT_ENERGY_TURN);
     y_sub = textwin_display_text(&pad);
 
-            textwin_init(&pad,20,y,18,y_sub);
+            textwin_init(&pad,22,y,20,y_sub);
             textwin_add_text(&pad, "Fate:       %d/%d\n", mon->fate_points,0);
             textwin_add_text(&pad, "Corruption:    %d\n", mon->corruption_points);
-            textwin_add_text(&pad, "Spend:         %d\n", 0);
+            textwin_add_text(&pad, "Spend:         %d\n", plr->xp_spend);
             textwin_display_text(&pad);
     y += y_sub;
 

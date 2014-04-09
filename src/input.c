@@ -45,6 +45,20 @@ char inp_key_translate_idx(int idx) {
     return -1;
 }
 
+int inp_input_to_idx(enum inp_keys k) {
+    int ret = -1;
+    /* A-Z -> 0 - 25*/
+    if (k >= 0x41 && k <= 0x5a) ret = k - 0x41;
+
+    /* a-z -> 0 - 25*/
+    else if (k >= 0x61 && k <= 0x7A) ret = k - 0x61;
+
+    /* 0-9 -> 26 - 35*/
+    else if (k >= 0x30 && k <= 0x39) ret = (k - 0x30) +26;
+
+    return ret;
+}
+
 enum inp_keys inp_get_input_idx(struct inp_input *i) {
     if (i == NULL) return -1;
     enum inp_keys k = INP_KEY_ESCAPE;
@@ -52,15 +66,23 @@ enum inp_keys inp_get_input_idx(struct inp_input *i) {
     if (inp_log_has_keys(i) == false) {
         int ch = getch();
 
-        /* A-Z -> 0 - 25*/
-        if (ch >= 0x41 && ch <= 0x5a) k = ch - 0x41;
+        k = inp_input_to_idx(ch);
 
-        /* a-z -> 0 - 25*/
-        else if (ch >= 0x61 && ch <= 0x7A) k = ch - 0x61;
+        inp_add_to_log(i, k);
+    }
 
-        /* 0-9 -> 26 - 35*/
-        else if (ch >= 0x30 && ch <= 0x39) k = (ch - 0x30) +26;
+    assert(inp_log_has_keys(i) );
+    return inp_get_from_log(i);
+}
 
+enum inp_keys inp_get_input_text(struct inp_input *i) {
+    if (i == NULL) return -1;
+    enum inp_keys k = INP_KEY_ESCAPE;
+
+    if (inp_log_has_keys(i) == false) {
+        while ( (isalpha(k = getch() ) == false) && (k != '\n') && (k != KEY_BACKSPACE) ) {
+            lg_debug("key %d", k);
+        }
         inp_add_to_log(i, k);
     }
 

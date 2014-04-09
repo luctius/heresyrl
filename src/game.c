@@ -30,8 +30,6 @@ void game_init(struct pl_player *plr, unsigned long initial_seed) {
             itmlst_items_list_init();
             tt_init();
 
-            gbl_game->running = true;
-
             gbl_game->sight = sgt_init();
             gbl_game->input = inp_init();
         }
@@ -57,15 +55,15 @@ bool game_load(void) {
         }
     }
 
+    if (gbl_game->random == NULL) {
+        gbl_game->random = random_init_genrand(gbl_game->initial_seed);
+    }
+
     return loaded;
 }
 
 bool game_init_map(void) {
     if (gbl_game == NULL) return false;
-
-    if (gbl_game->random == NULL) {
-        gbl_game->random = random_init_genrand(gbl_game->initial_seed);
-    }
 
     int x = 100;
     int y = 100;
@@ -76,8 +74,8 @@ bool game_init_map(void) {
         dm_generate_map(gbl_game->current_map, DM_DUNGEON_TYPE_CAVE, 1, random_int32(gbl_game->random) );
     }
 
-    plr_init(&gbl_game->player_data, "Tester", MSR_RACE_HUMAN, MSR_GENDER_MALE);
-    gbl_game->player_data.player->is_player = true;
+    //plr_init(&gbl_game->player_data, "Tester", MSR_RACE_HUMAN, MSR_GENDER_MALE);
+    plr_init(&gbl_game->player_data);
 
     coord_t c = cd_create(0,0);
     if (cd_equal(&gbl_game->player_data.player->pos, &c) == true) {
@@ -89,8 +87,11 @@ bool game_init_map(void) {
     dm_clear_map_visibility(gbl_game->current_map, &c, &gbl_game->current_map->size);
     sgt_calculate_all_light_sources(gbl_game->sight, gbl_game->current_map);
     sgt_calculate_player_sight(gbl_game->sight, gbl_game->current_map, gbl_game->player_data.player);
+    gbl_game->running = true;
 
-    return true;
+    if (gbl_game->player_data.xp_current > TT_ENERGY_TURN) GM_msg("You have XP to spend, press '@' to level-up.");
+
+    return gbl_game->running;
 }
 
 bool game_new_tick(void) {
@@ -109,8 +110,9 @@ bool game_exit() {
         }
     }
 
+    if (gbl_game->current_map != NULL) dm_free_map(gbl_game->current_map);
+
     tt_exit();
-    dm_free_map(gbl_game->current_map);
 
     msrlst_monster_list_exit();
     itmlst_items_list_exit();

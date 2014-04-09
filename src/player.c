@@ -25,34 +25,47 @@ struct spwn_monster_item items[] = {
     {.id=ITEM_ID_THROWING_KNIFE,.min=1,.max=3,.wear=false},
     {0,0,0,0,} };
 
-void plr_init(struct pl_player *plr, char *name, enum msr_race race, enum msr_gender gender) {
+void plr_create(struct pl_player *plr, char *name, uint32_t template_id, enum msr_gender gender) {
+    if (plr->player != NULL) {
+        msr_destroy(plr->player, NULL);
+        plr->player = NULL;
+    }
+
+    plr->player = msr_create(template_id);
+    plr->player->unique_name = name;
+    plr->player->race = MSR_RACE_HUMAN;
+    plr->player->gender = gender;
+    plr->player->is_player = true;
+    plr->player_map_pos = cd_create(0,0);
+
+    plr->xp_spend = 0;
+    plr->xp_current = 0;//500 * TT_ENERGY_TURN;
+
+    int i = 0;
+    while (items[i].max != 0) {
+        spwn_add_item_to_monster(plr->player, &items[i], gbl_game->random);
+        i++;
+    }
+
+    /* Debug */
+    plr->player->characteristic[MSR_CHAR_PERCEPTION].base_value = 80;
+    plr->player->characteristic[MSR_CHAR_AGILITY].base_value = 40;
+    plr->player->characteristic[MSR_CHAR_TOUGHNESS].base_value = 80;
+}
+
+void plr_init(struct pl_player *plr) {
     struct monster_controller mc = {
         .controller_ctx = plr,
         .controller_cb = plr_action_loop,
     };
 
-    if (plr->player == NULL) {
-        plr->name = name;
-        plr->player = msr_create(MSR_ID_BASIC_FERAL);
-        plr->player->unique_name = name;
+    if (plr->player != NULL) {
+        msr_assign_controller(plr->player, &mc);
 
-        int i = 0;
-        while (items[i].max != 0) {
-            spwn_add_item_to_monster(plr->player, &items[i], gbl_game->random);
-            i++;
-        }
+        plr->player->icon = '@';
+        plr->player->icon_attr = get_colour(TERM_COLOUR_WHITE);
+        plr->player->faction = 0;
     }
-
-    msr_assign_controller(plr->player, &mc);
-
-    plr->player->is_player = true;
-    plr->player->icon = '@';
-    plr->player->icon_attr = get_colour(TERM_COLOUR_WHITE);
-    plr->player->faction = 0;
-    plr->player_map_pos = cd_create(0,0);
-    plr->player->characteristic[MSR_CHAR_PERCEPTION].base_value = 80;
-    plr->player->characteristic[MSR_CHAR_AGILITY].base_value = 40;
-    plr->player->characteristic[MSR_CHAR_TOUGHNESS].base_value = 80;
 }
 
 struct pf_context *plr_map(struct pl_player *plr, struct dm_map *map) {

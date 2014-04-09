@@ -65,32 +65,42 @@ int main(int argc, char *argv[]) {
     noecho();
     keypad(stdscr, TRUE);
 
-    game_load();
-    game_init_map();
+    bool valid_player = false;
+    if (game_load() ) valid_player = true;
+        /* char creation */
+    else if (char_creation_window() ) valid_player = true;
+    else options.debug_no_save = true;
 
-    coord_t *player_pos = &gbl_game->player_data.player->pos;
-    mapwin_display_map(gbl_game->current_map, player_pos);
-    charwin_refresh();
+    if (valid_player) {
+        game_init_map();
 
-    /*initialise signal handler*/
-    struct sigaction setmask;
-    sigemptyset( &setmask.sa_mask );
-    setmask.sa_handler = sigfunc;
-    setmask.sa_flags   = 0;
-    sigaction( SIGHUP,  &setmask, (struct sigaction *) NULL );      /* Hangup */
-    sigaction( SIGINT,  &setmask, (struct sigaction *) NULL );      /* Interrupt (Ctrl-C) */
+        coord_t *player_pos = &gbl_game->player_data.player->pos;
+        mapwin_display_map(gbl_game->current_map, player_pos);
+        charwin_refresh();
 
-    while(gbl_game->running == true) {
-        tt_process(gbl_game->current_map);
-        if (gbl_game->running) game_new_tick();
+        /*initialise signal handler*/
+        struct sigaction setmask;
+        sigemptyset( &setmask.sa_mask );
+        setmask.sa_handler = sigfunc;
+        setmask.sa_flags   = 0;
+        sigaction( SIGHUP,  &setmask, (struct sigaction *) NULL );      /* Hangup */
+        sigaction( SIGINT,  &setmask, (struct sigaction *) NULL );      /* Interrupt (Ctrl-C) */
 
-        getmaxyx(stdscr, lines, cols);
-        ui_create(cols, lines);
+        while(gbl_game->running == true) {
+            tt_process(gbl_game->current_map);
+            if (gbl_game->running) game_new_tick();
+
+            getmaxyx(stdscr, lines, cols);
+            ui_create(cols, lines);
+        }
+     
     }
-    GM_msg("Goodbye.");
-    usleep(500000);
 
     game_exit();
+
+    msg("Goodbye.");
+    usleep(500000);
+
     ui_destroy();
 
     clear();

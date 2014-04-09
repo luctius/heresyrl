@@ -37,7 +37,9 @@ static bool sv_save_player(FILE *file, int indent, struct pl_player *plr) {
     if (file == NULL) return false;
 
     fprintf(file, "%*s" "player={", indent, "");
-    fprintf(file, "name=\"%s\",},\n", plr->name);
+    fprintf(file,"xp_current=%d,", plr->xp_current);
+    fprintf(file,"xp_spend=%d,", plr->xp_spend);
+    fprintf(file, "},\n");
     fflush(file);
     return true;
 }
@@ -57,7 +59,7 @@ static bool sv_save_monsters(FILE *file, int indent) {
             fprintf(file,"is_player=%d,", m->is_player);
             fprintf(file,"wpn_sel=%d,", m->wpn_sel);
             fprintf(file,"pos={x=%d,y=%d,},", m->pos.x,m->pos.y);
-            if (m->unique_name != NULL) fprintf(file, "uname=\"%s\",creature_traits=%"PRIu64",",m->unique_name, m->creature_traits);
+            if (m->unique_name != NULL) fprintf(file, "unique_name=\"%s\",creature_traits=%"PRIu64",",m->unique_name, m->creature_traits);
 
             int tmax = ((TALENTS_MAX >> TALENTS_IDX_OFFSET) & 0x0F)+1;
             fprintf(file,"talents={sz=%d,", tmax);

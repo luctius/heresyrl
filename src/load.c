@@ -31,13 +31,19 @@
 * 
 * @return a pointer towards the asked string.
 */
-static const char* lua_stringexpr(lua_State *L, const char *def, const char* expr)
+static const char* lua_stringexpr(lua_State *L, const char* format, ...)
 {
-    const char* r = (const char *) def;
+    const char *r = NULL;
+    char buf0[230] = "";
     char buf[256] = "";
 
+    va_list args;
+    va_start(args, format);
+    (void) vsnprintf(buf0, 227, format, args);
+    va_end(args);
+
     /* Assign the Lua expression to a Lua global variable. */
-    (void) snprintf(buf, 255, "evalExpr=%s", expr);
+    (void) snprintf(buf, 255, "evalExpr=%s", buf0);
 
     if (luaL_dostring(L, buf) == 0)
     {
@@ -180,23 +186,23 @@ static lua_State *conf_open(const char *file)
     {
         if (err == LUA_ERRFILE)
         {
-            lg_printf_l(LG_DEBUG_LEVEL_INFORMATIONAL, "load", "cannot access config file: %s", file);
+            lg_debug("cannot access config file: %s", file);
         }
         else if (err == LUA_ERRSYNTAX)
         {
-            lg_error("load", "syntax error in config file: %s", file);
+            lg_debug("syntax error in config file: %s", file);
         }
         else if (err == LUA_ERRERR)
         {
-            lg_error("load", "general LUA error when accessing config file: %s", file);
+            lg_debug("general LUA error when accessing config file: %s", file);
         }
         else if (err == LUA_ERRMEM)
         {
-            lg_error("load", "out of memory when accessing config file: %s", file);
+            lg_debug("out of memory when accessing config file: %s", file);
         }
         else
         {
-            lg_error("load", "Unkown LUA error(%d) when accessing config file: %s", err, file);
+            lg_debug("Unkown LUA error(%d) when accessing config file: %s", err, file);
         }
         lua_close(L);
         L = NULL;
@@ -207,25 +213,25 @@ static lua_State *conf_open(const char *file)
         {
             if (err == LUA_ERRRUN)
             {
-                lg_error("load", "Run error when executing config file: %s", file);
+                lg_debug("Run error when executing config file: %s", file);
             }
             else if (err == LUA_ERRERR)
             {
-                lg_error("load", "general LUA error when executing config file: %s", file);
+                lg_debug("general LUA error when executing config file: %s", file);
             }
             else if (err == LUA_ERRMEM)
             {
-                lg_error("load", "out of memory when executing config file: %s", file);
+                lg_debug("out of memory when executing config file: %s", file);
             }
             else
             {
-                lg_error("load", "unkown error(%d) when executing config file: %s", err, file);
+                lg_debug("unkown error(%d) when executing config file: %s", err, file);
             }
 
             lua_close(L);
             L = NULL;
         }
-        else lg_debug("load", "loaded config file in memory; parsing now...");
+        else lg_debug("loaded config file in memory; parsing now...");
     }
 
     return L;
@@ -236,7 +242,7 @@ static bool load_game(lua_State *L, struct gm_game *g) {
     if (L == NULL) return false;
 
     const char *version_ptr;
-    if ( (version_ptr = lua_stringexpr(L,"noname", "game.version") ) == NULL) return false;
+    if ( (version_ptr = lua_stringexpr(L,"game.version") ) == NULL) return false;
     if (strcmp(version_ptr, VERSION) != 0) lg_warning("Warning: save game version and current version do not match!");
 
     if (lua_intexpr(L, &t, "game.random.seed") == 0) return false;
@@ -273,12 +279,11 @@ static bool load_input(lua_State *L, struct gm_game *g) {
     return true;
 }
 static bool load_player(lua_State *L, struct pl_player *plr) {
+    uint64_t t;
     if (L == NULL) return false;
 
-    const char *name_ptr;
-    if ( (name_ptr = lua_stringexpr(L,"noname", "game.player.name") ) == NULL) return false;
-    plr->name = malloc(strlen(name_ptr) );
-    strcpy(plr->name,name_ptr);
+    lua_intexpr(L, &t, "game.player.xp_spend"); plr->xp_spend = t;
+    lua_intexpr(L, &t, "game.player.xp_current"); plr->xp_current = t;
 
     return true;
 }
@@ -345,6 +350,7 @@ static bool load_monsters(lua_State *L, struct dm_map *map, struct gm_game *g) {
         struct msr_monster *monster = msr_create(t);
         if (msr_verify_monster(monster) == false) return false;
 
+
         monster->template_id = t;
         lua_intexpr(L, &t, "game.monsters[%d].uid", i+1); monster->uid = t;
         lua_intexpr(L, &t, "game.monsters[%d].race", i+1); monster->race = t;
@@ -360,6 +366,15 @@ static bool load_monsters(lua_State *L, struct dm_map *map, struct gm_game *g) {
         lua_intexpr(L, &t, "game.monsters[%d].is_player", i+1); monster->is_player = t;
         lua_intexpr(L, &t, "game.monsters[%d].pos.x", i+1); monster->pos.x = t;
         lua_intexpr(L, &t, "game.monsters[%d].pos.y", i+1); monster->pos.y = t;
+
+        char *name_ptr = lua_stringexpr(L, "game.monsters[%d].unique_name", i+1);
+        if (name_ptr != NULL) {
+            lg_debug("monster name is %s", monster->unique_name);
+            monster->unique_name = malloc( (strlen(name_ptr) + 2) * sizeof(char) );
+            if (monster->unique_name != NULL) {
+                strcpy(monster->unique_name, name_ptr);
+            }
+        }
 
         if (lua_intexpr(L, &t, "game.monsters[%d].skills.sz", i+1) == 1) {
             int skills_sz = t;
@@ -488,7 +503,8 @@ bool ld_read_save_file(const char *path, struct gm_game *g) {
             load_monsters(L, g->current_map, g);
         }
         lua_close(L);
+        return true;
     }
-    return true;
+    return false;
 }
 

@@ -118,11 +118,15 @@ struct msr_monster *msr_create(uint32_t template_id) {
 
 void msr_destroy(struct msr_monster *monster, struct dm_map *map) {
     if (msr_verify_monster(monster) == false) return;
-    if (dm_verify_map(map) == false) return;
     struct msr_monster_list_entry *target_mle = container_of(monster, struct msr_monster_list_entry, monster);
 
-    msr_remove_monster(monster, map);
+    if (map != NULL) {
+        if (dm_verify_map(map) == false) return;
+        msr_remove_monster(monster, map);
+    }
     inv_exit(monster->inventory);
+
+    if (monster->unique_name != NULL) free(monster->unique_name);
 
     LIST_REMOVE(target_mle, entries);
     free(target_mle);

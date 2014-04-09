@@ -45,8 +45,9 @@ enum item_weapon_type;
 enum wpn_rof_setting;
 
 struct pl_player {
-    char *name;
     struct msr_monster *player;
+    int xp_current;
+    int xp_spend;
 
     struct pf_context *player_map;
     coord_t player_map_pos;

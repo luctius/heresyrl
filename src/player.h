@@ -5,7 +5,9 @@
 #include "fight.h"
 #include "coord.h"
 
-void plr_init(struct pl_player *plr, char *name, enum msr_race race, enum msr_gender gender);
+void plr_create(struct pl_player *plr, char *name, uint32_t template_id, enum msr_gender gender);
+void plr_init(struct pl_player *plr);
+
 struct pf_context *plr_map(struct pl_player *plr, struct dm_map *map);
 
 #endif /*PLAYER_H_*/
