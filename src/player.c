@@ -80,6 +80,12 @@ static bool plr_action_loop(struct msr_monster *player, void *controller) {
     if (player->dead) {
         gbl_game->running = false;
     }
+    else if ( ( (player->cur_wounds * 100) / player->max_wounds) < 10) {
+        System_msg("Warning, hitpoints critical");
+    }
+    else if ( ( (player->cur_wounds * 100) / player->max_wounds) < 50) {
+        System_msg("Warning, low hitpoints");
+    }
 
     lg_debug("plr_action_loop");
     while (gbl_game->running && (has_action == false) ) {

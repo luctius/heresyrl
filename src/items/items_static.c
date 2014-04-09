@@ -72,7 +72,7 @@ struct itm_item static_item_list[] = {
     /*    ID                   short name  long name    description          availability               quality              weight,cost,delay*/
     ITEM(ITEM_ID_FIXED_LIGHT,  "torch",    "a torch",   ITM_DESC_GLOW_GLOBE,  ITEM_AVAILABILITY_AVERAGE, ITEM_QUALITY_AVERAGE, 1,     1,   1),
         /*        tool type     energy  luminem*/
-        LIGHT(TOOL_TYPE_LIGHT,  65000,     10), ITEM_END,
+        LIGHT(TOOL_TYPE_LIGHT,  65000,     10), .dropable = false, ITEM_END,
 
     ITEM(ITEM_ID_GLOW_GLOBE,    "glow globe",    "a glow globe", ITM_DESC_GLOW_GLOBE,  ITEM_AVAILABILITY_AVERAGE, ITEM_QUALITY_AVERAGE, 1,     1,   1),
         LIGHT(TOOL_TYPE_LIGHT,   1000,      10), ITEM_END,

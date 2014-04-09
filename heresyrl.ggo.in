@@ -9,9 +9,9 @@ option "map" m "show the complete map" flag off
 option "no_load" l "do not load a previous made character" flag off
 option "no_save" s "do not save a made character" flag off
 
-option "play_recording" - "play a savegame from start until current turn" flag off
-option "play_delay" - "delay when playing a savegame, default is 1 second" default="1" int optional
-option "play_stop" - "when playing a savegame, stop at after turn N" default="0" int optional
+option "playback" - "play a savegame from start until current turn" flag off
+option "pb_delay" - "delay when playing a savegame, default is 1 second" default="1" int optional
+option "pb_stop" - "when playing a savegame, stop at after turn N" default="0" int optional
 
 option "log_file" - "log file name" default="/tmp/heresyrl.log" string optional
 option "save_file" - "save file name" default="/tmp/heresyrl.save" string optional

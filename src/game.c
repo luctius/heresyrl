@@ -99,12 +99,14 @@ bool game_new_tick(void) {
     gbl_game->turn += TT_ENERGY_TICK;
 
     if (options.play_recording) {
-        if (gbl_game->turn > (options.play_stop * TT_ENERGY_TURN) ) {
-            options.play_recording = false;
-            options.refresh = true;
-            inp_keylog_stop(gbl_game->input);
+        if (options.play_stop > 0) {
+            if (gbl_game->turn > (options.play_stop * TT_ENERGY_TURN) ) {
+                options.play_recording = false;
+                options.refresh = true;
+                inp_keylog_stop(gbl_game->input);
 
-            update_screen();
+                update_screen();
+            }
         }
     }
 

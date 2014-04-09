@@ -1198,8 +1198,11 @@ void log_window(void) {
         for (int i = log_sz; i > 0; i--) {
             tmp_entry = (struct log_entry *) queue_peek_nr(q, i-1);
             if (tmp_entry != NULL) {
+                bool print = false;
+
                 if (options.debug) {
                     const char *pre_format;
+                    print = true;
 
                     switch (tmp_entry->level)
                     {
@@ -1225,17 +1228,20 @@ void log_window(void) {
 
                     textwin_add_text(&pad, pre_format, tmp_entry->module, tmp_entry->turn);
                 }
+                else if (tmp_entry->level <= LG_DEBUG_LEVEL_GAME) print = true;
 
-                for (int l = 0; l < tmp_entry->atom_lst_sz; l++) {
-                    struct log_atom *a = &tmp_entry->atom_lst[l];
-                    if (a != NULL) {
-                        textwin_add_text(&pad, "%s", a->string);
+                if (print) {
+                    for (int l = 0; l < tmp_entry->atom_lst_sz; l++) {
+                        struct log_atom *a = &tmp_entry->atom_lst[l];
+                        if (a != NULL) {
+                            textwin_add_text(&pad, "%s", a->string);
+                        }
                     }
+                    if (tmp_entry->repeat > 1) {
+                        textwin_add_text(&pad, " (x%d)", tmp_entry->repeat);
+                    }
+                    textwin_add_text(&pad, "\n");
                 }
-                if (tmp_entry->repeat > 1) {
-                    textwin_add_text(&pad, " (x%d)", tmp_entry->repeat);
-                }
-                textwin_add_text(&pad, "\n");
             }
         }
     }

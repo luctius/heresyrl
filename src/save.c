@@ -84,9 +84,13 @@ static bool sv_save_monsters(FILE *file, int indent) {
             if ( (invsz = inv_inventory_size(m->inventory) ) > 0) {
                 fprintf(file, "items={");
                 struct itm_item *item = NULL;
-                for (int i = 0; i < invsz; i++) {
-                    item = inv_get_next_item(m->inventory, item);
-                    if (item != NULL) fprintf(file, "{uid=%d,position=%"PRIu64"},", item->uid, inv_get_item_locations(m->inventory, item) );
+                while ( (item = inv_get_next_item(m->inventory, item)) != NULL) {
+                    if (item->dropable == false) {
+                        invsz -= 1;
+                        continue;
+                    }
+
+                    fprintf(file, "{uid=%d,position=%"PRIu64"},", item->uid, inv_get_item_locations(m->inventory, item) );
                 }
                 fprintf(file, "sz=%d,", invsz);
                 fprintf(file, "},");
@@ -110,6 +114,8 @@ static bool sv_save_items(FILE *file, int indent) {
     fprintf(file, "%*s" "items={\n", indent, ""); { indent += 2;
         struct itm_item *item = NULL;
         while ( (item = itmlst_get_next_item(item) ) != NULL) {
+            if (item->dropable == false) continue;
+
                 fprintf(file, "%*s" "{uid=%d,template_id=%d,quality=%d,quantity=%d,",  indent, "", item->uid, item->template_id,item->quality,item->stacked_quantity);
                 switch(item->item_type) {
                     case ITEM_TYPE_WEAPON: {

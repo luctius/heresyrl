@@ -257,7 +257,12 @@ struct itm_item {
     bool energy_action;
     int energy;
 
-    /* whether or not this item appears on the ground after a creature is dead. */
+    /* 
+       whether or not this item appears on the ground after a creature is dead. 
+       non-dropable items will not be saved (since they will not be modified in 
+       a meaningfull way), thus any item which will be generated everytime a 
+       game is loaded should be non-dropable.
+     */
     bool dropable;
 
     /* description of the owner of this item*/

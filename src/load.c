@@ -427,6 +427,7 @@ static bool load_monsters(lua_State *L, struct dm_map *map, struct gm_game *g) {
         if (msr_weapons_check(monster) == false) msr_weapon_next_selection(monster);
 
         msr_insert_monster(monster, map, &monster->pos);
+        ai_monster_init(monster);
     }
     return true;
 }

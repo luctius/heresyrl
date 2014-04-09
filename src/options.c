@@ -46,9 +46,9 @@ void opt_parse_options(struct gengetopt_args_info *args_info) {
     options.debug_no_load  = args_info->no_load_flag;
     options.debug_no_save  = args_info->no_save_flag;
 
-    options.play_recording = args_info->play_recording_flag;
-    options.play_delay     = args_info->play_delay_arg;
-    options.play_stop      = args_info->play_stop_arg;
+    options.play_recording = args_info->playback_flag;
+    options.play_delay     = args_info->pb_delay_arg;
+    options.play_stop      = args_info->pb_stop_arg;
     
     if (options.play_delay == 0) options.refresh = false;
 
