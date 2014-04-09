@@ -16,6 +16,9 @@ struct opt_options options = {
     .debug_show_map = false,
     .debug_no_load  = false,
     .debug_no_save  = false,
+
+    .refresh = true,
+
     .log_file_name  = NULL,
     .save_file_name = NULL,
 };
@@ -40,7 +43,9 @@ void opt_parse_options(struct gengetopt_args_info *args_info) {
     options.debug_no_save  = args_info->no_save_flag;
 
     options.play_recording = args_info->play_recording_flag;
-    options.play_delay     = 100000;
+    options.play_delay     = args_info->play_delay_arg;
+    
+    if (options.play_delay == 0) options.refresh = false;
 
     if (args_info->log_file_given == false) {
         snprintf(log_file, path_max, "%s/.%s", homedir, PROG_NAME);
@@ -66,3 +71,4 @@ void opt_parse_options(struct gengetopt_args_info *args_info) {
     if (options.save_file_name == NULL) options.save_file_name = args_info->save_file_arg;
     if (options.debug_no_load) options.play_recording = false;
 }
+

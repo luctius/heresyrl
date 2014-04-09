@@ -3,6 +3,7 @@
 
 #include "ui_common.h"
 #include "linewrap.h"
+#include "options.h"
 
 struct hrl_window *map_win = NULL;
 struct hrl_window *char_win = NULL;
@@ -78,7 +79,8 @@ int textwin_display_text(struct hrl_window *win) {
     free(desc);
     free(len_lines);
 
-    wrefresh(win->win);
+    if (options.refresh == true) wrefresh(win->win);
+
     free(win->text);
     win->text = NULL;
     win->text_sz = win->text_idx = 0;

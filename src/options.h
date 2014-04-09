@@ -13,6 +13,7 @@ struct opt_options {
 
     bool play_recording;
     size_t play_delay;
+    bool refresh;
 
     char *log_file_name;
     char *save_file_name;

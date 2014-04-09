@@ -100,8 +100,14 @@ void ui_destroy() {
 }
 
 void update_screen(void) {
+    werase(map_win->win);
+    werase(char_win->win);
+
     mapwin_display_map(gbl_game->current_map, &gbl_game->player_data.player->pos);
     charwin_refresh();
+
+    wrefresh(map_win->win);
+    wrefresh(char_win->win);
 }
 
 static void mapwin_display_map_noref(struct dm_map *map, coord_t *player) {
@@ -221,7 +227,7 @@ void mapwin_display_map(struct dm_map *map, coord_t *player) {
 
     lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "ui", "update mapwin");
     mapwin_display_map_noref(map, player);
-    wrefresh(map_win->win);
+    if (options.refresh) wrefresh(map_win->win);
 }
 
 static void mapwin_examine(struct dm_map_entity *me) {
@@ -654,7 +660,7 @@ void msgwin_log_refresh(struct logging *lg, struct log_entry *new_entry) {
             }
         }
 
-        wrefresh(msg_win->win);
+        if (options.refresh) wrefresh(msg_win->win);
     }
 }
 
@@ -670,9 +676,19 @@ void charwin_refresh() {
     struct pl_player *plr = &gbl_game->player_data;
     if (plr == NULL) return;
     if (char_win->type != HRL_WINDOW_TYPE_CHARACTER) return;
+    int starty = 1;
 
     werase(char_win->win);
-    textwin_init(char_win,1,0,0,0);
+
+    if (options.play_recording) {
+        int attr_mod = get_colour(TERM_COLOUR_RED);
+        if (has_colors() == TRUE) wattron(char_win->win, attr_mod);
+        mvwprintw(char_win->win, 1,1, "play x%d", options.play_delay);
+        if (has_colors() == TRUE) wattroff(char_win->win, attr_mod);
+        starty += 2;
+    }
+
+    textwin_init(char_win,1,starty,0,0);
 
     struct msr_monster *player = plr->player;
 

@@ -74,8 +74,7 @@ int main(int argc, char *argv[]) {
     if (valid_player) {
         game_init_map();
 
-        coord_t *player_pos = &gbl_game->player_data.player->pos;
-        mapwin_display_map(gbl_game->current_map, player_pos);
+        update_screen();
         charwin_refresh();
 
         /*initialise signal handler*/
