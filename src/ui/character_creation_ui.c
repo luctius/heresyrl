@@ -15,11 +15,29 @@
 #include "inventory.h"
 #include "input.h"
 #include "game.h"
+#include "spawn.h"
 #include "monster/monster.h"
 #include "monster/monster_static.h"
 
-static int homeworld_id[] = { MSR_ID_BASIC_FERAL, MSR_ID_BASIC_HIVE, };
-static char *homeworld_desc[] = { "Feral", "Hive", };
+struct homeworld_id {
+    int id;
+    const char *desc;
+    const char *long_desc;
+};
+
+static struct homeworld_id homeworld_id[] =  { 
+    { .id = MSR_ID_BASIC_FERAL, .desc = "Feral", .long_desc = "...", }, 
+    { .id = MSR_ID_BASIC_HIVE, .desc = "Hive", .long_desc = "...", }, 
+};
+
+struct spwn_monster_item items[] = {  
+    {.id=ITEM_ID_FLAK_JACKET,.min=1,.max=1,.wear=true}, 
+    {.id=ITEM_ID_LAS_GUN,.min=1,.max=1,.wear=true}, 
+    {.id=ITEM_ID_BASIC_AMMO_LAS,.min=1,.max=3,.wear=false},
+    {.id=ITEM_ID_GLOW_GLOBE,.min=1,.max=1,.wear=false},
+    {.id=ITEM_ID_FRAG_GRENADE,.min=1,.max=3,.wear=false},
+    {.id=ITEM_ID_THROWING_KNIFE,.min=1,.max=3,.wear=false},
+    {0,0,0,0,} };
 
 
 bool char_creation_window(void) {
@@ -76,16 +94,12 @@ bool char_creation_window(void) {
 
 
     werase(map_win->win);
-    struct msr_monster *homeworld[ARRAY_SZ(homeworld_id)];
-    for (unsigned int i = 0; i < ARRAY_SZ(homeworld_id); i++) {
-        homeworld[i] = msr_create(homeworld_id[i]);
-    }
 
     bool race_done = false;
     while (race_done == false) {
         mvwprintw(map_win->win, 1, 1, "Choose your homeworld");
         for (unsigned int i = 0; i < ARRAY_SZ(homeworld_id); i++) {
-            char *hw_desc = homeworld_desc[i];
+            char *hw_desc = homeworld_id[i].desc;
             mvwprintw(map_win->win, 4 + i, 1, "%c) %s", inp_key_translate_idx(i), hw_desc);
         }
         mvwprintw(map_win->win, map_win->lines -2, 1, "[U] choose  [x] examine");
@@ -115,7 +129,7 @@ bool char_creation_window(void) {
                 sel_idx = inp_get_input_idx(gbl_game->input);
                 if (sel_idx < ARRAY_SZ(homeworld_id) ) {
                     textwin_init(map_win, 1, 8 + ARRAY_SZ(homeworld_id), 0, 0);
-                    textwin_add_text(map_win,homeworld[sel_idx]->description );
+                    textwin_add_text(map_win,homeworld_id[sel_idx].long_desc );
                     textwin_display_text(map_win);
                 }
                 sel_idx = -1;
@@ -129,14 +143,17 @@ bool char_creation_window(void) {
             player->unique_name = NULL;
 
             /* create player */
-            plr_create(plr, name, homeworld_id[sel_idx], MSR_GENDER_MALE);
+            plr_create(plr, name, homeworld_id[sel_idx].id, MSR_GENDER_MALE);
             charwin_refresh();
             race_done = true;
         }
     }
 
-    for (unsigned int i = 0; i < ARRAY_SZ(homeworld_id); i++) {
-        msr_destroy(homeworld[i], NULL);
+    /* give newly born his items */
+    int i = 0;
+    while (items[i].max != 0) {
+        spwn_add_item_to_monster(plr->player, &items[i], gbl_game->random);
+        i++;
     }
 
     return true;

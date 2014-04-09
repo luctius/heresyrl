@@ -371,7 +371,7 @@ bool msr_characteristic_check(struct msr_monster *monster, enum msr_characterist
     int charac = msr_calculate_characteristic(monster, chr);
     assert(charac >= 0);
 
-    return ((random_int32(gbl_game->random)%100) < charac);
+    return ( (int) (random_int32(gbl_game->random)%100) < charac);
 }
 
 int msr_skill_check(struct msr_monster *monster, enum skills skill, int mod) {
@@ -394,7 +394,7 @@ int msr_skill_check(struct msr_monster *monster, enum skills skill, int mod) {
         default: assert(false); break;
     }
 
-    uint32_t roll = (random_int32(gbl_game->random)%100);
+    int roll = (random_int32(gbl_game->random)%100);
     int result = charac - roll;
     int DoS = result /10;
     if (roll < charac) DoS += 1;
