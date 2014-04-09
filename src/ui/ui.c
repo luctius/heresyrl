@@ -682,7 +682,7 @@ void charwin_refresh() {
     if (options.play_recording) {
         int attr_mod = get_colour(TERM_COLOUR_RED);
         if (has_colors() == TRUE) wattron(char_win->win, attr_mod);
-        mvwprintw(char_win->win, 1,1, "play x%d", options.play_delay);
+        mvwprintw(char_win->win, 1,1, "playback x%d", options.play_delay);
         if (has_colors() == TRUE) wattroff(char_win->win, attr_mod);
         starty += 2;
     }
