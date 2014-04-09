@@ -4,14 +4,14 @@ item generation         -- initial system done
 basic career and homeworld system
 effect system
 character screen        -- initial screen done
-basic chargen
+basic chargen           -- initial screen done
 better ingame message system -- done
-ai                      -- initial system is done
+ai                      -- initial system done
 
 
 ideas:
 
-accept input from savegame (replay)
+accept input from savegame (replay) -- done
 Make the game sound based (actions cost sound, enemies go to the biggest sound source, hounds bark, etc)
 Vendor machines and Medical machines.
 autoexplore in direction

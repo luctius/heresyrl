@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
     keypad(stdscr, TRUE);
 
     bool valid_player = false;
-    if (game_load() ) valid_player = true;
+    if (game_load() && options.play_recording == false) valid_player = true;
         /* char creation */
     else if (char_creation_window() ) valid_player = true;
     else options.debug_no_save = true;

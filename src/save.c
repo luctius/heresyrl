@@ -19,15 +19,15 @@
 static bool sv_save_input(FILE *file, int indent, struct inp_input *input) {
     if (file == NULL) return false;
 
-    fprintf(file, "%*s" "input={\n", indent, ""); { indent += 2;
+    fprintf(file, "%*s" "input={", indent, ""); { indent += 2;
 
-        fprintf(file,"%*s" "keylog={sz=%d,", indent, "", input->keylog_widx);
+        fprintf(file,"keylog={sz=%d,", input->keylog_widx);
         for (int i = 0; i < input->keylog_widx; i++) {
             fprintf(file,"%d,", input->keylog[i]);
         }
         fprintf(file, "},");
 
-    } indent -= 2; fprintf(file, "%*s" "},\n", indent, "");
+    } indent -= 2; fprintf(file, "},\n");
 
     fflush(file);
     return true;
