@@ -1,0 +1,18 @@
+#ifndef CONDITIONS_H
+#define CONDITIONS_H
+
+enum condition_types {
+    CONDITION_NONE,
+    CONDITION_BLIND,
+    CONDITION_DEAF,
+    CONDITION_ON_FIRE,
+    CONDITION_STUNNED,
+    CONDITION_DRUGS_SPOOK,
+    CONDITION_DRUGS_STIMM,
+    CONDITION_DRUGS_SLAUGHT,
+};
+
+struct condition {
+};
+
+#endif /* CONDITIONS_H */
