@@ -1,6 +1,7 @@
 #include <ncurses.h>
 #include <assert.h>
 #include <unistd.h>
+#include <ctype.h>
 
 #include "input.h"
 #include "options.h"
@@ -48,13 +49,13 @@ char inp_key_translate_idx(int idx) {
 int inp_input_to_idx(enum inp_keys k) {
     int ret = -1;
     /* A-Z -> 0 - 25*/
-    if (k >= 0x41 && k <= 0x5a) ret = k - 0x41;
+    if (isupper(k) ) ret = k - 0x41;
 
     /* a-z -> 0 - 25*/
-    else if (k >= 0x61 && k <= 0x7A) ret = k - 0x61;
+    else if (islower(k) ) ret = k - 0x61;
 
     /* 0-9 -> 26 - 35*/
-    else if (k >= 0x30 && k <= 0x39) ret = (k - 0x30) +26;
+    else if (isdigit(k) ) ret = (k - 0x30) +26;
 
     return ret;
 }
