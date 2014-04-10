@@ -14,6 +14,7 @@
 #include "monster/monster.h"
 #include "monster/monster_action.h"
 #include "fov/sight.h"
+#include "ui/ui.h"
 
 #define LOAD 1
 #define SAVE 1
