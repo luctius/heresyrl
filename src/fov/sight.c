@@ -165,7 +165,7 @@ static bool rpsc_apply_projectile_path(struct rpsc_fov_set *set, coord_t *point,
     if (dm_verify_map(map) == false) return false;
     if (cd_within_bound(point, &map->size) == false) return false;
     if (pp->list_idx >= pp->list_sz) return false;
-    //if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(point,map), TILE_ATTR_TRAVERSABLE) == false) return false;
+    if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(point,map), TILE_ATTR_TRAVERSABLE) == false) return false;
 
     pp->list[pp->list_idx++] = *point;
     lg_debug("added point (%d,%d) to idx %d", point->x, point->y, pp->list_idx-1);
@@ -176,18 +176,12 @@ static bool rpsc_apply_projectile_path(struct rpsc_fov_set *set, coord_t *point,
 struct sgt_sight *sgt_init(void) {
     struct sgt_sight *retval = malloc(sizeof(struct sgt_sight) );
     if (retval != NULL) {
-        /*
-        fov_settings_init(&retval->fov_settings);
-        retval->fov_settings.corner_peek = FOV_CORNER_PEEK;
-        retval->fov_settings.opaque_apply = FOV_OPAQUE_APPLY;
-        */
     }
     return retval;
 }
 
 void sgt_exit(struct sgt_sight *sight) {
     if (sight != NULL) {
-        //fov_settings_free(&sight->fov_settings);
         free(sight);
     }
 }
