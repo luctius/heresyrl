@@ -29,7 +29,7 @@ static bool rpsc_check_opaque_lof(struct rpsc_fov_set *set, coord_t *point, coor
     if (cd_within_bound(point, &map->size) == false) return false;
 
     /* if the point is not traversable, return false */
-    if ( (dm_get_map_tile(point,map)->attributes & TILE_ATTR_TRAVERSABLE) == 0) return false;
+    if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(point,map), TILE_ATTR_TRAVERSABLE) == false) return false;
 
     /* if there is a monster, return false */
     if (dm_get_map_me(point,map)->monster != NULL) return false;
@@ -143,7 +143,7 @@ static bool rpsc_apply_explosion(struct rpsc_fov_set *set, coord_t *point, coord
     if (dm_verify_map(map) == false) return false;
     if (cd_within_bound(point, &map->size) == false) return false;
     if (ex->list_idx >= ex->list_sz) return false;
-    if ( (dm_get_map_tile(point,map)->attributes & TILE_ATTR_TRAVERSABLE) == 0) return false;
+    if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(point,map), TILE_ATTR_TRAVERSABLE) == false) return false;
 
     ex->list[ex->list_idx++] = *point;
 
@@ -165,7 +165,7 @@ static bool rpsc_apply_projectile_path(struct rpsc_fov_set *set, coord_t *point,
     if (dm_verify_map(map) == false) return false;
     if (cd_within_bound(point, &map->size) == false) return false;
     if (pp->list_idx >= pp->list_sz) return false;
-    //if ( (dm_get_map_tile(point,map)->attributes & TILE_ATTR_TRAVERSABLE) == 0) return false;
+    //if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(point,map), TILE_ATTR_TRAVERSABLE) == false) return false;
 
     pp->list[pp->list_idx++] = *point;
     lg_debug("added point (%d,%d) to idx %d", point->x, point->y, pp->list_idx-1);
@@ -305,16 +305,23 @@ int sgt_explosion(struct sgt_sight *sight, struct dm_map *map, coord_t *pos, int
 }
 
 int sgt_los_path(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_t *e, coord_t *path_lst[], bool continue_path) {
-    if (sight == NULL) return false;
-    if (dm_verify_map(map) == false) return false;
+    if (sight == NULL) return -1;
+    if (dm_verify_map(map) == false) return -1;
 
+    /* if start and end are equal, or if end is a wall, bailout. */
     if (cd_equal(s,e) == true) return 0;
+    if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(e,map), TILE_ATTR_TRAVERSABLE) == false) return -1;
 
     /* allocate the total number of grids within the path.
      this should be way to many but at this point we do not 
      now how many there are.
      */
-    *path_lst = calloc(cd_pyth(s,e) * 2, sizeof(coord_t) );
+    int psz = cd_pyth(s,e) * 2;
+    if (continue_path) {
+        psz = MAX(map->size.x, map->size.y);
+    }
+
+    *path_lst = calloc(psz, sizeof(coord_t) );
     if (*path_lst == NULL) return -1;
 
 
@@ -323,14 +330,14 @@ int sgt_los_path(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_
       - the maximum size of that list.
       - a index counter for that list.
      */
-    struct sgt_projectile_path_struct ex = {
+    struct sgt_projectile_path_struct pp = {
         .list = *path_lst,
-        .list_sz = cd_pyth(s,e) * 2,
+        .list_sz = psz,
         .list_idx = 0,
     };
 
     struct rpsc_fov_set set = {
-        .source = &ex,
+        .source = &pp,
         .permissiveness = RPSC_FOV_PERMISSIVE_NORMAL,
         .area = RPSC_AREA_CIRCLE,
         .visible_on_equal = true,
@@ -341,9 +348,52 @@ int sgt_los_path(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_
         .apply = rpsc_apply_projectile_path,
     };
 
-    if (rpsc_los(&set, s, e) == false || ex.list_idx == 0) {
+    if (rpsc_los(&set, s, e) == false || pp.list_idx == 0) {
         free (*path_lst);
         return -1;
+    }
+
+    if (continue_path && psz > 1) {
+        /*
+            get a point from the original list,
+            take the delta of it and its predecessor,
+            add that to the previous point we put in
+            at the end of the list. This creates a
+            continues path untill an obstacle is found.
+        */
+        int i = pp.list_idx;
+        bool blocked = false;
+        int j = i;
+        while ( (i < psz) && (blocked == false) ) {
+            if ( (i % pp.list_idx) == 0) { i++; continue; }
+
+            /* take a point from the original line */
+            coord_t point = (*path_lst)[i % pp.list_idx];
+            /* take the point before that */
+            coord_t point_prev = (*path_lst)[ (i-1) % pp.list_idx];
+            /* take the last point calculated. */
+            coord_t point_last = (*path_lst)[j-1];
+
+            /*calc the difference between the 2 points of the original line*/
+            coord_t d = cd_delta(&point, &point_prev);
+
+            /* apply that difference to our last point,
+            creating a new point with the same offset.*/
+            point.x = point_last.x + d.x;
+            point.y = point_last.y + d.y;
+
+            /* put that point into our new list*/
+            (*path_lst)[j] = point;
+
+            i++;
+            j++;
+
+            /*continue untill we are blocked.*/
+            if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(&point,map), TILE_ATTR_TRAVERSABLE) == false) {
+                blocked = true;
+                psz = j;
+            }
+        }
     }
 
     /* 
@@ -352,10 +402,11 @@ int sgt_los_path(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_
        we should save the old pointer, but we do not because we
        are lazy. assert for now that it is succesfull.
      */
-    *path_lst = realloc(*path_lst, ex.list_idx * sizeof(coord_t) );
+    *path_lst = realloc(*path_lst, psz * sizeof(coord_t) );
     assert(*path_lst != NULL);
-    return ex.list_idx;
+    return psz;
 }
+
 coord_t sgt_scatter(struct sgt_sight *sight, struct dm_map *map, struct random *r, coord_t *p, int radius) {
     /* Do not try forever. */
     int i_max = radius * radius;
@@ -377,7 +428,7 @@ coord_t sgt_scatter(struct sgt_sight *sight, struct dm_map *map, struct random *
             if (cd_within_bound(&c, &map->size) == false) continue;
 
             /* require an traversable point */
-            if ( (dm_get_map_tile(&c,map)->attributes & TILE_ATTR_TRAVERSABLE) == 0) continue;
+            if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(&c,map), TILE_ATTR_TRAVERSABLE) == false) continue;
 
             /* require line of sight */
             if (sgt_has_los(sight, map, p, &c, radius) == false) continue;
