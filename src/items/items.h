@@ -356,5 +356,7 @@ bool ammo_is_type(struct itm_item *item, enum item_ammo_type type);
 /* true if the item is a tool, and the tool is of this type */
 bool tool_is_type(struct itm_item *item, enum item_tool_type type);
 
+const char *itm_quality_string(struct itm_item *item);
+
 #endif /*ITEMS_H_*/
 

@@ -276,3 +276,16 @@ bool tool_is_type(struct itm_item *item, enum item_tool_type type) {
     if (item->specific.tool.tool_type == type) return true;
     return false;
 }
+
+const char *itm_quality_string(struct itm_item *item) {
+    if (itm_verify_item(item) == false) return "unkown";
+    if ( (item->quality < 0) || (item->quality >= ITEM_QUALITY_MAX) ) return "unkown";
+    return item_quality_strings[item->quality];
+}
+
+const char *itm_upgrades_string(struct itm_item *item) {
+    if (itm_verify_item(item) == false) return "unkown";
+    if ( (item->quality < 0) || (item->quality >= ITEM_QUALITY_MAX) ) return "unkown";
+    return item_quality_strings[item->quality];
+}
+

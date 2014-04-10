@@ -143,15 +143,22 @@ struct itm_item static_item_list[] = {
         BASIC_LAS(WEAPON_DMG_TYPE_ENERGY,1, 3, 100,    1,    3,    0,   60,      0,   WEAPON_UPGRADE_NONE, WEAPON_SPEC_QUALITY_RELIABLE), ITEM_END,
 
     /* Ammo */
-    /*    ID                    short name    long name                                                    description    availability                quality           weight,cost,delay*/
-    ITEM(ITEM_ID_PISTOL_AMMO_SP,  "solid pistol ammo","a clip of solid projectile pistol ammo",ITM_DESC_PISTOL_AMMO_SP, ITEM_AVAILABILITY_AVERAGE,ITEM_QUALITY_AVERAGE,  0,     1,   0),
+    /*    ID                    short name    long name                                        description               availability         quality           weight,cost,delay*/
+    ITEM(ITEM_ID_PISTOL_AMMO_SP,  "solid pistol ammo","a clip of solid projectile pistol ammo",ITM_DESC_AMMO_SP,  ITEM_AVAILABILITY_AVERAGE,ITEM_QUALITY_AVERAGE,  0,     1,   0),
         /*      ammo Type      energy level*/
         AMMO(AMMO_TYPE_PISTOL_SP,     0), ITEM_END,
 
-    ITEM(ITEM_ID_PISTOL_AMMO_LAS,  "pistol charge pack","a pistol charge pack",                ITM_DESC_PISTOL_AMMO_LAS,ITEM_AVAILABILITY_AVERAGE,ITEM_QUALITY_AVERAGE,  0,     1,   0),
+    ITEM(ITEM_ID_PISTOL_AMMO_LAS,  "pistol charge pack","a pistol charge pack",                ITM_DESC_AMMO_LAS, ITEM_AVAILABILITY_AVERAGE,ITEM_QUALITY_AVERAGE,  0,     1,   0),
         AMMO(AMMO_TYPE_PISTOL_LAS,     1000), ITEM_END,
 
-    ITEM(ITEM_ID_BASIC_AMMO_LAS,  "basic charge pack","a basic weapon charge pack",            ITM_DESC_BASIC_AMMO_LAS, ITEM_AVAILABILITY_AVERAGE,ITEM_QUALITY_AVERAGE,  0,     1,   0),
+    ITEM(ITEM_ID_BASIC_AMMO_LAS,  "basic charge pack","a basic weapon charge pack",            ITM_DESC_AMMO_LAS, ITEM_AVAILABILITY_AVERAGE,ITEM_QUALITY_AVERAGE,  0,     1,   0),
         AMMO(AMMO_TYPE_BASIC_LAS,     1000), ITEM_END,
+};
+
+static const char *item_quality_strings[] = {
+    [ITEM_QUALITY_POOR]    =  "poor",
+    [ITEM_QUALITY_AVERAGE] =  "average",
+    [ITEM_QUALITY_GOOD]    =  "good",
+    [ITEM_QUALITY_BEST]    =  "best",
 };
 

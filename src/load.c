@@ -16,10 +16,11 @@
 #include "player.h"
 #include "tiles.h"
 #include "random.h"
+#include "inventory.h"
 #include "monster/monster.h"
 #include "items/items.h"
-#include "inventory.h"
 #include "dungeon/dungeon_map.h"
+#include "ai/ai.h"
 
 /** 
 * Evaluates a Lua expression and returns the string result. 
@@ -408,7 +409,7 @@ static bool load_monsters(lua_State *L, struct dm_map *map, struct gm_game *g) {
         if (lua_intexpr(L, &t, "game.monsters[%d].items.sz", i+1) == 1) {
             int items_sz = t;
             struct itm_item *item;
-            for (int j = 0; j < items_sz; j++) {
+            for (int j = items_sz -1; j >= 0; j--) {
                 if (lua_intexpr(L, &t, "game.monsters[%d].items[%d].uid", i+1,j+1) == 1) {
                     item = itmlst_item_by_uid(t);
                     if (msr_give_item(monster, item) == false) {

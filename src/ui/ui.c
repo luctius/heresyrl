@@ -238,7 +238,8 @@ static void mapwin_examine(struct dm_map_entity *me) {
     textwin_init(char_win,1,0,0,0);
 
     if (me->visible || me->in_sight) {
-        textwin_add_text(char_win, "Upon a %s.\n", me->tile->ld_name);
+        textwin_add_text(char_win, "%s.\n", me->tile->ld_name);
+        textwin_add_text(char_win, "\n");
 
         if (me->visible) {
             if (me->monster != NULL) {
@@ -250,16 +251,18 @@ static void mapwin_examine(struct dm_map_entity *me) {
                 }
             }
 
+            textwin_add_text(char_win, "\n");
+
             if ( (inv_inventory_size(me->inventory) > 0) && (TILE_HAS_ATTRIBUTE(me->tile, TILE_ATTR_TRAVERSABLE) ) ) {
-                textwin_add_text(char_win, "The %s contains:", me->tile->sd_name);
+                textwin_add_text(char_win, "The %s contains:\n", me->tile->sd_name);
                 struct itm_item *i = NULL;
                 while ( (i = inv_get_next_item(me->inventory, i) ) != NULL) {
-                    textwin_add_text(char_win, " - %s", i->ld_name);
+                    textwin_add_text(char_win, " - %s\n", i->ld_name);
                 }
             }
         }
     }
-    else textwin_add_text(char_win, "You can not see this place.");
+    else textwin_add_text(char_win, "You can not see this place.\n");
 
     textwin_display_text(char_win);
 }
@@ -800,6 +803,7 @@ static int invwin_printlist(struct hrl_window *window, struct inv_show_item list
     for (int i = 0; i < max; i++) {
         struct itm_item *item = list[i+start].item;
         textwin_add_text(window, "%c)  %c%s", inp_key_translate_idx(i), list[i+start].location[0], item->sd_name);
+        if (item->quality != ITEM_QUALITY_AVERAGE) textwin_add_text(window, ", %s quality", itm_quality_string(item) );
         if (item->stacked_quantity > 1) textwin_add_text(window, " x%d", item->stacked_quantity);
         textwin_add_text(window, "\n");
     }
@@ -831,13 +835,22 @@ void invwin_examine(struct hrl_window *window, struct itm_item *item) {
 
     werase(window->win);
     textwin_init(window,1,0,0,0);
-    textwin_add_text(window, "Description of %s.\n", item->ld_name);
-    textwin_add_text(window, "\n");
 
     if (strlen(item->description) > 0) {
         textwin_add_text(window, "%s.\n", item->description);
     }
     else textwin_add_text(window, "No description available.\n");
+
+    textwin_add_text(window, "\n");
+
+    switch (item->item_type) {
+        case ITEM_TYPE_WEAPON: break;
+        case ITEM_TYPE_WEARABLE: break;
+        case ITEM_TYPE_TOOL: break;
+        case ITEM_TYPE_AMMO: break;
+        case ITEM_TYPE_FOOD: break;
+        default: break;
+    }
 
     textwin_display_text(window);
 }
@@ -877,66 +890,62 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
             case INP_KEY_INVENTORY: inventory = false; break;
             case INP_KEY_UP_RIGHT: 
             case INP_KEY_USE: {
-                    mvwprintw(map_win->win, winsz, 1, "Use which item?.");
-                    wrefresh(map_win->win);
+                mvwprintw(map_win->win, winsz, 1, "Use which item?.");
+                wrefresh(map_win->win);
 
-                    int item_idx = inp_get_input_idx(gbl_game->input);
-                    if (item_idx == INP_KEY_ESCAPE) break;
-                    if ((item_idx + invstart) >= invsz) break;
-                    item = invlist[item_idx +invstart].item;
-                    free(invlist);
-                    mapwin_display_map(map, &plr->player->pos);
+                int item_idx = inp_get_input_idx(gbl_game->input);
+                if (item_idx == INP_KEY_ESCAPE) break;
+                if ((item_idx + invstart) >= invsz) break;
+                item = invlist[item_idx +invstart].item;
+                free(invlist);
+                mapwin_display_map(map, &plr->player->pos);
 
-                    return ma_do_use(plr->player, item);
-                }
-                break;
+                return ma_do_use(plr->player, item);
+            } break;
             case INP_KEY_WEAR: {
-                    mvwprintw(map_win->win, winsz, 1, "Wear which item?.");
-                    wrefresh(map_win->win);
+                mvwprintw(map_win->win, winsz, 1, "Wear which item?.");
+                wrefresh(map_win->win);
 
-                    int item_idx = inp_get_input_idx(gbl_game->input);
-                    if (item_idx == INP_KEY_ESCAPE) break;
-                    if ((item_idx + invstart) >= invsz) break;
-                    item = invlist[item_idx +invstart].item;
-                    free(invlist);
-                    mapwin_display_map(map, &plr->player->pos);
+                int item_idx = inp_get_input_idx(gbl_game->input);
+                if (item_idx == INP_KEY_ESCAPE) break;
+                if ((item_idx + invstart) >= invsz) break;
+                item = invlist[item_idx +invstart].item;
+                free(invlist);
+                mapwin_display_map(map, &plr->player->pos);
 
-                    if (inv_item_worn(plr->player->inventory, item) == true) {
-                        return ma_do_remove(plr->player, item);
-                    }
-                    else {
-                        return ma_do_wear(plr->player, item);
-                    }
-                } 
-                break;
-            case INP_KEY_EXAMINE: {
-                    mvwprintw(map_win->win, winsz, 1, "Examine which item?.");
-                    wrefresh(map_win->win);
-
-                    int item_idx = inp_get_input_idx(gbl_game->input);
-                    if (item_idx == INP_KEY_ESCAPE) break;
-                    if ((item_idx + invstart) >= invsz) break;
-                    item = invlist[item_idx +invstart].item;
-                    free(invlist);
-
-                    invwin_examine(char_win, invlist[item_idx +invstart].item);
-                    examine = true;
-                } 
-                break;
-            case INP_KEY_DROP: {
-                    mvwprintw(map_win->win, winsz, 1, "Drop which item?.");
-                    wrefresh(map_win->win);
-
-                    invsz = inv_inventory_size(plr->player->inventory);
-                    int item_idx = inp_get_input_idx(gbl_game->input);
-                    if (item_idx == INP_KEY_ESCAPE) break;
-                    if ((item_idx + invstart) >= invsz) break;
-                    item = invlist[item_idx +invstart].item;
-                    free(invlist);
-                    struct itm_item *items[1] = {item};
-                    return ma_do_drop(plr->player, items, 1);
+                if (inv_item_worn(plr->player->inventory, item) == true) {
+                    return ma_do_remove(plr->player, item);
                 }
-                break;
+                else {
+                    return ma_do_wear(plr->player, item);
+                }
+            } break;
+            case INP_KEY_EXAMINE: {
+                mvwprintw(map_win->win, winsz, 1, "Examine which item?.");
+                wrefresh(map_win->win);
+
+                int item_idx = inp_get_input_idx(gbl_game->input);
+                if (item_idx == INP_KEY_ESCAPE) break;
+                if ((item_idx + invstart) >= invsz) break;
+                item = invlist[item_idx +invstart].item;
+                free(invlist);
+
+                invwin_examine(char_win, invlist[item_idx +invstart].item);
+                examine = true;
+            } break;
+            case INP_KEY_DROP: {
+                mvwprintw(map_win->win, winsz, 1, "Drop which item?.");
+                wrefresh(map_win->win);
+
+                invsz = inv_inventory_size(plr->player->inventory);
+                int item_idx = inp_get_input_idx(gbl_game->input);
+                if (item_idx == INP_KEY_ESCAPE) break;
+                if ((item_idx + invstart) >= invsz) break;
+                item = invlist[item_idx +invstart].item;
+                free(invlist);
+                struct itm_item *items[1] = {item};
+                return ma_do_drop(plr->player, items, 1);
+            } break;
             default: break;
         }
 
@@ -1204,8 +1213,7 @@ void log_window(void) {
                     const char *pre_format;
                     print = true;
 
-                    switch (tmp_entry->level)
-                    {
+                    switch (tmp_entry->level) {
                         case LG_DEBUG_LEVEL_GAME:
                             pre_format = "[%s" ":Game][%d] ";
                             break;
