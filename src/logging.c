@@ -114,26 +114,26 @@ static void lg_print_to_file(struct logging *log_ctx, struct log_entry *entry) {
     switch (entry->level)
     {
         case LG_DEBUG_LEVEL_GAME:
-            pre_format = "[%s" ":Game][%d] ";
+            pre_format = "Game";
             break;
         case LG_DEBUG_LEVEL_DEBUG:
-            pre_format = "[%s" ":Debug][%d] ";
+            pre_format = "Debug";
             break;
         case LG_DEBUG_LEVEL_INFORMATIONAL:
-            pre_format = "[%s" ":Info][%d] ";
+            pre_format = "Info";
             break;
         case LG_DEBUG_LEVEL_WARNING:
-            pre_format = "[%s" ":Warning][%d] ";
+            pre_format = "Warning";
             break;
         case LG_DEBUG_LEVEL_ERROR:
-            pre_format = "[%s" ":Error][%d] ";
+            pre_format = "Error";
             break;
         default:
-            pre_format ="[%s" ":Unknown][%d] ";
+            pre_format = "Unknown";
             break;
     }
 
-    fprintf(fd, pre_format, entry->module, entry->turn);
+    fprintf(fd, "[%s:%s][%d] ", entry->module, pre_format, entry->turn);
     for (int i = 0; i < entry->atom_lst_sz; i++) {
         fprintf(fd, "%s", entry->atom_lst[i].string);
     }
@@ -221,8 +221,14 @@ void msg_init(coord_t *origin, coord_t *target) {
     msg_exit();
     msg_init_internal();
 
-    if (gbl_game->running == false) return;
+    if ( (origin == NULL) && (target == NULL) ) {
+        /* System message */
+        gbl_log->log_fds_active[MSG_PLR_FD] = true;
+        return;
+    }
 
+    if (gbl_game->current_map == NULL) return;
+    if (dm_verify_map(gbl_game->current_map) == false) return;
     struct dm_map_entity *me = dm_get_map_me(origin, gbl_game->current_map);
 
     /* 
