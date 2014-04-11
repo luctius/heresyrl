@@ -205,6 +205,7 @@ enum msr_talents {
     WPNTLT_PSY_RATING_5,
     WPNTLT_PSY_RATING_6,
     TALENTS_MAX,
+    TALENTS_NONE,
 };
 
 /*

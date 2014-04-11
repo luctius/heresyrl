@@ -860,6 +860,9 @@ void invwin_examine(struct hrl_window *window, struct itm_item *item) {
 
             if (wpn_is_type(item, WEAPON_TYPE_RANGED) || wpn_is_type(item, WEAPON_TYPE_THROWN) ) {
                 textwin_add_text(char_win, "- Range %d\n", wpn->range);
+            }
+
+            if (wpn_is_type(item, WEAPON_TYPE_RANGED) ) {
                 textwin_add_text(char_win, "- Magazine size %d\n", wpn->magazine_sz);
                 textwin_add_text(char_win, "- Uses %s\n", wpn_ammo_string(item) );
 
@@ -875,26 +878,37 @@ void invwin_examine(struct hrl_window *window, struct itm_item *item) {
                 if (wpn->magazine_left == 0) {
                     textwin_add_text(char_win, "The weapon is empty.\n");
                 } 
-                if (wpn->jammed == true) {
-                    textwin_add_text(char_win, "The weapon is currently jammed.\n");
-                } 
-
-                if (wpn->special_quality != 0) {
-                    textwin_add_text(char_win, "\n");
-                    textwin_add_text(char_win, "Weapon qualities:\n");
-
-                    for (int i = 0; i < WPN_SPCQLTY_MAX; i++) {
-                        if (wpn_has_spc_quality(item, i) )  {
-                            textwin_add_text(char_win, "- %s.\n", wpn_spec_quality_name(i) );
-                        }
-                    }
+                else {
+                    struct itm_item *ammo = itm_create(wpn->ammo_used_template_id);
+                    textwin_add_text(char_win, "It is currently loaded with %s.\n\n", ammo->ld_name);
+                    itm_destroy(ammo);
                 }
 
+                if (wpn->jammed == true) {
+                    textwin_add_text(char_win, "It is jammed.\n");
+                }
             }
-        }break;
+
+            if (wpn->wpn_talent != TALENTS_NONE) {
+                textwin_add_text(char_win, "This weapon requires the %s talent.\n", msr_talent_names(wpn->wpn_talent) );
+            }
+
+            if (wpn->special_quality != 0) {
+                textwin_add_text(char_win, "\n");
+                textwin_add_text(char_win, "Weapon qualities:\n");
+
+                for (int i = 0; i < WPN_SPCQLTY_MAX; i++) {
+                    if (wpn_has_spc_quality(item, i) )  {
+                        textwin_add_text(char_win, "- %s.\n", wpn_spec_quality_name(i) );
+                    }
+                }
+            }
+        } break;
         case ITEM_TYPE_WEARABLE: break;
         case ITEM_TYPE_TOOL: break;
-        case ITEM_TYPE_AMMO: break;
+        case ITEM_TYPE_AMMO: {
+            //textwin_add_text(char_win, "It provides %s.\n", );
+        } break;
         case ITEM_TYPE_FOOD: break;
         default: break;
     }

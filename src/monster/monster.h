@@ -263,5 +263,6 @@ const char *msr_gender_name(struct msr_monster *monster, bool possesive);
 
 const char *msr_skill_names(enum msr_skills s);
 const char *msr_skillrate_names(enum msr_skill_rate sr);
+const char *msr_talent_names(enum msr_talents t);
 
 #endif /*MONSTER_H_*/

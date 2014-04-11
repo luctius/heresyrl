@@ -378,8 +378,7 @@ bool msr_characteristic_check(struct msr_monster *monster, enum msr_characterist
 int msr_skill_check(struct msr_monster *monster, enum msr_skills skill, int mod) {
     if (msr_verify_monster(monster) == false) return false;
 
-    /*TODO lookup table for charac <> skill */
-    int charac = msr_calculate_characteristic(monster, MSR_CHAR_PERCEPTION);
+    int charac = msr_calculate_characteristic(monster, msr_skill_charac[skill]);
     assert(charac >= 0);
     lg_print("You characteristic is (%d)", charac);
 
@@ -569,6 +568,7 @@ bool msr_has_creature_trait(struct msr_monster *monster,  bitfield_t trait) {
 
 bool msr_has_talent(struct msr_monster *monster, enum msr_talents talent) {
     if (msr_verify_monster(monster) == false) return false;
+    if (talent == TALENTS_NONE) return true;
     if (talent > TALENTS_MAX) return false;
     return test_bf(monster->talents[0],talent);
 }
