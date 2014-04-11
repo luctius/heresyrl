@@ -568,15 +568,28 @@ bool msr_has_creature_trait(struct msr_monster *monster,  bitfield_t trait) {
 
 bool msr_has_talent(struct msr_monster *monster, enum msr_talents talent) {
     if (msr_verify_monster(monster) == false) return false;
-    if (talent == TALENTS_NONE) return true;
-    if (talent > TALENTS_MAX) return false;
-    return test_bf(monster->talents[0],talent);
+    if (talent == MSR_TALENTS_NONE) return true;
+    if (talent > MSR_TALENTS_MAX) return false;
+
+    for (unsigned int i = 0; i < ARRAY_SZ(monster->talents); i++) {
+        if (monster->talents[i] == talent) return true;
+        if (monster->talents[i] == MSR_TALENTS_MAX) return false;
+    }
+    return false;
 }
 
 bool msr_set_talent(struct msr_monster *monster, enum msr_talents talent) {
     if (msr_verify_monster(monster) == false) return false;
-    if (talent > TALENTS_MAX) return false;
-    set_bf(monster->talents[0],talent);
+    if (talent > MSR_TALENTS_MAX) return false;
+
+    for (unsigned int i = 0; i < ARRAY_SZ(monster->talents); i++) {
+        if (monster->talents[i] == MSR_TALENTS_MAX) {
+            monster->talents[i] = talent;
+            if (i+1 < ARRAY_SZ(monster->talents) ) {
+                monster->talents[i+1] = MSR_TALENTS_MAX;
+            }
+        }
+    }
     return true;
 }
 
@@ -618,6 +631,7 @@ const char *msr_skillrate_names(enum msr_skill_rate sr) {
 }
 
 const char *msr_talent_names(enum msr_talents t) {
-    if (t >= TALENTS_MAX) return NULL;
+    if (t >= MSR_TALENTS_MAX) return NULL;
     return msr_talent_name[t];
 }
+

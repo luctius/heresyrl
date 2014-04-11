@@ -27,7 +27,7 @@
 #define CREATURE_MELEE(wpn_cat,dmg_die,dmg_add,_dmg_type,_penetration,special) .icon=' ',.stacked_quantity=0, .max_quantity=1,\
             .item_type=ITEM_TYPE_WEAPON, .dropable=false, .specific.weapon={.weapon_type=WEAPON_TYPE_MELEE,\
             .weapon_category=wpn_cat, .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=0,\
-            .penetration=_penetration, .special_quality=special, .wpn_talent=WPNTLT_CREATURE_WPN_TALENT, }
+            .penetration=_penetration, .special_quality=special, .wpn_talent=MSR_TALENTS_NONE, }
 
 #define MELEE(wpn_cat,dmg_die,dmg_add,_dmg_type,_penetration,_upgrades,special,talent) .icon='|',.stacked_quantity=0, .max_quantity=1,\
             .item_type=ITEM_TYPE_WEAPON, .specific.weapon={.weapon_type=WEAPON_TYPE_MELEE, .weapon_category=wpn_cat, \
@@ -50,7 +50,7 @@
             .rof[WEAPON_ROF_SETTING_SINGLE]=rof_single, .rof[WEAPON_ROF_SETTING_SEMI]=rof_semi, .rof[WEAPON_ROF_SETTING_AUTO]=rof_auto, \
             .rof_set=WEAPON_ROF_SETTING_SINGLE, .magazine_sz=mag_sz, .magazine_left=mag_sz, .penetration=_penetration, \
             .ammo_type=AMMO_TYPE_PISTOL_SP, .ammo_used_template_id=IID_PISTOL_AMMO_SP, .special_quality=special, .upgrades=_upgrades, \
-            .wpn_talent=WPNTLT_PISTOL_WPN_TRNG_SP, .jammed=false,}
+            .wpn_talent=TLT_PISTOL_WPN_TRNG_SP, .jammed=false,}
 
 #define PISTOL_LAS(_dmg_type,dmg_die,dmg_add,_range,rof_single,rof_semi,rof_auto,mag_sz,_penetration,_upgrades,special) \
             .icon='|', .stacked_quantity=0, .max_quantity=1, .item_type=ITEM_TYPE_WEAPON, .specific.weapon={ \
@@ -58,7 +58,7 @@
             .rof[WEAPON_ROF_SETTING_SINGLE]=rof_single, .rof[WEAPON_ROF_SETTING_SEMI]=rof_semi, .rof[WEAPON_ROF_SETTING_AUTO]=rof_auto, \
             .rof_set=WEAPON_ROF_SETTING_SINGLE, .magazine_sz=mag_sz, .magazine_left=mag_sz, .penetration=_penetration, \
             .ammo_type=AMMO_TYPE_PISTOL_LAS, .ammo_used_template_id=IID_PISTOL_AMMO_LAS, .special_quality=special, .upgrades=_upgrades, \
-            .wpn_talent=WPNTLT_PISTOL_WPN_TRNG_LAS, .jammed=false,}
+            .wpn_talent=TLT_PISTOL_WPN_TRNG_LAS, .jammed=false,}
 
 #define BASIC_LAS(_dmg_type,dmg_die,dmg_add,_range,rof_single,rof_semi,rof_auto,mag_sz,_penetration,_upgrades,special) \
             .icon='|', .stacked_quantity=0, .max_quantity=1, .item_type=ITEM_TYPE_WEAPON, .specific.weapon={ \
@@ -66,7 +66,7 @@
             .rof[WEAPON_ROF_SETTING_SINGLE]=rof_single, .rof[WEAPON_ROF_SETTING_SEMI]=rof_semi, .rof[WEAPON_ROF_SETTING_AUTO]=rof_auto, \
             .rof_set=WEAPON_ROF_SETTING_SINGLE, .magazine_sz=mag_sz, .magazine_left=mag_sz, .penetration=_penetration, \
             .ammo_type=AMMO_TYPE_BASIC_LAS, .ammo_used_template_id=IID_BASIC_AMMO_LAS, .special_quality=special, .upgrades=_upgrades, \
-            .wpn_talent=WPNTLT_BASIC_WPN_TRNG_LAS, .jammed=false,}
+            .wpn_talent=TLT_BASIC_WPN_TRNG_LAS, .jammed=false,}
 
 #define AMMO(_ammo_type,_energy) .icon='^', .stacked_quantity=1, .max_quantity=100,\
             .item_type=ITEM_TYPE_AMMO, .specific.ammo={ .ammo_type=_ammo_type, .energy=_energy, .energy_left=_energy,}
@@ -135,8 +135,8 @@ struct itm_item static_item_list[] = {
 
     /* Thrown */
     /*    ID               short name         long name          availability         quality         weight,cost,delay  CATEGORY     xd10 +X pen,range   dmg type              upgrades    special qualities         talent */
-    ITEM(IID_FRAG_GRENADE, "frag grenade",   "a frag grenade",   ITEM_AVAIL_AVERAGE,  ITEM_QLTY_AVERAGE, 5,  10,  1),    THROWN_GRENADE(2,  0, 0,  3,  WEAPON_DMG_TYPE_EXPLOSIVE, 0, bf(WPN_SPCQLTY_BLAST_4),   TALENTS_NONE), ITEM_END,
-    ITEM(IID_THROWING_KNIFE,"throwing knife","a throwing knife", ITEM_AVAIL_PLENTIFUL,ITEM_QLTY_AVERAGE, 5,  5,   1),    THROWN_WEAPON( 0,  0, 0,  5,  WEAPON_DMG_TYPE_RENDING,   0, bf(WPN_SPCQLTY_PRIMITIVE), WPNTLT_THROWN_WPN_TRNG_PRIMITIVE), ITEM_END,
+    ITEM(IID_FRAG_GRENADE, "frag grenade",   "a frag grenade",   ITEM_AVAIL_AVERAGE,  ITEM_QLTY_AVERAGE, 5,  10,  1),    THROWN_GRENADE(2,  0, 0,  3,  WEAPON_DMG_TYPE_EXPLOSIVE, 0, bf(WPN_SPCQLTY_BLAST_4),   MSR_TALENTS_NONE), ITEM_END,
+    ITEM(IID_THROWING_KNIFE,"throwing knife","a throwing knife", ITEM_AVAIL_PLENTIFUL,ITEM_QLTY_AVERAGE, 5,  5,   1),    THROWN_WEAPON( 0,  0, 0,  5,  WEAPON_DMG_TYPE_RENDING,   0, bf(WPN_SPCQLTY_PRIMITIVE), TLT_THROWN_WPN_TRNG_PRIMITIVE), ITEM_END,
 
     /* Pistols */
     /*    ID                short name        long name         availability       quality         weight,cost,delay          dmg type            xd10 +x range  single semi  auto  mag_sz  pen  upgrades  special*/

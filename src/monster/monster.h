@@ -131,7 +131,7 @@ struct msr_monster {
     int energy;
 
     /* array of bitfield of all the monster's talents */
-    bitfield_t talents[1];
+    uint8_t talents[10];
 
     /* 
        skills, divided in basic (has the skill), advanced and expert.

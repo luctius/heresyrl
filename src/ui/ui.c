@@ -889,7 +889,7 @@ void invwin_examine(struct hrl_window *window, struct itm_item *item) {
                 }
             }
 
-            if (wpn->wpn_talent != TALENTS_NONE) {
+            if (wpn->wpn_talent != MSR_TALENTS_NONE) {
                 textwin_add_text(char_win, "This weapon requires the %s talent.\n", msr_talent_names(wpn->wpn_talent) );
             }
 
@@ -1029,6 +1029,7 @@ void character_window(void) {
     int y_sub = 0;
     struct pl_player *plr = &gbl_game->player_data;
     struct msr_monster *mon = plr->player;
+    int names_len = 0;
 
     struct hrl_window pad;
     memmove(&pad, map_win, sizeof(struct hrl_window) );
@@ -1109,39 +1110,12 @@ Basic weapon traning SP     ...                  |
 
     y += 2;
 
-    /* Skills */
-    textwin_init(&pad,1,y,0,0);
-    textwin_add_text(&pad, "Skills\n");
-    textwin_add_text(&pad, "------\n");
-
-    unsigned int names_len = 0;
-    for (unsigned int i = 0; i < MSR_SKILLS_MAX; i++) {
-        if (names_len < strlen(msr_skill_names(i) ) ) {
-            names_len = strlen(msr_skill_names(i) );
-        }
-        textwin_add_text(&pad, "%s\n", msr_skill_names(i) );
-    }
-    y_sub = textwin_display_text(&pad);
-
-            textwin_init(&pad,names_len + 3,y,0,0);
-            textwin_add_text(&pad, "Proficiency\n");
-            textwin_add_text(&pad, "-----------\n");
-            for (unsigned int i = 0; i < MSR_SKILLS_MAX; i++) {
-                enum msr_skill_rate skillrate = msr_has_skill(mon,  i);
-                lg_debug("skill rate: %d", skillrate);
-                textwin_add_text(&pad, "%s\n", msr_skillrate_names(skillrate));
-            }
-            y_sub = textwin_display_text(&pad);
-    y += y_sub +1;
-
-
     /* Armour  */
     textwin_init(&pad,1,y,0,0);
     textwin_add_text(&pad, "Armour\n");
     textwin_add_text(&pad, "------\n");
     y_sub = textwin_display_text(&pad);
 
-    names_len = 0;
     /* Armour */
     struct itm_item *item = NULL;
     while ( (item = inv_get_next_item(mon->inventory, item) ) != NULL) {
@@ -1206,6 +1180,49 @@ Basic weapon traning SP     ...                  |
                 }
             }
     y += y_sub;
+
+    /* Skills */
+    textwin_init(&pad,1,y,0,0);
+    textwin_add_text(&pad, "Skills\n");
+    textwin_add_text(&pad, "------\n");
+
+    for (unsigned int i = 0; i < MSR_SKILLS_MAX; i++) {
+        if (names_len < strlen(msr_skill_names(i) ) ) {
+            names_len = strlen(msr_skill_names(i) );
+        }
+        textwin_add_text(&pad, "%s\n", msr_skill_names(i) );
+    }
+    y_sub = textwin_display_text(&pad);
+
+            textwin_init(&pad,names_len + 3,y,0,0);
+            textwin_add_text(&pad, "Proficiency\n");
+            textwin_add_text(&pad, "-----------\n");
+            for (unsigned int i = 0; i < MSR_SKILLS_MAX; i++) {
+                enum msr_skill_rate skillrate = msr_has_skill(mon,  i);
+                lg_debug("skill rate: %d", skillrate);
+                textwin_add_text(&pad, "%s\n", msr_skillrate_names(skillrate));
+            }
+            y_sub = textwin_display_text(&pad);
+    y += y_sub +1;
+
+    /* Talents */
+    textwin_init(&pad,1,y,0,0);
+    textwin_add_text(&pad, "Talents\n");
+    textwin_add_text(&pad, "-------\n");
+
+    names_len = 0;
+    for (unsigned int i = 0; i < MSR_TALENTS_MAX; i++) {
+        if (msr_has_talent(mon, i) ) {
+            if (names_len < strlen(msr_talent_names(i) ) ) {
+                names_len = strlen(msr_talent_names(i) );
+            }
+            textwin_add_text(&pad, "%s\n", msr_talent_names(i) );
+        }
+    }
+    y_sub = textwin_display_text(&pad);
+
+    y += y_sub +1;
+
 
 
 
