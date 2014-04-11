@@ -149,7 +149,7 @@ static bool pf_astar_loop(struct pf_context *ctx, coord_t *end) {
             return true;
         }
 
-        lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "pf", "entering (%d,%d) -> [st: %d/ cst: %d/dst: %d/scr: %d]", point.x, point.y, me->state, me->cost, me->distance, me->score);
+        lg_debug("entering (%d,%d) -> [st: %d/ cst: %d/dst: %d/scr: %d]", point.x, point.y, me->state, me->cost, me->distance, me->score);
 
         me->state = PF_ENTITY_STATE_CLOSED;
 
@@ -174,7 +174,7 @@ static bool pf_astar_loop(struct pf_context *ctx, coord_t *end) {
                 me_new->state = PF_ENTITY_STATE_OPEN;
             }
 
-            lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "pf", "tested (%d,%d) -> [st: %d/ cst: %d/dst: %d/scr: %d]", pos.x, pos.y, me_new->state, me_new->cost, me_new->distance, me_new->score);
+            lg_debug("tested (%d,%d) -> [st: %d/ cst: %d/dst: %d/scr: %d]", pos.x, pos.y, me_new->state, me_new->cost, me_new->distance, me_new->score);
         }
     }
 
@@ -187,7 +187,7 @@ static bool pf_backtrace(struct pf_map *map, coord_t *end, coord_t coord_lst[], 
     if ( (end->x < 0) || (end->x >= map->size.x) ) return false;
     if ( (end->y < 0) || (end->y >= map->size.y) ) return false;
 
-    lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "pf","backtrace length %d", coord_lst_len);
+    lg_debug("backtrace length %d", coord_lst_len);
 
     coord_t point = { .x = end->x, .y = end->y, };
     for (int i = coord_lst_len; i > 0; i--) {
@@ -197,7 +197,7 @@ static bool pf_backtrace(struct pf_map *map, coord_t *end, coord_t coord_lst[], 
             coord_lst[i-1].y = point.y;
         }
 
-        lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "pf", "entering p(%d,%d, [%d] ) -> [st: %d/ cst: %d/dst: %d]", point.x, point.y, i, me->state, me->cost, me->distance);
+        lg_debug("entering p(%d,%d, [%d] ) -> [st: %d/ cst: %d/dst: %d]", point.x, point.y, i, me->state, me->cost, me->distance);
         if (me->cost >= PF_BLOCKED) return false;
         if (me->distance == 0) return true;
 
@@ -227,7 +227,7 @@ static bool pf_backtrace(struct pf_map *map, coord_t *end, coord_t coord_lst[], 
                     best_pos.y = pos.y;
                 }
             }
-            lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "pf", "testing p(%d,%d) -> [st: %d/ cst: %d/dst: %d]", pos.x, pos.y, me->state, me->cost, me->distance);
+            lg_debug("testing p(%d,%d) -> [st: %d/ cst: %d/dst: %d]", pos.x, pos.y, me->state, me->cost, me->distance);
         }
 
         point.x = best_pos.x;
@@ -277,7 +277,7 @@ bool pf_dijkstra_map(struct pf_context *ctx, coord_t *start) {
     pf_get_index(start, map)->state = PF_ENTITY_STATE_OPEN;
     coord_t dummy = { .x = map->size.x +1, .y = map->size.y +1, };
 
-    lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "pf","start at (%d,%d)", start->x,  start->y);
+    lg_debug("start at (%d,%d)", start->x,  start->y);
     pf_flood_map_point(ctx, start, &dummy);
 
     return true;
@@ -304,8 +304,8 @@ int pf_astar_map(struct pf_context *ctx, coord_t *start, coord_t *end) {
     pf_get_index(start, map)->score = pyth(start->x - end->x, start->y - end->y);
     pf_get_index(start, map)->state = PF_ENTITY_STATE_OPEN;
 
-    lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "pf","start at (%d,%d)", start->x,  start->y);
-    lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "pf","end at (%d,%d)", end->x,  end->y);
+    lg_debug("start at (%d,%d)", start->x,  start->y);
+    lg_debug("end at (%d,%d)", end->x,  end->y);
 
     /* Do astar filling */
     return pf_astar_loop(ctx, end);
@@ -323,8 +323,8 @@ int pf_calculate_path(struct pf_context *ctx, coord_t *start, coord_t *end, coor
     if (pf_get_index(start, &ctx->map)->cost != 1) return false;
     if (pf_get_index(start, &ctx->map)->distance != 0) return false;
 
-    lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "pf","backtrace: start at (%d,%d)", start->x,  start->y);
-    lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "pf","backtrace: end at (%d,%d)", end->x,  end->y);
+    lg_debug("backtrace: start at (%d,%d)", start->x,  start->y);
+    lg_debug("backtrace: end at (%d,%d)", end->x,  end->y);
 
     length = pf_get_index(end, &ctx->map)->distance+1;
 
@@ -335,10 +335,10 @@ int pf_calculate_path(struct pf_context *ctx, coord_t *start, coord_t *end, coor
     }
 
     if (pf_backtrace(&ctx->map, end, list, length) == false) {
-        lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "pf","backtrace failed");
+        lg_debug("backtrace failed");
         length = -1;
     }
-    else lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "pf","backtrace succes");
+    else lg_debug("backtrace succes");
 
     if (length == -1) free(list);
     return length;
@@ -360,7 +360,7 @@ bool pf_calculate_reachability(struct pf_context *ctx) {
                 target.y += ctx->set.map_start.y;
 
                 if (ctx->set.pf_traversable_callback(ctx->set.map, &target) < PF_BLOCKED) {
-                    lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "pf", "fail at (%d,%d)", target.x,  target.y);
+                    lg_debug("fail at (%d,%d)", target.x,  target.y);
                     return false;
                 }
             }

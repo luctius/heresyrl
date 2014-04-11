@@ -3,14 +3,14 @@
 #include <stdint.h>
 #include <assert.h>
 
-#define DEBUG
+//#define RPSC_DEBUG
 
 #include "rpsc_fov.h"
 
-#ifdef DEBUG
+#ifdef RPSC_DEBUG
 #include "logging.h"
 #else
-#define lg_debug(...) do { } while (0);
+#define lg_debug(a, ...) do { } while (0);
 #endif
 
 /* 
@@ -96,8 +96,13 @@ struct rpsc_octant_quad octant_lo_table[OCTANT_MAX] = {
     instead of using floating point, we use a 16bit integer (and even more when available)
 */
 typedef uint_fast16_t angle_t;
-//#define FP_MAX UINT_FAST16_MAX
+
+#ifdef RPSC_DEBUG
 #define FP_MAX UINT16_MAX /* use this when debugging to avoid becoming number crazy */
+#else
+#define FP_MAX UINT_FAST16_MAX
+#endif
+
 #define FP_HALF ( (FP_MAX>>1) & ~0xF)
 #define ANGLE_RANGE FP_HALF
 
