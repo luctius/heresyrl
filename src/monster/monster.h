@@ -131,7 +131,7 @@ struct msr_monster {
     int energy;
 
     /* array of bitfield of all the monster's talents */
-    bitfield_t talents[((TALENTS_MAX >> TALENTS_IDX_OFFSET) & 0x0F)+1];
+    bitfield_t talents[1];
 
     /* 
        skills, divided in basic (has the skill), advanced and expert.
@@ -202,7 +202,7 @@ bool msr_remove_item(struct msr_monster *monster, struct itm_item *item);
 bool msr_characteristic_check(struct msr_monster *monster, enum msr_characteristic chr);
 
 /* roll a d100, check if it is below this skill */
-int msr_skill_check(struct msr_monster *monster, enum skills skill, int mod);
+int msr_skill_check(struct msr_monster *monster, enum msr_skills skill, int mod);
 
 /* get current characteristic value, including talents. */
 int msr_calculate_characteristic(struct msr_monster *monster, enum msr_characteristic chr);
@@ -238,10 +238,10 @@ int msr_get_far_sight_range(struct msr_monster *monster);
 
 
 bool msr_has_creature_trait(struct msr_monster *monster,  bitfield_t trait);
-bool msr_has_talent(struct msr_monster *monster,  bitfield_t talent);
-bool msr_set_talent(struct msr_monster *monster, bitfield_t talent);
-enum skill_rate msr_has_skill(struct msr_monster *monster,  enum skills skill);
-bool msr_set_skill(struct msr_monster *monster, enum skills skill, enum skill_rate);
+bool msr_has_talent(struct msr_monster *monster, enum msr_talents talent);
+bool msr_set_talent(struct msr_monster *monster, enum msr_talents talent);
+enum msr_skill_rate msr_has_skill(struct msr_monster *monster,  enum msr_skills skill);
+bool msr_set_skill(struct msr_monster *monster, enum msr_skills skill, enum msr_skill_rate);
 uint8_t msr_get_movement_rate(struct msr_monster *monster);
 
 /* check if the current weapon selection of this monster is correct. */
@@ -260,5 +260,8 @@ const char *msr_gender_string(struct msr_monster *monster);
 
 /* he / his -- her / hers, etc.*/
 const char *msr_gender_name(struct msr_monster *monster, bool possesive);
+
+const char *msr_skill_names(enum msr_skills s);
+const char *msr_skillrate_names(enum msr_skill_rate sr);
 
 #endif /*MONSTER_H_*/

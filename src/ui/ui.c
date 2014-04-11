@@ -871,12 +871,24 @@ void invwin_examine(struct hrl_window *window, struct itm_item *item) {
                 textwin_add_text(char_win, "- Rate of Fire (%s/%s/%s)\n", 
                         (single > 0) ? "S" : "-", (semi > 0) ? semi_str : "-", (aut > 0) ? auto_str : "-");
 
+                textwin_add_text(char_win, "\n");
                 if (wpn->magazine_left == 0) {
                     textwin_add_text(char_win, "The weapon is empty.\n");
                 } 
                 if (wpn->jammed == true) {
                     textwin_add_text(char_win, "The weapon is currently jammed.\n");
                 } 
+
+                if (wpn->special_quality != 0) {
+                    textwin_add_text(char_win, "\n");
+                    textwin_add_text(char_win, "Weapon qualities:\n");
+
+                    for (int i = 0; i < WPN_SPCQLTY_MAX; i++) {
+                        if (wpn_has_spc_quality(item, i) )  {
+                            textwin_add_text(char_win, "- %s.\n", wpn_spec_quality_name(i) );
+                        }
+                    }
+                }
 
             }
         }break;
@@ -1087,35 +1099,23 @@ Basic weapon traning SP     ...                  |
     textwin_init(&pad,1,y,0,0);
     textwin_add_text(&pad, "Skills\n");
     textwin_add_text(&pad, "------\n");
-    const char *skill_names[] = {"Awareness",       "Barter", 
-                                 "Chem Use",        "Common Lore", 
-                                "Concealment",      "Demolition", 
-                                "Disguise",         "Dodge", 
-                                "Evaluate",         "Forbidden Lore", 
-                                "Invocation",       "Logic", 
-                                "Medicae",          "Psyscience", 
-                                "Scholastic Lore",  "Search", 
-                                "Security",         "Silent Move", 
-                                "Survival",         "Tech Use", 
-                                "Tracking"};
 
     unsigned int names_len = 0;
-    for (unsigned int i = 0; i < ARRAY_SZ(skill_names); i++) {
-        if (names_len < strlen(skill_names[i]) ) {
-            names_len = strlen(skill_names[i]);
+    for (unsigned int i = 0; i < MSR_SKILLS_MAX; i++) {
+        if (names_len < strlen(msr_skill_names(i) ) ) {
+            names_len = strlen(msr_skill_names(i) );
         }
-        textwin_add_text(&pad, "%s\n", skill_names[i]);
+        textwin_add_text(&pad, "%s\n", msr_skill_names(i) );
     }
     y_sub = textwin_display_text(&pad);
 
             textwin_init(&pad,names_len + 3,y,0,0);
             textwin_add_text(&pad, "Proficiency\n");
             textwin_add_text(&pad, "-----------\n");
-            const char *skill_rate_names[] = { "untrained", "basic", "advanced", "expert" };
-            for (unsigned int i = 0; i < ARRAY_SZ(skill_names); i++) {
-                enum skill_rate skillrate = msr_has_skill(mon,  (1<<i));
+            for (unsigned int i = 0; i < MSR_SKILLS_MAX; i++) {
+                enum msr_skill_rate skillrate = msr_has_skill(mon,  i);
                 lg_debug("skill rate: %d", skillrate);
-                textwin_add_text(&pad, "%s\n", skill_rate_names[skillrate]);
+                textwin_add_text(&pad, "%s\n", msr_skillrate_names(skillrate));
             }
             y_sub = textwin_display_text(&pad);
     y += y_sub +1;

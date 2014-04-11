@@ -252,7 +252,7 @@ bool wpn_ranged_next_rof_set(struct itm_item *item) {
 bool wpn_has_spc_quality(struct itm_item *item, enum weapon_special_quality q) {
     if (itm_verify_item(item) == false) return false;
     if (item->item_type != ITEM_TYPE_WEAPON) return false;
-    return ( (item->specific.weapon.special_quality & q) > 0);
+    return ( (item->specific.weapon.special_quality & bf(q) ) > 0);
 }
 
 bool wbl_is_type(struct itm_item *item, enum item_wearable_type type) {
@@ -265,7 +265,7 @@ bool wbl_is_type(struct itm_item *item, enum item_wearable_type type) {
 bool wbl_has_spc_quality(struct itm_item *item, enum wearable_special_quality q) {
     if (itm_verify_item(item) == false) return false;
     if (item->item_type != ITEM_TYPE_WEARABLE) return false;
-    return ( (item->specific.wearable.special_quality & q) > 0);
+    return ( (item->specific.wearable.special_quality & bf(q) ) > 0);
 }
 
 bool ammo_is_type(struct itm_item *item, enum item_ammo_type type) {
@@ -283,20 +283,30 @@ bool tool_is_type(struct itm_item *item, enum item_tool_type type) {
 }
 
 const char *itm_quality_string(struct itm_item *item) {
-    if (itm_verify_item(item) == false) return "unknown";
-    if (item->quality >= ITEM_QLTY_MAX) return "unknown";
+    if (itm_verify_item(item) == false) return NULL;
+    if (item->quality >= ITEM_QLTY_MAX) return NULL;
     return item_quality_strings[item->quality];
 }
 
 const char *itm_upgrades_string(struct itm_item *item) {
-    if (itm_verify_item(item) == false) return "unknown";
-    if (item->quality >= ITEM_QLTY_MAX) return "unknown";
+    if (itm_verify_item(item) == false) return NULL;
+    if (item->quality >= ITEM_QLTY_MAX) return NULL;
     return item_quality_strings[item->quality];
 }
 
 const char *wpn_ammo_string(struct itm_item *item) {
-    if (wpn_is_type(item, WEAPON_TYPE_RANGED) == false) return "unknown";
-    if (item->specific.weapon.ammo_type >= AMMO_TYPE_MAX) return "unknown";
+    if (wpn_is_type(item, WEAPON_TYPE_RANGED) == false) return NULL;
+    if (item->specific.weapon.ammo_type >= AMMO_TYPE_MAX) return NULL;
     return ammo_type_strings[item->specific.weapon.ammo_type];
+}
+
+const char *wpn_spec_quality_name(enum weapon_special_quality spq) {
+    if (spq >= WPN_SPCQLTY_MAX) return NULL;
+    return wpn_spcqlty_name[spq];
+}
+
+const char *wpn_spec_quality_description(enum weapon_special_quality spq) {
+    if (spq >= WPN_SPCQLTY_MAX) return NULL;
+    return wpn_spcqlty_desc[spq];
 }
 

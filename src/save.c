@@ -61,7 +61,7 @@ static bool sv_save_monsters(FILE *file, int indent) {
             fprintf(file,"pos={x=%d,y=%d,},", m->pos.x,m->pos.y);
             if (m->unique_name != NULL) fprintf(file, "unique_name=\"%s\",creature_traits=%"PRIu64",",m->unique_name, m->creature_traits);
 
-            int tmax = ((TALENTS_MAX >> TALENTS_IDX_OFFSET) & 0x0F)+1;
+            int tmax = 1;
             fprintf(file,"talents={sz=%d,", tmax);
             for (int i = 0; i < tmax; i++) {
                 fprintf(file,"%" PRIu64 ",", m->talents[i]);

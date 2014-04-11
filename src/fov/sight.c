@@ -98,7 +98,7 @@ static bool rpsc_apply_player_sight(struct rpsc_fov_set *set, coord_t *point, co
         lg_print("Awareness check on (%d,%d)", point->x, point->y);
         int DoS = 0;
         /*do an awareness check*/
-        if ( (DoS = msr_skill_check(monster, SKILLS_AWARENESS, mod) ) >= 0) {
+        if ( (DoS = msr_skill_check(monster, MSR_SKILLS_AWARENESS, mod) ) >= 0) {
             /* the scatter radius decreases depending on the number of successes in our roll*/
             int radius = 4 - DoS;
 

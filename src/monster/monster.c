@@ -375,7 +375,7 @@ bool msr_characteristic_check(struct msr_monster *monster, enum msr_characterist
     return ( (int) (random_int32(gbl_game->random)%100) < charac);
 }
 
-int msr_skill_check(struct msr_monster *monster, enum skills skill, int mod) {
+int msr_skill_check(struct msr_monster *monster, enum msr_skills skill, int mod) {
     if (msr_verify_monster(monster) == false) return false;
 
     /*TODO lookup table for charac <> skill */
@@ -386,7 +386,7 @@ int msr_skill_check(struct msr_monster *monster, enum skills skill, int mod) {
     lg_print("Check modifier is: %d (%d)", mod, charac + mod);
     charac += mod;
 
-    enum skill_rate r = msr_has_skill(monster, skill);
+    enum msr_skill_rate r = msr_has_skill(monster, skill);
     switch(r) {
         case MSR_SKILL_RATE_EXPERT:     charac += 20; lg_print("You are an expert (%d)", charac); break;
         case MSR_SKILL_RATE_ADVANCED:   charac += 10; lg_print("You are advanced (%d)", charac); break;
@@ -419,11 +419,11 @@ int msr_calculate_characteristic_bonus(struct msr_monster *monster, enum msr_cha
     return ( (monster->characteristic[chr].base_value + (monster->characteristic[chr].advancement * 5)) / 10);
 }
 
-enum skill_rate msr_has_skill(struct msr_monster *monster, enum skills skill) {
-    enum skill_rate r = MSR_SKILL_RATE_NONE;
-    if ((monster->skills[MSR_SKILL_RATE_BASIC]    & skill) > 0) r = MSR_SKILL_RATE_BASIC;
-    if ((monster->skills[MSR_SKILL_RATE_ADVANCED] & skill) > 0) r = MSR_SKILL_RATE_ADVANCED;
-    if ((monster->skills[MSR_SKILL_RATE_EXPERT]   & skill) > 0) r = MSR_SKILL_RATE_EXPERT;
+enum msr_skill_rate msr_has_skill(struct msr_monster *monster, enum msr_skills skill) {
+    enum msr_skill_rate r = MSR_SKILL_RATE_NONE;
+    if ((monster->skills[MSR_SKILL_RATE_BASIC]    & bf(skill) ) > 0) r = MSR_SKILL_RATE_BASIC;
+    if ((monster->skills[MSR_SKILL_RATE_ADVANCED] & bf(skill) ) > 0) r = MSR_SKILL_RATE_ADVANCED;
+    if ((monster->skills[MSR_SKILL_RATE_EXPERT]   & bf(skill) ) > 0) r = MSR_SKILL_RATE_EXPERT;
     return r;
 }
 
@@ -567,16 +567,16 @@ bool msr_has_creature_trait(struct msr_monster *monster,  bitfield_t trait) {
     return ( (monster->creature_traits & trait) > 0);
 }
 
-bool msr_has_talent(struct msr_monster *monster,  bitfield_t talent) {
+bool msr_has_talent(struct msr_monster *monster, enum msr_talents talent) {
     if (msr_verify_monster(monster) == false) return false;
-    int idx = (talent >> TALENTS_IDX_OFFSET) & 0x0F; 
-    return ( (monster->talents[idx] & talent) == talent);
+    if (talent > TALENTS_MAX) return false;
+    return test_bf(monster->talents[0],talent);
 }
 
-bool msr_set_talent(struct msr_monster *monster, bitfield_t talent) {
+bool msr_set_talent(struct msr_monster *monster, enum msr_talents talent) {
     if (msr_verify_monster(monster) == false) return false;
-    int idx = (talent >> TALENTS_IDX_OFFSET) & 0x0F; 
-    monster->talents[idx] |= talent;
+    if (talent > TALENTS_MAX) return false;
+    set_bf(monster->talents[0],talent);
     return true;
 }
 
@@ -605,4 +605,19 @@ const char *msr_gender_name(struct msr_monster *monster, bool possesive) {
         case MSR_GENDER_FEMALE:      return (possesive) ? "her" : "she"; break;
         case MSR_GENDER_IT: default: return (possesive) ? "its" : "it"; break;
     }
+}
+
+const char *msr_skill_names(enum msr_skills s) {
+    if (s >= MSR_SKILLS_MAX) return NULL;
+    return msr_skill_name[s];
+}
+
+const char *msr_skillrate_names(enum msr_skill_rate sr) {
+    if (sr >= MSR_SKILL_RATE_MAX) return NULL;
+    return msr_skillrate_name[sr];
+}
+
+const char *msr_talent_names(enum msr_talents t) {
+    if (t >= TALENTS_MAX) return NULL;
+    return msr_talent_name[t];
 }

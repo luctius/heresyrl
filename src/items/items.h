@@ -361,8 +361,9 @@ bool ammo_is_type(struct itm_item *item, enum item_ammo_type type);
 bool tool_is_type(struct itm_item *item, enum item_tool_type type);
 
 const char *itm_quality_string(struct itm_item *item);
-
 const char *wpn_ammo_string(struct itm_item *item);
+const char *wpn_spec_quality_name(enum weapon_special_quality spq);
+const char *wpn_spec_quality_description(enum weapon_special_quality spq);
 
 #endif /*ITEMS_H_*/
 

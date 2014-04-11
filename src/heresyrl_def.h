@@ -19,8 +19,9 @@
 
 #define ARRAY_SZ(a) (sizeof(a) / sizeof(a[0]))
 
-#define bf(field, attr) (((field) & (1<<attr) ) > 0)
-#define set_bitfield(field, attr) (field |= (1<<attr) )
+#define bf(x) (1<<x)
+#define set_bf(field, attr) (field |= bf(attr) )
+#define test_bf(field, attr) ( (field & bf(attr) ) > 0)
 typedef uint_least64_t bitfield_t;
 #define bitfield_width (sizeof(bitfield_t) * CHAR_BIT)
 

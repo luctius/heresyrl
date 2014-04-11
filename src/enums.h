@@ -2,63 +2,63 @@
 #define SPECIALQUALITIES_H
 
 enum weapon_special_quality {
-    WEAPON_SPEC_QLTY_ACCURATE     = (1<<0),  /* Additional +10 to hit when used with the aim action */
-    WEAPON_SPEC_QLTY_BALANCED     = (1<<1),  /* +10 Parry */
-    WEAPON_SPEC_QLTY_BLAST_1      = (1<<2),  /* All within the weapon's blast radius in squares is hit */
-    WEAPON_SPEC_QLTY_BLAST_2      = (1<<3),  /* All within the weapon's blast radius in squares is hit */
-    WEAPON_SPEC_QLTY_BLAST_3      = (1<<4),
-    WEAPON_SPEC_QLTY_BLAST_4      = (1<<5),
-    WEAPON_SPEC_QLTY_DEFENSIVE    = (1<<6),  /* +15 Parry, -10 to hit  */
-    WEAPON_SPEC_QLTY_FLAME        = (1<<7),  /* No BS Test, All in arc take Agility Test or take damage, 2nd Ag. test to avoid catch fire. */
-    WEAPON_SPEC_QLTY_FLEXIBLE     = (1<<8),  /* Cannot be Parried. */
-    WEAPON_SPEC_QLTY_INACCURATE   = (1<<9),  /* No bonus with aim action */
-    WEAPON_SPEC_QLTY_OVERHEATS    = (1<<10), /* 90+ -> Overheat */
-    WEAPON_SPEC_QLTY_POWER_FIELD  = (1<<11), /* When this is parried, 75% chance to destroy parrying weapon */
-    WEAPON_SPEC_QLTY_PRIMITIVE    = (1<<12), /* AP doubled, unless armour is also primitive */
-    WEAPON_SPEC_QLTY_RECHARGE     = (1<<13), /* Fire only every other round */
-    WEAPON_SPEC_QLTY_RELIABLE     = (1<<14), /* If jam, 10 on 1d10 to actually jam. <I> */
-    WEAPON_SPEC_QLTY_SCATTER      = (1<<15), /* Point Blank: 2 DoS score another hit, AP doubled at Long and Extreme ranges. */
-    WEAPON_SPEC_QLTY_SHOCKING     = (1<<16), /* If damage, test Toughness or be stunned. */
-    WEAPON_SPEC_QLTY_SMOKE        = (1<<17), /* Creates smoke screen 3d10 metres in diameters, lasts 2d10 Rounds. */
-    WEAPON_SPEC_QLTY_SNARE        = (1<<18), /* Ag. test or be immobilised */
-    WEAPON_SPEC_QLTY_TEARING      = (1<<19), /* Roll twice, take highest damage */
-    WEAPON_SPEC_QLTY_TOXIC        = (1<<20), /* if damage, teest toughness -5 for every damage taken. if failed, take 1d10 extra impact damage. */
-    WEAPON_SPEC_QLTY_UNARMED      = (1<<21), /* 1d5-3 +Str, Armour doubles */
-    WEAPON_SPEC_QLTY_UNBALANCED   = (1<<22), /* -10 when parry */
-    WEAPON_SPEC_QLTY_UNRELIABLE   = (1<<23), /* jams on 90+ */
-    WEAPON_SPEC_QLTY_UNSTABLE     = (1<<24), /* on hit, roll 1d10: 1: half dmg, 2-9: normal, 10: double damage */
-    WEAPON_SPEC_QLTY_UNWIELDY     = (1<<25), /* Cannot be used to parry. */
-    WEAPON_SPEC_MAX                  = (1<<25)+1,
+    WPN_SPCQLTY_ACCURATE,    /* Additional +10 to hit when used with the aim action */
+    WPN_SPCQLTY_BALANCED,    /* +10 Parry */
+    WPN_SPCQLTY_BLAST_1,     /* All within the weapon's blast radius in squares is hit */
+    WPN_SPCQLTY_BLAST_2,     /* All within the weapon's blast radius in squares is hit */
+    WPN_SPCQLTY_BLAST_3,
+    WPN_SPCQLTY_BLAST_4,
+    WPN_SPCQLTY_DEFENSIVE,   /* +15 Parry, -10 to hit  */
+    WPN_SPCQLTY_FLAME,       /* No BS Test, All in arc take Agility Test or take damage, 2nd Ag. test to avoid catch fire. */
+    WPN_SPCQLTY_FLEXIBLE,    /* Cannot be Parried. */
+    WPN_SPCQLTY_INACCURATE,  /* No bonus with aim action */
+    WPN_SPCQLTY_OVERHEATS,   /* 90+ -> Overheat */
+    WPN_SPCQLTY_POWER_FIELD, /* When this is parried, 75% chance to destroy parrying weapon */
+    WPN_SPCQLTY_PRIMITIVE,   /* AP doubled, unless armour is also primitive */
+    WPN_SPCQLTY_RECHARGE,    /* Fire only every other round */
+    WPN_SPCQLTY_RELIABLE,    /* If jam, 10 on 1d10 to actually jam. <I> */
+    WPN_SPCQLTY_SCATTER,     /* Point Blank: 2 DoS score another hit, AP doubled at Long and Extreme ranges. */
+    WPN_SPCQLTY_SHOCKING,    /* If damage, test Toughness or be stunned. */
+    WPN_SPCQLTY_SMOKE,       /* Creates smoke screen 3d10 metres in diameters, lasts 2d10 Rounds. */
+    WPN_SPCQLTY_SNARE,       /* Ag. test or be immobilised */
+    WPN_SPCQLTY_TEARING,     /* Roll twice, take highest damage */
+    WPN_SPCQLTY_TOXIC,       /* if damage, teest toughness -5 for every damage taken. if failed, take 1d10 extra impact damage. */
+    WPN_SPCQLTY_UNARMED,     /* 1d5-3 +Str, Armour doubles */
+    WPN_SPCQLTY_UNBALANCED,  /* -10 when parry */
+    WPN_SPCQLTY_UNRELIABLE,  /* jams on 90+ */
+    WPN_SPCQLTY_UNSTABLE,    /* on hit, roll 1d10: 1: half dmg, 2-9: normal, 10: double damage */
+    WPN_SPCQLTY_UNWIELDY,    /* Cannot be used to parry. */
+    WPN_SPCQLTY_MAX,
 };
 
 enum wearable_special_quality {
-    WEARABLE_SPEC_QLTY_PRIMITIVE = (1<<0), /* AP halved unless weapon is also primitive. */
-    WEARABLE_SPEC_QLTY_MAX       = (1<<0)+1,
+    WBL_SPCQLTY_PRIMITIVE, /* AP halved unless weapon is also primitive. */
+    WBL_SPCQLTY_MAX,
 };
 
 enum weapon_upgrades {
-    WEAPON_UPGRADE_COMPACT          = (1<<0),
-    WEAPON_UPGRADE_EXTERMINATOR     = (1<<1),
-    WEAPON_UPGRADE_EXTRA_GRIP       = (1<<2),
-    WEAPON_UPGRADE_FIRE_SELECTOR    = (1<<3),
-    WEAPON_UPGRADE_MELEE_ATTACHMENT = (1<<4),
-    WEAPON_UPGRADE_MONO             = (1<<5),
-    WEAPON_UPGRADE_OVERCHARGE_PACK  = (1<<6),
-    WEAPON_UPGRADE_RED_DOT          = (1<<7),
-    WEAPON_UPGRADE_SILENCER         = (1<<8),
-    WEAPON_UPGRADE_TELESCOPE_SIGHT  = (1<<9),
-    WEAPON_UPGRADE_MAX              = (1<<9)+1,
+    WPN_UPG_COMPACT,
+    WPN_UPG_EXTERMINATOR,
+    WPN_UPG_EXTRA_GRIP,
+    WPN_UPG_FIRE_SELECTOR,
+    WPN_UPG_MELEE_ATTACHMENT,
+    WPN_UPG_MONO,
+    WPN_UPG_OVERCHARGE_PACK,
+    WPN_UPG_RED_DOT,
+    WPN_UPG_SILENCER,
+    WPN_UPG_TELESCOPE_SIGHT,
+    WPN_UPG_MAX,
 };
 
 enum ammo_upgrades {
-    AMMO_UPGRADE_DUMDUM,     /* +2 dmg, armour doubles */
-    AMMO_UPGRADE_HOTSHOT,    /* +1 dmg, tearing, +pen 4, clip_sz == 1, -reliable */
-    AMMO_UPGRADE_INFERNO,    /* Ag test or catch fire */
-    AMMO_UPGRADE_MANSTOPPER, /* +3 Penetration */
-    AMMO_UPGRADE_MAX,
+    AMMO_UPG_DUMDUM,     /* +2 dmg, armour doubles */
+    AMMO_UPG_HOTSHOT,    /* +1 dmg, tearing, +pen 4, clip_sz == 1, -reliable */
+    AMMO_UPG_INFERNO,    /* Ag test or catch fire */
+    AMMO_UPG_MANSTOPPER, /* +3 Penetration */
+    AMMO_UPG_MAX,
 };
 
-enum skill_rate {
+enum msr_skill_rate {
     MSR_SKILL_RATE_NONE,
     MSR_SKILL_RATE_BASIC,
     MSR_SKILL_RATE_ADVANCED,
@@ -66,87 +66,148 @@ enum skill_rate {
     MSR_SKILL_RATE_MAX,
 };
 
-enum skills {
-    SKILLS_NONE             = (0),
-    SKILLS_AWARENESS		= (0x1<<0),
-    SKILLS_BARTER		    = (0x1<<1),
-    SKILLS_CHEM_USE		    = (0x1<<2),
-    SKILLS_COMMON_LORE		= (0x1<<3),
-    SKILLS_CONCEALMENT		= (0x1<<4),
-    SKILLS_DEMOLITION		= (0x1<<5),
-    SKILLS_DISGUISE		    = (0x1<<6),
-    SKILLS_DODGE		    = (0x1<<7),
-    SKILLS_EVALUATE		    = (0x1<<8),
-    SKILLS_FORBIDDEN_LORE	= (0x1<<9),
-    SKILLS_INVOCATION		= (0x1<<10),
-    SKILLS_LOGIC		    = (0x1<<11),
-    SKILLS_MEDICAE		    = (0x1<<12),
-    SKILLS_PSYSCIENCE		= (0x1<<13),
-    SKILLS_SCHOLASTIC_LORE	= (0x1<<14),
-    SKILLS_SEARCH		    = (0x1<<15),
-    SKILLS_SECURITY		    = (0x1<<16),
-    SKILLS_SILENT_MOVE		= (0x1<<17),
-    SKILLS_SURVIVAL		    = (0x1<<18),
-    SKILLS_TECH_USE		    = (0x1<<19),
-    SKILLS_TRACKING		    = (0x1<<20),
-    SKILLS_MAX		        = (0x1<<20)+1,
+enum msr_skills {
+    MSR_SKILLS_AWARENESS,
+    MSR_SKILLS_BARTER,
+    MSR_SKILLS_CHEM_USE,
+    MSR_SKILLS_COMMON_LORE,
+    MSR_SKILLS_CONCEALMENT,
+    MSR_SKILLS_DEMOLITION,
+    MSR_SKILLS_DISGUISE	,
+    MSR_SKILLS_DODGE,
+    MSR_SKILLS_EVALUATE,
+    MSR_SKILLS_FORBIDDEN_LORE,
+    MSR_SKILLS_INVOCATION,
+    MSR_SKILLS_LOGIC,
+    MSR_SKILLS_MEDICAE,
+    MSR_SKILLS_PSYSCIENCE,
+    MSR_SKILLS_SCHOLASTIC_LORE,
+    MSR_SKILLS_SEARCH,
+    MSR_SKILLS_SECURITY,
+    MSR_SKILLS_SILENT_MOVE,
+    MSR_SKILLS_SURVIVAL,
+    MSR_SKILLS_TECH_USE,
+    MSR_SKILLS_TRACKING,
+    MSR_SKILLS_MAX,
 };
 
-#define CREATURE_TRAITS_NONE                              (0)
-#define CREATURE_TRAITS_ARMORPHOUS                        (0x01UL<<0)
-#define CREATURE_TRAITS_ARMOUR_PLATING                    (0x01UL<<1)
-//#define CREATURE_TRAITS_AUTO_STABILISED                   (0x01UL<<2)
-#define CREATURE_TRAITS_BESTIAL                           (0x01UL<<3)
-#define CREATURE_TRAITS_BLIND                             (0x01UL<<4)
-//#define CREATURE_TRAITS_BRUTAL_CHARGE                     (0x01UL<<5)
-#define CREATURE_TRAITS_CRAWLER                           (0x01UL<<6)
-#define CREATURE_TRAITS_DAEMONIC                          (0x01UL<<7)
-#define CREATURE_TRAITS_DARK_SIGHT                        (0x01UL<<8)
-#define CREATURE_TRAITS_INCOROREAL                        (0x01UL<<9)
-#define CREATURE_TRAITS_FEAR                              (0x01UL<<10)
-#define CREATURE_TRAITS_FLYING                            (0x01UL<<11)
-#define CREATURE_TRAITS_FROM_BEYOND                       (0x01UL<<13)
-#define CREATURE_TRAITS_HOVERER                           (0x01UL<<14)
-#define CREATURE_TRAITS_MACHINE                           (0x01UL<<15)
-#define CREATURE_TRAITS_MULTIPLE_ARMS                     (0x01UL<<16)
-#define CREATURE_TRAITS_NATURAL_WEAPONS                   (0x01UL<<18)
-#define CREATURE_TRAITS_PHASE                             (0x01UL<<19)
-//#define CREATURE_TRAITS_POSESSION                         (0x01UL<<20)
-#define CREATURE_TRAITS_QUADRUPED                         (0x01UL<<21)
-#define CREATURE_TRAITS_REGENERATION                      (0x01UL<<22)
-#define CREATURE_TRAITS_SONAR_SENSE                       (0x01UL<<23)
-//#define CREATURE_TRAITS_SOUL_BOUND                        (0x01UL<<24)
-#define CREATURE_TRAITS_STAMPEDE                          (0x01UL<<25)
-#define CREATURE_TRAITS_STRANGE_PHYSIOLOGY                (0x01UL<<26)
-#define CREATURE_TRAITS_STUFF_OF_NIGHTMARES               (0x01UL<<27)
-//#define CREATURE_TRAITS_STURDY                          (0x01UL<<28)
-#define CREATURE_TRAITS_TOXIC                             (0x01UL<<29)
-#define CREATURE_TRAITS_NATURAL_ARMOUR_1                  (0x01UL<<30)
-#define CREATURE_TRAITS_NATURAL_ARMOUR_2                  (0x01UL<<31)
-#define CREATURE_TRAITS_NATURAL_ARMOUR_3                  (0x01UL<<32)
-#define CREATURE_TRAITS_NATURAL_ARMOUR_4                  (0x01UL<<33)
-#define CREATURE_TRAITS_UC_STRENGTH_2                     (0x01UL<<34)
-#define CREATURE_TRAITS_UC_STRENGTH_3                     (0x01UL<<35)
-#define CREATURE_TRAITS_UC_STRENGTH_4                     (0x01UL<<36)
-#define CREATURE_TRAITS_UC_AGILITY_2                      (0x01UL<<37)
-#define CREATURE_TRAITS_UC_AGILITY_3                      (0x01UL<<38)
-#define CREATURE_TRAITS_UC_AGILITY_4                      (0x01UL<<39)
-#define CREATURE_TRAITS_UC_TOUGHNESS_2                    (0x01UL<<40)
-#define CREATURE_TRAITS_UC_TOUGHNESS_3                    (0x01UL<<41)
-#define CREATURE_TRAITS_UC_TOUGHNESS_4                    (0x01UL<<42)
-#define CREATURE_TRAITS_UC_INTELLIGIENCE_2                (0x01UL<<43)
-#define CREATURE_TRAITS_UC_INTELLIGIENCE_3                (0x01UL<<44)
-#define CREATURE_TRAITS_UC_INTELLIGIENCE_4                (0x01UL<<45)
-#define CREATURE_TRAITS_UC_WILLPOWER_2                    (0x01UL<<46)
-#define CREATURE_TRAITS_UC_WILLPOWER_3                    (0x01UL<<47)
-#define CREATURE_TRAITS_UC_WILLPOWER_4                    (0x01UL<<48)
-#define CREATURE_TRAITS_UC_FELLOWSHIP_2                   (0x01UL<<49)
-#define CREATURE_TRAITS_UC_FELLOWSHIP_3                   (0x01UL<<50)
-#define CREATURE_TRAITS_UC_FELLOWSHIP_4                   (0x01UL<<51)
-#define CREATURE_TRAITS_UNNATURAL_SPEED                   (0x01UL<<52)
-#define CREATURE_TRAITS_WARP_INSTABILITY                  (0x01UL<<53)
-#define CREATURE_TRAITS_WARP_WEAPONS                      (0x01UL<<54)
+enum msr_creature_traits {
+    CTRTRTS_ARMORPHOUS,
+    CTRTRTS_ARMOUR_PLATING,
+    CTRTRTS_AUTO_STABILISED,
+    CTRTRTS_BESTIAL,
+    CTRTRTS_BLIND,
+    CTRTRTS_BRUTAL_CHARGE,
+    CTRTRTS_CRAWLER,
+    CTRTRTS_DAEMONIC,
+    CTRTRTS_DARK_SIGHT,
+    CTRTRTS_INCOROREAL,
+    CTRTRTS_FEAR,
+    CTRTRTS_FLYING,
+    CTRTRTS_FROM_BEYOND,
+    CTRTRTS_HOVERER,
+    CTRTRTS_MACHINE,
+    CTRTRTS_MULTIPLE_ARMS,
+    CTRTRTS_NATURAL_WEAPONS,
+    CTRTRTS_PHASE,
+    CTRTRTS_POSESSION,
+    CTRTRTS_QUADRUPED,
+    CTRTRTS_REGENERATION,
+    CTRTRTS_SONAR_SENSE,
+    CTRTRTS_SOUL_BOUND,
+    CTRTRTS_STAMPEDE,
+    CTRTRTS_STRANGE_PHYSIOLOGY,
+    CTRTRTS_STUFF_OF_NIGHTMARES,
+    CTRTRTS_STURDY,
+    CTRTRTS_TOXIC,
+    CTRTRTS_NATURAL_ARMOUR_1,
+    CTRTRTS_NATURAL_ARMOUR_2,
+    CTRTRTS_NATURAL_ARMOUR_3,
+    CTRTRTS_NATURAL_ARMOUR_4,
+    CTRTRTS_UC_STRENGTH_2,
+    CTRTRTS_UC_STRENGTH_3,
+    CTRTRTS_UC_STRENGTH_4,
+    CTRTRTS_UC_AGILITY_2,
+    CTRTRTS_UC_AGILITY_3,
+    CTRTRTS_UC_AGILITY_4,
+    CTRTRTS_UC_TOUGHNESS_2,
+    CTRTRTS_UC_TOUGHNESS_3,
+    CTRTRTS_UC_TOUGHNESS_4,
+    CTRTRTS_UC_INTELLIGIENCE_2,
+    CTRTRTS_UC_INTELLIGIENCE_3,
+    CTRTRTS_UC_INTELLIGIENCE_4,
+    CTRTRTS_UC_WILLPOWER_2,
+    CTRTRTS_UC_WILLPOWER_3,
+    CTRTRTS_UC_WILLPOWER_4,
+    CTRTRTS_UC_FELLOWSHIP_2,
+    CTRTRTS_UC_FELLOWSHIP_3,
+    CTRTRTS_UC_FELLOWSHIP_4,
+    CTRTRTS_UNNATURAL_SPEED,
+    CTRTRTS_WARP_INSTABILITY,
+    CTRTRTS_WARP_WEAPONS,
+    CTRTRTS_MAX,
+};
 
+enum msr_talents {
+    WPNTLT_BASIC_WPN_TRNG_BOLT,
+    WPNTLT_BASIC_WPN_TRNG_FLAME,
+    WPNTLT_BASIC_WPN_TRNG_LAS,
+    WPNTLT_BASIC_WPN_TRNG_LAUNCHER,
+    WPNTLT_BASIC_WPN_TRNG_MELTA,
+    WPNTLT_BASIC_WPN_TRNG_PLASMA,
+    WPNTLT_BASIC_WPN_TRNG_PRIMITIVE,
+    WPNTLT_BASIC_WPN_TRNG_SP,
+    WPNTLT_HEAVY_WPN_TRNG_BOLT,
+    WPNTLT_HEAVY_WPN_TRNG_FLAME,
+    WPNTLT_HEAVY_WPN_TRNG_LAS,
+    WPNTLT_HEAVY_WPN_TRNG_LAUNCHER,
+    WPNTLT_HEAVY_WPN_TRNG_MELTA,
+    WPNTLT_HEAVY_WPN_TRNG_PLASMA,
+    WPNTLT_HEAVY_WPN_TRNG_PRIMITIVE,
+    WPNTLT_HEAVY_WPN_TRNG_SP,
+    WPNTLT_PISTOL_WPN_TRNG_BOLT,
+    WPNTLT_PISTOL_WPN_TRNG_FLAME,
+    WPNTLT_PISTOL_WPN_TRNG_LAS,
+    WPNTLT_PISTOL_WPN_TRNG_LAUNCHER,
+    WPNTLT_PISTOL_WPN_TRNG_MELTA,
+    WPNTLT_PISTOL_WPN_TRNG_PLASMA,
+    WPNTLT_PISTOL_WPN_TRNG_PRIMITIVE,
+    WPNTLT_PISTOL_WPN_TRNG_SP,
+    WPNTLT_THROWN_WPN_TRNG_PRIMITIVE,
+    WPNTLT_THROWN_WPN_TRNG_CHAIN,
+    WPNTLT_THROWN_WPN_TRNG_SHOCK,
+    WPNTLT_THROWN_WPN_TRNG_POWER,
+    WPNTLT_CREATURE_WPN_TALENT,
+    WPNTLT_MELEE_WPN_TRNG_PRIMITIVE,
+    WPNTLT_MELEE_WPN_TRNG_CHAIN,
+    WPNTLT_MELEE_WPN_TRNG_SHOCK,
+    WPNTLT_MELEE_WPN_TRNG_POWER,
+    WPNTLT_RESISTANCE_COLD,
+    WPNTLT_RESISTANCE_HEAT,
+    WPNTLT_RESISTANCE_FEAR,
+    WPNTLT_RESISTANCE_POISON,
+    WPNTLT_RESISTANCE_WARP,
+    WPNTLT_HATRED_FACTION_CRIMINALS,
+    WPNTLT_HATRED_FACTION_DAEMONS,
+    WPNTLT_HATRED_FACTION_ORKS,
+    WPNTLT_HATRED_FACTION_TYRANIDS,
+    WPNTLT_HATRED_FACTION_PSYKERS,
+    WPNTLT_HATRED_FACTION_HERETICS,
+    WPNTLT_HATRED_FACTION_MUTANTS,
+    WPNTLT_EXOTIC_WPN_TRNG_NEEDLE_PISTOL,
+    WPNTLT_EXOTIC_WPN_TRNG_WEB_PISTOL,
+    WPNTLT_EXOTIC_WPN_TRNG_NEEDLE_RIFLE,
+    WPNTLT_EXOTIC_WPN_TRNG_WEBBER,
+    WPNTLT_PSY_RATING_1,
+    WPNTLT_PSY_RATING_2,
+    WPNTLT_PSY_RATING_3,
+    WPNTLT_PSY_RATING_4,
+    WPNTLT_PSY_RATING_5,
+    WPNTLT_PSY_RATING_6,
+    TALENTS_MAX,
+};
+
+/*
 #define TALENTS_IDX_OFFSET                          (60UL)
 #define TALENTS_NONE                                (0)
 #define T0_BASIC_WEAPON_TRAINING_BOLT               ((0x0UL<<TALENTS_IDX_OFFSET) | (0x1UL<<0))
@@ -296,7 +357,6 @@ enum skills {
 #define T2_TWO_WEAPON_WIELDER_BALLISTIC             ((0x2UL<<TALENTS_IDX_OFFSET) | (0x1UL<<44))
 #define T2_UNSHAKEBLE_FAITH                         ((0x2UL<<TALENTS_IDX_OFFSET) | (0x1UL<<45))
 #define T2_WALL_OF_STEEL                            ((0x2UL<<TALENTS_IDX_OFFSET) | (0x1UL<<46))
-
-#define TALENTS_MAX                                 ( ((0x2UL<<TALENTS_IDX_OFFSET) | (0x1UL<<46)) +1)
+*/
 
 #endif /* SPECIALQUALITIES_H */

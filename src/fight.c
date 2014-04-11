@@ -130,7 +130,7 @@ int fght_melee_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght_
         CALC_TOHIT(hand == FGHT_OFF_HAND, FGHT_MODIFIER_OFF_HAND, "using off-hand")
 
         /* Unarmed */
-        CALC_TOHIT(wpn_has_spc_quality(witem, WEAPON_SPEC_QLTY_UNARMED), FGHT_MODIFIER_MELEE_UNARMED, "you are unarmed")
+        CALC_TOHIT(wpn_has_spc_quality(witem, WPN_SPCQLTY_UNARMED), FGHT_MODIFIER_MELEE_UNARMED, "you are unarmed")
 
         /* Target size modifiers */
         if (target != NULL) {
@@ -221,8 +221,8 @@ int fght_calc_dmg(struct random *r, struct msr_monster *monster, struct msr_mons
             /* Modifiers to armour here */
             {
                 /* Armour counts double against primitive weapons, primitive armour counts as half against weapons, except against each other. */
-                if (wpn_has_spc_quality(witem, WEAPON_SPEC_QLTY_PRIMITIVE) > 0) armour *= 2;
-                if ( (aitem != NULL) && wbl_has_spc_quality(aitem, WEARABLE_SPEC_QLTY_PRIMITIVE) > 0) armour /= 2;
+                if (wpn_has_spc_quality(witem, WPN_SPCQLTY_PRIMITIVE) > 0) armour *= 2;
+                if ( (aitem != NULL) && wbl_has_spc_quality(aitem, WBL_SPCQLTY_PRIMITIVE) > 0) armour /= 2;
             }
         }
 
@@ -290,7 +290,7 @@ int fght_ranged_roll(struct random *r, struct msr_monster *monster, struct msr_m
     /* Calculate jamming threshold*/
     int jammed_threshold = FGHT_RANGED_JAM;
     if ( (wpn->rof_set == WEAPON_ROF_SETTING_SEMI) || (wpn->rof_set == WEAPON_ROF_SETTING_AUTO) ) jammed_threshold = MIN(FGHT_RANGED_JAM_SEMI,jammed_threshold);
-    if (wpn_has_spc_quality(witem, WEAPON_SPEC_QLTY_UNRELIABLE) ) jammed_threshold = MIN(FGHT_RANGED_JAM_UNRELIABLE, jammed_threshold);
+    if (wpn_has_spc_quality(witem, WPN_SPCQLTY_UNRELIABLE) ) jammed_threshold = MIN(FGHT_RANGED_JAM_UNRELIABLE, jammed_threshold);
     if (msr_has_talent(monster, wpn->wpn_talent) == false) jammed_threshold = MIN(FGHT_RANGED_JAM_UNRELIABLE, jammed_threshold);
     if (itm_has_quality(witem, ITEM_QLTY_POOR) ) jammed_threshold = MIN(to_hit, jammed_threshold);
 
@@ -300,7 +300,7 @@ int fght_ranged_roll(struct random *r, struct msr_monster *monster, struct msr_m
     if (roll >= jammed_threshold) {
         int reltest = -1;
         wpn->jammed = true;
-        if (wpn_has_spc_quality(witem, WEAPON_SPEC_QLTY_RELIABLE) ) {
+        if (wpn_has_spc_quality(witem, WPN_SPCQLTY_RELIABLE) ) {
             /* If the weapon is reliable, it only jamms on a 10 on a d10, when there is a chance to jam */
             if ( (reltest = random_xd10(r,1) ) <= 9) {
                 wpn->jammed = false;
@@ -438,10 +438,10 @@ bool fght_explosion(struct random *r, struct itm_item *bomb, struct dm_map *map)
 
     coord_t c = itm_get_pos(bomb);
     int radius = 0;
-    if (wpn_has_spc_quality(bomb, WEAPON_SPEC_QLTY_BLAST_1) == true) radius = 1;
-    if (wpn_has_spc_quality(bomb, WEAPON_SPEC_QLTY_BLAST_2) == true) radius = 2;
-    if (wpn_has_spc_quality(bomb, WEAPON_SPEC_QLTY_BLAST_3) == true) radius = 3;
-    if (wpn_has_spc_quality(bomb, WEAPON_SPEC_QLTY_BLAST_4) == true) radius = 4;
+    if (wpn_has_spc_quality(bomb, WPN_SPCQLTY_BLAST_1) == true) radius = 1;
+    if (wpn_has_spc_quality(bomb, WPN_SPCQLTY_BLAST_2) == true) radius = 2;
+    if (wpn_has_spc_quality(bomb, WPN_SPCQLTY_BLAST_3) == true) radius = 3;
+    if (wpn_has_spc_quality(bomb, WPN_SPCQLTY_BLAST_4) == true) radius = 4;
     
     lg_debug("exploding bomb on %d,%d() with radius %d.", c.x, c.y, radius);
 
