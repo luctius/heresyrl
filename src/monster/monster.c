@@ -546,13 +546,13 @@ static struct itm_item *msr_unarmed_weapon(struct msr_monster *monster) {
     
     switch (monster->race) {
         case MSR_RACE_HUMAN:
-            item = itm_create(ITEM_ID_HUMAN_UNARMED);
+            item = itm_create(IID_HUMAN_UNARMED);
             break;
         case MSR_RACE_BEAST:
-            item = itm_create(ITEM_ID_CREATURE_BITE_TRAINED);
+            item = itm_create(IID_CREATURE_BITE_TRAINED);
             break;
         case MSR_RACE_DOMESTIC:
-            item = itm_create(ITEM_ID_CREATURE_BITE_TRAINED);
+            item = itm_create(IID_CREATURE_BITE_TRAINED);
             break;
         default:
             assert(false);

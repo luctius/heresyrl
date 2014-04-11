@@ -96,9 +96,9 @@ int fght_ranged_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght
         else CALC_TOHIT((me->in_sight) && (me->light_level == 0), FGHT_MODIFIER_VISION_SHADOWS, "target is in shadows")
 
         /* Quality modifiers */
-        CALC_TOHIT(itm_has_quality(witem, ITEM_QUALITY_BEST), FGHT_MODIFIER_QUALITY_TO_HIT_BEST, "your weapon is of best quality")
-        else CALC_TOHIT(itm_has_quality(witem, ITEM_QUALITY_GOOD), FGHT_MODIFIER_QUALITY_TO_HIT_GOOD, "your weapon is of good quality")
-        else CALC_TOHIT(itm_has_quality(witem, ITEM_QUALITY_POOR), FGHT_MODIFIER_QUALITY_TO_HIT_POOR, "your weapon is of poor quality")
+        CALC_TOHIT(itm_has_quality(witem, ITEM_QLTY_BEST), FGHT_MODIFIER_QLTY_TO_HIT_BEST, "your weapon is of best quality")
+        else CALC_TOHIT(itm_has_quality(witem, ITEM_QLTY_GOOD), FGHT_MODIFIER_QLTY_TO_HIT_GOOD, "your weapon is of good quality")
+        else CALC_TOHIT(itm_has_quality(witem, ITEM_QLTY_POOR), FGHT_MODIFIER_QLTY_TO_HIT_POOR, "your weapon is of poor quality")
 
         /* Weapon talent of used weapon */
         CALC_TOHIT(msr_has_talent(monster, wpn->wpn_talent) == false, FGHT_MODIFIER_UNTRAINED_WEAPON, "you are untrained in this weapon")
@@ -130,7 +130,7 @@ int fght_melee_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght_
         CALC_TOHIT(hand == FGHT_OFF_HAND, FGHT_MODIFIER_OFF_HAND, "using off-hand")
 
         /* Unarmed */
-        CALC_TOHIT(wpn_has_spc_quality(witem, WEAPON_SPEC_QUALITY_UNARMED), FGHT_MODIFIER_MELEE_UNARMED, "you are unarmed")
+        CALC_TOHIT(wpn_has_spc_quality(witem, WEAPON_SPEC_QLTY_UNARMED), FGHT_MODIFIER_MELEE_UNARMED, "you are unarmed")
 
         /* Target size modifiers */
         if (target != NULL) {
@@ -210,7 +210,7 @@ int fght_calc_dmg(struct random *r, struct msr_monster *monster, struct msr_mons
                 if ( wpn_is_type(witem, WEAPON_TYPE_MELEE) || wpn_is_catergory(witem, WEAPON_CATEGORY_THROWN_WEAPON) ) dmg_add += msr_calculate_characteristic_bonus(monster, MSR_CHAR_STRENGTH);
 
                 /* Best Quality gains +1 damage */
-                if (itm_has_quality(witem, ITEM_QUALITY_BEST) ) dmg_add += FGHT_MODIFIER_QUALITY_TO_DMG_BEST;
+                if (itm_has_quality(witem, ITEM_QLTY_BEST) ) dmg_add += FGHT_MODIFIER_QLTY_TO_DMG_BEST;
 
             }
 
@@ -221,8 +221,8 @@ int fght_calc_dmg(struct random *r, struct msr_monster *monster, struct msr_mons
             /* Modifiers to armour here */
             {
                 /* Armour counts double against primitive weapons, primitive armour counts as half against weapons, except against each other. */
-                if (wpn_has_spc_quality(witem, WEAPON_SPEC_QUALITY_PRIMITIVE) > 0) armour *= 2;
-                if ( (aitem != NULL) && wbl_has_spc_quality(aitem, WEARABLE_SPEC_QUALITY_PRIMITIVE) > 0) armour /= 2;
+                if (wpn_has_spc_quality(witem, WEAPON_SPEC_QLTY_PRIMITIVE) > 0) armour *= 2;
+                if ( (aitem != NULL) && wbl_has_spc_quality(aitem, WEARABLE_SPEC_QLTY_PRIMITIVE) > 0) armour /= 2;
             }
         }
 
@@ -290,9 +290,9 @@ int fght_ranged_roll(struct random *r, struct msr_monster *monster, struct msr_m
     /* Calculate jamming threshold*/
     int jammed_threshold = FGHT_RANGED_JAM;
     if ( (wpn->rof_set == WEAPON_ROF_SETTING_SEMI) || (wpn->rof_set == WEAPON_ROF_SETTING_AUTO) ) jammed_threshold = MIN(FGHT_RANGED_JAM_SEMI,jammed_threshold);
-    if (wpn_has_spc_quality(witem, WEAPON_SPEC_QUALITY_UNRELIABLE) ) jammed_threshold = MIN(FGHT_RANGED_JAM_UNRELIABLE, jammed_threshold);
+    if (wpn_has_spc_quality(witem, WEAPON_SPEC_QLTY_UNRELIABLE) ) jammed_threshold = MIN(FGHT_RANGED_JAM_UNRELIABLE, jammed_threshold);
     if (msr_has_talent(monster, wpn->wpn_talent) == false) jammed_threshold = MIN(FGHT_RANGED_JAM_UNRELIABLE, jammed_threshold);
-    if (itm_has_quality(witem, ITEM_QUALITY_POOR) ) jammed_threshold = MIN(to_hit, jammed_threshold);
+    if (itm_has_quality(witem, ITEM_QLTY_POOR) ) jammed_threshold = MIN(to_hit, jammed_threshold);
 
     lg_print("roll %d vs to hit %d, jamm_threshold %d", roll, to_hit, jammed_threshold);
 
@@ -300,7 +300,7 @@ int fght_ranged_roll(struct random *r, struct msr_monster *monster, struct msr_m
     if (roll >= jammed_threshold) {
         int reltest = -1;
         wpn->jammed = true;
-        if (wpn_has_spc_quality(witem, WEAPON_SPEC_QUALITY_RELIABLE) ) {
+        if (wpn_has_spc_quality(witem, WEAPON_SPEC_QLTY_RELIABLE) ) {
             /* If the weapon is reliable, it only jamms on a 10 on a d10, when there is a chance to jam */
             if ( (reltest = random_xd10(r,1) ) <= 9) {
                 wpn->jammed = false;
@@ -438,10 +438,10 @@ bool fght_explosion(struct random *r, struct itm_item *bomb, struct dm_map *map)
 
     coord_t c = itm_get_pos(bomb);
     int radius = 0;
-    if (wpn_has_spc_quality(bomb, WEAPON_SPEC_QUALITY_BLAST_1) == true) radius = 1;
-    if (wpn_has_spc_quality(bomb, WEAPON_SPEC_QUALITY_BLAST_2) == true) radius = 2;
-    if (wpn_has_spc_quality(bomb, WEAPON_SPEC_QUALITY_BLAST_3) == true) radius = 3;
-    if (wpn_has_spc_quality(bomb, WEAPON_SPEC_QUALITY_BLAST_4) == true) radius = 4;
+    if (wpn_has_spc_quality(bomb, WEAPON_SPEC_QLTY_BLAST_1) == true) radius = 1;
+    if (wpn_has_spc_quality(bomb, WEAPON_SPEC_QLTY_BLAST_2) == true) radius = 2;
+    if (wpn_has_spc_quality(bomb, WEAPON_SPEC_QLTY_BLAST_3) == true) radius = 3;
+    if (wpn_has_spc_quality(bomb, WEAPON_SPEC_QLTY_BLAST_4) == true) radius = 4;
     
     lg_debug("exploding bomb on %d,%d() with radius %d.", c.x, c.y, radius);
 

@@ -94,12 +94,14 @@ static bool dm_clear_map_unsafe(struct dm_map *map) {
              */
             if (dm_get_map_tile(&c,map) != NULL) {
                 if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(&c,map), TILE_ATTR_LIGHT_SOURCE) ) {
-                    struct itm_item *i = itm_create(ITEM_ID_FIXED_LIGHT);
+                    struct itm_item *i = itm_create(IID_FIXED_LIGHT);
                     if (itm_insert_item(i, map, &c) == false) {
                         itm_destroy(i);
+                        lg_debug("light failed at (%d,%d)", c.x,c.y);
                     }
                     else {
                         i->specific.tool.lit = true;
+                        lg_debug("light at (%d,%d)", c.x,c.y);
                     }
                 }
             }
@@ -304,7 +306,7 @@ static bool dm_tunnel(struct dm_map *map, coord_t plist[], int plsz, struct tl_t
 
     /* copy the given tile over the path. */
     for (int i = 0; i < plsz; i++) {
-        dm_get_map_me(&plist[i], map)->tile = tl; //ts_get_tile_type(TILE_TYPE_FLOOR);
+        dm_get_map_me(&plist[i], map)->tile = tl;
     }
     return true;
 }
@@ -366,7 +368,7 @@ bool dm_generate_map(struct dm_map *map, enum dm_dungeon_type type, int level, u
     map->type = type;
     map->threat_lvl = level;
 
-    lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "dc", "generating map with seed \'%d\', type \'%d\' adn threat_lvl \'%d\'", seed, type, level);
+    lg_debug("generating map with seed \'%d\', type \'%d\' adn threat_lvl \'%d\'", seed, type, level);
 
     struct random *r = random_init_genrand(seed);
     switch(type) {

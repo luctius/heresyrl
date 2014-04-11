@@ -168,17 +168,23 @@ static bool sv_save_map(FILE *file, int indent, struct dm_map *map) {
                     struct dm_map_entity *me = dm_get_map_me(&c, map);
                     if (me->discovered == true || inv_inventory_size(me->inventory) > 0) {
                         fprintf(file, "%*s" "{pos={x=%d,y=%d,},discovered=%d,tile={id=%d,},",  indent, "", me->pos.x, me->pos.y, me->discovered, me->tile->id);
+
                         int invsz = 0;
                         if ( (invsz = inv_inventory_size(me->inventory) ) > 0) {
                             fprintf(file, "items={");
                             struct itm_item *item = NULL;
-                            for (int i = 0; i < invsz; i++) {
-                                item = inv_get_next_item(me->inventory, item);
-                                if (item != NULL) fprintf(file, "%d,", item->uid);
+                            while ( (item = inv_get_next_item(me->inventory, item)) != NULL) {
+                                if (item->dropable == false) {
+                                    invsz -= 1;
+                                    continue;
+                                }
+
+                                fprintf(file, "%d,", item->uid);
                             }
                             fprintf(file, "sz=%d,", invsz);
                             fprintf(file, "},");
                         }
+                        
                         fprintf(file, "},\n");
                         sz++;
                     }

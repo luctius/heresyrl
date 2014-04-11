@@ -2,59 +2,55 @@
 #define SPECIALQUALITIES_H
 
 enum weapon_special_quality {
-    WEAPON_SPEC_QUALITY_NONE         = (0),
-    WEAPON_SPEC_QUALITY_ACCURATE     = (1<<0),  /* Additional +10 to hit when used with the aim action */
-    WEAPON_SPEC_QUALITY_BALANCED     = (1<<1),  /* +10 Parry */
-    WEAPON_SPEC_QUALITY_BLAST_1      = (1<<2),  /* All within the weapon's blast radius in squares is hit */
-    WEAPON_SPEC_QUALITY_BLAST_2      = (1<<3),  /* All within the weapon's blast radius in squares is hit */
-    WEAPON_SPEC_QUALITY_BLAST_3      = (1<<4),
-    WEAPON_SPEC_QUALITY_BLAST_4      = (1<<5),
-    WEAPON_SPEC_QUALITY_DEFENSIVE    = (1<<6),  /* +15 Parry, -10 to hit  */
-    WEAPON_SPEC_QUALITY_FLAME        = (1<<7),  /* No BS Test, All in arc take Agility Test or take damage, 2nd Ag. test to avoid catch fire. */
-    WEAPON_SPEC_QUALITY_FLEXIBLE     = (1<<8),  /* Cannot be Parried. */
-    WEAPON_SPEC_QUALITY_INACCURATE   = (1<<9),  /* No bonus with aim action */
-    WEAPON_SPEC_QUALITY_OVERHEATS    = (1<<10), /* 90+ -> Overheat */
-    WEAPON_SPEC_QUALITY_POWER_FIELD  = (1<<11), /* When this is parried, 75% chance to destroy parrying weapon */
-    WEAPON_SPEC_QUALITY_PRIMITIVE    = (1<<12), /* AP doubled, unless armour is also primitive */
-    WEAPON_SPEC_QUALITY_RECHARGE     = (1<<13), /* Fire only every other round */
-    WEAPON_SPEC_QUALITY_RELIABLE     = (1<<14), /* If jam, 10 on 1d10 to actually jam. <I> */
-    WEAPON_SPEC_QUALITY_SCATTER      = (1<<15), /* Point Blank: 2 DoS score another hit, AP doubled at Long and Extreme ranges. */
-    WEAPON_SPEC_QUALITY_SHOCKING     = (1<<16), /* If damage, test Toughness or be stunned. */
-    WEAPON_SPEC_QUALITY_SMOKE        = (1<<17), /* Creates smoke screen 3d10 metres in diameters, lasts 2d10 Rounds. */
-    WEAPON_SPEC_QUALITY_SNARE        = (1<<18), /* Ag. test or be immobilised */
-    WEAPON_SPEC_QUALITY_TEARING      = (1<<19), /* Roll twice, take highest damage */
-    WEAPON_SPEC_QUALITY_TOXIC        = (1<<20), /* if damage, teest toughness -5 for every damage taken. if failed, take 1d10 extra impact damage. */
-    WEAPON_SPEC_QUALITY_UNARMED      = (1<<21), /* 1d5-3 +Str, Armour doubles */
-    WEAPON_SPEC_QUALITY_UNBALANCED   = (1<<22), /* -10 when parry */
-    WEAPON_SPEC_QUALITY_UNRELIABLE   = (1<<23), /* jams on 90+ */
-    WEAPON_SPEC_QUALITY_UNSTABLE     = (1<<24), /* on hit, roll 1d10: 1: half dmg, 2-9: normal, 10: double damage */
-    WEAPON_SPEC_QUALITY_UNWIELDY     = (1<<25), /* Cannot be used to parry. */
+    WEAPON_SPEC_QLTY_ACCURATE     = (1<<0),  /* Additional +10 to hit when used with the aim action */
+    WEAPON_SPEC_QLTY_BALANCED     = (1<<1),  /* +10 Parry */
+    WEAPON_SPEC_QLTY_BLAST_1      = (1<<2),  /* All within the weapon's blast radius in squares is hit */
+    WEAPON_SPEC_QLTY_BLAST_2      = (1<<3),  /* All within the weapon's blast radius in squares is hit */
+    WEAPON_SPEC_QLTY_BLAST_3      = (1<<4),
+    WEAPON_SPEC_QLTY_BLAST_4      = (1<<5),
+    WEAPON_SPEC_QLTY_DEFENSIVE    = (1<<6),  /* +15 Parry, -10 to hit  */
+    WEAPON_SPEC_QLTY_FLAME        = (1<<7),  /* No BS Test, All in arc take Agility Test or take damage, 2nd Ag. test to avoid catch fire. */
+    WEAPON_SPEC_QLTY_FLEXIBLE     = (1<<8),  /* Cannot be Parried. */
+    WEAPON_SPEC_QLTY_INACCURATE   = (1<<9),  /* No bonus with aim action */
+    WEAPON_SPEC_QLTY_OVERHEATS    = (1<<10), /* 90+ -> Overheat */
+    WEAPON_SPEC_QLTY_POWER_FIELD  = (1<<11), /* When this is parried, 75% chance to destroy parrying weapon */
+    WEAPON_SPEC_QLTY_PRIMITIVE    = (1<<12), /* AP doubled, unless armour is also primitive */
+    WEAPON_SPEC_QLTY_RECHARGE     = (1<<13), /* Fire only every other round */
+    WEAPON_SPEC_QLTY_RELIABLE     = (1<<14), /* If jam, 10 on 1d10 to actually jam. <I> */
+    WEAPON_SPEC_QLTY_SCATTER      = (1<<15), /* Point Blank: 2 DoS score another hit, AP doubled at Long and Extreme ranges. */
+    WEAPON_SPEC_QLTY_SHOCKING     = (1<<16), /* If damage, test Toughness or be stunned. */
+    WEAPON_SPEC_QLTY_SMOKE        = (1<<17), /* Creates smoke screen 3d10 metres in diameters, lasts 2d10 Rounds. */
+    WEAPON_SPEC_QLTY_SNARE        = (1<<18), /* Ag. test or be immobilised */
+    WEAPON_SPEC_QLTY_TEARING      = (1<<19), /* Roll twice, take highest damage */
+    WEAPON_SPEC_QLTY_TOXIC        = (1<<20), /* if damage, teest toughness -5 for every damage taken. if failed, take 1d10 extra impact damage. */
+    WEAPON_SPEC_QLTY_UNARMED      = (1<<21), /* 1d5-3 +Str, Armour doubles */
+    WEAPON_SPEC_QLTY_UNBALANCED   = (1<<22), /* -10 when parry */
+    WEAPON_SPEC_QLTY_UNRELIABLE   = (1<<23), /* jams on 90+ */
+    WEAPON_SPEC_QLTY_UNSTABLE     = (1<<24), /* on hit, roll 1d10: 1: half dmg, 2-9: normal, 10: double damage */
+    WEAPON_SPEC_QLTY_UNWIELDY     = (1<<25), /* Cannot be used to parry. */
     WEAPON_SPEC_MAX                  = (1<<25)+1,
 };
 
 enum wearable_special_quality {
-    WEARABLE_SPEC_QUALITY_NONE      = (0),
-    WEARABLE_SPEC_QUALITY_PRIMITIVE = (1<<0), /* AP halved unless weapon is also primitive. */
-    WEARABLE_SPEC_QUALITY_MAX       = (1<<0)+1,
+    WEARABLE_SPEC_QLTY_PRIMITIVE = (1<<0), /* AP halved unless weapon is also primitive. */
+    WEARABLE_SPEC_QLTY_MAX       = (1<<0)+1,
 };
 
 enum weapon_upgrades {
-    WEAPON_UPGRADE_NONE             = (1<<0),
-    WEAPON_UPGRADE_COMPACT          = (1<<1),
-    WEAPON_UPGRADE_EXTERMINATOR     = (1<<2),
-    WEAPON_UPGRADE_EXTRA_GRIP       = (1<<3),
-    WEAPON_UPGRADE_FIRE_SELECTOR    = (1<<4),
-    WEAPON_UPGRADE_MELEE_ATTACHMENT = (1<<5),
-    WEAPON_UPGRADE_MONO             = (1<<6),
-    WEAPON_UPGRADE_OVERCHARGE_PACK  = (1<<7),
-    WEAPON_UPGRADE_RED_DOT          = (1<<8),
-    WEAPON_UPGRADE_SILENCER         = (1<<9),
-    WEAPON_UPGRADE_TELESCOPE_SIGHT  = (1<<10),
-    WEAPON_UPGRADE_MAX              = (1<<10)+1,
+    WEAPON_UPGRADE_COMPACT          = (1<<0),
+    WEAPON_UPGRADE_EXTERMINATOR     = (1<<1),
+    WEAPON_UPGRADE_EXTRA_GRIP       = (1<<2),
+    WEAPON_UPGRADE_FIRE_SELECTOR    = (1<<3),
+    WEAPON_UPGRADE_MELEE_ATTACHMENT = (1<<4),
+    WEAPON_UPGRADE_MONO             = (1<<5),
+    WEAPON_UPGRADE_OVERCHARGE_PACK  = (1<<6),
+    WEAPON_UPGRADE_RED_DOT          = (1<<7),
+    WEAPON_UPGRADE_SILENCER         = (1<<8),
+    WEAPON_UPGRADE_TELESCOPE_SIGHT  = (1<<9),
+    WEAPON_UPGRADE_MAX              = (1<<9)+1,
 };
 
 enum ammo_upgrades {
-    AMMO_UPGRADE_NONE,
     AMMO_UPGRADE_DUMDUM,     /* +2 dmg, armour doubles */
     AMMO_UPGRADE_HOTSHOT,    /* +1 dmg, tearing, +pen 4, clip_sz == 1, -reliable */
     AMMO_UPGRADE_INFERNO,    /* Ag test or catch fire */

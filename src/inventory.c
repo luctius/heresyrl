@@ -87,7 +87,7 @@ struct itm_item *inv_get_next_item(struct inv_inventory *inv, struct itm_item *p
     }
 
     if (item != NULL) {
-        if (item->template_id == ITEM_ID_HUMAN_UNARMED) {
+        if (item->template_id == IID_HUMAN_UNARMED) {
             if ( (item_location & INV_LOC_CREATURE_WIELD1) > 0) { 
                 /* HACK: ignore creature wields (atleast for humans) */
                 item = inv_get_next_item(inv, item);

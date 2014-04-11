@@ -471,7 +471,7 @@ static bool load_map(lua_State *L, struct dm_map **m, int mapid) {
                         for (int j = items_sz; j > 0; j--) {
                             if (lua_intexpr(L, &t, "game.maps[%d].map[%d].items[%d]", mapid, i+1, j) == 1) {
                                 item = itmlst_item_by_uid(t);
-                                itm_insert_item(item, map, &pos);
+                                if (item != NULL) itm_insert_item(item, map, &pos);
                             }
                         }
                     }

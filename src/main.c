@@ -97,7 +97,7 @@ int main(int argc, char *argv[]) {
 
     game_exit();
 
-    msg("Goodbye.");
+    System_msg("Goodbye.");
     usleep(500000);
 
     ui_destroy();

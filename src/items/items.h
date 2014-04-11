@@ -72,6 +72,7 @@ enum item_tool_type {
 enum item_ammo_type {
     AMMO_TYPE_ARROW,
     AMMO_TYPE_PISTOL_SP,
+    AMMO_TYPE_PISTOL_SHOTGUN,
     AMMO_TYPE_PISTOL_LAS,
     AMMO_TYPE_PISTOL_PLASMA,
     AMMO_TYPE_PISTOL_MELTA,
@@ -87,6 +88,7 @@ enum item_ammo_type {
     AMMO_TYPE_BASIC_BOLT,
     AMMO_TYPE_BASIC_SHURIKEN,
     AMMO_TYPE_BASIC_GRENADE,
+    AMMO_TYPE_BASIC_ROCKET,
     AMMO_TYPE_HEAVY_SP,
     AMMO_TYPE_HEAVY_LAS,
     AMMO_TYPE_HEAVY_PLASMA,
@@ -111,24 +113,26 @@ enum item_wearable_type {
 };
 
 enum item_quality {
-    ITEM_QUALITY_POOR,
-    ITEM_QUALITY_AVERAGE,
-    ITEM_QUALITY_GOOD,
-    ITEM_QUALITY_BEST,
-    ITEM_QUALITY_MAX,
-    ITEM_QUALITY_RANDOM,
+    ITEM_QLTY_NONE,
+    ITEM_QLTY_POOR,
+    ITEM_QLTY_AVERAGE,
+    ITEM_QLTY_GOOD,
+    ITEM_QLTY_BEST,
+    ITEM_QLTY_MAX,
+    ITEM_QLTY_RANDOM,
 };
 
 enum item_availability {
-    ITEM_AVAILABILITY_PLENTIFUL,
-    ITEM_AVAILABILITY_AVERAGE,
-    ITEM_AVAILABILITY_COMMON,
-    ITEM_AVAILABILITY_POOR,
-    ITEM_AVAILABILITY_SCARCE,
-    ITEM_AVAILABILITY_RARE,
-    ITEM_AVAILABILITY_VERY_RARE,
-    ITEM_AVAILABILITY_MAX,
-    ITEM_AVAILABILITY_RANDOM,
+    ITEM_AVAIL_NONE,
+    ITEM_AVAIL_PLENTIFUL,
+    ITEM_AVAIL_AVERAGE,
+    ITEM_AVAIL_COMMON,
+    ITEM_AVAIL_POOR,
+    ITEM_AVAIL_SCARCE,
+    ITEM_AVAIL_RARE,
+    ITEM_AVAIL_VERY_RARE,
+    ITEM_AVAIL_MAX,
+    ITEM_AVAIL_RANDOM,
 };
 
 enum weapon_dmg_type {
@@ -357,6 +361,8 @@ bool ammo_is_type(struct itm_item *item, enum item_ammo_type type);
 bool tool_is_type(struct itm_item *item, enum item_tool_type type);
 
 const char *itm_quality_string(struct itm_item *item);
+
+const char *wpn_ammo_string(struct itm_item *item);
 
 #endif /*ITEMS_H_*/
 

@@ -88,11 +88,12 @@ struct itm_item *itm_create(int template_id) {
 
     memcpy(&i->item, &static_item_list[template_id], sizeof(static_item_list[template_id]));
     LIST_INSERT_HEAD(&items_list_head, i, entries);
-    i->item.item_pre = ITEM_PRE_CHECK;
-    i->item.item_post = ITEM_POST_CHECK;
-    i->item.icon_attr = get_colour(i->item.icon_attr);
-    i->item.uid = itmlst_next_id();
-    i->item.owner_type = ITEM_OWNER_NONE;
+    i->item.item_pre    = ITEM_PRE_CHECK;
+    i->item.item_post   = ITEM_POST_CHECK;
+    i->item.icon_attr   = get_colour(i->item.icon_attr);
+    i->item.uid         = itmlst_next_id();
+    i->item.owner_type  = ITEM_OWNER_NONE;
+    i->item.description = itm_descs[template_id];
 
     return &i->item;
 }
@@ -116,16 +117,20 @@ bool itm_insert_item(struct itm_item *item, struct dm_map *map, coord_t *pos) {
     if (itm_verify_item(item) == false) return false;
     if (dm_verify_map(map) == false) return false;
     if (cd_within_bound(pos, &map->size) == false) return false;
-    if (item->dropable == false) return false;
 
     struct dm_map_entity *target = dm_get_map_me(pos, map);
     if (inv_has_item(target->inventory, item) == false) {
+        if (TILE_HAS_ATTRIBUTE(target->tile, TILE_ATTR_TRAVERSABLE) ) {
+            /* non dropable items should not be able to be picked up by the player. */
+            if (item->dropable == false) return false;
+        }
+
         if (inv_add_item(target->inventory, item) == true) {
             item->owner_type = ITEM_OWNER_MAP;
             item->owner.owner_map_entity = target;
             retval = true;
 
-            lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "itm", "Inserting item %s (%c) [uid:%d, tid:%d] to (%d,%d)", 
+            lg_debug("Inserting item %s (%c) [uid:%d, tid:%d] to (%d,%d)", 
                     item->sd_name, item->icon, item->uid, item->template_id, pos->x, pos->y);
         }
     }
@@ -141,7 +146,7 @@ bool itm_remove_item(struct itm_item *item, struct dm_map *map, coord_t *pos) {
 
     struct dm_map_entity *target = dm_get_map_me(pos, map);
     if (inv_has_item(target->inventory, item) == true) {
-        lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "itm", "removed (%d,%d)", pos->x, pos->y);
+        lg_debug("removed (%d,%d)", pos->x, pos->y);
         if (inv_remove_item(target->inventory, item) ) {
             item->owner_type = ITEM_OWNER_NONE;
             item->owner.owner_map_entity = NULL;
@@ -278,14 +283,20 @@ bool tool_is_type(struct itm_item *item, enum item_tool_type type) {
 }
 
 const char *itm_quality_string(struct itm_item *item) {
-    if (itm_verify_item(item) == false) return "unkown";
-    if ( (item->quality < 0) || (item->quality >= ITEM_QUALITY_MAX) ) return "unkown";
+    if (itm_verify_item(item) == false) return "unknown";
+    if (item->quality >= ITEM_QLTY_MAX) return "unknown";
     return item_quality_strings[item->quality];
 }
 
 const char *itm_upgrades_string(struct itm_item *item) {
-    if (itm_verify_item(item) == false) return "unkown";
-    if ( (item->quality < 0) || (item->quality >= ITEM_QUALITY_MAX) ) return "unkown";
+    if (itm_verify_item(item) == false) return "unknown";
+    if (item->quality >= ITEM_QLTY_MAX) return "unknown";
     return item_quality_strings[item->quality];
+}
+
+const char *wpn_ammo_string(struct itm_item *item) {
+    if (wpn_is_type(item, WEAPON_TYPE_RANGED) == false) return "unknown";
+    if (item->specific.weapon.ammo_type >= AMMO_TYPE_MAX) return "unknown";
+    return ammo_type_strings[item->specific.weapon.ammo_type];
 }
 

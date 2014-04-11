@@ -736,9 +736,15 @@ void charwin_refresh() {
             if (item->item_type == ITEM_TYPE_WEAPON) {
                 struct item_weapon_specific *wpn = &item->specific.weapon;
                 textwin_add_text(char_win, "%s Wpn: %s\n", (i==0) ? "Main" : "Sec.", item->sd_name);
-                textwin_add_text(char_win, " Dmg %dD10+%d,%d", wpn->nr_dmg_die, wpn->dmg_addition, wpn->penetration);
+                if (wpn->nr_dmg_die == 0) textwin_add_text(char_win, " Dmg 1D5");
+                else textwin_add_text(char_win, " Dmg %dD10", wpn->nr_dmg_die);
+                textwin_add_text(char_win, "+%d,%d", wpn->dmg_addition, wpn->penetration);
+
                 if (wpn->weapon_type == WEAPON_TYPE_RANGED) {
-                    textwin_add_text(char_win, "  Ammo %d/%d\n", wpn->magazine_left, wpn->magazine_sz);
+                    if (wpn->jammed == false) {
+                        textwin_add_text(char_win, "  Ammo %d/%d\n", wpn->magazine_left, wpn->magazine_sz);
+                    } 
+                    else textwin_add_text(char_win, "  jammed\n");
 
                     int single = wpn->rof[WEAPON_ROF_SETTING_SINGLE];
                     int semi = wpn->rof[WEAPON_ROF_SETTING_SEMI];
@@ -803,7 +809,7 @@ static int invwin_printlist(struct hrl_window *window, struct inv_show_item list
     for (int i = 0; i < max; i++) {
         struct itm_item *item = list[i+start].item;
         textwin_add_text(window, "%c)  %c%s", inp_key_translate_idx(i), list[i+start].location[0], item->sd_name);
-        if (item->quality != ITEM_QUALITY_AVERAGE) textwin_add_text(window, ", %s quality", itm_quality_string(item) );
+        if (item->quality != ITEM_QLTY_AVERAGE) textwin_add_text(window, ", %s quality", itm_quality_string(item) );
         if (item->stacked_quantity > 1) textwin_add_text(window, " x%d", item->stacked_quantity);
         textwin_add_text(window, "\n");
     }
@@ -844,7 +850,36 @@ void invwin_examine(struct hrl_window *window, struct itm_item *item) {
     textwin_add_text(window, "\n");
 
     switch (item->item_type) {
-        case ITEM_TYPE_WEAPON: break;
+        case ITEM_TYPE_WEAPON: {
+            struct item_weapon_specific *wpn = &item->specific.weapon;
+            textwin_add_text(char_win, "Weapon statistics\n");
+            textwin_add_text(char_win, "- Dmg ");
+            if (wpn->nr_dmg_die == 0) textwin_add_text(char_win, "1D5");
+            else textwin_add_text(char_win, "%dD10", wpn->nr_dmg_die);
+                textwin_add_text(char_win, "+%d, pen %d\n", wpn->dmg_addition, wpn->penetration);
+
+            if (wpn_is_type(item, WEAPON_TYPE_RANGED) || wpn_is_type(item, WEAPON_TYPE_THROWN) ) {
+                textwin_add_text(char_win, "- Range %d\n", wpn->range);
+                textwin_add_text(char_win, "- Magazine size %d\n", wpn->magazine_sz);
+                textwin_add_text(char_win, "- Uses %s\n", wpn_ammo_string(item) );
+
+                int single = wpn->rof[WEAPON_ROF_SETTING_SINGLE];
+                int semi = wpn->rof[WEAPON_ROF_SETTING_SEMI];
+                int aut = wpn->rof[WEAPON_ROF_SETTING_AUTO];
+                char semi_str[4]; snprintf(semi_str, 3, "%d", semi);
+                char auto_str[4]; snprintf(auto_str, 3, "%d", aut);
+                textwin_add_text(char_win, "- Rate of Fire (%s/%s/%s)\n", 
+                        (single > 0) ? "S" : "-", (semi > 0) ? semi_str : "-", (aut > 0) ? auto_str : "-");
+
+                if (wpn->magazine_left == 0) {
+                    textwin_add_text(char_win, "The weapon is empty.\n");
+                } 
+                if (wpn->jammed == true) {
+                    textwin_add_text(char_win, "The weapon is currently jammed.\n");
+                } 
+
+            }
+        }break;
         case ITEM_TYPE_WEARABLE: break;
         case ITEM_TYPE_TOOL: break;
         case ITEM_TYPE_AMMO: break;
