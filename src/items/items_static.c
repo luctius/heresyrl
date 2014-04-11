@@ -34,8 +34,13 @@
             .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=0, .penetration=_penetration, \
             .special_quality=special, .upgrades=_upgrades, .wpn_talent=talent, }
 
-#define THROWN(wpn_cat,dmg_die,dmg_add,_penetration,_range,_dmg_type,_upgrades,special,talent) .icon='|',.stacked_quantity=0, .max_quantity=100,\
-            .item_type=ITEM_TYPE_WEAPON, .specific.weapon={.weapon_type=WEAPON_TYPE_THROWN, .weapon_category=wpn_cat, \
+#define THROWN_WEAPON(dmg_die,dmg_add,_penetration,_range,_dmg_type,_upgrades,special,talent) .icon='|',.stacked_quantity=0, .max_quantity=100,\
+            .item_type=ITEM_TYPE_WEAPON, .specific.weapon={.weapon_type=WEAPON_TYPE_THROWN, .weapon_category=WEAPON_CATEGORY_THROWN_WEAPON, \
+            .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=_range, .penetration=_penetration, \
+            .special_quality=special, .upgrades=_upgrades, .wpn_talent=talent, }
+
+#define THROWN_GRENADE(dmg_die,dmg_add,_penetration,_range,_dmg_type,_upgrades,special,talent) .icon='|',.stacked_quantity=0, .max_quantity=100,\
+            .item_type=ITEM_TYPE_WEAPON, .specific.weapon={.weapon_type=WEAPON_TYPE_THROWN, .weapon_category=WEAPON_CATEGORY_THROWN_GRENADE, \
             .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=_range, .penetration=_penetration, \
             .special_quality=special, .upgrades=_upgrades, .wpn_talent=talent, }
 
@@ -70,6 +75,21 @@ const char *itm_descs[] = {
     [IID_FIXED_LIGHT]       = "",
     [IID_GLOW_GLOBE]        = "This a generic glow globe",
 
+    [IID_FLAK_HELMET]       = "This a generic flak helmet",
+    [IID_FLAK_GAUNTLETS]    = "These are generic flak gauntlets",
+    [IID_FLAK_LIGHT_COAT]   = "These are generic light flak coat",
+    [IID_FLAK_VEST]         = "These are generic flak vest",
+    [IID_FLAK_JACKET]       = "These are generic flak jacket",
+    [IID_FLAK_CLOAK]        = "These are generic flak cloak",
+    [IID_FLAK_GUARD_ARMOUR] = "These are generic guard flak armour",
+
+    [IID_HUMAN_UNARMED]           = "",
+    [IID_CREATURE_BITE_UNTRAINED] = "",
+    [IID_CREATURE_BITE_TRAINED]   = "",
+
+    [IID_FRAG_GRENADE]      = "",
+    [IID_THROWING_KNIFE]    = "",
+
     [IID_STUB_AUTOMATIC]    = "Just as common as the revolver variant, the stub automatic allows for a greater rate of fire and clip capacity, though at the cost of reliability",
     [IID_STUB_REVOLVER]     = "Based on an ancient and well-tested design, the stub revolver is the ideal backup weapon",
     [IID_LAS_PISTOL]        = "The las pistol is a light, compact and reliable weapon, common throughout the Imperium. Designs vary wildy and can range from elaborate heirloom \
@@ -80,17 +100,8 @@ const char *itm_descs[] = {
     [IID_PISTOL_AMMO_SP]    = "Hard rounds are common for many weapons within the Imperium and vary greatly in calibre and design",
     [IID_PISTOL_AMMO_LAS]   = "Charge packs are powerful batteries used almost exclusively by las weapons",
 
-    [IID_FLAK_HELMET]       = "This a generic flak helmet",
-    [IID_FLAK_GAUNTLETS]    = "These are generic flak gauntlets",
-    [IID_FLAK_LIGHT_COAT]   = "These are generic light flak coat",
-    [IID_FLAK_VEST]         = "These are generic flak vest",
-    [IID_FLAK_JACKET]       = "These are generic flak jacket",
-    [IID_FLAK_CLOAK]        = "These are generic flak cloak",
-    [IID_FLAK_GUARD_ARMOUR] = "These are generic guard flak armour",
-
-    [IID_HUMAN_UNARMED]     = "",
-    [IID_CREATURE_BITE_UNTRAINED] = "",
-    [IID_CREATURE_BITE_TRAINED]   = "",
+    [IID_BASIC_AMMO_SP]    = "Hard rounds are common for many weapons within the Imperium and vary greatly in calibre and design",
+    [IID_BASIC_AMMO_LAS]   = "Charge packs are powerful batteries used almost exclusively by las weapons",
 };
 
 struct itm_item static_item_list[] = {
@@ -101,14 +112,14 @@ struct itm_item static_item_list[] = {
     ITEM(IID_GLOW_GLOBE,    "glow globe",  "a glow globe", ITEM_AVAIL_AVERAGE, ITEM_QLTY_AVERAGE, 1,     1,   1), LIGHT(TOOL_TYPE_LIGHT,   1000,    10), ITEM_END,
 
     /* Wearables */
-    /*    ID                         short name           long name                   availability        quality          weight, cost, delay         dr   locations                                special qualities*/
-    ITEM(IID_FLAK_HELMET,       "flak helmet",       "a flak helmet",                 ITEM_AVAIL_AVERAGE, ITEM_QLTY_AVERAGE,   20,    25,   2), ARMOUR(2,   INV_LOC_HEAD,                                0), ITEM_END,
-    ITEM(IID_FLAK_GAUNTLETS,    "flak gauntlets",    "two pieces of flak gauntlets",  ITEM_AVAIL_AVERAGE, ITEM_QLTY_AVERAGE,   10,    50,   2), ARMOUR(2,   INV_LOC_ARMS,                                0), ITEM_END,
-    ITEM(IID_FLAK_LIGHT_COAT,   "light flak coat",   "a light flak coat",             ITEM_AVAIL_AVERAGE, ITEM_QLTY_AVERAGE,   40,    80,   4), ARMOUR(2,   INV_LOC_ARMS | INV_LOC_CHEST | INV_LOC_LEGS, 0), ITEM_END,
-    ITEM(IID_FLAK_VEST,         "flak vest",         "a flak vest",                   ITEM_AVAIL_AVERAGE, ITEM_QLTY_AVERAGE,   50,    50,   3), ARMOUR(3,   INV_LOC_CHEST,                               0), ITEM_END,
-    ITEM(IID_FLAK_JACKET,       "flak jacket",       "a flak jacket",                 ITEM_AVAIL_AVERAGE, ITEM_QLTY_AVERAGE,   60,    100,  4), ARMOUR(3,   INV_LOC_ARMS | INV_LOC_CHEST | INV_LOC_LEGS, 0), ITEM_END,
-    ITEM(IID_FLAK_CLOAK,        "flak cloak",        "a flak cloak",                  ITEM_AVAIL_AVERAGE, ITEM_QLTY_AVERAGE,   80,    80,   3), ARMOUR(3,   INV_LOC_CHEST,                               0), ITEM_END,
-    ITEM(IID_FLAK_GUARD_ARMOUR, "guard flak armour", "a guard flak armour",           ITEM_AVAIL_AVERAGE, ITEM_QLTY_AVERAGE,   110,   300,  3), ARMOUR(4,   INV_LOC_ARMS | INV_LOC_LEGS | INV_LOC_CHEST | INV_LOC_HEAD, 0), ITEM_END,
+    /*    ID                         short name           long name         availability        quality          weight, cost, delay         dr   locations                                             special qualities*/
+    ITEM(IID_FLAK_HELMET,       "flak helmet",       "a flak helmet",       ITEM_AVAIL_AVERAGE, ITEM_QLTY_AVERAGE,   20,    25,   2), ARMOUR(2,   INV_LOC_HEAD,                                                 0), ITEM_END,
+    ITEM(IID_FLAK_GAUNTLETS,    "flak gauntlets",    "two flak gauntlets",  ITEM_AVAIL_AVERAGE, ITEM_QLTY_AVERAGE,   10,    50,   2), ARMOUR(2,   INV_LOC_ARMS,                                                 0), ITEM_END,
+    ITEM(IID_FLAK_LIGHT_COAT,   "light flak coat",   "a light flak coat",   ITEM_AVAIL_AVERAGE, ITEM_QLTY_AVERAGE,   40,    80,   4), ARMOUR(2,   INV_LOC_ARMS | INV_LOC_CHEST | INV_LOC_LEGS,                  0), ITEM_END,
+    ITEM(IID_FLAK_VEST,         "flak vest",         "a flak vest",         ITEM_AVAIL_AVERAGE, ITEM_QLTY_AVERAGE,   50,    50,   3), ARMOUR(3,   INV_LOC_CHEST,                                                0), ITEM_END,
+    ITEM(IID_FLAK_JACKET,       "flak jacket",       "a flak jacket",       ITEM_AVAIL_AVERAGE, ITEM_QLTY_AVERAGE,   60,    100,  4), ARMOUR(3,   INV_LOC_ARMS | INV_LOC_CHEST | INV_LOC_LEGS,                  0), ITEM_END,
+    ITEM(IID_FLAK_CLOAK,        "flak cloak",        "a flak cloak",        ITEM_AVAIL_AVERAGE, ITEM_QLTY_AVERAGE,   80,    80,   3), ARMOUR(3,   INV_LOC_CHEST,                                                0), ITEM_END,
+    ITEM(IID_FLAK_GUARD_ARMOUR, "guard flak armour", "a guard flak armour", ITEM_AVAIL_AVERAGE, ITEM_QLTY_AVERAGE,   110,   300,  3), ARMOUR(4,   INV_LOC_ARMS | INV_LOC_LEGS | INV_LOC_CHEST | INV_LOC_HEAD,   0), ITEM_END,
 
     /* Weapons */
     /* Creature Attacks */
@@ -120,23 +131,21 @@ struct itm_item static_item_list[] = {
     /* Melee */
 
 
-    /* Grenades */
-    /*    ID               short name     long name         availability        quality         weight,cost,delay         CATEGORY                   xd10 +X pen,range   dmg type              upgrades    special qualities         talent */
-    ITEM(IID_FRAG_GRENADE, "frag grenade","a frag grenade", ITEM_AVAIL_AVERAGE, ITEM_QLTY_AVERAGE, 5,  10,  1), THROWN(WEAPON_CATEGORY_THROWN_GRENADE,2,  0, 0,  3,  WEAPON_DMG_TYPE_EXPLOSIVE, 0, WEAPON_SPEC_QLTY_BLAST_4, T0_CREATURE_WEAPON_TALENT), ITEM_END,
-
     /* Thrown */
-    ITEM(IID_THROWING_KNIFE,"throwing knife","a throwing knife", ITEM_AVAIL_PLENTIFUL,ITEM_QLTY_AVERAGE,5,5,1), THROWN(WEAPON_CATEGORY_THROWN_WEAPON, 0,  0, 0,  5,  WEAPON_DMG_TYPE_RENDING, 0, WEAPON_SPEC_QLTY_PRIMITIVE, T0_THROWN_WEAPON_TRAINING_PRIMITIVE), ITEM_END,
+    /*    ID               short name         long name          availability         quality         weight,cost,delay  CATEGORY     xd10 +X pen,range   dmg type              upgrades    special qualities         talent */
+    ITEM(IID_FRAG_GRENADE, "frag grenade",   "a frag grenade",   ITEM_AVAIL_AVERAGE,  ITEM_QLTY_AVERAGE, 5,  10,  1),    THROWN_GRENADE(2,  0, 0,  3,  WEAPON_DMG_TYPE_EXPLOSIVE, 0, WEAPON_SPEC_QLTY_BLAST_4,   T0_CREATURE_WEAPON_TALENT), ITEM_END,
+    ITEM(IID_THROWING_KNIFE,"throwing knife","a throwing knife", ITEM_AVAIL_PLENTIFUL,ITEM_QLTY_AVERAGE, 5,  5,   1),    THROWN_WEAPON( 0,  0, 0,  5,  WEAPON_DMG_TYPE_RENDING,   0, WEAPON_SPEC_QLTY_PRIMITIVE, T0_THROWN_WEAPON_TRAINING_PRIMITIVE), ITEM_END,
 
     /* Pistols */
     /*    ID                short name        long name         availability       quality         weight,cost,delay          dmg type            xd10 +x range  single semi  auto  mag_sz  pen  upgrades  special*/
-    ITEM(IID_STUB_AUTOMATIC,"stub automatic","a stub automatic",ITEM_AVAIL_AVERAGE,ITEM_QLTY_AVERAGE, 15, 50,  1), PISTOL_SP(WEAPON_DMG_TYPE_IMPACT, 1, 3, 30,    1,    3,    0,     9,      0,   0,        0), ITEM_END,
+    ITEM(IID_STUB_AUTOMATIC,"stub automatic","a stub automatic",ITEM_AVAIL_AVERAGE,ITEM_QLTY_AVERAGE, 15, 50,  1), PISTOL_SP(WEAPON_DMG_TYPE_IMPACT, 1, 3, 30,    1,    3,    0,     9,      0,   0,        0                     ), ITEM_END,
     ITEM(IID_STUB_REVOLVER, "stub revolver", "a stub revolver", ITEM_AVAIL_AVERAGE,ITEM_QLTY_AVERAGE, 15, 40,  2), PISTOL_SP(WEAPON_DMG_TYPE_IMPACT, 1, 3, 30,    1,    0,    0,     6,      0,   0,     WEAPON_SPEC_QLTY_RELIABLE), ITEM_END,
     ITEM(IID_LAS_PISTOL,    "las pistol",    "a las pistol",    ITEM_AVAIL_AVERAGE,ITEM_QLTY_AVERAGE, 17, 50,  1), PISTOL_LAS(WEAPON_DMG_TYPE_ENERGY,1, 2, 30,    1,    0,    0,    30,      0,   0,     WEAPON_SPEC_QLTY_RELIABLE), ITEM_END,
     ITEM(IID_LAS_GUN,       "las gun",       "a las gun",       ITEM_AVAIL_AVERAGE,ITEM_QLTY_AVERAGE, 40, 50,  1), BASIC_LAS(WEAPON_DMG_TYPE_ENERGY, 1, 3, 100,   1,    3,    0,    60,      0,   0,     WEAPON_SPEC_QLTY_RELIABLE), ITEM_END,
 
     /* Ammo */
     /*    ID                  short name            long name                               availability       quality          weight,cost,delay         ammo Type         energy level*/
-    ITEM(IID_PISTOL_AMMO_SP,  "solid pistol ammo", "a clip of solid projectile pistol ammo",ITEM_AVAIL_AVERAGE,ITEM_QLTY_AVERAGE,  0,     1,   0), AMMO(AMMO_TYPE_PISTOL_SP,  0), ITEM_END,
+    ITEM(IID_PISTOL_AMMO_SP,  "solid pistol ammo", "a clip of solid projectile pistol ammo",ITEM_AVAIL_AVERAGE,ITEM_QLTY_AVERAGE,  0,     1,   0), AMMO(AMMO_TYPE_PISTOL_SP,  0   ), ITEM_END,
     ITEM(IID_PISTOL_AMMO_LAS, "pistol charge pack","a pistol charge pack",                  ITEM_AVAIL_AVERAGE,ITEM_QLTY_AVERAGE,  0,     1,   0), AMMO(AMMO_TYPE_PISTOL_LAS, 1000), ITEM_END,
     ITEM(IID_BASIC_AMMO_LAS,  "basic charge pack", "a basic weapon charge pack",            ITEM_AVAIL_AVERAGE,ITEM_QLTY_AVERAGE,  0,     1,   0), AMMO(AMMO_TYPE_BASIC_LAS,  1000), ITEM_END,
 };

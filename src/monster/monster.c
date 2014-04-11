@@ -84,6 +84,7 @@ struct msr_monster *msr_create(uint32_t template_id) {
         m->monster.energy = TT_ENERGY_FULL;
         m->monster.faction = 1;
         m->monster.inventory = NULL;
+        m->monster.description=msr_descs[template_id];
 
         m->monster.monster_pre = MONSTER_PRE_CHECK;
         m->monster.monster_post = MONSTER_POST_CHECK;

@@ -2,8 +2,8 @@
 
 #include "monster_descriptions.h"
 
-#define MONSTER(tid,_icon,_sd_name,_ld_name,desc,_gender,maxwounds) \
-    [tid]={.uid=0, .template_id=tid, .icon=_icon, .sd_name=_sd_name, .ld_name=_ld_name, .description=desc,\
+#define MONSTER(tid,_icon,_sd_name,_ld_name,_gender,maxwounds) \
+    [tid]={.uid=0, .template_id=tid, .icon=_icon, .sd_name=_sd_name, .ld_name=_ld_name, \
         .gender=_gender, .cur_wounds=maxwounds, .max_wounds=maxwounds, .fate_points=0,
 #define MONSTER_END }
 
@@ -23,28 +23,33 @@
 #define BEAST(tal0,tal1,tal2) .race=MSR_RACE_BEAST, .size=MSR_SIZE_AVERAGE, \
         .talents[0]= T0_CREATURE_WEAPON_TALENT | tal0, .talents[1]=tal1, .talents[2]=tal2, .creature_traits = CREATURE_TRAITS_BESTIAL | CREATURE_TRAITS_QUADRUPED
 
+const char *msr_descs[] = {
+    [MID_DUMMY]       = "unknown",
+    [MID_BASIC_FERAL] = "you",
+    [MID_BASIC_HIVE]  = "you",
+    [MID_HIVE_GANGER] = "description of a hive ganger",
+    [MID_VICIOUS_DOG] = "description of a vicious dog",
+};
+
 struct msr_monster static_monster_list[] = {
-    MONSTER(MSR_ID_DUMMY,'h',"dummy","a dummy","",MSR_GENDER_MALE,1)
-        HUMAN(0,0,0),
-        CHARACTERISTICS(0,0,0,0,0,0,0,0,0),
-        SKILLS(0,0,0), MONSTER_END,
+    MONSTER(MID_DUMMY,'h',"dummy","a dummy",MSR_GENDER_MALE,1) HUMAN(0,0,0), CHARACTERISTICS(0,0,0,0,0,0,0,0,0), SKILLS(0,0,0), MONSTER_END,
 
-    MONSTER(MSR_ID_BASIC_FERAL,'h',"human","a feral human","You",MSR_GENDER_MALE,14)
+    MONSTER(MID_BASIC_FERAL,'h',"human","a feral human",MSR_GENDER_MALE,14)
         HUMAN(T0_BASIC_WEAPON_TRAINING_LAS | T0_PISTOL_WEAPON_TRAINING_SP,T1_TALENT_DODGE,0),
         CHARACTERISTICS(30,30,30,30,30,30,30,30,30),
         SKILLS(0,0,0), MONSTER_END,
 
-    MONSTER(MSR_ID_BASIC_HIVE,'h',"human","a hive human","You",MSR_GENDER_MALE,14)
+    MONSTER(MID_BASIC_HIVE,'h',"human","a hive human",MSR_GENDER_MALE,14)
         HUMAN(T0_BASIC_WEAPON_TRAINING_LAS | T0_PISTOL_WEAPON_TRAINING_SP,T1_TALENT_DODGE,0),
         CHARACTERISTICS(30,30,30,30,30,30,30,30,30),
         SKILLS(0,0,0), MONSTER_END,
 
-    MONSTER(MSR_ID_HIVE_GANGER,'h',"human","a hive human",MSR_DESC_HIVE_GANGER,MSR_GENDER_MALE,14)
+    MONSTER(MID_HIVE_GANGER,'h',"human","a hive human",MSR_GENDER_MALE,14)
         HUMAN(T0_BASIC_WEAPON_TRAINING_LAS | T0_PISTOL_WEAPON_TRAINING_SP,T1_TALENT_DODGE,0),
         CHARACTERISTICS(30,30,30,30,30,30,30,30,30),
         SKILLS(0,0,0), MONSTER_END,
 
-    MONSTER(MSR_ID_VICIOUS_DOG,'d',"dog","a vicious dog",MSR_DESC_VISIOUS_DOG,MSR_GENDER_MALE,12)
+    MONSTER(MID_VICIOUS_DOG,'d',"dog","a vicious dog",MSR_GENDER_MALE,12)
         BEAST(0,0,T2_SPRINT),
         CHARACTERISTICS(30,0,30,30,30,15,38,40,30),
         SKILLS(SKILLS_AWARENESS|SKILLS_SILENT_MOVE|SKILLS_TRACKING, SKILLS_AWARENESS|SKILLS_SILENT_MOVE|SKILLS_TRACKING ,0), MONSTER_END,

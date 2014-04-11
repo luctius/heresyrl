@@ -26,8 +26,8 @@ struct homeworld_id {
 };
 
 static struct homeworld_id homeworld_id[] =  { 
-    { .id = MSR_ID_BASIC_FERAL, .desc = "Feral", .long_desc = "...", }, 
-    { .id = MSR_ID_BASIC_HIVE, .desc = "Hive", .long_desc = "...", }, 
+    { .id = MID_BASIC_FERAL, .desc = "Feral", .long_desc = "...", }, 
+    { .id = MID_BASIC_HIVE,  .desc = "Hive",  .long_desc = "...", }, 
 };
 
 struct spwn_monster_item items[] = {  

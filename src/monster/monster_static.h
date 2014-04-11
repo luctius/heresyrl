@@ -4,12 +4,12 @@
 #include "monster.h"
 
 enum msr_ids {
-    MSR_ID_DUMMY,
-    MSR_ID_BASIC_FERAL,
-    MSR_ID_BASIC_HIVE,
-    MSR_ID_HIVE_GANGER,
-    MSR_ID_VICIOUS_DOG,
-    MSR_ID_MAX,
+    MID_DUMMY,
+    MID_BASIC_FERAL,
+    MID_BASIC_HIVE,
+    MID_HIVE_GANGER,
+    MID_VICIOUS_DOG,
+    MID_MAX,
 };
 
 #endif /* MONSTER_STATIC_H */
