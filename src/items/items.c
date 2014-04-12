@@ -294,10 +294,9 @@ const char *itm_upgrades_string(struct itm_item *item) {
     return item_quality_strings[item->quality];
 }
 
-const char *wpn_ammo_string(struct itm_item *item) {
-    if (wpn_is_type(item, WEAPON_TYPE_RANGED) == false) return NULL;
-    if (item->specific.weapon.ammo_type >= AMMO_TYPE_MAX) return NULL;
-    return ammo_type_strings[item->specific.weapon.ammo_type];
+const char *wpn_ammo_string(enum item_ammo_type iat) {
+    if (iat >= AMMO_TYPE_MAX) return NULL;
+    return ammo_type_strings[iat];
 }
 
 const char *wpn_spec_quality_name(enum weapon_special_quality spq) {
@@ -308,5 +307,15 @@ const char *wpn_spec_quality_name(enum weapon_special_quality spq) {
 const char *wpn_spec_quality_description(enum weapon_special_quality spq) {
     if (spq >= WPN_SPCQLTY_MAX) return NULL;
     return wpn_spcqlty_desc[spq];
+}
+
+const char *wbl_spec_quality_name(enum wearable_special_quality spq) {
+    if (spq >= WBL_SPCQLTY_MAX) return NULL;
+    return wbl_spcqlty_name[spq];
+}
+
+const char *wbl_spec_quality_description(enum wearable_special_quality spq) {
+    if (spq >= WBL_SPCQLTY_MAX) return NULL;
+    return wbl_spcqlty_desc[spq];
 }
 

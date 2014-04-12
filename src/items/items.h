@@ -103,11 +103,9 @@ enum item_ammo_type {
 
 enum item_wearable_type {
     WEARABLE_TYPE_ARMOUR,
-    WEARABLE_TYPE_BOOTS,
     WEARABLE_TYPE_VISOR,
     WEARABLE_TYPE_CLOTHING,
     WEARABLE_TYPE_RING,
-    WEARABLE_TYPE_GLOVES,
     WEARABLE_TYPE_MAX,
     WEARABLE_TYPE_RANDOM,
 };
@@ -214,6 +212,7 @@ struct item_ammo_specific {
     enum item_ammo_type ammo_type;
     int energy;
     int energy_left;
+    bitfield_t upgrades;
 };
 
 enum item_owner {
@@ -361,9 +360,13 @@ bool ammo_is_type(struct itm_item *item, enum item_ammo_type type);
 bool tool_is_type(struct itm_item *item, enum item_tool_type type);
 
 const char *itm_quality_string(struct itm_item *item);
-const char *wpn_ammo_string(struct itm_item *item);
+const char *wpn_ammo_string(enum item_ammo_type iat);
+
 const char *wpn_spec_quality_name(enum weapon_special_quality spq);
 const char *wpn_spec_quality_description(enum weapon_special_quality spq);
+
+const char *wbl_spec_quality_name(enum wearable_special_quality spq);
+const char *wbl_spec_quality_description(enum wearable_special_quality spq);
 
 #endif /*ITEMS_H_*/
 

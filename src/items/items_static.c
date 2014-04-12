@@ -27,7 +27,7 @@
 #define CREATURE_MELEE(wpn_cat,dmg_die,dmg_add,_dmg_type,_penetration,special) .icon=' ',.stacked_quantity=0, .max_quantity=1,\
             .item_type=ITEM_TYPE_WEAPON, .dropable=false, .specific.weapon={.weapon_type=WEAPON_TYPE_MELEE,\
             .weapon_category=wpn_cat, .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=0,\
-            .penetration=_penetration, .special_quality=special, .wpn_talent=MSR_TALENTS_NONE, }
+            .penetration=_penetration, .special_quality=special, .wpn_talent=TLT_NONE, }
 
 #define MELEE(wpn_cat,dmg_die,dmg_add,_dmg_type,_penetration,_upgrades,special,talent) .icon='|',.stacked_quantity=0, .max_quantity=1,\
             .item_type=ITEM_TYPE_WEAPON, .specific.weapon={.weapon_type=WEAPON_TYPE_MELEE, .weapon_category=wpn_cat, \
@@ -135,7 +135,7 @@ struct itm_item static_item_list[] = {
 
     /* Thrown */
     /*    ID               short name         long name          availability         quality         weight,cost,delay  CATEGORY     xd10 +X pen,range   dmg type              upgrades    special qualities         talent */
-    ITEM(IID_FRAG_GRENADE, "frag grenade",   "a frag grenade",   ITEM_AVAIL_AVERAGE,  ITEM_QLTY_AVERAGE, 5,  10,  1),    THROWN_GRENADE(2,  0, 0,  3,  WEAPON_DMG_TYPE_EXPLOSIVE, 0, bf(WPN_SPCQLTY_BLAST_4),   MSR_TALENTS_NONE), ITEM_END,
+    ITEM(IID_FRAG_GRENADE, "frag grenade",   "a frag grenade",   ITEM_AVAIL_AVERAGE,  ITEM_QLTY_AVERAGE, 5,  10,  1),    THROWN_GRENADE(2,  0, 0,  3,  WEAPON_DMG_TYPE_EXPLOSIVE, 0, bf(WPN_SPCQLTY_BLAST_4),   TLT_NONE), ITEM_END,
     ITEM(IID_THROWING_KNIFE,"throwing knife","a throwing knife", ITEM_AVAIL_PLENTIFUL,ITEM_QLTY_AVERAGE, 5,  5,   1),    THROWN_WEAPON( 0,  0, 0,  5,  WEAPON_DMG_TYPE_RENDING,   0, bf(WPN_SPCQLTY_PRIMITIVE), TLT_THROWN_WPN_TRNG_PRIMITIVE), ITEM_END,
 
     /* Pistols */
@@ -254,5 +254,14 @@ static const char *wpn_spcqlty_desc[] = {
     [WPN_SPCQLTY_UNRELIABLE]	= " jams on 90+ ",
     [WPN_SPCQLTY_UNSTABLE]	    = " on hit, roll 1d10: 1: half dmg, 2-9: normal, 10: double damage ",
     [WPN_SPCQLTY_UNWIELDY]	    = " Cannot be used to parry. ",
+};
+
+
+static const char *wbl_spcqlty_name[] = {
+    [WBL_SPCQLTY_PRIMITIVE]	    = "primitive",
+};
+
+static const char *wbl_spcqlty_desc[] = {
+    [WBL_SPCQLTY_PRIMITIVE]	    = "Halves AP unless weapon is also primitive",
 };
 

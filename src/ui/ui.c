@@ -864,7 +864,7 @@ void invwin_examine(struct hrl_window *window, struct itm_item *item) {
 
             if (wpn_is_type(item, WEAPON_TYPE_RANGED) ) {
                 textwin_add_text(char_win, "- Magazine size %d\n", wpn->magazine_sz);
-                textwin_add_text(char_win, "- Uses %s\n", wpn_ammo_string(item) );
+                textwin_add_text(char_win, "- Uses %s\n", wpn_ammo_string(wpn->ammo_type) );
 
                 int single = wpn->rof[WEAPON_ROF_SETTING_SINGLE];
                 int semi = wpn->rof[WEAPON_ROF_SETTING_SEMI];
@@ -889,7 +889,7 @@ void invwin_examine(struct hrl_window *window, struct itm_item *item) {
                 }
             }
 
-            if (wpn->wpn_talent != MSR_TALENTS_NONE) {
+            if (wpn->wpn_talent != TLT_NONE) {
                 textwin_add_text(char_win, "This weapon requires the %s talent.\n", msr_talent_names(wpn->wpn_talent) );
             }
 
@@ -904,10 +904,51 @@ void invwin_examine(struct hrl_window *window, struct itm_item *item) {
                 }
             }
         } break;
-        case ITEM_TYPE_WEARABLE: break;
-        case ITEM_TYPE_TOOL: break;
+        case ITEM_TYPE_WEARABLE: {
+            struct item_wearable_specific *wrbl = &item->specific.wearable;
+            textwin_add_text(char_win, "Wearable statistics\n");
+
+            textwin_add_text(char_win, "- Armour: %d\n", wrbl->damage_reduction);
+
+            textwin_add_text(char_win, "- Locations: ");
+            bool first = true;
+            for (enum inv_locations i = 1; i < INV_LOC_MAX; i <<= 1) {
+                if ( (wrbl->locations & i) > 0) {
+                    if (first == false) textwin_add_text(char_win, "/");
+                    textwin_add_text(char_win, "%s", inv_location_name(wrbl->locations & i) );
+                    first = false;
+                }
+            }
+
+            if (wrbl->special_quality != 0) {
+                textwin_add_text(char_win, "\n");
+                textwin_add_text(char_win, "Wearable qualities:\n");
+
+                for (int i = 0; i < WBL_SPCQLTY_MAX; i++) {
+                    if (wbl_has_spc_quality(item, i) )  {
+                        textwin_add_text(char_win, "- %s.\n", wbl_spec_quality_name(i) );
+                    }
+                }
+            }
+
+            textwin_add_text(char_win, "\n");
+        } break;
+        case ITEM_TYPE_TOOL: {
+            struct item_tool_specific *tool = &item->specific.tool;
+            if (tool->energy > 0) {
+                int energy_pc = (tool->energy_left * 100) / tool->energy;
+                textwin_add_text(char_win, "Energy left %d\%\n", energy_pc);
+            }
+
+        }break;
         case ITEM_TYPE_AMMO: {
-            //textwin_add_text(char_win, "It provides %s.\n", );
+            struct item_ammo_specific *ammo = &item->specific.ammo;
+            textwin_add_text(char_win, "Provides %s\n", wpn_ammo_string(ammo->ammo_type) );
+
+            if (ammo->energy > 0) {
+                int energy_pc = (ammo->energy_left * 100) / ammo->energy;
+                textwin_add_text(char_win, "Energy left %d\%\n", energy_pc);
+            }
         } break;
         case ITEM_TYPE_FOOD: break;
         default: break;
@@ -1029,7 +1070,7 @@ void character_window(void) {
     int y_sub = 0;
     struct pl_player *plr = &gbl_game->player_data;
     struct msr_monster *mon = plr->player;
-    int names_len = 0;
+    unsigned int names_len = 0;
 
     struct hrl_window pad;
     memmove(&pad, map_win, sizeof(struct hrl_window) );
@@ -1179,7 +1220,7 @@ Basic weapon traning SP     ...                  |
                     y_sub += textwin_display_text(&pad);
                 }
             }
-    y += y_sub;
+    y += y_sub +1;
 
     /* Skills */
     textwin_init(&pad,1,y,0,0);
@@ -1211,7 +1252,7 @@ Basic weapon traning SP     ...                  |
     textwin_add_text(&pad, "-------\n");
 
     names_len = 0;
-    for (unsigned int i = 0; i < MSR_TALENTS_MAX; i++) {
+    for (unsigned int i = 1; i < MSR_TALENTS_MAX; i++) {
         if (msr_has_talent(mon, i) ) {
             if (names_len < strlen(msr_talent_names(i) ) ) {
                 names_len = strlen(msr_talent_names(i) );

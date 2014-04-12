@@ -568,7 +568,7 @@ bool msr_has_creature_trait(struct msr_monster *monster,  bitfield_t trait) {
 
 bool msr_has_talent(struct msr_monster *monster, enum msr_talents talent) {
     if (msr_verify_monster(monster) == false) return false;
-    if (talent == MSR_TALENTS_NONE) return true;
+    if (talent == TLT_NONE) return true;
     if (talent > MSR_TALENTS_MAX) return false;
 
     for (unsigned int i = 0; i < ARRAY_SZ(monster->talents); i++) {

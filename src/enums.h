@@ -149,6 +149,7 @@ enum msr_creature_traits {
 };
 
 enum msr_talents {
+    TLT_NONE,                   /* TLT_NONE is a talent every one has, used to denote talentless weapons */
     TLT_BASIC_WPN_TRNG_BOLT,
     TLT_BASIC_WPN_TRNG_FLAME,
     TLT_BASIC_WPN_TRNG_LAS,
@@ -295,7 +296,6 @@ enum msr_talents {
     TLT_WALL_OF_STEEL,
 
     MSR_TALENTS_MAX,        /*MSR_TALENTS_MAX is also used as an eof marker*/
-    MSR_TALENTS_NONE,       /*MSR_TALENTS_NONE is a talent every one has, used to denote talentless weapons*/
 };
 
 
