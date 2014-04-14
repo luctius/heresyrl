@@ -1273,7 +1273,7 @@ Basic weapon traning SP     ...                  |
     int line = 0;
     bool watch = true;
     while(watch == true) {
-        prefresh(pad.win, line,0,1,1,pad.lines,pad.cols);
+        prefresh(pad.win, line,0,1,1,pad.lines -4,pad.cols);
 
         switch (inp_get_input(gbl_game->input) ) {
             case INP_KEY_UP_RIGHT:   line += 20; break;

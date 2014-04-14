@@ -124,6 +124,9 @@ struct msr_monster {
     /* current number of corruption points, not used. */
     uint8_t corruption_points;
 
+    /* current level of fatique , not used. */
+    uint8_t fatique;
+
     /* true if the monster is dead and to be cleaned up. */
     bool dead;
 

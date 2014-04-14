@@ -3,53 +3,70 @@
 
 #include "heresyrl_def.h"
 
-enum condition_type {
-    CDN_NONE,
-    CDN_LEFT_LEG,
-    CDN_RIGHT_LEG,
-    CDN_LEFT_ARM,
-    CDN_RIGHT_ARM,
-    CDN_CHEST,
-    CDN_HEAD,
-    CDN_BLIND,
-    CDN_DEAF,
-    CDN_POISON,
-    CDN_STUNNED,
-    CDN_BLOOD_LOSS,
-    CDN_HALLUCINATING,
-    CDN_ON_FIRE,
-    CDN_DRUGGED,
-    CDN_WITHDRAWL,
-    CDN_INVISIBLE,
-    CDN_MAX,
+enum condition_setting_flags {
+    CDN_SF_ACTIVE,
+    CDN_SF_PERMANENT,
+    CDN_SF_TICK,
+    CDN_SF_VISIBLE,
+    CND_SF_REQ_WILL_CHECK,
+    CND_SF_REQ_TGH_CHECK,
+    CND_SF_INACTIVE_IF_LESS_SEVERITY,
+    CDN_SF_MAX,
 };
 
-/* 
-   a lower severity condition prolongs an existing higher severity condition,
-   but an higher severity condition replaces a lower severity condition.
- */
-enum condition_severity {
-    CDN_CS_PUNY,
-    CDN_CS_SLIGHT,
-    CDN_CS_AVERAGE,
-    CDN_CS_VERY,
-    CDN_CS_TERRIBLE,
-    CDN_CS_MAX,
-    CDN_CS_NONE,
+enum condition_effect_flags {
+    CND_EF_FATIQUE_INCREASE,
+    CND_EF_FATIQUE_DECREASE,
+    CDN_EF_MOVEMENT_REDUCE,
+    CDN_EF_MOVEMENT_INCREASE,
+    CDN_EF_REDUCE_WS,
+    CDN_EF_REDUCE_BS,
+    CDN_EF_REDUCE_STR,
+    CDN_EF_REDUCE_AG,
+    CDN_EF_REDUCE_TGH,
+    CDN_EF_REDUCE_PER,
+    CDN_EF_REDUCE_WILL,
+    CDN_EF_REDUCE_INT,
+    CDN_EF_REDUCE_FEL,
+    CDN_EF_INCREASE_WS,
+    CDN_EF_INCREASE_BS,
+    CDN_EF_INCREASE_STR,
+    CDN_EF_INCREASE_AG,
+    CDN_EF_INCREASE_TGH,
+    CDN_EF_INCREASE_PER,
+    CDN_EF_INCREASE_WILL,
+    CDN_EF_INCREASE_INT,
+    CDN_EF_INCREASE_FEL,
+    CDN_EF_DISABLE_LLEG,
+    CDN_EF_DISABLE_RLEG,
+    CDN_EF_DISABLE_LARM,
+    CDN_EF_DISABLE_RARM,
+    CDN_EF_DISABLE_CHEST,
+    CDN_EF_DISABLE_HEAD,
+    CDN_EF_DAMAGE_TICK,
+    CDN_EF_HEALTH_TICK,
+    CDN_EF_BLINDNESS,
+    CDN_EF_DEAFNESS,
+    CDN_EF_STUNNED,
+    CDN_EF_HALUCINATING,
+    CDN_EF_CONFUSED,
+    CDN_EF_INHIBIT_FATE_POINT,
+    CDN_EF_DEATH,
+    CDN_EF_MAX,
 };
 
-enum condition_flags {
-    CDN_CF_NONE         = 0,
-    CDN_CF_PERMANENT    = (1<<0),
-    CDN_CF_TICK         = (1<<1),
-    CDN_CF_VISIBLE      = (1<<2),
-    CDN_CF_MAX          = (1<<2)+1,
+struct condition_effect_struct {
+    uint16_t setting_flags;
+    uint16_t severity;
+    uint16_t duration_energy_min;
+    uint16_t duration_energy_max;
+    uint16_t tick_energy_max;
+
+    uint16_t duration_energy;
+    uint16_t tick_energy;
 };
 
 struct cdn_condition_list;
-
-struct cdn_condition;
-typedef bool (*condition_callback_t)(struct cdn_condition *con, struct msr_monster *monster);
 
 struct cdn_condition {
     uint32_t condition_pre;
@@ -57,44 +74,34 @@ struct cdn_condition {
     uint32_t uid;
     uint32_t template_id;
 
-    enum condition_type type;
-    enum condition_severity severity;
-    bitfield_t flags;
-
-    int duration_energy;
-    int duration_energy_max;
-    int tick_energy;
-    int tick_energy_max;
-
-    condition_callback_t on_apply;
-    condition_callback_t on_exit;
-    condition_callback_t on_tick;
+    struct condition_effect_struct effects[CDN_EF_MAX];
 
     const char *description;
+    const char *on_apply_plr;
+    const char *on_apply_msr;
+    const char *on_tick_plr;
+    const char *on_tick_msr;
+    const char *on_exit_plr;
+    const char *on_exit_msr;
 
     uint32_t post_pre;
 };
 
 struct cdn_condition_list *cdn_list_init(void);
 void cdn_list_exit(struct cdn_condition_list *cdn_list);
-int cdn_condition_list_size(struct cdn_condition_list *cdn_list);
+int cdn_list_size(struct cdn_condition_list *cdn_list);
 void cdn_process(struct cdn_condition_list *cdn_list, struct msr_monster *monster);
 
 struct cdn_condition *cdn_create(uint32_t tid);
 void cdn_destroy(struct cdn_condition *cdn);
 bool cdn_verify_condition(struct cdn_condition *cdn);
 
-struct cdn_condition *cdn_has_condition_type(struct cdn_condition_list *cdn_list, enum condition_type type);
 struct cdn_condition *cdn_has_condition_uid(struct cdn_condition_list *cdn_list, uint32_t uid);
 struct cdn_condition *cdn_has_condition_tid(struct cdn_condition_list *cdn_list, uint32_t tid);
+int cdn_condition_effect_severity(struct cdn_condition_list *cdn_list, enum condition_effect_flags effect);
 
-bool cdn_has_condition(struct cdn_condition_list *cdn_list, struct cdn_condition *cdn);
-bool cdn_has_condition_type(struct cdn_condition_list *cdn_list, enum condition_type type);
-bool cdn_has_condition_uid(struct cdn_condition_list *cdn_list, uint32_t uid);
-bool cdn_has_condition_tid(struct cdn_condition_list *cdn_list, uint32_t tid);
-
-bool cdn_add_condition(struct cdn_condition_list *cdn_list, struct cdn_condition *cdn);
-bool cdn_remove_condition(struct cdn_condition_list *cdn_list, struct cdn_condition *cdn);
+bool cdn_add_condition(struct cdn_condition_list *cdn_list, uint32_t tid);
+bool cdn_remove_condition(struct cdn_condition_list *cdn_list, uint32_t uid);
 
 /* Peek at items. if prev is NULL, it gives the first item, otherwise it gives the item after prev. */
 struct cdn_condition *cdn_get_next_condition(struct cdn_condition_list *cdn_list, struct cdn_condition *prev);
