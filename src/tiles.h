@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+#include "monster/conditions.h"
+
 #define TILE_HAS_ATTRIBUTE(tile, attr) ((tile->attributes & attr) > 0)
 #define TILE_MOVEMENT_MAX (UINT8_MAX)
 
@@ -47,9 +49,13 @@ struct tl_tile {
     enum tile_ids id;
     uint16_t attributes;
     enum tile_types type;
+
     char icon;
     int icon_attr;
+
     uint8_t movement_cost;
+    enum cdn_ids condition_id;
+
     const char *sd_name;
     const char *ld_name;
 };

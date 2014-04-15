@@ -1,3 +1,6 @@
+#include <unistd.h>
+#include <ncurses.h>
+
 #include "player.h"
 #include "fight.h"
 #include "input.h"
@@ -77,6 +80,31 @@ static bool plr_action_loop(struct msr_monster *player, void *controller) {
     coord_t pos = player->pos;
     coord_t *player_pos = &player->pos;
 
+    if (player->dead) {
+        if (player->fate_points > 0) {
+            player->fate_points -= 1;
+            player->dead = false;
+
+            msr_remove_monster(player, map);
+            if (dm_tile_instance(map, TILE_TYPE_STAIRS_DOWN, 0, &pos) == false) exit(1);
+            if (cd_equal(player_pos, &pos) == false) {
+                if (msr_insert_monster(player, map, &pos) == false) exit(1);
+            }
+            clear();
+            refresh();
+
+            /* remove all non-permanent conditions */
+            for (int i = 0; i < 10000; i++) {
+                cdn_process(player->conditions, player);
+                usleep(100);
+            }
+
+            You(player, "would have died if fate did not intervene...");
+
+            return true;
+        }
+    }
+    
     if (player->dead) {
         gbl_game->running = false;
     }

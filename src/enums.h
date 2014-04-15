@@ -1,6 +1,15 @@
 #ifndef SPECIALQUALITIES_H
 #define SPECIALQUALITIES_H
 
+enum dmg_type {
+    DMG_TYPE_IMPACT,
+    DMG_TYPE_EXPLOSIVE,
+    DMG_TYPE_ENERGY,
+    DMG_TYPE_RENDING,
+    DMG_TYPE_MAX,
+    DMG_TYPE_RANDOM,
+};
+
 enum weapon_special_quality {
     WPN_SPCQLTY_ACCURATE,    /* Additional +10 to hit when used with the aim action */
     WPN_SPCQLTY_BALANCED,    /* +10 Parry */

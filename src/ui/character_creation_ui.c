@@ -37,6 +37,8 @@ struct spwn_monster_item items[] = {
     {.id=IID_GLOW_GLOBE,     .min=1,.max=1,.wear=false},
     {.id=IID_FRAG_GRENADE,   .min=1,.max=3,.wear=false},
     {.id=IID_THROWING_KNIFE, .min=1,.max=3,.wear=false},
+    {.id=IID_STIMM_HEALTH,   .min=2,.max=4,.wear=false},
+    {.id=IID_STIMM_DEATH,    .min=1,.max=1,.wear=false},
     {0,0,0,0,} };
 
 

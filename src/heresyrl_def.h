@@ -21,6 +21,7 @@
 
 #define bf(x) (1<<x)
 #define set_bf(field, attr) (field |= bf(attr) )
+#define clr_bf(field, attr) (field &= ~(bf(attr) ) )
 #define test_bf(field, attr) ( (field & bf(attr) ) > 0)
 typedef uint_least64_t bitfield_t;
 #define bitfield_width (sizeof(bitfield_t) * CHAR_BIT)
@@ -36,6 +37,8 @@ struct random;
 struct sgt_sight;
 struct pl_player;
 struct input;
+struct cdn_condition_list;
+struct cdn_condition;
 
 enum tile_types;
 enum dm_dungeon_type;

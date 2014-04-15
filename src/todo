@@ -2,7 +2,7 @@ basic fighting system   -- throwing, effects and criticals remain
 monster generation      -- initial system done
 item generation         -- initial system done
 basic career and homeworld system
-effect system
+status effect system
 character screen        -- initial screen done
 basic chargen           -- initial screen done
 better ingame message system -- done
@@ -11,11 +11,11 @@ ai                      -- initial system done
 
 ideas:
 
-accept input from savegame (replay) -- done
+accept input from savegame (replay) -- done add pauze, play, step etc
 Make the game sound based (actions cost sound, enemies go to the biggest sound source, hounds bark, etc)
+sound based detection and npc communication
 Vendor machines and Medical machines.
 autoexplore in direction
-sound based detection and npc communication
 steroids and other chems.
 warp artifacts
 warp based grenades

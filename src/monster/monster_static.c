@@ -1,10 +1,6 @@
-#include "monster_static.h"
-
-#include "monster_descriptions.h"
-
 #define MONSTER(tid,_icon,_sd_name,_ld_name,_gender,maxwounds) \
     [tid]={.uid=0, .template_id=tid, .icon=_icon, .sd_name=_sd_name, .ld_name=_ld_name, \
-        .gender=_gender, .cur_wounds=maxwounds, .max_wounds=maxwounds, .fate_points=0,
+        .gender=_gender, .cur_wounds=maxwounds, .max_wounds=maxwounds,
 #define MONSTER_END }
 
 #define CHARACTERISTICS(ws,bs,st,tg,ag,in,pr,wl,fl) \
@@ -39,12 +35,12 @@ struct msr_monster static_monster_list[] = {
     MONSTER(MID_BASIC_FERAL,'h',"human","a feral human",MSR_GENDER_MALE,14)
         HUMAN(TLT_BASIC_WPN_TRNG_LAS, TLT_PISTOL_WPN_TRNG_LAS),
         CHARACTERISTICS(30,30,30,30,30,30,30,30,30),
-        SKILLS(0,0,0), MONSTER_END,
+        SKILLS(0,0,0), .fate_points=2, MONSTER_END,
 
     MONSTER(MID_BASIC_HIVE,'h',"human","a hive human",MSR_GENDER_MALE,14)
         HUMAN(TLT_BASIC_WPN_TRNG_LAS , TLT_PISTOL_WPN_TRNG_LAS),
         CHARACTERISTICS(30,30,30,30,30,30,30,30,30),
-        SKILLS(0,0,0), MONSTER_END,
+        SKILLS(0,0,0), .fate_points=2, MONSTER_END,
     /*----------------------------------------------------------*/
 
     MONSTER(MID_HIVE_GANGER,'h',"human","a hive human",MSR_GENDER_MALE,14)

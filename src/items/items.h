@@ -9,6 +9,7 @@
 #include "coord.h"
 #include "enums.h"
 #include "inventory.h"
+#include "monster/conditions_static.h"
 
 enum item_types {
     ITEM_TYPE_WEARABLE,
@@ -58,6 +59,7 @@ enum item_weapon_type {
 enum item_food_type {
     FOOD_TYPE_SOLID,
     FOOD_TYPE_LIQUID,
+    FOOD_TYPE_INJECTION,
     FOOD_TYPE_MAX,
     FOOD_TYPE_RANDOM,
 };
@@ -133,15 +135,6 @@ enum item_availability {
     ITEM_AVAIL_RANDOM,
 };
 
-enum weapon_dmg_type {
-    WEAPON_DMG_TYPE_IMPACT,
-    WEAPON_DMG_TYPE_EXPLOSIVE,
-    WEAPON_DMG_TYPE_ENERGY,
-    WEAPON_DMG_TYPE_RENDING,
-    WEAPON_DMG_TYPE_MAX,
-    WEAPON_DMG_TYPE_RANDOM,
-};
-
 enum item_weapon_category {
     /* Ranged weapons*/
     WEAPON_CATEGORY_PISTOL,
@@ -170,7 +163,7 @@ enum wpn_rof_setting {
 struct item_weapon_specific {
     enum item_weapon_type weapon_type;
     enum item_weapon_category weapon_category;
-    enum weapon_dmg_type dmg_type;
+    enum dmg_type dmg_type;
     uint8_t nr_dmg_die;     /*0 is 1d5*/
     int8_t dmg_addition;    /* this is the +X in 1d10 +X*/
     uint8_t range;          /* range in meters*/
@@ -185,6 +178,7 @@ struct item_weapon_specific {
     bitfield_t upgrades;
     bitfield_t wpn_talent;  /* talent required for this weapon to operate.*/
     bool jammed;
+    enum cdn_ids convey_condition;
 };
 
 struct item_wearable_specific {
@@ -206,6 +200,7 @@ struct item_food_specific {
     enum item_food_type food_type;
     int nutrition;
     int nutrition_left;
+    enum cdn_ids convey_condition;
 };
 
 struct item_ammo_specific {
@@ -213,6 +208,7 @@ struct item_ammo_specific {
     int energy;
     int energy_left;
     bitfield_t upgrades;
+    enum cdn_ids convey_condition;
 };
 
 enum item_owner {

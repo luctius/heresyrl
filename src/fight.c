@@ -263,7 +263,7 @@ bool fght_do_weapon_dmg(struct random *r, struct msr_monster *monster, struct ms
     if (total_damage >= 0) {
         msg_plr(" and score");  msg_plr_number(" %d", hits); msg_plr(" hits and a total of"); msg_plr_number(" %d", total_damage); msg_plr(" damage.");
         msg_msr(" and scores"); msg_msr_number(" %d", hits); msg_msr(" hits and a total of"); msg_msr_number(" %d", total_damage); msg_msr(" damage.");
-        msr_do_dmg(target, total_damage, mhl, gbl_game->current_map);
+        msr_do_dmg(target, total_damage, wpn->dmg_type, mhl, gbl_game->current_map);
     }
     return true;
 }
@@ -450,6 +450,7 @@ bool fght_explosion(struct random *r, struct itm_item *bomb, struct dm_map *map)
 
     coord_t *gridlist = NULL;
     int gridlist_sz = sgt_explosion(gbl_game->sight, map, &c, radius, &gridlist);
+    struct item_weapon_specific *wpn = &bomb->specific.weapon;
 
     for (int i = 0; i < gridlist_sz; i++) {
         struct dm_map_entity *me = dm_get_map_me(&gridlist[i], map);
@@ -457,7 +458,8 @@ bool fght_explosion(struct random *r, struct itm_item *bomb, struct dm_map *map)
         if (target != NULL) {
             enum msr_hit_location mhl = msr_get_hit_location(target, random_d100(r));
             int total_damage = fght_calc_dmg(r, NULL, target, 1, bomb, mhl);
-            msr_do_dmg(target, total_damage, mhl, map);
+
+            msr_do_dmg(target, total_damage, wpn->dmg_type, mhl, map);
             msg_msr("it does %d to %s. ", total_damage, msr_ldname(target) );
         }
     }

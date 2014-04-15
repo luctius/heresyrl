@@ -94,6 +94,7 @@ struct itm_item *itm_create(int template_id) {
     i->item.uid         = itmlst_next_id();
     i->item.owner_type  = ITEM_OWNER_NONE;
     i->item.description = itm_descs[template_id];
+    assert(i->item.description != NULL);
 
     return &i->item;
 }

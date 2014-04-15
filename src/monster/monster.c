@@ -6,6 +6,8 @@
 #include <assert.h>
 
 #include "monster.h"
+#include "monster_static.h"
+#include "conditions.h"
 #include "game.h"
 #include "random.h"
 #include "tiles.h"
@@ -72,7 +74,7 @@ static struct itm_item *msr_unarmed_weapon(struct msr_monster *monster);
 struct msr_monster *msr_create(uint32_t template_id) {
     if (monster_list_initialised == false) msrlst_monster_list_init();
     if (template_id >= (int) ARRAY_SZ(static_monster_list)) return NULL;
-    struct msr_monster *template_monster = template_monster = &static_monster_list[template_id];
+    struct msr_monster *template_monster = &static_monster_list[template_id];
 
     struct msr_monster_list_entry *m = calloc(1,sizeof(struct msr_monster_list_entry) );
     if (m != NULL) {
@@ -84,6 +86,7 @@ struct msr_monster *msr_create(uint32_t template_id) {
         m->monster.energy = TT_ENERGY_FULL;
         m->monster.faction = 1;
         m->monster.inventory = NULL;
+        m->monster.conditions = cdn_list_init();
         m->monster.description=msr_descs[template_id];
 
         m->monster.monster_pre = MONSTER_PRE_CHECK;
@@ -126,6 +129,7 @@ void msr_destroy(struct msr_monster *monster, struct dm_map *map) {
         msr_remove_monster(monster, map);
     }
     inv_exit(monster->inventory);
+    cdn_list_exit(monster->conditions);
 
     if (monster->unique_name != NULL) free(monster->unique_name);
 
@@ -339,17 +343,18 @@ static bool msr_die(struct msr_monster *monster, struct dm_map *map) {
     if (msr_verify_monster(monster) == false) return false;
     if (dm_verify_map(map) == false) return false;
 
-    You(monster, "died...");
+    monster->dead = true;
+    if (monster->is_player && (monster->fate_points > 0) ) return true;
+
+    You(monster, "die...");
     Monster(monster, "dies.");
 
     msr_drop_inventory(monster, map);
     msr_remove_monster(monster, map);
-
-    monster->dead = true;
     return true;
 }
 
-bool msr_do_dmg(struct msr_monster *monster, int dmg, enum msr_hit_location mhl, struct dm_map *map) {
+bool msr_do_dmg(struct msr_monster *monster, int dmg, enum dmg_type dmg_type, enum msr_hit_location mhl, struct dm_map *map) {
     if (msr_verify_monster(monster) == false) return false;
 
     if (dmg > 0) {
@@ -367,12 +372,18 @@ bool msr_do_dmg(struct msr_monster *monster, int dmg, enum msr_hit_location mhl,
     return false;
 }
 
-bool msr_characteristic_check(struct msr_monster *monster, enum msr_characteristic chr) {
+int msr_characteristic_check(struct msr_monster *monster, enum msr_characteristic chr, int mod) {
     if (msr_verify_monster(monster) == false) return false;
     int charac = msr_calculate_characteristic(monster, chr);
     assert(charac >= 0);
 
-    return ( (int) (random_int32(gbl_game->random)%100) < charac);
+    charac += mod;
+
+    int roll = (int) (random_int32(gbl_game->random)%100);
+    int result = (charac - roll);
+    int DoS = result / 10;
+    if (roll < charac) DoS += 1;
+    return DoS;
 }
 
 int msr_skill_check(struct msr_monster *monster, enum msr_skills skill, int mod) {
@@ -404,10 +415,28 @@ int msr_skill_check(struct msr_monster *monster, enum msr_skills skill, int mod)
     return DoS;
 }
 
+static enum condition_effect_flags charac_to_condition_lot[] = {
+    [MSR_CHAR_WEAPON_SKILL]   = CDN_EF_MODIFY_WS,
+    [MSR_CHAR_BALISTIC_SKILL] = CDN_EF_MODIFY_BS,
+    [MSR_CHAR_STRENGTH]       = CDN_EF_MODIFY_STR,
+    [MSR_CHAR_AGILITY]        = CDN_EF_MODIFY_AG,
+    [MSR_CHAR_TOUGHNESS]      = CDN_EF_MODIFY_TGH,
+    [MSR_CHAR_INTELLIGENCE]   = CDN_EF_MODIFY_INT,
+    [MSR_CHAR_PERCEPTION]     = CDN_EF_MODIFY_PER,
+    [MSR_CHAR_WILLPOWER]      = CDN_EF_MODIFY_WS,
+    [MSR_CHAR_FELLOWSHIP]     = CDN_EF_MODIFY_FEL,
+};
+
 int msr_calculate_characteristic(struct msr_monster *monster, enum msr_characteristic chr) {
     if (msr_verify_monster(monster) == false) return -1;
     if (chr >= MSR_CHAR_MAX) return -1;
-    return monster->characteristic[chr].base_value + (monster->characteristic[chr].advancement * 5);
+    int val = monster->characteristic[chr].base_value + (monster->characteristic[chr].advancement * 5);
+
+    if (cdn_condition_has_effect(monster->conditions, charac_to_condition_lot[chr]) ) {
+        val += cdn_condition_effect_damage(monster->conditions, charac_to_condition_lot[chr]);
+    }
+
+    return val;
 }
 
 int msr_calculate_characteristic_bonus(struct msr_monster *monster, enum msr_characteristic chr) {
@@ -415,7 +444,7 @@ int msr_calculate_characteristic_bonus(struct msr_monster *monster, enum msr_cha
     if (chr >= MSR_CHAR_MAX) return -1;
     if (chr == MSR_CHAR_WEAPON_SKILL) return -1;
     if (chr == MSR_CHAR_BALISTIC_SKILL) return -1;
-    return ( (monster->characteristic[chr].base_value + (monster->characteristic[chr].advancement * 5)) / 10);
+    return ( msr_calculate_characteristic(monster, chr) / 10);
 }
 
 enum msr_skill_rate msr_has_skill(struct msr_monster *monster, enum msr_skills skill) {

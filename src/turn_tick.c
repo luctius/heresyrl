@@ -1,5 +1,6 @@
 #include "turn_tick.h"
 #include "monster/monster.h"
+#include "monster/conditions.h"
 #include "items/items.h"
 #include "coord.h"
 #include "game.h"
@@ -64,9 +65,22 @@ void tt_process_items(struct dm_map *map) {
     }
 }
 
+void tt_process_conditions(void) {
+    struct msr_monster *monster = NULL;
+
+    while ( (monster = msrlst_get_next_monster(monster) ) != NULL) {
+        if (monster->dead == false) {
+            if (cdn_list_size(monster->conditions) > 0 ) {
+                cdn_process(monster->conditions, monster);
+            }
+        }
+    }
+}
+
 void tt_process(struct dm_map *map) {
     tt_process_items(map);
 
+    tt_process_conditions();
     tt_process_monsters(map);
 }
 

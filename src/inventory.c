@@ -99,8 +99,8 @@ struct itm_item *inv_get_next_item(struct inv_inventory *inv, struct itm_item *p
 }
 
 bool inv_has_item(struct inv_inventory *inv, struct itm_item *item) {
-    if (inv_verify_inventory(inv) == false) return NULL;
-    if (itm_verify_item(item) == false) return NULL;
+    if (inv_verify_inventory(inv) == false) return false;
+    if (itm_verify_item(item) == false) return false;
 
     struct inv_entry *ie = inv->head.lh_first;
     while (ie != NULL) {
@@ -142,8 +142,8 @@ bool inv_add_stack(struct inv_inventory *inv, struct itm_item *item) {
 }
 
 bool inv_add_item(struct inv_inventory *inv, struct itm_item *item) {
-    if (inv_verify_inventory(inv) == false) return NULL;
-    if (itm_verify_item(item) == false) return NULL;
+    if (inv_verify_inventory(inv) == false) return false;
+    if (itm_verify_item(item) == false) return false;
     if (inv_has_item(inv, item) == true ) return false;
     if (inv_add_stack(inv, item) == true) return true;
 
@@ -158,8 +158,8 @@ bool inv_add_item(struct inv_inventory *inv, struct itm_item *item) {
 }
 
 bool inv_remove_item(struct inv_inventory *inv, struct itm_item *item) {
-    if (inv_verify_inventory(inv) == false) return NULL;
-    if (itm_verify_item(item) == false) return NULL;
+    if (inv_verify_inventory(inv) == false) return false;
+    if (itm_verify_item(item) == false) return false;
     if (inv_has_item(inv, item) == false) return false;
 
     struct inv_entry *ie = inv->head.lh_first;

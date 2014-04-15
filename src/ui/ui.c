@@ -1265,6 +1265,19 @@ Basic weapon traning SP     ...                  |
     y += y_sub +1;
 
 
+    /* Conditions */
+    textwin_init(&pad,1,y,0,0);
+    textwin_add_text(&pad, "Conditions\n");
+    textwin_add_text(&pad, "----------\n");
+
+    names_len = 0;
+    struct cdn_condition *c = NULL;
+    while ( (c = cdn_list_get_next_condition(mon->conditions, c) ) != NULL) {
+        textwin_add_text(&pad, "%s\n", c->name);
+    }
+    y_sub = textwin_display_text(&pad);
+
+    y += y_sub +1;
 
 
 
@@ -1288,7 +1301,7 @@ Basic weapon traning SP     ...                  |
         }
 
         if (line < 0) line = 0;
-        if (line > (y - pad.lines) ) line = y - pad.lines;
+        if (line > (y - pad.lines +4) ) line = y - pad.lines +4;
     }
 
     delwin(pad.win);

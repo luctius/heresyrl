@@ -78,6 +78,11 @@ enum item_ids {
     IID_HEAVY_AMMO_GRENADE,
     IID_HEAVY_AMMO_ROCKET,
 
+    /* Food */
+    /* Stimms */
+    IID_STIMM_HEALTH,
+    IID_STIMM_DEATH,
+
     /* Last Entry */
     IID_MAX,
 };

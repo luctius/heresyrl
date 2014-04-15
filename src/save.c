@@ -64,7 +64,7 @@ static bool sv_save_monsters(FILE *file, int indent) {
             int tmax = 1;
             fprintf(file,"talents={sz=%d,", tmax);
             for (int i = 0; i < tmax; i++) {
-                fprintf(file,"%" PRIu64 ",", m->talents[i]);
+                fprintf(file,"%" PRIu8 ",", m->talents[i]);
             }
             fprintf(file, "},");
 

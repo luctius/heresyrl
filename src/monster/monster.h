@@ -9,6 +9,8 @@
 #include "coord.h"
 #include "enums.h"
 
+#define MSR_NR_TALENTS_MAX 10
+
 enum msr_gender {
     MSR_GENDER_MALE,
     MSR_GENDER_FEMALE,
@@ -134,7 +136,7 @@ struct msr_monster {
     int energy;
 
     /* array of bitfield of all the monster's talents */
-    uint8_t talents[10];
+    uint8_t talents[MSR_NR_TALENTS_MAX];
 
     /* 
        skills, divided in basic (has the skill), advanced and expert.
@@ -156,6 +158,9 @@ struct msr_monster {
 
     /* inventory of this monster. */
     struct inv_inventory *inventory;
+
+    /* conditions effecting this monster. */
+    struct cdn_condition_list *conditions;
 
     uint32_t monster_post;
 };
@@ -201,10 +206,10 @@ bool msr_give_item(struct msr_monster *monster, struct itm_item *item);
 /* remove item from monsters inventory */
 bool msr_remove_item(struct msr_monster *monster, struct itm_item *item);
 
-/* roll a d100, check if it is below this characteristic */
-bool msr_characteristic_check(struct msr_monster *monster, enum msr_characteristic chr);
+/* roll a d100, 1 is succes, > 1 is DoS. 0 is failure, < 0 is DoF */
+int msr_characteristic_check(struct msr_monster *monster, enum msr_characteristic chr, int mod);
 
-/* roll a d100, check if it is below this skill */
+/* roll a d100, 1 is succes, > 1 is DoS. 0 is failure, < 0 is DoF */
 int msr_skill_check(struct msr_monster *monster, enum msr_skills skill, int mod);
 
 /* get current characteristic value, including talents. */
@@ -220,7 +225,7 @@ struct itm_item *msr_get_armour_from_hitloc(struct msr_monster *monster, enum ms
 int msr_calculate_armour(struct msr_monster *monster, enum msr_hit_location hitloc);
 
 /* do damage to that hit location, including critical hits, and handle the first part of monster death. */
-bool msr_do_dmg(struct msr_monster *monster, int dmg, enum msr_hit_location mhl, struct dm_map *map);
+bool msr_do_dmg(struct msr_monster *monster, int dmg, enum dmg_type type, enum msr_hit_location mhl, struct dm_map *map);
 
 /* given a number between 0 and 99, return the monsters hit location*/
 enum msr_hit_location msr_get_hit_location(struct msr_monster *monster, int hit_roll);
