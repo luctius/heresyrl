@@ -19,7 +19,7 @@ struct cdn_condition static_condition_list[] = {
             SETTINGS( 0, 0, CID_NONE, 0, 0),
     CONDITION_END,
 
-    CONDITION(CID_WITHDRAWL_HEALTH_STIMM, "health stimm withdrawl", "", "are suffering from withdrawl", "starts to shake", "overcome your urge", "regains his posture", 
+    CONDITION(CID_WITHDRAWL_HEALTH_STIMM, "health stimm withdrawl", "", "are suffering from withdrawl", "starts to shake", "overcome your cravings", "regains his posture", 
             TICK_EFFECT(CDN_EF_MODIFY_WS,   0, CDN_DAMAGE_FIVE, 0, CDN_PRIORITY_VERY_LOW, 4), 
             TICK_EFFECT(CDN_EF_MODIFY_BS,   0, CDN_DAMAGE_FIVE, 0, CDN_PRIORITY_VERY_LOW, 4), 
             TICK_EFFECT(CDN_EF_MODIFY_STR,  0, CDN_DAMAGE_FIVE, 0, CDN_PRIORITY_VERY_LOW, 4), 
@@ -35,7 +35,7 @@ struct cdn_condition static_condition_list[] = {
     /* Stimms*/
     CONDITION(CID_HEALTH_STIMM, "health stimm", "", "begin to feel much better", "'s wounds start to heal", "feel the healing wearing off", NULL, 
             TICK_EFFECT(CDN_EF_HEALTH_TICK, 0, CDN_HEALTH_ONE, 0, CDN_PRIORITY_VERY_LOW, 1), ),
-            SETTINGS(0, 0, CID_WITHDRAWL_HEALTH_STIMM, 10, 10),
+            SETTINGS( bf(CDN_SF_REMOVE_CONTINUE), 0, CID_WITHDRAWL_HEALTH_STIMM, 10, 10),
     CONDITION_END,
 
     CONDITION(CID_DEATH_STIMM, "death stimm", "", NULL, NULL, NULL, NULL,

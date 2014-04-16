@@ -1,4 +1,0 @@
-#ifndef ITEM_DESCRIPTIONS_H
-#define ITEM_DESCRIPTIONS_H
-
-#endif /* ITEM_DESCRIPTIONS_H */

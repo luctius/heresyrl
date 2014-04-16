@@ -38,6 +38,12 @@ enum condition_setting_flags {
      */
     CDN_SF_ACTIVE_ALL,
 
+    /* If set, it will remove any existing instances of the template_id 
+       which this condition will evolve in. 
+       For example to temporarily relieve the cravings...
+     */
+    CDN_SF_REMOVE_CONTINUE,
+
     CDN_SF_MAX,
 };
 
@@ -172,8 +178,8 @@ struct cdn_condition_list;
 struct cdn_condition {
     uint32_t condition_pre;
 
-    uint32_t uid;
-    uint32_t template_id;
+    int uid;
+    int template_id;
 
     uint16_t setting_flags;
     int8_t difficulty;
@@ -184,10 +190,10 @@ struct cdn_condition {
     struct condition_effect_struct effects[CONDITION_MAX_NR_EFFECTS];
 
     /*duration in turns, will be converted to energy when created. */
-    uint16_t duration_energy_min;
-    uint16_t duration_energy_max;
+    int duration_energy_min;
+    int duration_energy_max;
 
-    uint16_t duration_energy;
+    int duration_energy;
 
     const char *on_apply_plr;
     const char *on_apply_msr;
@@ -213,6 +219,9 @@ bool cdn_has_effect(struct cdn_condition_list *cdn_list, enum condition_effect_f
 bool cdn_has_tid(struct cdn_condition_list *cdn_list, uint32_t tid);
 enum cdn_priority cdn_condition_effect_priority(struct cdn_condition_list *cdn_list, enum condition_effect_flags effect);
 int cdn_condition_effect_strength(struct cdn_condition_list *cdn_list, enum condition_effect_flags effect);
+
+struct cdn_condition *cdn_create(struct cdn_condition_list *cdn_list, uint32_t tid);
+bool cdn_add_to_list(struct cdn_condition_list *cdn_list, struct cdn_condition *con);
 
 bool cdn_add_condition(struct cdn_condition_list *cdn_list, enum cdn_ids tid);
 bool cdn_remove_condition(struct cdn_condition_list *cdn_list, struct cdn_condition *c);

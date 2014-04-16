@@ -138,7 +138,7 @@ static int cdn_calc_strength(struct condition_effect_struct *ces) {
     return dmg;
 }
 
-static struct cdn_condition *cdn_create(struct cdn_condition_list *cdn_list, uint32_t tid) {
+struct cdn_condition *cdn_create(struct cdn_condition_list *cdn_list, uint32_t tid) {
     if (tid == CID_NONE) return false;
     if (tid >= ARRAY_SZ(static_condition_list) ) return false;
 
@@ -177,7 +177,7 @@ static struct cdn_condition *cdn_create(struct cdn_condition_list *cdn_list, uin
     return cc;
 }
 
-static bool cdn_add_to_list(struct cdn_condition_list *cdn_list, struct cdn_condition *con) {
+bool cdn_add_to_list(struct cdn_condition_list *cdn_list, struct cdn_condition *con) {
     if (cdn_verify_list(cdn_list) == false) return false;
     if (cdn_verify_condition(con) == false) return false;
 
@@ -458,6 +458,24 @@ void cdn_process(struct cdn_condition_list *cdn_list, struct msr_monster *monste
             }
         }
 
+        /*
+           Remove the id which this condition continues in,
+           apparently this continues releaves the cravings 
+           set by the continues_condition. Later offcourse,
+           this condition will continue in that so it will 
+           not stop it at all.
+         */
+        if (test_bf(c->setting_flags, CDN_SF_REMOVE_CONTINUE) ) {
+            struct cdn_condition *c_temp = NULL;
+            while ( (c_temp = cdn_get_condition_tid(cdn_list, c->continues_to_id) ) != NULL) {
+                if (test_bf(c_temp->setting_flags, CDN_SF_INVISIBLE) == false) {
+                    if (c_temp->on_exit_plr != NULL) You(monster, "%s.", c_temp->on_exit_plr);
+                    if (c_temp->on_exit_msr != NULL) Monster(monster, "%s.", c_temp->on_exit_msr);
+                }
+                cdn_remove_condition(cdn_list, c_temp);
+            }
+        }
+
         for (unsigned int i = 0; i < (ARRAY_SZ(c->effects) ); i++) {
             struct condition_effect_struct *ces = &c->effects[i];
             if (test_bf(ces->effect_setting_flags, CDN_ESF_ACTIVE) == false) continue;
@@ -621,13 +639,13 @@ void cdn_process(struct cdn_condition_list *cdn_list, struct msr_monster *monste
                         }
                     } break;
 
+                    case CDN_EF_EXPLODE: {
+                        /* place bodypart grenade here */
+                    } /* No Break */
                     case CDN_EF_DEATH: {
                         clr_bf(ces->effect_setting_flags, CDN_ESF_ACTIVE);
                         msr_die(monster, gbl_game->current_map);
                         return;
-                    } break;
-
-                    case CDN_EF_EXPLODE: {
                     } break;
 
                     default: 

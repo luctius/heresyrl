@@ -18,6 +18,7 @@
 #include "random.h"
 #include "inventory.h"
 #include "monster/monster.h"
+#include "monster/conditions.h"
 #include "items/items.h"
 #include "dungeon/dungeon_map.h"
 #include "ai/ai.h"
@@ -386,11 +387,50 @@ static bool load_monsters(lua_State *L, struct dm_map *map, struct gm_game *g) {
             }
         }
 
+        if (lua_intexpr(L, &t, "game.monsters[%d].conditions.sz", i+1) == 1) {
+            int condition_sz = t;
+            for (int j = 0; j < condition_sz; j++) {
+                if (lua_intexpr(L, &t, "game.monsters[%d].conditions[%d].tid", i+1, j+1) == 1) {
+                    struct cdn_condition *c = cdn_create(monster->conditions, t);
+                    if (c != NULL) {
+                        lua_intexpr(L, &t, "game.monsters[%d].conditions[%d].uid", i+1, j+1); c->uid = t;
+                        lua_intexpr(L, &t, "game.monsters[%d].conditions[%d].duration_energy_min", i+1, j+1); c->duration_energy_min = t;
+                        lua_intexpr(L, &t, "game.monsters[%d].conditions[%d].duration_energy_max", i+1, j+1); c->duration_energy_max = t;
+                        lua_intexpr(L, &t, "game.monsters[%d].conditions[%d].duration_energy", i+1, j+1);     c->duration_energy = t;
+
+                        lua_intexpr(L, &t, "game.monsters[%d].conditions[%d].effects.sz", i+1, j+1);
+                        int effects_sz = t;
+                        for (int e = 0; e < effects_sz; e++) {
+                            c->effects[e].effect = CDN_EF_NONE;
+                            c->effects[e].effect_setting_flags = 0;
+
+                            if (e < effects_sz) {
+                                lua_intexpr(L, &t, "game.monsters[%d].conditions[%d].effects[%d].effect", i+1, j+1, e+1); 
+                                                        c->effects[e].effect = t;
+                                lua_intexpr(L, &t, "game.monsters[%d].conditions[%d].effects[%d].effect_setting_flags", i+1, j+1, e+1); 
+                                                        c->effects[e].effect_setting_flags = t;
+                                lua_intexpr(L, &t, "game.monsters[%d].conditions[%d].effects[%d].tick_energy_max", i+1, j+1, e+1);
+                                                        c->effects[e].tick_energy_max = t;
+                                lua_intexpr(L, &t, "game.monsters[%d].conditions[%d].effects[%d].tick_energy", i+1, j+1, e+1);
+                                                        c->effects[e].tick_energy = t;
+                            }
+                        }
+                    }
+
+                    cdn_add_to_list(monster->conditions, c);
+                }
+            }
+        }
+
         if (lua_intexpr(L, &t, "game.monsters[%d].talents.sz", i+1) == 1) {
             int talents_sz = t;
-            for (int j = 0; j < talents_sz; j++) {
-                if (lua_intexpr(L, &t, "game.monsters[%d].talents[%d]", i+1, j+1) == 1) {
-                    monster->talents[j] = t;
+            for (int j = 0; j < MSR_NR_TALENTS_MAX; j++) {
+                monster->talents[j] = TLT_NONE;
+
+                if (j < talents_sz) {
+                    if (lua_intexpr(L, &t, "game.monsters[%d].talents[%d]", i+1, j+1) == 1) {
+                        monster->talents[j] = t;
+                    }
                 }
             }
         }

@@ -51,15 +51,21 @@ static bool sv_save_monsters(FILE *file, int indent) {
     fprintf(file, "%*s" "monsters={\n", indent, ""); { indent += 2;
         struct msr_monster *m = NULL;
         while ( (m = msrlst_get_next_monster(m) ) != NULL) {
-            fprintf(file, "%*s" "{uid=%d,template_id=%d,race=%d,size=%d,gender=%d,cur_wounds=%d,max_wounds=%d,",  indent, "", 
-                    m->uid, m->template_id,m->race,m->size,m->gender,m->cur_wounds,m->max_wounds);
+            fprintf(file,"%*s" "{uid=%d,", indent, "", m->uid);
+            fprintf(file,"template_id=%d,", m->template_id);
+            fprintf(file,"race=%d,", m->race);
+            fprintf(file,"size=%d,", m->size);
+            fprintf(file,"gender=%d,", m->gender);
+            fprintf(file,"cur_wounds=%d,", m->cur_wounds);
+            fprintf(file,"max_wounds=%d,", m->max_wounds);
             fprintf(file,"fate_points=%d,", m->fate_points);
             fprintf(file,"insanity_points=%d,", m->insanity_points);
             fprintf(file,"corruption_points=%d,", m->corruption_points);
             fprintf(file,"is_player=%d,", m->is_player);
             fprintf(file,"wpn_sel=%d,", m->wpn_sel);
             fprintf(file,"pos={x=%d,y=%d,},", m->pos.x,m->pos.y);
-            if (m->unique_name != NULL) fprintf(file, "unique_name=\"%s\",creature_traits=%"PRIu64",",m->unique_name, m->creature_traits);
+            fprintf(file,"creature_traits=%"PRIu64",",m->creature_traits);
+            if (m->unique_name != NULL) fprintf(file, "unique_name=\"%s\",",m->unique_name);
 
             fprintf(file,"talents={");
             int t_sz = 0;
@@ -72,15 +78,29 @@ static bool sv_save_monsters(FILE *file, int indent) {
             fprintf(file,"sz=%d,},", t_sz);
 
             fprintf(file,"conditions={sz=%d,", cdn_list_size(m->conditions) );
-            int c_sz = 0;
             struct cdn_condition *c = NULL;
             while ( (c = cdn_list_get_next_condition(m->conditions, c) ) != NULL) {
-                for (int i = 0; i < CONDITION_MAX_NR_EFFECTS; i++) {
-                    if (c->effects[i].effect == CDN_EF_NONE) i = CONDITION_MAX_NR_EFFECTS;
-                    /*TODO*/
-                    //fprintf(file,"%" PRIu8 ",", c->effects[i]);
-                }
-                c_sz++;
+                fprintf(file,"{");
+                    fprintf(file,"uid=%d,", c->uid);
+                    fprintf(file,"tid=%d,", c->template_id);
+                    fprintf(file,"duration_energy_min=%d,", c->duration_energy_min);
+                    fprintf(file,"duration_energy_max=%d,", c->duration_energy_max);
+                    fprintf(file,"duration_energy=%d,",     c->duration_energy);
+
+                    int e_sz = 0;
+                    fprintf(file,"effects={");
+                    for (int i = 0; i < CONDITION_MAX_NR_EFFECTS; i++) {
+                        if (c->effects[i].effect == CDN_EF_NONE) i = CONDITION_MAX_NR_EFFECTS;
+                        fprintf(file,"{");
+                            fprintf(file,"effect=%d,", c->effects[i].effect);
+                            fprintf(file,"effect_setting_flags=%d,", c->effects[i].effect_setting_flags);
+                            fprintf(file,"tick_energy_max=%d,", c->effects[i].tick_energy_max);
+                            fprintf(file,"tick_energy=%d,", c->effects[i].tick_energy);
+                        fprintf(file,"},");
+                        e_sz++;
+                    }
+                    fprintf(file,"sz=%d,},", e_sz);
+                fprintf(file,"},");
             }
             fprintf(file,"},");
 
@@ -92,7 +112,10 @@ static bool sv_save_monsters(FILE *file, int indent) {
 
             fprintf(file,"characteristic={sz=%d,", MSR_CHAR_MAX);
             for (int i = 0; i < MSR_CHAR_MAX; i++) {
-                fprintf(file,"{base_value=%d,advancement=%d},", m->characteristic[i].base_value, m->characteristic[i].advancement);
+                fprintf(file,"{");
+                    fprintf(file,"base_value=%d,",  m->characteristic[i].base_value);
+                    fprintf(file,"advancement=%d,", m->characteristic[i].advancement);
+                fprintf(file,"},");
             }
             fprintf(file, "},");
 
@@ -132,7 +155,10 @@ static bool sv_save_items(FILE *file, int indent) {
         while ( (item = itmlst_get_next_item(item) ) != NULL) {
             if (item->dropable == false) continue;
 
-                fprintf(file, "%*s" "{uid=%d,template_id=%d,quality=%d,quantity=%d,",  indent, "", item->uid, item->template_id,item->quality,item->stacked_quantity);
+                fprintf(file, "%*s" "{uid=%d,",  indent, "", item->uid);
+                fprintf(file, "template_id=%d,",  item->template_id);
+                fprintf(file, "quality=%d,",      item->quality);
+                fprintf(file, "quantity=%d,",     item->stacked_quantity);
                 switch(item->item_type) {
                     case ITEM_TYPE_WEAPON: {
                             struct item_weapon_specific *wpn = &item->specific.weapon;
