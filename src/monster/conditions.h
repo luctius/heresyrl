@@ -9,15 +9,35 @@
 #define CONDITION_MAX_NR_EFFECTS 10
 
 enum condition_setting_flags {
+    /* The condition will be permanent (if it passes the initial checks) */
     CDN_SF_PERMANENT,
+
+    /* Only a single instance of this condition will be permitted inside a list */
     CDN_SF_UNIQUE,
+
+    /* Require an specific check with difficulty as modifier, 
+       if the monster succeeds, the condition will be removed.
+       Every degree of failure adds a turn to the duration.
+    */
     CDN_SF_REQ_WILL_CHECK,
     CDN_SF_REQ_TGH_CHECK,
     CDN_SF_REQ_AG_CHECK,
     CDN_SF_REQ_CHEM_USE_CHECK,
+
+    /* Sets if this condition can be removed by a detox condition */
     CDN_SF_DETOXABLE,
+
+    /* If true, there will be no textual updates not will 
+       this be visible in a character sheet */
     CDN_SF_INVISIBLE,
+
+    /* If true, if any condition is set to non-active which 
+       does have an effect set, the whole condition is removed. 
+       This is used for conditions which have multiple equal 
+       priority effects.
+     */
     CDN_SF_ACTIVE_ALL,
+
     CDN_SF_MAX,
 };
 
@@ -34,6 +54,7 @@ enum condition_effect_flags {
     CDN_EF_MODIFY_FEL,
     CDN_EF_MODIFY_FATIQUE,
     CDN_EF_MODIFY_MOVEMENT,
+    CDN_EF_MODIFY_WOUNDS,
     CDN_EF_MODIFY_ALL_SKILLS,
     CDN_EF_DISABLE_LLEG,
     CDN_EF_DISABLE_RLEG,
@@ -59,22 +80,40 @@ enum condition_effect_flags {
 };
 
 enum condition_effect_setting_flags {
+    /* if set, this effect is used. */
     CDN_ESF_ACTIVE,
+
+    /* if true, this effect has a certain tick timer. */
     CDN_ESF_TICK,
+
+    /* if true, require a check everytime this effect is 
+       processed. if the monster succeeds, the effect will 
+       be set to inactive. */
     CDN_ESF_REQ_WILL_CHECK,
     CDN_ESF_REQ_TGH_CHECK,
     CDN_ESF_REQ_AG_CHECK,
     CDN_ESF_REQ_CHEM_USE_CHECK,
+
+    /* If there is another condition with this effect, 
+       which has an higher priority, this effect will 
+       be set to inactive. */
     CDN_ESF_INACTIVE_IF_LESS_PRIORITY,
+
+    /* Set the damage type of any damage done*/
     CDN_ESF_DMG_TYPE_ENERGY,
     CDN_ESF_DMG_TYPE_IMPACT,
     CDN_ESF_DMG_TYPE_RENDING,
     CDN_ESF_DMG_TYPE_EXPLODING,
+
+    /* Set the category of damage. */
     CDN_ESF_RES_TYPE_HEAT,
     CDN_ESF_RES_TYPE_COLD,
     CDN_ESF_RES_TYPE_FEAR,
     CDN_ESF_RES_TYPE_POISONS,
     CDN_ESF_RES_TYPE_PSYCHIC,
+
+    /* if set, it directly modifies the base value 
+       of an characteristic, instead of damaging it. */
     CDN_ESF_MODIFY_BASE,
     CDN_ESF_MAX,
 };
@@ -90,7 +129,7 @@ enum cdn_priority {
     CDN_PRIORITY_PERMANENT,
 };
 
-enum cdn_damage {
+enum cdn_strength {
     CDN_DAMAGE_NONE,
     CDN_DAMAGE_ONE,
     CDN_DAMAGE_TWO,
@@ -119,7 +158,7 @@ struct condition_effect_struct {
     uint32_t effect_setting_flags;
 
     enum cdn_priority priority;
-    int8_t damage;
+    int8_t strength;
     int8_t difficulty;
 
     /* duration in turns, will be converted to energy when created */
@@ -170,10 +209,10 @@ void cdn_process(struct cdn_condition_list *cdn_list, struct msr_monster *monste
 bool cdn_verify_condition(struct cdn_condition *cdn);
 
 struct cdn_condition *cdn_get_condition_tid(struct cdn_condition_list *cdn_list, enum cdn_ids tid);
-bool cdn_condition_has_effect(struct cdn_condition_list *cdn_list, enum condition_effect_flags effect);
-bool cdn_condition_has_tid(struct cdn_condition_list *cdn_list, uint32_t tid);
+bool cdn_has_effect(struct cdn_condition_list *cdn_list, enum condition_effect_flags effect);
+bool cdn_has_tid(struct cdn_condition_list *cdn_list, uint32_t tid);
 enum cdn_priority cdn_condition_effect_priority(struct cdn_condition_list *cdn_list, enum condition_effect_flags effect);
-int cdn_condition_effect_damage(struct cdn_condition_list *cdn_list, enum condition_effect_flags effect);
+int cdn_condition_effect_strength(struct cdn_condition_list *cdn_list, enum condition_effect_flags effect);
 
 bool cdn_add_condition(struct cdn_condition_list *cdn_list, enum cdn_ids tid);
 bool cdn_remove_condition(struct cdn_condition_list *cdn_list, struct cdn_condition *c);

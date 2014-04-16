@@ -64,6 +64,7 @@ enum msr_hit_location {
     MSR_HITLOC_CHEST,
     MSR_HITLOC_HEAD,
     MSR_HITLOC_MAX,
+    MSR_HITLOC_NONE,
 };
 
 struct msr_char {
@@ -226,6 +227,7 @@ int msr_calculate_armour(struct msr_monster *monster, enum msr_hit_location hitl
 
 /* do damage to that hit location, including critical hits, and handle the first part of monster death. */
 bool msr_do_dmg(struct msr_monster *monster, int dmg, enum dmg_type type, enum msr_hit_location mhl, struct dm_map *map);
+bool msr_die(struct msr_monster *monster, struct dm_map *map);
 
 /* given a number between 0 and 99, return the monsters hit location*/
 enum msr_hit_location msr_get_hit_location(struct msr_monster *monster, int hit_roll);

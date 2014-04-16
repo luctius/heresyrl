@@ -7,12 +7,12 @@
                     .continues_to_id=_con, .duration_energy_min=_dmin, .duration_energy_max=_dmax
 
 #define EFFECT(_effect, _flags, _dmg, _diff, _priority) \
-                {.effect=_effect, .effect_setting_flags=bf(CDN_ESF_ACTIVE) | _flags, .priority=_priority, .damage=_dmg, \
+                {.effect=_effect, .effect_setting_flags=bf(CDN_ESF_ACTIVE) | _flags, .priority=_priority, .strength=_dmg, \
                 .difficulty=_diff, .tick_energy_max=1, .tick_energy=0, }
 
 #define TICK_EFFECT(_effect, _flags, _dmg, _diff, _priority, _tmax) \
                 {.effect=_effect, .effect_setting_flags=bf(CDN_ESF_ACTIVE) | bf(CDN_ESF_TICK) | _flags, \
-                .priority=_priority, .damage=_dmg, .difficulty=_diff, .tick_energy_max=_tmax, .tick_energy=0, }
+                .priority=_priority, .strength=_dmg, .difficulty=_diff, .tick_energy_max=_tmax, .tick_energy=0, }
 
 struct cdn_condition static_condition_list[] = {
     CONDITION(CID_NONE, "", "", NULL, NULL, NULL, NULL),

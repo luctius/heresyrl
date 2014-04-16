@@ -61,12 +61,28 @@ static bool sv_save_monsters(FILE *file, int indent) {
             fprintf(file,"pos={x=%d,y=%d,},", m->pos.x,m->pos.y);
             if (m->unique_name != NULL) fprintf(file, "unique_name=\"%s\",creature_traits=%"PRIu64",",m->unique_name, m->creature_traits);
 
-            int tmax = 1;
-            fprintf(file,"talents={sz=%d,", tmax);
-            for (int i = 0; i < tmax; i++) {
+            fprintf(file,"talents={");
+            int t_sz = 0;
+            for (int i = 0; i < MSR_NR_TALENTS_MAX; i++) {
+                if (m->talents[i] == TLT_NONE) i = MSR_NR_TALENTS_MAX;
+
                 fprintf(file,"%" PRIu8 ",", m->talents[i]);
+                t_sz++;
             }
-            fprintf(file, "},");
+            fprintf(file,"sz=%d,},", t_sz);
+
+            fprintf(file,"conditions={sz=%d,", cdn_list_size(m->conditions) );
+            int c_sz = 0;
+            struct cdn_condition *c = NULL;
+            while ( (c = cdn_list_get_next_condition(m->conditions, c) ) != NULL) {
+                for (int i = 0; i < CONDITION_MAX_NR_EFFECTS; i++) {
+                    if (c->effects[i].effect == CDN_EF_NONE) i = CONDITION_MAX_NR_EFFECTS;
+                    /*TODO*/
+                    //fprintf(file,"%" PRIu8 ",", c->effects[i]);
+                }
+                c_sz++;
+            }
+            fprintf(file,"},");
 
             fprintf(file,"skills={sz=%d,", MSR_SKILL_RATE_MAX);
             for (int i = 0; i < MSR_SKILL_RATE_MAX; i++) {

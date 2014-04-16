@@ -14,10 +14,10 @@
     .skills[MSR_SKILL_RATE_ADVANCED]=advanced_skills, .skills[MSR_SKILL_RATE_EXPERT]=expert_skills
 
 #define HUMAN( t...) .race=MSR_RACE_HUMAN, .size=MSR_SIZE_AVERAGE, \
-    .talents = { t, MSR_TALENTS_MAX }, .creature_traits = 0
+    .talents = { t, TLT_NONE }, .creature_traits = 0
 
 #define BEAST( t...) .race=MSR_RACE_BEAST, .size=MSR_SIZE_AVERAGE, \
-    .talents = { t , MSR_TALENTS_MAX }, .creature_traits = bf(CTRTRTS_BESTIAL) | bf(CTRTRTS_QUADRUPED)
+    .talents = { t , TLT_NONE }, .creature_traits = bf(CTRTRTS_BESTIAL) | bf(CTRTRTS_QUADRUPED)
 
 const char *msr_descs[] = {
     [MID_DUMMY]       = "unknown",

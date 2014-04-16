@@ -233,17 +233,26 @@ bool msr_remove_item(struct msr_monster *monster, struct itm_item *item) {
 
 int msr_get_near_sight_range(struct msr_monster *monster) {
     if (msr_verify_monster(monster) == false) return -1;
-    return ( (msr_calculate_characteristic(monster, MSR_CHAR_PERCEPTION) * 1.5f) / 10) +1;
+    int sight_near = ( (msr_calculate_characteristic(monster, MSR_CHAR_PERCEPTION) * 1.5f) / 10) +1;
+
+    if (cdn_has_effect(monster->conditions, CDN_EF_BLINDNESS) ) sight_near = 0;
+    return sight_near;
 }
 
 int msr_get_medium_sight_range(struct msr_monster *monster) {
     if (msr_verify_monster(monster) == false) return -1;
-    return ( (msr_calculate_characteristic(monster, MSR_CHAR_PERCEPTION) * 2) / 10) +1;
+    int sight_medium = ( (msr_calculate_characteristic(monster, MSR_CHAR_PERCEPTION) * 2) / 10) +1;
+
+    if (cdn_has_effect(monster->conditions, CDN_EF_BLINDNESS) ) sight_medium = 0;
+    return  sight_medium;
 }
 
 int msr_get_far_sight_range(struct msr_monster *monster) {
     if (msr_verify_monster(monster) == false) return -1;
-    return ( (msr_calculate_characteristic(monster, MSR_CHAR_PERCEPTION) * 2.5f) / 10) +1;
+    int sight_far = ( (msr_calculate_characteristic(monster, MSR_CHAR_PERCEPTION) * 2.5f) / 10) +1;
+
+    if (cdn_has_effect(monster->conditions, CDN_EF_BLINDNESS) ) sight_far = 0;
+    return sight_far;
 }
 
 bool msr_drop_inventory(struct msr_monster *monster, struct dm_map *map) {
@@ -328,6 +337,7 @@ int msr_calculate_armour(struct msr_monster *monster, enum msr_hit_location mhl)
 }
 
 enum msr_hit_location msr_get_hit_location(struct msr_monster *monster, int hit_roll) {
+    if (msr_verify_monster(monster) == false) return MSR_HITLOC_NONE;
     if (hit_roll > 99) hit_roll %= 100;
 
     /* Human hitloc */
@@ -339,12 +349,16 @@ enum msr_hit_location msr_get_hit_location(struct msr_monster *monster, int hit_
     return MSR_HITLOC_HEAD;
 }
 
-static bool msr_die(struct msr_monster *monster, struct dm_map *map) {
+bool msr_die(struct msr_monster *monster, struct dm_map *map) {
     if (msr_verify_monster(monster) == false) return false;
     if (dm_verify_map(map) == false) return false;
 
     monster->dead = true;
-    if (monster->is_player && (monster->fate_points > 0) ) return true;
+    if (monster->is_player && (monster->fate_points > 0) ) {
+        You(monster, "fall unconsious.");
+        Monster(monster, "falls unconsious.");
+        return true;
+    }
 
     You(monster, "die...");
     Monster(monster, "dies.");
@@ -389,11 +403,19 @@ int msr_characteristic_check(struct msr_monster *monster, enum msr_characteristi
 int msr_skill_check(struct msr_monster *monster, enum msr_skills skill, int mod) {
     if (msr_verify_monster(monster) == false) return false;
 
+    int con_mod = 0;
     int charac = msr_calculate_characteristic(monster, msr_skill_charac[skill]);
     assert(charac >= 0);
     lg_print("You characteristic is (%d)", charac);
 
     lg_print("Check modifier is: %d (%d)", mod, charac + mod);
+
+    if (cdn_has_effect(monster->conditions, CDN_EF_MODIFY_ALL_SKILLS) ) {
+        con_mod += cdn_condition_effect_strength(monster->conditions, CDN_EF_MODIFY_ALL_SKILLS);
+        mod += con_mod;
+    }
+    lg_print("Conditions modifier is: %d (%d)", con_mod, charac + mod);
+
     charac += mod;
 
     enum msr_skill_rate r = msr_has_skill(monster, skill);
@@ -432,8 +454,8 @@ int msr_calculate_characteristic(struct msr_monster *monster, enum msr_character
     if (chr >= MSR_CHAR_MAX) return -1;
     int val = monster->characteristic[chr].base_value + (monster->characteristic[chr].advancement * 5);
 
-    if (cdn_condition_has_effect(monster->conditions, charac_to_condition_lot[chr]) ) {
-        val += cdn_condition_effect_damage(monster->conditions, charac_to_condition_lot[chr]);
+    if (cdn_has_effect(monster->conditions, charac_to_condition_lot[chr]) ) {
+        val += cdn_condition_effect_strength(monster->conditions, charac_to_condition_lot[chr]);
     }
 
     return val;
@@ -598,28 +620,29 @@ bool msr_has_creature_trait(struct msr_monster *monster,  bitfield_t trait) {
 bool msr_has_talent(struct msr_monster *monster, enum msr_talents talent) {
     if (msr_verify_monster(monster) == false) return false;
     if (talent == TLT_NONE) return true;
-    if (talent > MSR_TALENTS_MAX) return false;
+    if (talent >= MSR_TALENTS_MAX) return false;
 
     for (unsigned int i = 0; i < ARRAY_SZ(monster->talents); i++) {
         if (monster->talents[i] == talent) return true;
-        if (monster->talents[i] == MSR_TALENTS_MAX) return false;
+        if (monster->talents[i] == TLT_NONE) return false;
     }
     return false;
 }
 
 bool msr_set_talent(struct msr_monster *monster, enum msr_talents talent) {
     if (msr_verify_monster(monster) == false) return false;
-    if (talent > MSR_TALENTS_MAX) return false;
+    if (talent >= MSR_TALENTS_MAX) return false;
 
     for (unsigned int i = 0; i < ARRAY_SZ(monster->talents); i++) {
-        if (monster->talents[i] == MSR_TALENTS_MAX) {
+        if (monster->talents[i] == TLT_NONE) {
             monster->talents[i] = talent;
-            if (i+1 < ARRAY_SZ(monster->talents) ) {
-                monster->talents[i+1] = MSR_TALENTS_MAX;
+            if (i+1 < MSR_TALENTS_MAX) {
+                monster->talents[i+1] = TLT_NONE;
             }
+            return true;
         }
     }
-    return true;
+    return false;
 }
 
 uint8_t msr_get_movement_rate(struct msr_monster *monster) {
