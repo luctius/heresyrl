@@ -62,7 +62,7 @@ static int spawn_monster(double roll) {
 }
 
 bool spwn_add_item_to_monster(struct msr_monster *monster, struct spwn_monster_item *sitem, struct random *r) {
-    int nr = 1;
+    int nr = sitem->min;
     if (sitem->min != sitem->max) {
         nr = (random_int32(r) % (sitem->max - sitem->min) ) + sitem->min;
     }
