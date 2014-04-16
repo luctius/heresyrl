@@ -3,17 +3,21 @@
 
 #include "heresyrl_def.h"
 #include "conditions_static.h"
+#include "enums.h"
+#include "monster.h"
 
 #define CONDITION_MAX_NR_EFFECTS 10
 
 enum condition_setting_flags {
     CDN_SF_PERMANENT,
+    CDN_SF_UNIQUE,
     CDN_SF_REQ_WILL_CHECK,
     CDN_SF_REQ_TGH_CHECK,
     CDN_SF_REQ_AG_CHECK,
     CDN_SF_REQ_CHEM_USE_CHECK,
     CDN_SF_DETOXABLE,
     CDN_SF_INVISIBLE,
+    CDN_SF_ACTIVE_ALL,
     CDN_SF_MAX,
 };
 
@@ -50,6 +54,7 @@ enum condition_effect_flags {
     CDN_EF_PSYCHIC_ENHANCE,
     CDN_EF_DETOX,
     CDN_EF_DEATH,
+    CDN_EF_EXPLODE,
     CDN_EF_MAX,
 };
 
@@ -166,10 +171,13 @@ bool cdn_verify_condition(struct cdn_condition *cdn);
 
 struct cdn_condition *cdn_get_condition_tid(struct cdn_condition_list *cdn_list, enum cdn_ids tid);
 bool cdn_condition_has_effect(struct cdn_condition_list *cdn_list, enum condition_effect_flags effect);
+bool cdn_condition_has_tid(struct cdn_condition_list *cdn_list, uint32_t tid);
 enum cdn_priority cdn_condition_effect_priority(struct cdn_condition_list *cdn_list, enum condition_effect_flags effect);
 int cdn_condition_effect_damage(struct cdn_condition_list *cdn_list, enum condition_effect_flags effect);
 
 bool cdn_add_condition(struct cdn_condition_list *cdn_list, enum cdn_ids tid);
 bool cdn_remove_condition(struct cdn_condition_list *cdn_list, struct cdn_condition *c);
+
+bool cdn_add_critical_hit(struct cdn_condition_list *cdn_list, int critical_dmg, enum msr_hit_location mhl, enum dmg_type type);
 
 #endif /* CONDITIONS_H */

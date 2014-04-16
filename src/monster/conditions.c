@@ -138,8 +138,7 @@ static int cdn_calc_damage(struct condition_effect_struct *ces) {
     return dmg;
 }
 
-bool cdn_add_condition(struct cdn_condition_list *cdn_list, uint32_t tid) {
-    if (cdn_verify_list(cdn_list) == false) return false;
+static struct cdn_condition *cdn_create(struct cdn_condition_list *cdn_list, uint32_t tid) {
     if (tid == CID_NONE) return false;
     if (tid >= ARRAY_SZ(static_condition_list) ) return false;
 
@@ -173,10 +172,39 @@ bool cdn_add_condition(struct cdn_condition_list *cdn_list, uint32_t tid) {
             ces->damage = cdn_calc_damage(ces);
         }
     }
+    return cc;
+}
 
+static bool cdn_add_to_list(struct cdn_condition_list *cdn_list, struct cdn_condition *con) {
+    if (cdn_verify_list(cdn_list) == false) return false;
+    if (cdn_verify_condition(con) == false) return false;
+
+    struct cdn_entry *ce = container_of(con, struct cdn_entry, condition);
     LIST_INSERT_HEAD(&cdn_list->head, ce, entries);
-
     return true;
+}
+
+bool cdn_add_condition(struct cdn_condition_list *cdn_list, uint32_t tid) {
+    if (cdn_verify_list(cdn_list) == false) return false;
+    if (tid == CID_NONE) return false;
+    if (tid >= ARRAY_SZ(static_condition_list) ) return false;
+    struct cdn_condition *c = NULL;
+
+    if (test_bf(c->setting_flags, CDN_SF_UNIQUE) ) {
+        if (cdn_condition_has_tid(cdn_list, tid) ) {
+            c = cdn_get_condition_tid(cdn_list, tid);
+            if (c != NULL) {
+                /* restart condition */
+                c->duration_energy = c->duration_energy_max -1;
+                return false;
+            }
+        }
+    }
+
+    c = cdn_create(cdn_list, tid);
+    if (c == NULL) return false;
+
+    return cdn_add_to_list(cdn_list, c);
 }
 
 bool cdn_remove_condition(struct cdn_condition_list *cdn_list, struct cdn_condition *con) {
@@ -205,7 +233,21 @@ bool cdn_verify_condition(struct cdn_condition *cdn) {
     return true;
 }
 
+bool cdn_condition_has_tid(struct cdn_condition_list *cdn_list, uint32_t tid) {
+    if (cdn_verify_list(cdn_list) == false) return false;
+
+    struct cdn_condition *c = NULL;
+    while ( (c = cdn_list_get_next_condition(cdn_list, c) ) != NULL) {
+        if (c->template_id == tid) {
+            return true;
+        }
+    }
+    return false;
+}
+
 struct cdn_condition *cdn_get_condition_tid(struct cdn_condition_list *cdn_list, uint32_t tid) {
+    if (cdn_verify_list(cdn_list) == false) return NULL;
+
     struct cdn_condition *c = NULL;
     while ( (c = cdn_list_get_next_condition(cdn_list, c) ) != NULL) {
         if (c->template_id == tid) {
@@ -216,6 +258,8 @@ struct cdn_condition *cdn_get_condition_tid(struct cdn_condition_list *cdn_list,
 }
 
 bool cdn_condition_has_effect(struct cdn_condition_list *cdn_list, enum condition_effect_flags effect) {
+    if (cdn_verify_list(cdn_list) == false) return false;
+
     struct cdn_condition *c = NULL;
     while ( (c = cdn_list_get_next_condition(cdn_list, c) ) != NULL) {
         for (unsigned int  i = 0; i < ARRAY_SZ(c->effects); i++) {
@@ -229,6 +273,7 @@ bool cdn_condition_has_effect(struct cdn_condition_list *cdn_list, enum conditio
 }
 
 int cdn_condition_effect_damage(struct cdn_condition_list *cdn_list, enum condition_effect_flags effect) {
+    if (cdn_verify_list(cdn_list) == false) return -1;
     struct cdn_condition *c = NULL;
 
     int damage = 0;
@@ -244,6 +289,7 @@ int cdn_condition_effect_damage(struct cdn_condition_list *cdn_list, enum condit
 }
 
 enum cdn_priority cdn_condition_effect_priority(struct cdn_condition_list *cdn_list, enum condition_effect_flags effect) {
+    if (cdn_verify_list(cdn_list) == false) return 0;
     struct cdn_condition *c = NULL;
 
     enum cdn_priority priority = CDN_PRIORITY_NONE;
@@ -258,6 +304,58 @@ enum cdn_priority cdn_condition_effect_priority(struct cdn_condition_list *cdn_l
     }
 
     return priority;
+}
+
+static enum cdn_ids dmg_type_to_id_lot[MSR_HITLOC_MAX][DMG_TYPE_MAX] = {
+    [MSR_HITLOC_LEFT_LEG]   = { [DMG_TYPE_IMPACT] = CID_IMPACT_CRITICAL_LEGS_1, [DMG_TYPE_EXPLOSIVE] = CID_EXPLOSIVE_CRITICAL_LEGS_1, [DMG_TYPE_ENERGY] = CID_ENERGY_CRITICAL_LEGS_1, [DMG_TYPE_RENDING] = CID_RENDING_CRITICAL_LEGS_1, },
+    [MSR_HITLOC_RIGHT_LEG]  = { [DMG_TYPE_IMPACT] = CID_IMPACT_CRITICAL_LEGS_1, [DMG_TYPE_EXPLOSIVE] = CID_EXPLOSIVE_CRITICAL_LEGS_1, [DMG_TYPE_ENERGY] = CID_ENERGY_CRITICAL_LEGS_1, [DMG_TYPE_RENDING] = CID_RENDING_CRITICAL_LEGS_1, },
+    [MSR_HITLOC_LEFT_ARM]   = { [DMG_TYPE_IMPACT] = CID_IMPACT_CRITICAL_ARMS_1, [DMG_TYPE_EXPLOSIVE] = CID_EXPLOSIVE_CRITICAL_ARMS_1, [DMG_TYPE_ENERGY] = CID_ENERGY_CRITICAL_ARMS_1, [DMG_TYPE_RENDING] = CID_RENDING_CRITICAL_ARMS_1, },
+    [MSR_HITLOC_RIGHT_ARM]  = { [DMG_TYPE_IMPACT] = CID_IMPACT_CRITICAL_ARMS_1, [DMG_TYPE_EXPLOSIVE] = CID_EXPLOSIVE_CRITICAL_ARMS_1, [DMG_TYPE_ENERGY] = CID_ENERGY_CRITICAL_ARMS_1, [DMG_TYPE_RENDING] = CID_RENDING_CRITICAL_ARMS_1, },
+    [MSR_HITLOC_CHEST]      = { [DMG_TYPE_IMPACT] = CID_IMPACT_CRITICAL_CHEST_1,[DMG_TYPE_EXPLOSIVE] = CID_EXPLOSIVE_CRITICAL_CHEST_1,[DMG_TYPE_ENERGY] = CID_ENERGY_CRITICAL_CHEST_1,[DMG_TYPE_RENDING] = CID_RENDING_CRITICAL_CHEST_1,},
+    [MSR_HITLOC_HEAD]       = { [DMG_TYPE_IMPACT] = CID_IMPACT_CRITICAL_HEAD_1, [DMG_TYPE_EXPLOSIVE] = CID_EXPLOSIVE_CRITICAL_HEAD_1, [DMG_TYPE_ENERGY] = CID_ENERGY_CRITICAL_HEAD_1, [DMG_TYPE_RENDING] = CID_RENDING_CRITICAL_HEAD_1, },
+};
+
+bool cdn_add_critical_hit(struct cdn_condition_list *cdn_list, int critical_dmg, enum msr_hit_location mhl, enum dmg_type type) {
+    if (cdn_verify_list(cdn_list) == false) return false;
+    if (critical_dmg > 9) critical_dmg = 9;
+    critical_dmg -= 1; /* idx to offset */
+
+    enum cdn_ids tid = dmg_type_to_id_lot[mhl][type];
+    struct cdn_condition *c = cdn_create(cdn_list, tid +critical_dmg);
+
+
+    for (unsigned int i = 0; i < (ARRAY_SZ(c->effects) ); i++) {
+        struct condition_effect_struct *ces = &c->effects[i];
+        switch(mhl) {
+            default: break;
+
+            case MSR_HITLOC_LEFT_LEG: 
+            if (ces->effect == CDN_EF_DISABLE_RLEG) {
+                ces->effect = CDN_EF_DISABLE_LLEG;
+            }
+            break;
+
+            case MSR_HITLOC_RIGHT_LEG:
+            if (ces->effect == CDN_EF_DISABLE_LLEG) {
+                ces->effect = CDN_EF_DISABLE_RLEG;
+            }
+            break;
+
+            case MSR_HITLOC_LEFT_ARM:
+            if (ces->effect == CDN_EF_DISABLE_RARM) {
+                ces->effect = CDN_EF_DISABLE_LARM;
+            }
+            break;
+
+            case MSR_HITLOC_RIGHT_ARM:
+            if (ces->effect == CDN_EF_DISABLE_LARM) {
+                ces->effect = CDN_EF_DISABLE_RARM;
+            }
+            break;
+        }
+    }
+
+    return cdn_add_to_list(cdn_list, c);
 }
 
 void cdn_process(struct cdn_condition_list *cdn_list, struct msr_monster *monster) {
@@ -279,7 +377,16 @@ void cdn_process(struct cdn_condition_list *cdn_list, struct msr_monster *monste
         {   /* Pre checks */
             if (first_time) {
 
-                {
+                if (test_bf(c->setting_flags, CDN_SF_ACTIVE_ALL) ) {
+                    destroy = true;
+                    for (unsigned int i = 0; i < (ARRAY_SZ(c->effects) ); i++) {
+                        struct condition_effect_struct *ces = &c->effects[i];
+                        if (test_bf(ces->effect_setting_flags, CDN_ESF_ACTIVE) == true) {
+                            destroy = false;
+                        }
+                    }
+                }
+                else {
                     struct condition_effect_struct *ces = &c->effects[0];
                     if (test_bf(ces->effect_setting_flags, CDN_ESF_ACTIVE) == false) {
                         destroy = true;
@@ -393,7 +500,7 @@ void cdn_process(struct cdn_condition_list *cdn_list, struct msr_monster *monste
 
             if (process) {
                 switch(ces->effect) {
-                    case CDN_EF_MODIFY_FATIQUE: break;
+                    case CDN_EF_MODIFY_FATIQUE: monster->fatique += ces->damage; break;
                     case CDN_EF_MODIFY_MOVEMENT: break;
                     case CDN_EF_MODIFY_WS: 
                         if (test_bf(ces->effect_setting_flags, CDN_ESF_MODIFY_BASE) ) {
@@ -501,6 +608,9 @@ void cdn_process(struct cdn_condition_list *cdn_list, struct msr_monster *monste
                         clr_bf(ces->effect_setting_flags, CDN_ESF_ACTIVE);
                         monster->dead = true; 
                         return;
+                    } break;
+
+                    case CDN_EF_EXPLODE: {
                     } break;
 
                     default: 

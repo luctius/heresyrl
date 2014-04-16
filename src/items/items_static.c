@@ -165,9 +165,11 @@ struct itm_item static_item_list[] = {
     ITEM(IID_BASIC_AMMO_LAS,  "basic charge pack", "a basic weapon charge pack",            ITEM_AVAIL_AVERAGE,ITEM_QLTY_AVERAGE,  0,     1,   0), AMMO(AMMO_TYPE_BASIC_LAS,  1000, CID_NONE), ITEM_END,
 
     /* Stimms */
-    /*    ID                  short name            long name                              availability       quality          weight,cost,delay        Food Type            condition*/
-    ITEM(IID_STIMM_HEALTH,  "health stimm", "an injector with a regenerative liquid",      ITEM_AVAIL_AVERAGE,ITEM_QLTY_AVERAGE,  0,     1,   1), STIMM(FOOD_TYPE_INJECTION, CID_HEALTH_STIMM), ITEM_END,
-    ITEM(IID_STIMM_DEATH,   "death stimm",  "an injector with a deadly liquid",           ITEM_AVAIL_VERY_RARE,ITEM_QLTY_AVERAGE,  0,     1,   1), STIMM(FOOD_TYPE_INJECTION, CID_DEATH_STIMM), ITEM_END,
+    /*    ID                  short name            long name                         availability       quality              weight,cost,delay        Food Type            condition*/
+    ITEM(IID_STIMM_HEALTH,  "health stimm", "an injector with a regenerative liquid", ITEM_AVAIL_AVERAGE,ITEM_QLTY_AVERAGE,    0,     1,   1), STIMM(FOOD_TYPE_INJECTION, CID_HEALTH_STIMM), ITEM_END,
+
+    /* debug items */
+    ITEM(IID_STIMM_DEATH,   "death debug",  "an injector with a deadly liquid",       ITEM_AVAIL_VERY_RARE,ITEM_QLTY_AVERAGE,  0,     1,   1), STIMM(FOOD_TYPE_INJECTION, CID_DEATH_STIMM), ITEM_END,
 };
 
 static const char *item_quality_strings[] = {
