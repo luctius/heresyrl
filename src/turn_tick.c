@@ -47,6 +47,7 @@ void tt_process_monsters(struct dm_map *map) {
             monster->controller.interrupted = false;
         }
 
+        if (gbl_game->running == false) return;
     }
 }
 
