@@ -38,7 +38,7 @@ static void sigfunc(int s) {
 int main(int argc, char *argv[]) {
     struct gengetopt_args_info args_info;
 
-    if (cmdline_parser (argc, argv, &args_info) != 0) exit(1);
+    if (cmdline_parser (argc, argv, &args_info) != 0) exit(EXIT_FAILURE);
 
     opt_parse_options(&args_info);
 
@@ -53,8 +53,8 @@ int main(int argc, char *argv[]) {
     game_init(NULL, rand());
 
     initscr(); //  Start curses mode
-    if (has_colors() == FALSE) exit(1);
-    if (start_color() == ERR) exit(1);
+    if (has_colors() == FALSE) exit(EXIT_FAILURE);
+    if (start_color() == ERR) exit(EXIT_FAILURE);
     refresh(); //  Print it on to the real screen
 
     int cols, lines;
@@ -107,5 +107,5 @@ int main(int argc, char *argv[]) {
     endwin();           //  End curses mode
 
     lg_exit(gbl_log);
-    return 0;
+    return EXIT_SUCCESS;
 }

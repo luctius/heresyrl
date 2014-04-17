@@ -31,6 +31,20 @@ struct cdn_condition_list {
 #define CONDITION_LIST_PRE_CHECK (45867)
 #define CONDITION_LIST_POST_CHECK (7182)
 
+void cdn_init(void) {
+    for (unsigned int i = 0; i < CID_MAX; i++) {
+        struct cdn_condition *condition = &static_condition_list[i];
+        if (condition->template_id != i) {
+            fprintf(stderr, "Condition list integrity check failed!\n");
+            exit(EXIT_FAILURE);
+        }
+    }
+}
+
+void cdn_exit(void) {
+
+}
+
 struct cdn_condition_list *cdn_list_init(void) {
     struct cdn_condition_list *i = calloc(1, sizeof(struct cdn_condition_list) );
     if (i != NULL) {
@@ -86,7 +100,7 @@ int cdn_list_size(struct cdn_condition_list *cdn_list) {
 
 static int cdn_calc_uid(struct cdn_condition_list *cdn_list) {
     if (cdn_verify_list(cdn_list) == false) return false;
-    uint32_t id = 0;
+    int id = 0;
 
     struct cdn_condition *c = NULL;
     while ( (c = cdn_list_get_next_condition(cdn_list, c) ) != NULL) {
@@ -138,12 +152,13 @@ static int cdn_calc_strength(struct condition_effect_struct *ces) {
     return dmg;
 }
 
-struct cdn_condition *cdn_create(struct cdn_condition_list *cdn_list, uint32_t tid) {
+struct cdn_condition *cdn_create(struct cdn_condition_list *cdn_list, enum cdn_ids tid) {
     if (tid == CID_NONE) return false;
-    if (tid >= ARRAY_SZ(static_condition_list) ) return false;
+    if (tid >= CID_MAX) return false;
+    if (tid >= (int) ARRAY_SZ(static_condition_list) ) return false;
 
     struct cdn_condition *cdn_template = &static_condition_list[tid];
-    if (cdn_template == NULL) return false;
+    assert(cdn_template != NULL);
 
     struct cdn_entry *ce = malloc(sizeof(struct cdn_entry) );
     if (ce == NULL) return false;
@@ -235,7 +250,7 @@ bool cdn_verify_condition(struct cdn_condition *cdn) {
     return true;
 }
 
-bool cdn_has_tid(struct cdn_condition_list *cdn_list, uint32_t tid) {
+bool cdn_has_tid(struct cdn_condition_list *cdn_list, enum cdn_ids tid) {
     if (cdn_verify_list(cdn_list) == false) return false;
 
     struct cdn_condition *c = NULL;
@@ -247,7 +262,7 @@ bool cdn_has_tid(struct cdn_condition_list *cdn_list, uint32_t tid) {
     return false;
 }
 
-struct cdn_condition *cdn_get_condition_tid(struct cdn_condition_list *cdn_list, uint32_t tid) {
+struct cdn_condition *cdn_get_condition_tid(struct cdn_condition_list *cdn_list, enum cdn_ids tid) {
     if (cdn_verify_list(cdn_list) == false) return NULL;
 
     struct cdn_condition *c = NULL;
@@ -319,7 +334,7 @@ static enum cdn_ids dmg_type_to_id_lot[MSR_HITLOC_MAX][DMG_TYPE_MAX] = {
 
 bool cdn_add_critical_hit(struct cdn_condition_list *cdn_list, int critical_dmg, enum msr_hit_location mhl, enum dmg_type type) {
     if (cdn_verify_list(cdn_list) == false) return false;
-    if (critical_dmg > 9) critical_dmg = 9;
+    if (critical_dmg > CDN_NR_CRITICAL_HITS_PER_LOCATION) critical_dmg = CDN_NR_CRITICAL_HITS_PER_LOCATION;
     critical_dmg -= 1; /* idx to offset */
 
     enum cdn_ids tid = dmg_type_to_id_lot[mhl][type];

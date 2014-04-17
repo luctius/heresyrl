@@ -22,6 +22,22 @@ static bool items_list_initialised = false;
 #include "items_static.c"
 
 void itmlst_items_list_init(void) {
+    for (unsigned int i = 0; i < IID_MAX; i++) {
+        struct itm_item *item = &static_item_list[i];
+        if (item->template_id != i) {
+            fprintf(stderr, "Item list integrity check failed!\n");
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    for (int i = 0; i < IID_MAX; i++) {
+        const char *string = itm_descs[i];
+        if (string == NULL) {
+            fprintf(stderr, "Item description list integrity check failed!\n");
+            exit(EXIT_FAILURE);
+        }
+    }
+
     if (items_list_initialised == false) {
         items_list_initialised = true;
         LIST_INIT(&items_list_head);
@@ -80,11 +96,12 @@ struct itm_item *itm_generate(enum item_types type) {
 #define ITEM_POST_CHECK (8708)
 
 struct itm_item *itm_create(int template_id) {
+    if (template_id >= IID_MAX) return NULL;
     if (template_id >= (int) ARRAY_SZ(static_item_list)) return NULL;
     if (items_list_initialised == false) itmlst_items_list_init();
 
     struct itm_item_list_entry *i = calloc(1, sizeof(struct itm_item_list_entry) );
-    if (i == NULL) return NULL;
+    assert(i != NULL);
 
     memcpy(&i->item, &static_item_list[template_id], sizeof(static_item_list[template_id]));
     LIST_INSERT_HEAD(&items_list_head, i, entries);

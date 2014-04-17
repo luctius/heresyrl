@@ -179,7 +179,7 @@ struct cdn_condition {
     uint32_t condition_pre;
 
     int uid;
-    int template_id;
+    enum cdn_ids template_id;
 
     uint16_t setting_flags;
     int8_t difficulty;
@@ -205,6 +205,9 @@ struct cdn_condition {
     uint32_t condition_post;
 };
 
+void cdn_init(void);
+void cdn_exit(void);
+
 struct cdn_condition_list *cdn_list_init(void);
 void cdn_list_exit(struct cdn_condition_list *cdn_list);
 bool cdn_verify_list(struct cdn_condition_list *cdn_list);
@@ -216,11 +219,11 @@ bool cdn_verify_condition(struct cdn_condition *cdn);
 
 struct cdn_condition *cdn_get_condition_tid(struct cdn_condition_list *cdn_list, enum cdn_ids tid);
 bool cdn_has_effect(struct cdn_condition_list *cdn_list, enum condition_effect_flags effect);
-bool cdn_has_tid(struct cdn_condition_list *cdn_list, uint32_t tid);
+bool cdn_has_tid(struct cdn_condition_list *cdn_list, enum cdn_ids tid);
 enum cdn_priority cdn_condition_effect_priority(struct cdn_condition_list *cdn_list, enum condition_effect_flags effect);
 int cdn_condition_effect_strength(struct cdn_condition_list *cdn_list, enum condition_effect_flags effect);
 
-struct cdn_condition *cdn_create(struct cdn_condition_list *cdn_list, uint32_t tid);
+struct cdn_condition *cdn_create(struct cdn_condition_list *cdn_list, enum cdn_ids tid);
 bool cdn_add_to_list(struct cdn_condition_list *cdn_list, struct cdn_condition *con);
 
 bool cdn_add_condition(struct cdn_condition_list *cdn_list, enum cdn_ids tid);

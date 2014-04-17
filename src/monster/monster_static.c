@@ -19,7 +19,7 @@
 #define BEAST( t...) .race=MSR_RACE_BEAST, .size=MSR_SIZE_AVERAGE, \
     .talents = { t , TLT_NONE }, .creature_traits = bf(CTRTRTS_BESTIAL) | bf(CTRTRTS_QUADRUPED)
 
-const char *msr_descs[] = {
+static const char *msr_descs[] = {
     [MID_DUMMY]       = "unknown",
     [MID_BASIC_FERAL] = "you",
     [MID_BASIC_HIVE]  = "you",
@@ -27,7 +27,7 @@ const char *msr_descs[] = {
     [MID_VICIOUS_DOG] = "description of a vicious dog",
 };
 
-struct msr_monster static_monster_list[] = {
+static struct msr_monster static_monster_list[] = {
 
     /*----------------- CHARACTER TEMPLATES  --------------------*/
     MONSTER(MID_DUMMY,'h',"dummy","a dummy",MSR_GENDER_MALE,1) HUMAN(0), CHARACTERISTICS(0,0,0,0,0,0,0,0,0), SKILLS(0,0,0), MONSTER_END,

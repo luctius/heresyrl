@@ -14,7 +14,7 @@
                 {.effect=_effect, .effect_setting_flags=bf(CDN_ESF_ACTIVE) | bf(CDN_ESF_TICK) | _flags, \
                 .priority=_priority, .strength=_dmg, .difficulty=_diff, .tick_energy_max=_tmax, .tick_energy=0, }
 
-struct cdn_condition static_condition_list[] = {
+static struct cdn_condition static_condition_list[] = {
     CONDITION(CID_NONE, "", "", NULL, NULL, NULL, NULL),
             SETTINGS( 0, 0, CID_NONE, 0, 0),
     CONDITION_END,
@@ -50,7 +50,20 @@ struct cdn_condition static_condition_list[] = {
             SETTINGS(bf(CDN_SF_REQ_AG_CHECK), 0, CID_NONE, 1, 10),
     CONDITION_END,
 
+
+
+
+
+
+
+
+
+
     /* Critical hits */
+
+    /* Energy critical hits */
+
+    /*Head*/
     CONDITION(CID_ENERGY_CRITICAL_HEAD_1, "", "", "", "", "", "", 
             EFFECT(CDN_EF_MODIFY_WS,   0, CDN_DAMAGE_TEN, 0, CDN_PRIORITY_VERY_LOW), 
             EFFECT(CDN_EF_MODIFY_BS,   0, CDN_DAMAGE_TEN, 0, CDN_PRIORITY_VERY_LOW), 
@@ -108,5 +121,632 @@ struct cdn_condition static_condition_list[] = {
             EFFECT(CDN_EF_DEATH,  0, CDN_DAMAGE_NONE, 0, CDN_PRIORITY_PERMANENT), ),
             SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
     CONDITION_END,
+
+    /* Chest */
+    CONDITION(CID_ENERGY_CRITICAL_CHEST_1, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    CONDITION(CID_ENERGY_CRITICAL_CHEST_2, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    CONDITION(CID_ENERGY_CRITICAL_CHEST_3, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    CONDITION(CID_ENERGY_CRITICAL_CHEST_4, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    CONDITION(CID_ENERGY_CRITICAL_CHEST_5, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    CONDITION(CID_ENERGY_CRITICAL_CHEST_6, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    CONDITION(CID_ENERGY_CRITICAL_CHEST_7, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    CONDITION(CID_ENERGY_CRITICAL_CHEST_8, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    CONDITION(CID_ENERGY_CRITICAL_CHEST_9, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    /* Arms */
+    CONDITION(CID_ENERGY_CRITICAL_ARMS_1, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    CONDITION(CID_ENERGY_CRITICAL_ARMS_2, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    CONDITION(CID_ENERGY_CRITICAL_ARMS_3, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    CONDITION(CID_ENERGY_CRITICAL_ARMS_4, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    CONDITION(CID_ENERGY_CRITICAL_ARMS_5, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    CONDITION(CID_ENERGY_CRITICAL_ARMS_6, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    CONDITION(CID_ENERGY_CRITICAL_ARMS_7, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    CONDITION(CID_ENERGY_CRITICAL_ARMS_8, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    CONDITION(CID_ENERGY_CRITICAL_ARMS_9, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    /* Legs */
+    CONDITION(CID_ENERGY_CRITICAL_LEGS_1, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    CONDITION(CID_ENERGY_CRITICAL_LEGS_2, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    CONDITION(CID_ENERGY_CRITICAL_LEGS_3, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    CONDITION(CID_ENERGY_CRITICAL_LEGS_4, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    CONDITION(CID_ENERGY_CRITICAL_LEGS_5, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    CONDITION(CID_ENERGY_CRITICAL_LEGS_6, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    CONDITION(CID_ENERGY_CRITICAL_LEGS_7, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    CONDITION(CID_ENERGY_CRITICAL_LEGS_8, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    CONDITION(CID_ENERGY_CRITICAL_LEGS_9, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+                /* Impact critical hits */
+
+                /*Head*/
+                CONDITION(CID_IMPACT_CRITICAL_HEAD_1, "", "", "", "", "", "", 
+                        EFFECT(CDN_EF_MODIFY_WS,   0, CDN_DAMAGE_TEN, 0, CDN_PRIORITY_VERY_LOW), 
+                        EFFECT(CDN_EF_MODIFY_BS,   0, CDN_DAMAGE_TEN, 0, CDN_PRIORITY_VERY_LOW), 
+                        EFFECT(CDN_EF_MODIFY_STR,  0, CDN_DAMAGE_TEN, 0, CDN_PRIORITY_VERY_LOW), 
+                        EFFECT(CDN_EF_MODIFY_AG,   0, CDN_DAMAGE_TEN, 0, CDN_PRIORITY_VERY_LOW), 
+                        EFFECT(CDN_EF_MODIFY_PER,  0, CDN_DAMAGE_TEN, 0, CDN_PRIORITY_VERY_LOW), 
+                        EFFECT(CDN_EF_MODIFY_WILL, 0, CDN_DAMAGE_TEN, 0, CDN_PRIORITY_VERY_LOW), 
+                        EFFECT(CDN_EF_MODIFY_INT,  0, CDN_DAMAGE_TEN, 0, CDN_PRIORITY_VERY_LOW), 
+                        EFFECT(CDN_EF_MODIFY_FEL,  0, CDN_DAMAGE_TEN, 0, CDN_PRIORITY_VERY_LOW), ),
+                        SETTINGS( bf(CDN_SF_UNIQUE) | bf(CDN_SF_ACTIVE_ALL), 0, CID_NONE, 1, 1),
+                CONDITION_END,
+
+                CONDITION(CID_IMPACT_CRITICAL_HEAD_2, "", "", "", "", "", "", 
+                        EFFECT(CDN_EF_BLINDNESS,  0, CDN_DAMAGE_NONE, 0, CDN_PRIORITY_LOW), ),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 1, 1),
+                CONDITION_END,
+
+                CONDITION(CID_IMPACT_CRITICAL_HEAD_3, "", "", "", "", "", "", 
+                        EFFECT(CDN_EF_STUNNED,        0, CDN_DAMAGE_NONE, 0, CDN_PRIORITY_AVERAGE),
+                        EFFECT(CDN_EF_MODIFY_FATIQUE, 0, CDN_DAMAGE_ONE,  0, CDN_PRIORITY_AVERAGE), ),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 1, 1),
+                CONDITION_END,
+
+                CONDITION(CID_IMPACT_CRITICAL_HEAD_4, "", "", "", "", "", "", 
+                        EFFECT(CDN_EF_BLINDNESS,      0, CDN_DAMAGE_NONE, 0, CDN_PRIORITY_AVERAGE),
+                        EFFECT(CDN_EF_MODIFY_FATIQUE, 0, CDN_DAMAGE_TWO,  0, CDN_PRIORITY_HIGH), ),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 1, 5),
+                CONDITION_END,
+
+                CONDITION(CID_IMPACT_CRITICAL_HEAD_5, "", "", "", "", "", "", 
+                        EFFECT(CDN_EF_BLINDNESS,      0, CDN_DAMAGE_NONE, 0, CDN_PRIORITY_HIGH),
+                        EFFECT(CDN_EF_MODIFY_FATIQUE, 0, CDN_DAMAGE_THREE,0, CDN_PRIORITY_HIGH), ),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 1, 10),
+                CONDITION_END,
+
+                CONDITION(CID_IMPACT_CRITICAL_HEAD_6, "", "", "", "", "", "", 
+                        EFFECT(CDN_EF_BLINDNESS,      0, CDN_DAMAGE_NONE, 0, CDN_PRIORITY_VERY_HIGH),
+                        EFFECT(CDN_EF_MODIFY_FATIQUE, 0, CDN_DAMAGE_1D5,  0, CDN_PRIORITY_VERY_HIGH), ),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 10, 100),
+                CONDITION_END,
+
+                CONDITION(CID_IMPACT_CRITICAL_HEAD_7, "", "", "", "", "", "", 
+                        EFFECT(CDN_EF_BLINDNESS,       0, CDN_DAMAGE_NONE, 0, CDN_PRIORITY_PERMANENT),
+                        EFFECT(CDN_EF_MODIFY_FATIQUE,  0, CDN_DAMAGE_1D10, 0, CDN_PRIORITY_VERY_HIGH),
+                        EFFECT(CDN_EF_MODIFY_FEL,      bf(CDN_ESF_MODIFY_BASE), CDN_DAMAGE_1D10, 0, CDN_PRIORITY_PERMANENT), ),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 100, 500),
+                CONDITION_END,
+
+                CONDITION(CID_IMPACT_CRITICAL_HEAD_8, "", "", NULL, "", NULL, "", 
+                        EFFECT(CDN_EF_DEATH,  0, CDN_DAMAGE_NONE, 0, CDN_PRIORITY_PERMANENT), ),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                CONDITION(CID_IMPACT_CRITICAL_HEAD_9, "", "", NULL, "", NULL, "", 
+                        EFFECT(CDN_EF_DEATH,  0, CDN_DAMAGE_NONE, 0, CDN_PRIORITY_PERMANENT), ),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                /* Chest */
+                CONDITION(CID_IMPACT_CRITICAL_CHEST_1, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                CONDITION(CID_IMPACT_CRITICAL_CHEST_2, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                CONDITION(CID_IMPACT_CRITICAL_CHEST_3, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                CONDITION(CID_IMPACT_CRITICAL_CHEST_4, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                CONDITION(CID_IMPACT_CRITICAL_CHEST_5, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                CONDITION(CID_IMPACT_CRITICAL_CHEST_6, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                CONDITION(CID_IMPACT_CRITICAL_CHEST_7, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                CONDITION(CID_IMPACT_CRITICAL_CHEST_8, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                CONDITION(CID_IMPACT_CRITICAL_CHEST_9, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                /* Arms */
+                CONDITION(CID_IMPACT_CRITICAL_ARMS_1, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                CONDITION(CID_IMPACT_CRITICAL_ARMS_2, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                CONDITION(CID_IMPACT_CRITICAL_ARMS_3, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                CONDITION(CID_IMPACT_CRITICAL_ARMS_4, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                CONDITION(CID_IMPACT_CRITICAL_ARMS_5, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                CONDITION(CID_IMPACT_CRITICAL_ARMS_6, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                CONDITION(CID_IMPACT_CRITICAL_ARMS_7, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                CONDITION(CID_IMPACT_CRITICAL_ARMS_8, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                CONDITION(CID_IMPACT_CRITICAL_ARMS_9, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                /* Legs */
+                CONDITION(CID_IMPACT_CRITICAL_LEGS_1, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                CONDITION(CID_IMPACT_CRITICAL_LEGS_2, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                CONDITION(CID_IMPACT_CRITICAL_LEGS_3, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                CONDITION(CID_IMPACT_CRITICAL_LEGS_4, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                CONDITION(CID_IMPACT_CRITICAL_LEGS_5, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                CONDITION(CID_IMPACT_CRITICAL_LEGS_6, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                CONDITION(CID_IMPACT_CRITICAL_LEGS_7, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                CONDITION(CID_IMPACT_CRITICAL_LEGS_8, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                CONDITION(CID_IMPACT_CRITICAL_LEGS_9, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+    /* Rending critical hits */
+
+    /*Head*/
+    CONDITION(CID_RENDING_CRITICAL_HEAD_1, "", "", "", "", "", "", 
+            EFFECT(CDN_EF_MODIFY_WS,   0, CDN_DAMAGE_TEN, 0, CDN_PRIORITY_VERY_LOW), 
+            EFFECT(CDN_EF_MODIFY_BS,   0, CDN_DAMAGE_TEN, 0, CDN_PRIORITY_VERY_LOW), 
+            EFFECT(CDN_EF_MODIFY_STR,  0, CDN_DAMAGE_TEN, 0, CDN_PRIORITY_VERY_LOW), 
+            EFFECT(CDN_EF_MODIFY_AG,   0, CDN_DAMAGE_TEN, 0, CDN_PRIORITY_VERY_LOW), 
+            EFFECT(CDN_EF_MODIFY_PER,  0, CDN_DAMAGE_TEN, 0, CDN_PRIORITY_VERY_LOW), 
+            EFFECT(CDN_EF_MODIFY_WILL, 0, CDN_DAMAGE_TEN, 0, CDN_PRIORITY_VERY_LOW), 
+            EFFECT(CDN_EF_MODIFY_INT,  0, CDN_DAMAGE_TEN, 0, CDN_PRIORITY_VERY_LOW), 
+            EFFECT(CDN_EF_MODIFY_FEL,  0, CDN_DAMAGE_TEN, 0, CDN_PRIORITY_VERY_LOW), ),
+            SETTINGS( bf(CDN_SF_UNIQUE) | bf(CDN_SF_ACTIVE_ALL), 0, CID_NONE, 1, 1),
+    CONDITION_END,
+
+    CONDITION(CID_RENDING_CRITICAL_HEAD_2, "", "", "", "", "", "", 
+            EFFECT(CDN_EF_BLINDNESS,  0, CDN_DAMAGE_NONE, 0, CDN_PRIORITY_LOW), ),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 1, 1),
+    CONDITION_END,
+
+    CONDITION(CID_RENDING_CRITICAL_HEAD_3, "", "", "", "", "", "", 
+            EFFECT(CDN_EF_STUNNED,        0, CDN_DAMAGE_NONE, 0, CDN_PRIORITY_AVERAGE),
+            EFFECT(CDN_EF_MODIFY_FATIQUE, 0, CDN_DAMAGE_ONE,  0, CDN_PRIORITY_AVERAGE), ),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 1, 1),
+    CONDITION_END,
+
+    CONDITION(CID_RENDING_CRITICAL_HEAD_4, "", "", "", "", "", "", 
+            EFFECT(CDN_EF_BLINDNESS,      0, CDN_DAMAGE_NONE, 0, CDN_PRIORITY_AVERAGE),
+            EFFECT(CDN_EF_MODIFY_FATIQUE, 0, CDN_DAMAGE_TWO,  0, CDN_PRIORITY_HIGH), ),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 1, 5),
+    CONDITION_END,
+
+    CONDITION(CID_RENDING_CRITICAL_HEAD_5, "", "", "", "", "", "", 
+            EFFECT(CDN_EF_BLINDNESS,      0, CDN_DAMAGE_NONE, 0, CDN_PRIORITY_HIGH),
+            EFFECT(CDN_EF_MODIFY_FATIQUE, 0, CDN_DAMAGE_THREE,0, CDN_PRIORITY_HIGH), ),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 1, 10),
+    CONDITION_END,
+
+    CONDITION(CID_RENDING_CRITICAL_HEAD_6, "", "", "", "", "", "", 
+            EFFECT(CDN_EF_BLINDNESS,      0, CDN_DAMAGE_NONE, 0, CDN_PRIORITY_VERY_HIGH),
+            EFFECT(CDN_EF_MODIFY_FATIQUE, 0, CDN_DAMAGE_1D5,  0, CDN_PRIORITY_VERY_HIGH), ),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 10, 100),
+    CONDITION_END,
+
+    CONDITION(CID_RENDING_CRITICAL_HEAD_7, "", "", "", "", "", "", 
+            EFFECT(CDN_EF_BLINDNESS,       0, CDN_DAMAGE_NONE, 0, CDN_PRIORITY_PERMANENT),
+            EFFECT(CDN_EF_MODIFY_FATIQUE,  0, CDN_DAMAGE_1D10, 0, CDN_PRIORITY_VERY_HIGH),
+            EFFECT(CDN_EF_MODIFY_FEL,      bf(CDN_ESF_MODIFY_BASE), CDN_DAMAGE_1D10, 0, CDN_PRIORITY_PERMANENT), ),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 100, 500),
+    CONDITION_END,
+
+    CONDITION(CID_RENDING_CRITICAL_HEAD_8, "", "", NULL, "", NULL, "", 
+            EFFECT(CDN_EF_DEATH,  0, CDN_DAMAGE_NONE, 0, CDN_PRIORITY_PERMANENT), ),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    CONDITION(CID_RENDING_CRITICAL_HEAD_9, "", "", NULL, "", NULL, "", 
+            EFFECT(CDN_EF_DEATH,  0, CDN_DAMAGE_NONE, 0, CDN_PRIORITY_PERMANENT), ),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    /* Chest */
+    CONDITION(CID_RENDING_CRITICAL_CHEST_1, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    CONDITION(CID_RENDING_CRITICAL_CHEST_2, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    CONDITION(CID_RENDING_CRITICAL_CHEST_3, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    CONDITION(CID_RENDING_CRITICAL_CHEST_4, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    CONDITION(CID_RENDING_CRITICAL_CHEST_5, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    CONDITION(CID_RENDING_CRITICAL_CHEST_6, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    CONDITION(CID_RENDING_CRITICAL_CHEST_7, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    CONDITION(CID_RENDING_CRITICAL_CHEST_8, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    CONDITION(CID_RENDING_CRITICAL_CHEST_9, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    /* Arms */
+    CONDITION(CID_RENDING_CRITICAL_ARMS_1, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    CONDITION(CID_RENDING_CRITICAL_ARMS_2, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    CONDITION(CID_RENDING_CRITICAL_ARMS_3, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    CONDITION(CID_RENDING_CRITICAL_ARMS_4, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    CONDITION(CID_RENDING_CRITICAL_ARMS_5, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    CONDITION(CID_RENDING_CRITICAL_ARMS_6, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    CONDITION(CID_RENDING_CRITICAL_ARMS_7, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    CONDITION(CID_RENDING_CRITICAL_ARMS_8, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    CONDITION(CID_RENDING_CRITICAL_ARMS_9, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    /* Legs */
+    CONDITION(CID_RENDING_CRITICAL_LEGS_1, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    CONDITION(CID_RENDING_CRITICAL_LEGS_2, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    CONDITION(CID_RENDING_CRITICAL_LEGS_3, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    CONDITION(CID_RENDING_CRITICAL_LEGS_4, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    CONDITION(CID_RENDING_CRITICAL_LEGS_5, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    CONDITION(CID_RENDING_CRITICAL_LEGS_6, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    CONDITION(CID_RENDING_CRITICAL_LEGS_7, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    CONDITION(CID_RENDING_CRITICAL_LEGS_8, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+    CONDITION(CID_RENDING_CRITICAL_LEGS_9, "", "", NULL, NULL, NULL, NULL),
+            SETTINGS( 0, 0, CID_NONE, 0, 0),
+    CONDITION_END,
+
+                /* Explosive critical hits */
+
+                /*Head*/
+                CONDITION(CID_EXPLOSIVE_CRITICAL_HEAD_1, "", "", "", "", "", "", 
+                        EFFECT(CDN_EF_MODIFY_WS,   0, CDN_DAMAGE_TEN, 0, CDN_PRIORITY_VERY_LOW), 
+                        EFFECT(CDN_EF_MODIFY_BS,   0, CDN_DAMAGE_TEN, 0, CDN_PRIORITY_VERY_LOW), 
+                        EFFECT(CDN_EF_MODIFY_STR,  0, CDN_DAMAGE_TEN, 0, CDN_PRIORITY_VERY_LOW), 
+                        EFFECT(CDN_EF_MODIFY_AG,   0, CDN_DAMAGE_TEN, 0, CDN_PRIORITY_VERY_LOW), 
+                        EFFECT(CDN_EF_MODIFY_PER,  0, CDN_DAMAGE_TEN, 0, CDN_PRIORITY_VERY_LOW), 
+                        EFFECT(CDN_EF_MODIFY_WILL, 0, CDN_DAMAGE_TEN, 0, CDN_PRIORITY_VERY_LOW), 
+                        EFFECT(CDN_EF_MODIFY_INT,  0, CDN_DAMAGE_TEN, 0, CDN_PRIORITY_VERY_LOW), 
+                        EFFECT(CDN_EF_MODIFY_FEL,  0, CDN_DAMAGE_TEN, 0, CDN_PRIORITY_VERY_LOW), ),
+                        SETTINGS( bf(CDN_SF_UNIQUE) | bf(CDN_SF_ACTIVE_ALL), 0, CID_NONE, 1, 1),
+                CONDITION_END,
+
+                CONDITION(CID_EXPLOSIVE_CRITICAL_HEAD_2, "", "", "", "", "", "", 
+                        EFFECT(CDN_EF_BLINDNESS,  0, CDN_DAMAGE_NONE, 0, CDN_PRIORITY_LOW), ),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 1, 1),
+                CONDITION_END,
+
+                CONDITION(CID_EXPLOSIVE_CRITICAL_HEAD_3, "", "", "", "", "", "", 
+                        EFFECT(CDN_EF_STUNNED,        0, CDN_DAMAGE_NONE, 0, CDN_PRIORITY_AVERAGE),
+                        EFFECT(CDN_EF_MODIFY_FATIQUE, 0, CDN_DAMAGE_ONE,  0, CDN_PRIORITY_AVERAGE), ),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 1, 1),
+                CONDITION_END,
+
+                CONDITION(CID_EXPLOSIVE_CRITICAL_HEAD_4, "", "", "", "", "", "", 
+                        EFFECT(CDN_EF_BLINDNESS,      0, CDN_DAMAGE_NONE, 0, CDN_PRIORITY_AVERAGE),
+                        EFFECT(CDN_EF_MODIFY_FATIQUE, 0, CDN_DAMAGE_TWO,  0, CDN_PRIORITY_HIGH), ),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 1, 5),
+                CONDITION_END,
+
+                CONDITION(CID_EXPLOSIVE_CRITICAL_HEAD_5, "", "", "", "", "", "", 
+                        EFFECT(CDN_EF_BLINDNESS,      0, CDN_DAMAGE_NONE, 0, CDN_PRIORITY_HIGH),
+                        EFFECT(CDN_EF_MODIFY_FATIQUE, 0, CDN_DAMAGE_THREE,0, CDN_PRIORITY_HIGH), ),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 1, 10),
+                CONDITION_END,
+
+                CONDITION(CID_EXPLOSIVE_CRITICAL_HEAD_6, "", "", "", "", "", "", 
+                        EFFECT(CDN_EF_BLINDNESS,      0, CDN_DAMAGE_NONE, 0, CDN_PRIORITY_VERY_HIGH),
+                        EFFECT(CDN_EF_MODIFY_FATIQUE, 0, CDN_DAMAGE_1D5,  0, CDN_PRIORITY_VERY_HIGH), ),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 10, 100),
+                CONDITION_END,
+
+                CONDITION(CID_EXPLOSIVE_CRITICAL_HEAD_7, "", "", "", "", "", "", 
+                        EFFECT(CDN_EF_BLINDNESS,       0, CDN_DAMAGE_NONE, 0, CDN_PRIORITY_PERMANENT),
+                        EFFECT(CDN_EF_MODIFY_FATIQUE,  0, CDN_DAMAGE_1D10, 0, CDN_PRIORITY_VERY_HIGH),
+                        EFFECT(CDN_EF_MODIFY_FEL,      bf(CDN_ESF_MODIFY_BASE), CDN_DAMAGE_1D10, 0, CDN_PRIORITY_PERMANENT), ),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 100, 500),
+                CONDITION_END,
+
+                CONDITION(CID_EXPLOSIVE_CRITICAL_HEAD_8, "", "", NULL, "", NULL, "", 
+                        EFFECT(CDN_EF_DEATH,  0, CDN_DAMAGE_NONE, 0, CDN_PRIORITY_PERMANENT), ),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                CONDITION(CID_EXPLOSIVE_CRITICAL_HEAD_9, "", "", NULL, "", NULL, "", 
+                        EFFECT(CDN_EF_DEATH,  0, CDN_DAMAGE_NONE, 0, CDN_PRIORITY_PERMANENT), ),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                /* Chest */
+                CONDITION(CID_EXPLOSIVE_CRITICAL_CHEST_1, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                CONDITION(CID_EXPLOSIVE_CRITICAL_CHEST_2, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                CONDITION(CID_EXPLOSIVE_CRITICAL_CHEST_3, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                CONDITION(CID_EXPLOSIVE_CRITICAL_CHEST_4, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                CONDITION(CID_EXPLOSIVE_CRITICAL_CHEST_5, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                CONDITION(CID_EXPLOSIVE_CRITICAL_CHEST_6, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                CONDITION(CID_EXPLOSIVE_CRITICAL_CHEST_7, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                CONDITION(CID_EXPLOSIVE_CRITICAL_CHEST_8, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                CONDITION(CID_EXPLOSIVE_CRITICAL_CHEST_9, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                /* Arms */
+                CONDITION(CID_EXPLOSIVE_CRITICAL_ARMS_1, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                CONDITION(CID_EXPLOSIVE_CRITICAL_ARMS_2, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                CONDITION(CID_EXPLOSIVE_CRITICAL_ARMS_3, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                CONDITION(CID_EXPLOSIVE_CRITICAL_ARMS_4, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                CONDITION(CID_EXPLOSIVE_CRITICAL_ARMS_5, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                CONDITION(CID_EXPLOSIVE_CRITICAL_ARMS_6, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                CONDITION(CID_EXPLOSIVE_CRITICAL_ARMS_7, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                CONDITION(CID_EXPLOSIVE_CRITICAL_ARMS_8, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                CONDITION(CID_EXPLOSIVE_CRITICAL_ARMS_9, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                /* Legs */
+                CONDITION(CID_EXPLOSIVE_CRITICAL_LEGS_1, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                CONDITION(CID_EXPLOSIVE_CRITICAL_LEGS_2, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                CONDITION(CID_EXPLOSIVE_CRITICAL_LEGS_3, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                CONDITION(CID_EXPLOSIVE_CRITICAL_LEGS_4, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                CONDITION(CID_EXPLOSIVE_CRITICAL_LEGS_5, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                CONDITION(CID_EXPLOSIVE_CRITICAL_LEGS_6, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                CONDITION(CID_EXPLOSIVE_CRITICAL_LEGS_7, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                CONDITION(CID_EXPLOSIVE_CRITICAL_LEGS_8, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
+
+                CONDITION(CID_EXPLOSIVE_CRITICAL_LEGS_9, "", "", NULL, NULL, NULL, NULL),
+                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                CONDITION_END,
 };
 

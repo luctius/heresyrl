@@ -28,6 +28,22 @@ struct msr_monster_list_entry {
 };
 
 void msrlst_monster_list_init(void) {
+    for (unsigned int i = 0; i < MID_MAX; i++) {
+        struct msr_monster *template_monster = &static_monster_list[i];
+        if (template_monster->template_id != i) {
+            fprintf(stderr, "Monster list integrity check failed!\n");
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    for (int i = 0; i < MID_MAX; i++) {
+        const char *string = msr_descs[i];
+        if (string == NULL) {
+            fprintf(stderr, "Monster description list integrity check failed!\n");
+            exit(EXIT_FAILURE);
+        }
+    }
+
     if (monster_list_initialised == false) {
         monster_list_initialised = true;
         LIST_INIT(&monster_list_head);
@@ -73,51 +89,52 @@ static struct itm_item *msr_unarmed_weapon(struct msr_monster *monster);
 
 struct msr_monster *msr_create(uint32_t template_id) {
     if (monster_list_initialised == false) msrlst_monster_list_init();
+    if (template_id >= MID_MAX) return NULL;
     if (template_id >= (int) ARRAY_SZ(static_monster_list)) return NULL;
     struct msr_monster *template_monster = &static_monster_list[template_id];
 
     struct msr_monster_list_entry *m = calloc(1,sizeof(struct msr_monster_list_entry) );
-    if (m != NULL) {
-        memcpy(&m->monster, template_monster, sizeof(struct msr_monster) );
-        m->monster.controller.controller_ctx = NULL;
-        m->monster.controller.controller_cb = NULL;
-        m->monster.pos = cd_create(0,0);
-        m->monster.uid = msrlst_next_id();
-        m->monster.energy = TT_ENERGY_FULL;
-        m->monster.faction = 1;
-        m->monster.inventory = NULL;
-        m->monster.conditions = cdn_list_init();
-        m->monster.description=msr_descs[template_id];
+    assert(m != NULL);
 
-        m->monster.monster_pre = MONSTER_PRE_CHECK;
-        m->monster.monster_post = MONSTER_POST_CHECK;
+    memcpy(&m->monster, template_monster, sizeof(struct msr_monster) );
+    m->monster.controller.controller_ctx = NULL;
+    m->monster.controller.controller_cb = NULL;
+    m->monster.pos = cd_create(0,0);
+    m->monster.uid = msrlst_next_id();
+    m->monster.energy = TT_ENERGY_FULL;
+    m->monster.faction = 1;
+    m->monster.inventory = NULL;
+    m->monster.conditions = cdn_list_init();
+    m->monster.description=msr_descs[template_id];
+    assert(m->monster.description != NULL);
 
-        switch (m->monster.race) {
-            case MSR_RACE_HUMAN:
-                m->monster.inventory = inv_init(inv_loc_human);
-                break;
-            case MSR_RACE_BEAST:
-            case MSR_RACE_DOMESTIC:
-                m->monster.inventory = inv_init(inv_loc_animal);
-                break;
-            default:
-                free(m);
-                assert(false);
-                return NULL;
-                break;
-        }
+    m->monster.monster_pre = MONSTER_PRE_CHECK;
+    m->monster.monster_post = MONSTER_POST_CHECK;
 
-        if (inv_loc_empty(m->monster.inventory, INV_LOC_CREATURE_WIELD1) ) {
-            struct itm_item *item = msr_unarmed_weapon(&m->monster);
-            if (inv_add_item(m->monster.inventory, item) == true) {
-                assert(inv_move_item_to_location(m->monster.inventory, item, INV_LOC_CREATURE_WIELD1) );
-            }
-        }
-
-        LIST_INSERT_HEAD(&monster_list_head, m, entries);
-        return &m->monster;
+    switch (m->monster.race) {
+        case MSR_RACE_HUMAN:
+            m->monster.inventory = inv_init(inv_loc_human);
+            break;
+        case MSR_RACE_BEAST:
+        case MSR_RACE_DOMESTIC:
+            m->monster.inventory = inv_init(inv_loc_animal);
+            break;
+        default:
+            free(m);
+            assert(false);
+            return NULL;
+            break;
     }
-    return NULL;
+
+    if (inv_loc_empty(m->monster.inventory, INV_LOC_CREATURE_WIELD1) ) {
+        struct itm_item *item = msr_unarmed_weapon(&m->monster);
+        if (inv_add_item(m->monster.inventory, item) == true) {
+            assert(inv_move_item_to_location(m->monster.inventory, item, INV_LOC_CREATURE_WIELD1) );
+        }
+    }
+
+    LIST_INSERT_HEAD(&monster_list_head, m, entries);
+    return &m->monster;
 }
 
 void msr_destroy(struct msr_monster *monster, struct dm_map *map) {

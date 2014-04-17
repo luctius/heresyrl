@@ -625,7 +625,7 @@ void msgwin_log_refresh(struct logging *lg, struct log_entry *new_entry) {
 
     int game_lvl_sz = 0;
     for (int i = log_sz; i > 0; i--) {
-        tmp_entry = (struct log_entry *) queue_peek_nr(q, i-1);
+        tmp_entry = queue_peek_nr(q, i-1);
         if ( (tmp_entry != NULL) && (tmp_entry->level <= LG_DEBUG_LEVEL_GAME) ) {
             game_lvl_sz++;
             log_start = i -1;
@@ -640,7 +640,7 @@ void msgwin_log_refresh(struct logging *lg, struct log_entry *new_entry) {
 
         wclear(msg_win->win);
         for (int i = log_start; i < log_sz; i++) {
-            tmp_entry = (struct log_entry *) queue_peek_nr(q, i);
+            tmp_entry = queue_peek_nr(q, i);
             if ( (tmp_entry != NULL) && (tmp_entry->level <= LG_DEBUG_LEVEL_GAME) ) {
                 for (int l = 0; l < tmp_entry->atom_lst_sz; l++) {
                     struct log_atom *a = &tmp_entry->atom_lst[l];
@@ -1325,7 +1325,7 @@ void log_window(void) {
     textwin_init(&pad,1,0,0,log_sz);
     if (log_sz > 0) {
         for (int i = log_sz; i > 0; i--) {
-            tmp_entry = (struct log_entry *) queue_peek_nr(q, i-1);
+            tmp_entry = queue_peek_nr(q, i-1);
             if (tmp_entry != NULL) {
                 bool print = false;
 

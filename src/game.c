@@ -27,9 +27,11 @@ void game_init(struct pl_player *plr, unsigned long initial_seed) {
         if (gbl_game != NULL) {
             gbl_game->initial_seed = initial_seed;
             gbl_game->turn = 0;
+
             msrlst_monster_list_init();
             itmlst_items_list_init();
             tt_init();
+            cdn_init();
 
             gbl_game->sight = sgt_init();
             gbl_game->input = inp_init();
@@ -125,8 +127,8 @@ bool game_exit() {
 
     if (gbl_game->current_map != NULL) dm_free_map(gbl_game->current_map);
 
+    cdn_exit();
     tt_exit();
-
     msrlst_monster_list_exit();
     itmlst_items_list_exit();
 

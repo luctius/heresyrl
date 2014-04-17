@@ -75,7 +75,7 @@
 #define STIMM(_food_type,cid) .icon='?', .stacked_quantity=1, .max_quantity=100, .dropable=true, \
             .item_type=ITEM_TYPE_FOOD, .specific.food={ .food_type=_food_type, .nutrition=0, .nutrition_left=0, .convey_condition=cid, }
 
-const char *itm_descs[] = {
+static const char *itm_descs[] = {
     [IID_FIXED_LIGHT]       = "",
     [IID_GLOW_GLOBE]        = "This a generic glow globe",
 
@@ -111,7 +111,7 @@ const char *itm_descs[] = {
     [IID_STIMM_DEATH]      = "Death stimm injector *debug*",
 };
 
-struct itm_item static_item_list[] = {
+static struct itm_item static_item_list[] = {
     /* Tools */
 
 
