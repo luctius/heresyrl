@@ -33,8 +33,16 @@ static struct tohit_desc tohit_descr_lst[MAX_TO_HIT_MODS];
     }
 
 int fght_ranged_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght_hand hand) {
+    if (msr_verify_monster(monster) == false) return -1;
+    struct sgt_sight *sight = gbl_game->sight;
+    struct dm_map *map = gbl_game->current_map;
+
+    /* check los with a rediculous radius. if true, it means that there is a LoS. */
+    if (sgt_has_los(sight, map, &monster->pos, tpos, map->size.x + map->size.y) == false) return false;
+
     struct dm_map_entity *me = dm_get_map_me(tpos, gbl_game->current_map);
     struct msr_monster *target = me->monster;
+    if (msr_verify_monster(target) == false) return -1;
 
     struct itm_item *witem = fght_get_working_weapon(monster, WEAPON_TYPE_RANGED, hand);
     if (witem == NULL) {
@@ -90,10 +98,20 @@ int fght_ranged_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght
             else CALC_TOHIT(distance <= FGHT_POINT_BLANK_RANGE, FGHT_RANGED_MODIFIER_POINT_BLACK, "target is at point-blank range")
             else CALC_TOHIT(dis_in_meters <= (weapon_range * 0.5), FGHT_RANGED_MODIFIER_SHORT_RANGE, "target is at short range")
 
-        /* Lighting modifiers */ /* TODO: These are based around the player, make them player agnostic */
-        CALC_TOHIT(me->in_sight == false, FGHT_MODIFIER_VISION_COMPLETE_DARKNESS, "target is in complete darkness")
-        else CALC_TOHIT(me->visible == false, FGHT_MODIFIER_VISION_DARKNESS, "target is in darkness")
-        else CALC_TOHIT((me->in_sight) && (me->light_level == 0), FGHT_MODIFIER_VISION_SHADOWS, "target is in shadows")
+        { /* Lighting modifiers */
+            int far_range = msr_get_far_sight_range(monster);
+            int medium_range = msr_get_medium_sight_range(monster);
+            int near_range = msr_get_near_sight_range(monster);
+
+            /* target is out of sight range... */
+            CALC_TOHIT(sgt_has_los(sight, map, &monster->pos, tpos, far_range) == false, FGHT_MODIFIER_VISION_COMPLETE_DARKNESS, "target is in complete darkness")
+            else if (me->light_level == 0) {
+                /* target is within far sight, but there is no light on the tile */
+                CALC_TOHIT(sgt_has_los(sight, map, &monster->pos, tpos, medium_range) == false, FGHT_MODIFIER_VISION_DARKNESS, "target is in darkness")
+                /* target is within medium sight, but there is no light on the tile */
+                else CALC_TOHIT(sgt_has_los(sight, map, &monster->pos, tpos, near_range) == false, FGHT_MODIFIER_VISION_SHADOWS, "target is in shadows")
+            }
+        }
 
         /* Quality modifiers */
         CALC_TOHIT(itm_has_quality(witem, ITEM_QLTY_BEST), FGHT_MODIFIER_QLTY_TO_HIT_BEST, "your weapon is of best quality")
@@ -102,6 +120,11 @@ int fght_ranged_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght
 
         /* Weapon talent of used weapon */
         CALC_TOHIT(msr_has_talent(monster, wpn->wpn_talent) == false, FGHT_MODIFIER_UNTRAINED_WEAPON, "you are untrained in this weapon")
+
+
+        /* Conditions */
+        CALC_TOHIT(cdn_has_effect(target->conditions, CDN_EF_STUNNED), FGHT_MODIFIER_CONDITION_STUNNED, "target is stunned")
+
 
         /* Maximum modifier, keep these at the end! */
         if (to_hit_mod < -FGHT_MODIFIER_MAX) to_hit_mod = -FGHT_MODIFIER_MAX;
@@ -112,8 +135,16 @@ int fght_ranged_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght
 }
 
 int fght_melee_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght_hand hand) {
+    if (msr_verify_monster(monster) == false) return -1;
+    struct sgt_sight *sight = gbl_game->sight;
+    struct dm_map *map = gbl_game->current_map;
+
+    /* check los with a rediculous radius. if true, it means that there is a LoS. */
+    if (sgt_has_los(sight, map, &monster->pos, tpos, map->size.x + map->size.y) == false) return false;
+
     struct dm_map_entity *me = dm_get_map_me(tpos, gbl_game->current_map);
     struct msr_monster *target = me->monster;
+    if (msr_verify_monster(target) == false) return -1;
 
     struct itm_item *witem = fght_get_working_weapon(monster, WEAPON_TYPE_MELEE, hand);
     if (witem == NULL) return -1;
@@ -143,13 +174,26 @@ int fght_melee_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght_
             else CALC_TOHIT(target->size == MSR_SIZE_MINISCULE, FGHT_MODIFIER_SIZE_MINISCULE, "target is of miniscule size")
         }
 
-        /* Add lighting modifiers */
-        CALC_TOHIT(me->in_sight == false, FGHT_MODIFIER_VISION_COMPLETE_DARKNESS, "target is in complete darkness")
-        else CALC_TOHIT(me->visible == false, FGHT_MODIFIER_VISION_DARKNESS, "target is in darkness")
-        else CALC_TOHIT((me->in_sight) && (me->light_level == 0), FGHT_MODIFIER_VISION_SHADOWS, "target is in shadows")
+        { /* Lighting modifiers */
+            int far_range = msr_get_far_sight_range(monster);
+            int medium_range = msr_get_medium_sight_range(monster);
+            int near_range = msr_get_near_sight_range(monster);
+
+            /* target is out of sight range... */
+            CALC_TOHIT(sgt_has_los(sight, map, &monster->pos, tpos, far_range) == false, FGHT_MODIFIER_VISION_COMPLETE_DARKNESS, "target is in complete darkness")
+            else if (me->light_level == 0) {
+                /* target is within far sight, but there is no light on the tile */
+                CALC_TOHIT(sgt_has_los(sight, map, &monster->pos, tpos, medium_range) == false, FGHT_MODIFIER_VISION_DARKNESS, "target is in darkness")
+                /* target is within medium sight, but there is no light on the tile */
+                else CALC_TOHIT(sgt_has_los(sight, map, &monster->pos, tpos, near_range) == false, FGHT_MODIFIER_VISION_SHADOWS, "target is in shadows")
+            }
+        }
 
         /* Weapon talent of used weapon */
         CALC_TOHIT(msr_has_talent(monster, wpn->wpn_talent) == false, FGHT_MODIFIER_UNTRAINED_WEAPON, "you are untrained in this weapon")
+
+        /* Conditions */
+        CALC_TOHIT(cdn_has_effect(target->conditions, CDN_EF_STUNNED), FGHT_MODIFIER_CONDITION_STUNNED, "target is stunned")
 
         /* Maximum modifier, keep these at the end! */
         if (to_hit_mod < -FGHT_MODIFIER_MAX) to_hit_mod = -FGHT_MODIFIER_MAX;

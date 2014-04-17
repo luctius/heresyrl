@@ -1,12 +1,13 @@
 basic fighting system   -- throwing, effects and criticals remain
 monster generation      -- initial system done
 item generation         -- initial system done
-basic career and homeworld system
-status effect system
+status effect system    -- initial system done
 character screen        -- initial screen done
 basic chargen           -- initial screen done
-better ingame message system -- done
+title screen            -- nothing done yet
+better ingame message system -- todo, write to save file...
 ai                      -- initial system done
+basic career and homeworld system
 
 
 ideas:
@@ -16,9 +17,10 @@ Make the game sound based (actions cost sound, enemies go to the biggest sound s
 sound based detection and npc communication
 Vendor machines and Medical machines.
 autoexplore in direction
-steroids and other chems.
+steroids and other chems. <- in condition system
 warp artifacts
 warp based grenades
+create dungeon objects (like barrels) and treat them as cover.
 
 bugs:
 fght descriptors per weapon (fire,slash,spit,spray,chop ... )

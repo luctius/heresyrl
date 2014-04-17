@@ -20,6 +20,6 @@ double random_float(struct random *r);
 unsigned long random_get_seed(struct random *r);
 int random_get_nr_called(struct random *r);
 void random_loop_called(struct random *r, int called);
-char *random_die_name(int die_sz);
+const char *random_die_name(int die_sz);
 
 #endif /*RANDOM_H_*/

@@ -10,6 +10,8 @@
 #include "heresyrl_def.h"
 #include "random.h"
 #include "turn_tick.h"
+#include "items/items_static.h"
+#include "dungeon/dungeon_map.h"
 
 
 struct cdn_entry {
@@ -599,48 +601,40 @@ void cdn_process(struct cdn_condition_list *cdn_list, struct msr_monster *monste
                     }break;
 
                     case CDN_EF_DISABLE_LLEG: break;
-
                     case CDN_EF_DISABLE_RLEG: break;
-
                     case CDN_EF_DISABLE_LARM: break;
-
                     case CDN_EF_DISABLE_RARM: break;
-
                     case CDN_EF_DISABLE_CHEST: break;
 
+                    case CDN_EF_DAMAGE: clr_bf(ces->effect_setting_flags, CDN_ESF_ACTIVE);
+                                         /*no break; */
                     case CDN_EF_DAMAGE_TICK: {
                         enum msr_hit_location mhl = msr_get_hit_location(monster, random_d100(gbl_game->random) );
                         enum dmg_type dmg_type = DMG_TYPE_IMPACT;
-                        if (test_bf(ces->effect_setting_flags, CDN_ESF_DMG_TYPE_ENERGY) ) dmg_type = DMG_TYPE_ENERGY;
-                        else if (test_bf(ces->effect_setting_flags, CDN_ESF_DMG_TYPE_RENDING) ) dmg_type = DMG_TYPE_RENDING;
-                        else if (test_bf(ces->effect_setting_flags, CDN_ESF_DMG_TYPE_EXPLODING) ) dmg_type = DMG_TYPE_EXPLOSIVE;
-                        else if (test_bf(ces->effect_setting_flags, CDN_ESF_DMG_TYPE_IMPACT) ) dmg_type = DMG_TYPE_IMPACT;
+                        if (test_bf(ces->effect_setting_flags, CDN_ESF_DMG_TYPE_ENERGY) )           dmg_type = DMG_TYPE_ENERGY;
+                        else if (test_bf(ces->effect_setting_flags, CDN_ESF_DMG_TYPE_RENDING) )     dmg_type = DMG_TYPE_RENDING;
+                        else if (test_bf(ces->effect_setting_flags, CDN_ESF_DMG_TYPE_EXPLODING) )   dmg_type = DMG_TYPE_EXPLOSIVE;
+                        else if (test_bf(ces->effect_setting_flags, CDN_ESF_DMG_TYPE_IMPACT) )      dmg_type = DMG_TYPE_IMPACT;
 
-                        msr_do_dmg(monster, ces->strength, dmg_type, mhl, gbl_game->current_map);
+                        msr_do_dmg(monster, abs(ces->strength), dmg_type, mhl, gbl_game->current_map);
                     } break;
 
+                    case CDN_EF_HEALTH: clr_bf(ces->effect_setting_flags, CDN_ESF_ACTIVE);
+                                         /*no break; */
                     case CDN_EF_HEALTH_TICK: {
-                        if (monster->cur_wounds < monster->max_wounds) {
-                            monster->cur_wounds += 1;
-                        }
+                        monster->cur_wounds += abs(ces->strength);
+                        if (monster->cur_wounds > monster->max_wounds) 
+                                monster->cur_wounds = monster->max_wounds;
                     } break;
 
                     case CDN_EF_BLINDNESS: break;
-
                     case CDN_EF_DEAFNESS: break;
-
                     case CDN_EF_STUNNED: break;
-
                     case CDN_EF_HALUCINATING: break;
-
                     case CDN_EF_CONFUSED: break;
-
                     case CDN_EF_INHIBIT_FATE_POINT: break;
-
                     case CDN_EF_PINNED: break;
-
                     case CDN_EF_ON_FIRE: break;
-
                     case CDN_EF_PSYCHIC_ENHANCE: break;
 
                     case CDN_EF_DETOX: {
@@ -656,6 +650,16 @@ void cdn_process(struct cdn_condition_list *cdn_list, struct msr_monster *monste
 
                     case CDN_EF_EXPLODE: {
                         /* place bodypart grenade here */
+
+                        /* create item */
+                        struct itm_item *item = itm_create(IID_BODYPART_GRENADE);
+
+                        /* light fuse */
+                        item->energy = TT_ENERGY_TICK;
+                        item->energy_action = true;
+
+                        /* put item in map at the tile of monster */
+                        itm_insert_item(item, gbl_game->current_map, &monster->pos);
                     } /* No Break */
                     case CDN_EF_DEATH: {
                         clr_bf(ces->effect_setting_flags, CDN_ESF_ACTIVE);

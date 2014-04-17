@@ -92,6 +92,7 @@ static const char *itm_descs[] = {
     [IID_CREATURE_BITE_TRAINED]   = "",
 
     [IID_FRAG_GRENADE]      = "",
+    [IID_BODYPART_GRENADE]  = "used in status effects",
     [IID_THROWING_KNIFE]    = "",
 
     [IID_STUB_AUTOMATIC]    = "Just as common as the revolver variant, the stub automatic allows for a greater rate of fire and clip capacity, though at the cost of reliability",
@@ -143,6 +144,7 @@ static struct itm_item static_item_list[] = {
     /* Thrown */
     /*    ID               short name         long name          availability         quality         weight,cost,delay  CATEGORY     xd10 +X pen,range   dmg type              upgrades    special qualities         talent */
     ITEM(IID_FRAG_GRENADE, "frag grenade",   "a frag grenade",   ITEM_AVAIL_AVERAGE,  ITEM_QLTY_AVERAGE, 5,  10,  1),    THROWN_GRENADE(2,  0, 0,  3,  DMG_TYPE_EXPLOSIVE, 0, bf(WPN_SPCQLTY_BLAST_4),   TLT_NONE, CID_NONE), ITEM_END,
+    ITEM(IID_BODYPART_GRENADE, "",           "status effect",    ITEM_AVAIL_AVERAGE,  ITEM_QLTY_AVERAGE, 5,  10,  1),    THROWN_GRENADE(1,  0, 0,  3,  DMG_TYPE_EXPLOSIVE, 0, bf(WPN_SPCQLTY_BLAST_4),   TLT_NONE, CID_NONE), ITEM_END,
     ITEM(IID_THROWING_KNIFE,"throwing knife","a throwing knife", ITEM_AVAIL_PLENTIFUL,ITEM_QLTY_AVERAGE, 5,  5,   1),    THROWN_WEAPON( 0,  0, 0,  5,  DMG_TYPE_RENDING,   0, bf(WPN_SPCQLTY_PRIMITIVE), TLT_THROWN_WPN_TRNG_PRIMITIVE), ITEM_END,
 
     /* Pistols */

@@ -44,7 +44,7 @@ enum item_ids {
     /* Thrown */
     IID_THROWING_KNIFE,
 
-    /* Grenages */
+    /* Grenades */
     IID_FRAG_GRENADE,
 
     /* Ammo */
@@ -82,6 +82,9 @@ enum item_ids {
     /* Stimms */
     IID_STIMM_HEALTH,
     IID_STIMM_DEATH,
+
+    /* status effect items */
+    IID_BODYPART_GRENADE,
 
     /* Last Entry */
     IID_MAX,

@@ -40,6 +40,9 @@ void tt_process_monsters(struct dm_map *map) {
         if (msr_get_energy(monster) >= TT_ENERGY_FULL) do_action = true;
         if (monster->controller.interrupted == true) do_action = true;
 
+        /* A stunned monster can do nothing. */
+        if (cdn_has_effect(monster->conditions, CDN_EF_STUNNED) ) do_action = false;
+
         if (do_action || monster->dead) {
             if (monster->controller.controller_cb != NULL) {
                 monster->controller.controller_cb(monster, monster->controller.controller_ctx);

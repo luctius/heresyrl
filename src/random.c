@@ -59,7 +59,7 @@ struct random {
     int mti; //=N+1; /* r->mti==N+1 means r->mt[N] is not initialized */
 };
 
-char *random_die_name(int die_sz) {
+const char *random_die_name(int die_sz) {
     switch (die_sz) {
         case 5: return "D5";
         case 10: return "D10";

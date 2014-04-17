@@ -73,7 +73,7 @@ static bool plr_action_loop(struct msr_monster *player, void *controller) {
     bool has_action = false;
 
     coord_t zero = cd_create(0,0);
-    //dm_clear_map_visibility(map, &zero, &map->size);
+    dm_clear_map_visibility(map, &zero, &map->size);
     sgt_calculate_all_light_sources(gbl_game->sight, map);
     sgt_calculate_player_sight(gbl_game->sight, map, player);
 
@@ -96,7 +96,7 @@ static bool plr_action_loop(struct msr_monster *player, void *controller) {
             /* remove all non-permanent conditions */
             for (int i = 0; i < 10000; i++) {
                 cdn_process(player->conditions, player);
-                usleep(10);
+                usleep(2);
             }
 
             You(player, "would have died if fate did not intervene...");
@@ -107,8 +107,11 @@ static bool plr_action_loop(struct msr_monster *player, void *controller) {
     
     if (player->dead) {
         gbl_game->running = false;
+        usleep(40000);
+        return true;
     }
-    else if ( ( (player->cur_wounds * 100) / player->max_wounds) < 10) {
+
+    if ( ( (player->cur_wounds * 100) / player->max_wounds) < 10) {
         System_msg("Warning, hitpoints critical");
     }
     else if ( ( (player->cur_wounds * 100) / player->max_wounds) < 50) {

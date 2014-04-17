@@ -5,13 +5,16 @@
 #include "monster/monster.h"
 #include "coord.h"
 
+/* ranged modifiers */
 #define FGHT_RANGE_MULTIPLIER (0.25f)
 #define FGHT_MODIFIER_MAX (80)
 #define FGHT_MELEE_RANGE (1)
 #define FGHT_POINT_BLANK_RANGE (3)
 
+/* melee specific */
 #define FGHT_MODIFIER_MELEE_UNARMED  (-20)
 
+/* ranged specific */
 #define FGHT_RANGED_JAM (95)
 #define FGHT_RANGED_JAM_SEMI (93)
 #define FGHT_RANGED_JAM_UNRELIABLE (90)
@@ -28,15 +31,18 @@
 #define FGHT_MODIFIER_OFF_HAND (-20)
 #define FGHT_MODIFIER_UNTRAINED_WEAPON (-20)
 
+/* quality */
 #define FGHT_MODIFIER_QLTY_TO_HIT_POOR (-10)
 #define FGHT_MODIFIER_QLTY_TO_HIT_GOOD (5)
 #define FGHT_MODIFIER_QLTY_TO_HIT_BEST (10)
 #define FGHT_MODIFIER_QLTY_TO_DMG_BEST (1)
 
+/* lighting */
 #define FGHT_MODIFIER_VISION_SHADOWS (-10)
 #define FGHT_MODIFIER_VISION_DARKNESS (-20)
 #define FGHT_MODIFIER_VISION_COMPLETE_DARKNESS (-30)
 
+/* size */
 #define FGHT_MODIFIER_SIZE_MASSIVE   (30)
 #define FGHT_MODIFIER_SIZE_ENORMOUS  (20)
 #define FGHT_MODIFIER_SIZE_HULKING   (10)
@@ -44,6 +50,9 @@
 #define FGHT_MODIFIER_SIZE_SCRAWNY   (-10)
 #define FGHT_MODIFIER_SIZE_PUNY      (-20)
 #define FGHT_MODIFIER_SIZE_MINISCULE (-30)
+
+/* conditions */
+#define FGHT_MODIFIER_CONDITION_STUNNED (20)
 
 /*
     +30
