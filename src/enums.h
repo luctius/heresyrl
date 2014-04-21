@@ -10,6 +10,8 @@ enum dmg_type {
     DMG_TYPE_RANDOM,
 };
 
+/* Check Only war for more ideas about weapon spc qualities and upgrades*/
+
 enum weapon_special_quality {
     WPN_SPCQLTY_ACCURATE,    /* Additional +10 to hit when used with the aim action */
     WPN_SPCQLTY_BALANCED,    /* +10 Parry */
@@ -38,6 +40,7 @@ enum weapon_special_quality {
     WPN_SPCQLTY_UNSTABLE,    /* on hit, roll 1d10: 1: half dmg, 2-9: normal, 10: double damage */
     WPN_SPCQLTY_UNWIELDY,    /* Cannot be used to parry. */
     WPN_SPCQLTY_MAX,
+    WPN_SPCQLTY_LAS,         /* IDEA: single shot +1 dmg, las weapons only...*/
 };
 
 enum wearable_special_quality {

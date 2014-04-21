@@ -56,7 +56,7 @@ static struct msr_monster static_monster_list[] = {
 
 static enum msr_characteristic msr_skill_charac[] = {
     [MSR_SKILLS_AWARENESS]      = MSR_CHAR_PERCEPTION,
-    [MSR_SKILLS_BARTER]         = MSR_CHAR_INTELLIGENCE,
+    [MSR_SKILLS_BARTER]         = MSR_CHAR_FELLOWSHIP,
     [MSR_SKILLS_CHEM_USE]       = MSR_CHAR_INTELLIGENCE,
     [MSR_SKILLS_COMMON_LORE]    = MSR_CHAR_INTELLIGENCE,
     [MSR_SKILLS_CONCEALMENT]    = MSR_CHAR_AGILITY,

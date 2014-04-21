@@ -1,3 +1,4 @@
+AUTOMAKE_OPTIONS = subdir-objects
 AM_CPPFLAGS=-I$(top_srcdir)/utils
 bin_PROGRAMS = heresyrl
 

@@ -325,7 +325,7 @@ struct itm_item *msr_get_armour_from_hitloc(struct msr_monster *monster, enum ms
     struct itm_item *item = NULL;
 
     switch(mhl) {
-        case MSR_HITLOC_CHEST:     item = inv_get_item_from_location(monster->inventory, INV_LOC_CHEST); break;
+        case MSR_HITLOC_BODY:      item = inv_get_item_from_location(monster->inventory, INV_LOC_BODY); break;
         case MSR_HITLOC_LEFT_LEG:
         case MSR_HITLOC_RIGHT_LEG: item = inv_get_item_from_location(monster->inventory, INV_LOC_LEGS); break;
         case MSR_HITLOC_LEFT_ARM:
@@ -360,7 +360,7 @@ enum msr_hit_location msr_get_hit_location(struct msr_monster *monster, int hit_
     /* Human hitloc */
     if (hit_roll >= 85) return MSR_HITLOC_LEFT_LEG;
     if (hit_roll >= 70) return MSR_HITLOC_RIGHT_LEG;
-    if (hit_roll >= 30) return MSR_HITLOC_CHEST;
+    if (hit_roll >= 30) return MSR_HITLOC_BODY;
     if (hit_roll >= 20) return MSR_HITLOC_LEFT_ARM;
     if (hit_roll >= 10) return MSR_HITLOC_RIGHT_ARM;
     return MSR_HITLOC_HEAD;
@@ -385,18 +385,16 @@ bool msr_die(struct msr_monster *monster, struct dm_map *map) {
     return true;
 }
 
-bool msr_do_dmg(struct msr_monster *monster, int dmg, enum dmg_type dmg_type, enum msr_hit_location mhl, struct dm_map *map) {
+bool msr_do_dmg(struct msr_monster *monster, int dmg, enum dmg_type dmg_type, enum msr_hit_location mhl) {
     if (msr_verify_monster(monster) == false) return false;
 
     if (dmg > 0) {
-        if (monster->cur_wounds > 0) {
-            monster->cur_wounds -= dmg;
-        }
-        if (monster->cur_wounds <= 0) {
-            /* do critical hits! */
+        monster->cur_wounds -= dmg;
 
-            /* if dead.. */
-            msr_die(monster, map);
+        if (monster->cur_wounds < 0) {
+
+            /* do critical hits! */
+            cdn_add_critical_hit(monster->conditions, abs(monster->cur_wounds), mhl, dmg_type);
         }
         return true;
     }

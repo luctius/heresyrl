@@ -14,7 +14,7 @@ enum inv_locations {
     INV_LOC_INVENTORY       = (1<<1),
     INV_LOC_FEET            = (1<<2),
     INV_LOC_LEGS            = (1<<3),
-    INV_LOC_CHEST           = (1<<4),
+    INV_LOC_BODY            = (1<<4),
     INV_LOC_ARMS            = (1<<5),
     INV_LOC_HANDS           = (1<<6),
     INV_LOC_LEFT_RING       = (1<<7),
@@ -72,7 +72,7 @@ const char *inv_location_name(bitfield_t loc);
 
 #define inv_loc_human \
     ( INV_LOC_FEET            | INV_LOC_LEGS          | \
-      INV_LOC_CHEST           | INV_LOC_ARMS          | \
+      INV_LOC_BODY            | INV_LOC_ARMS          | \
       INV_LOC_HANDS           | INV_LOC_LEFT_RING     | \
       INV_LOC_RIGHT_RING      | INV_LOC_OFFHAND_WIELD | \
       INV_LOC_MAINHAND_WIELD  | INV_LOC_HEAD          | \

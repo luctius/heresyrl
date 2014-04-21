@@ -719,7 +719,7 @@ void charwin_refresh() {
     textwin_add_text(char_win, "Wounds    [%2d/%2d]\n", player->cur_wounds, player->max_wounds);
     textwin_add_text(char_win, "Armour [%d][%d][%d][%d][%d][%d]\n", 
                                             msr_calculate_armour(player, MSR_HITLOC_HEAD),
-                                            msr_calculate_armour(player, MSR_HITLOC_CHEST),
+                                            msr_calculate_armour(player, MSR_HITLOC_BODY),
                                             msr_calculate_armour(player, MSR_HITLOC_LEFT_ARM),
                                             msr_calculate_armour(player, MSR_HITLOC_RIGHT_ARM),
                                             msr_calculate_armour(player, MSR_HITLOC_LEFT_LEG),

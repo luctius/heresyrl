@@ -58,7 +58,6 @@ enum condition_effect_flags {
     CDN_EF_MODIFY_WILL,
     CDN_EF_MODIFY_INT,
     CDN_EF_MODIFY_FEL,
-    CDN_EF_MODIFY_FATIQUE,
     CDN_EF_MODIFY_MOVEMENT,
     CDN_EF_MODIFY_WOUNDS,
     CDN_EF_MODIFY_ALL_SKILLS,
@@ -66,14 +65,18 @@ enum condition_effect_flags {
     CDN_EF_DISABLE_RLEG,
     CDN_EF_DISABLE_LARM,
     CDN_EF_DISABLE_RARM,
-    CDN_EF_DISABLE_CHEST,
+    CDN_EF_DISABLE_BODY,
+
+    /*Warning, damage conditions trigger critical hits, do not use in critical hit tables. */
     CDN_EF_DAMAGE,
     CDN_EF_DAMAGE_TICK,
+
     CDN_EF_HEALTH,
     CDN_EF_HEALTH_TICK,
     CDN_EF_BLINDNESS,
     CDN_EF_DEAFNESS,
     CDN_EF_STUNNED,
+    CDN_EF_STUMBLE,
     CDN_EF_HALUCINATING,
     CDN_EF_CONFUSED,
     CDN_EF_INHIBIT_FATE_POINT,
@@ -94,6 +97,9 @@ enum condition_effect_setting_flags {
     /* if true, this effect has a certain tick timer. */
     CDN_ESF_TICK,
 
+    /* Changes made to characteristics are permanent. */
+    CDN_ESF_PERMANENT,
+
     /* if true, require a check everytime this effect is 
        processed. if the monster succeeds, the effect will 
        be set to inactive. */
@@ -101,11 +107,6 @@ enum condition_effect_setting_flags {
     CDN_ESF_REQ_TGH_CHECK,
     CDN_ESF_REQ_AG_CHECK,
     CDN_ESF_REQ_CHEM_USE_CHECK,
-
-    /* If there is another condition with this effect, 
-       which has an higher priority, this effect will 
-       be set to inactive. */
-    CDN_ESF_INACTIVE_IF_LESS_PRIORITY,
 
     /* Set the damage type of any damage done*/
     CDN_ESF_DMG_TYPE_ENERGY,
@@ -123,18 +124,12 @@ enum condition_effect_setting_flags {
     /* if set, it directly modifies the base value 
        of an characteristic, instead of damaging it. */
     CDN_ESF_MODIFY_BASE,
-    CDN_ESF_MAX,
-};
 
-enum cdn_priority {
-    CDN_PRIORITY_NONE,
-    CDN_PRIORITY_VERY_LOW,
-    CDN_PRIORITY_LOW,
-    CDN_PRIORITY_AVERAGE,
-    CDN_PRIORITY_MEDIUM,
-    CDN_PRIORITY_HIGH,
-    CDN_PRIORITY_VERY_HIGH,
-    CDN_PRIORITY_PERMANENT,
+    /* Regardless of the duration of the whole condition, 
+       this effect stops after the first tick. */
+    CDN_ESF_ONCE,
+
+    CDN_ESF_MAX,
 };
 
 enum cdn_strength {
@@ -165,7 +160,6 @@ struct condition_effect_struct {
     enum condition_effect_flags effect;
     uint32_t effect_setting_flags;
 
-    enum cdn_priority priority;
     int8_t strength;
     int8_t difficulty;
 
@@ -222,7 +216,6 @@ bool cdn_verify_condition(struct cdn_condition *cdn);
 struct cdn_condition *cdn_get_condition_tid(struct cdn_condition_list *cdn_list, enum cdn_ids tid);
 bool cdn_has_effect(struct cdn_condition_list *cdn_list, enum condition_effect_flags effect);
 bool cdn_has_tid(struct cdn_condition_list *cdn_list, enum cdn_ids tid);
-enum cdn_priority cdn_condition_effect_priority(struct cdn_condition_list *cdn_list, enum condition_effect_flags effect);
 int cdn_condition_effect_strength(struct cdn_condition_list *cdn_list, enum condition_effect_flags effect);
 
 struct cdn_condition *cdn_create(struct cdn_condition_list *cdn_list, enum cdn_ids tid);

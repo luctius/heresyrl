@@ -178,14 +178,16 @@ struct cdn_condition *cdn_create(struct cdn_condition_list *cdn_list, enum cdn_i
     if (range > 0) cc->duration_energy += (random_int32(gbl_game->random) % range);
     cc->duration_energy_max = cc->duration_energy;
 
-    cc->duration_energy_max *= TT_ENERGY_TURN;
-    cc->duration_energy_min *= TT_ENERGY_TURN;
-    cc->duration_energy     *= TT_ENERGY_TURN;
+    /*
+    cc->duration_energy_max *= (TT_ENERGY_TURN);
+    cc->duration_energy_min *= (TT_ENERGY_TURN);
+    cc->duration_energy     *= (TT_ENERGY_TURN);
+    */
 
     for (unsigned int i = 0; i < ARRAY_SZ(cc->effects); i++ ) {
         struct condition_effect_struct *ces = &cc->effects[i];
         if (test_bf(ces->effect_setting_flags, CDN_ESF_ACTIVE) ) {
-            ces->tick_energy_max *= TT_ENERGY_TURN;
+            /*ces->tick_energy_max *= (TT_ENERGY_TURN);*/
             ces->strength = cdn_calc_strength(ces);
         }
     }
@@ -307,30 +309,12 @@ int cdn_condition_effect_strength(struct cdn_condition_list *cdn_list, enum cond
     return strength;
 }
 
-enum cdn_priority cdn_condition_effect_priority(struct cdn_condition_list *cdn_list, enum condition_effect_flags effect) {
-    if (cdn_verify_list(cdn_list) == false) return 0;
-    struct cdn_condition *c = NULL;
-
-    enum cdn_priority priority = CDN_PRIORITY_NONE;
-    while ( (c = cdn_list_get_next_condition(cdn_list, c) ) != NULL) {
-        for (unsigned int i = 0; i < ARRAY_SZ(c->effects); i++) {
-            if (c->effects[i].effect == effect) {
-                if (priority < c->effects[i].priority) {
-                    priority = c->effects[i].priority;
-                }
-            }
-        }
-    }
-
-    return priority;
-}
-
 static enum cdn_ids dmg_type_to_id_lot[MSR_HITLOC_MAX][DMG_TYPE_MAX] = {
     [MSR_HITLOC_LEFT_LEG]   = { [DMG_TYPE_IMPACT] = CID_IMPACT_CRITICAL_LEGS_1, [DMG_TYPE_EXPLOSIVE] = CID_EXPLOSIVE_CRITICAL_LEGS_1, [DMG_TYPE_ENERGY] = CID_ENERGY_CRITICAL_LEGS_1, [DMG_TYPE_RENDING] = CID_RENDING_CRITICAL_LEGS_1, },
     [MSR_HITLOC_RIGHT_LEG]  = { [DMG_TYPE_IMPACT] = CID_IMPACT_CRITICAL_LEGS_1, [DMG_TYPE_EXPLOSIVE] = CID_EXPLOSIVE_CRITICAL_LEGS_1, [DMG_TYPE_ENERGY] = CID_ENERGY_CRITICAL_LEGS_1, [DMG_TYPE_RENDING] = CID_RENDING_CRITICAL_LEGS_1, },
     [MSR_HITLOC_LEFT_ARM]   = { [DMG_TYPE_IMPACT] = CID_IMPACT_CRITICAL_ARMS_1, [DMG_TYPE_EXPLOSIVE] = CID_EXPLOSIVE_CRITICAL_ARMS_1, [DMG_TYPE_ENERGY] = CID_ENERGY_CRITICAL_ARMS_1, [DMG_TYPE_RENDING] = CID_RENDING_CRITICAL_ARMS_1, },
     [MSR_HITLOC_RIGHT_ARM]  = { [DMG_TYPE_IMPACT] = CID_IMPACT_CRITICAL_ARMS_1, [DMG_TYPE_EXPLOSIVE] = CID_EXPLOSIVE_CRITICAL_ARMS_1, [DMG_TYPE_ENERGY] = CID_ENERGY_CRITICAL_ARMS_1, [DMG_TYPE_RENDING] = CID_RENDING_CRITICAL_ARMS_1, },
-    [MSR_HITLOC_CHEST]      = { [DMG_TYPE_IMPACT] = CID_IMPACT_CRITICAL_CHEST_1,[DMG_TYPE_EXPLOSIVE] = CID_EXPLOSIVE_CRITICAL_CHEST_1,[DMG_TYPE_ENERGY] = CID_ENERGY_CRITICAL_CHEST_1,[DMG_TYPE_RENDING] = CID_RENDING_CRITICAL_CHEST_1,},
+    [MSR_HITLOC_BODY]       = { [DMG_TYPE_IMPACT] = CID_IMPACT_CRITICAL_BODY_1, [DMG_TYPE_EXPLOSIVE] = CID_EXPLOSIVE_CRITICAL_BODY_1, [DMG_TYPE_ENERGY] = CID_ENERGY_CRITICAL_BODY_1, [DMG_TYPE_RENDING] = CID_RENDING_CRITICAL_BODY_1, },
     [MSR_HITLOC_HEAD]       = { [DMG_TYPE_IMPACT] = CID_IMPACT_CRITICAL_HEAD_1, [DMG_TYPE_EXPLOSIVE] = CID_EXPLOSIVE_CRITICAL_HEAD_1, [DMG_TYPE_ENERGY] = CID_ENERGY_CRITICAL_HEAD_1, [DMG_TYPE_RENDING] = CID_RENDING_CRITICAL_HEAD_1, },
 };
 
@@ -518,12 +502,6 @@ void cdn_process(struct cdn_condition_list *cdn_list, struct msr_monster *monste
                     clr_bf(ces->effect_setting_flags, CDN_ESF_ACTIVE);
                 }
             }
-            if (test_bf(ces->effect_setting_flags, CDN_ESF_INACTIVE_IF_LESS_PRIORITY) ) {
-                enum cdn_priority priority = cdn_condition_effect_priority(cdn_list, ces->effect);
-                if (priority > ces->priority) {
-                    clr_bf(ces->effect_setting_flags, CDN_ESF_ACTIVE);
-                }
-            }
 
             bool process = false;
 
@@ -539,51 +517,86 @@ void cdn_process(struct cdn_condition_list *cdn_list, struct msr_monster *monste
 
             if (process) {
                 switch(ces->effect) {
-                    case CDN_EF_MODIFY_FATIQUE: monster->fatique += (ces->strength * -1); /* fatique works in reverse */ break;
                     case CDN_EF_MODIFY_MOVEMENT: break;
                     case CDN_EF_MODIFY_WS: 
                         if (test_bf(ces->effect_setting_flags, CDN_ESF_MODIFY_BASE) ) {
                             monster->characteristic[MSR_CHAR_WEAPON_SKILL].base_value = ces->strength;
+                            break;
+                        }
+                        else if (test_bf(ces->effect_setting_flags, CDN_ESF_PERMANENT) ) {
+                            monster->characteristic[MSR_CHAR_WEAPON_SKILL].base_value -= ces->strength;
                             break;
                         } /* no break */
                     case CDN_EF_MODIFY_BS: 
                         if (test_bf(ces->effect_setting_flags, CDN_ESF_MODIFY_BASE) ) {
                             monster->characteristic[MSR_CHAR_BALISTIC_SKILL].base_value = ces->strength;
                             break;
+                        }
+                        else if (test_bf(ces->effect_setting_flags, CDN_ESF_PERMANENT) ) {
+                            monster->characteristic[MSR_CHAR_BALISTIC_SKILL].base_value -= ces->strength;
+                            break;
                         } /* no break */
                     case CDN_EF_MODIFY_STR: 
                         if (test_bf(ces->effect_setting_flags, CDN_ESF_MODIFY_BASE) ) {
                             monster->characteristic[MSR_CHAR_STRENGTH].base_value = ces->strength;
+                            break;
+                        }
+                        else if (test_bf(ces->effect_setting_flags, CDN_ESF_PERMANENT) ) {
+                            monster->characteristic[MSR_CHAR_STRENGTH].base_value -= ces->strength;
                             break;
                         } /* no break */
                     case CDN_EF_MODIFY_AG: 
                         if (test_bf(ces->effect_setting_flags, CDN_ESF_MODIFY_BASE) ) {
                             monster->characteristic[MSR_CHAR_AGILITY].base_value = ces->strength;
                             break;
+                        }
+                        else if (test_bf(ces->effect_setting_flags, CDN_ESF_PERMANENT) ) {
+                            monster->characteristic[MSR_CHAR_AGILITY].base_value -= ces->strength;
+                            break;
                         } /* no break */
                     case CDN_EF_MODIFY_TGH: 
                         if (test_bf(ces->effect_setting_flags, CDN_ESF_MODIFY_BASE) ) {
                             monster->characteristic[MSR_CHAR_TOUGHNESS].base_value = ces->strength;
+                            break;
+                        }
+                        else if (test_bf(ces->effect_setting_flags, CDN_ESF_PERMANENT) ) {
+                            monster->characteristic[MSR_CHAR_TOUGHNESS].base_value -= ces->strength;
                             break;
                         } /* no break */
                     case CDN_EF_MODIFY_PER: 
                         if (test_bf(ces->effect_setting_flags, CDN_ESF_MODIFY_BASE) ) {
                             monster->characteristic[MSR_CHAR_PERCEPTION].base_value = ces->strength;
                             break;
+                        }
+                        else if (test_bf(ces->effect_setting_flags, CDN_ESF_PERMANENT) ) {
+                            monster->characteristic[MSR_CHAR_PERCEPTION].base_value -= ces->strength;
+                            break;
                         } /* no break */
                     case CDN_EF_MODIFY_WILL: 
                         if (test_bf(ces->effect_setting_flags, CDN_ESF_MODIFY_BASE) ) {
                             monster->characteristic[MSR_CHAR_WILLPOWER].base_value = ces->strength;
+                            break;
+                        }
+                        else if (test_bf(ces->effect_setting_flags, CDN_ESF_PERMANENT) ) {
+                            monster->characteristic[MSR_CHAR_WILLPOWER].base_value -= ces->strength;
                             break;
                         } /* no break */
                     case CDN_EF_MODIFY_INT:
                         if (test_bf(ces->effect_setting_flags, CDN_ESF_MODIFY_BASE) ) {
                             monster->characteristic[MSR_CHAR_INTELLIGENCE].base_value = ces->strength;
                             break;
+                        }
+                        else if (test_bf(ces->effect_setting_flags, CDN_ESF_PERMANENT) ) {
+                            monster->characteristic[MSR_CHAR_INTELLIGENCE].base_value -= ces->strength;
+                            break;
                         } /* no break */
                     case CDN_EF_MODIFY_FEL: {
                         if (test_bf(ces->effect_setting_flags, CDN_ESF_MODIFY_BASE) ) {
                             monster->characteristic[MSR_CHAR_FELLOWSHIP].base_value = ces->strength;
+                            break;
+                        }
+                        else if (test_bf(ces->effect_setting_flags, CDN_ESF_PERMANENT) ) {
+                            monster->characteristic[MSR_CHAR_FELLOWSHIP].base_value -= ces->strength;
                             break;
                         }
                         else if (first_time == false) {
@@ -604,7 +617,8 @@ void cdn_process(struct cdn_condition_list *cdn_list, struct msr_monster *monste
                     case CDN_EF_DISABLE_RLEG: break;
                     case CDN_EF_DISABLE_LARM: break;
                     case CDN_EF_DISABLE_RARM: break;
-                    case CDN_EF_DISABLE_CHEST: break;
+                    case CDN_EF_DISABLE_BODY: break;
+                    case CDN_EF_STUMBLE: break;
 
                     case CDN_EF_DAMAGE: clr_bf(ces->effect_setting_flags, CDN_ESF_ACTIVE);
                                          /*no break; */
@@ -616,7 +630,7 @@ void cdn_process(struct cdn_condition_list *cdn_list, struct msr_monster *monste
                         else if (test_bf(ces->effect_setting_flags, CDN_ESF_DMG_TYPE_EXPLODING) )   dmg_type = DMG_TYPE_EXPLOSIVE;
                         else if (test_bf(ces->effect_setting_flags, CDN_ESF_DMG_TYPE_IMPACT) )      dmg_type = DMG_TYPE_IMPACT;
 
-                        msr_do_dmg(monster, abs(ces->strength), dmg_type, mhl, gbl_game->current_map);
+                        msr_do_dmg(monster, abs(ces->strength), dmg_type, mhl);
                     } break;
 
                     case CDN_EF_HEALTH: clr_bf(ces->effect_setting_flags, CDN_ESF_ACTIVE);
@@ -671,6 +685,15 @@ void cdn_process(struct cdn_condition_list *cdn_list, struct msr_monster *monste
                         clr_bf(ces->effect_setting_flags, CDN_ESF_ACTIVE); break;
                 }
 
+                /* if ONCE is set, the second time this effect has been processed, 
+                   disable it. the first time will be the TICK directly after the 
+                   condition is applied, the second time will be the turn after 
+                   that. */
+                if (test_bf(ces->effect_setting_flags, CDN_ESF_ONCE) ) {
+                    if (first_time == false) {
+                        clr_bf(ces->effect_setting_flags, CDN_ESF_ACTIVE);
+                    }
+                }
                 ces->tick_energy = ces->tick_energy_max;
             }
         }

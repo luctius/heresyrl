@@ -33,11 +33,6 @@ void plr_create(struct pl_player *plr, char *name, uint32_t template_id, enum ms
 
     plr->xp_spend = 0;
     plr->xp_current = 0;//500 * TT_ENERGY_TURN;
-
-    /* Debug */
-    plr->player->characteristic[MSR_CHAR_PERCEPTION].base_value = 80;
-    plr->player->characteristic[MSR_CHAR_AGILITY].base_value = 40;
-    plr->player->characteristic[MSR_CHAR_TOUGHNESS].base_value = 80;
 }
 
 void plr_init(struct pl_player *plr) {
@@ -64,6 +59,8 @@ struct pf_context *plr_map(struct pl_player *plr, struct dm_map *map) {
     return plr->player_map;
 }
 
+static bool low_wounds_warning = false;
+static bool critical_wounds_warning = false;
 static bool plr_action_loop(struct msr_monster *player, void *controller) {
     if (player == NULL) return false;
     if (controller == NULL) return false;
@@ -93,6 +90,7 @@ static bool plr_action_loop(struct msr_monster *player, void *controller) {
             clear();
             refresh();
 
+            cdn_add_condition(player->conditions, CID_FATEHEALTH);
             /* remove all non-permanent conditions */
             for (int i = 0; i < 10000; i++) {
                 cdn_process(player->conditions, player);
@@ -112,10 +110,20 @@ static bool plr_action_loop(struct msr_monster *player, void *controller) {
     }
 
     if ( ( (player->cur_wounds * 100) / player->max_wounds) < 10) {
-        System_msg("Warning, hitpoints critical");
+        if (critical_wounds_warning == false) {
+            System_msg("Warning, hitpoints critical");
+            critical_wounds_warning = true;
+        }
     }
     else if ( ( (player->cur_wounds * 100) / player->max_wounds) < 50) {
-        System_msg("Warning, low hitpoints");
+        if (low_wounds_warning == false) {
+            System_msg("Warning, low hitpoints");
+            low_wounds_warning = true;
+        }
+        critical_wounds_warning = false;
+    }
+    else if ( ( (player->cur_wounds * 100) / player->max_wounds) > 50) {
+        low_wounds_warning = false;
     }
 
     lg_debug("plr_action_loop");

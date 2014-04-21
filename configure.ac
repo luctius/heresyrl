@@ -5,7 +5,7 @@ VERSION=0.1.0
 
 AC_CONFIG_HEADERS([config.h])
 
-AM_INIT_AUTOMAKE($PACKAGE, $VERSION, [subdir-objects])
+AM_INIT_AUTOMAKE($PACKAGE, $VERSION)
 
 # Checks for programs.
 AC_PROG_MAKE_SET
