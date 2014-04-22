@@ -32,6 +32,9 @@ struct inv_inventory *inv_init(bitfield_t locations);
 void inv_exit(struct inv_inventory *inv);
 bool inv_verify_inventory(struct inv_inventory *inv);
 
+void inv_disable_location(struct inv_inventory *inv, bitfield_t loc);
+void inv_enable_location(struct inv_inventory *inv, bitfield_t loc);
+
 bool inv_has_item(struct inv_inventory *inv, struct itm_item *item);
 
 /*

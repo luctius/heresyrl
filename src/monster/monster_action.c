@@ -21,6 +21,11 @@ bool ma_do_move(struct msr_monster *monster, coord_t *pos) {
     if (msr_verify_monster(monster) == false) return false;
     if (pos == NULL) return false;
 
+    if (msr_get_movement_rate(monster) == 0) {
+        You(monster, "cannot move");
+        return false;
+    }
+
     if (msr_move_monster(monster, gbl_game->current_map, pos) == true) {
         struct dm_map_entity *me = dm_get_map_me(&monster->pos, gbl_game->current_map);
         struct itm_item *item = NULL;

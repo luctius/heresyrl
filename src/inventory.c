@@ -98,6 +98,20 @@ struct itm_item *inv_get_next_item(struct inv_inventory *inv, struct itm_item *p
     return item;
 }
 
+void inv_disable_location(struct inv_inventory *inv, bitfield_t loc) {
+    if (inv_verify_inventory(inv) == false) return;
+    if (inv_support_location(inv, loc) == false) return;
+
+    inv->available_locations &= (~loc);
+}
+
+void inv_enable_location(struct inv_inventory *inv, bitfield_t loc) {
+    if (inv_verify_inventory(inv) == false) return;
+    if (inv_support_location(inv, loc) == true) return;
+
+    inv->available_locations |= (loc);
+}
+
 bool inv_has_item(struct inv_inventory *inv, struct itm_item *item) {
     if (inv_verify_inventory(inv) == false) return false;
     if (itm_verify_item(item) == false) return false;

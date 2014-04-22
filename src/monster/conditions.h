@@ -12,7 +12,7 @@ enum condition_setting_flags {
     /* The condition will be permanent (if it passes the initial checks) */
     CDN_SF_PERMANENT,
 
-    /* Only a single instance of this condition will be permitted inside a list */
+    /* Only a single instance of this condition id will be permitted inside a list */
     CDN_SF_UNIQUE,
 
     /* Require an specific check with difficulty as modifier, 
@@ -66,7 +66,6 @@ enum condition_effect_flags {
     CDN_EF_DISABLE_RLEG,
     CDN_EF_DISABLE_LARM,
     CDN_EF_DISABLE_RARM,
-    CDN_EF_DISABLE_BODY,
 
     /*Warning, damage conditions trigger critical hits, do not use in critical hit tables. */
     CDN_EF_DAMAGE,
@@ -216,6 +215,7 @@ bool cdn_verify_condition(struct cdn_condition *cdn);
 
 struct cdn_condition *cdn_get_condition_tid(struct cdn_condition_list *cdn_list, enum cdn_ids tid);
 bool cdn_has_effect(struct cdn_condition_list *cdn_list, enum condition_effect_flags effect);
+bool cdn_has_effect_permanent(struct cdn_condition_list *cdn_list, enum condition_effect_flags effect);
 bool cdn_has_tid(struct cdn_condition_list *cdn_list, enum cdn_ids tid);
 int cdn_condition_effect_strength(struct cdn_condition_list *cdn_list, enum condition_effect_flags effect);
 

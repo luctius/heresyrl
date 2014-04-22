@@ -109,112 +109,112 @@ static struct cdn_condition static_condition_list[] = {
 
     /* Chest */
     CONDITION(CID_ENERGY_CRITICAL_BODY_1, "energy critical body 1", "", NULL, NULL, NULL, NULL),
-            SETTINGS( 0, 0, CID_NONE, 0, 0),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
     CONDITION_END,
 
     CONDITION(CID_ENERGY_CRITICAL_BODY_2, "energy critical body 2", "", NULL, NULL, NULL, NULL),
-            SETTINGS( 0, 0, CID_NONE, 0, 0),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
     CONDITION_END,
 
     CONDITION(CID_ENERGY_CRITICAL_BODY_3, "energy critical body 3", "", NULL, NULL, NULL, NULL),
-            SETTINGS( 0, 0, CID_NONE, 0, 0),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
     CONDITION_END,
 
     CONDITION(CID_ENERGY_CRITICAL_BODY_4, "energy critical body 4", "", NULL, NULL, NULL, NULL),
-            SETTINGS( 0, 0, CID_NONE, 0, 0),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
     CONDITION_END,
 
     CONDITION(CID_ENERGY_CRITICAL_BODY_5, "energy critical body 5", "", NULL, NULL, NULL, NULL,
             EFFECT(CDN_EF_DEATH,  0, CDN_DAMAGE_NONE, 0), ),
-            SETTINGS( 0, 0, CID_NONE, 0, 0),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
     CONDITION_END,
 
     /* Arms */
     CONDITION(CID_ENERGY_CRITICAL_RARMS_1, "energy critical arms 1", "", NULL, NULL, NULL, NULL),
-            SETTINGS( 0, 0, CID_NONE, 0, 0),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
     CONDITION_END,
 
     CONDITION(CID_ENERGY_CRITICAL_RARMS_2, "energy critical arms 2", "", NULL, NULL, NULL, NULL),
-            SETTINGS( 0, 0, CID_NONE, 0, 0),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
     CONDITION_END,
 
     CONDITION(CID_ENERGY_CRITICAL_RARMS_3, "energy critical arms 3", "", NULL, NULL, NULL, NULL),
-            SETTINGS( 0, 0, CID_NONE, 0, 0),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
     CONDITION_END,
 
     CONDITION(CID_ENERGY_CRITICAL_RARMS_4, "energy critical arms 4", "", NULL, NULL, NULL, NULL),
-            SETTINGS( 0, 0, CID_NONE, 0, 0),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
     CONDITION_END,
 
     CONDITION(CID_ENERGY_CRITICAL_RARMS_5, "energy critical arms 5", "", NULL, NULL, NULL, NULL,
             EFFECT(CDN_EF_DEATH,  0, CDN_DAMAGE_NONE, 0), ),
-            SETTINGS( 0, 0, CID_NONE, 0, 0),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
     CONDITION_END,
 
     /* Legs */
     CONDITION(CID_ENERGY_CRITICAL_RLEGS_1, "energy critical legs 1", "", NULL, NULL, NULL, NULL),
-            SETTINGS( 0, 0, CID_NONE, 0, 0),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
     CONDITION_END,
 
     CONDITION(CID_ENERGY_CRITICAL_RLEGS_2, "energy critical legs 2", "", NULL, NULL, NULL, NULL),
-            SETTINGS( 0, 0, CID_NONE, 0, 0),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
     CONDITION_END,
 
     CONDITION(CID_ENERGY_CRITICAL_RLEGS_3, "energy critical legs 3", "", NULL, NULL, NULL, NULL),
-            SETTINGS( 0, 0, CID_NONE, 0, 0),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
     CONDITION_END,
 
     CONDITION(CID_ENERGY_CRITICAL_RLEGS_4, "energy critical legs 4", "", NULL, NULL, NULL, NULL),
-            SETTINGS( 0, 0, CID_NONE, 0, 0),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
     CONDITION_END,
 
     CONDITION(CID_ENERGY_CRITICAL_RLEGS_5, "energy critical legs 5", "", NULL, NULL, NULL, NULL,
             EFFECT(CDN_EF_DEATH,  0, CDN_DAMAGE_NONE, 0), ),
-            SETTINGS( 0, 0, CID_NONE, 0, 0),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
     CONDITION_END,
 
     /* Arms */
     CONDITION(CID_ENERGY_CRITICAL_LARMS_1, "energy critical arms 1", "", NULL, NULL, NULL, NULL),
-            SETTINGS( 0, 0, CID_NONE, 0, 0),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
     CONDITION_END,
 
     CONDITION(CID_ENERGY_CRITICAL_LARMS_2, "energy critical arms 2", "", NULL, NULL, NULL, NULL),
-            SETTINGS( 0, 0, CID_NONE, 0, 0),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
     CONDITION_END,
 
     CONDITION(CID_ENERGY_CRITICAL_LARMS_3, "energy critical arms 3", "", NULL, NULL, NULL, NULL),
-            SETTINGS( 0, 0, CID_NONE, 0, 0),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
     CONDITION_END,
 
     CONDITION(CID_ENERGY_CRITICAL_LARMS_4, "energy critical arms 4", "", NULL, NULL, NULL, NULL),
-            SETTINGS( 0, 0, CID_NONE, 0, 0),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
     CONDITION_END,
 
     CONDITION(CID_ENERGY_CRITICAL_LARMS_5, "energy critical arms 5", "", NULL, NULL, NULL, NULL,
             EFFECT(CDN_EF_DEATH,  0, CDN_DAMAGE_NONE, 0), ),
-            SETTINGS( 0, 0, CID_NONE, 0, 0),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
     CONDITION_END,
 
     /* Legs */
     CONDITION(CID_ENERGY_CRITICAL_LLEGS_1, "energy critical legs 1", "", NULL, NULL, NULL, NULL),
-            SETTINGS( 0, 0, CID_NONE, 0, 0),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
     CONDITION_END,
 
     CONDITION(CID_ENERGY_CRITICAL_LLEGS_2, "energy critical legs 2", "", NULL, NULL, NULL, NULL),
-            SETTINGS( 0, 0, CID_NONE, 0, 0),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
     CONDITION_END,
 
     CONDITION(CID_ENERGY_CRITICAL_LLEGS_3, "energy critical legs 3", "", NULL, NULL, NULL, NULL),
-            SETTINGS( 0, 0, CID_NONE, 0, 0),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
     CONDITION_END,
 
     CONDITION(CID_ENERGY_CRITICAL_LLEGS_4, "energy critical legs 4", "", NULL, NULL, NULL, NULL),
-            SETTINGS( 0, 0, CID_NONE, 0, 0),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
     CONDITION_END,
 
     CONDITION(CID_ENERGY_CRITICAL_LLEGS_5, "energy critical legs 5", "", NULL, NULL, NULL, NULL,
             EFFECT(CDN_EF_DEATH,  0, CDN_DAMAGE_NONE, 0), ),
-            SETTINGS( 0, 0, CID_NONE, 0, 0),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
     CONDITION_END,
 
                 /* Impact critical hits */
@@ -252,128 +252,128 @@ static struct cdn_condition static_condition_list[] = {
                 /* Chest */
                 CONDITION(CID_IMPACT_CRITICAL_BODY_1, "impact critical body 1", "", NULL, NULL, NULL, NULL,
                         EFFECT(CDN_EF_STUNNED, 0, CDN_DAMAGE_NONE, 0), ),
-                        SETTINGS( 0, 0, CID_NONE, 0.5, 0.5),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0.5, 0.5),
                 CONDITION_END,
 
                 CONDITION(CID_IMPACT_CRITICAL_BODY_2, "impact critical body 2", "", NULL, NULL, NULL, NULL,
                         EFFECT(CDN_EF_STUNNED, 0, CDN_DAMAGE_NONE, 0), ),
-                        SETTINGS( 0, 0, CID_NONE, 1.5, 1.5),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 1.5, 1.5),
                 CONDITION_END,
 
                 CONDITION(CID_IMPACT_CRITICAL_BODY_3, "impact critical body 3", "", NULL, NULL, NULL, NULL,
                         EFFECT(CDN_EF_STUNNED,        0,                         CDN_DAMAGE_NONE,  0),
                         EFFECT(CDN_EF_MODIFY_FATIQUE, bf(CDN_ESF_REQ_TGH_CHECK), CDN_DAMAGE_1D5,   0), ),
-                        SETTINGS( 0, 0, CID_NONE, 2, 2),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 2, 2),
                 CONDITION_END,
 
                 CONDITION(CID_IMPACT_CRITICAL_BODY_4, "impact critical body 4", "", NULL, NULL, NULL, NULL,
                         EFFECT(CDN_EF_MODIFY_TGH,     bf(CDN_ESF_PERMANENT), CDN_DAMAGE_1D5,   0), ),
-                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
                 CONDITION_END,
 
                 CONDITION(CID_IMPACT_CRITICAL_BODY_5, "impact critical body 5", "", NULL, NULL, NULL, NULL,
                         EFFECT(CDN_EF_DEATH,  0, CDN_DAMAGE_NONE, 0), ),
-                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
                 CONDITION_END,
 
-                /* Arms */
+                /* Right Arms */
                 CONDITION(CID_IMPACT_CRITICAL_RARMS_1, "impact critical arms 1", "", "impact arm 1", NULL, NULL, NULL,
                         EFFECT(CDN_EF_DISABLE_RARM, 0, CDN_DAMAGE_NONE, 0), ),
-                        SETTINGS( 0, 0, CID_NONE, 1, 1),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 1, 1),
                 CONDITION_END,
 
                 CONDITION(CID_IMPACT_CRITICAL_RARMS_2, "impact critical arms 2", "", NULL, NULL, NULL, NULL,
                         EFFECT(CDN_EF_STUNNED,      0, CDN_DAMAGE_NONE, 0),
                         EFFECT(CDN_EF_DISABLE_RARM, 0, CDN_DAMAGE_NONE, 0), ),
-                        SETTINGS( 0, 0, CID_NONE, 1, 1),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 1, 1),
                 CONDITION_END,
 
                 CONDITION(CID_IMPACT_CRITICAL_RARMS_3, "impact critical arms 3", "", NULL, NULL, NULL, NULL,
                         EFFECT(CDN_EF_DISABLE_RARM, 0, CDN_DAMAGE_NONE, 0), ),
-                        SETTINGS(0, 0, CID_NONE, 50, 200),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 50, 200),
                 CONDITION_END,
 
                 CONDITION(CID_IMPACT_CRITICAL_RARMS_4, "impact critical arms 4", "", NULL, NULL, NULL, NULL,
                         EFFECT(CDN_EF_DISABLE_RARM, 0, CDN_DAMAGE_NONE, 0), ),
-                        SETTINGS(0, bf(CDN_SF_PERMANENT), CID_NONE, 0, 0),
+                        SETTINGS( bf(CDN_SF_UNIQUE), bf(CDN_SF_PERMANENT), CID_NONE, 0, 0),
                 CONDITION_END,
 
                 CONDITION(CID_IMPACT_CRITICAL_RARMS_5, "impact critical arms 5", "", NULL, NULL, NULL, NULL,
                         EFFECT(CDN_EF_DEATH,  0, CDN_DAMAGE_NONE, 0), ),
-                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
                 CONDITION_END,
 
-                /* Legs */
+                /* Right Legs */
                 CONDITION(CID_IMPACT_CRITICAL_RLEGS_1, "impact critical legs 1", "", NULL, NULL, NULL, NULL,
                         EFFECT(CDN_EF_MODIFY_FATIQUE, bf(CDN_ESF_REQ_TGH_CHECK), CDN_DAMAGE_ONE, 0), ),
-                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
                 CONDITION_END,
 
                 CONDITION(CID_IMPACT_CRITICAL_RLEGS_2, "impact critical legs 2", "", NULL, NULL, NULL, NULL),
-                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
                 CONDITION_END,
 
                 CONDITION(CID_IMPACT_CRITICAL_RLEGS_3, "impact critical legs 3", "", NULL, NULL, NULL, NULL),
-                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
                 CONDITION_END,
 
                 CONDITION(CID_IMPACT_CRITICAL_RLEGS_4, "impact critical legs 4", "", NULL, NULL, NULL, NULL),
-                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
                 CONDITION_END,
 
                 CONDITION(CID_IMPACT_CRITICAL_RLEGS_5, "impact critical legs 5", "", NULL, NULL, NULL, NULL,
                         EFFECT(CDN_EF_DEATH,  0, CDN_DAMAGE_NONE, 0), ),
-                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
                 CONDITION_END,
 
-                /* Arms */
+                /* Left Arms */
                 CONDITION(CID_IMPACT_CRITICAL_LARMS_1, "impact critical arms 1", "", "impact arm 1", NULL, NULL, NULL,
-                        EFFECT(CDN_EF_DISABLE_RARM, 0, CDN_DAMAGE_NONE, 0), ),
-                        SETTINGS( 0, 0, CID_NONE, 1, 1),
+                        EFFECT(CDN_EF_DISABLE_LARM, 0, CDN_DAMAGE_NONE, 0), ),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 1, 1),
                 CONDITION_END,
 
                 CONDITION(CID_IMPACT_CRITICAL_LARMS_2, "impact critical arms 2", "", NULL, NULL, NULL, NULL,
                         EFFECT(CDN_EF_STUNNED,      0, CDN_DAMAGE_NONE, 0),
-                        EFFECT(CDN_EF_DISABLE_RARM, 0, CDN_DAMAGE_NONE, 0), ),
-                        SETTINGS( 0, 0, CID_NONE, 1, 1),
+                        EFFECT(CDN_EF_DISABLE_LARM, 0, CDN_DAMAGE_NONE, 0), ),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 1, 1),
                 CONDITION_END,
 
                 CONDITION(CID_IMPACT_CRITICAL_LARMS_3, "impact critical arms 3", "", NULL, NULL, NULL, NULL,
-                        EFFECT(CDN_EF_DISABLE_RARM, 0, CDN_DAMAGE_NONE, 0), ),
+                        EFFECT(CDN_EF_DISABLE_LARM, 0, CDN_DAMAGE_NONE, 0), ),
                         SETTINGS(0, 0, CID_NONE, 50, 200),
                 CONDITION_END,
 
                 CONDITION(CID_IMPACT_CRITICAL_LARMS_4, "impact critical arms 4", "", NULL, NULL, NULL, NULL,
-                        EFFECT(CDN_EF_DISABLE_RARM, 0, CDN_DAMAGE_NONE, 0), ),
+                        EFFECT(CDN_EF_DISABLE_LARM, 0, CDN_DAMAGE_NONE, 0), ),
                         SETTINGS(0, bf(CDN_SF_PERMANENT), CID_NONE, 0, 0),
                 CONDITION_END,
 
                 CONDITION(CID_IMPACT_CRITICAL_LARMS_5, "impact critical arms 5", "", NULL, NULL, NULL, NULL,
                         EFFECT(CDN_EF_DEATH,  0, CDN_DAMAGE_NONE, 0), ),
-                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
                 CONDITION_END,
 
-                /* Legs */
+                /* Left Legs */
                 CONDITION(CID_IMPACT_CRITICAL_LLEGS_1, "impact critical legs 1", "", NULL, NULL, NULL, NULL,
                         EFFECT(CDN_EF_MODIFY_FATIQUE, bf(CDN_ESF_REQ_TGH_CHECK), CDN_DAMAGE_ONE, 0), ),
-                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
                 CONDITION_END,
 
                 CONDITION(CID_IMPACT_CRITICAL_LLEGS_2, "impact critical legs 2", "", NULL, NULL, NULL, NULL),
-                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
                 CONDITION_END,
 
                 CONDITION(CID_IMPACT_CRITICAL_LLEGS_3, "impact critical legs 3", "", NULL, NULL, NULL, NULL),
-                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
                 CONDITION_END,
 
                 CONDITION(CID_IMPACT_CRITICAL_LLEGS_4, "impact critical legs 4", "", NULL, NULL, NULL, NULL),
-                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
                 CONDITION_END,
 
                 CONDITION(CID_IMPACT_CRITICAL_LLEGS_5, "impact critical legs 5", "", NULL, NULL, NULL, NULL,
                         EFFECT(CDN_EF_DEATH,  0, CDN_DAMAGE_NONE, 0), ),
-                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
                 CONDITION_END,
 
     /* Rending critical hits */
@@ -406,112 +406,112 @@ static struct cdn_condition static_condition_list[] = {
 
     /* Chest */
     CONDITION(CID_RENDING_CRITICAL_BODY_1, "rending critical body 1", "", NULL, NULL, NULL, NULL),
-            SETTINGS( 0, 0, CID_NONE, 0, 0),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
     CONDITION_END,
 
     CONDITION(CID_RENDING_CRITICAL_BODY_2, "rending critical body 2", "", NULL, NULL, NULL, NULL),
-            SETTINGS( 0, 0, CID_NONE, 0, 0),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
     CONDITION_END,
 
     CONDITION(CID_RENDING_CRITICAL_BODY_3, "rending critical body 3", "", NULL, NULL, NULL, NULL),
-            SETTINGS( 0, 0, CID_NONE, 0, 0),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
     CONDITION_END,
 
     CONDITION(CID_RENDING_CRITICAL_BODY_4, "rending critical body 4", "", NULL, NULL, NULL, NULL),
-            SETTINGS( 0, 0, CID_NONE, 0, 0),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
     CONDITION_END,
 
     CONDITION(CID_RENDING_CRITICAL_BODY_5, "rending critical body 5", "", NULL, NULL, NULL, NULL,
             EFFECT(CDN_EF_DEATH,  0, CDN_DAMAGE_NONE, 0), ),
-            SETTINGS( 0, 0, CID_NONE, 0, 0),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
     CONDITION_END,
 
     /* Arms */
     CONDITION(CID_RENDING_CRITICAL_RARMS_1, "rending critical arms 1", "", NULL, NULL, NULL, NULL),
-            SETTINGS( 0, 0, CID_NONE, 0, 0),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
     CONDITION_END,
 
     CONDITION(CID_RENDING_CRITICAL_RARMS_2, "rending critical arms 2", "", NULL, NULL, NULL, NULL),
-            SETTINGS( 0, 0, CID_NONE, 0, 0),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
     CONDITION_END,
 
     CONDITION(CID_RENDING_CRITICAL_RARMS_3, "rending critical arms 3", "", NULL, NULL, NULL, NULL),
-            SETTINGS( 0, 0, CID_NONE, 0, 0),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
     CONDITION_END,
 
     CONDITION(CID_RENDING_CRITICAL_RARMS_4, "rending critical arms 4", "", NULL, NULL, NULL, NULL),
-            SETTINGS( 0, 0, CID_NONE, 0, 0),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
     CONDITION_END,
 
     CONDITION(CID_RENDING_CRITICAL_RARMS_5, "rending critical arms 5", "", NULL, NULL, NULL, NULL,
             EFFECT(CDN_EF_DEATH,  0, CDN_DAMAGE_NONE, 0), ),
-            SETTINGS( 0, 0, CID_NONE, 0, 0),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
     CONDITION_END,
 
     /* Legs */
     CONDITION(CID_RENDING_CRITICAL_RLEGS_1, "rending critical legs 1", "", NULL, NULL, NULL, NULL),
-            SETTINGS( 0, 0, CID_NONE, 0, 0),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
     CONDITION_END,
 
     CONDITION(CID_RENDING_CRITICAL_RLEGS_2, "rending critical legs 2", "", NULL, NULL, NULL, NULL),
-            SETTINGS( 0, 0, CID_NONE, 0, 0),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
     CONDITION_END,
 
     CONDITION(CID_RENDING_CRITICAL_RLEGS_3, "rending critical legs 3", "", NULL, NULL, NULL, NULL),
-            SETTINGS( 0, 0, CID_NONE, 0, 0),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
     CONDITION_END,
 
     CONDITION(CID_RENDING_CRITICAL_RLEGS_4, "rending critical legs 4", "", NULL, NULL, NULL, NULL),
-            SETTINGS( 0, 0, CID_NONE, 0, 0),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
     CONDITION_END,
 
     CONDITION(CID_RENDING_CRITICAL_RLEGS_5, "rending critical legs 5", "", NULL, NULL, NULL, NULL,
             EFFECT(CDN_EF_DEATH,  0, CDN_DAMAGE_NONE, 0), ),
-            SETTINGS( 0, 0, CID_NONE, 0, 0),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
     CONDITION_END,
 
     /* Arms */
     CONDITION(CID_RENDING_CRITICAL_LARMS_1, "rending critical arms 1", "", NULL, NULL, NULL, NULL),
-            SETTINGS( 0, 0, CID_NONE, 0, 0),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
     CONDITION_END,
 
     CONDITION(CID_RENDING_CRITICAL_LARMS_2, "rending critical arms 2", "", NULL, NULL, NULL, NULL),
-            SETTINGS( 0, 0, CID_NONE, 0, 0),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
     CONDITION_END,
 
     CONDITION(CID_RENDING_CRITICAL_LARMS_3, "rending critical arms 3", "", NULL, NULL, NULL, NULL),
-            SETTINGS( 0, 0, CID_NONE, 0, 0),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
     CONDITION_END,
 
     CONDITION(CID_RENDING_CRITICAL_LARMS_4, "rending critical arms 4", "", NULL, NULL, NULL, NULL),
-            SETTINGS( 0, 0, CID_NONE, 0, 0),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
     CONDITION_END,
 
     CONDITION(CID_RENDING_CRITICAL_LARMS_5, "rending critical arms 5", "", NULL, NULL, NULL, NULL,
             EFFECT(CDN_EF_DEATH,  0, CDN_DAMAGE_NONE, 0), ),
-            SETTINGS( 0, 0, CID_NONE, 0, 0),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
     CONDITION_END,
 
     /* Legs */
     CONDITION(CID_RENDING_CRITICAL_LLEGS_1, "rending critical legs 1", "", NULL, NULL, NULL, NULL),
-            SETTINGS( 0, 0, CID_NONE, 0, 0),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
     CONDITION_END,
 
     CONDITION(CID_RENDING_CRITICAL_LLEGS_2, "rending critical legs 2", "", NULL, NULL, NULL, NULL),
-            SETTINGS( 0, 0, CID_NONE, 0, 0),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
     CONDITION_END,
 
     CONDITION(CID_RENDING_CRITICAL_LLEGS_3, "rending critical legs 3", "", NULL, NULL, NULL, NULL),
-            SETTINGS( 0, 0, CID_NONE, 0, 0),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
     CONDITION_END,
 
     CONDITION(CID_RENDING_CRITICAL_LLEGS_4, "rending critical legs 4", "", NULL, NULL, NULL, NULL),
-            SETTINGS( 0, 0, CID_NONE, 0, 0),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
     CONDITION_END,
 
     CONDITION(CID_RENDING_CRITICAL_LLEGS_5, "rending critical legs 5", "", NULL, NULL, NULL, NULL,
             EFFECT(CDN_EF_DEATH,  0, CDN_DAMAGE_NONE, 0), ),
-            SETTINGS( 0, 0, CID_NONE, 0, 0),
+            SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
     CONDITION_END,
 
                 /* Explosive critical hits */
@@ -544,112 +544,112 @@ static struct cdn_condition static_condition_list[] = {
 
                 /* Chest */
                 CONDITION(CID_EXPLOSIVE_CRITICAL_BODY_1, "explosive critical body 1", "", NULL, NULL, NULL, NULL),
-                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
                 CONDITION_END,
 
                 CONDITION(CID_EXPLOSIVE_CRITICAL_BODY_2, "explosive critical body 2", "", NULL, NULL, NULL, NULL),
-                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
                 CONDITION_END,
 
                 CONDITION(CID_EXPLOSIVE_CRITICAL_BODY_3, "explosive critical body 3", "", NULL, NULL, NULL, NULL),
-                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
                 CONDITION_END,
 
                 CONDITION(CID_EXPLOSIVE_CRITICAL_BODY_4, "explosive critical body 4", "", NULL, NULL, NULL, NULL),
-                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
                 CONDITION_END,
 
                 CONDITION(CID_EXPLOSIVE_CRITICAL_BODY_5, "explosive critical body 5", "", NULL, NULL, NULL, NULL,
                         EFFECT(CDN_EF_DEATH,  0, CDN_DAMAGE_NONE, 0), ),
-                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
                 CONDITION_END,
 
                 /* Arms */
                 CONDITION(CID_EXPLOSIVE_CRITICAL_RARMS_1, "explosive critical arms 1", "", NULL, NULL, NULL, NULL),
-                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
                 CONDITION_END,
 
                 CONDITION(CID_EXPLOSIVE_CRITICAL_RARMS_2, "explosive critical arms 2", "", NULL, NULL, NULL, NULL),
-                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
                 CONDITION_END,
 
                 CONDITION(CID_EXPLOSIVE_CRITICAL_RARMS_3, "explosive critical arms 3", "", NULL, NULL, NULL, NULL),
-                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
                 CONDITION_END,
 
                 CONDITION(CID_EXPLOSIVE_CRITICAL_RARMS_4, "explosive critical arms 4", "", NULL, NULL, NULL, NULL),
-                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
                 CONDITION_END,
 
                 CONDITION(CID_EXPLOSIVE_CRITICAL_RARMS_5, "explosive critical arms 5", "", NULL, NULL, NULL, NULL,
                         EFFECT(CDN_EF_DEATH,  0, CDN_DAMAGE_NONE, 0), ),
-                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
                 CONDITION_END,
 
                 /* Legs */
                 CONDITION(CID_EXPLOSIVE_CRITICAL_RLEGS_1, "explosive critical legs 1", "", NULL, NULL, NULL, NULL),
-                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
                 CONDITION_END,
 
                 CONDITION(CID_EXPLOSIVE_CRITICAL_RLEGS_2, "explosive critical legs 2", "", NULL, NULL, NULL, NULL),
-                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
                 CONDITION_END,
 
                 CONDITION(CID_EXPLOSIVE_CRITICAL_RLEGS_3, "explosive critical legs 3", "", NULL, NULL, NULL, NULL),
-                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
                 CONDITION_END,
 
                 CONDITION(CID_EXPLOSIVE_CRITICAL_RLEGS_4, "explosive critical legs 4", "", NULL, NULL, NULL, NULL),
-                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
                 CONDITION_END,
 
                 CONDITION(CID_EXPLOSIVE_CRITICAL_RLEGS_5, "explosive critical legs 5", "", NULL, NULL, NULL, NULL,
                         EFFECT(CDN_EF_DEATH,  0, CDN_DAMAGE_NONE, 0), ),
-                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
                 CONDITION_END,
 
                 /* Arms */
                 CONDITION(CID_EXPLOSIVE_CRITICAL_LARMS_1, "explosive critical arms 1", "", NULL, NULL, NULL, NULL),
-                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
                 CONDITION_END,
 
                 CONDITION(CID_EXPLOSIVE_CRITICAL_LARMS_2, "explosive critical arms 2", "", NULL, NULL, NULL, NULL),
-                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
                 CONDITION_END,
 
                 CONDITION(CID_EXPLOSIVE_CRITICAL_LARMS_3, "explosive critical arms 3", "", NULL, NULL, NULL, NULL),
-                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
                 CONDITION_END,
 
                 CONDITION(CID_EXPLOSIVE_CRITICAL_LARMS_4, "explosive critical arms 4", "", NULL, NULL, NULL, NULL),
-                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
                 CONDITION_END,
 
                 CONDITION(CID_EXPLOSIVE_CRITICAL_LARMS_5, "explosive critical arms 5", "", NULL, NULL, NULL, NULL,
                         EFFECT(CDN_EF_DEATH,  0, CDN_DAMAGE_NONE, 0), ),
-                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
                 CONDITION_END,
 
                 /* Legs */
                 CONDITION(CID_EXPLOSIVE_CRITICAL_LLEGS_1, "explosive critical legs 1", "", NULL, NULL, NULL, NULL),
-                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
                 CONDITION_END,
 
                 CONDITION(CID_EXPLOSIVE_CRITICAL_LLEGS_2, "explosive critical legs 2", "", NULL, NULL, NULL, NULL),
-                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
                 CONDITION_END,
 
                 CONDITION(CID_EXPLOSIVE_CRITICAL_LLEGS_3, "explosive critical legs 3", "", NULL, NULL, NULL, NULL),
-                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
                 CONDITION_END,
 
                 CONDITION(CID_EXPLOSIVE_CRITICAL_LLEGS_4, "explosive critical legs 4", "", NULL, NULL, NULL, NULL),
-                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
                 CONDITION_END,
 
                 CONDITION(CID_EXPLOSIVE_CRITICAL_LLEGS_5, "explosive critical legs 5", "", NULL, NULL, NULL, NULL,
                         EFFECT(CDN_EF_DEATH,  0, CDN_DAMAGE_NONE, 0), ),
-                        SETTINGS( 0, 0, CID_NONE, 0, 0),
+                        SETTINGS( bf(CDN_SF_UNIQUE), 0, CID_NONE, 0, 0),
                 CONDITION_END,
 };
 

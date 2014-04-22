@@ -278,11 +278,13 @@ struct cdn_condition *cdn_get_condition_tid(struct cdn_condition_list *cdn_list,
     return NULL;
 }
 
-bool cdn_has_effect(struct cdn_condition_list *cdn_list, enum condition_effect_flags effect) {
+bool cdn_has_effect_skip(struct cdn_condition_list *cdn_list, enum condition_effect_flags effect, struct cdn_condition *condition) {
     if (cdn_verify_list(cdn_list) == false) return false;
 
     struct cdn_condition *c = NULL;
     while ( (c = cdn_list_get_next_condition(cdn_list, c) ) != NULL) {
+        if ( (condition != NULL) && (condition == c) ) continue;
+
         for (unsigned int  i = 0; i < ARRAY_SZ(c->effects); i++) {
             if (c->effects[i].effect == effect) {
                 return true;
@@ -291,6 +293,11 @@ bool cdn_has_effect(struct cdn_condition_list *cdn_list, enum condition_effect_f
     }
 
     return false;
+}
+
+
+bool cdn_has_effect(struct cdn_condition_list *cdn_list, enum condition_effect_flags effect) {
+    return cdn_has_effect_skip(cdn_list, effect, NULL);
 }
 
 int cdn_condition_effect_strength(struct cdn_condition_list *cdn_list, enum condition_effect_flags effect) {
@@ -617,11 +624,37 @@ void cdn_process(struct cdn_condition_list *cdn_list, struct msr_monster *monste
                         monster->cur_wounds += MAX(monster->max_wounds, ces->strength);
                     }break;
 
-                    case CDN_EF_DISABLE_LLEG: break;
-                    case CDN_EF_DISABLE_RLEG: break;
-                    case CDN_EF_DISABLE_LARM: break;
-                    case CDN_EF_DISABLE_RARM: break;
-                    case CDN_EF_DISABLE_BODY: break;
+                    case CDN_EF_DISABLE_LLEG: {
+                    }break;
+                    case CDN_EF_DISABLE_RLEG: {
+                    }break;
+                    case CDN_EF_DISABLE_LARM: {
+                        if (last_time) {
+                            if (cdn_has_effect_skip(monster->conditions, CDN_EF_DISABLE_LARM, c) ) {
+                                break;
+                            }
+                            else {
+                                inv_enable_location(monster->inventory, INV_LOC_OFFHAND_WIELD);
+                            }
+                        }
+                        else if (first_time) {
+                            inv_disable_location(monster->inventory, INV_LOC_OFFHAND_WIELD);
+                        }
+                    }break;
+                    case CDN_EF_DISABLE_RARM: {
+                        if (last_time) {
+                            if (cdn_has_effect_skip(monster->conditions, CDN_EF_DISABLE_RARM, c) ) {
+                                break; /*  */
+                            }
+                            else {
+                                inv_enable_location(monster->inventory, INV_LOC_MAINHAND_WIELD);
+                            }
+                        }
+                        else if (first_time) {
+                            inv_disable_location(monster->inventory, INV_LOC_MAINHAND_WIELD);
+                        }
+                    }break;
+
                     case CDN_EF_STUMBLE: break;
 
                     case CDN_EF_DAMAGE: clr_bf(ces->effect_setting_flags, CDN_ESF_ACTIVE);
