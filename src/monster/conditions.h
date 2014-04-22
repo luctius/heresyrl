@@ -73,6 +73,7 @@ enum condition_effect_flags {
 
     CDN_EF_HEALTH,
     CDN_EF_HEALTH_TICK,
+    CDN_EF_BLOODLOSS,
     CDN_EF_BLINDNESS,
     CDN_EF_DEAFNESS,
     CDN_EF_STUNNED,

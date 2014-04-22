@@ -31,7 +31,7 @@ void msrlst_monster_list_init(void) {
     for (unsigned int i = 0; i < MID_MAX; i++) {
         struct msr_monster *template_monster = &static_monster_list[i];
         if (template_monster->template_id != i) {
-            fprintf(stderr, "Monster list integrity check failed!\n");
+            fprintf(stderr, "Monster list integrity check failed! [%d]\n", i);
             exit(EXIT_FAILURE);
         }
     }
@@ -39,7 +39,7 @@ void msrlst_monster_list_init(void) {
     for (int i = 0; i < MID_MAX; i++) {
         const char *string = msr_descs[i];
         if (string == NULL) {
-            fprintf(stderr, "Monster description list integrity check failed!\n");
+            fprintf(stderr, "Monster description list integrity check failed! (%s [%d])\n", static_monster_list[i].sd_name, i);
             exit(EXIT_FAILURE);
         }
     }
@@ -668,7 +668,7 @@ uint8_t msr_get_movement_rate(struct msr_monster *monster) {
     int max_speed = 90;
 
     if ( (cdn_has_effect(monster->conditions, CDN_EF_DISABLE_RLEG) == true) &&
-         (cdn_has_effect(monster->conditions, CDN_EF_DISABLE_RLEG) == true) ) {
+         (cdn_has_effect(monster->conditions, CDN_EF_DISABLE_LLEG) == true) ) {
         return 0;
     }
 

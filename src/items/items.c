@@ -25,7 +25,7 @@ void itmlst_items_list_init(void) {
     for (unsigned int i = 0; i < IID_MAX; i++) {
         struct itm_item *item = &static_item_list[i];
         if (item->template_id != i) {
-            fprintf(stderr, "Item list integrity check failed!\n");
+            fprintf(stderr, "Item list integrity check failed! [%d]\n", i);
             exit(EXIT_FAILURE);
         }
     }
@@ -33,7 +33,7 @@ void itmlst_items_list_init(void) {
     for (int i = 0; i < IID_MAX; i++) {
         const char *string = itm_descs[i];
         if (string == NULL) {
-            fprintf(stderr, "Item description list integrity check failed!\n");
+            fprintf(stderr, "Item description list integrity check failed! (%s [%d])\n", static_item_list[i].sd_name, i);
             exit(EXIT_FAILURE);
         }
     }

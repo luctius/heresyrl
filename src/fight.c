@@ -274,6 +274,8 @@ int fght_calc_dmg(struct random *r, struct msr_monster *monster, struct msr_mons
         armour = MAX((armour - penetration), 0); /* penetration only works against armour */
         total_damage += MAX((dmg + dmg_add) - (armour  + toughness), 0);
 
+        msr_do_dmg(target, total_damage, wpn->dmg_type, mhl);
+
         lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "fght", "Doing %d%s+%d damage => %d, %d wnds left.", wpn->nr_dmg_die, random_die_name(dmg_die_sz), wpn->dmg_addition, dmg, target->cur_wounds);
         if (target->dead) h = hits;
     }
@@ -305,9 +307,10 @@ bool fght_do_weapon_dmg(struct random *r, struct msr_monster *monster, struct ms
     enum msr_hit_location mhl = msr_get_hit_location(target, random_d100(r));
     int total_damage = fght_calc_dmg(r, monster, target, hits, witem, mhl);
     if (total_damage >= 0) {
-        msg_plr(" and score");  msg_plr_number(" %d", hits); msg_plr(" hits and a total of"); msg_plr_number(" %d", total_damage); msg_plr(" damage.");
-        msg_msr(" and scores"); msg_msr_number(" %d", hits); msg_msr(" hits and a total of"); msg_msr_number(" %d", total_damage); msg_msr(" damage.");
-        msr_do_dmg(target, total_damage, wpn->dmg_type, mhl);
+        if (target->dead == false) {
+            msg_plr(" and score");  msg_plr_number(" %d", hits); msg_plr(" hits and a total of"); msg_plr_number(" %d", total_damage); msg_plr(" damage.");
+            msg_msr(" and scores"); msg_msr_number(" %d", hits); msg_msr(" hits and a total of"); msg_msr_number(" %d", total_damage); msg_msr(" damage.");
+        }
     }
     return true;
 }
@@ -503,7 +506,7 @@ bool fght_explosion(struct random *r, struct itm_item *bomb, struct dm_map *map)
             enum msr_hit_location mhl = msr_get_hit_location(target, random_d100(r));
             int total_damage = fght_calc_dmg(r, NULL, target, 1, bomb, mhl);
 
-            msr_do_dmg(target, total_damage, wpn->dmg_type, mhl);
+            //msr_do_dmg(target, total_damage, wpn->dmg_type, mhl);
             msg_msr("it does %d to %s. ", total_damage, msr_ldname(target) );
         }
     }

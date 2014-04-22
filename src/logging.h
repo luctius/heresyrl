@@ -105,6 +105,7 @@ void msg_add(enum msg_fd fd, enum lg_channel c, const char *format, ...);
 #define Your(m, f, a...) do {msg_init(&m->pos,NULL); msg_add(MSG_PLR_FD, LG_CHANNEL_PLAIN, "Your " f, ##a); msg_exit(); } while (0)
 #define You_msg(m, f, a...) do {msg_init(&m->pos,NULL); msg_add(MSG_PLR_FD, LG_CHANNEL_PLAIN, f, ##a); msg_exit(); } while (0)
 #define Monster(m, f, a...) do {if (!m->is_player) { msg_init(&m->pos,NULL); msg_add(MSG_MSR_FD, LG_CHANNEL_PLAIN, "%s " f, msr_ldname(m), ##a); msg_exit(); } } while (0)
+#define Monster_msg(m, f, a...) do {if (!m->is_player) { msg_init(&m->pos,NULL); msg_add(MSG_MSR_FD, LG_CHANNEL_PLAIN, f, ##a); msg_exit(); } } while (0)
 #define Monster_tgt(m, t, f, a...) do {if (!m->is_player) { msg_init(&m->pos,&t->pos); msg_add(MSG_MSR_FD, LG_CHANNEL_PLAIN, "%s " f, msr_ldname(m), ##a); msg_exit(); } } while (0)
 
 #define msg_plr(f, a...)         msg_add(MSG_PLR_FD, LG_CHANNEL_PLAIN, f, ##a)

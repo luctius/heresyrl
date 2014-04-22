@@ -37,7 +37,7 @@ void cdn_init(void) {
     for (unsigned int i = 0; i < CID_MAX; i++) {
         struct cdn_condition *condition = &static_condition_list[i];
         if (condition->template_id != i) {
-            fprintf(stderr, "Condition list integrity check failed!\n");
+            fprintf(stderr, "Condition list integrity check failed! [%d]\n", i);
             exit(EXIT_FAILURE);
         }
     }
@@ -327,45 +327,12 @@ static enum cdn_ids dmg_type_to_id_lot[MSR_HITLOC_MAX][DMG_TYPE_MAX] = {
 
 bool cdn_add_critical_hit(struct cdn_condition_list *cdn_list, int critical_dmg, enum msr_hit_location mhl, enum dmg_type type) {
     if (cdn_verify_list(cdn_list) == false) return false;
-    if (critical_dmg > CDN_NR_CRITICAL_HITS_PER_LOCATION) critical_dmg = CDN_NR_CRITICAL_HITS_PER_LOCATION;
+    if (critical_dmg > (CDN_NR_CRITICAL_HITS_PER_LOCATION * 2) ) critical_dmg = (CDN_NR_CRITICAL_HITS_PER_LOCATION * 2);
+    critical_dmg /= 2; /* every 2 damage is a new critical hit effect */
     critical_dmg -= 1; /* idx to offset */
 
     enum cdn_ids tid = dmg_type_to_id_lot[mhl][type];
-    struct cdn_condition *c = cdn_create(cdn_list, tid +critical_dmg);
-
-
-    for (unsigned int i = 0; i < (ARRAY_SZ(c->effects) ); i++) {
-        struct condition_effect_struct *ces = &c->effects[i];
-        switch(mhl) {
-            default: break;
-
-            case MSR_HITLOC_LEFT_LEG: 
-            if (ces->effect == CDN_EF_DISABLE_RLEG) {
-                ces->effect = CDN_EF_DISABLE_LLEG;
-            }
-            break;
-
-            case MSR_HITLOC_RIGHT_LEG:
-            if (ces->effect == CDN_EF_DISABLE_LLEG) {
-                ces->effect = CDN_EF_DISABLE_RLEG;
-            }
-            break;
-
-            case MSR_HITLOC_LEFT_ARM:
-            if (ces->effect == CDN_EF_DISABLE_RARM) {
-                ces->effect = CDN_EF_DISABLE_LARM;
-            }
-            break;
-
-            case MSR_HITLOC_RIGHT_ARM:
-            if (ces->effect == CDN_EF_DISABLE_LARM) {
-                ces->effect = CDN_EF_DISABLE_RARM;
-            }
-            break;
-        }
-    }
-
-    return cdn_add_to_list(cdn_list, c);
+    return cdn_add_condition(cdn_list, tid +critical_dmg);
 }
 
 void cdn_process(struct cdn_condition_list *cdn_list, struct msr_monster *monster) {
@@ -443,15 +410,15 @@ void cdn_process(struct cdn_condition_list *cdn_list, struct msr_monster *monste
 
                 if (destroy == false) {
                     if (test_bf(c->setting_flags, CDN_SF_INVISIBLE) == false) {
-                        if (c->on_apply_plr != NULL) You(monster, "%s.", c->on_apply_plr);
-                        if (c->on_apply_msr != NULL) Monster(monster, "%s.", c->on_apply_msr);
+                        if (c->on_apply_plr != NULL) You_msg(monster, c->on_apply_plr);
+                        if (c->on_apply_msr != NULL) Monster_msg(monster, c->on_apply_msr, msr_ldname(monster) );
                     }
                 }
             }
             else if (last_time) {
                 if (test_bf(c->setting_flags, CDN_SF_INVISIBLE) == false) {
-                    if (c->on_exit_plr != NULL) You(monster, "%s.", c->on_exit_plr);
-                    if (c->on_exit_msr != NULL) Monster(monster, "%s.", c->on_exit_msr);
+                    if (c->on_exit_plr != NULL) You_msg(monster, c->on_exit_plr);
+                    if (c->on_exit_msr != NULL) Monster_msg(monster, c->on_exit_msr, msr_ldname(monster) );
                 }
                 destroy = true;
             }
@@ -512,14 +479,17 @@ void cdn_process(struct cdn_condition_list *cdn_list, struct msr_monster *monste
 
             bool process = false;
 
-            if (test_bf(ces->effect_setting_flags, CDN_ESF_TICK) && (ces->tick_energy == 0) ) {
+            if (first_time) {
+                process = true;
+            }
+            else if (last_time) {
+                process = true;
+            }
+            else if (test_bf(ces->effect_setting_flags, CDN_ESF_TICK) && (ces->tick_energy == 0) ) {
                 process = true;
             }
             else if (test_bf(ces->effect_setting_flags, CDN_ESF_TICK) && (ces->tick_energy > 0) ) {
                 ces->tick_energy -= MIN(TT_ENERGY_TICK, ces->tick_energy);
-            }
-            else if (first_time) {
-                process = true;
             }
 
             if (process) {
@@ -678,6 +648,11 @@ void cdn_process(struct cdn_condition_list *cdn_list, struct msr_monster *monste
                                 monster->cur_wounds = monster->max_wounds;
                     } break;
 
+                    case CDN_EF_BLOODLOSS: {
+                        if (random_d100(gbl_game->random) < 5) {
+                            msr_die(monster, gbl_game->current_map);
+                        }
+                    }break;
                     case CDN_EF_BLINDNESS: break;
                     case CDN_EF_DEAFNESS: break;
                     case CDN_EF_STUNNED: break;

@@ -16,8 +16,6 @@ enum cdn_ids {
     /* Weapons */
     CID_WEAPON_FLAME,
 
-    CID_FATIQUE,
-
     /* Criticals -- it is required that these are in order! ie. HEAD1 , HEAD2, HEAD3 ... */
     /* Energy Head */
     CID_ENERGY_CRITICAL_HEAD_1,
