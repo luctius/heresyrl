@@ -129,6 +129,7 @@ struct msr_monster {
 
     /* current level of fatique , not used. */
     uint8_t fatique;
+    uint32_t fatique_turn;
 
     /* true if the monster is dead and to be cleaned up. */
     bool dead;

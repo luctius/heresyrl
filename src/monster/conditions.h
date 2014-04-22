@@ -49,6 +49,7 @@ enum condition_setting_flags {
 
 enum condition_effect_flags {
     CDN_EF_NONE,
+    CDN_EF_MODIFY_FATIQUE,
     CDN_EF_MODIFY_WS,
     CDN_EF_MODIFY_BS,
     CDN_EF_MODIFY_STR,
