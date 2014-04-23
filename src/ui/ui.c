@@ -666,11 +666,15 @@ void msgwin_log_refresh(struct logging *lg, struct log_entry *new_entry) {
     }
 }
 
+void show_log(struct hrl_window *window, bool input);
+
 void msgwin_log_callback(struct logging *lg, struct log_entry *entry, void *priv) {
     FIX_UNUSED(entry);
     FIX_UNUSED(priv);
 
-    msgwin_log_refresh(lg, entry);
+    //msgwin_log_refresh(lg, entry);
+
+    show_log(msg_win, false);
 }
 
 void charwin_refresh() {
@@ -1307,16 +1311,15 @@ Basic weapon traning SP     ...                  |
     delwin(pad.win);
 }
 
-
-void log_window(void) {
+void show_log(struct hrl_window *window, bool input) {
     struct queue *q = lg_queue(gbl_log);
     int y = 0;
     int log_sz = queue_size(q);
     struct log_entry *tmp_entry = NULL;
 
     struct hrl_window pad;
-    memmove(&pad, map_win, sizeof(struct hrl_window) );
-    pad.win = newpad(MAX(log_sz * 2, map_win->lines) , map_win->cols);
+    memmove(&pad, window, sizeof(struct hrl_window) );
+    pad.win = newpad(MAX(log_sz * 2, window->lines) , window->cols);
     assert(pad.win != NULL);
 
     touchwin(pad.win);
@@ -1376,28 +1379,35 @@ void log_window(void) {
     else textwin_add_text(&pad, "Empty\n");
     y += textwin_display_text(&pad) +1;
 
-    int line = 0;
-    bool watch = true;
-    while(watch == true) {
-        prefresh(pad.win, line,0,1,1,pad.lines,pad.cols);
+    if (input) {
+        int line = 0;
+        bool watch = true;
+        while(watch == true) {
+            prefresh(pad.win, line,0,pad.y,pad.x,pad.lines,pad.cols);
 
-        switch (inp_get_input(gbl_game->input) ) {
-            case INP_KEY_UP_RIGHT:   line += 20; break;
-            case INP_KEY_DOWN_RIGHT: line -= 20; break;
-            case INP_KEY_UP:         line--; break;
-            case INP_KEY_DOWN:       line++; break;
-            case INP_KEY_ESCAPE:
-            case INP_KEY_QUIT:
-            case INP_KEY_NO:
-            case INP_KEY_YES: watch = false; break;
-            default: break;
+            switch (inp_get_input(gbl_game->input) ) {
+                case INP_KEY_UP_RIGHT:   line += 20; break;
+                case INP_KEY_DOWN_RIGHT: line -= 20; break;
+                case INP_KEY_UP:         line--; break;
+                case INP_KEY_DOWN:       line++; break;
+                case INP_KEY_ESCAPE:
+                case INP_KEY_QUIT:
+                case INP_KEY_NO:
+                case INP_KEY_YES: watch = false; break;
+                default: break;
+            }
+
+            if (line < 0) line = 0;
+            if (line > (y - pad.lines) ) line = y - pad.lines;
         }
-
-        if (line < 0) line = 0;
-        if (line > (y - pad.lines) ) line = y - pad.lines;
     }
+    else prefresh(pad.win, y - 1, 0, pad.y +2, pad.x, 2 /*pad.lines*/, pad.cols);
 
     delwin(pad.win);
+}
+
+void log_window(void) {
+    show_log(map_win, true);
 }
 
 void levelup_selection_window(void) {

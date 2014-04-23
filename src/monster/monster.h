@@ -10,6 +10,10 @@
 #include "enums.h"
 
 #define MSR_NR_TALENTS_MAX 10
+#define MSR_FATIQUE_RECOVER_DELAY (100)
+
+#define MSR_MOVEMENT_MIN 10
+#define MSR_MOVEMENT_MAX 90
 
 enum msr_gender {
     MSR_GENDER_MALE,

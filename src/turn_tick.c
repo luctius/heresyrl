@@ -43,6 +43,12 @@ void tt_process_monsters(struct dm_map *map) {
         /* A stunned monster can do nothing. */
         if (cdn_has_effect(monster->conditions, CDN_EF_STUNNED) ) do_action = false;
 
+        if (monster->fatique > 0) {
+            if (monster->fatique_turn > (MSR_FATIQUE_RECOVER_DELAY * TT_ENERGY_TURN) ) {
+                monster->fatique -= 1;
+            }
+        }
+
         if (do_action || monster->dead) {
             if (monster->controller.controller_cb != NULL) {
                 monster->controller.controller_cb(monster, monster->controller.controller_ctx);

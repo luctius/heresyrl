@@ -664,8 +664,8 @@ uint8_t msr_get_movement_rate(struct msr_monster *monster) {
     if (msr_verify_monster(monster) == false) return false;
     int speed = (msr_calculate_characteristic_bonus(monster, MSR_CHAR_AGILITY) * 10);
     int speed_mod = 0;
-    int min_speed = 10;
-    int max_speed = 90;
+    int min_speed = MSR_MOVEMENT_MIN;
+    int max_speed = MSR_MOVEMENT_MAX;
 
     if ( (cdn_has_effect(monster->conditions, CDN_EF_DISABLE_RLEG) == true) &&
          (cdn_has_effect(monster->conditions, CDN_EF_DISABLE_LLEG) == true) ) {
@@ -673,12 +673,12 @@ uint8_t msr_get_movement_rate(struct msr_monster *monster) {
     }
 
     if (cdn_has_effect(monster->conditions, CDN_EF_DISABLE_RLEG) ) {
-        min_speed -= 5;
+        min_speed -= MSR_MOVEMENT_MIN / 2;
         max_speed -= 20;
         speed_mod += speed / 2;
     }
     if (cdn_has_effect(monster->conditions, CDN_EF_DISABLE_LLEG) ) {
-        min_speed -= 5;
+        min_speed -= MSR_MOVEMENT_MIN / 2;
         max_speed -= 20;
         speed_mod += speed / 2;
     }
