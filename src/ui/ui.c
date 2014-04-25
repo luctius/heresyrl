@@ -1120,12 +1120,12 @@ Basic weapon traning SP     ...                  |
     textwin_add_text(&pad, "Career:     %s\n", "tester");
     textwin_add_text(&pad, "Rank:       %s\n", "beginner");
     textwin_add_text(&pad, "Origin:     %s\n", "computer");
-    textwin_add_text(&pad, "Divination: %s\n", "die");
+    textwin_add_text(&pad, "Divination: %s\n", "You will die...");
     y += textwin_display_text(&pad) +1;
 
     textwin_init(&pad,1,y,20,10);
     textwin_add_text(&pad, "Wounds:   %d/%d\n", mon->cur_wounds, mon->max_wounds);
-    textwin_add_text(&pad, "Insanity:  %d\n", mon->insanity_points);
+    textwin_add_text(&pad, "Fatique:  %d\n", mon->fatique);
     textwin_add_text(&pad, "XP:        %d\n", plr->xp_current / TT_ENERGY_TURN);
     y_sub = textwin_display_text(&pad);
 

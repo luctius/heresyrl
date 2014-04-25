@@ -17,6 +17,19 @@
 #include "items/items_static.h"
 #include "dungeon/dungeon_map.h"
 
+static enum condition_effect_flags charac_to_condition_lot[] = {
+    [MSR_CHAR_WEAPON_SKILL]   = CDN_EF_MODIFY_WS,
+    [MSR_CHAR_BALISTIC_SKILL] = CDN_EF_MODIFY_BS,
+    [MSR_CHAR_STRENGTH]       = CDN_EF_MODIFY_STR,
+    [MSR_CHAR_AGILITY]        = CDN_EF_MODIFY_AG,
+    [MSR_CHAR_TOUGHNESS]      = CDN_EF_MODIFY_TGH,
+    [MSR_CHAR_INTELLIGENCE]   = CDN_EF_MODIFY_INT,
+    [MSR_CHAR_PERCEPTION]     = CDN_EF_MODIFY_PER,
+    [MSR_CHAR_WILLPOWER]      = CDN_EF_MODIFY_WS,
+    [MSR_CHAR_FELLOWSHIP]     = CDN_EF_MODIFY_FEL,
+};
+
+
 static LIST_HEAD(monster_list, msr_monster_list_entry) monster_list_head;
 static bool monster_list_initialised = false;
 
@@ -405,8 +418,21 @@ int msr_characteristic_check(struct msr_monster *monster, enum msr_characteristi
     if (msr_verify_monster(monster) == false) return false;
     int charac = msr_calculate_characteristic(monster, chr);
     assert(charac >= 0);
+    lg_print("You characteristic is (%d)", charac);
 
+    lg_print("Check modifier is: %d (%d)", mod, charac + mod);
+
+    int con_mod = 0;
+    if (cdn_has_effect(monster->conditions, charac_to_condition_lot[chr]) ) {
+        con_mod += cdn_condition_effect_strength(monster->conditions, charac_to_condition_lot[chr]);
+    }
+    if (monster->fatique > 0) {
+        con_mod -= (monster->fatique * 10);
+    }
+
+    mod += con_mod;
     charac += mod;
+    lg_print("Conditions modifier is: %d (%d)", con_mod, charac);
 
     int roll = (int) (random_int32(gbl_game->random)%100);
     int result = (charac - roll);
@@ -427,11 +453,14 @@ int msr_skill_check(struct msr_monster *monster, enum msr_skills skill, int mod)
 
     if (cdn_has_effect(monster->conditions, CDN_EF_MODIFY_ALL_SKILLS) ) {
         con_mod += cdn_condition_effect_strength(monster->conditions, CDN_EF_MODIFY_ALL_SKILLS);
-        mod += con_mod;
     }
-    lg_print("Conditions modifier is: %d (%d)", con_mod, charac + mod);
+    if (monster->fatique > 0) {
+        con_mod -= (monster->fatique * 10);
+    }
 
+    mod += con_mod;
     charac += mod;
+    lg_print("Conditions modifier is: %d (%d)", con_mod, charac);
 
     enum msr_skill_rate r = msr_has_skill(monster, skill);
     switch(r) {
@@ -452,28 +481,10 @@ int msr_skill_check(struct msr_monster *monster, enum msr_skills skill, int mod)
     return DoS;
 }
 
-static enum condition_effect_flags charac_to_condition_lot[] = {
-    [MSR_CHAR_WEAPON_SKILL]   = CDN_EF_MODIFY_WS,
-    [MSR_CHAR_BALISTIC_SKILL] = CDN_EF_MODIFY_BS,
-    [MSR_CHAR_STRENGTH]       = CDN_EF_MODIFY_STR,
-    [MSR_CHAR_AGILITY]        = CDN_EF_MODIFY_AG,
-    [MSR_CHAR_TOUGHNESS]      = CDN_EF_MODIFY_TGH,
-    [MSR_CHAR_INTELLIGENCE]   = CDN_EF_MODIFY_INT,
-    [MSR_CHAR_PERCEPTION]     = CDN_EF_MODIFY_PER,
-    [MSR_CHAR_WILLPOWER]      = CDN_EF_MODIFY_WS,
-    [MSR_CHAR_FELLOWSHIP]     = CDN_EF_MODIFY_FEL,
-};
-
 int msr_calculate_characteristic(struct msr_monster *monster, enum msr_characteristic chr) {
     if (msr_verify_monster(monster) == false) return -1;
     if (chr >= MSR_CHAR_MAX) return -1;
-    int val = monster->characteristic[chr].base_value + (monster->characteristic[chr].advancement * 5);
-
-    if (cdn_has_effect(monster->conditions, charac_to_condition_lot[chr]) ) {
-        val += cdn_condition_effect_strength(monster->conditions, charac_to_condition_lot[chr]);
-    }
-
-    return val;
+    return monster->characteristic[chr].base_value + (monster->characteristic[chr].advancement * 5);
 }
 
 int msr_calculate_characteristic_bonus(struct msr_monster *monster, enum msr_characteristic chr) {
