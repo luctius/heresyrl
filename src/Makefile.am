@@ -1,5 +1,5 @@
 AUTOMAKE_OPTIONS = subdir-objects
-AM_CPPFLAGS=-I$(top_srcdir)/utils
+AM_CPPFLAGS=-I$(top_srcdir)/utils -I.
 bin_PROGRAMS = heresyrl
 
 GIT_VERSION:=$(shell git describe --abbrev=10 --dirty --always)
@@ -42,10 +42,10 @@ heresyrl_SOURCES =  \
                     ui/character_creation_ui.c \
                     ui/animate.c 
 
-heresyrl_CFLAGS = $(lua_CFLAGS) -ggdb -O0 -Wall -Wextra -Wformat=2 -Wswitch-default -Wcast-align -Wpointer-arith -Wbad-function-cast -Wstrict-prototypes -Winline -Wundef -Wnested-externs -Wcast-qual -Wshadow -Wwrite-strings  -Wunreachable-code -Wstrict-aliasing=2 -Wwrite-strings -Wno-aggressive-loop-optimizations -Wlogical-op -Wno-uninitialized -DVERSION=\"$(GIT_VERSION)\"
+heresyrl_CFLAGS = $(lua_CFLAGS) -ggdb -O0 -Wall -Wextra -Wformat=2 -Wswitch-default -Wcast-align -Wpointer-arith -Wbad-function-cast -Wstrict-prototypes -Winline -Wundef -Wnested-externs -Wcast-qual -Wshadow -Wwrite-strings  -Wunreachable-code -Wstrict-aliasing=2 -Wwrite-strings -Wno-aggressive-loop-optimizations -Wlogical-op -Wno-uninitialized -DGIT_VERSION=\"$(GIT_VERSION)\"
 #-Wpadded  -Waggregate-return
-heresyrl_LDADD = $(top_srcdir)/utils/libutils.la $(INTI_LIBS) -lm $(lua_LIBS)
+heresyrl_LDADD = ../utils/libutils.la $(INTI_LIBS) -lm $(lua_LIBS)
 
-cmdline.c cmdline.h: $(top_srcdir)/heresyrl.ggo
+cmdline.c cmdline.h: ../heresyrl.ggo
 	sed -i "s:usr_prefix:${prefix}:g" $<
 	gengetopt < $<
