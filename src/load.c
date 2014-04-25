@@ -244,8 +244,8 @@ static bool load_game(lua_State *L, struct gm_game *g) {
     if (L == NULL) return false;
 
     const char *version_ptr;
-    if ( (version_ptr = lua_stringexpr(L,"game.version") ) == NULL) return false;
-    if (strcmp(version_ptr, VERSION) != 0) lg_warning("Warning: save game version and current version do not match!");
+    if ( (version_ptr = lua_stringexpr(L,"game.git_version") ) == NULL) return false;
+    if (strcmp(version_ptr, GIT_VERSION) != 0) lg_warning("Warning: save game version and current version do not match!");
 
     if (lua_intexpr(L, &t, "game.random.seed") == 0) return false;
     g->random = random_init_genrand(t);
