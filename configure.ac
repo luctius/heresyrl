@@ -1,11 +1,9 @@
-AC_INIT(src/main.c)
-
-PACKAGE=heresyrl
-VERSION=0.1.0
+AC_INIT(heresyrl, 0.1.0)
+AC_CONFIG_SRCDIR([src/main.c])
+AM_INIT_AUTOMAKE
 
 AC_CONFIG_HEADERS([config.h])
-
-AM_INIT_AUTOMAKE($PACKAGE, $VERSION)
+AC_CONFIG_MACRO_DIR([m4])
 
 # Checks for programs.
 AC_PROG_MAKE_SET
@@ -22,14 +20,14 @@ AC_PROG_AWK
 AC_PROG_CPP
 AC_PROG_INSTALL
 AC_PROG_LN_S
-AC_PROG_RANLIB
+LT_INIT
 
 AC_DEFINE([_GNU_SOURCE], 1, [Use GNU extensions])
 
 # Checks for libraries.
 # FIXME: Replace `main' with a function in `-lm':
 AC_CHECK_LIB([m], [main])
-PKG_CHECK_MODULES([lua], [lua], [], [PKG_CHECK_MODULES([lua], [lua5.1] )])
+PKG_CHECK_MODULES([lua], [lua], [], [PKG_CHECK_MODULES([lua], [lua5.1] )] )
 AC_SEARCH_LIBS(initscr, ncurses, [], [AC_MSG_ERROR([Unable to find ncurses])], [])
 AC_SEARCH_LIBS(new_panel, panel, [], [AC_MSG_ERROR([Unable to find ncurses panel])], [])
 AC_SEARCH_LIBS(new_menu, menu, [], [AC_MSG_ERROR([Unable to find ncurses menu])], [])
