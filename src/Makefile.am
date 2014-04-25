@@ -2,7 +2,7 @@ AUTOMAKE_OPTIONS = subdir-objects
 AM_CPPFLAGS=-I$(top_srcdir)/utils
 bin_PROGRAMS = heresyrl
 
-GIT_VERSION = $(shell git describe --abbrev=10 --dirty --always)
+GIT_VERSION:=$(shell git describe --abbrev=10 --dirty --always)
 
 heresyrl_SOURCES =  \
                     cmdline.c \
