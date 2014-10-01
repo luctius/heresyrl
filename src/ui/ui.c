@@ -334,11 +334,12 @@ void targetwin_examine(struct hrl_window *window, struct dm_map *map, struct msr
 
     if (me->monster != NULL) {
         textwin_add_text(window,"Target: %s.\n", msr_ldname(me->monster) );
+
+        int tohit = fght_ranged_calc_tohit(player, pos, FGHT_MAIN_HAND);
+        textwin_add_text(window,"Total change of hitting: %d.\n", tohit);
     }
     else textwin_add_text(window,"No Target.\n");
 
-    int tohit = fght_ranged_calc_tohit(player, pos, FGHT_MAIN_HAND);
-    textwin_add_text(window,"Total change of hitting: %d.\n", tohit);
     textwin_add_text(window,"Ballistic Skill: %d\n\n", msr_calculate_characteristic(player, MSR_CHAR_BALISTIC_SKILL) );
 
     int idx = 0;
