@@ -1384,7 +1384,7 @@ void show_log(struct hrl_window *window, bool input) {
         int line = 0;
         bool watch = true;
         while(watch == true) {
-            prefresh(pad.win, line,0,pad.y,pad.x,pad.lines,pad.cols);
+            prefresh(pad.win, line,0,pad.y,pad.x, pad.y + pad.lines, pad.x + pad.cols);
 
             switch (inp_get_input(gbl_game->input) ) {
                 case INP_KEY_UP_RIGHT:   line += 20; break;
@@ -1402,7 +1402,9 @@ void show_log(struct hrl_window *window, bool input) {
             if (line > (y - pad.lines) ) line = y - pad.lines;
         }
     }
-    else prefresh(pad.win, y - 1, 0, pad.y +2, pad.x, 2 /*pad.lines*/, pad.cols);
+    else if (prefresh(pad.win, 0,0, pad.y, pad.x, pad.y + pad.lines, pad.x + pad.cols) != OK) {
+        exit(EXIT_FAILURE);
+    }
 
     delwin(pad.win);
 }
