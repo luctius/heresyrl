@@ -75,7 +75,8 @@ bool ui_create(int cols, int lines) {
             char_win = win_create(char_lines, char_cols, 1, map_cols+1, HRL_WINDOW_TYPE_CHARACTER);
             msg_win = win_create(msg_lines, msg_cols-1, map_lines, 1, HRL_WINDOW_TYPE_MESSAGE);
             lg_set_callback(gbl_log, NULL, msgwin_log_callback);
-            msgwin_log_refresh(gbl_log, NULL);
+            //msgwin_log_refresh(gbl_log, NULL);
+            show_log(msg_win, false);
             return true;
         }
         else {
@@ -1402,9 +1403,7 @@ void show_log(struct hrl_window *window, bool input) {
             if (line > (y - pad.lines) ) line = y - pad.lines;
         }
     }
-    else if (prefresh(pad.win, 0,0, pad.y, pad.x, pad.y + pad.lines, pad.x + pad.cols) != OK) {
-        exit(EXIT_FAILURE);
-    }
+    if (prefresh(pad.win, 0,0, pad.y, pad.x, pad.y + pad.lines, pad.x + pad.cols) != OK);
 
     delwin(pad.win);
 }
