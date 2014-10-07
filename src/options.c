@@ -9,6 +9,7 @@
 
 #include <linux/limits.h>
 
+#include "config.h"
 #include "options.h"
 
 struct opt_options options = {
@@ -26,8 +27,6 @@ struct opt_options options = {
     .log_file_name  = NULL,
     .save_file_name = NULL,
 };
-
-#define PROG_NAME "heresyrl"
 
 static const int path_max = PATH_MAX -1;
 
@@ -53,21 +52,21 @@ void opt_parse_options(struct gengetopt_args_info *args_info) {
     if (options.play_delay == 0) options.refresh = false;
 
     if (args_info->log_file_given == false) {
-        snprintf(log_file, path_max, "%s/.%s", homedir, PROG_NAME);
+        snprintf(log_file, path_max, "%s/.%s", homedir, PACKAGE_NAME);
 
         struct stat st;
         if ( (stat(log_file,&st) == 0) || (mkdir(log_file, 0777) >= 0) ) {
-            snprintf(log_file, path_max, "%s/.%s/%s.log", homedir, PROG_NAME, PROG_NAME);
+            snprintf(log_file, path_max, "%s/.%s/%s.log", homedir, PACKAGE_NAME, PACKAGE_NAME);
             options.log_file_name = log_file;
         }
     }
 
     if (args_info->save_file_given == false) {
-        snprintf(save_file, path_max, "%s/.%s", homedir, PROG_NAME);
+        snprintf(save_file, path_max, "%s/.%s", homedir, PACKAGE_NAME);
 
         struct stat st;
         if ( (stat(save_file,&st) == 0) || (mkdir(save_file, 0777) >= 0) ) {
-            snprintf(save_file, path_max, "%s/.%s/%s.save", homedir, PROG_NAME, PROG_NAME);
+            snprintf(save_file, path_max, "%s/.%s/%s.save", homedir, PACKAGE_NAME, PACKAGE_NAME);
             options.save_file_name = save_file;
         }
     }

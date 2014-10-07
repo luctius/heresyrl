@@ -25,6 +25,8 @@
 #include "items/items.h"
 #include "dungeon/dungeon_map.h"
 
+void show_msg(struct hrl_window *window);
+
 static int hdr_lines = 0;
 static int hdr_cols = 0;
 bool ui_create(int cols, int lines) {
