@@ -60,7 +60,7 @@ AC_FUNC_STRFTIME
 AC_FUNC_STRTOD
 AC_FUNC_ERROR_AT_LINE
 AC_FUNC_MALLOC
-AC_CHECK_FUNCS([memmove memset])
+AC_CHECK_FUNCS([memmove memset mkdir sqrt strtol])
 
 
 
