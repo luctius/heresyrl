@@ -14,9 +14,9 @@
 #define MAP_MAX_LINES 0
 #define MAP_LINES_FACTOR 0.90f
 
-#define MSG_MIN_COLS 40
+#define MSG_MIN_COLS 20
 #define MSG_MAX_COLS 100
-#define MSG_COLS_FACTOR 0.95f
+#define MSG_COLS_FACTOR 0.90f
 
 #define MSG_MIN_LINES 2
 #define MSG_MAX_LINES 0
@@ -27,7 +27,7 @@
 #define CHAR_COLS_FACTOR 0.05f
 
 #define CHAR_MIN_LINES 30
-#define CHAR_MAX_LINES 90
+#define CHAR_MAX_LINES 80
 #define CHAR_LINES_FACTOR 1.00f
 
 enum window_type {

@@ -61,7 +61,7 @@ bool ui_create(int cols, int lines) {
         int char_cols = cols - map_cols;
         if (char_cols < CHAR_MIN_COLS) char_cols = CHAR_MIN_COLS;
         if ( (char_cols > CHAR_MAX_COLS) && (CHAR_MAX_COLS != 0) ) char_cols = CHAR_MAX_COLS;
-        int char_lines = lines - msg_lines;
+        int char_lines = map_lines -1;
         if ( (char_lines > CHAR_MAX_LINES) && (CHAR_MAX_LINES != 0) ) char_lines = CHAR_MAX_LINES;
 
         int total_lines = map_lines + msg_lines;
