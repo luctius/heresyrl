@@ -33,8 +33,6 @@ heresyrl_SOURCES =  \
                     monster/monster.c \
                     monster/conditions.c \
                     fov/sight.c \
-                    fov/digital_fov.c \
-                    fov/fov.c \
                     fov/rpsc_fov.c \
                     items/items.c \
                     ui/ui.c \
