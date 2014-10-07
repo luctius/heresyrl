@@ -1,19 +1,23 @@
-basic fighting system   -- throwing, effects and criticals remain
-monster generation      -- initial system done
-item generation         -- initial system done
-status effect system    -- initial system done
-character screen        -- initial screen done
-basic chargen           -- initial screen done
-title screen            -- nothing done yet
+basic fighting system        -- throwing, effects and criticals remain
+monster generation           -- initial system done
+group generation             -- TBD
+item generation              -- initial system done
+status effect system         -- initial system done
+character screen             -- initial screen done
+basic chargen                -- initial screen done
+title screen                 -- nothing done yet
 better ingame message system -- todo, write to save file...
-ai                      -- initial system done
-basic career and homeworld system
-use and remove fatique
+ai                           -- initial system done
+doors                        -- nothing done yet.
+use and remove fatique       -- nothing done yet.
+add effects to tiles         -- nothing done yet.
+enable things like firebombs -- nothing done yet.
+basic career and homeworld system  -- nothing done yet.
 
 
 ideas:
 
-accept input from savegame (replay) -- done add pauze, play, step etc
+accept input from savegame (replay) -- done => add pauze, play, step etc
 Make the game sound based (actions cost sound, enemies go to the biggest sound source, hounds bark, etc)
 sound based detection and npc communication
 Vendor machines and Medical machines.
