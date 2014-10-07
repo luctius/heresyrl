@@ -1476,7 +1476,7 @@ void show_msg(struct hrl_window *window) {
     else textwin_add_text(&pad, "Empty\n");
     y += textwin_display_text(&pad) +1;
 
-    prefresh(pad.win, 0,0, pad.y, pad.x, pad.y + pad.lines, pad.x + pad.cols);
+    prefresh(pad.win, y - pad.lines,0, pad.y, pad.x, pad.y + pad.lines, pad.x + pad.cols);
 
     delwin(pad.win);
 }
