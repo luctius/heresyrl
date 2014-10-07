@@ -51,7 +51,11 @@ void textwin_init(struct hrl_window *win, int sx, int sy, int ex, int ey) {
 
 void textwin_add_text(struct hrl_window *win, const char *format, ...) {
     assert(win->text != NULL);
-    assert (win->text_idx < win->text_sz);
+    if (win->text_idx < win->text_sz) {
+        win->text_sz += win->text_ex * win->text_ey * sizeof(char);
+        win->text = realloc(win->text, win->text_sz);
+        assert(win->text != NULL);
+    }
 
     va_list args;
     va_start(args, format);
