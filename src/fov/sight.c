@@ -3,8 +3,6 @@
 #include <assert.h>
 
 #include "sight.h"
-#include "fov.h"
-#include "digital_fov.h"
 #include "rpsc_fov.h"
 #include "tiles.h"
 #include "game.h"
@@ -14,7 +12,6 @@
 #include "monster/monster.h"
 
 struct sgt_sight {
-    fov_settings_type fov_settings;
 };
 
 /* checks if this is a walkable path, without a monster.  */
