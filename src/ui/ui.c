@@ -76,7 +76,7 @@ bool ui_create(int cols, int lines) {
             msg_win = win_create(msg_lines, msg_cols-1, map_lines, 1, HRL_WINDOW_TYPE_MESSAGE);
             lg_set_callback(gbl_log, NULL, msgwin_log_callback);
             //msgwin_log_refresh(gbl_log, NULL);
-            show_log(msg_win, false);
+            show_msg(msg_win);
             return true;
         }
         else {
@@ -676,7 +676,7 @@ void msgwin_log_callback(struct logging *lg, struct log_entry *entry, void *priv
 
     //msgwin_log_refresh(lg, entry);
 
-    show_log(msg_win, false);
+    show_msg(msg_win);
 }
 
 void charwin_refresh() {
@@ -1403,7 +1403,80 @@ void show_log(struct hrl_window *window, bool input) {
             if (line > (y - pad.lines) ) line = y - pad.lines;
         }
     }
-    if (prefresh(pad.win, 0,0, pad.y, pad.x, pad.y + pad.lines, pad.x + pad.cols) != OK);
+    else prefresh(pad.win, 0,0, pad.y, pad.x, pad.y + pad.lines, pad.x + pad.cols);
+
+    delwin(pad.win);
+}
+
+void show_msg(struct hrl_window *window) {
+    struct queue *q = lg_queue(gbl_log);
+    int y = 0;
+    int log_sz = queue_size(q);
+    struct log_entry *tmp_entry = NULL;
+
+    struct hrl_window pad;
+    memmove(&pad, window, sizeof(struct hrl_window) );
+    pad.win = newpad(MAX(log_sz * 2, window->lines) , window->cols);
+    assert(pad.win != NULL);
+
+    touchwin(pad.win);
+    werase(pad.win);
+
+    textwin_init(&pad,1,0,0,log_sz);
+    if (log_sz > 0) {
+        for (int i = 0; i < log_sz; i++) {
+            tmp_entry = queue_peek_nr(q, i);
+            if (tmp_entry != NULL) {
+                bool print = false;
+
+                if (options.debug) {
+                    const char *pre_format;
+                    print = true;
+
+                    switch (tmp_entry->level) {
+                        case LG_DEBUG_LEVEL_GAME:
+                            pre_format = "[%s" ":Game][%d] ";
+                            break;
+                        case LG_DEBUG_LEVEL_DEBUG:
+                            pre_format = "[%s" ":Debug][%d] ";
+                            break;
+                        case LG_DEBUG_LEVEL_INFORMATIONAL:
+                            pre_format = "[%s" ":Info][%d] ";
+                            break;
+                        case LG_DEBUG_LEVEL_WARNING:
+                            pre_format = "[%s" ":Warning][%d] ";
+                            break;
+                        case LG_DEBUG_LEVEL_ERROR:
+                            pre_format = "[%s" ":Error][%d] ";
+                            break;
+                        default:
+                            pre_format ="[%s" ":Unknown][%d] ";
+                            break;
+                    }
+
+                    textwin_add_text(&pad, pre_format, tmp_entry->module, tmp_entry->turn);
+                }
+                else if (tmp_entry->level <= LG_DEBUG_LEVEL_GAME) print = true;
+
+                if (print) {
+                    for (int l = 0; l < tmp_entry->atom_lst_sz; l++) {
+                        struct log_atom *a = &tmp_entry->atom_lst[l];
+                        if (a != NULL) {
+                            textwin_add_text(&pad, "%s", a->string);
+                        }
+                    }
+                    if (tmp_entry->repeat > 1) {
+                        textwin_add_text(&pad, " (x%d)", tmp_entry->repeat);
+                    }
+                    textwin_add_text(&pad, "\n");
+                }
+            }
+        }
+    }
+    else textwin_add_text(&pad, "Empty\n");
+    y += textwin_display_text(&pad) +1;
+
+    prefresh(pad.win, 0,0, pad.y, pad.x, pad.y + pad.lines, pad.x + pad.cols);
 
     delwin(pad.win);
 }
