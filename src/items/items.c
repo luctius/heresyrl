@@ -51,10 +51,12 @@ void itmlst_items_list_exit(void) {
         LIST_REMOVE(items_list_head.lh_first, entries);
         free(e);
     }
-        items_list_initialised = false;
+    items_list_initialised = false;
 }
 
 struct itm_item *itmlst_get_next_item(struct itm_item *prev) {
+    if (items_list_initialised == false) return NULL;
+
     if (prev == NULL) {
         if (items_list_head.lh_first != NULL) return &items_list_head.lh_first->item;
         return NULL;
