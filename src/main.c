@@ -95,17 +95,18 @@ int main(int argc, char *argv[]) {
      
     }
 
-    game_exit();
-
     System_msg("Goodbye.");
     usleep(500000);
 
+    game_exit();
     ui_destroy();
+    lg_exit(gbl_log);
 
     clear();
     refresh();          //  Print it on to the real screen
     endwin();           //  End curses mode
 
-    lg_exit(gbl_log);
+    printf("Done.\n");
+
     return EXIT_SUCCESS;
 }
