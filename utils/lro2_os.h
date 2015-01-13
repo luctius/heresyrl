@@ -19,7 +19,7 @@
     #define lro2_sem_destroy sem_destroy
     #define lro2_sem_wait    sem_wait
     #define lro2_sem_post    sem_post
-#elif __APPLE__
+#elif defined(__APPLE__)
     #warning Compiling for OSX
     #include "darwin_thread.h"
     #define lro2_sem_t       usbi_mutex_t
@@ -28,7 +28,7 @@
     #define lro2_sem_destroy usbi_mutex_destroy
     #define lro2_sem_wait    usbi_mutex_lock
     #define lro2_sem_post    usbi_mutex_unlock
-#elif __WIN32__
+#elif defined(__WIN32__)
     #warning Compiling for win32
     #include "threads_windows.h"
     #define lro2_sem_t       usbi_mutex_t
