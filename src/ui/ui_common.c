@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <string.h>
 #include <sys/param.h>
 
 #include "ui_common.h"
@@ -30,6 +31,7 @@ void win_generate_colours(void) {
 }
 
 void textwin_init(struct hrl_window *win, int sx, int sy, int ex, int ey) {
+    assert(win != NULL);
     free(win->text);
 
     win->text_sx = sx;
@@ -50,7 +52,15 @@ void textwin_init(struct hrl_window *win, int sx, int sy, int ex, int ey) {
 }
 
 void textwin_add_text(struct hrl_window *win, const char *format, ...) {
+    assert(win != NULL);
     assert(win->text != NULL);
+    assert(format != NULL);
+    assert(strlen(format) > 0);
+    if (win == NULL) return;
+    if (win->text == NULL) return;
+    if (format == NULL) return;
+    if (strlen(format) == 0) return;
+
     if (win->text_idx < win->text_sz) {
         win->text_sz += win->text_ex * win->text_ey * sizeof(char);
         win->text = realloc(win->text, win->text_sz);
@@ -64,10 +74,13 @@ void textwin_add_text(struct hrl_window *win, const char *format, ...) {
 }
 
 int textwin_display_text(struct hrl_window *win) {
+    return 0;
     int lines_used = 0;
-    if (win == NULL) return 0;
-
+    assert(win != NULL);
     assert(win->text != NULL);
+    if (win == NULL) return 0;
+    if (win->text == NULL) return 0;
+    if (strlen(win->text) == 0) return 0;
 
     char **desc;
     int *len_lines;
