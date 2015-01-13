@@ -1,31 +1,25 @@
-basic fighting system        -- throwing, effects and criticals remain
-monster generation           -- initial system done
+better ingame message system -- todo: colour, write to save file...,
 group generation             -- TBD
+doors                        -- nothing done yet.
+add effects to tiles         -- nothing done yet.
+basic career and homeworld system  -- nothing done yet.
+use and remove fatique       -- nothing done yet.
+title screen                 -- nothing done yet
+sound system                 -- nothing done yet: (actions cost sound, enemies go to the biggest sound source, hounds bark, npcs shout)
+basic fighting system        -- initial system done: throwing, effects and criticals remain
+monster generation           -- initial system done
 item generation              -- initial system done
 status effect system         -- initial system done
 character screen             -- initial screen done
 basic chargen                -- initial screen done
-title screen                 -- nothing done yet
-better ingame message system -- todo, write to save file...
-ai                           -- initial system done
-doors                        -- nothing done yet.
-use and remove fatique       -- nothing done yet.
-add effects to tiles         -- nothing done yet.
-enable things like firebombs -- nothing done yet.
-basic career and homeworld system  -- nothing done yet.
+ai                           -- initial system done: add autoeplore
+savegame replay              -- initial system done: add pauze, play, step etc
 
 
 ideas:
-
-accept input from savegame (replay) -- done => add pauze, play, step etc
-Make the game sound based (actions cost sound, enemies go to the biggest sound source, hounds bark, etc)
-sound based detection and npc communication
 Vendor machines and Medical machines.
-autoexplore in direction
-steroids and other chems. <- in condition system
-warp artifacts
-warp based grenades
 create dungeon objects (like barrels) and treat them as cover.
 
 bugs:
 fght descriptors per weapon (fire,slash,spit,spray,chop ... )
+logging system is bugged as hell
