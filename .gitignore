@@ -24,6 +24,7 @@
 *.i*86
 *.x86_64
 *.hex
+heresyrl
 
 # http://www.gnu.org/software/automake
 
@@ -46,6 +47,21 @@ Makefile
 libtool
 ltmain.sh
 .deps
+perf.data.old
 
 *.log
 
+build/
+m4/
+.dirstamp
+perf.data
+
+# Editor files
+.*.swp
+
+#Generated source files
+cmdline.c
+cmdline.h
+heresyrl.ggo
+config.h
+config.h.in~
