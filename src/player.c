@@ -94,7 +94,6 @@ static bool plr_action_loop(struct msr_monster *player, void *controller) {
             /* remove all non-permanent conditions */
             for (int i = 0; i < 10000; i++) {
                 cdn_process(player->conditions, player);
-                usleep(2);
             }
 
             You(player, "would have died if fate did not intervene...");
