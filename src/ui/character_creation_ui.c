@@ -32,8 +32,8 @@ static struct homeworld_id homeworld_id[] =  {
 
 struct spwn_monster_item items[] = {  
     {.id=IID_FLAK_JACKET,    .min=1,.max=1,.wear=true}, 
-    {.id=IID_LAS_GUN,        .min=1,.max=1,.wear=true}, 
-    {.id=IID_BASIC_AMMO_LAS, .min=1,.max=3,.wear=false},
+    {.id=IID_AUTO_GUN,       .min=1,.max=1,.wear=true}, 
+    {.id=IID_BASIC_AMMO_SP,  .min=1,.max=100,.wear=false},
     {.id=IID_GLOW_GLOBE,     .min=1,.max=1,.wear=false},
     {.id=IID_FRAG_GRENADE,   .min=1,.max=3,.wear=false},
     {.id=IID_THROWING_KNIFE, .min=1,.max=3,.wear=false},
