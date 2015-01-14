@@ -46,7 +46,7 @@ void textwin_init(struct hrl_window *win, int sx, int sy, int ex, int ey) {
     win->text_ey = ey;
 
     win->text = NULL;
-    win->text_sz = win->text_ex * win->text_ey * sizeof(char);
+    win->text_sz = 200;//win->text_ex * win->text_ey * sizeof(char);
     win->text = malloc(win->text_sz);
     win->text_idx = 0;
 }
@@ -62,7 +62,7 @@ void textwin_add_text(struct hrl_window *win, const char *format, ...) {
     if (strlen(format) == 0) return;
 
     if (win->text_idx < win->text_sz) {
-        win->text_sz += win->text_ex * win->text_ey * sizeof(char);
+        win->text_sz += 200; //win->text_ex * win->text_ey * sizeof(char);
         win->text = realloc(win->text, win->text_sz);
         assert(win->text != NULL);
     }
