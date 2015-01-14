@@ -127,6 +127,9 @@ bool game_exit() {
 
     if (gbl_game->current_map != NULL) dm_free_map(gbl_game->current_map);
 
+    struct pl_player *plr = &gbl_game->player_data;
+    free(plr->player->unique_name);
+
     cdn_exit();
     tt_exit();
     msrlst_monster_list_exit();
