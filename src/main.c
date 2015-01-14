@@ -39,8 +39,8 @@ int main(int argc, char *argv[]) {
     struct gengetopt_args_info args_info;
 
     if (cmdline_parser (argc, argv, &args_info) != 0) exit(EXIT_FAILURE);
-
     opt_parse_options(&args_info);
+    cmdline_parser_free(&args_info);
 
     if (options.debug) {
         gbl_log = lg_init(options.log_file_name, LG_DEBUG_LEVEL_DEBUG, 10000);
