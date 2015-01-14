@@ -20,7 +20,7 @@ static int tohit_desc_ctr = 0;
 static struct tohit_desc tohit_descr_lst[MAX_TO_HIT_MODS];
 
 /* These macro's collect the reasons for the calculated tohit and put them in the tohit_descr_lst, so that the gui can give a list of reasons. */
-#define CALC_TOHIT_INIT() do { tohit_desc_ctr = 0; lg_print("calculating hit (%s)", __func__); } while (0);
+#define CALC_TOHIT_INIT() do { tohit_desc_ctr = 0; lg_debug("calculating hit (%s)", __func__); } while (0);
 /* WARNING: no ';' at the end!*/
 #define CALC_TOHIT(expr, mod, msg) \
     if (expr) { \
@@ -270,13 +270,13 @@ int fght_calc_dmg(struct random *r, struct msr_monster *monster, struct msr_mons
             }
         }
 
-        lg_print("armour %d, penetration %d, toughness %d, dmg %d, dmg_add %d", armour, penetration, toughness, dmg, dmg_add);
+        lg_debug("Armour %d, penetration %d, toughness %d, dmg %d, dmg_add %d", armour, penetration, toughness, dmg, dmg_add);
         armour = MAX((armour - penetration), 0); /* penetration only works against armour */
         total_damage += MAX((dmg + dmg_add) - (armour  + toughness), 0);
 
         msr_do_dmg(target, total_damage, wpn->dmg_type, mhl);
 
-        lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "fght", "Doing %d%s+%d damage => %d, %d wnds left.", wpn->nr_dmg_die, random_die_name(dmg_die_sz), wpn->dmg_addition, dmg, target->cur_wounds);
+        lg_debug("Doing %d%s+%d damage => %d(%d), %d wnds left.", wpn->nr_dmg_die, random_die_name(dmg_die_sz), wpn->dmg_addition, dmg, total_damage, target->cur_wounds);
         if (target->dead) h = hits;
     }
     return total_damage;
@@ -308,8 +308,8 @@ bool fght_do_weapon_dmg(struct random *r, struct msr_monster *monster, struct ms
     int total_damage = fght_calc_dmg(r, monster, target, hits, witem, mhl);
     if (total_damage >= 0) {
         if (target->dead == false) {
-            msg_plr(" and score");  msg_plr_number(" %d", hits); msg_plr(" hits and a total of"); msg_plr_number(" %d", total_damage); msg_plr(" damage.");
-            msg_msr(" and scores"); msg_msr_number(" %d", hits); msg_msr(" hits and a total of"); msg_msr_number(" %d", total_damage); msg_msr(" damage.");
+            msg_plr(" You do");                                   msg_plr_number(" %d", total_damage); msg_plr(" damage.");
+            msg_msr(" %s does", msr_gender_name(target, false) ); msg_msr_number(" %d", total_damage); msg_msr(" damage.");
         }
     }
     return true;
@@ -328,8 +328,8 @@ int fght_ranged_roll(struct random *r, struct msr_monster *monster, struct msr_m
 
     wpn = &witem->specific.weapon;
 
-    msg_plr("You fire at %s with your %s", msr_ldname(target), witem->sd_name);
-    msg_msr("%s fires at %s with %s %s", msr_ldname(monster), msr_ldname(target), msr_gender_name(target, true), witem->sd_name);
+    msg_plr("You fire at %s", msr_ldname(target) );
+    msg_msr("%s fires at %s", msr_ldname(monster), msr_ldname(target) );
 
     int to_hit = fght_ranged_calc_tohit(monster, &target->pos, hand);
     int roll = random_d100(r);
@@ -341,7 +341,7 @@ int fght_ranged_roll(struct random *r, struct msr_monster *monster, struct msr_m
     if (msr_has_talent(monster, wpn->wpn_talent) == false) jammed_threshold = MIN(FGHT_RANGED_JAM_UNRELIABLE, jammed_threshold);
     if (itm_has_quality(witem, ITEM_QLTY_POOR) ) jammed_threshold = MIN(to_hit, jammed_threshold);
 
-    lg_print("roll %d vs to hit %d, jamm_threshold %d", roll, to_hit, jammed_threshold);
+    lg_debug("roll %d vs to hit %d, jamm_threshold %d", roll, to_hit, jammed_threshold);
 
     /* Do jamming test */
     if (roll >= jammed_threshold) {
@@ -372,6 +372,9 @@ int fght_ranged_roll(struct random *r, struct msr_monster *monster, struct msr_m
     if (roll < to_hit) {
         int dos = (to_hit - roll) / 10;
 
+        msg_plr(" and hit.");
+        msg_msr(" and hit.");
+
         /* Single Shot: max 1 hit */
         if (wpn->rof_set == WEAPON_ROF_SETTING_SINGLE) return MIN(ammo, 1);
         /* Automatic 1 hit + 1 for ever DoS */
@@ -396,8 +399,8 @@ int fght_melee_roll(struct random *r, struct msr_monster *monster, struct msr_mo
     witem = fght_get_working_weapon(monster, WEAPON_TYPE_MELEE, hand);
     if (witem == NULL) return -1;
 
-    msg_plr("You slash at %s with your %s", msr_ldname(target), witem->sd_name);
-    msg_msr("%s slashes at you with his %s", msr_ldname(monster), witem->sd_name);
+    msg_plr("You slash at %s", msr_ldname(target));
+    msg_msr("%s slashes at %s", msr_ldname(monster), msr_ldname(target) );
 
     int to_hit = fght_melee_calc_tohit(monster, &target->pos, hand);
     int roll = random_d100(r);
@@ -490,7 +493,7 @@ bool fght_explosion(struct random *r, struct itm_item *bomb, struct dm_map *map)
     if (wpn_has_spc_quality(bomb, WPN_SPCQLTY_BLAST_3) == true) radius = 3;
     if (wpn_has_spc_quality(bomb, WPN_SPCQLTY_BLAST_4) == true) radius = 4;
     
-    lg_debug("exploding bomb on %d,%d() with radius %d.", c.x, c.y, radius);
+    lg_debug("Exploding bomb on %d,%d() with radius %d.", c.x, c.y, radius);
 
     msg_init(&c, NULL);
     msg_msr("%s explodes. ", bomb->ld_name);
@@ -507,7 +510,7 @@ bool fght_explosion(struct random *r, struct itm_item *bomb, struct dm_map *map)
             int total_damage = fght_calc_dmg(r, NULL, target, 1, bomb, mhl);
 
             //msr_do_dmg(target, total_damage, wpn->dmg_type, mhl);
-            msg_msr("it does %d to %s. ", total_damage, msr_ldname(target) );
+            msg_msr("It does %d to %s. ", total_damage, msr_ldname(target) );
         }
     }
 
@@ -529,7 +532,7 @@ bool fght_throw_weapon(struct random *r, struct msr_monster *monster, struct dm_
     if (sgt_has_los(gbl_game->sight, map, &monster->pos, e, 1000) == false) return false;
     coord_t end = *e;
 
-    lg_debug("throwing weapon to (%d,%d)", e->x, e->y);
+    lg_debug("Throwing weapon to (%d,%d)", e->x, e->y);
 
     if (msr_weapon_type_check(monster, WEAPON_TYPE_THROWN) == true) {
         struct itm_item *witem = fght_get_working_weapon(monster, WEAPON_TYPE_THROWN, hand);
@@ -587,7 +590,7 @@ bool fght_throw_weapon(struct random *r, struct msr_monster *monster, struct dm_
             if (witem->stacked_quantity == 0) {
                 /* remove the item from monsters inventory if that was the last one */
                 if (msr_remove_item(monster, witem) ) itm_destroy(witem);
-                lg_debug("no more copied in inventory, destroying last one.");
+                lg_debug("No more copied in inventory, destroying last one.");
             }
 
             /* if the item is an grenade */
@@ -679,7 +682,7 @@ bool fght_shoot(struct random *r, struct msr_monster *monster, struct dm_map *ma
                     hits = fght_ranged_roll(r, monster, target, hand, ammo1);
 
                     /* do damage */
-                    if (hits >= 0) {
+                    if (hits > 0) {
                         if (fght_do_weapon_dmg(r, monster, target, hits, hand) ) has_hit = true;
                         //we can also splatter some blood on the target's tile
                     }
