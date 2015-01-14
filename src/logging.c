@@ -49,6 +49,7 @@ struct logging *lg_init(char *logfile, enum lg_debug_levels lvl, int max_size) {
 
 void lg_exit(struct logging *log_ctx) {
     if (log_ctx == NULL) return;
+    if (log_ctx->log_fd != NULL) free(log_ctx->log_fd);
     queue_exit(log_ctx->logging_q);
     fclose(log_ctx->log_file);
     free(log_ctx);
@@ -158,6 +159,7 @@ static void lg_print_to_queue(struct logging *log_ctx, struct log_entry *entry) 
 
 #define STRING_MAX 500
 void lg_printf_basic(struct logging *log_ctx, enum lg_debug_levels dbg_lvl, const char* module, const char* format, va_list args) {
+    return; /* DEBUG */
 
     if ( (log_ctx != NULL) && (dbg_lvl > log_ctx->level) ) return;
     struct log_entry *le = calloc(1, sizeof(struct log_entry) );
@@ -293,6 +295,7 @@ void msg_add(enum msg_fd fd, enum lg_channel c, const char *format, ...) {
     assert(gbl_log != NULL);
     if (gbl_log->log_fds_active[fd] == false) return;
     struct log_entry *le = gbl_log->log_fd;
+    return; /* DEBUG */
 
     le->atom_lst_sz++;
     le->atom_lst = realloc(le->atom_lst, le->atom_lst_sz * sizeof(struct log_atom) );
