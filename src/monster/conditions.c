@@ -44,7 +44,6 @@ void cdn_init(void) {
 }
 
 void cdn_exit(void) {
-
 }
 
 struct cdn_condition_list *cdn_list_init(void) {
@@ -199,6 +198,8 @@ struct cdn_condition *cdn_create(struct cdn_condition_list *cdn_list, enum cdn_i
 bool cdn_add_to_list(struct cdn_condition_list *cdn_list, struct cdn_condition *con) {
     if (cdn_verify_list(cdn_list) == false) return false;
     if (cdn_verify_condition(con) == false) return false;
+
+    lg_debug("Adding condition: %s\n", con->name);
 
     struct cdn_entry *ce = container_of(con, struct cdn_entry, condition);
     LIST_INSERT_HEAD(&cdn_list->head, ce, entries);
