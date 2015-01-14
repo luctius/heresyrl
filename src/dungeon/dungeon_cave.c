@@ -195,7 +195,7 @@ bool cave_generate_map(struct dm_map *map, struct random *r, enum dm_dungeon_typ
     cave_random = r;
 
     generations = 1;
-    params = params_set = (generation_params*)malloc( sizeof(generation_params) * generations );
+    params = params_set = (generation_params*) malloc( sizeof(generation_params) * generations );
 
     uint8_t arg_array[] = {5, 1, 3}; /* Should be 3 * generations */
     assert(ARRAY_SZ(arg_array) == generations * 3);
@@ -231,6 +231,7 @@ bool cave_generate_map(struct dm_map *map, struct random *r, enum dm_dungeon_typ
             dm_get_map_me(&c,map)->tile = ts_get_tile_specific(grid[yi][xi]);
         }
     }
+    free(params);
 
     exitmap();
     return 0;
