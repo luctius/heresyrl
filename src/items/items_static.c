@@ -61,6 +61,14 @@
             .ammo_type=AMMO_TYPE_PISTOL_LAS, .ammo_used_template_id=IID_PISTOL_AMMO_LAS, .special_quality=special, .upgrades=_upgrades, \
             .wpn_talent=TLT_PISTOL_WPN_TRNG_LAS, .jammed=false, .convey_condition=CID_NONE, }, .dropable=true
 
+#define BASIC_SP(_dmg_type,dmg_die,dmg_add,_range,rof_single,rof_semi,rof_auto,mag_sz,_penetration,_upgrades,special) \
+            .icon='|', .stacked_quantity=0, .max_quantity=1, .item_type=ITEM_TYPE_WEAPON, .specific.weapon={ \
+            .weapon_category=WEAPON_CATEGORY_BASIC, .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=_range, \
+            .rof[WEAPON_ROF_SETTING_SINGLE]=rof_single, .rof[WEAPON_ROF_SETTING_SEMI]=rof_semi, .rof[WEAPON_ROF_SETTING_AUTO]=rof_auto, \
+            .rof_set=WEAPON_ROF_SETTING_SINGLE, .magazine_sz=mag_sz, .magazine_left=mag_sz, .penetration=_penetration, \
+            .ammo_type=AMMO_TYPE_BASIC_SP, .ammo_used_template_id=IID_BASIC_AMMO_SP, .special_quality=special, .upgrades=_upgrades, \
+            .wpn_talent=TLT_BASIC_WPN_TRNG_SP, .jammed=false, .convey_condition=CID_NONE, }, .dropable=true
+
 #define BASIC_LAS(_dmg_type,dmg_die,dmg_add,_range,rof_single,rof_semi,rof_auto,mag_sz,_penetration,_upgrades,special) \
             .icon='|', .stacked_quantity=0, .max_quantity=1, .item_type=ITEM_TYPE_WEAPON, .specific.weapon={ \
             .weapon_category=WEAPON_CATEGORY_BASIC, .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=_range, \
@@ -101,6 +109,7 @@ static const char *itm_descs[] = {
                                     "devices inscribed with ornate carvings and gold filigree, to simplistic but brutaly robust weapons used by gangs and criminals",
     [IID_LAS_GUN]           = "Produced in a multitude of different styles and patterns, the lasgun can be found on almost every world of the Imperium, where its robust design "
                                     "and dependability make it a favoured weapon of both Emperor's faithfull and many of their foes",
+    [IID_AUTO_GUN]          = "autogun",
 
     [IID_PISTOL_AMMO_SP]    = "Hard rounds are common for many weapons within the Imperium and vary greatly in calibre and design",
     [IID_PISTOL_AMMO_LAS]   = "Charge packs are powerful batteries used almost exclusively by las weapons",
@@ -155,8 +164,9 @@ static struct itm_item static_item_list[] = {
 
 
     /* Basic weapons */
-    /*    ID           short name   long name    availability       quality           (wgt,cst,dly)          dmg type      xd10 +x range (S/X/X) mag_sz pen  upgrades  special*/
-    ITEM(IID_LAS_GUN,  "las gun",   "a las gun", ITEM_AVAIL_AVERAGE,ITEM_QLTY_AVERAGE, 40, 50, 1), BASIC_LAS(DMG_TYPE_ENERGY, 1, 3, 100,   1,3,0, 60,    0,   0,     bf(WPN_SPCQLTY_RELIABLE) ), ITEM_END,
+    /*    ID           short name  long name     availability       quality           (wgt,cst,dly)          dmg type      xd10 +x range (S/X/X) mag_sz pen  upgrades  special*/
+    ITEM(IID_LAS_GUN,  "las gun",  "a las gun",  ITEM_AVAIL_AVERAGE,ITEM_QLTY_AVERAGE, 40, 50, 1), BASIC_LAS(DMG_TYPE_ENERGY, 1, 3, 100,   1,3,0, 60,    0,   0,     bf(WPN_SPCQLTY_RELIABLE) ), ITEM_END,
+    ITEM(IID_AUTO_GUN, "autogun",  "an autogun", ITEM_AVAIL_AVERAGE,ITEM_QLTY_AVERAGE, 40, 50, 1), BASIC_SP(DMG_TYPE_IMPACT,  1, 3, 100,   1,5,10, 20,    0,   0,     0),                         ITEM_END,
 
     /* Ammo */
     /*    ID                 short name            long name                               availability       quality           (wgt,cst,dly)         ammo Type         energy level*/
@@ -171,7 +181,8 @@ static struct itm_item static_item_list[] = {
     ITEM(IID_STIMM_HEALTH,  "health stimm", "an injector with a regenerative liquid", ITEM_AVAIL_AVERAGE,ITEM_QLTY_AVERAGE,   0, 1, 1), STIMM(FOOD_TYPE_INJECTION, CID_HEALTH_STIMM), ITEM_END,
 
     /* debug items */
-    ITEM(IID_STIMM_DEATH,   "death debug",  "an injector with a deadly liquid",       ITEM_AVAIL_VERY_RARE,ITEM_QLTY_AVERAGE, 0, 1, 1), STIMM(FOOD_TYPE_INJECTION, CID_DEATH_STIMM), ITEM_END,
+    //ITEM(IID_STIMM_DEATH,   "death debug",  "an injector with a deadly liquid",       ITEM_AVAIL_VERY_RARE,ITEM_QLTY_AVERAGE, 0, 1, 1), STIMM(FOOD_TYPE_INJECTION, CID_DEATH_STIMM), ITEM_END,
+    ITEM(IID_STIMM_DEATH,   "death debug",  "an injector with a deadly liquid",       ITEM_AVAIL_VERY_RARE,ITEM_QLTY_AVERAGE, 0, 1, 1), STIMM(FOOD_TYPE_INJECTION, CID_IMPACT_CRITICAL_RARMS_3), ITEM_END,
 };
 
 static const char *item_quality_strings[] = {

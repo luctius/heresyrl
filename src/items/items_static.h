@@ -40,6 +40,7 @@ enum item_ids {
 
     /* Basic weapons */
     IID_LAS_GUN,
+    IID_AUTO_GUN,
 
     /* Thrown */
     IID_THROWING_KNIFE,
