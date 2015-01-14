@@ -408,7 +408,7 @@ bool msr_do_dmg(struct msr_monster *monster, int dmg, enum dmg_type dmg_type, en
         monster->cur_wounds -= dmg;
 
         if (monster->cur_wounds < 0) {
-            if (critic = false) {
+            if (critic == false) {
                 You(monster, "are criticly wounded.");
                 Monster(monster, "is criticly wounded.");
             }
