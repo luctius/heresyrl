@@ -383,28 +383,35 @@ bool msr_die(struct msr_monster *monster, struct dm_map *map) {
     if (msr_verify_monster(monster) == false) return false;
     if (dm_verify_map(map) == false) return false;
 
-    monster->dead = true;
     if (monster->is_player && (monster->fate_points > 0) ) {
         You(monster, "fall unconsious.");
         Monster(monster, "falls unconsious.");
-        return true;
+    }
+    else {
+        You(monster, "die...");
+        Monster(monster, "dies.");
+
+        msr_drop_inventory(monster, map);
+        msr_remove_monster(monster, map);
     }
 
-    You(monster, "die...");
-    Monster(monster, "dies.");
-
-    msr_drop_inventory(monster, map);
-    msr_remove_monster(monster, map);
+    monster->dead = true;
     return true;
 }
 
 bool msr_do_dmg(struct msr_monster *monster, int dmg, enum dmg_type dmg_type, enum msr_hit_location mhl) {
     if (msr_verify_monster(monster) == false) return false;
+    bool critic = false;
+    if (monster->cur_wounds < 0) critic = true;
 
     if (dmg > 0) {
         monster->cur_wounds -= dmg;
 
         if (monster->cur_wounds < 0) {
+            if (critic = false) {
+                You(monster, "are criticly wounded.");
+                Monster(monster, "is criticly wounded.");
+            }
 
             /* do critical hits! */
             cdn_add_critical_hit(monster->conditions, abs(monster->cur_wounds), mhl, dmg_type);
