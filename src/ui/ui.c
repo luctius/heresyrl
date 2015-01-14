@@ -249,8 +249,14 @@ static void mapwin_examine(struct dm_map_entity *me) {
 
                 if (me->monster->is_player == true) {
                     textwin_add_text(char_win, "You see yourself.\n");
+
+                    if (me->monster->cur_wounds < 0) textwin_add_text(char_win, "You are criticly wounded.\n");
+                    else if (me->monster->cur_wounds != me->monster->max_wounds) textwin_add_text(char_win, "You are wounded.\n");
                 } else {
                     textwin_add_text(char_win, "You see %s.\n", me->monster->ld_name);
+
+                    if (me->monster->cur_wounds < 0) textwin_add_text(char_win, "%s is criticly wounded.\n", msr_gender_name(me->monster, false) );
+                    else if (me->monster->cur_wounds != me->monster->max_wounds) textwin_add_text(char_win, "%s is wounded.\n", msr_gender_name(me->monster, false) );
                 }
             }
 
@@ -1410,6 +1416,7 @@ void show_log(struct hrl_window *window, bool input) {
     delwin(pad.win);
 }
 
+#define SHOW_MAX_MSGS (20)
 void show_msg(struct hrl_window *window) {
     struct queue *q = lg_queue(gbl_log);
     int y = 0;
@@ -1426,39 +1433,28 @@ void show_msg(struct hrl_window *window) {
 
     textwin_init(&pad,1,0,0,log_sz);
     if (log_sz > 0) {
-        for (int i = 0; i < log_sz; i++) {
+        int min = 0;
+        int ctr = 0;
+        for (int i = log_sz-1; i > 0; i--) {
+            tmp_entry = queue_peek_nr(q, i);
+            if (tmp_entry != NULL) {
+                bool print = false;
+                if (tmp_entry->level <= LG_DEBUG_LEVEL_GAME) print = true;
+
+                if (print) ctr++;
+            }
+            if (ctr >= SHOW_MAX_MSGS) {
+                min = i;
+                i = 0;
+            }
+        }
+
+        for (int i = min; i < log_sz; i++) {
             tmp_entry = queue_peek_nr(q, i);
             if (tmp_entry != NULL) {
                 bool print = false;
 
-                if (options.debug) {
-                    const char *pre_format;
-                    print = true;
-
-                    switch (tmp_entry->level) {
-                        case LG_DEBUG_LEVEL_GAME:
-                            pre_format = "[%s" ":Game][%d] ";
-                            break;
-                        case LG_DEBUG_LEVEL_DEBUG:
-                            pre_format = "[%s" ":Debug][%d] ";
-                            break;
-                        case LG_DEBUG_LEVEL_INFORMATIONAL:
-                            pre_format = "[%s" ":Info][%d] ";
-                            break;
-                        case LG_DEBUG_LEVEL_WARNING:
-                            pre_format = "[%s" ":Warning][%d] ";
-                            break;
-                        case LG_DEBUG_LEVEL_ERROR:
-                            pre_format = "[%s" ":Error][%d] ";
-                            break;
-                        default:
-                            pre_format ="[%s" ":Unknown][%d] ";
-                            break;
-                    }
-
-                    textwin_add_text(&pad, pre_format, tmp_entry->module, tmp_entry->turn);
-                }
-                else if (tmp_entry->level <= LG_DEBUG_LEVEL_GAME) print = true;
+                if (tmp_entry->level <= LG_DEBUG_LEVEL_GAME) print = true;
 
                 if (print) {
                     for (int l = 0; l < tmp_entry->atom_lst_sz; l++) {
