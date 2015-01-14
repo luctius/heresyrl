@@ -43,12 +43,12 @@ static struct msr_monster static_monster_list[] = {
         SKILLS(0,0,0), .fate_points=2, MONSTER_END,
     /*----------------------------------------------------------*/
 
-    MONSTER(MID_HIVE_GANGER,'h',"human","a hive human",MSR_GENDER_MALE,14)
+    MONSTER(MID_HIVE_GANGER,'h',"human","a hive human",MSR_GENDER_MALE,1)
         HUMAN(TLT_BASIC_WPN_TRNG_LAS, TLT_PISTOL_WPN_TRNG_LAS),
         CHARACTERISTICS(30,30,30,30,30,30,30,30,30),
         SKILLS(0,0,0), MONSTER_END,
 
-    MONSTER(MID_VICIOUS_DOG,'d',"dog","a vicious dog",MSR_GENDER_MALE,12)
+    MONSTER(MID_VICIOUS_DOG,'d',"dog","a vicious dog",MSR_GENDER_MALE,1)
         BEAST(0),
         CHARACTERISTICS(30,0,30,30,30,15,38,40,30),
         SKILLS(MSR_SKILLS_AWARENESS|MSR_SKILLS_SILENT_MOVE|MSR_SKILLS_TRACKING, MSR_SKILLS_AWARENESS|MSR_SKILLS_SILENT_MOVE|MSR_SKILLS_TRACKING ,0), MONSTER_END,
