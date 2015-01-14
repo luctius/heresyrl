@@ -69,6 +69,8 @@ void msrlst_monster_list_exit(void) {
         e = monster_list_head.lh_first;
         LIST_REMOVE(monster_list_head.lh_first, entries);
         inv_exit(e->monster.inventory);
+        cdn_list_exit(e->monster.conditions);
+        msr_clear_controller(&e->monster);
         free(e);
     }
     monster_list_initialised = false;
