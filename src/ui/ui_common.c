@@ -74,7 +74,6 @@ void textwin_add_text(struct hrl_window *win, const char *format, ...) {
 }
 
 int textwin_display_text(struct hrl_window *win) {
-    return 0;
     int lines_used = 0;
     assert(win != NULL);
     assert(win->text != NULL);
