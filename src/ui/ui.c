@@ -258,6 +258,15 @@ static void mapwin_examine(struct dm_map_entity *me) {
                     if (me->monster->cur_wounds < 0) textwin_add_text(char_win, "%s is criticly wounded.\n", msr_gender_name(me->monster, false) );
                     else if (me->monster->cur_wounds != me->monster->max_wounds) textwin_add_text(char_win, "%s is wounded.\n", msr_gender_name(me->monster, false) );
                 }
+
+                if (cdn_list_size(me->monster->conditions) > 0) {
+                    textwin_add_text(char_win, "\nThis one is affected by:\n");
+
+                    struct cdn_condition *c = NULL;
+                    while ( (c = cdn_list_get_next_condition(me->monster->conditions, c) ) != NULL) {
+                        textwin_add_text(char_win, "- %s\n", c->name);
+                    }
+                }
             }
 
             textwin_add_text(char_win, "\n");
