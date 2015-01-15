@@ -68,9 +68,9 @@ void msrlst_monster_list_exit(void) {
     while (monster_list_head.lh_first != NULL) {
         e = monster_list_head.lh_first;
         LIST_REMOVE(monster_list_head.lh_first, entries);
-        inv_exit(e->monster.inventory);
-        cdn_list_exit(e->monster.conditions);
         msr_clear_controller(&e->monster);
+        cdn_list_exit(e->monster.conditions);
+        inv_exit(e->monster.inventory);
         free(e);
     }
     monster_list_initialised = false;
@@ -187,7 +187,7 @@ void msr_assign_controller(struct msr_monster *monster, struct monster_controlle
 
 void msr_clear_controller(struct msr_monster *monster) {
     if (msr_verify_monster(monster) == false) return;
-    free(monster->controller.controller_ctx);
+    /*if (monster->controller.controller_ctx != NULL) free(monster->controller.controller_ctx); TODO: fix this memory leak*/
     memset(&monster->controller, 0x0, sizeof(struct monster_controller) );
 }
 
