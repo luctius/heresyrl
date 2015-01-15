@@ -185,6 +185,7 @@ static int generate(int argc, char **argv)
 
 bool cave_generate_map(struct dm_map *map, struct random *r, enum dm_dungeon_type type, int level) {
     int ii, jj, yi, xi;
+    FIX_UNUSED(level);
 
     if (type != DM_DUNGEON_TYPE_CAVE) return -1;
 

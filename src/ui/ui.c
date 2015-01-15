@@ -664,7 +664,7 @@ void msgwin_log_refresh(struct logging *lg, struct log_entry *new_entry) {
                 for (int l = 0; l < tmp_entry->atom_lst_sz; l++) {
                     struct log_atom *a = &tmp_entry->atom_lst[l];
                     if (a != NULL) {
-                        if (x + strlen(a->string) >= msg_win->cols) { y++; x = 1; }
+                        if (x + ((int) strlen(a->string)) >= msg_win->cols) { y++; x = 1; }
                         int colour = log_channel_to_colour(a->channel);
 
                         wattron(msg_win->win, colour);
@@ -690,6 +690,7 @@ void show_log(struct hrl_window *window, bool input);
 void msgwin_log_callback(struct logging *lg, struct log_entry *entry, void *priv) {
     FIX_UNUSED(entry);
     FIX_UNUSED(priv);
+    FIX_UNUSED(lg);
 
     //msgwin_log_refresh(lg, entry);
 

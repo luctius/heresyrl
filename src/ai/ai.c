@@ -45,7 +45,7 @@ static bool ai_beast_loop(struct msr_monster *monster, void *controller) {
             ai->time_last_pos = 1;
 
             if (cd_pyth(&monster->pos, &enemy->pos) > 1) {
-                int radius = msr_get_near_sight_range(monster) + msr_get_far_sight_range(monster) +1;
+                //int radius = msr_get_near_sight_range(monster) + msr_get_far_sight_range(monster) +1;
                 if (aiu_generate_astar(&ai->pf_ctx, map, &monster->pos, &enemy->pos, 0) == true) {
                     coord_t *coord_lst;
                     int coord_lst_sz =  pf_calculate_path(ai->pf_ctx, &monster->pos, &enemy->pos, &coord_lst);
@@ -135,7 +135,7 @@ static bool ai_human_loop(struct msr_monster *monster, void *controller) {
             ai->time_last_pos = 1;
 
             if (cd_pyth(&monster->pos, &enemy->pos) > 1) {
-                int radius = msr_get_near_sight_range(monster) + msr_get_far_sight_range(monster) +1;
+                //int radius = msr_get_near_sight_range(monster) + msr_get_far_sight_range(monster) +1;
                 if (aiu_generate_astar(&ai->pf_ctx, map, &monster->pos, &enemy->pos, 0) == true) {
                     coord_t *coord_lst;
                     int coord_lst_sz =  pf_calculate_path(ai->pf_ctx, &monster->pos, &enemy->pos, &coord_lst);

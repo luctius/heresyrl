@@ -374,6 +374,8 @@ static bool ma_has_ammo(struct msr_monster *monster, struct itm_item *item) {
 }
 
 bool ma_do_reload_carried(struct msr_monster *monster, struct itm_item *ammo_item) {
+    FIX_UNUSED(ammo_item);
+
     if (msr_verify_monster(monster) == false) return false;
     struct itm_item *item = NULL;
     struct item_weapon_specific *wpn = NULL;

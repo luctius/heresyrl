@@ -65,7 +65,7 @@ static bool plr_action_loop(struct msr_monster *player, void *controller) {
     if (player == NULL) return false;
     if (controller == NULL) return false;
     struct dm_map *map = gbl_game->current_map;
-    struct pl_player *plr = controller;
+    //struct pl_player *plr = controller;
     int ch;
     bool has_action = false;
 

@@ -22,6 +22,8 @@
 struct gm_game *gbl_game = NULL;
 
 void game_init(struct pl_player *plr, unsigned long initial_seed) {
+    FIX_UNUSED(plr);
+
     if (gbl_game == NULL) {
         gbl_game = calloc(1, sizeof(struct gm_game));
         if (gbl_game != NULL) {

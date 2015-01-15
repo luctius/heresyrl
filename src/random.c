@@ -231,7 +231,8 @@ double random_genrand_real2(struct random *r)
 /* generates a random number on (0,1)-real-interval */
 double random_genrand_real3(struct random *r)
 {
-    return (((double)random_int32(r)) + 0.5)*(1.0/4294967296.0); 
+    uint32_t u = random_int32(r);
+    return (((double)u) + 0.5)*(1.0/4294967296.0); 
     /* divided by 2^32 */
 }
 
