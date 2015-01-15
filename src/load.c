@@ -128,6 +128,7 @@ static int lua_intexpr(lua_State* L, uint64_t *out, const char* format, ...)
     return ok;
 }
 
+#if 0 /* Not used atm. */
 /** 
 * Evaluates a Lua expression and returns the bool result. 
 * If an error occurs or the result is not bool, def is returned. 
@@ -165,6 +166,7 @@ static int lua_boolexpr(lua_State* L, bool def, const char* format, va_list args
 
     return ok;
 }
+#endif
 
 /** 
 * Opens the given file, and executes it within a Lua Context.
@@ -369,7 +371,7 @@ static bool load_monsters(lua_State *L, struct dm_map *map, struct gm_game *g) {
         lua_intexpr(L, &t, "game.monsters[%d].pos.x", i+1); monster->pos.x = t;
         lua_intexpr(L, &t, "game.monsters[%d].pos.y", i+1); monster->pos.y = t;
 
-        char *name_ptr = lua_stringexpr(L, "game.monsters[%d].unique_name", i+1);
+        const char *name_ptr = lua_stringexpr(L, "game.monsters[%d].unique_name", i+1);
         if (name_ptr != NULL) {
             lg_debug("monster name is %s", monster->unique_name);
             monster->unique_name = malloc( (strlen(name_ptr) + 2) * sizeof(char) );
