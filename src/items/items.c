@@ -90,6 +90,7 @@ static uint32_t itmlst_next_id(void) {
 }
 
 struct itm_item *itm_generate(enum item_types type) {
+    FIX_UNUSED(type);
     if (items_list_initialised == false) itmlst_items_list_init();
     return NULL;
 }
