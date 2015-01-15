@@ -79,23 +79,23 @@ int textwin_display_text(struct hrl_window *win) {
     assert(win->text != NULL);
     if (win == NULL) return 0;
     if (win->text == NULL) return 0;
-    if (strlen(win->text) == 0) return 0;
-
-    char **desc;
-    int *len_lines;
-    lines_used = strwrap(win->text, win->text_ex -1, &desc, &len_lines);
-    if (lines_used > 0) {
-        for (int i = 0; i < MIN(lines_used, win->text_ey); i++) {
-            for (int j = 0; j < len_lines[i]; j++) {
-                mvwaddch(win->win, win->text_sy + i, win->text_sx + j, desc[i][j]);
+    if (strlen(win->text) > 0) {
+        char **desc;
+        int *len_lines;
+        lines_used = strwrap(win->text, win->text_ex -1, &desc, &len_lines);
+        if (lines_used > 0) {
+            for (int i = 0; i < MIN(lines_used, win->text_ey); i++) {
+                for (int j = 0; j < len_lines[i]; j++) {
+                    mvwaddch(win->win, win->text_sy + i, win->text_sx + j, desc[i][j]);
+                }
             }
         }
+
+        free(desc);
+        free(len_lines);
+
+        if (options.refresh == true) wrefresh(win->win);
     }
-
-    free(desc);
-    free(len_lines);
-
-    if (options.refresh == true) wrefresh(win->win);
 
     free(win->text);
     win->text = NULL;
