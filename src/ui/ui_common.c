@@ -30,6 +30,7 @@ void win_generate_colours(void) {
     }
 }
 
+/* TODO: this should use the general logging atoms. This will enable to use of colours in the output. */
 void textwin_init(struct hrl_window *win, int sx, int sy, int ex, int ey) {
     assert(win != NULL);
     free(win->text);
