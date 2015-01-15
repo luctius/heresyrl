@@ -12,7 +12,9 @@
 //#define Q_DEBUG 1
 
 #define QUEUE_BAIL_PRINTF(fmt, ...) {fprintf(stderr, "\033[0;31mQUEUE-> Error: [%s:%s] " fmt "\033[0m\n", __FILE__, __func__,  ##__VA_ARGS__);}
-#define QUEUE_BAIL(error, fmt, ...) { QUEUE_BAIL_PRINTF(fmt, ##__VA_ARGS__); return  error; }
+#define QUEUE_BAIL_NULL(fmt, ...) { QUEUE_BAIL_PRINTF(fmt, ##__VA_ARGS__); return NULL; }
+#define QUEUE_BAIL_INT(error, fmt, ...) { QUEUE_BAIL_PRINTF(fmt, ##__VA_ARGS__); return error; }
+#define QUEUE_BAIL(error, fmt, ...) { QUEUE_BAIL_PRINTF(fmt, ##__VA_ARGS__); union qe err = { .i = error, }; return err; }
 
 struct queue {
     void *mem_ptr;
@@ -25,14 +27,14 @@ struct queue {
     int head;
     int tail;
     bool owner;
-    intptr_t queue_start[];
+    union qe queue_start[];
 };
 
 int queue_free_unsafe(struct queue *q);
 int queue_size_unsafe(struct queue *q);
 
 inline int queue_element_size(void) {
-    return (sizeof(intptr_t) );
+    return (sizeof(union qe) );
 }
 
 inline int queue_minimum_size(void) {
@@ -42,14 +44,14 @@ inline int queue_minimum_size(void) {
 static struct queue *queue_init_priv(void *mem, size_t sz, bool owner) {
     struct queue *q = mem;
 
-    if (mem == NULL) QUEUE_BAIL(NULL, "Parameter 'mem' invalid.");
-    if (sz < sizeof(struct queue) + (2 * sizeof(intptr_t) ) ) QUEUE_BAIL(NULL, "Parameter 'sz' invalid.");
-    if (lro2_sem_init(&q->semaphore, 0, 1) != 0) QUEUE_BAIL(NULL, "Requesting semaphore failed.");
+    if (mem == NULL) QUEUE_BAIL_NULL("Parameter 'mem' invalid.");
+    if (sz < sizeof(struct queue) + (2 * sizeof(union qe) ) ) QUEUE_BAIL_NULL("Parameter 'sz' invalid.");
+    if (lro2_sem_init(&q->semaphore, 0, 1) != 0) QUEUE_BAIL_NULL("Requesting semaphore failed.");
 
     q->mem_ptr = mem;
     q->mem_sz = sz;
 
-    q->nr_elements = ( ( sz - sizeof(struct queue) ) / sizeof(intptr_t) ) -2;
+    q->nr_elements = ( ( sz - sizeof(struct queue) ) / sizeof(union qe) ) -2;
     q->head = 0;
     q->tail = 0;
     q->element_ctr = 0;
@@ -69,7 +71,7 @@ struct queue *queue_init(void *mem, size_t sz) {
 }
 
 int queue_exit(struct queue *q) {
-    if (q == NULL) QUEUE_BAIL(-EINVAL, "Queue context invalid.");
+    if (q == NULL) QUEUE_BAIL_INT(-EINVAL, "Queue context invalid.");
     if (q->owner == true) {
         free(q);
     }
@@ -77,9 +79,9 @@ int queue_exit(struct queue *q) {
     return QUEUE_SUCCESS;
 }
 
-int queue_push_tail(struct queue *q, intptr_t element) {
+int queue_push_tail(struct queue *q, union qe element) {
     int retval = -ENODATA;
-    if (q == NULL) QUEUE_BAIL(-EINVAL, "Queue context invalid.");
+    if (q == NULL) QUEUE_BAIL_INT(-EINVAL, "Queue context invalid.");
     lro2_sem_wait(&q->semaphore); /*sem down*/
 
     if (queue_free_unsafe(q) > 0) {
@@ -97,14 +99,15 @@ int queue_push_tail(struct queue *q, intptr_t element) {
     return retval;
 }
 
-intptr_t queue_pop_head(struct queue *q) {
-    intptr_t retval = -ENODATA;
+union qe queue_pop_head(struct queue *q) {
+    union qe retval = { .i= -ENODATA };
     if (q == NULL) QUEUE_BAIL(-EINVAL, "Queue context invalid.");
     lro2_sem_wait(&q->semaphore); /*sem down*/
 
     if (queue_size_unsafe(q) > 0) {
         retval = q->queue_start[q->head];
-        q->queue_start[q->head] = (intptr_t) 0xDEADBEEF;
+        union qe e = { .i = 0xDEADBEEF, };
+        q->queue_start[q->head] = e;
         q->head = ( q->head +1 ) % q->nr_elements;
         q->element_ctr--;
 
@@ -121,12 +124,12 @@ intptr_t queue_pop_head(struct queue *q) {
     return retval;
 }
 
-intptr_t queue_peek_head(struct queue *q) {
+union qe queue_peek_head(struct queue *q) {
     return queue_peek_nr(q, 0);
 }
 
-intptr_t queue_peek_nr(struct queue *q, int nr) {
-    intptr_t retval = -ENODATA;
+union qe queue_peek_nr(struct queue *q, int nr) {
+    union qe retval = { .i = -ENODATA};
     if (q == NULL) QUEUE_BAIL(-EINVAL, "Queue context invalid.");
     if (nr < 0) QUEUE_BAIL(-EINVAL, "Invalid parameter.");
     lro2_sem_wait(&q->semaphore); /*sem down*/
@@ -144,14 +147,14 @@ intptr_t queue_peek_nr(struct queue *q, int nr) {
     return retval;
 }
 
-intptr_t queue_peek_tail(struct queue *q) {
+union qe queue_peek_tail(struct queue *q) {
     int pt = (q->nr_elements + q->tail -1) % q->nr_elements;
     return queue_peek_nr(q, pt);
 }
 
 int queue_size_unsafe(struct queue *q) {
     int nre = 0;
-    if (q == NULL) QUEUE_BAIL(-EINVAL, "Queue context invalid.");
+    if (q == NULL) QUEUE_BAIL_INT(-EINVAL, "Queue context invalid.");
     nre = q->element_ctr;
     return nre;
 }
@@ -166,7 +169,7 @@ int queue_size(struct queue *q) {
 
 int queue_free_unsafe(struct queue *q) {
     int nre = 0;
-    if (q == NULL) QUEUE_BAIL(-EINVAL, "Queue context invalid.");
+    if (q == NULL) QUEUE_BAIL_INT(-EINVAL, "Queue context invalid.");
     nre = q->nr_elements - q->element_ctr;
     return nre;
 }

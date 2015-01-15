@@ -60,7 +60,7 @@ void lg_exit(struct logging *log_ctx) {
     if (log_ctx->log_fd != NULL) free(log_ctx->log_fd);
 
     while (queue_size(log_ctx->logging_q) > 0) {
-        struct log_entry *tmp = (struct log_entry *) queue_pop_head(log_ctx->logging_q);
+        struct log_entry *tmp = queue_pop_head(log_ctx->logging_q).vp;
         le_free(tmp);
     }
 
@@ -153,12 +153,14 @@ static void lg_print_to_queue(struct logging *log_ctx, struct log_entry *entry) 
     if (log_ctx == NULL) return;
     //if (dbg_lvl > LG_DEBUG_LEVEL_GAME) return;
 
-    queue_push_tail(log_ctx->logging_q, (intptr_t) entry);
+    union qe e;
+    e.vp = entry;
+    queue_push_tail(log_ctx->logging_q, e);
 
     if (log_ctx->callback != NULL) log_ctx->callback(log_ctx, entry, log_ctx->priv);
 
     while (queue_size(log_ctx->logging_q) > log_ctx->logging_q_sz) {
-        struct log_entry *tmp = (struct log_entry *) queue_pop_head(log_ctx->logging_q);
+        struct log_entry *tmp = (struct log_entry *) queue_pop_head(log_ctx->logging_q).vp;
         le_free(tmp);
     }
 }
