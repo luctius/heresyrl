@@ -266,5 +266,7 @@ bool sv_save_game(const char *filename, struct gm_game *gm) {
         sv_save_input(file, indent, gm->input);
     } indent -= 2; fprintf(file, "%*s" "}\n", indent, "");
     fflush(file);
+    fclose(file);
+
     return true;
 }
