@@ -33,7 +33,7 @@ static struct homeworld_id homeworld_id[] =  {
 struct spwn_monster_item items[] = {  
     {.id=IID_FLAK_JACKET,    .min=1,.max=1,.wear=true}, 
     {.id=IID_AUTO_GUN,       .min=1,.max=1,.wear=true}, 
-    {.id=IID_BASIC_AMMO_SP,  .min=1,.max=100,.wear=false},
+    {.id=IID_BASIC_AMMO_SP,  .min=100,.max=500,.wear=false},
     {.id=IID_GLOW_GLOBE,     .min=1,.max=1,.wear=false},
     {.id=IID_FRAG_GRENADE,   .min=1,.max=3,.wear=false},
     {.id=IID_THROWING_KNIFE, .min=1,.max=3,.wear=false},
@@ -72,7 +72,7 @@ bool char_creation_window(void) {
         switch (k) {
             case '\n': name_done = true; break;
             case 24: return false;
-            case KEY_BACKSPACE: 
+            case INP_KEY_BACKSPACE: 
                 if (name_buffer_idx >= 0) {
                     name_buffer[name_buffer_idx--] = '\0'; 
                     name_buffer[name_buffer_idx] = '\0'; 
@@ -101,7 +101,7 @@ bool char_creation_window(void) {
     while (race_done == false) {
         mvwprintw(map_win->win, 1, 1, "Choose your homeworld");
         for (unsigned int i = 0; i < ARRAY_SZ(homeworld_id); i++) {
-            char *hw_desc = homeworld_id[i].desc;
+            const char *hw_desc = homeworld_id[i].desc;
             mvwprintw(map_win->win, 4 + i, 1, "%c) %s", inp_key_translate_idx(i), hw_desc);
         }
         mvwprintw(map_win->win, map_win->lines -2, 1, "[U] choose  [x] examine");
@@ -129,7 +129,7 @@ bool char_creation_window(void) {
                 werase(map_win->win);
 
                 sel_idx = inp_get_input_idx(gbl_game->input);
-                if (sel_idx < ARRAY_SZ(homeworld_id) ) {
+                if (sel_idx < (int) ARRAY_SZ(homeworld_id) ) {
                     textwin_init(map_win, 1, 8 + ARRAY_SZ(homeworld_id), 0, 0);
                     textwin_add_text(map_win,homeworld_id[sel_idx].long_desc );
                     textwin_display_text(map_win);
@@ -139,7 +139,7 @@ bool char_creation_window(void) {
             default: break;
         }
 
-        if ( (sel_idx >= 0) && (sel_idx < ARRAY_SZ(homeworld_id) ) ) {
+        if ( (sel_idx >= 0) && (sel_idx < (int) ARRAY_SZ(homeworld_id) ) ) {
             /* copy name*/
             char *name = player->unique_name;
             player->unique_name = NULL;
