@@ -61,11 +61,11 @@
   ints, describing how wide the corresponding line is. If an error
   occurs 0 is returned; line_ret and len_ret are then left unmodified.
 */
-int strwrap(const char * s, int w, char *** line_ret, int ** len_ret)
+int strwrap(const char * s, int w, const char *** line_ret, int ** len_ret)
 {
   int allocated; /* lines allocated */
   int lines; /* lines used */
-  char ** line;
+  const char ** line;
   int * len;
   int tl; /* total length of the string */
   int l; /* length of current line */
@@ -90,8 +90,8 @@ int strwrap(const char * s, int w, char *** line_ret, int ** len_ret)
   */
   allocated = (tl) * 1.5;
  
-  line = (char **) malloc(sizeof(char *) * allocated);
-  len = (int *) malloc(sizeof(int) * allocated);
+  line = malloc(sizeof(char *) * allocated);
+  len = malloc(sizeof(int) * allocated);
  
   if (line == NULL || len == NULL)
     return 0;
@@ -196,8 +196,8 @@ int strwrap(const char * s, int w, char *** line_ret, int ** len_ret)
     {
       allocated *= 2;
  
-      line = (char **) realloc(line, sizeof(char *) * allocated);
-      len = (int *) realloc(len, sizeof(int) * allocated);
+      line = realloc(line, sizeof(char *) * allocated);
+      len  = realloc(len, sizeof(int) * allocated);
  
       if (line == NULL || len == NULL)
 	return 0;
@@ -215,8 +215,8 @@ int strwrap(const char * s, int w, char *** line_ret, int ** len_ret)
   }
  
   /* Finally, relinquish memory we don't need */
-  line = (char **) realloc(line, sizeof(char *) * lines);
-  len = (int *) realloc(len, sizeof(int) * lines);
+  line = realloc(line, sizeof(char *) * lines);
+  len  = realloc(len, sizeof(int) * lines);
  
   *line_ret = line;
   *len_ret = len;
