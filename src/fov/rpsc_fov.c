@@ -441,6 +441,7 @@ bool rpsc_fov(struct rpsc_fov_set *set, coord_t *src, int radius) {
 }
 
 /* TBI */
+/*
 bool rpsc_cone(struct rpsc_fov_set *set, coord_t *src, coord_t *dst, int angle, int radius) {
     if (set == NULL) return false;
     if (set->is_opaque == NULL) return false;
@@ -462,6 +463,7 @@ bool rpsc_cone(struct rpsc_fov_set *set, coord_t *src, coord_t *dst, int angle, 
 
     return true;
 }
+*/
 
 /* calculate the los from one point to another.
    In essence we use the exact same algorithm as rpsc_octant,
