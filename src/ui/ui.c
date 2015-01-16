@@ -1403,7 +1403,7 @@ void show_log(struct hrl_window *window, bool input) {
         int line = 0;
         bool watch = true;
         while(watch == true) {
-            prefresh(pad.win, line,0,pad.y,pad.x, pad.y + pad.lines, pad.x + pad.cols);
+            prefresh(pad.win, line,0,pad.y,pad.x, pad.y + pad.lines -1, pad.x + pad.cols);
 
             switch (inp_get_input(gbl_game->input) ) {
                 case INP_KEY_UP_RIGHT:   line += 20; break;
@@ -1421,7 +1421,7 @@ void show_log(struct hrl_window *window, bool input) {
             if (line > (y - pad.lines) ) line = y - pad.lines;
         }
     }
-    else prefresh(pad.win, 0,0, pad.y, pad.x, pad.y + pad.lines, pad.x + pad.cols);
+    else prefresh(pad.win, 0,0, pad.y, pad.x, pad.y + pad.lines -1, pad.x + pad.cols);
 
     delwin(pad.win);
 }
