@@ -1,6 +1,8 @@
 #ifndef INPUT_H
 #define INPUT_H
 
+#include <ncurses.h>
+
 #define INP_KEY_MAX_IDX (36)
 
 enum inp_keys {
@@ -39,7 +41,9 @@ enum inp_keys {
     INP_KEY_MINUS,
     INP_KEY_TAB,
     INP_KEY_QUIT,
+
     INP_KEY_MAX,
+    INP_KEY_BACKSPACE = KEY_BACKSPACE,
 };
 
 struct inp_input {
