@@ -50,7 +50,6 @@ bool char_creation_window(void) {
 
     struct pl_player *plr = &gbl_game->player_data;
     plr->player = msr_create(0);
-    plr->player->unique_name = "";
     charwin_refresh();
 
     struct msr_monster *player = plr->player;
