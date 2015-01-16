@@ -138,7 +138,7 @@
 /* Define to empty if `const' does not conform to ANSI C. */
 #undef const
 
-#define CMDLINE_PARSER_VERSION "0.1.0" "_" GIT_VERSION
+#define CMDLINE_PARSER_VERSION "0.1.0" " (" GIT_VERSION ") <" __DATE__ " " __TIME__">"
 
 /* Define to `__inline__' or `__inline' if that's what the C compiler
    calls it, or to nothing if 'inline' is not supported under any name.  */
