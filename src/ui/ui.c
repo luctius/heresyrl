@@ -1339,7 +1339,7 @@ void show_log(struct hrl_window *window, bool input) {
 
     struct hrl_window pad;
     memmove(&pad, window, sizeof(struct hrl_window) );
-    pad.win = newpad(MAX(log_sz * 2, window->lines) , window->cols);
+    pad.win = newpad(MAX(log_sz, window->lines) , window->cols);
     assert(pad.win != NULL);
 
     touchwin(pad.win);
@@ -1435,7 +1435,7 @@ void show_msg(struct hrl_window *window) {
 
     struct hrl_window pad;
     memmove(&pad, window, sizeof(struct hrl_window) );
-    pad.win = newpad(MAX(log_sz * 2, window->lines) , window->cols);
+    pad.win = newpad(MAX(SHOW_MAX_MSGS, window->lines) , window->cols);
     assert(pad.win != NULL);
 
     touchwin(pad.win);
