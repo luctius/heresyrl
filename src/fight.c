@@ -500,7 +500,7 @@ bool fght_explosion(struct random *r, struct itm_item *bomb, struct dm_map *map)
 
     coord_t *gridlist = NULL;
     int gridlist_sz = sgt_explosion(gbl_game->sight, map, &c, radius, &gridlist);
-    struct item_weapon_specific *wpn = &bomb->specific.weapon;
+    /*struct item_weapon_specific *wpn = &bomb->specific.weapon; TODO: is this used? */
 
     for (int i = 0; i < gridlist_sz; i++) {
         struct dm_map_entity *me = dm_get_map_me(&gridlist[i], map);
