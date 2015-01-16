@@ -1,6 +1,3 @@
-#define CMDLINE_PARSER_PACKAGE "heresyrl"
-#define CMDLINE_PARSER_VERSION VERSION
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
