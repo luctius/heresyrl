@@ -199,7 +199,7 @@ bool cdn_add_to_list(struct cdn_condition_list *cdn_list, struct cdn_condition *
     if (cdn_verify_list(cdn_list) == false) return false;
     if (cdn_verify_condition(con) == false) return false;
 
-    lg_debug("Adding condition: %s\n", con->name);
+    lg_debug("Adding condition: %p(%s)\n", con, con->name);
 
     struct cdn_entry *ce = container_of(con, struct cdn_entry, condition);
     LIST_INSERT_HEAD(&cdn_list->head, ce, entries);
@@ -357,6 +357,7 @@ void cdn_process(struct cdn_condition_list *cdn_list, struct msr_monster *monste
 
         {   /* Pre checks */
             if (first_time) {
+                lg_debug("Condition %p(%s) is processed for the first time.", c, c->name);
 
                 if (test_bf(c->setting_flags, CDN_SF_ACTIVE_ALL) ) {
                     destroy = true;
@@ -414,12 +415,15 @@ void cdn_process(struct cdn_condition_list *cdn_list, struct msr_monster *monste
 
                 if (destroy == false) {
                     if (test_bf(c->setting_flags, CDN_SF_INVISIBLE) == false) {
+                        lg_debug("Condition %p(%s) is to be applyed.", c, c->name);
                         if (c->on_apply_plr != NULL) You_msg(monster, c->on_apply_plr);
                         if (c->on_apply_msr != NULL) Monster_msg(monster, c->on_apply_msr, msr_ldname(monster) );
                     }
                 }
             }
             else if (last_time) {
+                lg_debug("Condition %p(%s) ends.", c, c->name);
+
                 if (test_bf(c->setting_flags, CDN_SF_INVISIBLE) == false) {
                     if (c->on_exit_plr != NULL) You_msg(monster, c->on_exit_plr);
                     if (c->on_exit_msr != NULL) Monster_msg(monster, c->on_exit_msr, msr_ldname(monster) );
@@ -428,6 +432,7 @@ void cdn_process(struct cdn_condition_list *cdn_list, struct msr_monster *monste
             }
 
             if (destroy) {
+                lg_debug("Condition %p(%s) is to be destroyed.", c, c->name);
                 if (c->continues_to_id != CID_NONE) {
                     cdn_add_condition(cdn_list, c->continues_to_id);
                 }
@@ -497,6 +502,8 @@ void cdn_process(struct cdn_condition_list *cdn_list, struct msr_monster *monste
             }
 
             if (process) {
+                lg_debug("Processing Condition %p(%s).", c, c->name);
+
                 switch(ces->effect) {
                     case CDN_EF_MODIFY_FATIQUE: {
                         monster->fatique += -ces->strength; /* fatique works in reverse, increase is bad, decrease is good. */
