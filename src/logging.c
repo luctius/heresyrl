@@ -25,16 +25,11 @@ struct logging {
     callback_event callback;
     void *priv;
 
-    bool log_fds_active[MSG_MAX_FD];
-    struct log_entry *log_fd;
     struct log_entry *log_last;
 };
 
 static void le_free(struct log_entry *e) {
-    for (int i = 0; i < e->atom_lst_sz; i++) {
-        free(e->atom_lst[i].string);
-    }
-    free(e->atom_lst);
+    free(e->string);
     free(e);
 }
 
@@ -57,7 +52,6 @@ struct logging *lg_init(char *logfile, enum lg_debug_levels lvl, int max_size) {
 
 void lg_exit(struct logging *log_ctx) {
     if (log_ctx == NULL) return;
-    if (log_ctx->log_fd != NULL) free(log_ctx->log_fd);
 
     while (queue_size(log_ctx->logging_q) > 0) {
         struct log_entry *tmp = queue_pop_head(log_ctx->logging_q).vp;
@@ -83,22 +77,14 @@ struct queue *lg_queue(struct logging *log_ctx) {
 static bool le_is_equal(struct log_entry *a, struct log_entry *b) {
     if (a == NULL) return false;
     if (b == NULL) return false;
-    if (a->atom_lst == NULL) return false;
-    if (b->atom_lst == NULL) return false;
 
     if (a->level != b->level)   return false;
     if (a->module != b->module) return false;
-    if (a->atom_lst_sz != b->atom_lst_sz) return false;
 
-    for (int i = 0; i < a->atom_lst_sz; i++) {
-        struct log_atom *aa = &a->atom_lst[i];
-        struct log_atom *ab = &b->atom_lst[i];
-        if (aa->string == NULL) return false;
-        if (ab->string == NULL) return false;
-
-        if (aa->channel != ab->channel) return false;
-        if (strcmp(aa->string, ab->string) != 0) return false;
-    }
+    if (a->channel != b->channel) return false;
+    if (a->string == NULL) return false;
+    if (b->string == NULL) return false;
+    if (strcmp(a->string, b->string) != 0) return false;
 
     return true;
 }
@@ -141,9 +127,8 @@ static void lg_print_to_file(struct logging *log_ctx, struct log_entry *entry) {
     }
 
     fprintf(fd, "[%s:%s][%d] ", entry->module, pre_format, entry->turn);
-    for (int i = 0; i < entry->atom_lst_sz; i++) {
-        fprintf(fd, "%s", entry->atom_lst[i].string);
-    }
+    fprintf(fd, "%s", entry->string);
+
     if (entry->repeat > 1) fprintf(fd, " x%d", entry->repeat);
     fprintf(fd, "\n");
     fflush(fd);
@@ -177,22 +162,15 @@ void lg_printf_basic(struct logging *log_ctx, enum lg_debug_levels dbg_lvl, cons
     le->turn = 0;
     if (gbl_game != NULL) le->turn = gbl_game->turn;
 
-    le->atom_lst_sz = 1;
-    le->atom_lst = calloc(le->atom_lst_sz, sizeof(struct log_atom) );
-    if (le->atom_lst == NULL) {
-        free (le->atom_lst);
-        return;
-    }
 
-    struct log_atom *la = &le->atom_lst[0];
-    la->channel = LG_CHANNEL_DEBUG;
+    le->channel = LG_CHANNEL_DEBUG;
     if ( (dbg_lvl == LG_DEBUG_LEVEL_ERROR) || (dbg_lvl == LG_DEBUG_LEVEL_WARNING) ) {
-        la->channel = LG_CHANNEL_WARNING;
+        le->channel = LG_CHANNEL_WARNING;
     }
     
-    la->string = calloc(STRING_MAX, sizeof(char) );
-    vsnprintf(la->string, STRING_MAX, format, args);
-    la->string = realloc(la->string, strlen(la->string) +1);
+    le->string = calloc(STRING_MAX, sizeof(char) );
+    vsnprintf(le->string, STRING_MAX, format, args);
+    le->string = realloc(le->string, strlen(le->string) +1);
 
     lg_print_to_file(log_ctx, le);
     lg_print_to_queue(log_ctx, le);
@@ -205,125 +183,88 @@ void lg_printf_l(int lvl, const char *module, const char* format, ... ) {
     va_end(args);
 }
 
-static void msg_init_internal(void) {
-    assert(gbl_log != NULL);
-    assert(gbl_game != NULL);
+bool msg_valid(coord_t *origin, coord_t *target) {
+    struct dm_map_entity *me;
 
-    free(gbl_log->log_fd);
-    for (int i = 0; i < MSG_MAX_FD; i++) {
-        gbl_log->log_fds_active[i] = false;
+    /* if all coords are NULL, accept it as a system msg */
+    if ( (origin == NULL) && (target == NULL) ) return true;
+
+    if (gbl_game->current_map == NULL) return false;
+    if (dm_verify_map(gbl_game->current_map) == false) return false;
+
+    if (origin != NULL) {
+        me = dm_get_map_me(origin, gbl_game->current_map);
+        if (me == NULL) return false;
+
+        /* 
+           this message system has two channels.
+           One for the player and one for monsters.
+
+           if origin is a player, accept the player channel.
+           if the player is otherwise involved, accept it in
+           the monster channel. otherwise discard the messages.
+         */
+
+        /* if origin is the player, accept it*/
+        if (me->monster->is_player == true) return true;
+
+        /* if the origin is visible by the player, accept it */
+        if (me->visible == true)  return true;
     }
 
-    gbl_log->log_fd = calloc(1, sizeof(struct log_entry) );
-    struct log_entry *le = gbl_log->log_fd;
+    /* origin does not effect the playe, and the target is invalid, do not accept */
+    if (target == NULL) return false;
 
-    le->turn = gbl_game->turn;
-    le->repeat = 1;
-    le->module = "game";
-    le->atom_lst_sz = 0;
-    le->level = LG_DEBUG_LEVEL_GAME;
-    le->atom_lst = NULL;
+    me = dm_get_map_me(target, gbl_game->current_map);
+    if (me == NULL) return false;
+
+    /* if the target is visible (may because I'm on it), accept it.*/
+    if (me->visible == true) return true;
+    return false;
 }
 
-void msg_init(coord_t *origin, coord_t *target) {
-    msg_exit();
-    msg_init_internal();
-
-    if ( (origin == NULL) && (target == NULL) ) {
-        /* System message */
-        gbl_log->log_fds_active[MSG_PLR_FD] = true;
-        return;
-    }
-
-    if (gbl_game->current_map == NULL) return;
-    if (dm_verify_map(gbl_game->current_map) == false) return;
-    struct dm_map_entity *me = dm_get_map_me(origin, gbl_game->current_map);
-
-    /* 
-       this message system has two channels.
-       One for the player and one for monsters.
-
-       if origin is a player, accept the player channel.
-       if the player is otherwise involved, accept it in
-       the monster channel. otherwise discard the messages.
-     */
-
-    if (me->monster != NULL) {
-        /*if origin it the player, accept it as a player msg*/
-        if (me->monster->is_player == true) {
-            gbl_log->log_fds_active[MSG_PLR_FD] = true;
-            return;
-        }
-    }
-
-    /* if the origin is visible by the player, accept it */
-    if (me->visible) gbl_log->log_fds_active[MSG_MSR_FD] = true;
-    else if (target != NULL) {
-        /* Or of the target is visible by the player (or maybe even the player itself), accept it.*/
-        me = dm_get_map_me(target, gbl_game->current_map);
-        if (me->visible) gbl_log->log_fds_active[MSG_MSR_FD] = true;
-    }
-}
+void msg_internal(coord_t *origin, coord_t *target, enum lg_channel c, const char *format, ...) {
+    if (gbl_log == NULL) return;
 
 
-void msg_exit(void) {
-    bool active = false;
-    for (int i = 0; i < MSG_MAX_FD; i++) {
-        if (gbl_log->log_fds_active[i]) {
-            active = true;
-        }
+    /* check if the message is relevant. */
+    if (msg_valid(origin, target) == false) return;
 
-        gbl_log->log_fds_active[i] = false;
-    }
-    if (active) {
-        struct log_entry *le = gbl_log->log_fd;
-        if (le != NULL) {
-            if (le_is_equal(le, gbl_log->log_last) ) {
-                gbl_log->log_last->repeat++;
-                gbl_log->log_last->turn = gbl_game->turn;
-                le_free(le);
-                gbl_log->log_fd = NULL;
+    /* Message is accepted, either because it is a system message, 
+       or because either the origin or target are of interrest to the 
+       player. 
+    */
 
-                /* There is no new entry, so we have to force an update ourselves */
-                if (gbl_log->callback != NULL) gbl_log->callback(gbl_log, le, gbl_log->priv);
-            }
-            else if (le->atom_lst_sz > 0) {
-                lg_print_to_file(gbl_log, le);
-                lg_print_to_queue(gbl_log, le);
-                gbl_log->log_last = gbl_log->log_fd;
-                gbl_log->log_fd = NULL;
-            }
-        }
-    }
-}
+    struct log_entry *le = malloc(sizeof(struct log_entry) );
+    le->turn    = gbl_game->turn;
+    le->repeat  = 1;
+    le->module  = "game";
+    le->channel = c;
+    le->level   = LG_DEBUG_LEVEL_GAME;
 
-void msg_add(enum msg_fd fd, enum lg_channel c, const char *format, ...) {
-    assert(gbl_log != NULL);
-    if (gbl_log->log_fds_active[fd] == false) return;
-    struct log_entry *le = gbl_log->log_fd;
+    /* allocate enough memory for the string to be copied */
+    le->string = calloc(STRING_MAX, sizeof(char) );
 
-    le->atom_lst_sz++;
-    le->atom_lst = realloc(le->atom_lst, le->atom_lst_sz * sizeof(struct log_atom) );
-    if (le->atom_lst == NULL) {
-        le->atom_lst_sz -= 1;
-        return;
-    }
-
-    le->atom_lst[le->atom_lst_sz -1].channel = c;
-    le->turn = gbl_game->turn;
-
-    struct log_atom *la = &le->atom_lst[le->atom_lst_sz -1];
-    la->string = calloc(STRING_MAX, sizeof(char) );
-    if (la->string == NULL) {
-        le->atom_lst_sz -= 1;
-        return;
-    }
-
+    /* copy the string from the vararg list */
     va_list args;
     va_start(args, format);
-    vsnprintf(la->string, STRING_MAX, format, args);
+    vsnprintf(le->string, STRING_MAX, format, args);
     va_end(args);
 
-    la->string = realloc(la->string, strlen(la->string) +1);
+    /* shrink string to minimum required. */
+    le->string = realloc(le->string, strlen(le->string) +1);
+
+    if (le_is_equal(le, gbl_log->log_last) ) {
+        gbl_log->log_last->repeat++;
+        gbl_log->log_last->turn = gbl_game->turn;
+
+        /* There is no new entry, so we have to force an update ourselves */
+        if (gbl_log->callback != NULL) gbl_log->callback(gbl_log, gbl_log->log_last, gbl_log->priv);
+        return;
+    }
+
+    lg_print_to_file(gbl_log, le);
+    lg_print_to_queue(gbl_log, le);
+    gbl_log->log_last = le;
 }
 

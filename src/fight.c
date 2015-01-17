@@ -274,6 +274,14 @@ int fght_calc_dmg(struct random *r, struct msr_monster *monster, struct msr_mons
         armour = MAX((armour - penetration), 0); /* penetration only works against armour */
         total_damage += MAX((dmg + dmg_add) - (armour  + toughness), 0);
 
+        if (monster != NULL) {
+            You(monster,        "hit and do %d damage.", total_damage);
+            Monster_he(monster, "hits and does %d damage.", total_damage);
+        }
+        else {
+            Event_msg(target->pos, "It does %d to %s.", total_damage, msr_ldname(target) );
+        }
+
         msr_do_dmg(target, total_damage, wpn->dmg_type, mhl);
 
         lg_debug("Doing %d%s+%d damage => %d(%d), %d wnds left.", wpn->nr_dmg_die, random_die_name(dmg_die_sz), wpn->dmg_addition, dmg, total_damage, target->cur_wounds);
@@ -305,13 +313,8 @@ bool fght_do_weapon_dmg(struct random *r, struct msr_monster *monster, struct ms
     if (wpn->weapon_category == WEAPON_CATEGORY_THROWN_GRENADE) return false;
 
     enum msr_hit_location mhl = msr_get_hit_location(target, random_d100(r));
-    int total_damage = fght_calc_dmg(r, monster, target, hits, witem, mhl);
-    if (total_damage >= 0) {
-        if (target->dead == false) {
-            msg_plr(" You do");                                   msg_plr_number(" %d", total_damage); msg_plr(" damage.");
-            msg_msr(" %s does", msr_gender_name(target, false) ); msg_msr_number(" %d", total_damage); msg_msr(" damage.");
-        }
-    }
+    fght_calc_dmg(r, monster, target, hits, witem, mhl);
+
     return true;
 }
 
@@ -328,9 +331,6 @@ int fght_ranged_roll(struct random *r, struct msr_monster *monster, struct msr_m
 
     wpn = &witem->specific.weapon;
 
-    msg_plr("You fire at %s", msr_ldname(target) );
-    msg_msr("%s fires at %s", msr_ldname(monster), msr_ldname(target) );
-
     int to_hit = fght_ranged_calc_tohit(monster, &target->pos, hand);
     int roll = random_d100(r);
 
@@ -342,6 +342,9 @@ int fght_ranged_roll(struct random *r, struct msr_monster *monster, struct msr_m
     if (itm_has_quality(witem, ITEM_QLTY_POOR) ) jammed_threshold = MIN(to_hit, jammed_threshold);
 
     lg_debug("roll %d vs to hit %d, jamm_threshold %d", roll, to_hit, jammed_threshold);
+
+    You(monster,     "fire at %s.",  msr_ldname(target) );
+    Monster(monster, "fires at %s.", msr_ldname(target) );
 
     /* Do jamming test */
     if (roll >= jammed_threshold) {
@@ -355,25 +358,22 @@ int fght_ranged_roll(struct random *r, struct msr_monster *monster, struct msr_m
         }
 
         if (wpn->jammed) {
-            msg_plr(" and your weapon jams.", fght_weapon_hand_name(hand) );
-            msg_msr(" and %s weapon jams.", msr_gender_name(monster, true) );
+            Your(monster,        "%s weapon jams.",  fght_weapon_hand_name(hand) );
+            Monster_his(monster, "%s weapon jams.");
             lg_debug("Weapon jamm with roll %d, theshold %d, 2nd roll %d", roll, jammed_threshold, reltest);
             return -1;
         }
     }
 
     if (to_hit <= 0) {
-        msg_plr(" and miss the shot by a huge margin.");
-        msg_msr(" and misses %s by a huge margin.", msr_ldname(target) );
+        You(monster,        "miss the shot by a huge margin.");
+        Monster_he(monster, "misses the shot by a huge margin.");
         return 0;
     }
 
     lg_debug("Shot attempt with calcBS: %d => %d", roll, to_hit);
     if (roll < to_hit) {
         int dos = (to_hit - roll) / 10;
-
-        msg_plr(" and hit.");
-        msg_msr(" and hit.");
 
         /* Single Shot: max 1 hit */
         if (wpn->rof_set == WEAPON_ROF_SETTING_SINGLE) return MIN(ammo, 1);
@@ -384,9 +384,8 @@ int fght_ranged_roll(struct random *r, struct msr_monster *monster, struct msr_m
         return -1;
     }
 
-    msg_plr(" and miss.");
-    msg_msr(" and %s misses.", msr_gender_name(target, false) );
-
+    You(monster,        "miss.");
+    Monster_he(monster, "misses.");
     return 0;
 }
 
@@ -399,14 +398,16 @@ int fght_melee_roll(struct random *r, struct msr_monster *monster, struct msr_mo
     witem = fght_get_working_weapon(monster, WEAPON_TYPE_MELEE, hand);
     if (witem == NULL) return -1;
 
-    msg_plr("You slash at %s", msr_ldname(target));
-    msg_msr("%s slashes at %s", msr_ldname(monster), msr_ldname(target) );
+    You(monster,     "slash at %s.", msr_ldname(target));
+    Monster(monster, "slashes at %s.", msr_ldname(target) );
+
+    /* TODO add Melee attack options */
 
     int to_hit = fght_melee_calc_tohit(monster, &target->pos, hand);
     int roll = random_d100(r);
     if (to_hit <= 0) {
-        msg_plr(" and miss by a huge margin.");
-        msg_msr(" and missed %s with a huge margin.", msr_ldname(target) );
+        You(monster,        "miss by a huge margin.");
+        Monster_he(monster, "misses by a huge margin.");
         return -1;
     }
 
@@ -415,8 +416,8 @@ int fght_melee_roll(struct random *r, struct msr_monster *monster, struct msr_mo
         return 1;
     }
 
-    msg_plr(" and miss.");
-    msg_msr(" and %s misses.", msr_gender_name(target, false) );
+    You(monster,        "miss.");
+    Monster_he(monster, "misses.");
     return -1;
 }
 
@@ -424,22 +425,23 @@ int fght_thrown_roll(struct random *r, struct msr_monster *monster, coord_t *pos
     if (msr_verify_monster(monster) == false) return -1;
     if (itm_verify_item(witem) == false) return -1;
 
-    msg_plr("You throw an %s", witem->sd_name);
-    msg_msr("%s throws an %s", msr_ldname(monster), witem->sd_name);
-
     struct msr_monster *target = dm_get_map_me(pos, gbl_game->current_map)->monster;
     if (target != NULL) {
         if (msr_verify_monster(target) == true) {
-            msg_plr(" at %s", msr_ldname(target) );
-            msg_msr(" at %s", msr_ldname(target) );
+            You(monster,     "throw an %s at %s.", witem->sd_name, msr_ldname(target) );
+            Monster(monster, "throws an %s at %s.", witem->sd_name, msr_ldname(target) );
+        }
+        else {
+            You(monster,     "throw an %s.", witem->sd_name);
+            Monster(monster, "throws an %s.", witem->sd_name);
         }
     }
 
     int to_hit = fght_ranged_calc_tohit(monster, pos, hand);
     int roll = random_d100(r);
     if (to_hit <= 0) {
-        msg_plr(" and miss by a huge margin.");
-        msg_msr(" and misses by a huge margin.");
+        You_msg(monster, "And miss by a huge margin.");
+        Monster_he(monster, "misses by a huge margin.");
         return -1;
     }
 
@@ -448,8 +450,8 @@ int fght_thrown_roll(struct random *r, struct msr_monster *monster, coord_t *pos
         return 1;
     }
 
-    msg_plr(" and miss.");
-    msg_msr(" and misses.");
+    You_msg(monster, "And miss.");
+    Monster_he(monster, "misses.");
     return -1;
 }
 
@@ -466,17 +468,11 @@ bool fght_melee(struct random *r, struct msr_monster *monster, struct msr_monste
     for (int w = 0; w < FGHT_MAX_HAND; w++) {
         enum fght_hand hand = wpn_hand_list[w];
 
-        /* init compound message */
-        msg_init(&monster->pos, &target->pos);
-
         /* check of we can hit the target */
         hits = fght_melee_roll(r, monster, target, hand);
 
         /* Do the actual damage if we did score a hit. */
         if (hits > 0) fght_do_weapon_dmg(r, monster, target, hits, hand);
-
-        /* exit compound message */
-        msg_exit();
     }
 
     return true;
@@ -495,8 +491,7 @@ bool fght_explosion(struct random *r, struct itm_item *bomb, struct dm_map *map)
     
     lg_debug("Exploding bomb on %d,%d() with radius %d.", c.x, c.y, radius);
 
-    msg_init(&c, NULL);
-    msg_msr("%s explodes. ", bomb->ld_name);
+    Event_msg(c, "%s explodes.", bomb->ld_name);
 
     coord_t *gridlist = NULL;
     int gridlist_sz = sgt_explosion(gbl_game->sight, map, &c, radius, &gridlist);
@@ -507,14 +502,9 @@ bool fght_explosion(struct random *r, struct itm_item *bomb, struct dm_map *map)
         struct msr_monster *target = me->monster;
         if (target != NULL) {
             enum msr_hit_location mhl = msr_get_hit_location(target, random_d100(r));
-            int total_damage = fght_calc_dmg(r, NULL, target, 1, bomb, mhl);
-
-            //msr_do_dmg(target, total_damage, wpn->dmg_type, mhl);
-            msg_msr("It does %d to %s. ", total_damage, msr_ldname(target) );
+            fght_calc_dmg(r, NULL, target, 1, bomb, mhl);
         }
     }
-
-    msg_exit();
 
     ui_animate_explosion(map, gridlist, gridlist_sz);
     return true;
@@ -547,9 +537,6 @@ bool fght_throw_weapon(struct random *r, struct msr_monster *monster, struct dm_
 
         /* if the path was succesfully created, free it here */
         if (path_len > 0) free(path);
-
-        /* init compound message */
-        msg_init(&monster->pos, e);
 
         /* check of we can hit the target */
         int hits = fght_thrown_roll(r, monster, e, witem, hand);
@@ -612,8 +599,6 @@ bool fght_throw_weapon(struct random *r, struct msr_monster *monster, struct dm_
             itm_insert_item(witem_copy, gbl_game->current_map, &end);
         }
 
-        /* exit compound message */
-        msg_exit();
         return true;
     }
     
@@ -675,8 +660,6 @@ bool fght_shoot(struct random *r, struct msr_monster *monster, struct dm_map *ma
                 /* Do damage with our weapon, if any */
                 for (int w = 0; w < FGHT_MAX_HAND; w++) {
                     enum fght_hand hand = wpn_hand_list[w];
-                    /* init a compound message */
-                    msg_init(&monster->pos, e);
 
                     /* do weapon checks and roll tohit */
                     hits = fght_ranged_roll(r, monster, target, hand, ammo1);
@@ -686,9 +669,6 @@ bool fght_shoot(struct random *r, struct msr_monster *monster, struct dm_map *ma
                         if (fght_do_weapon_dmg(r, monster, target, hits, hand) ) has_hit = true;
                         //we can also splatter some blood on the target's tile
                     }
-
-                    /* close and flush our compaind message */
-                    msg_exit();
                 }
 
                 if (has_hit) {
@@ -782,11 +762,11 @@ struct itm_item *fght_get_working_weapon(struct msr_monster *monster, enum item_
 
     if (type == WEAPON_TYPE_RANGED) {
         if (item->specific.weapon.jammed == true) {
-            msg_plr("Your %s-hand weapon is jammed.", fght_weapon_hand_name(hand) );
+            Your(monster, "%s-hand weapon is jammed.", fght_weapon_hand_name(hand) );
             return NULL;
         }
         if (item->specific.weapon.magazine_left == 0) {
-            msg_plr("Your %s-hand weapon is empty.", fght_weapon_hand_name(hand) );
+            Your(monster, "%s-hand weapon is empty.", fght_weapon_hand_name(hand) );
             return NULL;
         }
     }

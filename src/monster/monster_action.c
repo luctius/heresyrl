@@ -30,12 +30,9 @@ bool ma_do_move(struct msr_monster *monster, coord_t *pos) {
         struct dm_map_entity *me = dm_get_map_me(&monster->pos, gbl_game->current_map);
         struct itm_item *item = NULL;
 
-        msg_init(&monster->pos, NULL);
         while ( (item = inv_get_next_item(me->inventory, item) ) != NULL) {
-            msg_plr("You see %s. ", item->ld_name);
-        
+            You(monster, "see %s. ", item->ld_name);
         }
-        msg_exit();
 
         int speed = msr_get_movement_rate(monster);
         msr_change_energy(monster, -(MSR_ACTION_MOVE - speed) );

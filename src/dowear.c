@@ -223,30 +223,29 @@ bool dw_use_item(struct msr_monster *monster, struct itm_item *item) {
 
         struct item_food_specific *food = &item->specific.food;
 
-        msg_init(&monster->pos, NULL);
         if (food->food_type == FOOD_TYPE_LIQUID) {
-            msg_plr("You drink from %s", item->ld_name);
-            msg_msr("%s drinks from %s", item->ld_name);
+            You(monster, "drink from %s.", item->ld_name);
+            Monster(monster, "drinks from %s.", item->ld_name);
 
             food->nutrition_left -= 1;
             if (food->nutrition_left <= 0) {
-                msg_plr(", that was the last drop.");
+                You_msg(monster, "That was the last drop.");
                 destroy = true;
             }
         }
         else if (food->food_type == FOOD_TYPE_SOLID) {
-            msg_plr("You eat from %s", item->ld_name);
-            msg_msr("%s eats from %s", item->ld_name);
+            You(monster,     "eat from %s.", item->ld_name);
+            Monster(monster, "eats from %s.", item->ld_name);
 
             food->nutrition_left -= 1;
             if (food->nutrition_left <= 0) {
-                msg_plr(", that was the last bit.");
+                You_msg(monster, "That was the last bit.");
                 destroy = true;
             }
         }
         else if (food->food_type == FOOD_TYPE_INJECTION) {
-            msg_plr("You inject %s", item->ld_name);
-            msg_msr("%s injects %s", item->ld_name);
+            You(monster,     "inject %s", item->ld_name);
+            Monster(monster, "injects %s", item->ld_name);
 
             cdn_add_condition(monster->conditions, food->convey_condition);
 
@@ -255,8 +254,6 @@ bool dw_use_item(struct msr_monster *monster, struct itm_item *item) {
                 destroy = true;
             }
         }
-
-        msg_exit();
 
         if (destroy) {
             if (inv_remove_item(monster->inventory, item) == true) {

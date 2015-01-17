@@ -54,21 +54,13 @@ enum lg_channel {
     LG_CHANNEL_MAX,
 };
 
-#define LOG_ENTRY_ATOM_MAX 5
-struct log_atom;
-
 struct log_entry {
     int turn;
     int repeat;
 
     const char *module;
     
-    struct log_atom *atom_lst;
-    int atom_lst_sz;
     enum lg_debug_levels level;
-};
-
-struct log_atom {
     enum lg_channel channel;
     char *string;
 };
@@ -89,34 +81,16 @@ void lg_set_callback(struct logging *log, void *priv, callback_event ce);
 void lg_printf_l(int lvl, const char *module, const char* format, ... );
 void lg_printf_basic(struct logging *log, enum lg_debug_levels dbg_lvl, const char *module, const char *format, va_list args);
 
-enum msg_fd {
-    MSG_PLR_FD,
-    MSG_MSR_FD,
-    MSG_MAX_FD,
-};
-
-void msg_init(coord_t *origin, coord_t *target);
-void msg_exit(void);
-void msg_add(enum msg_fd fd, enum lg_channel c, const char *format, ...);
-
-#define GM_msg(f, a...) do {msg_init(NULL,NULL); msg_add(MSG_PLR_FD, LG_CHANNEL_GM, f, ##a); msg_exit(); } while (0)
-#define System_msg(f, a...) do {msg_init(NULL,NULL); msg_add(MSG_PLR_FD, LG_CHANNEL_SYSTEM, f, ##a); msg_exit(); } while (0)
-#define You(m, f, a...) do {msg_init(&m->pos,NULL); msg_add(MSG_PLR_FD, LG_CHANNEL_PLAIN, "You " f, ##a); msg_exit(); } while (0)
-#define Your(m, f, a...) do {msg_init(&m->pos,NULL); msg_add(MSG_PLR_FD, LG_CHANNEL_PLAIN, "Your " f, ##a); msg_exit(); } while (0)
-#define You_msg(m, f, a...) do {msg_init(&m->pos,NULL); msg_add(MSG_PLR_FD, LG_CHANNEL_PLAIN, f, ##a); msg_exit(); } while (0)
-#define Monster(m, f, a...) do {if (!m->is_player) { msg_init(&m->pos,NULL); msg_add(MSG_MSR_FD, LG_CHANNEL_PLAIN, "%s " f, msr_ldname(m), ##a); msg_exit(); } } while (0)
-#define Monster_msg(m, f, a...) do {if (!m->is_player) { msg_init(&m->pos,NULL); msg_add(MSG_MSR_FD, LG_CHANNEL_PLAIN, f, ##a); msg_exit(); } } while (0)
-#define Monster_tgt(m, t, f, a...) do {if (!m->is_player) { msg_init(&m->pos,&t->pos); msg_add(MSG_MSR_FD, LG_CHANNEL_PLAIN, "%s " f, msr_ldname(m), ##a); msg_exit(); } } while (0)
-
-#define msg_plr(f, a...)         msg_add(MSG_PLR_FD, LG_CHANNEL_PLAIN, f, ##a)
-#define msg_plr_system(f, a...)  msg_add(MSG_PLR_FD, LG_CHANNEL_SYSTEM, f, ##a)
-#define msg_plr_number(f, a...)  msg_add(MSG_PLR_FD, LG_CHANNEL_NUMBER, f, ##a)
-#define msg_plr_say(f, a...)     msg_add(MSG_PLR_FD, LG_CHANNEL_SAY, f, ##a)
-#define msg_plr_warning(f, a...) msg_add(MSG_PLR_FD, LG_CHANNEL_WARNING, f, ##a)
-#define msg_plr_gm(f, a...)      msg_add(MSG_PLR_FD, LG_CHANNEL_GM, f, ##a)
-
-#define msg_msr(f, a...)         msg_add(MSG_MSR_FD, LG_CHANNEL_PLAIN, f, ##a)
-#define msg_msr_number(f, a...)  msg_add(MSG_MSR_FD, LG_CHANNEL_NUMBER, f, ##a)
-#define msg_msr_say(f, a...)     msg_add(MSG_MSR_FD, LG_CHANNEL_SAY, f, ##a)
+void msg_internal(coord_t *origin, coord_t *target, enum lg_channel c, const char *format, ...);
+#define GM_msg(f, a...)            do                     { msg_internal(NULL,NULL,    LG_CHANNEL_GM, f, ##a); } while (0)
+#define System_msg(f, a...)        do                     { msg_internal(NULL,NULL,    LG_CHANNEL_SYSTEM, f, ##a); } while (0)
+#define Event_msg(pos, f, a...)    do                     { msg_internal(&pos,NULL,    LG_CHANNEL_PLAIN, f, ##a); } while (0)
+#define You(m, f, a...)            do {if (m->is_player)  { msg_internal(&m->pos,NULL, LG_CHANNEL_PLAIN, "You " f, ##a); } } while (0)
+#define Your(m, f, a...)           do {if (m->is_player)  { msg_internal(&m->pos,NULL, LG_CHANNEL_PLAIN, "Your " f, ##a); } } while (0)
+#define You_msg(m, f, a...)        do {if (m->is_player)  { msg_internal(&m->pos,NULL, LG_CHANNEL_PLAIN, f, ##a); } } while (0)
+#define Monster(m, f, a...)        do {if (!m->is_player) { msg_internal(&m->pos,NULL, LG_CHANNEL_PLAIN, "%s " f, msr_ldname(m), ##a); } } while (0)
+#define Monster_he(m, f, a...)     do {if (!m->is_player) { msg_internal(&m->pos,NULL, LG_CHANNEL_PLAIN, "%s " f, msr_gender_name(m, false), ##a); } } while (0)
+#define Monster_his(m, f, a...)    do {if (!m->is_player) { msg_internal(&m->pos,NULL, LG_CHANNEL_PLAIN, "%s " f, msr_gender_name(m, true), ##a); } } while (0)
+#define Monster_msg(m, f, a...)    do {if (!m->is_player) { msg_internal(&m->pos,NULL, LG_CHANNEL_PLAIN, f, ##a); } } while (0)
 
 #endif /*LOGGING_H_*/
