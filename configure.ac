@@ -24,6 +24,8 @@ LT_INIT
 
 AC_DEFINE([_GNU_SOURCE], 1, [Use GNU extensions])
 
+AC_DEFINE([CMDLINE_PARSER_VERSION], "0.1.0" " (" GIT_VERSION ") <" __DATE__ " " __TIME__">", [test])
+
 # Checks for libraries.
 # FIXME: Replace `main' with a function in `-lm':
 AC_CHECK_LIB([m], [main])
