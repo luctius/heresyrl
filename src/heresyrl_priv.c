@@ -108,6 +108,6 @@ void generate_colours(void) {
  int get_colour(int cc) {
     assert(cc >= 0);
     assert(cc < TERM_COLOUR_MAX);
-    //lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "misc", "return color[%d]=%d", cc, term_colour_table[cc]);
+    //lg_debug("return color[%d]=%d", cc, term_colour_table[cc]);
     return term_colour_table[cc];
 }
