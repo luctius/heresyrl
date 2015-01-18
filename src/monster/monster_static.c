@@ -1,5 +1,5 @@
 #define MONSTER(tid,_icon,_sd_name,_ld_name,_gender,maxwounds) \
-    [tid]={.uid=0, .template_id=tid, .icon=_icon, .sd_name=_sd_name, .ld_name=_ld_name, \
+    [tid]={.uid=0, .template_id=tid, .icon=_icon, .sd_name=_sd_name, .ld_name=cs_PURPLE _ld_name cs_PURPLE, \
         .gender=_gender, .cur_wounds=maxwounds, .max_wounds=maxwounds,
 #define MONSTER_END }
 

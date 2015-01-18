@@ -691,6 +691,9 @@ void cdn_process(struct cdn_condition_list *cdn_list, struct msr_monster *monste
                         /* create item */
                         struct itm_item *item = itm_create(IID_BODYPART_GRENADE);
 
+                        /* TODO: change name of bodypart */
+                        item->ld_name = "a head";
+
                         /* light fuse */
                         item->energy = TT_ENERGY_TICK;
                         item->energy_action = true;

@@ -202,7 +202,7 @@ bool msr_insert_monster(struct msr_monster *monster, struct dm_map *map, coord_t
         if (me_future->monster == NULL) {
             me_future->monster = monster;
             monster->pos = *pos;
-            lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "msr", "Inserting monster %s (%c) [uid:%d, tid:%d] to (%d,%d)", 
+            lg_debug("Inserting monster %s (%c) [uid:%d, tid:%d] to (%d,%d)", 
                         monster->sd_name, monster->icon, monster->uid, monster->template_id, monster->pos.x, monster->pos.y);
             retval = true;
         }
@@ -313,7 +313,7 @@ bool msr_remove_monster(struct msr_monster *monster, struct dm_map *map) {
 
     struct dm_map_entity *me_current = dm_get_map_me(&monster->pos, map);
     if (me_current->monster == monster) {
-        lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "Monster", "removed (%d,%d)", monster->pos.x, monster->pos.y);
+        lg_debug("removed (%d,%d)", monster->pos.x, monster->pos.y);
         me_current->monster = NULL;
         monster->pos = cd_create(0,0);
         retval = true;
@@ -715,24 +715,24 @@ uint8_t msr_get_movement_rate(struct msr_monster *monster) {
 }
 
 const char *msr_ldname(struct msr_monster *monster) {
-    if (msr_verify_monster(monster) == false) return "unknown";
+    if (msr_verify_monster(monster) == false) return cs_PURPLE "unknown" cs_PURPLE;
 
-    if (monster->is_player) return "you";
-    if (!dm_get_map_me(&monster->pos, gbl_game->current_map)->visible) return "something";
+    if (monster->is_player) return cs_PURPLE "you" cs_PURPLE;
+    if (!dm_get_map_me(&monster->pos, gbl_game->current_map)->visible) return cs_PURPLE "something" cs_PURPLE;
     return monster->ld_name;
 }
 
 const char *msr_gender_name(struct msr_monster *monster, bool possesive) {
-    if (msr_verify_monster(monster) == false) return "unknown";
+    if (msr_verify_monster(monster) == false) return cs_PURPLE "unknown" cs_PURPLE;
 
     enum msr_gender gender = monster->gender;
     if (monster->gender >= MSR_GENDER_MAX) gender = MSR_GENDER_IT;
     if (!dm_get_map_me(&monster->pos, gbl_game->current_map)->visible) gender = MSR_GENDER_IT;
 
     switch(gender) {
-        case MSR_GENDER_MALE:        return (possesive) ? "his" : "he"; break;
-        case MSR_GENDER_FEMALE:      return (possesive) ? "her" : "she"; break;
-        case MSR_GENDER_IT: default: return (possesive) ? "its" : "it"; break;
+        case MSR_GENDER_MALE:        return (possesive) ? cs_PURPLE "his" cs_PURPLE : cs_PURPLE "he"  cs_PURPLE; break;
+        case MSR_GENDER_FEMALE:      return (possesive) ? cs_PURPLE "her" cs_PURPLE : cs_PURPLE "she" cs_PURPLE; break;
+        case MSR_GENDER_IT: default: return (possesive) ? cs_PURPLE "its" cs_PURPLE : cs_PURPLE "it"  cs_PURPLE; break;
     }
 }
 
