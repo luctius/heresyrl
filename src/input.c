@@ -163,7 +163,7 @@ enum inp_keys inp_get_input(struct inp_input *i) {
             case 9:         k = INP_KEY_TAB; break;
                     
             default:
-                lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "main", "key pressed: %d.", ch);
+                lg_debug("key pressed: %d.", ch);
                 break;
         }
         if (k != INP_KEY_QUIT) inp_add_to_log(i, k);
