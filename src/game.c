@@ -53,10 +53,10 @@ bool game_load(void) {
     if (options.debug_no_load == false) {
         loaded = ld_read_save_file(options.save_file_name, gbl_game);
         if (loaded == true) {
-            lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "game", "Game loaded from %s.", options.save_file_name);
+            lg_debug("Game loaded from %s.", options.save_file_name);
         }
         else {
-            lg_printf_l(LG_DEBUG_LEVEL_WARNING, "game", "Failed to load game from %s.", options.save_file_name);
+            lg_warning("Failed to load game from %s.", options.save_file_name);
         }
     }
 
