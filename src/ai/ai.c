@@ -35,12 +35,12 @@ static bool ai_beast_loop(struct msr_monster *monster, void *controller) {
     bool has_action = false;
     monster->wpn_sel = MSR_WEAPON_SELECT_CREATURE1;
 
-    lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "ai", "ai_beast_loop for [uid: %d, tid: %d]", monster->uid, monster->template_id);
+    //lg_debug("ai_beast_loop for [uid: %d, tid: %d]", monster->uid, monster->template_id);
 
     if (msr_weapon_type_check(monster, WEAPON_TYPE_MELEE) ) {
         struct msr_monster *enemy = NULL;
         if ( (enemy = aiu_get_nearest_enemy(monster, 0, map) ) != NULL) {
-            lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "ai", "[uid: %d, tid: %d] sees an enemy (melee)", monster->uid, monster->template_id);
+            lg_debug("[uid: %d, tid: %d] sees an enemy (melee)", monster->uid, monster->template_id);
             ai->last_pos = enemy->pos;
             ai->time_last_pos = 1;
 
@@ -56,7 +56,7 @@ static bool ai_beast_loop(struct msr_monster *monster, void *controller) {
                 }
             }
             else {
-                lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "ai", "[uid: %d, tid: %d] attacks an enemy", monster->uid, monster->template_id);
+                lg_debug("[uid: %d, tid: %d] attacks an enemy", monster->uid, monster->template_id);
                 if (ma_do_melee(monster, &enemy->pos) == true) {
                     has_action = true;
                 }
@@ -97,7 +97,7 @@ static bool ai_human_loop(struct msr_monster *monster, void *controller) {
     bool has_action = false;
     monster->wpn_sel = MSR_WEAPON_SELECT_CREATURE1;
 
-    lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "ai", "ai_human_loop for [uid: %d, tid: %d]", monster->uid, monster->template_id);
+    //lg_debug("ai_human_loop for [uid: %d, tid: %d]", monster->uid, monster->template_id);
 
     for (int i = 0; i < MSR_WEAPON_SELECT_MAX; i++) {
         monster->wpn_sel = i;
@@ -121,7 +121,7 @@ static bool ai_human_loop(struct msr_monster *monster, void *controller) {
         }
 
         if ( (enemy = aiu_get_nearest_enemy(monster, 0, map) ) != NULL) {
-            lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "ai", "[uid: %d, tid: %d] sees an enemy (ranged)", monster->uid, monster->template_id);
+            lg_debug("[uid: %d, tid: %d] sees an enemy (ranged)", monster->uid, monster->template_id);
             has_action = ma_do_fire(monster, &enemy->pos);
         }
     }
@@ -130,7 +130,7 @@ static bool ai_human_loop(struct msr_monster *monster, void *controller) {
     if (msr_weapon_type_check(monster, WEAPON_TYPE_MELEE) ) {
         struct msr_monster *enemy = NULL;
         if ( (enemy = aiu_get_nearest_enemy(monster, 0, map) ) != NULL) {
-            lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "ai", "[uid: %d, tid: %d] sees an enemy (melee)", monster->uid, monster->template_id);
+            lg_debug("[uid: %d, tid: %d] sees an enemy (melee)", monster->uid, monster->template_id);
             ai->last_pos = enemy->pos;
             ai->time_last_pos = 1;
 
@@ -146,7 +146,7 @@ static bool ai_human_loop(struct msr_monster *monster, void *controller) {
                 }
             }
             else {
-                lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "ai", "[uid: %d, tid: %d] attacks an enemy", monster->uid, monster->template_id);
+                lg_debug("[uid: %d, tid: %d] attacks an enemy", monster->uid, monster->template_id);
                 if (ma_do_melee(monster, &enemy->pos) == true) {
                     has_action = true;
                 }
