@@ -129,9 +129,8 @@ bool char_creation_window(void) {
 
                 sel_idx = inp_get_input_idx(gbl_game->input);
                 if (sel_idx < (int) ARRAY_SZ(homeworld_id) ) {
-                    textwin_init(map_win, 1, 8 + ARRAY_SZ(homeworld_id), 0, 0);
-                    textwin_add_text(map_win,homeworld_id[sel_idx].long_desc );
-                    textwin_display_text(map_win);
+                    ui_printf(map_win,"%s", homeworld_id[sel_idx].long_desc);
+                    wrefresh(map_win->win);
                 }
                 sel_idx = -1;
                 break;

@@ -227,7 +227,7 @@ void mapwin_display_map(struct dm_map *map, coord_t *player) {
     if (player == NULL) return;
     if (map_win->type != HRL_WINDOW_TYPE_MAP) return;
 
-    lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "ui", "update mapwin");
+    lg_debug("update mapwin");
     mapwin_display_map_noref(map, player);
     if (options.refresh) wrefresh(map_win->win);
 }
@@ -238,51 +238,51 @@ static void mapwin_examine(struct dm_map_entity *me) {
     if (char_win->type != HRL_WINDOW_TYPE_CHARACTER) return;
 
     werase(char_win->win);
-    textwin_init(char_win,1,0,0,0);
+    ui_print_reset(char_win);
 
     if (me->visible || me->in_sight) {
-        textwin_add_text(char_win, "%s.\n", me->tile->ld_name);
-        textwin_add_text(char_win, "\n");
+        ui_printf(char_win, "%s.\n", me->tile->ld_name);
+        ui_printf(char_win, "\n");
 
         if (me->visible) {
             if (me->monster != NULL) {
 
                 if (me->monster->is_player == true) {
-                    textwin_add_text(char_win, "You see yourself.\n");
+                    ui_printf(char_win, "You see yourself.\n");
 
-                    if (me->monster->cur_wounds < 0) textwin_add_text(char_win, "You are criticly wounded.\n");
-                    else if (me->monster->cur_wounds != me->monster->max_wounds) textwin_add_text(char_win, "You are wounded.\n");
+                    if (me->monster->cur_wounds < 0) ui_printf(char_win, "You are criticly wounded.\n");
+                    else if (me->monster->cur_wounds != me->monster->max_wounds) ui_printf(char_win, "You are wounded.\n");
                 } else {
-                    textwin_add_text(char_win, "You see %s.\n", me->monster->ld_name);
+                    ui_printf(char_win, "You see %s.\n", me->monster->ld_name);
 
-                    if (me->monster->cur_wounds < 0) textwin_add_text(char_win, "%s is criticly wounded.\n", msr_gender_name(me->monster, false) );
-                    else if (me->monster->cur_wounds != me->monster->max_wounds) textwin_add_text(char_win, "%s is wounded.\n", msr_gender_name(me->monster, false) );
+                    if (me->monster->cur_wounds < 0) ui_printf(char_win, "%s is criticly wounded.\n", msr_gender_name(me->monster, false) );
+                    else if (me->monster->cur_wounds != me->monster->max_wounds) ui_printf(char_win, "%s is wounded.\n", msr_gender_name(me->monster, false) );
                 }
 
                 if (cdn_list_size(me->monster->conditions) > 0) {
-                    textwin_add_text(char_win, "\nThis one is affected by:\n");
+                    ui_printf(char_win, "\nThis one is affected by:\n");
 
                     struct cdn_condition *c = NULL;
                     while ( (c = cdn_list_get_next_condition(me->monster->conditions, c) ) != NULL) {
-                        textwin_add_text(char_win, "- %s\n", c->name);
+                        ui_printf(char_win, "- %s\n", c->name);
                     }
                 }
             }
 
-            textwin_add_text(char_win, "\n");
+            ui_printf(char_win, "\n");
 
             if ( (inv_inventory_size(me->inventory) > 0) && (TILE_HAS_ATTRIBUTE(me->tile, TILE_ATTR_TRAVERSABLE) ) ) {
-                textwin_add_text(char_win, "The %s contains:\n", me->tile->sd_name);
+                ui_printf(char_win, "The %s contains:\n", me->tile->sd_name);
                 struct itm_item *i = NULL;
                 while ( (i = inv_get_next_item(me->inventory, i) ) != NULL) {
-                    textwin_add_text(char_win, " - %s\n", i->ld_name);
+                    ui_printf(char_win, " - %s\n", i->ld_name);
                 }
             }
         }
     }
-    else textwin_add_text(char_win, "You can not see this place.\n");
+    else ui_printf(char_win, "You can not see this place.\n");
 
-    textwin_display_text(char_win);
+    wrefresh(char_win->win);
 }
 
 void mapwin_overlay_examine_cursor(struct dm_map *map, coord_t *p_pos) {
@@ -321,7 +321,7 @@ void mapwin_overlay_examine_cursor(struct dm_map *map, coord_t *p_pos) {
         if (e_pos.x < 0) e_pos.x = 0;
         if (e_pos.x >= map->size.x) e_pos.x = map->size.x -1;
 
-        lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "ui", "examining pos: (%d,%d), plr (%d,%d)", e_pos.x, e_pos.y, p_pos->x, p_pos->y);
+        lg_debug("examining pos: (%d,%d), plr (%d,%d)", e_pos.x, e_pos.y, p_pos->x, p_pos->y);
         chtype oldch = mvwinch(map_win->win, e_pos.y - scr_y, e_pos.x - scr_x);
         mvwaddch(map_win->win, e_pos.y - scr_y, e_pos.x - scr_x, (oldch & 0xFF) | get_colour(TERM_COLOUR_BG_RED) );
         wrefresh(map_win->win);
@@ -348,34 +348,33 @@ void targetwin_examine(struct hrl_window *window, struct dm_map *map, struct msr
     }
 
     werase(window->win);
-    textwin_init(window,1,0,0,window->lines -4);
+    ui_print_reset(window);
 
     if (me->monster != NULL) {
-        textwin_add_text(window,"Target: %s.\n", msr_ldname(me->monster) );
+        ui_printf(window,"Target: %s.\n", msr_ldname(me->monster) );
 
         int tohit = fght_ranged_calc_tohit(player, pos, FGHT_MAIN_HAND);
-        textwin_add_text(window,"Total change of hitting: %d.\n", tohit);
+        ui_printf(window,"Total change of hitting: %d.\n", tohit);
     }
-    else textwin_add_text(window,"No Target.\n");
+    else ui_printf(window,"No Target.\n");
 
-    textwin_add_text(window,"Ballistic Skill: %d\n\n", msr_calculate_characteristic(player, MSR_CHAR_BALISTIC_SKILL) );
+    ui_printf(window,"Ballistic Skill: %d\n\n", msr_calculate_characteristic(player, MSR_CHAR_BALISTIC_SKILL) );
 
     int idx = 0;
     struct tohit_desc *thd = NULL;
     while ( (thd = fght_get_tohit_mod_description(idx++) ) != NULL) {
-        textwin_add_text(window,"%c %s (%d).\n", (thd->modifier > 0) ? '+' : '-', thd->description, thd->modifier);
+        ui_printf(window,"%c %s (%d).\n", (thd->modifier > 0) ? '+' : '-', thd->description, thd->modifier);
     }
 
-    textwin_add_text(window,"\n");
-    textwin_display_text(window);
+    ui_printf(window,"\n");
 
-    textwin_init(window,1,window->lines -4,0,0);
-    textwin_add_text(window, "Calculated: %s.\n", witem->sd_name);
+    ui_print_reset(window);
+    ui_printf(window, "Calculated: %s.\n", witem->sd_name);
     if (wpn_is_catergory(witem, WEAPON_CATEGORY_THROWN_GRENADE) ) {
-        textwin_add_text(window,"Timer: %d.%d.\n", witem->energy / TT_ENERGY_TURN, witem->energy % TT_ENERGY_TURN);
+        ui_printf(window,"Timer: %d.%d.\n", witem->energy / TT_ENERGY_TURN, witem->energy % TT_ENERGY_TURN);
     }
 
-    textwin_display_text(window);
+    wrefresh(window->win);
 }
 
 bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dm_map *map, coord_t *p_pos) {
@@ -661,18 +660,13 @@ void msgwin_log_refresh(struct logging *lg, struct log_entry *new_entry) {
         for (int i = log_start; i < log_sz; i++) {
             tmp_entry = queue_peek_nr(q, i).vp;
             if ( (tmp_entry != NULL) && (tmp_entry->level <= LG_DEBUG_LEVEL_GAME) ) {
-                for (int l = 0; l < tmp_entry->atom_lst_sz; l++) {
-                    struct log_atom *a = &tmp_entry->atom_lst[l];
-                    if (a != NULL) {
-                        if (x + ((int) strlen(a->string)) >= msg_win->cols) { y++; x = 1; }
-                        int colour = log_channel_to_colour(a->channel);
+                    if (x + ((int) strlen(tmp_entry->string)) >= msg_win->cols) { y++; x = 1; }
+                    int colour = log_channel_to_colour(tmp_entry->channel);
 
-                        wattron(msg_win->win, colour);
-                        mvwprintw(msg_win->win, y,x, a->string);
-                        wattroff(msg_win->win, colour);
-                        x += strlen(a->string);
-                    }
-                }
+                    wattron(msg_win->win, colour);
+                    mvwprintw(msg_win->win, y,x, tmp_entry->string);
+                    wattroff(msg_win->win, colour);
+                    x += strlen(tmp_entry->string);
                 if (tmp_entry->repeat > 1) {
                     mvwprintw(msg_win->win, y,x, " (x%d)", tmp_entry->repeat);
                 }
@@ -687,14 +681,18 @@ void msgwin_log_refresh(struct logging *lg, struct log_entry *new_entry) {
 
 void show_log(struct hrl_window *window, bool input);
 
+static bool active = false;
 void msgwin_log_callback(struct logging *lg, struct log_entry *entry, void *priv) {
     FIX_UNUSED(entry);
     FIX_UNUSED(priv);
     FIX_UNUSED(lg);
 
+    if (active) return;
+    active = true;
     //msgwin_log_refresh(lg, entry);
 
     show_msg(msg_win);
+    active = false;
 }
 
 void charwin_refresh() {
@@ -714,14 +712,14 @@ void charwin_refresh() {
         starty += 2;
     }
 
-    textwin_init(char_win,1,starty,0,0);
+    ui_print_reset(char_win);
 
     struct msr_monster *player = plr->player;
 
-    textwin_add_text(char_win, "Name      %s\n", player->unique_name);
-    textwin_add_text(char_win, "Career    %s\n", "Thug");
-    textwin_add_text(char_win, "Turn      %d.%d\n", gbl_game->turn / TT_ENERGY_TURN, gbl_game->turn % TT_ENERGY_TURN);
-    textwin_add_text(char_win, "\n");
+    ui_printf(char_win, "Name      %s\n", player->unique_name);
+    ui_printf(char_win, "Career    %s\n", "Thug");
+    ui_printf(char_win, "Turn      %d.%d\n", gbl_game->turn / TT_ENERGY_TURN, gbl_game->turn % TT_ENERGY_TURN);
+    ui_printf(char_win, "\n");
 
     int ws, bs, str, tgh, agi, intel, per, wil/*, fel*/;
     ws = msr_calculate_characteristic(player, MSR_CHAR_WEAPON_SKILL);
@@ -733,22 +731,22 @@ void charwin_refresh() {
     per = msr_calculate_characteristic(player, MSR_CHAR_PERCEPTION);
     wil = msr_calculate_characteristic(player, MSR_CHAR_WILLPOWER);
     /*fel = msr_calculate_characteristic(player, MSR_CHAR_FELLOWSHIP);*/
-    textwin_add_text(char_win, "WS   %d   BS   %d\n", ws,bs);
-    textwin_add_text(char_win, "Str  %d   Tgh  %d\n", str, tgh);
-    textwin_add_text(char_win, "Agi  %d   Int  %d\n", agi, intel);
-    textwin_add_text(char_win, "Per  %d   Wil  %d\n", per, wil);
-    //textwin_add_text(char_win, "Fellowship   [%d]%d", chr/10, chr%10);
-    textwin_add_text(char_win, "\n");
+    ui_printf(char_win, "WS   %d   BS   %d\n", ws,bs);
+    ui_printf(char_win, "Str  %d   Tgh  %d\n", str, tgh);
+    ui_printf(char_win, "Agi  %d   Int  %d\n", agi, intel);
+    ui_printf(char_win, "Per  %d   Wil  %d\n", per, wil);
+    //ui_printf(char_win, "Fellowship   [%d]%d", chr/10, chr%10);
+    ui_printf(char_win, "\n");
 
-    textwin_add_text(char_win, "Wounds    [%2d/%2d]\n", player->cur_wounds, player->max_wounds);
-    textwin_add_text(char_win, "Armour [%d][%d][%d][%d][%d][%d]\n", 
+    ui_printf(char_win, "Wounds    [%2d/%2d]\n", player->cur_wounds, player->max_wounds);
+    ui_printf(char_win, "Armour [%d][%d][%d][%d][%d][%d]\n", 
                                             msr_calculate_armour(player, MSR_HITLOC_HEAD),
                                             msr_calculate_armour(player, MSR_HITLOC_BODY),
                                             msr_calculate_armour(player, MSR_HITLOC_LEFT_ARM),
                                             msr_calculate_armour(player, MSR_HITLOC_RIGHT_ARM),
                                             msr_calculate_armour(player, MSR_HITLOC_LEFT_LEG),
                                             msr_calculate_armour(player, MSR_HITLOC_RIGHT_LEG) );
-    textwin_add_text(char_win, "\n");
+    ui_printf(char_win, "\n");
 
     struct itm_item *item;
     for (int i = 0; i<2; i++) {
@@ -759,16 +757,16 @@ void charwin_refresh() {
         if ( (item = inv_get_item_from_location(player->inventory, loc) ) != NULL) {
             if (item->item_type == ITEM_TYPE_WEAPON) {
                 struct item_weapon_specific *wpn = &item->specific.weapon;
-                textwin_add_text(char_win, "%s Wpn: %s\n", (i==0) ? "Main" : "Sec.", item->sd_name);
-                if (wpn->nr_dmg_die == 0) textwin_add_text(char_win, " Dmg 1D5");
-                else textwin_add_text(char_win, " Dmg %dD10", wpn->nr_dmg_die);
-                textwin_add_text(char_win, "+%d,%d", wpn->dmg_addition, wpn->penetration);
+                ui_printf(char_win, "%s Wpn: %s\n", (i==0) ? "Main" : "Sec.", item->sd_name);
+                if (wpn->nr_dmg_die == 0) ui_printf(char_win, " Dmg 1D5");
+                else ui_printf(char_win, " Dmg %dD10", wpn->nr_dmg_die);
+                ui_printf(char_win, "+%d,%d", wpn->dmg_addition, wpn->penetration);
 
                 if (wpn->weapon_type == WEAPON_TYPE_RANGED) {
                     if (wpn->jammed == false) {
-                        textwin_add_text(char_win, "  Ammo %d/%d\n", wpn->magazine_left, wpn->magazine_sz);
+                        ui_printf(char_win, "  Ammo %d/%d\n", wpn->magazine_left, wpn->magazine_sz);
                     } 
-                    else textwin_add_text(char_win, "  jammed\n");
+                    else ui_printf(char_win, "  jammed\n");
 
                     int single = wpn->rof[WEAPON_ROF_SETTING_SINGLE];
                     int semi = wpn->rof[WEAPON_ROF_SETTING_SEMI];
@@ -777,36 +775,36 @@ void charwin_refresh() {
                                 (wpn->rof_set == WEAPON_ROF_SETTING_SEMI) ? "semi": "auto";
                     char semi_str[4]; snprintf(semi_str, 3, "%d", semi);
                     char auto_str[4]; snprintf(auto_str, 3, "%d", aut);
-                    textwin_add_text(char_win, " Setting: %s (%s/%s/%s)\n", set, 
+                    ui_printf(char_win, " Setting: %s (%s/%s/%s)\n", set, 
                             (single > 0) ? "S" : "-", (semi > 0) ? semi_str : "-", (aut > 0) ? auto_str : "-");
                 }
-                else textwin_add_text(char_win, "\n");
+                else ui_printf(char_win, "\n");
             }
         }
-        textwin_add_text(char_win, "\n");
+        ui_printf(char_win, "\n");
     }
 
     if ( ( (item = inv_get_item_from_location(player->inventory, INV_LOC_MAINHAND_WIELD) ) != NULL) ||
          ( (item = inv_get_item_from_location(player->inventory, INV_LOC_OFFHAND_WIELD) ) != NULL) ) {
         switch (player->wpn_sel) {
             case MSR_WEAPON_SELECT_OFF_HAND:
-                textwin_add_text(char_win, "Using off-hand.\n");
+                ui_printf(char_win, "Using off-hand.\n");
                 break;
             case MSR_WEAPON_SELECT_MAIN_HAND:
-                textwin_add_text(char_win, "Using main-hand.\n");
+                ui_printf(char_win, "Using main-hand.\n");
                 break;
             case MSR_WEAPON_SELECT_BOTH_HAND:
             case MSR_WEAPON_SELECT_DUAL_HAND:
-                textwin_add_text(char_win, "Using both hands.\n");
+                ui_printf(char_win, "Using both hands.\n");
                 break;
             case MSR_WEAPON_SELECT_CREATURE1:
-                textwin_add_text(char_win, "Unarmed.\n");
+                ui_printf(char_win, "Unarmed.\n");
             default: break;
         }
     }
-    textwin_add_text(char_win, "\n");
+    ui_printf(char_win, "\n");
 
-    textwin_display_text(char_win);
+    wrefresh(char_win->win);
 }
 
 /* Beware of dragons here..... */
@@ -825,20 +823,19 @@ static int invwin_printlist(struct hrl_window *window, struct inv_show_item list
     }
 
     werase(window->win);
-    textwin_init(window,1,0,0,0);
+    ui_print_reset(window);
 
     max = MIN(max, INP_KEY_MAX_IDX);
     if (start >= max) return -1;
 
     for (int i = 0; i < max; i++) {
         struct itm_item *item = list[i+start].item;
-        textwin_add_text(window, "%c)  %c%s", inp_key_translate_idx(i), list[i+start].location[0], item->sd_name);
-        if (item->quality != ITEM_QLTY_AVERAGE) textwin_add_text(window, ", %s quality", itm_quality_string(item) );
-        if (item->stacked_quantity > 1) textwin_add_text(window, " x%d", item->stacked_quantity);
-        textwin_add_text(window, "\n");
+        ui_printf(window, "%c)  %c%s", inp_key_translate_idx(i), list[i+start].location[0], item->sd_name);
+        if (item->quality != ITEM_QLTY_AVERAGE) ui_printf(window, ", %s quality", itm_quality_string(item) );
+        if (item->stacked_quantity > 1) ui_printf(window, " x%d", item->stacked_quantity);
+        ui_printf(window, "\n");
     }
 
-    textwin_display_text(window);
     return max;
 }
 
@@ -864,121 +861,119 @@ void invwin_examine(struct hrl_window *window, struct itm_item *item) {
     if (window->type != HRL_WINDOW_TYPE_CHARACTER) return;
 
     werase(window->win);
-    textwin_init(window,1,0,0,0);
+    ui_print_reset(window);
 
     if (strlen(item->description) > 0) {
-        textwin_add_text(window, "%s.\n", item->description);
+        ui_printf(window, "%s.\n", item->description);
     }
-    else textwin_add_text(window, "No description available.\n");
+    else ui_printf(window, "No description available.\n");
 
-    textwin_add_text(window, "\n");
+    ui_printf(window, "\n");
 
     switch (item->item_type) {
         case ITEM_TYPE_WEAPON: {
             struct item_weapon_specific *wpn = &item->specific.weapon;
-            textwin_add_text(char_win, "Weapon statistics\n");
-            textwin_add_text(char_win, "- Dmg ");
-            if (wpn->nr_dmg_die == 0) textwin_add_text(char_win, "1D5");
-            else textwin_add_text(char_win, "%dD10", wpn->nr_dmg_die);
-                textwin_add_text(char_win, "+%d, pen %d\n", wpn->dmg_addition, wpn->penetration);
+            ui_printf(char_win, "Weapon statistics\n");
+            ui_printf(char_win, "- Dmg ");
+            if (wpn->nr_dmg_die == 0) ui_printf(char_win, "1D5");
+            else ui_printf(char_win, "%dD10", wpn->nr_dmg_die);
+                ui_printf(char_win, "+%d, pen %d\n", wpn->dmg_addition, wpn->penetration);
 
             if (wpn_is_type(item, WEAPON_TYPE_RANGED) || wpn_is_type(item, WEAPON_TYPE_THROWN) ) {
-                textwin_add_text(char_win, "- Range %d\n", wpn->range);
+                ui_printf(char_win, "- Range %d\n", wpn->range);
             }
 
             if (wpn_is_type(item, WEAPON_TYPE_RANGED) ) {
-                textwin_add_text(char_win, "- Magazine size %d\n", wpn->magazine_sz);
-                textwin_add_text(char_win, "- Uses %s\n", wpn_ammo_string(wpn->ammo_type) );
+                ui_printf(char_win, "- Magazine size %d\n", wpn->magazine_sz);
+                ui_printf(char_win, "- Uses %s\n", wpn_ammo_string(wpn->ammo_type) );
 
                 int single = wpn->rof[WEAPON_ROF_SETTING_SINGLE];
                 int semi = wpn->rof[WEAPON_ROF_SETTING_SEMI];
                 int aut = wpn->rof[WEAPON_ROF_SETTING_AUTO];
                 char semi_str[4]; snprintf(semi_str, 3, "%d", semi);
                 char auto_str[4]; snprintf(auto_str, 3, "%d", aut);
-                textwin_add_text(char_win, "- Rate of Fire (%s/%s/%s)\n", 
+                ui_printf(char_win, "- Rate of Fire (%s/%s/%s)\n", 
                         (single > 0) ? "S" : "-", (semi > 0) ? semi_str : "-", (aut > 0) ? auto_str : "-");
 
-                textwin_add_text(char_win, "\n");
+                ui_printf(char_win, "\n");
                 if (wpn->magazine_left == 0) {
-                    textwin_add_text(char_win, "The weapon is empty.\n");
+                    ui_printf(char_win, "The weapon is empty.\n");
                 } 
                 else {
                     struct itm_item *ammo = itm_create(wpn->ammo_used_template_id);
-                    textwin_add_text(char_win, "It is currently loaded with %s.\n\n", ammo->ld_name);
+                    ui_printf(char_win, "It is currently loaded with %s.\n\n", ammo->ld_name);
                     itm_destroy(ammo);
                 }
 
                 if (wpn->jammed == true) {
-                    textwin_add_text(char_win, "It is jammed.\n");
+                    ui_printf(char_win, "It is jammed.\n");
                 }
             }
 
             if (wpn->wpn_talent != TLT_NONE) {
-                textwin_add_text(char_win, "This weapon requires the %s talent.\n", msr_talent_names(wpn->wpn_talent) );
+                ui_printf(char_win, "This weapon requires the %s talent.\n", msr_talent_names(wpn->wpn_talent) );
             }
 
             if (wpn->special_quality != 0) {
-                textwin_add_text(char_win, "\n");
-                textwin_add_text(char_win, "Weapon qualities:\n");
+                ui_printf(char_win, "\n");
+                ui_printf(char_win, "Weapon qualities:\n");
 
                 for (int i = 0; i < WPN_SPCQLTY_MAX; i++) {
                     if (wpn_has_spc_quality(item, i) )  {
-                        textwin_add_text(char_win, "- %s.\n", wpn_spec_quality_name(i) );
+                        ui_printf(char_win, "- %s.\n", wpn_spec_quality_name(i) );
                     }
                 }
             }
         } break;
         case ITEM_TYPE_WEARABLE: {
             struct item_wearable_specific *wrbl = &item->specific.wearable;
-            textwin_add_text(char_win, "Wearable statistics\n");
+            ui_printf(char_win, "Wearable statistics\n");
 
-            textwin_add_text(char_win, "- Armour: %d\n", wrbl->damage_reduction);
+            ui_printf(char_win, "- Armour: %d\n", wrbl->damage_reduction);
 
-            textwin_add_text(char_win, "- Locations: ");
+            ui_printf(char_win, "- Locations: ");
             bool first = true;
             for (enum inv_locations i = 1; i < INV_LOC_MAX; i <<= 1) {
                 if ( (wrbl->locations & i) > 0) {
-                    if (first == false) textwin_add_text(char_win, "/");
-                    textwin_add_text(char_win, "%s", inv_location_name(wrbl->locations & i) );
+                    if (first == false) ui_printf(char_win, "/");
+                    ui_printf(char_win, "%s", inv_location_name(wrbl->locations & i) );
                     first = false;
                 }
             }
 
             if (wrbl->special_quality != 0) {
-                textwin_add_text(char_win, "\n");
-                textwin_add_text(char_win, "Wearable qualities:\n");
+                ui_printf(char_win, "\n");
+                ui_printf(char_win, "Wearable qualities:\n");
 
                 for (int i = 0; i < WBL_SPCQLTY_MAX; i++) {
                     if (wbl_has_spc_quality(item, i) )  {
-                        textwin_add_text(char_win, "- %s.\n", wbl_spec_quality_name(i) );
+                        ui_printf(char_win, "- %s.\n", wbl_spec_quality_name(i) );
                     }
                 }
             }
 
-            textwin_add_text(char_win, "\n");
+            ui_printf(char_win, "\n");
         } break;
         case ITEM_TYPE_TOOL: {
             struct item_tool_specific *tool = &item->specific.tool;
             if (tool->energy > 0) {
                 int energy_pc = (tool->energy_left * 100) / tool->energy;
-                textwin_add_text(char_win, "Energy left %d\%\n", energy_pc);
+                ui_printf(char_win, "Energy left %d\%\n", energy_pc);
             }
 
         }break;
         case ITEM_TYPE_AMMO: {
             struct item_ammo_specific *ammo = &item->specific.ammo;
-            textwin_add_text(char_win, "Provides %s\n", wpn_ammo_string(ammo->ammo_type) );
+            ui_printf(char_win, "Provides %s\n", wpn_ammo_string(ammo->ammo_type) );
 
             if (ammo->energy > 0) {
                 int energy_pc = (ammo->energy_left * 100) / ammo->energy;
-                textwin_add_text(char_win, "Energy left %d\%\n", energy_pc);
+                ui_printf(char_win, "Energy left %d\%\n", energy_pc);
             }
         } break;
         case ITEM_TYPE_FOOD: break;
         default: break;
     }
-
-    textwin_display_text(window);
 }
 
 bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
@@ -1134,52 +1129,40 @@ Basic weapon traning SP     ...                  |
 
     /* General Stats */
 
-    textwin_init(&pad,1,0,0,0);
-    textwin_add_text(&pad, "Name:       %s\n", mon->unique_name);
-    textwin_add_text(&pad, "Gender      %s\n", msr_gender_string(mon) );
-    textwin_add_text(&pad, "Career:     %s\n", "tester");
-    textwin_add_text(&pad, "Rank:       %s\n", "beginner");
-    textwin_add_text(&pad, "Origin:     %s\n", "computer");
-    textwin_add_text(&pad, "Divination: %s\n", "You will die...");
-    y += textwin_display_text(&pad) +1;
+    ui_print_reset(&pad);
+    ui_printf(&pad, "Name:       %s\n", mon->unique_name);
+    ui_printf(&pad, "Gender      %s\n", msr_gender_string(mon) );
+    ui_printf(&pad, "Career:     %s\n", "tester");
+    ui_printf(&pad, "Rank:       %s\n", "beginner");
+    ui_printf(&pad, "Origin:     %s\n", "computer");
+    ui_printf(&pad, "Divination: %s\n", "You will die...");
 
-    textwin_init(&pad,1,y,20,10);
-    textwin_add_text(&pad, "Wounds:   %d/%d\n", mon->cur_wounds, mon->max_wounds);
-    textwin_add_text(&pad, "Fatique:  %d\n", mon->fatique);
-    textwin_add_text(&pad, "XP:        %d\n", plr->xp_current / TT_ENERGY_TURN);
-    y_sub = textwin_display_text(&pad);
+    ui_printf(&pad, "Wounds:   %d/%d\n", mon->cur_wounds, mon->max_wounds);
+    ui_printf(&pad, "Fatique:  %d\n", mon->fatique);
+    ui_printf(&pad, "XP:        %d\n", plr->xp_current / TT_ENERGY_TURN);
 
-            textwin_init(&pad,22,y,20,y_sub);
-            textwin_add_text(&pad, "Fate:       %d/%d\n", mon->fate_points,0);
-            textwin_add_text(&pad, "Corruption:    %d\n", mon->corruption_points);
-            textwin_add_text(&pad, "Spend:         %d\n", plr->xp_spend);
-            textwin_display_text(&pad);
-    y += y_sub;
+    ui_printf(&pad, "Fate:       %d/%d\n", mon->fate_points,0);
+    ui_printf(&pad, "Corruption:    %d\n", mon->corruption_points);
+    ui_printf(&pad, "Spend:         %d\n", plr->xp_spend);
 
     /* Characteristics */
     const char *char_names[] = {"Ws", "Bs", "Str", "Tgh", "Agi", "Int", "Per", "Wil", "Per"};
 
     y += 1;
     for (int i = 0; i < MSR_CHAR_MAX -1; i++) {
-        textwin_init(&pad,(i * 6),y,6,1);
-        textwin_add_text(&pad, "[%3s] ", char_names[i]);
-        textwin_display_text(&pad);
+        ui_printf(&pad, "[%3s] ", char_names[i]);
     }
 
     y += 1;
     for (int i = 0; i < MSR_CHAR_MAX -1; i++) {
-        textwin_init(&pad,(i * 6),y,6,1);
-        textwin_add_text(&pad, "[%3d] ", msr_calculate_characteristic(mon, i) );
-        textwin_display_text(&pad);
+        ui_printf(&pad, "[%3d] ", msr_calculate_characteristic(mon, i) );
     }
 
     y += 2;
 
     /* Armour  */
-    textwin_init(&pad,1,y,0,0);
-    textwin_add_text(&pad, "Armour\n");
-    textwin_add_text(&pad, "------\n");
-    y_sub = textwin_display_text(&pad);
+    ui_printf(&pad, "Armour\n");
+    ui_printf(&pad, "------\n");
 
     /* Armour */
     struct itm_item *item = NULL;
@@ -1187,9 +1170,7 @@ Basic weapon traning SP     ...                  |
         if ( (inv_item_worn(mon->inventory, item) == true) && 
              (inv_item_wielded(mon->inventory, item) == false) ) {
 
-            textwin_init(&pad,1,y+y_sub,0,0);
-            textwin_add_text(&pad, "%s", item->ld_name);
-            textwin_display_text(&pad);
+            ui_printf(&pad, "%s", item->ld_name);
 
             if (names_len < strlen(item->ld_name) ) {
                 names_len = strlen(item->ld_name);
@@ -1197,10 +1178,8 @@ Basic weapon traning SP     ...                  |
         }
     }
 
-            textwin_init(&pad,names_len +3,y,0,0);
-            textwin_add_text(&pad, "AP\n");
-            textwin_add_text(&pad, "--\n");
-            y_sub = textwin_display_text(&pad);
+            ui_printf(&pad, "AP\n");
+            ui_printf(&pad, "--\n");
             /* Armour */
             item = NULL;
             while ( (item = inv_get_next_item(mon->inventory, item) ) != NULL) {
@@ -1212,16 +1191,12 @@ Basic weapon traning SP     ...                  |
                         armour = item->specific.wearable.damage_reduction;
                     }
 
-                    textwin_init(&pad,names_len +3,y+y_sub,0,0);
-                    textwin_add_text(&pad, "%3d", armour);
-                    textwin_display_text(&pad);
+                    ui_printf(&pad, "%3d", armour);
                 }
             }
 
-            textwin_init(&pad,names_len +7 ,y,0,0);
-            textwin_add_text(&pad, "Location\n");
-            textwin_add_text(&pad, "--------\n");
-            textwin_display_text(&pad);
+            ui_printf(&pad, "Location\n");
+            ui_printf(&pad, "--------\n");
 
             y += y_sub;
 
@@ -1232,48 +1207,41 @@ Basic weapon traning SP     ...                  |
                      (inv_item_wielded(mon->inventory, item) == false) ) {
                     bitfield_t locs = inv_get_item_locations(mon->inventory, item);
 
-                    textwin_init(&pad,names_len +7,y,0,0);
                     bool first = true;
                     for (enum inv_locations i = 1; i < INV_LOC_MAX; i <<= 1) {
                         if ( (locs & i) > 0) {
-                            if (first == false) textwin_add_text(&pad, "/");
-                            textwin_add_text(&pad, "%s", inv_location_name(locs & i) );
+                            if (first == false) ui_printf(&pad, "/");
+                            ui_printf(&pad, "%s", inv_location_name(locs & i) );
                             first = false;
                         }
                     }
-                    y_sub += textwin_display_text(&pad);
                 }
             }
     y += y_sub +1;
 
     /* Skills */
-    textwin_init(&pad,1,y,0,0);
-    textwin_add_text(&pad, "Skills\n");
-    textwin_add_text(&pad, "------\n");
+    ui_printf(&pad, "Skills\n");
+    ui_printf(&pad, "------\n");
 
     for (unsigned int i = 0; i < MSR_SKILLS_MAX; i++) {
         if (names_len < strlen(msr_skill_names(i) ) ) {
             names_len = strlen(msr_skill_names(i) );
         }
-        textwin_add_text(&pad, "%s\n", msr_skill_names(i) );
+        ui_printf(&pad, "%s\n", msr_skill_names(i) );
     }
-    y_sub = textwin_display_text(&pad);
 
-            textwin_init(&pad,names_len + 3,y,0,0);
-            textwin_add_text(&pad, "Proficiency\n");
-            textwin_add_text(&pad, "-----------\n");
+            ui_printf(&pad, "Proficiency\n");
+            ui_printf(&pad, "-----------\n");
             for (unsigned int i = 0; i < MSR_SKILLS_MAX; i++) {
                 enum msr_skill_rate skillrate = msr_has_skill(mon,  i);
                 lg_debug("skill rate: %d", skillrate);
-                textwin_add_text(&pad, "%s\n", msr_skillrate_names(skillrate));
+                ui_printf(&pad, "%s\n", msr_skillrate_names(skillrate));
             }
-            y_sub = textwin_display_text(&pad);
     y += y_sub +1;
 
     /* Talents */
-    textwin_init(&pad,1,y,0,0);
-    textwin_add_text(&pad, "Talents\n");
-    textwin_add_text(&pad, "-------\n");
+    ui_printf(&pad, "Talents\n");
+    ui_printf(&pad, "-------\n");
 
     names_len = 0;
     for (unsigned int i = 1; i < MSR_TALENTS_MAX; i++) {
@@ -1281,25 +1249,22 @@ Basic weapon traning SP     ...                  |
             if (names_len < strlen(msr_talent_names(i) ) ) {
                 names_len = strlen(msr_talent_names(i) );
             }
-            textwin_add_text(&pad, "%s\n", msr_talent_names(i) );
+            ui_printf(&pad, "%s\n", msr_talent_names(i) );
         }
     }
-    y_sub = textwin_display_text(&pad);
 
     y += y_sub +1;
 
 
     /* Conditions */
-    textwin_init(&pad,1,y,0,0);
-    textwin_add_text(&pad, "Conditions\n");
-    textwin_add_text(&pad, "----------\n");
+    ui_printf(&pad, "Conditions\n");
+    ui_printf(&pad, "----------\n");
 
     names_len = 0;
     struct cdn_condition *c = NULL;
     while ( (c = cdn_list_get_next_condition(mon->conditions, c) ) != NULL) {
-        textwin_add_text(&pad, "%s\n", c->name);
+        ui_printf(&pad, "%s\n", c->name);
     }
-    y_sub = textwin_display_text(&pad);
 
     y += y_sub +1;
 
@@ -1345,7 +1310,7 @@ void show_log(struct hrl_window *window, bool input) {
     touchwin(pad.win);
     werase(pad.win);
 
-    textwin_init(&pad,1,0,0,log_sz);
+    ui_print_reset(&pad);
     if (log_sz > 0) {
         for (int i = log_sz; i > 0; i--) {
             tmp_entry = queue_peek_nr(q, i-1).vp;
@@ -1358,46 +1323,40 @@ void show_log(struct hrl_window *window, bool input) {
 
                     switch (tmp_entry->level) {
                         case LG_DEBUG_LEVEL_GAME:
-                            pre_format = "[%s" ":Game][%d] ";
+                            pre_format = "[%s:%d]" "[Game][%d] ";
                             break;
                         case LG_DEBUG_LEVEL_DEBUG:
-                            pre_format = "[%s" ":Debug][%d] ";
+                            pre_format = "[%s:%d]" "[Debug][%d] ";
                             break;
                         case LG_DEBUG_LEVEL_INFORMATIONAL:
-                            pre_format = "[%s" ":Info][%d] ";
+                            pre_format = "[%s:%d]" "[Info][%d] ";
                             break;
                         case LG_DEBUG_LEVEL_WARNING:
-                            pre_format = "[%s" ":Warning][%d] ";
+                            pre_format = "[%s:%d]" "[Warning][%d] ";
                             break;
                         case LG_DEBUG_LEVEL_ERROR:
-                            pre_format = "[%s" ":Error][%d] ";
+                            pre_format = "[%s:%d]" "[Error][%d] ";
                             break;
                         default:
-                            pre_format ="[%s" ":Unknown][%d] ";
+                            pre_format ="[%s:%d]" "[Unknown][%d] ";
                             break;
                     }
 
-                    textwin_add_text(&pad, pre_format, tmp_entry->module, tmp_entry->turn);
+                    ui_printf(&pad, pre_format, tmp_entry->module, tmp_entry->line, tmp_entry->turn);
                 }
                 else if (tmp_entry->level <= LG_DEBUG_LEVEL_GAME) print = true;
 
                 if (print) {
-                    for (int l = 0; l < tmp_entry->atom_lst_sz; l++) {
-                        struct log_atom *a = &tmp_entry->atom_lst[l];
-                        if (a != NULL) {
-                            textwin_add_text(&pad, "%s", a->string);
-                        }
-                    }
+                    ui_printf(&pad, "%s", tmp_entry->string);
                     if (tmp_entry->repeat > 1) {
-                        textwin_add_text(&pad, " (x%d)", tmp_entry->repeat);
+                        ui_printf(&pad, " (x%d)", tmp_entry->repeat);
                     }
-                    textwin_add_text(&pad, "\n");
+                    ui_printf(&pad, "\n");
                 }
             }
         }
     }
-    else textwin_add_text(&pad, "Empty\n");
-    y += textwin_display_text(&pad) +1;
+    else ui_printf(&pad, "Empty\n");
 
     if (input) {
         int line = 0;
@@ -1435,13 +1394,14 @@ void show_msg(struct hrl_window *window) {
 
     struct hrl_window pad;
     memmove(&pad, window, sizeof(struct hrl_window) );
-    pad.win = newpad(MAX(SHOW_MAX_MSGS, window->lines) , window->cols);
+    pad.win = newpad(MAX(SHOW_MAX_MSGS, window->lines -1) , window->cols);
     assert(pad.win != NULL);
 
     touchwin(pad.win);
     werase(pad.win);
 
-    textwin_init(&pad,1,0,0,log_sz);
+    ui_print_reset(&pad);
+
     if (log_sz > 0) {
         int min = 0;
         int ctr = 0;
@@ -1459,38 +1419,38 @@ void show_msg(struct hrl_window *window) {
             }
         }
 
-        for (int i = min; i < log_sz; i++) {
-            tmp_entry = queue_peek_nr(q, i).vp;
-            if (tmp_entry != NULL) {
-                bool print = false;
+        int last_turn = -1;
+        if (ctr > 0) {
+            for (int i = min; i < log_sz; i++) {
+                tmp_entry = queue_peek_nr(q, i).vp;
+                if (tmp_entry != NULL) {
+                    if (tmp_entry->level <= LG_DEBUG_LEVEL_GAME) {
+                        if (tmp_entry->turn != last_turn) ui_printf(&pad, "\n");
 
-                if (tmp_entry->level <= LG_DEBUG_LEVEL_GAME) print = true;
-
-                if (print) {
-                    for (int l = 0; l < tmp_entry->atom_lst_sz; l++) {
-                        struct log_atom *a = &tmp_entry->atom_lst[l];
-                        if (a != NULL) {
-                            textwin_add_text(&pad, "%s", a->string);
+                        if (tmp_entry->repeat > 1) {
+                            y = ui_printf(&pad, "%s (x%d)\n", tmp_entry->string, tmp_entry->repeat);
                         }
+                        else y = ui_printf(&pad, "%s", tmp_entry->string);
+
+                        last_turn = tmp_entry->turn;
                     }
-                    if (tmp_entry->repeat > 1) {
-                        textwin_add_text(&pad, " (x%d)", tmp_entry->repeat);
-                    }
-                    textwin_add_text(&pad, "\n");
                 }
             }
         }
     }
-    else textwin_add_text(&pad, "Empty\n");
-    y += textwin_display_text(&pad) +1;
+    else y = ui_printf(&pad, "Empty");
 
-    prefresh(pad.win, y - pad.lines,0, pad.y, pad.x, pad.y + pad.lines, pad.x + pad.cols);
-
+    prefresh(pad.win, y - pad.lines + 1,0, pad.y, pad.x, pad.y + pad.lines, pad.x + pad.cols);
     delwin(pad.win);
 }
 
 void log_window(void) {
+    /* clear bottom messages to avoid confusion*/
+    wclear(msg_win->win);
+    wrefresh(msg_win->win);
+
     show_log(map_win, true);
+    show_msg(msg_win); /* refresh log messages at log exit*/
 }
 
 void levelup_selection_window(void) {

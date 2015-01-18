@@ -24,85 +24,118 @@ static bool colours_generated = false;
 void win_generate_colours(void) {
     if (colours_generated == false) {
         colours_generated = true;
-        lg_printf_l(LG_DEBUG_LEVEL_DEBUG, "ui", "generating colours, we do %d, max is %d", TERM_COLOUR_MAX, COLOR_PAIRS);
+        lg_debug("generating colours, we do %d, max is %d", TERM_COLOUR_MAX, COLOR_PAIRS);
 
         generate_colours();
     }
 }
 
-/* TODO: this should use the general logging atoms. This will enable to use of colours in the output. */
-void textwin_init(struct hrl_window *win, int sx, int sy, int ex, int ey) {
-    assert(win != NULL);
-    free(win->text);
+#define STRING_MAX 1024
+#define MAX_CLRSTR_LEN 20
+#define MAX_CLR_DEPTH 5
+int ui_printf_ext(struct hrl_window *win, int y_start, int x_start, const char *format, ...) {
+    if (win == NULL) return 0;
+    if (x_start > -1) win->text_x = x_start;
+    if (y_start > -1) win->text_y = y_start;
 
-    win->text_sx = sx;
-    win->text_sy = sy;
-
-    if (ex > sx) ex = ex - sx;
-    else ex = win->cols;
-    if (ey > sy) ey = ey - sy;
-    else ey = win->lines;
-
-    win->text_ex = ex;
-    win->text_ey = ey;
-
-    win->text = NULL;
-    win->text_sz = 200;//win->text_ex * win->text_ey * sizeof(char);
-    win->text = malloc(win->text_sz);
-    win->text_idx = 0;
-}
-
-void textwin_add_text(struct hrl_window *win, const char *format, ...) {
-    assert(win != NULL);
-    assert(win->text != NULL);
-    assert(format != NULL);
-    assert(strlen(format) > 0);
-    if (win == NULL) return;
-    if (win->text == NULL) return;
-    if (format == NULL) return;
-    if (strlen(format) == 0) return;
-
-    if (win->text_idx < win->text_sz) {
-        win->text_sz += 200; //win->text_ex * win->text_ey * sizeof(char);
-        win->text = realloc(win->text, win->text_sz);
-        assert(win->text != NULL);
-    }
-
+    char buf[STRING_MAX+1];
     va_list args;
     va_start(args, format);
-    win->text_idx += vsnprintf(&win->text[win->text_idx], win->text_sz - win->text_idx, format, args);
+    vsnprintf(buf, STRING_MAX, format, args);
     va_end(args);
-}
+    int txt_sz = strlen(buf);
+    
+    int max_line_sz = win->cols -1;
 
-int textwin_display_text(struct hrl_window *win) {
-    int lines_used = 0;
-    assert(win != NULL);
-    assert(win->text != NULL);
-    if (win == NULL) return 0;
-    if (win->text == NULL) return 0;
-    if (strlen(win->text) > 0) {
-        char **desc;
-        int *len_lines;
-        lines_used = strwrap(win->text, win->text_ex -1, &desc, &len_lines);
-        if (lines_used > 0) {
-            for (int i = 0; i < MIN(lines_used, win->text_ey); i++) {
-                for (int j = 0; j < len_lines[i]; j++) {
-                    mvwaddch(win->win, win->text_sy + i, win->text_sx + j, desc[i][j]);
+    if (win->text_x != 0) {
+        mvwaddch(win->win, win->text_y, win->text_x++, ' ');
+    }
+
+    bool colour_parse = false;
+    char colour_buf[MAX_CLRSTR_LEN+1];
+    int attr_mod[MAX_CLR_DEPTH];
+    attr_mod[0] = get_colour(TERM_COLOUR_L_WHITE);
+    int attr_mod_ctr = 0;
+
+    int t = 0;
+    while (t < txt_sz) {
+        bool new_line = false;
+
+        lg_debug("printing: %s", buf);
+        lg_debug("line length: %d", txt_sz);
+        lg_debug("start x pos: %d, t: %d, cols: %d", win->text_x, t, win->cols);
+
+        int line_sz = MIN(max_line_sz - win->text_x, txt_sz - t);
+        lg_debug("line sz: %d, (txt_sz -t): %d", line_sz, (txt_sz -t));
+        if ( (txt_sz - t) > line_sz) {
+            new_line = true;
+
+            int tmp_line_sz = line_sz;
+            line_sz = 0;
+
+            for (int i = tmp_line_sz; i > tmp_line_sz * 0.6; i--) {
+                if (buf[t + i] == ' ') {
+                    line_sz = i;
+                    break;
                 }
             }
         }
 
-        free(desc);
-        free(len_lines);
+        lg_debug("line sz: %d", line_sz);
 
-        if (options.refresh == true) wrefresh(win->win);
+        int x = 0;
+        int colour_ctr = 0;
+        for (int i = 0; i < line_sz; i++) {
+            if (buf[t] == '\n') {
+                t++;
+                new_line = true;
+                line_sz = i;
+                break;
+            }
+            else if (buf[t] == '<') {
+                colour_parse = true;
+                colour_buf[colour_ctr++] = buf[t];
+            }
+            else if (colour_parse) {
+                colour_buf[colour_ctr++] = buf[t];
+
+                if (buf[t] == '>') {
+                    colour_buf[colour_ctr] = '\0';
+                    colour_parse = false;
+                    int c = clrstr_to_attr(colour_buf);
+                    if (attr_mod[attr_mod_ctr] == c) {
+                        attr_mod_ctr--;
+                        assert(attr_mod_ctr >= 0);
+                        if (attr_mod_ctr < 0) attr_mod_ctr = 0;
+                    }
+                    else {
+                        attr_mod_ctr++;
+                        attr_mod[attr_mod_ctr]= c;
+                    }
+                    colour_ctr = 0;
+                }
+                assert(colour_ctr   < MAX_CLRSTR_LEN);
+                assert(attr_mod_ctr < MAX_CLR_DEPTH);
+            }
+            else {
+                if (has_colors() == TRUE) wattron(win->win, attr_mod[attr_mod_ctr]);
+                mvwaddch(win->win, win->text_y, win->text_x + x, buf[t]);
+                if (has_colors() == TRUE) wattroff(win->win, attr_mod[attr_mod_ctr]);
+                x++;
+            }
+
+            t++;
+        }
+        win->text_x += x;
+
+        if (new_line) {
+            win->text_y++;
+            win->text_x = 0;
+            if (buf[t] == ' ') t++;
+        }
     }
 
-    free(win->text);
-    win->text = NULL;
-    win->text_sz = win->text_idx = 0;
-
-    return lines_used;
+    return win->text_y;
 }
 
 struct hrl_window *win_create(int height, int width, int starty, int startx, enum window_type type) {
@@ -115,6 +148,9 @@ struct hrl_window *win_create(int height, int width, int starty, int startx, enu
         retval->text = NULL;
         retval->text_sz = 0;
         retval->text_idx = 0;
+
+        retval->text_x = 0;
+        retval->text_y = 0;
 
         retval->cols = width;
         retval->lines =height;
