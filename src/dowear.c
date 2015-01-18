@@ -118,11 +118,11 @@ bool dw_wear_item(struct msr_monster *monster, struct itm_item *item) {
 
     if (retval == true) {
         if (item->item_type == ITEM_TYPE_WEAPON) {
-            You(monster, "wield %s.", item->ld_name);
+            You(monster,     "wield %s.", item->ld_name);
             Monster(monster, "wields %s.", item->ld_name);
         }
         else {
-            You(monster, "wear %s.", item->ld_name);
+            You(monster,     "wear %s.", item->ld_name);
             Monster(monster, "wears %s.", item->ld_name);
         }
 
@@ -144,7 +144,7 @@ static bool remove_weapon(struct msr_monster *monster, struct itm_item *item) {
 
     assert(inv_move_item_to_location(inv, item, INV_LOC_INVENTORY) == true);
 
-    You(monster, "remove %s.", item->ld_name);
+    You(monster,     "remove %s.", item->ld_name);
     Monster(monster, "removes %s.", item->ld_name);
 
     return true;
@@ -159,7 +159,7 @@ static bool remove_wearable(struct msr_monster *monster, struct itm_item *item) 
 
     assert(inv_move_item_to_location(inv, item, INV_LOC_INVENTORY) == true);
 
-    You(monster, "remove %s.", item->ld_name);
+    You(monster,     "remove %s.", item->ld_name);
     Monster(monster, "removes %s.", item->ld_name);
 
     return true;
@@ -202,7 +202,7 @@ bool dw_use_item(struct msr_monster *monster, struct itm_item *item) {
             item->energy = item->specific.tool.energy_left * TT_ENERGY_TURN;
             item->energy_action = true;
 
-            You(monster, "light %s.", item->ld_name);
+            You(monster,     "light %s.", item->ld_name);
             Monster(monster, "lights %s.", item->ld_name);
         }
         else {
@@ -213,7 +213,7 @@ bool dw_use_item(struct msr_monster *monster, struct itm_item *item) {
             if (item->energy > 0) {
                 item->specific.tool.energy_left = item->energy / TT_ENERGY_TURN;
 
-                You(monster, "douse %s.", item->ld_name);
+                You(monster,     "douse %s.", item->ld_name);
                 Monster(monster, "douses %s.", item->ld_name);
             }
         }
@@ -224,7 +224,7 @@ bool dw_use_item(struct msr_monster *monster, struct itm_item *item) {
         struct item_food_specific *food = &item->specific.food;
 
         if (food->food_type == FOOD_TYPE_LIQUID) {
-            You(monster, "drink from %s.", item->ld_name);
+            You(monster,     "drink from %s.", item->ld_name);
             Monster(monster, "drinks from %s.", item->ld_name);
 
             food->nutrition_left -= 1;
