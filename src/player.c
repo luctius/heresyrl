@@ -110,13 +110,13 @@ static bool plr_action_loop(struct msr_monster *player, void *controller) {
 
     if ( ( (player->cur_wounds * 100) / player->max_wounds) < 10) {
         if (critical_wounds_warning == false) {
-            System_msg("Warning, hitpoints critical");
+            Warning("hitpoints critical.");
             critical_wounds_warning = true;
         }
     }
     else if ( ( (player->cur_wounds * 100) / player->max_wounds) < 50) {
         if (low_wounds_warning == false) {
-            System_msg("Warning, low hitpoints");
+            Warning("low hitpoints.");
             low_wounds_warning = true;
         }
         critical_wounds_warning = false;
