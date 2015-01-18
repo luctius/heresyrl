@@ -126,7 +126,7 @@ static void lg_print_to_file(struct logging *log_ctx, struct log_entry *entry) {
             break;
     }
 
-    fprintf(fd, "[%s:%s][%d] ", entry->module, pre_format, entry->turn);
+    fprintf(fd, "[%s:%d][%s][%d] ", entry->module, entry->line, pre_format, entry->turn);
     fprintf(fd, "%s", entry->string);
 
     if (entry->repeat > 1) fprintf(fd, " x%d", entry->repeat);
@@ -151,15 +151,16 @@ static void lg_print_to_queue(struct logging *log_ctx, struct log_entry *entry) 
 }
 
 #define STRING_MAX 500
-void lg_printf_basic(struct logging *log_ctx, enum lg_debug_levels dbg_lvl, const char* module, const char* format, va_list args) {
+void lg_printf_basic(struct logging *log_ctx, enum lg_debug_levels dbg_lvl, const char* module, int line, const char* format, va_list args) {
     if ( (log_ctx != NULL) && (dbg_lvl > log_ctx->level) ) return;
     struct log_entry *le = calloc(1, sizeof(struct log_entry) );
     if (le == NULL) return;
 
-    le->level = dbg_lvl;
+    le->level  = dbg_lvl;
     le->repeat = 0;
     le->module = module;
-    le->turn = 0;
+    le->line   = line;
+    le->turn   = 0;
     if (gbl_game != NULL) le->turn = gbl_game->turn;
 
 
@@ -176,10 +177,10 @@ void lg_printf_basic(struct logging *log_ctx, enum lg_debug_levels dbg_lvl, cons
     lg_print_to_queue(log_ctx, le);
 }
 
-void lg_printf_l(int lvl, const char *module, const char* format, ... ) {
+void lg_printf_l(int lvl, const char *module, int line, const char* format, ... ) {
     va_list args;
     va_start(args, format);
-    lg_printf_basic(gbl_log, lvl, module , format, args);
+    lg_printf_basic(gbl_log, lvl, module, line, format, args);
     va_end(args);
 }
 
@@ -205,9 +206,6 @@ bool msg_valid(coord_t *origin, coord_t *target) {
            the monster channel. otherwise discard the messages.
          */
 
-        /* if origin is the player, accept it*/
-        if (me->monster->is_player == true) return true;
-
         /* if the origin is visible by the player, accept it */
         if (me->visible == true)  return true;
     }
@@ -223,7 +221,7 @@ bool msg_valid(coord_t *origin, coord_t *target) {
     return false;
 }
 
-void msg_internal(coord_t *origin, coord_t *target, enum lg_channel c, const char *format, ...) {
+void msg_internal(coord_t *origin, coord_t *target, enum lg_channel c, const char* module, int line, const char *format, ...) {
     if (gbl_log == NULL) return;
 
 
@@ -235,24 +233,24 @@ void msg_internal(coord_t *origin, coord_t *target, enum lg_channel c, const cha
        player. 
     */
 
-    struct log_entry *le = malloc(sizeof(struct log_entry) );
-    le->turn    = gbl_game->turn;
-    le->repeat  = 1;
-    le->module  = "game";
-    le->channel = c;
-    le->level   = LG_DEBUG_LEVEL_GAME;
-
-    /* allocate enough memory for the string to be copied */
-    le->string = calloc(STRING_MAX, sizeof(char) );
-
     /* copy the string from the vararg list */
+    char buf[STRING_MAX];
     va_list args;
     va_start(args, format);
-    vsnprintf(le->string, STRING_MAX, format, args);
+    vsnprintf(buf, STRING_MAX, format, args);
     va_end(args);
 
-    /* shrink string to minimum required. */
-    le->string = realloc(le->string, strlen(le->string) +1);
+    struct log_entry *le = malloc(sizeof(struct log_entry) );
+    le->repeat  = 1;
+    le->module  = module;
+    le->line    = line;
+    le->channel = c;
+    le->level   = LG_DEBUG_LEVEL_GAME;
+    le->turn    = gbl_game->turn;
+
+    /* allocate enough memory for the string to be copied */
+    le->string = calloc(strlen(buf) +1, sizeof(char) );
+    strcpy(le->string, buf);
 
     if (le_is_equal(le, gbl_log->log_last) ) {
         gbl_log->log_last->repeat++;
@@ -266,5 +264,16 @@ void msg_internal(coord_t *origin, coord_t *target, enum lg_channel c, const cha
     lg_print_to_file(gbl_log, le);
     lg_print_to_queue(gbl_log, le);
     gbl_log->log_last = le;
+}
+
+int clrstr_to_attr(const char *s) {
+    if (strcmp(cs_WHITE,         s) == 0) return get_colour(TERM_COLOUR_WHITE);
+    else if (strcmp(cs_RED,      s) == 0) return get_colour(TERM_COLOUR_L_RED);
+    else if (strcmp(cs_PURPLE,   s) == 0) return get_colour(TERM_COLOUR_L_PURPLE);
+    else if (strcmp(cs_BLACK,    s) == 0) return get_colour(TERM_COLOUR_DARK);
+    else if (strcmp(cs_BLUE,     s) == 0) return get_colour(TERM_COLOUR_L_BLUE);
+    else if (strcmp(cs_YELLOW,   s) == 0) return get_colour(TERM_COLOUR_L_YELLOW);
+    
+    return get_colour(TERM_COLOUR_L_WHITE);
 }
 
