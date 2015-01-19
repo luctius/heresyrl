@@ -194,7 +194,7 @@ bool dw_use_item(struct msr_monster *monster, struct itm_item *item) {
     if (item->item_type == ITEM_TYPE_TOOL && item->specific.tool.tool_type == TOOL_TYPE_LIGHT) {
         if (item->specific.tool.lit == false) {
             if (item->specific.tool.energy == 0) {
-                msg("The %s has is out of juice.", item->sd_name);
+                msg("The %s is out of juice.", item->sd_name);
                 return false;
             }
 
