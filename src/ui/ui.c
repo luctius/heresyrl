@@ -229,6 +229,8 @@ void mapwin_display_map(struct dm_map *map, coord_t *player) {
     lg_debug("update mapwin");
     mapwin_display_map_noref(map, player);
     if (options.refresh) wrefresh(map_win->win);
+
+    show_msg(msg_win);
 }
 
 static void mapwin_examine(struct dm_map_entity *me) {
@@ -904,6 +906,7 @@ void invwin_examine(struct hrl_window *window, struct itm_item *item) {
         case ITEM_TYPE_FOOD: break;
         default: break;
     }
+    wrefresh(char_win->win);
 }
 
 bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
@@ -1383,15 +1386,13 @@ void show_msg(struct hrl_window *window) {
                     }
 
                     if (print) {
-                        if (tmp_entry->turn != last_turn) ui_printf(&pad, "\n");
-
                         char *old_str = "";
                         if (old) old_str = cs_OLD;
 
                         if (tmp_entry->repeat > 1) {
                             y = ui_printf(&pad, "%s%s (x%d)%s\n", old_str, tmp_entry->string, tmp_entry->repeat, old_str);
                         }
-                        else y = ui_printf(&pad, "%s%s%s", old_str, tmp_entry->string, old_str);
+                        else y = ui_printf(&pad, "%s%s%s\n", old_str, tmp_entry->string, old_str);
 
                         last_turn = tmp_entry->turn;
                     }
