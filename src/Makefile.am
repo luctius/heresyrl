@@ -1,5 +1,5 @@
 AUTOMAKE_OPTIONS = subdir-objects
-AM_CPPFLAGS=-I$(top_srcdir)/utils -I.
+AM_CPPFLAGS=-I.
 bin_PROGRAMS = heresyrl
 
 GIT_VERSION:=$(shell git describe --abbrev=10 --dirty --always)
@@ -42,7 +42,7 @@ heresyrl_SOURCES =  \
                     ui/animate.c 
 
 heresyrl_CFLAGS = $(lua_CFLAGS)  -DGIT_VERSION=\"$(GIT_VERSION)\"
-heresyrl_LDADD = ../utils/libutils.la $(INTI_LIBS) -lm $(lua_LIBS)
+heresyrl_LDADD = $(INTI_LIBS) -lm $(lua_LIBS)
 
 cmdline.c cmdline.h: ../heresyrl.ggo
 	sed -i "s:usr_prefix:${prefix}:g" $<
