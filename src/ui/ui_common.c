@@ -56,6 +56,7 @@ int ui_printf_ext(struct hrl_window *win, int y_start, int x_start, const char *
     attr_mod[0] = get_colour(TERM_COLOUR_L_WHITE);
     int attr_mod_ctr = 0;
 
+    int try = 0;
     int t = 0;
     while (t < txt_sz) {
         bool new_line = false;
@@ -67,7 +68,7 @@ int ui_printf_ext(struct hrl_window *win, int y_start, int x_start, const char *
             int tmp_line_sz = line_sz;
             line_sz = 0;
 
-            for (int i = tmp_line_sz; i > tmp_line_sz * 0.6; i--) {
+            for (int i = tmp_line_sz; i > tmp_line_sz * 0.9; i--) {
                 if (buf[t + i] == ' ') {
                     line_sz = i;
                     break;
@@ -121,9 +122,11 @@ int ui_printf_ext(struct hrl_window *win, int y_start, int x_start, const char *
         win->text_x += x;
 
         if (new_line) {
+            if (line_sz == 0 && try == 1) return win->text_y;
             win->text_y++;
             win->text_x = 0;
             if (buf[t] == ' ') t++;
+            if (line_sz == 0) try++;
         }
     }
 
