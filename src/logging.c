@@ -18,9 +18,11 @@ struct logging {
     FILE *log_file;
 
     enum lg_debug_levels level;
-    struct queue *logging_q;
 
-    int logging_q_sz;
+    /*struct queue *logging_q;*/
+    /*int logging_q_sz;*/
+    struct log_entry *log_q;
+    struct cqc log_cqc;
 
     callback_event callback;
     void *priv;
@@ -28,18 +30,23 @@ struct logging {
     struct log_entry *log_last;
 };
 
+/*
 static void le_free(struct log_entry *e) {
     free(e->string);
     free(e);
 }
+*/
 
 struct logging *lg_init(char *logfile, enum lg_debug_levels lvl, int max_size) {
     struct logging *log_ctx = calloc(1, sizeof(struct logging) );
     if (log_ctx == NULL) return NULL;
 
     log_ctx->level = lvl;
-    log_ctx->logging_q_sz = max_size;
-    log_ctx->logging_q = queue_init_simple(log_ctx->logging_q_sz+1);
+    //log_ctx->logging_q_sz = max_size;
+    //log_ctx->logging_q = queue_init_simple(log_ctx->logging_q_sz+1);
+    log_ctx->log_q = malloc(max_size * sizeof(struct log_entry) );
+    cqc_init(log_ctx->log_cqc, max_size);
+
     log_ctx->log_file = fopen(logfile, "w");
     if (log_ctx->log_file == NULL) {
         fprintf(stderr, "Could not open logfile %s\n", logfile);
@@ -53,12 +60,12 @@ struct logging *lg_init(char *logfile, enum lg_debug_levels lvl, int max_size) {
 void lg_exit(struct logging *log_ctx) {
     if (log_ctx == NULL) return;
 
-    while (queue_size(log_ctx->logging_q) > 0) {
-        struct log_entry *tmp = queue_pop_head(log_ctx->logging_q).vp;
-        le_free(tmp);
+    while (cqc_cnt(log_ctx->log_cqc) > 0) {
+        free(log_ctx->log_q[cqc_get(log_ctx->log_cqc)].string);
     }
+    free(log_ctx->log_q);
 
-    queue_exit(log_ctx->logging_q);
+    /*queue_exit(log_ctx->logging_q);*/
     fclose(log_ctx->log_file);
     free(log_ctx);
 }
@@ -70,8 +77,17 @@ void lg_set_callback(struct logging *log_ctx, void *priv, callback_event ce) {
     log_ctx->callback = ce;
 }
 
-struct queue *lg_queue(struct logging *log_ctx) {
-    return log_ctx->logging_q;
+int lg_size(struct logging *log_ctx) {
+    if (log_ctx == NULL) return -1;
+    int sz = cqc_cnt(log_ctx->log_cqc);
+    return sz;
+}
+
+struct log_entry *lg_peek(struct logging *log_ctx, int idx) {
+    if (idx >= lg_size(log_ctx) ) return NULL;
+    int cqc_idx = cqc_peek(log_ctx->log_cqc, idx);
+    struct log_entry *le = &log_ctx->log_q[cqc_idx];
+    return le;
 }
 
 static bool le_is_equal(struct log_entry *a, struct log_entry *b) {
@@ -138,33 +154,31 @@ static void lg_print_to_file(struct logging *log_ctx, struct log_entry *entry) {
 
 static void lg_print_to_queue(struct logging *log_ctx, struct log_entry *entry) {
     if (log_ctx == NULL) return;
-    //if (dbg_lvl > LG_DEBUG_LEVEL_GAME) return;
+    //if ( (options.debug == false) && (entry->level > LG_DEBUG_LEVEL_GAME_INFO) ) return;
 
-    union qe e;
-    e.vp = entry;
-    queue_push_tail(log_ctx->logging_q, e);
-
-    if (log_ctx->callback != NULL) log_ctx->callback(log_ctx, entry, log_ctx->priv);
-
-    while (queue_size(log_ctx->logging_q) > log_ctx->logging_q_sz) {
-        struct log_entry *tmp = (struct log_entry *) queue_pop_head(log_ctx->logging_q).vp;
-        le_free(tmp);
-    }
+    if ( (entry->level < LG_DEBUG_LEVEL_GAME_INFO) && (log_ctx->callback != NULL) ) log_ctx->callback(log_ctx, entry, log_ctx->priv);
 }
 
 #define STRING_MAX 500
 void lg_printf_basic(struct logging *log_ctx, enum lg_debug_levels dbg_lvl, const char* module, int line, const char* format, va_list args) {
     if ( (log_ctx != NULL) && (dbg_lvl > log_ctx->level) ) return;
-    struct log_entry *le = calloc(1, sizeof(struct log_entry) );
-    if (le == NULL) return;
 
+    if (cqc_space(log_ctx->log_cqc) == 0) {
+        int space = cqc_space(log_ctx->log_cqc);
+        int sz = cqc_cnt(log_ctx->log_cqc);
+        int idx = cqc_get(log_ctx->log_cqc);
+        free(log_ctx->log_q[idx].string);
+    }
+
+    int idx = cqc_put(log_ctx->log_cqc);
+
+    struct log_entry *le = &log_ctx->log_q[idx];
     le->level  = dbg_lvl;
-    le->repeat = 0;
+    le->repeat = 1;
     le->module = module;
     le->line   = line;
     le->turn   = 0;
     if (gbl_game != NULL) le->turn = gbl_game->turn;
-
 
     le->string = calloc(STRING_MAX, sizeof(char) );
     vsnprintf(le->string, STRING_MAX, format, args);
@@ -175,6 +189,8 @@ void lg_printf_basic(struct logging *log_ctx, enum lg_debug_levels dbg_lvl, cons
 }
 
 void lg_printf_l(int lvl, const char *module, int line, const char* format, ... ) {
+    //if ( (gbl_log != NULL) && (lvl > gbl_log->level) ) return;
+
     va_list args;
     va_start(args, format);
     lg_printf_basic(gbl_log, lvl, module, line, format, args);
@@ -228,17 +244,15 @@ void msg_internal(coord_t *origin, coord_t *target, const char* module, int line
     vsnprintf(buf, STRING_MAX, format, args);
     va_end(args);
 
-    struct log_entry *le = malloc(sizeof(struct log_entry) );
+    struct log_entry log_entry;
+    struct log_entry *le = &log_entry;
     le->repeat  = 1;
     le->module  = module;
     le->line    = line;
     le->level   = LG_DEBUG_LEVEL_GAME;
     le->turn    = gbl_game->turn;
 
-    /* allocate enough memory for the string to be copied */
-    le->string = calloc(strlen(buf) +1, sizeof(char) );
-    strcpy(le->string, buf);
-
+    le->string = buf; /* temp copy */
     if (le_is_equal(le, gbl_log->log_last) ) {
         gbl_log->log_last->repeat++;
         gbl_log->log_last->turn = gbl_game->turn;
@@ -247,6 +261,18 @@ void msg_internal(coord_t *origin, coord_t *target, const char* module, int line
         if (gbl_log->callback != NULL) gbl_log->callback(gbl_log, gbl_log->log_last, gbl_log->priv);
         return;
     }
+
+    /* We really need a real copy now. */
+    le->string = strdup(buf);
+
+    if (cqc_space(gbl_log->log_cqc) == 0) {
+        int idx = cqc_get(gbl_log->log_cqc);
+        free(gbl_log->log_q[idx].string);
+    }
+
+    int idx = cqc_put(gbl_log->log_cqc);
+    le = &gbl_log->log_q[idx];
+    memcpy(le, &log_entry, sizeof(struct log_entry) );
 
     lg_print_to_file(gbl_log, le);
     lg_print_to_queue(gbl_log, le);

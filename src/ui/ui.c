@@ -1227,9 +1227,8 @@ Basic weapon traning SP     ...                  |
 }
 
 void show_log(struct hrl_window *window, bool input) {
-    struct queue *q = lg_queue(gbl_log);
     int y = 0;
-    int log_sz = queue_size(q);
+    int log_sz = lg_size(gbl_log);
     struct log_entry *tmp_entry = NULL;
 
     struct hrl_window pad;
@@ -1245,8 +1244,8 @@ void show_log(struct hrl_window *window, bool input) {
     ui_print_reset(&pad);
     if (log_sz > 0) {
         for (int i = log_sz; i > 0; i--) {
-            tmp_entry = queue_peek_nr(q, i-1).vp;
-            if (tmp_entry != NULL) {
+            tmp_entry = lg_peek(gbl_log, i-1);
+            if (tmp_entry != NULL && tmp_entry->string != NULL) {
                 bool print = false;
                 bool old = false;
 
@@ -1337,14 +1336,13 @@ void show_log(struct hrl_window *window, bool input) {
 
 #define SHOW_MAX_MSGS (20)
 void show_msg(struct hrl_window *window) {
-    struct queue *q = lg_queue(gbl_log);
     int y = 0;
-    int log_sz = queue_size(q);
+    int log_sz = lg_size(gbl_log);
     struct log_entry *tmp_entry = NULL;
 
     struct hrl_window pad;
     memmove(&pad, window, sizeof(struct hrl_window) );
-    pad.win = newpad(MAX(SHOW_MAX_MSGS, window->lines -1) , window->cols);
+    pad.win = newpad(window->lines, window->cols);
     assert(pad.win != NULL);
 
     touchwin(pad.win);
@@ -1352,18 +1350,18 @@ void show_msg(struct hrl_window *window) {
 
     ui_print_reset(&pad);
 
+    int ctr = 0;
     if (log_sz > 0) {
         int min = 0;
-        int ctr = 0;
         for (int i = log_sz; i > 0; i--) {
-            tmp_entry = queue_peek_nr(q, i-1).vp;
+            tmp_entry = lg_peek(gbl_log, i-1);
             if (tmp_entry != NULL) {
                 bool print = false;
                 if (tmp_entry->level <= LG_DEBUG_LEVEL_GAME) print = true;
 
                 if (print) ctr++;
             }
-            if (ctr >= SHOW_MAX_MSGS) {
+            if (ctr >= window->lines) {
                 min = i;
                 i = 0;
             }
@@ -1375,7 +1373,7 @@ void show_msg(struct hrl_window *window) {
                 bool old = false;
                 bool print = false;
 
-                tmp_entry = queue_peek_nr(q, i).vp;
+                tmp_entry = lg_peek(gbl_log, i);
                 if (tmp_entry != NULL) {
                     if (tmp_entry->level == LG_DEBUG_LEVEL_GAME) {
                         print = true;
@@ -1401,7 +1399,8 @@ void show_msg(struct hrl_window *window) {
             }
         }
     }
-    else y = ui_printf(&pad, "Empty");
+
+    if (ctr == 0) y = ui_printf(&pad, "Empty");
 
     prefresh(pad.win, y - pad.lines + 1,0, pad.y, pad.x, pad.y + pad.lines, pad.x + pad.cols);
     delwin(pad.win);

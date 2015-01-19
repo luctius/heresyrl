@@ -43,7 +43,7 @@ int main(int argc, char *argv[]) {
         gbl_log = lg_init(options.log_file_name, LG_DEBUG_LEVEL_DEBUG, 10000);
     }
     else {
-        gbl_log = lg_init(options.log_file_name, LG_DEBUG_LEVEL_INFORMATIONAL, 10000);
+        gbl_log = lg_init(options.log_file_name, LG_DEBUG_LEVEL_GAME_INFO, 100);
     }
 
  	srand(time(NULL));

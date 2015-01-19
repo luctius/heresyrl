@@ -3,7 +3,7 @@
 
 #include <stdarg.h>
 
-#include "queue.h"
+#include "cqc.h"
 #include "coord.h"
 
 struct msr_monster;
@@ -71,12 +71,15 @@ Warning: Stacking multiple of the same cs_XXX is not supported yet
 int clrstr_to_attr(const char *);
 
 typedef void (*callback_event)(struct logging *log, struct log_entry *entry, void *priv);
-struct queue *lg_queue(struct logging *log);
+
 
 struct logging *lg_init(char *logfile, enum lg_debug_levels lvl, int max_size);
 void lg_exit(struct logging *log);
 void lg_set_debug_lvl(struct logging *log, enum lg_debug_levels lvl);
 void lg_set_callback(struct logging *log, void *priv, callback_event ce);
+
+int lg_size(struct logging *log);
+struct log_entry *lg_peek(struct logging *log, int idx);
 
 #define msg(f, a...)        lg_printf_l(LG_DEBUG_LEVEL_GAME,          __FILE__, __LINE__, f, ##a)
 #define lg_print(f, a...)   lg_printf_l(LG_DEBUG_LEVEL_INFORMATIONAL, __FILE__, __LINE__, f, ##a)
@@ -84,9 +87,9 @@ void lg_set_callback(struct logging *log, void *priv, callback_event ce);
 #define lg_warning(f, a...) lg_printf_l(LG_DEBUG_LEVEL_WARNING,       __FILE__, __LINE__, f, ##a)
 #define lg_error(f, a...)   lg_printf_l(LG_DEBUG_LEVEL_ERROR,         __FILE__, __LINE__, f, ##a)
 
-#define GM_msg(f, a...)                 do                     { msg_internal(NULL,NULL,        __FILE__, __LINE__, "\n" cs_GM f cs_GM, ##a); } while (0)
-#define System_msg(f, a...)             do                     { msg_internal(NULL,NULL,        __FILE__, __LINE__, "\n" cs_SYSTEM f cs_SYSTEM, ##a); } while (0)
-#define Warning(f, a...)                do                     { msg_internal(NULL,NULL,        __FILE__, __LINE__, "\n" cs_CRITICAL "**" "Warning, " f "**" cs_CRITICAL, ##a); } while (0)
+#define GM_msg(f, a...)                 do                     { msg_internal(NULL,NULL,        __FILE__, __LINE__, cs_GM f cs_GM, ##a); } while (0)
+#define System_msg(f, a...)             do                     { msg_internal(NULL,NULL,        __FILE__, __LINE__, cs_SYSTEM f cs_SYSTEM, ##a); } while (0)
+#define Warning(f, a...)                do                     { msg_internal(NULL,NULL,        __FILE__, __LINE__, cs_CRITICAL "**" "Warning, " f "**" cs_CRITICAL, ##a); } while (0)
 #define Info(f, a...)                   do                     { msg_internal(NULL,NULL,        __FILE__, __LINE__, f, ##a); } while (0)
 #define Event_msg(p1, f, a...)          do                     { msg_internal(p1,NULL,          __FILE__, __LINE__, f, ##a); } while (0)
 #define Event_tgt_msg(p1,p2, f, a...)   do                     { msg_internal(p1,p2,            __FILE__, __LINE__, f, ##a); } while (0)
