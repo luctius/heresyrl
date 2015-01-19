@@ -81,7 +81,6 @@ static bool le_is_equal(struct log_entry *a, struct log_entry *b) {
     if (a->level != b->level)   return false;
     if (a->module != b->module) return false;
 
-    if (a->channel != b->channel) return false;
     if (a->string == NULL) return false;
     if (b->string == NULL) return false;
     if (strcmp(a->string, b->string) != 0) return false;
@@ -167,11 +166,6 @@ void lg_printf_basic(struct logging *log_ctx, enum lg_debug_levels dbg_lvl, cons
     if (gbl_game != NULL) le->turn = gbl_game->turn;
 
 
-    le->channel = LG_CHANNEL_DEBUG;
-    if ( (dbg_lvl == LG_DEBUG_LEVEL_ERROR) || (dbg_lvl == LG_DEBUG_LEVEL_WARNING) ) {
-        le->channel = LG_CHANNEL_WARNING;
-    }
-    
     le->string = calloc(STRING_MAX, sizeof(char) );
     vsnprintf(le->string, STRING_MAX, format, args);
     le->string = realloc(le->string, strlen(le->string) +1);
@@ -200,15 +194,6 @@ bool msg_valid(coord_t *origin, coord_t *target) {
         me = dm_get_map_me(origin, gbl_game->current_map);
         if (me == NULL) return false;
 
-        /* 
-           this message system has two channels.
-           One for the player and one for monsters.
-
-           if origin is a player, accept the player channel.
-           if the player is otherwise involved, accept it in
-           the monster channel. otherwise discard the messages.
-         */
-
         /* if the origin is visible by the player, accept it */
         if (me->visible == true)  return true;
     }
@@ -224,7 +209,7 @@ bool msg_valid(coord_t *origin, coord_t *target) {
     return false;
 }
 
-void msg_internal(coord_t *origin, coord_t *target, enum lg_channel c, const char* module, int line, const char *format, ...) {
+void msg_internal(coord_t *origin, coord_t *target, const char* module, int line, const char *format, ...) {
     if (gbl_log == NULL) return;
 
 
@@ -247,7 +232,6 @@ void msg_internal(coord_t *origin, coord_t *target, enum lg_channel c, const cha
     le->repeat  = 1;
     le->module  = module;
     le->line    = line;
-    le->channel = c;
     le->level   = LG_DEBUG_LEVEL_GAME;
     le->turn    = gbl_game->turn;
 
@@ -272,12 +256,13 @@ void msg_internal(coord_t *origin, coord_t *target, enum lg_channel c, const cha
 int clrstr_to_attr(const char *s) {
     if (strcmp(cs_MONSTER,       s) == 0) return get_colour(TERM_COLOUR_L_BLUE);
     else if (strcmp(cs_PLAYER,   s) == 0) return get_colour(TERM_COLOUR_L_GREEN);
-    else if (strcmp(cs_DAMAGE,   s) == 0) return get_colour(TERM_COLOUR_RED);
+    else if (strcmp(cs_DAMAGE,   s) == 0) return get_colour(TERM_COLOUR_L_VIOLET);
     else if (strcmp(cs_WARNING,  s) == 0) return get_colour(TERM_COLOUR_L_YELLOW);
     else if (strcmp(cs_CRITICAL, s) == 0) return get_colour(TERM_COLOUR_RED);
     else if (strcmp(cs_GM,       s) == 0) return get_colour(TERM_COLOUR_L_PURPLE);
     else if (strcmp(cs_SYSTEM,   s) == 0) return get_colour(TERM_COLOUR_WHITE);
     else if (strcmp(cs_ATTR,     s) == 0) return get_colour(TERM_COLOUR_L_TEAL);
+    else if (strcmp(cs_OLD,     s) == 0) return get_colour(TERM_COLOUR_L_DARK);
     
     return get_colour(TERM_COLOUR_L_WHITE);
 }

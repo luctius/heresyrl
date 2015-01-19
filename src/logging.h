@@ -44,17 +44,6 @@ enum lg_debug_levels {
     LG_DEBUG_LEVEL_MAX,
 };
 
-enum lg_channel {
-    LG_CHANNEL_DEBUG,
-    LG_CHANNEL_WARNING,
-    LG_CHANNEL_PLAIN,
-    LG_CHANNEL_GM,
-    LG_CHANNEL_SYSTEM,
-    LG_CHANNEL_SAY,
-    LG_CHANNEL_NUMBER,
-    LG_CHANNEL_MAX,
-};
-
 struct log_entry {
     int turn;
     int repeat;
@@ -63,10 +52,13 @@ struct log_entry {
     int line;
     
     enum lg_debug_levels level;
-    enum lg_channel channel;
     char *string;
 };
 
+
+/*
+Warning: Stacking multiple of the same cs_XXX is not supported yet
+*/
 #define cs_MONSTER  "<monster>"
 #define cs_PLAYER   "<player>"
 #define cs_DAMAGE   "<dmg>"
@@ -86,35 +78,34 @@ void lg_exit(struct logging *log);
 void lg_set_debug_lvl(struct logging *log, enum lg_debug_levels lvl);
 void lg_set_callback(struct logging *log, void *priv, callback_event ce);
 
+#define msg(f, a...)        lg_printf_l(LG_DEBUG_LEVEL_GAME,          __FILE__, __LINE__, f, ##a)
+#define lg_print(f, a...)   lg_printf_l(LG_DEBUG_LEVEL_INFORMATIONAL, __FILE__, __LINE__, f, ##a)
+#define lg_debug(f, a...)   lg_printf_l(LG_DEBUG_LEVEL_DEBUG,         __FILE__, __LINE__, f, ##a)
+#define lg_warning(f, a...) lg_printf_l(LG_DEBUG_LEVEL_WARNING,       __FILE__, __LINE__, f, ##a)
+#define lg_error(f, a...)   lg_printf_l(LG_DEBUG_LEVEL_ERROR,         __FILE__, __LINE__, f, ##a)
+
+#define GM_msg(f, a...)                 do                     { msg_internal(NULL,NULL,        __FILE__, __LINE__, "\n" cs_GM f cs_GM, ##a); } while (0)
+#define System_msg(f, a...)             do                     { msg_internal(NULL,NULL,        __FILE__, __LINE__, "\n" cs_SYSTEM f cs_SYSTEM, ##a); } while (0)
+#define Warning(f, a...)                do                     { msg_internal(NULL,NULL,        __FILE__, __LINE__, "\n" cs_CRITICAL "**" "Warning, " f "**" cs_CRITICAL, ##a); } while (0)
+#define Info(f, a...)                   do                     { msg_internal(NULL,NULL,        __FILE__, __LINE__, f, ##a); } while (0)
+#define Event_msg(p1, f, a...)          do                     { msg_internal(p1,NULL,          __FILE__, __LINE__, f, ##a); } while (0)
+#define Event_tgt_msg(p1,p2, f, a...)   do                     { msg_internal(p1,p2,            __FILE__, __LINE__, f, ##a); } while (0)
+#define You(m, f, a...)                 do {if (m->is_player)  { msg_internal(&m->pos,NULL,     __FILE__, __LINE__, cs_PLAYER "You" cs_PLAYER " " f, ##a); } } while (0)
+#define Your(m, f, a...)                do {if (m->is_player)  { msg_internal(&m->pos,NULL,     __FILE__, __LINE__, cs_PLAYER "Your" cs_PLAYER " " f, ##a); } } while (0)
+#define You_msg(m, f, a...)             do {if (m->is_player)  { msg_internal(&m->pos,NULL,     __FILE__, __LINE__, f, ##a); } } while (0)
+#define Monster(m, f, a...)             do {if (!m->is_player) { msg_internal(&m->pos,NULL,     __FILE__, __LINE__, "%s " f, msr_ldname(m), ##a); } } while (0)
+#define Monster_he(m, f, a...)          do {if (!m->is_player) { msg_internal(&m->pos,NULL,     __FILE__, __LINE__, "%s " f, msr_gender_name(m, false), ##a); } } while (0)
+#define Monster_his(m, f, a...)         do {if (!m->is_player) { msg_internal(&m->pos,NULL,     __FILE__, __LINE__, "%s " f, msr_gender_name(m, true), ##a); } } while (0)
+#define Monster_msg(m, f, a...)         do {if (!m->is_player) { msg_internal(&m->pos,NULL,     __FILE__, __LINE__, f, ##a); } } while (0)
+
+#define Monster_tgt(m, m2, f, a...)     do {if (!m->is_player) { msg_internal(&m->pos,&m2->pos, __FILE__, __LINE__, "%s " f, msr_ldname(m), ##a); } } while (0)
+#define Monster_tgt_he(m, m2, f, a...)  do {if (!m->is_player) { msg_internal(&m->pos,&m2->pos, __FILE__, __LINE__, "%s " f, msr_gender_name(m, false), ##a); } } while (0)
+#define Monster_tgt_his(m, m2, f, a...) do {if (!m->is_player) { msg_internal(&m->pos,&m2->pos, __FILE__, __LINE__, "%s " f, msr_gender_name(m, true), ##a); } } while (0)
+#define Monster_tgt_msg(m, m2, f, a...) do {if (!m->is_player) { msg_internal(&m->pos,&m2->pos, __FILE__, __LINE__, f, ##a); } } while (0)
+
 /*Do not use directly*/
 void lg_printf_l(int lvl, const char *module, int line, const char* format, ... );
 void lg_printf_basic(struct logging *log, enum lg_debug_levels dbg_lvl, const char *module, int line, const char *format, va_list args);
-
-void msg_internal(coord_t *origin, coord_t *target, enum lg_channel c, const char* module, int line, const char *format, ...);
-
-#define msg(f, a...) lg_printf_l(LG_DEBUG_LEVEL_GAME, __FILE__, __LINE__, f, ##a)
-#define lg_print(f, a...) lg_printf_l(LG_DEBUG_LEVEL_INFORMATIONAL, __FILE__, __LINE__, f, ##a)
-#define lg_debug(f, a...) lg_printf_l(LG_DEBUG_LEVEL_DEBUG, __FILE__, __LINE__, f, ##a)
-#define lg_warning(f, a...) lg_printf_l(LG_DEBUG_LEVEL_WARNING, __FILE__, __LINE__, f, ##a)
-#define lg_error(f, a...) lg_printf_l(LG_DEBUG_LEVEL_ERROR, __FILE__, __LINE__, f, ##a)
-
-#define GM_msg(f, a...)                 do                     { msg_internal(NULL,NULL,        LG_CHANNEL_GM,     __FILE__, __LINE__, "\n" cs_GM f cs_GM, ##a); } while (0)
-#define System_msg(f, a...)             do                     { msg_internal(NULL,NULL,        LG_CHANNEL_SYSTEM, __FILE__, __LINE__, "\n" cs_SYSTEM f cs_SYSTEM, ##a); } while (0)
-#define Info(f, a...)                   do                     { msg_internal(NULL,NULL,        LG_CHANNEL_PLAIN, __FILE__, __LINE__, f, ##a); } while (0)
-#define Warning(f, a...)                do                     { msg_internal(NULL,NULL,        LG_CHANNEL_SYSTEM, __FILE__, __LINE__, "\n" cs_CRITICAL "**" "Warning, " f "**" cs_CRITICAL, ##a); } while (0)
-#define Event_msg(p1, f, a...)          do                     { msg_internal(p1,NULL,          LG_CHANNEL_PLAIN, __FILE__, __LINE__, f, ##a); } while (0)
-#define Event_tgt_msg(p1,p2, f, a...)   do                     { msg_internal(p1,p2,            LG_CHANNEL_PLAIN, __FILE__, __LINE__, f, ##a); } while (0)
-#define You(m, f, a...)                 do {if (m->is_player)  { msg_internal(&m->pos,NULL,     LG_CHANNEL_PLAIN, __FILE__, __LINE__, cs_PLAYER "You" cs_PLAYER " " f, ##a); } } while (0)
-#define Your(m, f, a...)                do {if (m->is_player)  { msg_internal(&m->pos,NULL,     LG_CHANNEL_PLAIN, __FILE__, __LINE__, cs_PLAYER "Your" cs_PLAYER " " f, ##a); } } while (0)
-#define You_msg(m, f, a...)             do {if (m->is_player)  { msg_internal(&m->pos,NULL,     LG_CHANNEL_PLAIN, __FILE__, __LINE__, f, ##a); } } while (0)
-#define Monster(m, f, a...)             do {if (!m->is_player) { msg_internal(&m->pos,NULL,     LG_CHANNEL_PLAIN, __FILE__, __LINE__, "%s " f, msr_ldname(m), ##a); } } while (0)
-#define Monster_he(m, f, a...)          do {if (!m->is_player) { msg_internal(&m->pos,NULL,     LG_CHANNEL_PLAIN, __FILE__, __LINE__, "%s " f, msr_gender_name(m, false), ##a); } } while (0)
-#define Monster_his(m, f, a...)         do {if (!m->is_player) { msg_internal(&m->pos,NULL,     LG_CHANNEL_PLAIN, __FILE__, __LINE__, "%s " f, msr_gender_name(m, true), ##a); } } while (0)
-#define Monster_msg(m, f, a...)         do {if (!m->is_player) { msg_internal(&m->pos,NULL,     LG_CHANNEL_PLAIN, __FILE__, __LINE__, f, ##a); } } while (0)
-
-#define Monster_tgt(m, m2, f, a...)     do {if (!m->is_player) { msg_internal(&m->pos,&m2->pos, LG_CHANNEL_PLAIN, __FILE__, __LINE__, "%s " f, msr_ldname(m), ##a); } } while (0)
-#define Monster_tgt_he(m, m2, f, a...)  do {if (!m->is_player) { msg_internal(&m->pos,&m2->pos, LG_CHANNEL_PLAIN, __FILE__, __LINE__, "%s " f, msr_gender_name(m, false), ##a); } } while (0)
-#define Monster_tgt_his(m, m2, f, a...) do {if (!m->is_player) { msg_internal(&m->pos,&m2->pos, LG_CHANNEL_PLAIN, __FILE__, __LINE__, "%s " f, msr_gender_name(m, true), ##a); } } while (0)
-#define Monster_tgt_msg(m, m2, f, a...) do {if (!m->is_player) { msg_internal(&m->pos,&m2->pos, LG_CHANNEL_PLAIN, __FILE__, __LINE__, f, ##a); } } while (0)
+void msg_internal(coord_t *origin, coord_t *target, const char* module, int line, const char *format, ...);
 
 #endif /*LOGGING_H_*/

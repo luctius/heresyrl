@@ -77,7 +77,6 @@ bool ui_create(int cols, int lines) {
             char_win = win_create(char_lines, char_cols, 1, map_cols+1, HRL_WINDOW_TYPE_CHARACTER);
             msg_win = win_create(msg_lines, msg_cols-1, map_lines, 1, HRL_WINDOW_TYPE_MESSAGE);
             lg_set_callback(gbl_log, NULL, msgwin_log_callback);
-            //msgwin_log_refresh(gbl_log, NULL);
             show_msg(msg_win);
             return true;
         }
@@ -611,74 +610,6 @@ bool mapwin_overlay_throw_cursor(struct gm_game *g, struct dm_map *map, coord_t 
     return false;
 }
 
-int log_channel_to_colour(enum lg_channel ch) {
-    switch (ch) {
-        case LG_CHANNEL_WARNING: return get_colour(TERM_COLOUR_RED);
-        case LG_CHANNEL_GM: return get_colour(TERM_COLOUR_L_YELLOW);
-        case LG_CHANNEL_SAY: return get_colour(TERM_COLOUR_WHITE);
-        case LG_CHANNEL_NUMBER: return get_colour(TERM_COLOUR_PURPLE);
-        case LG_CHANNEL_SYSTEM: return get_colour(TERM_COLOUR_L_PURPLE);
-        default:
-        case LG_CHANNEL_DEBUG:
-        case LG_CHANNEL_MAX:
-        case LG_CHANNEL_PLAIN: return get_colour(TERM_COLOUR_SLATE);
-    }
-}
-
-void msgwin_log_refresh(struct logging *lg, struct log_entry *new_entry) {
-    struct queue *q = lg_queue(lg);
-    int log_sz = queue_size(q);
-    int win_sz = msg_win->lines -1;
-    struct log_entry *tmp_entry = NULL;
-    struct log_entry *tmpgame_entry = NULL;
-
-    /* TODO: make msg_win into a pad */
-
-    if (msg_win == NULL) return;
-    if (msg_win->type != HRL_WINDOW_TYPE_MESSAGE) return;
-    if ( (new_entry != NULL) && (new_entry->level > LG_DEBUG_LEVEL_GAME) ) return;
-
-    int max = MIN(win_sz, log_sz);
-    int log_start = 0;
-
-    int game_lvl_sz = 0;
-    for (int i = log_sz; i > 0; i--) {
-        tmp_entry = queue_peek_nr(q, i-1).vp;
-        if ( (tmp_entry != NULL) && (tmp_entry->level <= LG_DEBUG_LEVEL_GAME) ) {
-            game_lvl_sz++;
-            log_start = i -1;
-            if (game_lvl_sz == max) i = 0;
-            if (tmpgame_entry == NULL) tmpgame_entry = tmp_entry;
-        }
-    }
-
-    if (game_lvl_sz > 0) {
-        int y = 0;
-        int x = 1;
-
-        wclear(msg_win->win);
-        for (int i = log_start; i < log_sz; i++) {
-            tmp_entry = queue_peek_nr(q, i).vp;
-            if ( (tmp_entry != NULL) && (tmp_entry->level <= LG_DEBUG_LEVEL_GAME) ) {
-                    if (x + ((int) strlen(tmp_entry->string)) >= msg_win->cols) { y++; x = 1; }
-                    int colour = log_channel_to_colour(tmp_entry->channel);
-
-                    wattron(msg_win->win, colour);
-                    mvwprintw(msg_win->win, y,x, tmp_entry->string);
-                    wattroff(msg_win->win, colour);
-                    x += strlen(tmp_entry->string);
-                if (tmp_entry->repeat > 1) {
-                    mvwprintw(msg_win->win, y,x, " (x%d)", tmp_entry->repeat);
-                }
-                y++; 
-                x = 1;
-            }
-        }
-
-        if (options.refresh) wrefresh(msg_win->win);
-    }
-}
-
 void show_log(struct hrl_window *window, bool input);
 
 static bool active = false;
@@ -689,7 +620,6 @@ void msgwin_log_callback(struct logging *lg, struct log_entry *entry, void *priv
 
     if (active) return;
     active = true;
-    //msgwin_log_refresh(lg, entry);
 
     show_msg(msg_win);
     active = false;
@@ -1310,6 +1240,8 @@ void show_log(struct hrl_window *window, bool input) {
     touchwin(pad.win);
     werase(pad.win);
 
+
+    char pre_format_buf[100];
     ui_print_reset(&pad);
     if (log_sz > 0) {
         for (int i = log_sz; i > 0; i--) {
@@ -1317,6 +1249,8 @@ void show_log(struct hrl_window *window, bool input) {
             if (tmp_entry != NULL) {
                 bool print = false;
                 bool old = false;
+
+                pre_format_buf[0] = '\0';
 
                 if (options.debug) {
                     const char *pre_format;
@@ -1346,7 +1280,7 @@ void show_log(struct hrl_window *window, bool input) {
                             break;
                     }
 
-                    ui_printf(&pad, pre_format, tmp_entry->module, tmp_entry->line, tmp_entry->turn);
+                    sprintf(pre_format_buf, pre_format, tmp_entry->module, tmp_entry->line, tmp_entry->turn);
                 }
                 else if (tmp_entry->level == LG_DEBUG_LEVEL_GAME) {
                     print = true;
@@ -1356,14 +1290,18 @@ void show_log(struct hrl_window *window, bool input) {
                     old = true;
                 }
 
+                if ( (tmp_entry->turn +(TT_ENERGY_TURN+TT_ENERGY_TICK) ) < gbl_game->turn) {
+                    old = true;
+                }
+
                 if (print) {
                     char *old_str = "";
-                    //if (old) old_str = cs_OLD;
+                    if (old) old_str = cs_OLD;
 
                     if (tmp_entry->repeat > 1) {
-                        y = ui_printf(&pad, "%s%s (x%d)%s\n", old_str, tmp_entry->string, tmp_entry->repeat, old_str);
+                        y = ui_printf(&pad, "%s%s%s (x%d)%s\n", old_str, pre_format_buf, tmp_entry->string, tmp_entry->repeat, old_str);
                     }
-                    else y = ui_printf(&pad, "%s%s%s\n", old_str, tmp_entry->string, old_str);
+                    else y = ui_printf(&pad, "%s%s%s%s\n", old_str, pre_format_buf, tmp_entry->string, old_str);
                 }
             }
         }
@@ -1450,7 +1388,7 @@ void show_msg(struct hrl_window *window) {
                         if (tmp_entry->turn != last_turn) ui_printf(&pad, "\n");
 
                         char *old_str = "";
-                        //if (old) old_str = cs_OLD;
+                        if (old) old_str = cs_OLD;
 
                         if (tmp_entry->repeat > 1) {
                             y = ui_printf(&pad, "%s%s (x%d)%s\n", old_str, tmp_entry->string, tmp_entry->repeat, old_str);
