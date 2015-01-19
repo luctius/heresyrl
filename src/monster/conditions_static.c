@@ -235,7 +235,7 @@ static struct cdn_condition static_condition_list[] = {
                             "impact critical head 2",
                             "",
                             "You are momentarily blinded by the blood spraying from your nose.",
-                            "As the blood is spraying from %s's nose, %s is momentarily blinded.",
+                            "As the blood is spraying from %s's nose, it is momentarily blinded.",
                             NULL,
                             NULL, 
                         EFFECT(CDN_EF_BLINDNESS,                         0, CDN_DAMAGE_NONE, 0),
