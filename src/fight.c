@@ -275,8 +275,8 @@ int fght_calc_dmg(struct random *r, struct msr_monster *monster, struct msr_mons
         total_damage += MAX((dmg + dmg_add) - (armour  + toughness), 0);
 
         if (monster != NULL) {
-            You(monster,                    "hit and do " cs_DAMAGE "%d" cs_DAMAGE " damage.", total_damage);
-            Monster_tgt_he(monster, target, "hits and does " cs_DAMAGE "%d" cs_DAMAGE " damage.", total_damage);
+            You(monster,                    "hit and do " cs_DAMAGE "%d" cs_DAMAGE " damage.", MAX((dmg + dmg_add) - (armour  + toughness), 0));
+            Monster_tgt_he(monster, target, "hits and does " cs_DAMAGE "%d" cs_DAMAGE " damage.", MAX((dmg + dmg_add) - (armour  + toughness), 0));
         }
         else {
             Event_msg(&target->pos, "It does %d to %s.", total_damage, msr_ldname(target) );
