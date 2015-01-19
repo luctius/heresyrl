@@ -38,6 +38,7 @@ enum lg_debug_levels {
     LG_DEBUG_LEVEL_ERROR,
     LG_DEBUG_LEVEL_WARNING,
     LG_DEBUG_LEVEL_GAME,
+    LG_DEBUG_LEVEL_GAME_INFO,
     LG_DEBUG_LEVEL_INFORMATIONAL,
     LG_DEBUG_LEVEL_DEBUG,
     LG_DEBUG_LEVEL_MAX,
@@ -74,6 +75,7 @@ struct log_entry {
 #define cs_GM       "<gm>"
 #define cs_SYSTEM   "<system>"
 #define cs_ATTR     "<attr>"
+#define cs_OLD      "<old>"
 int clrstr_to_attr(const char *);
 
 typedef void (*callback_event)(struct logging *log, struct log_entry *entry, void *priv);
@@ -98,6 +100,7 @@ void msg_internal(coord_t *origin, coord_t *target, enum lg_channel c, const cha
 
 #define GM_msg(f, a...)                 do                     { msg_internal(NULL,NULL,        LG_CHANNEL_GM,     __FILE__, __LINE__, "\n" cs_GM f cs_GM, ##a); } while (0)
 #define System_msg(f, a...)             do                     { msg_internal(NULL,NULL,        LG_CHANNEL_SYSTEM, __FILE__, __LINE__, "\n" cs_SYSTEM f cs_SYSTEM, ##a); } while (0)
+#define Info(f, a...)                   do                     { msg_internal(NULL,NULL,        LG_CHANNEL_PLAIN, __FILE__, __LINE__, f, ##a); } while (0)
 #define Warning(f, a...)                do                     { msg_internal(NULL,NULL,        LG_CHANNEL_SYSTEM, __FILE__, __LINE__, "\n" cs_CRITICAL "**" "Warning, " f "**" cs_CRITICAL, ##a); } while (0)
 #define Event_msg(p1, f, a...)          do                     { msg_internal(p1,NULL,          LG_CHANNEL_PLAIN, __FILE__, __LINE__, f, ##a); } while (0)
 #define Event_tgt_msg(p1,p2, f, a...)   do                     { msg_internal(p1,p2,            LG_CHANNEL_PLAIN, __FILE__, __LINE__, f, ##a); } while (0)

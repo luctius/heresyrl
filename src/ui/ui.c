@@ -1316,6 +1316,7 @@ void show_log(struct hrl_window *window, bool input) {
             tmp_entry = queue_peek_nr(q, i-1).vp;
             if (tmp_entry != NULL) {
                 bool print = false;
+                bool old = false;
 
                 if (options.debug) {
                     const char *pre_format;
@@ -1324,6 +1325,9 @@ void show_log(struct hrl_window *window, bool input) {
                     switch (tmp_entry->level) {
                         case LG_DEBUG_LEVEL_GAME:
                             pre_format = "[%s:%d]" "[Game][%d] ";
+                            break;
+                        case LG_DEBUG_LEVEL_GAME_INFO:
+                            pre_format = "[%s:%d]" "[Game Info][%d] ";
                             break;
                         case LG_DEBUG_LEVEL_DEBUG:
                             pre_format = "[%s:%d]" "[Debug][%d] ";
@@ -1344,14 +1348,22 @@ void show_log(struct hrl_window *window, bool input) {
 
                     ui_printf(&pad, pre_format, tmp_entry->module, tmp_entry->line, tmp_entry->turn);
                 }
-                else if (tmp_entry->level <= LG_DEBUG_LEVEL_GAME) print = true;
-                else if (tmp_entry->level <= LG_DEBUG_LEVEL_INFORMATIONAL) print = true;
+                else if (tmp_entry->level == LG_DEBUG_LEVEL_GAME) {
+                    print = true;
+                }
+                else if (tmp_entry->level <= LG_DEBUG_LEVEL_GAME_INFO) {
+                    print = true;
+                    old = true;
+                }
 
                 if (print) {
+                    char *old_str = "";
+                    //if (old) old_str = cs_OLD;
+
                     if (tmp_entry->repeat > 1) {
-                        y = ui_printf(&pad, "%s (x%d)\n", tmp_entry->string, tmp_entry->repeat);
+                        y = ui_printf(&pad, "%s%s (x%d)%s\n", old_str, tmp_entry->string, tmp_entry->repeat, old_str);
                     }
-                    else y = ui_printf(&pad, "%s\n", tmp_entry->string);
+                    else y = ui_printf(&pad, "%s%s%s\n", old_str, tmp_entry->string, old_str);
                 }
             }
         }
@@ -1405,8 +1417,8 @@ void show_msg(struct hrl_window *window) {
     if (log_sz > 0) {
         int min = 0;
         int ctr = 0;
-        for (int i = log_sz-1; i > 0; i--) {
-            tmp_entry = queue_peek_nr(q, i).vp;
+        for (int i = log_sz; i > 0; i--) {
+            tmp_entry = queue_peek_nr(q, i-1).vp;
             if (tmp_entry != NULL) {
                 bool print = false;
                 if (tmp_entry->level <= LG_DEBUG_LEVEL_GAME) print = true;
@@ -1422,15 +1434,28 @@ void show_msg(struct hrl_window *window) {
         int last_turn = -1;
         if (ctr > 0) {
             for (int i = min; i < log_sz; i++) {
+                bool old = false;
+                bool print = false;
+
                 tmp_entry = queue_peek_nr(q, i).vp;
                 if (tmp_entry != NULL) {
-                    if (tmp_entry->level <= LG_DEBUG_LEVEL_GAME) {
+                    if (tmp_entry->level == LG_DEBUG_LEVEL_GAME) {
+                        print = true;
+                        if ( (tmp_entry->turn +(TT_ENERGY_TURN+TT_ENERGY_TICK) ) < gbl_game->turn) {
+                            old = true;
+                        }
+                    }
+
+                    if (print) {
                         if (tmp_entry->turn != last_turn) ui_printf(&pad, "\n");
 
+                        char *old_str = "";
+                        //if (old) old_str = cs_OLD;
+
                         if (tmp_entry->repeat > 1) {
-                            y = ui_printf(&pad, "%s (x%d)\n", tmp_entry->string, tmp_entry->repeat);
+                            y = ui_printf(&pad, "%s%s (x%d)%s\n", old_str, tmp_entry->string, tmp_entry->repeat, old_str);
                         }
-                        else y = ui_printf(&pad, "%s", tmp_entry->string);
+                        else y = ui_printf(&pad, "%s%s%s", old_str, tmp_entry->string, old_str);
 
                         last_turn = tmp_entry->turn;
                     }

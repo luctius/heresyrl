@@ -109,6 +109,9 @@ static void lg_print_to_file(struct logging *log_ctx, struct log_entry *entry) {
         case LG_DEBUG_LEVEL_GAME:
             pre_format = "Game";
             break;
+        case LG_DEBUG_LEVEL_GAME_INFO:
+            pre_format = "Game Info";
+            break;
         case LG_DEBUG_LEVEL_DEBUG:
             pre_format = "Debug";
             break;
@@ -273,7 +276,7 @@ int clrstr_to_attr(const char *s) {
     else if (strcmp(cs_WARNING,  s) == 0) return get_colour(TERM_COLOUR_L_YELLOW);
     else if (strcmp(cs_CRITICAL, s) == 0) return get_colour(TERM_COLOUR_RED);
     else if (strcmp(cs_GM,       s) == 0) return get_colour(TERM_COLOUR_L_PURPLE);
-    else if (strcmp(cs_SYSTEM,   s) == 0) return get_colour(TERM_COLOUR_L_WHITE);
+    else if (strcmp(cs_SYSTEM,   s) == 0) return get_colour(TERM_COLOUR_WHITE);
     else if (strcmp(cs_ATTR,     s) == 0) return get_colour(TERM_COLOUR_L_TEAL);
     
     return get_colour(TERM_COLOUR_L_WHITE);
