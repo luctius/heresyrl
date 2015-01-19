@@ -267,12 +267,14 @@ void msg_internal(coord_t *origin, coord_t *target, enum lg_channel c, const cha
 }
 
 int clrstr_to_attr(const char *s) {
-    if (strcmp(cs_WHITE,         s) == 0) return get_colour(TERM_COLOUR_WHITE);
-    else if (strcmp(cs_RED,      s) == 0) return get_colour(TERM_COLOUR_L_RED);
-    else if (strcmp(cs_PURPLE,   s) == 0) return get_colour(TERM_COLOUR_L_PURPLE);
-    else if (strcmp(cs_BLACK,    s) == 0) return get_colour(TERM_COLOUR_DARK);
-    else if (strcmp(cs_BLUE,     s) == 0) return get_colour(TERM_COLOUR_L_BLUE);
-    else if (strcmp(cs_YELLOW,   s) == 0) return get_colour(TERM_COLOUR_L_YELLOW);
+    if (strcmp(cs_MONSTER,       s) == 0) return get_colour(TERM_COLOUR_L_BLUE);
+    else if (strcmp(cs_PLAYER,   s) == 0) return get_colour(TERM_COLOUR_L_GREEN);
+    else if (strcmp(cs_DAMAGE,   s) == 0) return get_colour(TERM_COLOUR_RED);
+    else if (strcmp(cs_WARNING,  s) == 0) return get_colour(TERM_COLOUR_L_YELLOW);
+    else if (strcmp(cs_CRITICAL, s) == 0) return get_colour(TERM_COLOUR_RED);
+    else if (strcmp(cs_GM,       s) == 0) return get_colour(TERM_COLOUR_L_PURPLE);
+    else if (strcmp(cs_SYSTEM,   s) == 0) return get_colour(TERM_COLOUR_L_WHITE);
+    else if (strcmp(cs_ATTR,     s) == 0) return get_colour(TERM_COLOUR_L_TEAL);
     
     return get_colour(TERM_COLOUR_L_WHITE);
 }

@@ -1348,11 +1348,10 @@ void show_log(struct hrl_window *window, bool input) {
                 else if (tmp_entry->level <= LG_DEBUG_LEVEL_INFORMATIONAL) print = true;
 
                 if (print) {
-                    ui_printf(&pad, "%s", tmp_entry->string);
                     if (tmp_entry->repeat > 1) {
-                        ui_printf(&pad, " (x%d)", tmp_entry->repeat);
+                        y = ui_printf(&pad, "%s (x%d)\n", tmp_entry->string, tmp_entry->repeat);
                     }
-                    ui_printf(&pad, "\n");
+                    else y = ui_printf(&pad, "%s\n", tmp_entry->string);
                 }
             }
         }
