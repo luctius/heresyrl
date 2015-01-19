@@ -175,13 +175,12 @@ struct cdn_condition *cdn_create(struct cdn_condition_list *cdn_list, enum cdn_i
     int range = (cc->duration_energy_max - cc->duration_energy_min);
     cc->duration_energy = cc->duration_energy_min;
     if (range > 0) cc->duration_energy += (random_int32(gbl_game->random) % range);
+    if (cc->duration_energy == 0) cc->duration_energy = 1;
     cc->duration_energy_max = cc->duration_energy;
 
-    /*
     cc->duration_energy_max *= (TT_ENERGY_TURN);
     cc->duration_energy_min *= (TT_ENERGY_TURN);
     cc->duration_energy     *= (TT_ENERGY_TURN);
-    */
 
     for (unsigned int i = 0; i < ARRAY_SZ(cc->effects); i++ ) {
         struct condition_effect_struct *ces = &cc->effects[i];
@@ -353,7 +352,8 @@ void cdn_process(struct cdn_condition_list *cdn_list, struct msr_monster *monste
         bool first_time = false;
         bool last_time = true;
         if (c->duration_energy == c->duration_energy_max) first_time = true;
-        if (c->duration_energy > 0) last_time = false;
+        if ( (test_bf(c->setting_flags, CDN_SF_PERMANENT) == false) ) last_time = false;
+        else if (c->duration_energy > 0) last_time = false;
 
         {   /* Pre checks */
             if (first_time) {
@@ -502,7 +502,7 @@ void cdn_process(struct cdn_condition_list *cdn_list, struct msr_monster *monste
             }
 
             if (process) {
-                lg_debug("Processing Condition %p(%s).", c, c->name);
+                lg_debug("Processing Condition %p(%s): el %d, em: %d: tick: %d.", c, c->name, c->duration_energy, c->duration_energy_max, TT_ENERGY_TICK);
 
                 switch(ces->effect) {
                     case CDN_EF_MODIFY_FATIQUE: {
@@ -725,9 +725,7 @@ void cdn_process(struct cdn_condition_list *cdn_list, struct msr_monster *monste
         }
 
         if (c->duration_energy > 0) {
-            if ( (test_bf(c->setting_flags, CDN_SF_PERMANENT) == false) || (first_time) ) {
-                c->duration_energy -= MIN(TT_ENERGY_TICK, c->duration_energy);
-            }
+            c->duration_energy -= MIN(TT_ENERGY_TICK, c->duration_energy);
         }
 
         c_prev = c;
