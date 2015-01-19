@@ -3,7 +3,6 @@
 #include <sys/param.h>
 
 #include "ui_common.h"
-#include "linewrap.h"
 #include "options.h"
 
 struct hrl_window *map_win = NULL;
@@ -61,12 +60,7 @@ int ui_printf_ext(struct hrl_window *win, int y_start, int x_start, const char *
     while (t < txt_sz) {
         bool new_line = false;
 
-        lg_debug("printing: %s", buf);
-        lg_debug("line length: %d", txt_sz);
-        lg_debug("start x pos: %d, t: %d, cols: %d", win->text_x, t, win->cols);
-
         int line_sz = MIN(max_line_sz - win->text_x, txt_sz - t);
-        lg_debug("line sz: %d, (txt_sz -t): %d", line_sz, (txt_sz -t));
         if ( (txt_sz - t) > line_sz) {
             new_line = true;
 
@@ -80,8 +74,6 @@ int ui_printf_ext(struct hrl_window *win, int y_start, int x_start, const char *
                 }
             }
         }
-
-        lg_debug("line sz: %d", line_sz);
 
         int x = 0;
         int colour_ctr = 0;

@@ -18,7 +18,6 @@ heresyrl_SOURCES =  \
                     coord.c \
                     fight.c \
                     inventory.c \
-                    linewrap.c \
                     input.c \
                     dowear.c \
                     load.c \

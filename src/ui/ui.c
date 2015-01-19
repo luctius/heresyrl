@@ -1345,6 +1345,7 @@ void show_log(struct hrl_window *window, bool input) {
                     ui_printf(&pad, pre_format, tmp_entry->module, tmp_entry->line, tmp_entry->turn);
                 }
                 else if (tmp_entry->level <= LG_DEBUG_LEVEL_GAME) print = true;
+                else if (tmp_entry->level <= LG_DEBUG_LEVEL_INFORMATIONAL) print = true;
 
                 if (print) {
                     ui_printf(&pad, "%s", tmp_entry->string);
