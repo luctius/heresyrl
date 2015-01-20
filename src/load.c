@@ -279,7 +279,7 @@ static bool load_log(lua_State *L, struct logging *lctx) {
 
         const char *mod_ptr = lua_stringexpr(L, "game.log[%d].module", i+1);
         if (mod_ptr != NULL) {
-            le.module = strdup(mod_ptr);
+            le.module = mod_ptr;
         }
 
         const char *str_ptr = lua_stringexpr(L, "game.log[%d].string", i+1);
