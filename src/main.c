@@ -89,7 +89,6 @@ int main(int argc, char *argv[]) {
             getmaxyx(stdscr, lines, cols);
             ui_create(cols, lines);
         }
-     
     }
 
     System_msg("Goodbye.");
