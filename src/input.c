@@ -13,14 +13,18 @@
 #define INPUT_PRE_CHECK (56325)
 #define INPUT_POST_CHECK (41267)
 static bool inp_verify(struct inp_input *i) {
+    assert(i != NULL);
     assert(i->pre == INPUT_PRE_CHECK);
     assert(i->post == INPUT_POST_CHECK);
+    if (i == NULL) return false;
     if (i->pre  != INPUT_PRE_CHECK)  return false;
     if (i->post != INPUT_POST_CHECK) return false;
     return true;
 }
 
 static bool inp_resize_log(struct inp_input *i) {
+    if (inp_verify(i) == false) return false;
+
     int old = i->keylog_sz;
     i->keylog_sz += INP_KEYLOG_INCREASE;
     i->keylog = realloc(i->keylog, i->keylog_sz * sizeof(enum inp_keys) );
@@ -30,6 +34,8 @@ static bool inp_resize_log(struct inp_input *i) {
 }
 
 void inp_add_to_log(struct inp_input *i, enum inp_keys key) {
+    if (inp_verify(i) == false) return;
+
     if (i->keylog_widx >= i->keylog_sz -2) {
         assert(inp_resize_log(i) );
     }
@@ -38,6 +44,7 @@ void inp_add_to_log(struct inp_input *i, enum inp_keys key) {
 }
 
 bool inp_log_has_keys(struct inp_input *i) {
+    if (inp_verify(i) == false) return false;
     /*lg_debug("keylog has %d unread key strokes", i->keylog_widx - i->keylog_ridx);*/
 
     if ( (i->keylog_ridx < i->keylog_widx) && 
@@ -57,6 +64,8 @@ bool inp_log_has_keys(struct inp_input *i) {
 }
 
 enum inp_keys inp_get_from_log(struct inp_input *i) {
+    inp_verify(i);
+
     return i->keylog[i->keylog_ridx++];
 }
 
@@ -82,6 +91,7 @@ int inp_input_to_idx(enum inp_keys k) {
 
 bool inp_keylog_stop(struct inp_input *i) {
     if (i == NULL) return false;
+    if (inp_verify(i) == false) return NULL;
 
     i->keylog_ridx = i->keylog_widx;
     return true;
@@ -89,6 +99,7 @@ bool inp_keylog_stop(struct inp_input *i) {
 
 enum inp_keys inp_get_input_idx(struct inp_input *i) {
     if (i == NULL) return -1;
+    if (inp_verify(i) == false) return -1;
     enum inp_keys k = INP_KEY_ESCAPE;
 
     if (inp_log_has_keys(i) == false) {
@@ -105,6 +116,7 @@ enum inp_keys inp_get_input_idx(struct inp_input *i) {
 
 enum inp_keys inp_get_input_text(struct inp_input *i) {
     if (i == NULL) return -1;
+    if (inp_verify(i) == false) return -1;
     enum inp_keys k = INP_KEY_ESCAPE;
 
     if (inp_log_has_keys(i) == false) {
@@ -120,6 +132,7 @@ enum inp_keys inp_get_input_text(struct inp_input *i) {
 
 enum inp_keys inp_get_input(struct inp_input *i) {
     if (i == NULL) return -1;
+    if (inp_verify(i) == false) return -1;
     enum inp_keys k = INP_KEY_NONE;
 
     if (inp_log_has_keys(i) == false) {
@@ -207,6 +220,8 @@ struct inp_input *inp_init(void) {
 }
 
 void inp_exit(struct inp_input *i) {
+    if (inp_verify(i) == false) return;
+
     if (i != NULL) {
         if (i->keylog_sz > 0) {
             free(i->keylog);
