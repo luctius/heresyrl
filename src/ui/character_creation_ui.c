@@ -50,9 +50,10 @@ bool char_creation_window(void) {
 
     struct pl_player *plr = &gbl_game->player_data;
     plr->player = msr_create(0);
-    charwin_refresh();
 
     struct msr_monster *player = plr->player;
+    player->unique_name = "";
+    charwin_refresh();
 
     const char *enter_name_string = "Please enter your name: ";
     mvwprintw(map_win->win, 1, 1, enter_name_string);
@@ -69,7 +70,7 @@ bool char_creation_window(void) {
 
         k = inp_get_input_text(gbl_game->input);
         switch (k) {
-            case '\n': name_done = true; break;
+            case '\n': if (strlen(name_buffer) > 0 ) { name_done = true; } break;
             case 24: return false;
             case INP_KEY_BACKSPACE: 
                 if (name_buffer_idx >= 0) {
@@ -91,7 +92,6 @@ bool char_creation_window(void) {
     player->unique_name = malloc( (name_buffer_idx +5) * sizeof(char) );
     memcpy(player->unique_name, name_buffer, name_buffer_idx+1);
     charwin_refresh();
-
 
 
     werase(map_win->win);
