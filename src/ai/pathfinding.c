@@ -174,7 +174,7 @@ static bool pf_astar_loop(struct pf_context *ctx, coord_t *end) {
                 me_new->state = PF_ENTITY_STATE_OPEN;
             }
 
-            lg_debug("tested (%d,%d) -> [st: %d/ cst: %d/dst: %d/scr: %d]", pos.x, pos.y, me_new->state, me_new->cost, me_new->distance, me_new->score);
+            //lg_debug("tested (%d,%d) -> [st: %d/ cst: %d/dst: %d/scr: %d]", pos.x, pos.y, me_new->state, me_new->cost, me_new->distance, me_new->score);
         }
     }
 
@@ -227,7 +227,7 @@ static bool pf_backtrace(struct pf_map *map, coord_t *end, coord_t coord_lst[], 
                     best_pos.y = pos.y;
                 }
             }
-            lg_debug("testing p(%d,%d) -> [st: %d/ cst: %d/dst: %d]", pos.x, pos.y, me->state, me->cost, me->distance);
+            //lg_debug("testing p(%d,%d) -> [st: %d/ cst: %d/dst: %d]", pos.x, pos.y, me->state, me->cost, me->distance);
         }
 
         point.x = best_pos.x;
