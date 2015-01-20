@@ -29,6 +29,7 @@ heresyrl
 # http://www.gnu.org/software/automake
 
 Makefile.in
+config.h.in
 
 # http://www.gnu.org/software/autoconf
 
