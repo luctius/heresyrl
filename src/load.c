@@ -72,7 +72,7 @@ static const char* lua_stringexpr(lua_State *L, const char* format, ...)
 * 
 * @return zero on succes, otherwise 1.
 */
-static int lua_numberexpr(lua_State *L, double *out, const char* format, va_list args)
+static int lua_intexpr_va(lua_State *L, ptrdiff_t *out, const char* format, va_list args)
 {
     int ok = 0;
     char buf[256] = "";
@@ -89,7 +89,7 @@ static int lua_numberexpr(lua_State *L, double *out, const char* format, va_list
 
         if (lua_isnumber(L, -1) == 1)
         {
-            *out = lua_tonumber(L, -1);
+            *out = lua_tointeger(L, -1);
             ok = 1;
         }
 
@@ -112,12 +112,12 @@ static int lua_numberexpr(lua_State *L, double *out, const char* format, va_list
 */
 static int lua_intexpr(lua_State* L, uint64_t *out, const char* format, ...)
 {
-    double d = 0;
+    ptrdiff_t d = 0;
     int ok = 1;
 
     va_list args;
     va_start(args, format);
-    ok = lua_numberexpr(L, &d, format, args);
+    ok = lua_intexpr_va(L, &d, format, args);
     va_end(args);
 
     if (ok == 1)
@@ -505,7 +505,8 @@ static bool load_monsters(lua_State *L, struct dm_map *map, struct gm_game *g) {
 static bool load_map(lua_State *L, struct dm_map **m, int mapid) {
     if (L == NULL) return false;
     uint64_t t;
-    int map_sz = 0, x_sz, y_sz, type, seed, threat;
+    int map_sz = 0, x_sz, y_sz, type, threat;
+    uint64_t seed;
     if (lua_intexpr(L, &t, "game.maps[%d].map.sz", mapid) == 1) {
         map_sz = t;
         if (lua_intexpr(L, &t, "game.maps[%d].seed", mapid) == 0) return false;

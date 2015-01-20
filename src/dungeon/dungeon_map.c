@@ -368,7 +368,7 @@ bool dm_generate_map(struct dm_map *map, enum dm_dungeon_type type, int level, u
     map->type = type;
     map->threat_lvl = level;
 
-    lg_debug("generating map with seed \'%d\', type \'%d\' adn threat_lvl \'%d\'", seed, type, level);
+    lg_debug("generating map with seed \'%lu\', type \'%d\' and threat_lvl \'%d\'", seed, type, level);
 
     struct random *r = random_init_genrand(seed);
     switch(type) {
