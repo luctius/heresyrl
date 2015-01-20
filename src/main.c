@@ -29,7 +29,7 @@ static void sigfunc(int s) {
     if (options.play_recording == true) {
         gbl_game->running = false;
     }
-    else System_msg("Please press Ctrl-X to quit\n");
+    else System_msg("Please press Ctrl-X to quit");
 }
 
 int main(int argc, char *argv[]) {
