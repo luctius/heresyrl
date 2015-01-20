@@ -148,6 +148,8 @@ struct msr_monster *msr_create(uint32_t template_id) {
         }
     }
 
+    lg_debug("creating monster[%d, %s, %c]", m->monster.uid, m->monster.ld_name, m->monster.icon);
+
     LIST_INSERT_HEAD(&monster_list_head, m, entries);
     return &m->monster;
 }
