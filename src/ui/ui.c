@@ -1378,7 +1378,7 @@ void show_msg(struct hrl_window *window) {
 
                 tmp_entry = lg_peek(gbl_log, i);
                 if (tmp_entry != NULL) {
-                    if (tmp_entry->level == LG_DEBUG_LEVEL_GAME) {
+                    if (tmp_entry->level <= LG_DEBUG_LEVEL_GAME) {
                         print = true;
                         if ( (tmp_entry->turn +(TT_ENERGY_TURN+TT_ENERGY_TICK) ) < gbl_game->turn) {
                             old = true;
