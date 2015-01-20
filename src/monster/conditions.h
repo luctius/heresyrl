@@ -189,7 +189,6 @@ struct cdn_condition {
     /*duration in turns, will be converted to energy when created. */
     int duration_energy_min;
     int duration_energy_max;
-
     int duration_energy;
 
     const char *on_apply_plr;

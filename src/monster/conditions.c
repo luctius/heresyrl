@@ -176,11 +176,8 @@ struct cdn_condition *cdn_create(struct cdn_condition_list *cdn_list, enum cdn_i
     cc->duration_energy = cc->duration_energy_min;
     if (range > 0) cc->duration_energy += (random_int32(gbl_game->random) % range);
     if (cc->duration_energy == 0) cc->duration_energy = 1;
+    lg_debug("Creating cdn: %p(%s) duration: %d, max: %d", cc, cc->name, cc->duration_energy, cc->duration_energy_max);
     cc->duration_energy_max = cc->duration_energy;
-
-    cc->duration_energy_max *= (TT_ENERGY_TURN);
-    cc->duration_energy_min *= (TT_ENERGY_TURN);
-    cc->duration_energy     *= (TT_ENERGY_TURN);
 
     for (unsigned int i = 0; i < ARRAY_SZ(cc->effects); i++ ) {
         struct condition_effect_struct *ces = &cc->effects[i];
@@ -198,7 +195,7 @@ bool cdn_add_to_list(struct cdn_condition_list *cdn_list, struct cdn_condition *
     if (cdn_verify_list(cdn_list) == false) return false;
     if (cdn_verify_condition(con) == false) return false;
 
-    lg_debug("Adding condition: %p(%s)\n", con, con->name);
+    lg_debug("Adding condition: %p(%s)", con, con->name);
 
     struct cdn_entry *ce = container_of(con, struct cdn_entry, condition);
     LIST_INSERT_HEAD(&cdn_list->head, ce, entries);
@@ -218,6 +215,8 @@ bool cdn_add_condition(struct cdn_condition_list *cdn_list, uint32_t tid) {
                 if (test_bf(c->setting_flags, CDN_SF_PERMANENT) ) {
                     return false;
                 }
+
+                lg_debug("Restarting condition: %p(%s)", c, c->name);
                 /* restart condition */
                 c->duration_energy = c->duration_energy_max -1;
                 return false;
@@ -348,11 +347,13 @@ void cdn_process(struct cdn_condition_list *cdn_list, struct msr_monster *monste
         if (monster->dead) return;
         if (cdn_verify_condition(c) == false) return;
 
-        bool destroy = false;
+        bool destroy    = false;
+
         bool first_time = false;
-        bool last_time = true;
         if (c->duration_energy == c->duration_energy_max) first_time = true;
-        if ( (test_bf(c->setting_flags, CDN_SF_PERMANENT) == false) ) last_time = false;
+
+        bool last_time  = true;
+        if ( (test_bf(c->setting_flags, CDN_SF_PERMANENT) == true) ) last_time = false;
         else if (c->duration_energy > 0) last_time = false;
 
         {   /* Pre checks */
@@ -661,6 +662,7 @@ void cdn_process(struct cdn_condition_list *cdn_list, struct msr_monster *monste
 
                     case CDN_EF_BLOODLOSS: {
                         if (random_d100(gbl_game->random) < 5) {
+                            You(monster, "die due to bloodless.");
                             msr_die(monster, gbl_game->current_map);
                         }
                     }break;
