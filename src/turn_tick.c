@@ -32,8 +32,6 @@ void tt_process_monsters(struct dm_map *map) {
             }
         }
 
-        lg_debug("processing monster [%d]", monster->uid);
-
         bool do_action = false;
 
         if (msr_get_energy(monster) < TT_ENERGY_FULL) msr_change_energy(monster, TT_ENERGY_TICK);
