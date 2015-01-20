@@ -1,6 +1,7 @@
 #ifndef INPUT_H
 #define INPUT_H
 
+#include <stdint.h>
 #include <ncurses.h>
 
 #define INP_KEY_MAX_IDX (36)
@@ -47,10 +48,14 @@ enum inp_keys {
 };
 
 struct inp_input {
+    uint32_t pre;
+
     enum inp_keys *keylog;
     int keylog_sz;
     int keylog_widx;
     int keylog_ridx;
+
+    uint32_t post;
 };
 
 struct inp_input *inp_init(void);

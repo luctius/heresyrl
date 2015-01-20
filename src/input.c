@@ -10,15 +10,27 @@
 
 #define INP_KEYLOG_INCREASE 100
 
+#define INPUT_PRE_CHECK (56325)
+#define INPUT_POST_CHECK (41267)
+static bool inp_verify(struct inp_input *i) {
+    assert(i->pre == INPUT_PRE_CHECK);
+    assert(i->post == INPUT_POST_CHECK);
+    if (i->pre  != INPUT_PRE_CHECK)  return false;
+    if (i->post != INPUT_POST_CHECK) return false;
+    return true;
+}
+
 static bool inp_resize_log(struct inp_input *i) {
+    int old = i->keylog_sz;
     i->keylog_sz += INP_KEYLOG_INCREASE;
     i->keylog = realloc(i->keylog, i->keylog_sz * sizeof(enum inp_keys) );
+    lg_debug("input increase: %d => %d", old, i->keylog_sz);
     if (i->keylog == NULL) return false;
     return true;
 }
 
 void inp_add_to_log(struct inp_input *i, enum inp_keys key) {
-    if (i->keylog_widx == i->keylog_sz -2) {
+    if (i->keylog_widx >= i->keylog_sz -2) {
         assert(inp_resize_log(i) );
     }
 
@@ -180,11 +192,15 @@ enum inp_keys inp_get_input(struct inp_input *i) {
 struct inp_input *inp_init(void) {
     struct inp_input *i = malloc( sizeof(struct inp_input) );
     if (i != NULL) {
+        i->pre = INPUT_POST_CHECK;
+
         i->keylog = NULL;
         i->keylog_sz = 0;
         i->keylog_widx = 0;
         i->keylog_ridx = 0;
-        inp_resize_log(i);
+
+        i->post = INPUT_POST_CHECK;
+        assert(inp_resize_log(i) == true);
     }
 
     return i;
