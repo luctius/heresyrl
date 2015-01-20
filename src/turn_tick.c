@@ -22,7 +22,6 @@ void tt_process_monsters(struct dm_map *map) {
 
     while ( (monster = msrlst_get_next_monster(monster) ) != NULL) {
         if (monster->dead) {
-
             /* Clean-up monsters which can be cleaned up. */
             if (monster->controller.controller_cb == NULL) {
                 struct msr_monster *dead_monster = monster;
@@ -32,6 +31,8 @@ void tt_process_monsters(struct dm_map *map) {
                 continue;
             }
         }
+
+        lg_debug("processing monster [%d]", monster->uid);
 
         bool do_action = false;
 

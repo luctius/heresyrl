@@ -329,7 +329,7 @@ static bool load_items_list(lua_State *L) {
     if (lua_intexpr(L, &t, "game.items.sz") == 0) return false;
 
     int items_sz = t;
-    for (int i = items_sz-1; i >= 0; i--) {
+    for (int i = 0; i < items_sz; i++) {
         if (lua_intexpr(L, &t, "game.items[%d].template_id", i+1) == 0) return false;
         int template_id = t;
         struct itm_item *item = itm_create(template_id);
@@ -379,7 +379,7 @@ static bool load_monsters(lua_State *L, struct dm_map *map, struct gm_game *g) {
     if (lua_intexpr(L, &t, "game.monsters.sz") == 0) return false;
 
     int monsters_sz = t;
-    for (int i = monsters_sz-1; i >= 0; i--) {
+    for (int i = 0; i < monsters_sz; i++) {
         if (lua_intexpr(L, &t, "game.monsters[%d].template_id", i+1) == 0) return false;
         struct msr_monster *monster = msr_create(t);
         if (msr_verify_monster(monster) == false) return false;
@@ -478,7 +478,7 @@ static bool load_monsters(lua_State *L, struct dm_map *map, struct gm_game *g) {
         if (lua_intexpr(L, &t, "game.monsters[%d].items.sz", i+1) == 1) {
             int items_sz = t;
             struct itm_item *item;
-            for (int j = items_sz -1; j >= 0; j--) {
+            for (int j = 0; j < items_sz; j++) {
                 if (lua_intexpr(L, &t, "game.monsters[%d].items[%d].uid", i+1,j+1) == 1) {
                     item = itmlst_item_by_uid(t);
                     if (msr_give_item(monster, item) == false) {

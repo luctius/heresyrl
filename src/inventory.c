@@ -13,14 +13,14 @@
 struct inv_entry {
     bitfield_t location;
     struct itm_item *item;
-    LIST_ENTRY(inv_entry) entries;
+    TAILQ_ENTRY(inv_entry) entries;
 };
 
 struct inv_inventory {
     uint32_t inv_pre;
 
     bitfield_t available_locations;
-    LIST_HEAD(invhead, inv_entry) head;
+    TAILQ_HEAD(invhead, inv_entry) head;
 
     uint32_t inv_post;
 };
@@ -32,7 +32,7 @@ struct inv_inventory {
 struct inv_inventory *inv_init(bitfield_t locations) {
     struct inv_inventory *i= calloc(1, sizeof(struct inv_inventory) );
     if (i != NULL) {
-        LIST_INIT(&i->head);
+        TAILQ_INIT(&i->head);
         i->available_locations = locations;
 
         i->inv_pre = INVENTORY_PRE_CHECK;
@@ -45,9 +45,9 @@ void inv_exit(struct inv_inventory *inv) {
     if (inv_verify_inventory(inv) == false) return;
 
     struct inv_entry *ie;
-    while ( (ie = inv->head.lh_first ) != NULL) {
+    while ( (ie = inv->head.tqh_first ) != NULL) {
         itm_destroy(ie->item);
-        LIST_REMOVE(inv->head.lh_first, entries);
+        TAILQ_REMOVE(&inv->head, inv->head.tqh_first, entries);
         free(ie);
     }
     free(inv);
@@ -63,8 +63,8 @@ bool inv_verify_inventory(struct inv_inventory *inv) {
 
 struct itm_item *inv_get_next_item(struct inv_inventory *inv, struct itm_item *prev) {
     if (inv_verify_inventory(inv) == false) return NULL;
-    if (inv->head.lh_first == NULL) return NULL;
-    struct inv_entry *ie = inv->head.lh_first;
+    if (inv->head.tqh_first == NULL) return NULL;
+    struct inv_entry *ie = inv->head.tqh_first;
 
     struct itm_item *item = NULL;
     bitfield_t item_location = 0;
@@ -76,14 +76,14 @@ struct itm_item *inv_get_next_item(struct inv_inventory *inv, struct itm_item *p
 
     while ( (ie != NULL) && (item == NULL) ) {
         if (ie->item == prev) { /*return next item */
-            if (ie->entries.le_next != NULL) {
-                item = ie->entries.le_next->item;
-                item_location = ie->entries.le_next->location;
+            if (ie->entries.tqe_next != NULL) {
+                item = ie->entries.tqe_next->item;
+                item_location = ie->entries.tqe_next->location;
                 break;
             }
         }
 
-        ie = ie->entries.le_next;
+        ie = ie->entries.tqe_next;
     }
 
     if (item != NULL) {
@@ -116,12 +116,12 @@ bool inv_has_item(struct inv_inventory *inv, struct itm_item *item) {
     if (inv_verify_inventory(inv) == false) return false;
     if (itm_verify_item(item) == false) return false;
 
-    struct inv_entry *ie = inv->head.lh_first;
+    struct inv_entry *ie = inv->head.tqh_first;
     while (ie != NULL) {
         if  (ie->item == item) {
             return true;
         }
-        ie = ie->entries.le_next;
+        ie = ie->entries.tqe_next;
     }
 
     return false;
@@ -166,7 +166,7 @@ bool inv_add_item(struct inv_inventory *inv, struct itm_item *item) {
 
     ie->location = INV_LOC_INVENTORY;
     ie->item = item;
-    LIST_INSERT_HEAD(&inv->head, ie, entries);
+    TAILQ_INSERT_TAIL(&inv->head, ie, entries);
 
     return true;
 }
@@ -176,15 +176,15 @@ bool inv_remove_item(struct inv_inventory *inv, struct itm_item *item) {
     if (itm_verify_item(item) == false) return false;
     if (inv_has_item(inv, item) == false) return false;
 
-    struct inv_entry *ie = inv->head.lh_first;
+    struct inv_entry *ie = inv->head.tqh_first;
 
     while (ie != NULL) {
         if (ie->item == item) {
-            LIST_REMOVE(ie, entries);
+            TAILQ_REMOVE(&inv->head, ie, entries);
             free(ie);
             return true;
         }
-        ie = ie->entries.le_next;
+        ie = ie->entries.tqe_next;
     }
 
     return false;
@@ -218,14 +218,14 @@ bool inv_move_item_to_location(struct inv_inventory *inv, struct itm_item *item,
         }
     }
 
-    struct inv_entry *ie = inv->head.lh_first;
+    struct inv_entry *ie = inv->head.tqh_first;
 
     while (ie != NULL) {
         if (ie->item == item) {
             ie->location = location;
             return true;
         }
-        ie = ie->entries.le_next;
+        ie = ie->entries.tqe_next;
     }
     return false;
 }
@@ -234,13 +234,13 @@ struct itm_item *inv_get_item_from_location(struct inv_inventory *inv, bitfield_
     if (inv_verify_inventory(inv) == false) return NULL;
     if (inv_support_location(inv, location) == false) return NULL;
 
-    struct inv_entry *ie = inv->head.lh_first;
+    struct inv_entry *ie = inv->head.tqh_first;
 
     while (ie != NULL) {
         if ( (ie->location & location) > 0) {
             return ie->item;
         }
-        ie = ie->entries.le_next;
+        ie = ie->entries.tqe_next;
     }
     return NULL;
 }
@@ -258,12 +258,12 @@ bitfield_t inv_get_item_locations(struct inv_inventory *inv, struct itm_item *it
     if (itm_verify_item(item) == false) return INV_LOC_NONE;
     if (inv_has_item(inv, item) == false) return INV_LOC_NONE;
     
-    struct inv_entry *ie = inv->head.lh_first;
+    struct inv_entry *ie = inv->head.tqh_first;
     while (ie != NULL) {
         if (ie->item == item) {
             return ie->location;
         }
-        ie = ie->entries.le_next;
+        ie = ie->entries.tqe_next;
     }
     return INV_LOC_NONE;
 }
@@ -274,14 +274,14 @@ bool inv_item_worn(struct inv_inventory *inv, struct itm_item *item) {
     if (itm_verify_item(item) == false) return false;
     if (inv_has_item(inv, item) == false) return false;
 
-    struct inv_entry *ie = inv->head.lh_first;
+    struct inv_entry *ie = inv->head.tqh_first;
     while (ie != NULL) {
         if (ie->item == item) {
             if ( (ie->location & (~INV_LOC_INVENTORY) ) > 0) {
                 return true;
             }
         }
-        ie = ie->entries.le_next;
+        ie = ie->entries.tqe_next;
     }
     return false;
 }
@@ -292,12 +292,12 @@ bool inv_item_wielded(struct inv_inventory *inv, struct itm_item *item) {
     if (itm_verify_item(item) == false) return false;
     if (inv_item_worn(inv, item) == false) return false;
 
-    struct inv_entry *ie = inv->head.lh_first;
+    struct inv_entry *ie = inv->head.tqh_first;
     while (ie != NULL) {
         if (ie->item == item) {
             if ( (ie->location & (INV_LOC_OFFHAND_WIELD | INV_LOC_MAINHAND_WIELD) ) > 0) return true;
         }
-        ie = ie->entries.le_next;
+        ie = ie->entries.tqe_next;
     }
     return false;
 }

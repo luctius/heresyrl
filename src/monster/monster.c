@@ -30,14 +30,14 @@ static enum condition_effect_flags charac_to_condition_lot[] = {
 };
 
 
-static LIST_HEAD(monster_list, msr_monster_list_entry) monster_list_head;
+static TAILQ_HEAD(monster_list, msr_monster_list_entry) monster_list_head;
 static bool monster_list_initialised = false;
 
 #include "monster_static.c"
 
 struct msr_monster_list_entry {
     struct msr_monster monster;
-    LIST_ENTRY(msr_monster_list_entry) entries;
+    TAILQ_ENTRY(msr_monster_list_entry) entries;
 };
 
 void msrlst_monster_list_init(void) {
@@ -59,15 +59,15 @@ void msrlst_monster_list_init(void) {
 
     if (monster_list_initialised == false) {
         monster_list_initialised = true;
-        LIST_INIT(&monster_list_head);
+        TAILQ_INIT(&monster_list_head);
     }
 }
 
 void msrlst_monster_list_exit(void) {
     struct msr_monster_list_entry *e = NULL;
-    while (monster_list_head.lh_first != NULL) {
-        e = monster_list_head.lh_first;
-        LIST_REMOVE(monster_list_head.lh_first, entries);
+    while (monster_list_head.tqh_first != NULL) {
+        e = monster_list_head.tqh_first;
+        TAILQ_REMOVE(&monster_list_head, monster_list_head.tqh_first, entries);
         msr_clear_controller(&e->monster);
         cdn_list_exit(e->monster.conditions);
         inv_exit(e->monster.inventory);
@@ -78,22 +78,22 @@ void msrlst_monster_list_exit(void) {
 
 struct msr_monster *msrlst_get_next_monster(struct msr_monster *prev) {
     if (prev == NULL) {
-        if (monster_list_head.lh_first != NULL) return &monster_list_head.lh_first->monster;
+        if (monster_list_head.tqh_first != NULL) return &monster_list_head.tqh_first->monster;
         return NULL;
     }
     struct msr_monster_list_entry *mle = container_of(prev, struct msr_monster_list_entry, monster);
     if (mle == NULL) return NULL;
-    return &mle->entries.le_next->monster;
+    return &mle->entries.tqe_next->monster;
 }
 
 static uint32_t msrlst_next_id(void) {
     if (monster_list_initialised == false) return false;
-    struct msr_monster_list_entry *me = monster_list_head.lh_first;
+    struct msr_monster_list_entry *me = monster_list_head.tqh_first;
     uint32_t uid = 1;
 
     while (me != NULL) {
         if (uid <= me->monster.uid) uid = me->monster.uid+1;
-        me = me->entries.le_next;
+        me = me->entries.tqe_next;
     }
     return uid;
 }
@@ -150,7 +150,7 @@ struct msr_monster *msr_create(uint32_t template_id) {
 
     lg_debug("creating monster[%d, %s, %c]", m->monster.uid, m->monster.ld_name, m->monster.icon);
 
-    LIST_INSERT_HEAD(&monster_list_head, m, entries);
+    TAILQ_INSERT_TAIL(&monster_list_head, m, entries);
     return &m->monster;
 }
 
@@ -167,7 +167,7 @@ void msr_destroy(struct msr_monster *monster, struct dm_map *map) {
 
     if (monster->unique_name != NULL) free(monster->unique_name);
 
-    LIST_REMOVE(target_mle, entries);
+    TAILQ_REMOVE(&monster_list_head, target_mle, entries);
     free(target_mle);
 }
 

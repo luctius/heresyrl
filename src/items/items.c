@@ -13,10 +13,10 @@
 
 struct itm_item_list_entry {
     struct itm_item item;
-    LIST_ENTRY(itm_item_list_entry) entries;
+    TAILQ_ENTRY(itm_item_list_entry) entries;
 };
 
-static LIST_HEAD(items_list, itm_item_list_entry) items_list_head;
+static TAILQ_HEAD(items_list, itm_item_list_entry) items_list_head;
 static bool items_list_initialised = false;
 
 #include "items_static.c"
@@ -40,15 +40,15 @@ void itmlst_items_list_init(void) {
 
     if (items_list_initialised == false) {
         items_list_initialised = true;
-        LIST_INIT(&items_list_head);
+        TAILQ_INIT(&items_list_head);
     }
 }
 
 void itmlst_items_list_exit(void) {
     struct itm_item_list_entry *e = NULL;
-    while (items_list_head.lh_first != NULL) {
-        e = items_list_head.lh_first;
-        LIST_REMOVE(items_list_head.lh_first, entries);
+    while (items_list_head.tqh_first != NULL) {
+        e = items_list_head.tqh_first;
+        TAILQ_REMOVE(&items_list_head, items_list_head.tqh_first, entries);
         free(e);
     }
     items_list_initialised = false;
@@ -58,33 +58,33 @@ struct itm_item *itmlst_get_next_item(struct itm_item *prev) {
     if (items_list_initialised == false) return NULL;
 
     if (prev == NULL) {
-        if (items_list_head.lh_first != NULL) return &items_list_head.lh_first->item;
+        if (items_list_head.tqh_first != NULL) return &items_list_head.tqh_first->item;
         return NULL;
     }
     struct itm_item_list_entry *ile = container_of(prev, struct itm_item_list_entry, item);
     if (ile == NULL) return NULL;
-    return &ile->entries.le_next->item;
+    return &ile->entries.tqe_next->item;
 }
 
 struct itm_item *itmlst_item_by_uid(uint32_t item_uid) {
     if (items_list_initialised == false) return false;
-    struct itm_item_list_entry *ie = items_list_head.lh_first;
+    struct itm_item_list_entry *ie = items_list_head.tqh_first;
 
     while (ie != NULL) {
         if (item_uid == ie->item.uid) return &ie->item;
-        ie = ie->entries.le_next;
+        ie = ie->entries.tqe_next;
     }
     return NULL;
 }
 
 static uint32_t itmlst_next_id(void) {
     if (items_list_initialised == false) return false;
-    struct itm_item_list_entry *ie = items_list_head.lh_first;
+    struct itm_item_list_entry *ie = items_list_head.tqh_first;
     uint32_t uid = 1;
 
     while (ie != NULL) {
         if (uid <= ie->item.uid) uid = ie->item.uid+1;
-        ie = ie->entries.le_next;
+        ie = ie->entries.tqe_next;
     }
     return uid;
 }
@@ -107,7 +107,7 @@ struct itm_item *itm_create(int template_id) {
     assert(i != NULL);
 
     memcpy(&i->item, &static_item_list[template_id], sizeof(static_item_list[template_id]));
-    LIST_INSERT_HEAD(&items_list_head, i, entries);
+    TAILQ_INSERT_TAIL(&items_list_head, i, entries);
     i->item.item_pre    = ITEM_PRE_CHECK;
     i->item.item_post   = ITEM_POST_CHECK;
     i->item.icon_attr   = get_colour(i->item.icon_attr);
@@ -122,7 +122,7 @@ struct itm_item *itm_create(int template_id) {
 void itm_destroy(struct itm_item *item) {
     struct itm_item_list_entry *ile = container_of(item, struct itm_item_list_entry, item);
 
-    LIST_REMOVE(ile, entries);
+    TAILQ_REMOVE(&items_list_head, ile, entries);
     free(ile);
 }
 
