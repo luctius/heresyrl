@@ -37,7 +37,7 @@ static void le_free(struct log_entry *e) {
 }
 */
 
-struct logging *lg_init(char *logfile, enum lg_debug_levels lvl, int max_size) {
+struct logging *lg_init(char *logfile, enum lg_debug_levels lvl, uint32_t max_size) {
     struct logging *log_ctx = calloc(1, sizeof(struct logging) );
     if (log_ctx == NULL) return NULL;
 

@@ -73,7 +73,7 @@ int clrstr_to_attr(const char *);
 typedef void (*callback_event)(struct logging *log, struct log_entry *entry, void *priv);
 
 
-struct logging *lg_init(char *logfile, enum lg_debug_levels lvl, int max_size);
+struct logging *lg_init(char *logfile, enum lg_debug_levels lvl, uint32_t max_size);
 void lg_exit(struct logging *log);
 void lg_set_debug_lvl(struct logging *log, enum lg_debug_levels lvl);
 void lg_set_callback(struct logging *log, void *priv, callback_event ce);
