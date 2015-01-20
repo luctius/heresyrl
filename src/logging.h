@@ -80,6 +80,7 @@ void lg_set_callback(struct logging *log, void *priv, callback_event ce);
 
 int lg_size(struct logging *log);
 struct log_entry *lg_peek(struct logging *log, int idx);
+void lg_add_entry(struct logging *log_ctx, struct log_entry *le_given);
 
 #define msg(f, a...)        lg_printf_l(LG_DEBUG_LEVEL_GAME,          __FILE__, __LINE__, f, ##a)
 #define lg_print(f, a...)   lg_printf_l(LG_DEBUG_LEVEL_INFORMATIONAL, __FILE__, __LINE__, f, ##a)

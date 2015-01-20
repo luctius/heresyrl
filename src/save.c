@@ -17,6 +17,29 @@
 #include "items/items.h"
 #include "dungeon/dungeon_map.h"
 
+static bool sv_save_log(FILE *file, int indent, struct logging *lctx) {
+    if (file == NULL) return false;
+
+    fprintf(file, "%*s" "log={", indent, ""); { indent += 2;
+
+        fprintf(file,"sz=%d,\n", lg_size(lctx) -1 );
+        for (int i = 0; i < lg_size(lctx) -1; i++) {
+            struct log_entry *le = lg_peek(lctx, i);
+            fprintf(file,"%*s" "{", indent, "");
+            fprintf(file, "turn=%d,",       le->turn);
+            fprintf(file, "repeated=%d,",   le->repeat);
+            fprintf(file, "line=%d,",       le->line);
+            fprintf(file, "level=%d,",      le->level);
+            fprintf(file, "module=\"%s\",", le->module);
+            fprintf(file, "string=\"%s\",", le->string);
+            fprintf(file, "},\n");
+        }
+    } indent -= 2; fprintf(file, "%*s" "},\n", indent, "");
+
+    fflush(file);
+    return true;
+}
+
 static bool sv_save_input(FILE *file, int indent, struct inp_input *input) {
     if (file == NULL) return false;
 
@@ -264,6 +287,7 @@ bool sv_save_game(const char *filename, struct gm_game *gm) {
         } indent -= 2; fprintf(file, "%*s" "},\n", indent, "");
 
         sv_save_input(file, indent, gm->input);
+        sv_save_log(file, indent, gbl_log);
     } indent -= 2; fprintf(file, "%*s" "}\n", indent, "");
     fflush(file);
     fclose(file);

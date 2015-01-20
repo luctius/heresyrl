@@ -30,22 +30,13 @@ struct logging {
     struct log_entry *log_last;
 };
 
-/*
-static void le_free(struct log_entry *e) {
-    free(e->string);
-    free(e);
-}
-*/
-
 struct logging *lg_init(char *logfile, enum lg_debug_levels lvl, uint32_t max_size) {
     struct logging *log_ctx = calloc(1, sizeof(struct logging) );
     if (log_ctx == NULL) return NULL;
 
     log_ctx->level = lvl;
-    //log_ctx->logging_q_sz = max_size;
-    //log_ctx->logging_q = queue_init_simple(log_ctx->logging_q_sz+1);
-    log_ctx->log_q = malloc(max_size * sizeof(struct log_entry) );
     cqc_init(log_ctx->log_cqc, max_size);
+    log_ctx->log_q = malloc(cqc_qsz(log_ctx->log_cqc) * sizeof(struct log_entry) );
 
     log_ctx->log_file = fopen(logfile, "w");
     if (log_ctx->log_file == NULL) {
@@ -61,11 +52,11 @@ void lg_exit(struct logging *log_ctx) {
     if (log_ctx == NULL) return;
 
     while (cqc_cnt(log_ctx->log_cqc) > 0) {
-        free(log_ctx->log_q[cqc_get(log_ctx->log_cqc)].string);
+        int idx = cqc_get(log_ctx->log_cqc);
+        free(log_ctx->log_q[idx].string);
     }
     free(log_ctx->log_q);
 
-    /*queue_exit(log_ctx->logging_q);*/
     fclose(log_ctx->log_file);
     free(log_ctx);
 }
@@ -81,6 +72,23 @@ int lg_size(struct logging *log_ctx) {
     if (log_ctx == NULL) return -1;
     int sz = cqc_cnt(log_ctx->log_cqc);
     return sz;
+}
+
+void lg_add_entry(struct logging *log_ctx, struct log_entry *le_given) {
+    if (cqc_space(log_ctx->log_cqc) == 0) {
+        int idx = cqc_get(log_ctx->log_cqc);
+        free(log_ctx->log_q[idx].string);
+    }
+
+    int idx = cqc_put(log_ctx->log_cqc);
+
+    struct log_entry *le = &log_ctx->log_q[idx];
+    le->level  = le_given->level;
+    le->repeat = le_given->repeat;
+    le->module = le_given->module;
+    le->string = le_given->string;
+    le->line   = le_given->line;
+    le->turn   = le_given->turn;
 }
 
 struct log_entry *lg_peek(struct logging *log_ctx, int idx) {
@@ -164,8 +172,6 @@ void lg_printf_basic(struct logging *log_ctx, enum lg_debug_levels dbg_lvl, cons
     if ( (log_ctx != NULL) && (dbg_lvl > log_ctx->level) ) return;
 
     if (cqc_space(log_ctx->log_cqc) == 0) {
-        int space = cqc_space(log_ctx->log_cqc);
-        int sz = cqc_cnt(log_ctx->log_cqc);
         int idx = cqc_get(log_ctx->log_cqc);
         free(log_ctx->log_q[idx].string);
     }

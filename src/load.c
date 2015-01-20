@@ -263,6 +263,36 @@ static bool load_game(lua_State *L, struct gm_game *g) {
     return true;
 }
 
+static bool load_log(lua_State *L, struct logging *lctx) {
+    uint64_t t;
+    if (L == NULL) return false;
+
+    if (lua_intexpr(L, &t, "game.log.sz") == 0) return false;
+
+    int sz = t;
+    for (int i = 0; i < sz; i++) {
+        struct log_entry le;
+        lua_intexpr(L, &t, "game.log[%d].turn",     i+1); le.turn   = t;
+        lua_intexpr(L, &t, "game.log[%d].repeated", i+1); le.repeat = t;
+        lua_intexpr(L, &t, "game.log[%d].level",    i+1); le.level  = t;
+        lua_intexpr(L, &t, "game.log[%d].line",     i+1); le.line   = t;
+
+        const char *mod_ptr = lua_stringexpr(L, "game.log[%d].module", i+1);
+        if (mod_ptr != NULL) {
+            le.module = strdup(mod_ptr);
+        }
+
+        const char *str_ptr = lua_stringexpr(L, "game.log[%d].string", i+1);
+        if (str_ptr != NULL) {
+            le.string = strdup(str_ptr);
+        }
+
+        lg_add_entry(lctx, &le);
+    }
+
+    return true;
+}
+
 static bool load_input(lua_State *L, struct gm_game *g) {
     uint64_t t;
     if (L == NULL) return false;
@@ -282,6 +312,7 @@ static bool load_input(lua_State *L, struct gm_game *g) {
 
     return true;
 }
+
 static bool load_player(lua_State *L, struct pl_player *plr) {
     uint64_t t;
     if (L == NULL) return false;
@@ -298,7 +329,7 @@ static bool load_items_list(lua_State *L) {
     if (lua_intexpr(L, &t, "game.items.sz") == 0) return false;
 
     int items_sz = t;
-    for (int i = 0; i < items_sz; i++) {
+    for (int i = items_sz-1; i >= 0; i--) {
         if (lua_intexpr(L, &t, "game.items[%d].template_id", i+1) == 0) return false;
         int template_id = t;
         struct itm_item *item = itm_create(template_id);
@@ -348,8 +379,7 @@ static bool load_monsters(lua_State *L, struct dm_map *map, struct gm_game *g) {
     if (lua_intexpr(L, &t, "game.monsters.sz") == 0) return false;
 
     int monsters_sz = t;
-    for (int i = 0; i < monsters_sz; i++) {
-
+    for (int i = monsters_sz-1; i >= 0; i--) {
         if (lua_intexpr(L, &t, "game.monsters[%d].template_id", i+1) == 0) return false;
         struct msr_monster *monster = msr_create(t);
         if (msr_verify_monster(monster) == false) return false;
@@ -373,11 +403,8 @@ static bool load_monsters(lua_State *L, struct dm_map *map, struct gm_game *g) {
 
         const char *name_ptr = lua_stringexpr(L, "game.monsters[%d].unique_name", i+1);
         if (name_ptr != NULL) {
-            lg_debug("monster name is %s", monster->unique_name);
-            monster->unique_name = malloc( (strlen(name_ptr) + 2) * sizeof(char) );
-            if (monster->unique_name != NULL) {
-                strcpy(monster->unique_name, name_ptr);
-            }
+            monster->unique_name = strdup(name_ptr);
+            lg_debug("monster[%d] name is %s", monster->uid, monster->unique_name);
         }
 
         if (lua_intexpr(L, &t, "game.monsters[%d].skills.sz", i+1) == 1) {
@@ -539,6 +566,8 @@ bool ld_read_save_file(const char *path, struct gm_game *g) {
     if (L != NULL) {
         load_game(L, g);
         load_input(L, g);
+
+        load_log(L, gbl_log);
 
         if (options.play_recording == false) {
             load_player(L, &g->player_data);
