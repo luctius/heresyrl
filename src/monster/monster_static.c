@@ -1,13 +1,18 @@
 #define MONSTER(tid,_icon,_sd_name,_ld_name,_gender,maxwounds) \
-    [tid]={.uid=0, .template_id=tid, .icon=_icon, .sd_name=cs_MONSTER _sd_name cs_MONSTER, .ld_name=cs_MONSTER _ld_name cs_MONSTER, \
+    [tid]={.uid=0, .template_id=tid, .icon=_icon, \
+        .sd_name=cs_MONSTER _sd_name cs_MONSTER, .ld_name=cs_MONSTER _ld_name cs_MONSTER, \
         .gender=_gender, .cur_wounds=maxwounds, .max_wounds=maxwounds,
 #define MONSTER_END }
 
 #define CHARACTERISTICS(ws,bs,st,tg,ag,in,pr,wl,fl) \
-    .characteristic[MSR_CHAR_WEAPON_SKILL]={ .base_value=ws,}, .characteristic[MSR_CHAR_BALISTIC_SKILL]={ .base_value=bs,}, \
-    .characteristic[MSR_CHAR_STRENGTH]={ .base_value=st,}, .characteristic[MSR_CHAR_TOUGHNESS]={ .base_value=tg,}, \
-    .characteristic[MSR_CHAR_AGILITY]={ .base_value=ag,}, .characteristic[MSR_CHAR_PERCEPTION]={ .base_value=pr,}, \
-    .characteristic[MSR_CHAR_INTELLIGENCE]={ .base_value=in,}, .characteristic[MSR_CHAR_WILLPOWER]={ .base_value=wl,}, \
+    .characteristic[MSR_CHAR_WEAPON_SKILL]={ .base_value=ws,}, \
+    .characteristic[MSR_CHAR_BALISTIC_SKILL]={ .base_value=bs,}, \
+    .characteristic[MSR_CHAR_STRENGTH]={ .base_value=st,}, \
+    .characteristic[MSR_CHAR_TOUGHNESS]={ .base_value=tg,}, \
+    .characteristic[MSR_CHAR_AGILITY]={ .base_value=ag,}, \
+    .characteristic[MSR_CHAR_PERCEPTION]={ .base_value=pr,}, \
+    .characteristic[MSR_CHAR_INTELLIGENCE]={ .base_value=in,}, \
+    .characteristic[MSR_CHAR_WILLPOWER]={ .base_value=wl,}, \
     .characteristic[MSR_CHAR_FELLOWSHIP]={ .base_value=fl,} 
 
 #define SKILLS(basic_skills, advanced_skills, expert_skills) .skills[MSR_SKILL_RATE_BASIC]=basic_skills, \
@@ -30,7 +35,9 @@ static const char *msr_descs[] = {
 static struct msr_monster static_monster_list[] = {
 
     /*----------------- CHARACTER TEMPLATES  --------------------*/
-    MONSTER(MID_DUMMY,'h',"dummy","a dummy",MSR_GENDER_MALE,1) HUMAN(0), CHARACTERISTICS(0,0,0,0,0,0,0,0,0), SKILLS(0,0,0), MONSTER_END,
+    MONSTER(MID_DUMMY,'h',"dummy","a dummy",MSR_GENDER_MALE,1) 
+        HUMAN(0), CHARACTERISTICS(0,0,0,0,0,0,0,0,0), SKILLS(0,0,0),
+    MONSTER_END,
 
     MONSTER(MID_BASIC_FERAL,'h',"human","a feral human",MSR_GENDER_MALE,14)
         HUMAN(TLT_BASIC_WPN_TRNG_LAS, TLT_PISTOL_WPN_TRNG_LAS, TLT_BASIC_WPN_TRNG_SP, TLT_PISTOL_WPN_TRNG_SP),
@@ -44,7 +51,7 @@ static struct msr_monster static_monster_list[] = {
     /*----------------------------------------------------------*/
 
     MONSTER(MID_HIVE_GANGER,'h',"human","a hive human",MSR_GENDER_MALE,1)
-        HUMAN(TLT_BASIC_WPN_TRNG_LAS, TLT_PISTOL_WPN_TRNG_LAS),
+        HUMAN(TLT_BASIC_WPN_TRNG_SP, TLT_PISTOL_WPN_TRNG_SP),
         CHARACTERISTICS(30,30,30,30,30,30,30,30,30),
         SKILLS(0,0,0), MONSTER_END,
 
