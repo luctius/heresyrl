@@ -53,6 +53,7 @@ void lg_exit(struct logging *log_ctx) {
 
     while (cqc_cnt(log_ctx->log_cqc) > 0) {
         int idx = cqc_get(log_ctx->log_cqc);
+        free(log_ctx->log_q[idx].module);
         free(log_ctx->log_q[idx].string);
     }
     free(log_ctx->log_q);
@@ -77,6 +78,7 @@ int lg_size(struct logging *log_ctx) {
 void lg_add_entry(struct logging *log_ctx, struct log_entry *le_given) {
     if (cqc_space(log_ctx->log_cqc) == 0) {
         int idx = cqc_get(log_ctx->log_cqc);
+        free(log_ctx->log_q[idx].module);
         free(log_ctx->log_q[idx].string);
     }
 
@@ -103,7 +105,7 @@ static bool le_is_equal(struct log_entry *a, struct log_entry *b) {
     if (b == NULL) return false;
 
     if (a->level != b->level)   return false;
-    if (a->module != b->module) return false;
+    if (strcmp(a->module, b->module) != 0) return false;
 
     if (a->string == NULL) return false;
     if (b->string == NULL) return false;
@@ -173,6 +175,7 @@ void lg_printf_basic(struct logging *log_ctx, enum lg_debug_levels dbg_lvl, cons
 
     if (cqc_space(log_ctx->log_cqc) == 0) {
         int idx = cqc_get(log_ctx->log_cqc);
+        free(log_ctx->log_q[idx].module);
         free(log_ctx->log_q[idx].string);
     }
 
@@ -181,7 +184,7 @@ void lg_printf_basic(struct logging *log_ctx, enum lg_debug_levels dbg_lvl, cons
     struct log_entry *le = &log_ctx->log_q[idx];
     le->level  = dbg_lvl;
     le->repeat = 1;
-    le->module = module;
+    le->module = strdup(module);
     le->line   = line;
     le->turn   = 0;
     if (gbl_game != NULL) le->turn = gbl_game->turn;
@@ -253,7 +256,7 @@ void msg_internal(coord_t *origin, coord_t *target, const char* module, int line
     struct log_entry log_entry;
     struct log_entry *le = &log_entry;
     le->repeat  = 1;
-    le->module  = module;
+    le->module  = strdup(module);
     le->line    = line;
     le->level   = LG_DEBUG_LEVEL_GAME;
     le->turn    = gbl_game->turn;
@@ -273,6 +276,7 @@ void msg_internal(coord_t *origin, coord_t *target, const char* module, int line
 
     if (cqc_space(gbl_log->log_cqc) == 0) {
         int idx = cqc_get(gbl_log->log_cqc);
+        free(gbl_log->log_q[idx].module);
         free(gbl_log->log_q[idx].string);
     }
 

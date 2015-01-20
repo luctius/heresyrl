@@ -277,17 +277,19 @@ static bool load_log(lua_State *L, struct logging *lctx) {
         lua_intexpr(L, &t, "game.log[%d].level",    i+1); le.level  = t;
         lua_intexpr(L, &t, "game.log[%d].line",     i+1); le.line   = t;
 
-        const char *mod_ptr = lua_stringexpr(L, "game.log[%d].module", i+1);
-        if (mod_ptr != NULL) {
-            le.module = mod_ptr;
-        }
+        if (le.level <= LG_DEBUG_LEVEL_GAME_INFO) {
+            const char *mod_ptr = lua_stringexpr(L, "game.log[%d].module", i+1);
+            if (mod_ptr != NULL) {
+                le.module = strdup(mod_ptr);
+            }
 
-        const char *str_ptr = lua_stringexpr(L, "game.log[%d].string", i+1);
-        if (str_ptr != NULL) {
-            le.string = strdup(str_ptr);
-        }
+            const char *str_ptr = lua_stringexpr(L, "game.log[%d].string", i+1);
+            if (str_ptr != NULL) {
+                le.string = strdup(str_ptr);
+            }
 
-        lg_add_entry(lctx, &le);
+            lg_add_entry(lctx, &le);
+        }
     }
 
     return true;
