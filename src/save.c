@@ -129,8 +129,8 @@ static bool sv_save_monsters(FILE *file, int indent) {
                         fprintf(file,"{");
                             fprintf(file,"effect=%d,", c->effects[i].effect);
                             fprintf(file,"effect_setting_flags=%d,", c->effects[i].effect_setting_flags);
-                            fprintf(file,"tick_energy_max=%d,", c->effects[i].tick_energy_max);
-                            fprintf(file,"tick_energy=%d,", c->effects[i].tick_energy);
+                            fprintf(file,"tick_energy_max=%d,",      c->effects[i].tick_energy_max);
+                            fprintf(file,"tick_energy=%d,",          c->effects[i].tick_energy);
                         fprintf(file,"},");
                         e_sz++;
                     }

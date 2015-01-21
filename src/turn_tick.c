@@ -87,10 +87,11 @@ void tt_process_status_effects(void) {
 }
 
 void tt_process(struct dm_map *map) {
+    tt_process_monsters(map);
+
     tt_process_items(map);
 
     tt_process_status_effects();
-    tt_process_monsters(map);
 }
 
 void tt_init(void) {}
