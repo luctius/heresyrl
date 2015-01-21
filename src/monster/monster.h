@@ -132,7 +132,7 @@ struct msr_monster {
     /* current number of corruption points, not used. */
     uint8_t corruption_points;
 
-    /* current level of fatique , not used. */
+    /* current level of fatique. */
     uint8_t fatique;
     uint32_t fatique_turn;
 
