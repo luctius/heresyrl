@@ -48,7 +48,7 @@ struct log_entry {
     int turn;
     int repeat;
 
-    const char *module;
+    char *module;
     int line;
     
     enum lg_debug_levels level;

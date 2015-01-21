@@ -431,16 +431,6 @@ void cdn_process(struct cdn_condition_list *cdn_list, struct msr_monster *monste
                 }
                 destroy = true;
             }
-
-            if (destroy) {
-                lg_debug("Condition %p(%s) is to be destroyed.", c, c->name);
-                if (c->continues_to_id != CID_NONE) {
-                    cdn_add_condition(cdn_list, c->continues_to_id);
-                }
-                cdn_remove_condition(cdn_list, c);
-                c = c_prev;
-                continue;
-            }
         }
 
         /*
@@ -726,7 +716,15 @@ void cdn_process(struct cdn_condition_list *cdn_list, struct msr_monster *monste
             }
         }
 
-        if (c->duration_energy > 0) {
+        if (destroy) {
+            lg_debug("Condition %p(%s) is to be destroyed.", c, c->name);
+            if (c->continues_to_id != CID_NONE) {
+                cdn_add_condition(cdn_list, c->continues_to_id);
+            }
+            cdn_remove_condition(cdn_list, c);
+            c = c_prev;
+        }
+        else if (c->duration_energy > 0) {
             c->duration_energy -= MIN(TT_ENERGY_TICK, c->duration_energy);
         }
 

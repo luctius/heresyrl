@@ -20,23 +20,34 @@
 static bool sv_save_log(FILE *file, int indent, struct logging *lctx) {
     if (file == NULL) return false;
 
-    fprintf(file, "%*s" "log={", indent, ""); { indent += 2;
+    int log_sz = lg_size(lctx);
+    int sz = MAX(log_sz-2, 0);
+    //int sz = MIN( MAX(log_sz-2, 0), 100);
 
-        fprintf(file,"sz=%d,\n", lg_size(lctx) -1 );
-        for (int i = 0; i < lg_size(lctx) -1; i++) {
-            struct log_entry *le = lg_peek(lctx, i);
-            fprintf(file,"%*s" "{", indent, "");
-            fprintf(file, "turn=%d,",       le->turn);
-            fprintf(file, "repeated=%d,",   le->repeat);
-            fprintf(file, "line=%d,",       le->line);
-            fprintf(file, "level=%d,",      le->level);
-            fprintf(file, "module=\"%s\",", le->module);
-            fprintf(file, "string=\"%s\",", le->string);
-            fprintf(file, "},\n");
-        }
-    } indent -= 2; fprintf(file, "%*s" "},\n", indent, "");
+    int print_ctr = 1;
+    if (sz > 0) {
+        fprintf(file, "%*s" "log={\n", indent, ""); { indent += 2;
 
-    fflush(file);
+            //for (int i = log_sz-2; i >= sz; i--) {
+            for (int i = 0; i < lg_size(lctx) -1; i++) {
+                struct log_entry *le = lg_peek(lctx, i);
+                if (le->level <= LG_DEBUG_LEVEL_GAME_INFO) {
+                    fprintf(file,"%*s" "{", indent, "");
+                    fprintf(file, "turn=%d,",       le->turn);
+                    fprintf(file, "repeated=%d,",   le->repeat);
+                    fprintf(file, "line=%d,",       le->line);
+                    fprintf(file, "level=%d,",      le->level);
+                    fprintf(file, "module=\"%s\",", le->module);
+                    fprintf(file, "string=\"%s\",", le->string);
+                    fprintf(file, "},\n");
+                    print_ctr++;
+                }
+            }
+            fprintf(file, "%*s" "sz=%d,\n", indent, "", print_ctr);
+        } indent -= 2; fprintf(file, "%*s" "},\n", indent, "");
+        fflush(file);
+    }
+
     return true;
 }
 
