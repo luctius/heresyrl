@@ -1,5 +1,6 @@
 group ai and generation      -- TBD
 add effects to tiles         -- nothing done yet.
+move towards wfrp2           -- nothing yet
 doors                        -- nothing done yet.
 basic career and homeworld system  -- nothing done yet.
 use and remove fatique       -- nothing done yet.
@@ -14,11 +15,14 @@ basic chargen                -- initial screen done
 ai                           -- initial system done: add autoeplore
 savegame replay              -- initial system done: add pauze, play, step etc
 better ingame message system -- initial system done
+magic system and winds of magic
+
 
 
 ideas:
 Vendor machines and Medical machines.
 create dungeon objects (like barrels) and treat them as cover.
-
-bugs:
+oil and fire which spreads
+status effects add temporary talent
+markdown readme ingame
 fght descriptors per weapon (fire,slash,spit,spray,chop ... )
