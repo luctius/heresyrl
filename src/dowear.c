@@ -244,8 +244,8 @@ bool dw_use_item(struct msr_monster *monster, struct itm_item *item) {
             }
         }
         else if (food->food_type == FOOD_TYPE_INJECTION) {
-            You(monster,     "inject %s", item->ld_name);
-            Monster(monster, "injects %s", item->ld_name);
+            You(monster,     "inject %s.",  item->ld_name);
+            Monster(monster, "injects %s.", item->ld_name);
 
             se_add_status_effect(monster->status_effects, food->convey_status_effect);
 
