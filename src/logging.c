@@ -292,6 +292,7 @@ void msg_internal(coord_t *origin, coord_t *target, const char* module, int line
 int clrstr_to_attr(const char *s) {
     if (strcmp(cs_MONSTER,       s) == 0) return get_colour(TERM_COLOUR_L_BLUE);
     else if (strcmp(cs_PLAYER,   s) == 0) return get_colour(TERM_COLOUR_L_GREEN);
+    else if (strcmp(cs_ITEM  ,   s) == 0) return get_colour(TERM_COLOUR_VIOLET);
     else if (strcmp(cs_DAMAGE,   s) == 0) return get_colour(TERM_COLOUR_L_VIOLET);
     else if (strcmp(cs_WARNING,  s) == 0) return get_colour(TERM_COLOUR_L_YELLOW);
     else if (strcmp(cs_CRITICAL, s) == 0) return get_colour(TERM_COLOUR_RED);

@@ -61,6 +61,7 @@ Warning: Stacking multiple of the same cs_XXX is not supported yet
 */
 #define cs_MONSTER  "<monster>"
 #define cs_PLAYER   "<player>"
+#define cs_ITEM     "<item>"
 #define cs_DAMAGE   "<dmg>"
 #define cs_WARNING  "<warning>"
 #define cs_CRITICAL "<critical>"
