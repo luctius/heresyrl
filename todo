@@ -1,0 +1,24 @@
+group ai and generation      -- TBD
+add effects to tiles         -- nothing done yet.
+doors                        -- nothing done yet.
+basic career and homeworld system  -- nothing done yet.
+use and remove fatique       -- nothing done yet.
+title screen                 -- nothing done yet
+sound system                 -- nothing done yet: (actions cost sound, enemies go to the biggest sound source, hounds bark, npcs shout)
+basic fighting system        -- initial system done: throwing, effects and criticals remain
+monster generation           -- initial system done
+item generation              -- initial system done
+status effect system         -- initial system done
+character screen             -- initial screen done
+basic chargen                -- initial screen done
+ai                           -- initial system done: add autoeplore
+savegame replay              -- initial system done: add pauze, play, step etc
+better ingame message system -- initial system done
+
+
+ideas:
+Vendor machines and Medical machines.
+create dungeon objects (like barrels) and treat them as cover.
+
+bugs:
+fght descriptors per weapon (fire,slash,spit,spray,chop ... )
