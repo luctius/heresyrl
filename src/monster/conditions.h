@@ -8,60 +8,79 @@
 
 #define CONDITION_MAX_NR_EFFECTS 10
 
-enum condition_setting_flags {
+enum condition_flags {
     /* The condition will be permanent (if it passes the initial checks) */
-    CDN_SF_PERMANENT,
+    CDN_CF_PERMANENT,
 
     /* Only a single instance of this condition id will be permitted inside a list */
-    CDN_SF_UNIQUE,
+    CDN_CF_UNIQUE,
 
     /* Require an specific check with difficulty as modifier, 
        if the monster succeeds, the condition will be removed.
        Every degree of failure adds a turn to the duration.
     */
-    CDN_SF_REQ_WILL_CHECK,
-    CDN_SF_REQ_TGH_CHECK,
-    CDN_SF_REQ_AG_CHECK,
-    CDN_SF_REQ_CHEM_USE_CHECK,
+    CDN_CF_REQ_WILL_CHECK,
+    CDN_CF_REQ_TGH_CHECK,
+    CDN_CF_REQ_AG_CHECK,
+    CDN_CF_REQ_CHEM_USE_CHECK,
 
     /* Sets if this condition can be removed by a detox condition */
-    CDN_SF_DETOXABLE,
+    CDN_CF_DETOXABLE,
 
     /* If true, there will be no textual updates not will 
        this be visible in a character sheet */
-    CDN_SF_INVISIBLE,
-
-    /* If true, if any condition is set to non-active which 
-       does have an effect set, the whole condition is removed. 
-       This is used for conditions which have multiple equal 
-       priority effects.
-     */
-    CDN_SF_ACTIVE_ALL,
+    CDN_CF_INVISIBLE,
 
     /* If set, it will remove any existing instances of the template_id 
        which this condition will evolve in. 
        For example to temporarily relieve the cravings...
      */
-    CDN_SF_REMOVE_CONTINUE,
+    CDN_CF_REMOVE_CONTINUE,
 
-    CDN_SF_MAX,
+    CDN_CF_MAX,
 };
 
 enum condition_effect_flags {
     CDN_EF_NONE,
-    CDN_EF_MODIFY_FATIQUE,
-    CDN_EF_MODIFY_WS,
-    CDN_EF_MODIFY_BS,
-    CDN_EF_MODIFY_STR,
-    CDN_EF_MODIFY_AG,
-    CDN_EF_MODIFY_TGH,
-    CDN_EF_MODIFY_PER,
-    CDN_EF_MODIFY_WILL,
-    CDN_EF_MODIFY_INT,
-    CDN_EF_MODIFY_FEL,
-    CDN_EF_MODIFY_MOVEMENT,
-    CDN_EF_MODIFY_WOUNDS,
-    CDN_EF_MODIFY_ALL_SKILLS,
+
+    CDN_EF_SET_WS,
+    CDN_EF_SET_BS,
+    CDN_EF_SET_STR,
+    CDN_EF_SET_AG,
+    CDN_EF_SET_TGH,
+    CDN_EF_SET_PER,
+    CDN_EF_SET_WILL,
+    CDN_EF_SET_INT,
+    CDN_EF_SET_FEL,
+
+    CDN_EF_DECREASE_FATIQUE,
+    CDN_EF_DECREASE_WS,
+    CDN_EF_DECREASE_BS,
+    CDN_EF_DECREASE_STR,
+    CDN_EF_DECREASE_AG,
+    CDN_EF_DECREASE_TGH,
+    CDN_EF_DECREASE_PER,
+    CDN_EF_DECREASE_WILL,
+    CDN_EF_DECREASE_INT,
+    CDN_EF_DECREASE_FEL,
+    CDN_EF_DECREASE_MOVEMENT,
+    CDN_EF_DECREASE_MAX_WOUNDS,
+    CDN_EF_DECREASE_ALL_SKILLS,
+
+    CDN_EF_INCREASE_FATIQUE,
+    CDN_EF_INCREASE_WS,
+    CDN_EF_INCREASE_BS,
+    CDN_EF_INCREASE_STR,
+    CDN_EF_INCREASE_AG,
+    CDN_EF_INCREASE_TGH,
+    CDN_EF_INCREASE_PER,
+    CDN_EF_INCREASE_WILL,
+    CDN_EF_INCREASE_INT,
+    CDN_EF_INCREASE_FEL,
+    CDN_EF_INCREASE_MOVEMENT,
+    CDN_EF_INCREASE_MAX_WOUNDS,
+    CDN_EF_INCREASE_ALL_SKILLS,
+
     CDN_EF_DISABLE_LLEG,
     CDN_EF_DISABLE_RLEG,
     CDN_EF_DISABLE_LARM,
@@ -86,7 +105,7 @@ enum condition_effect_flags {
     CDN_EF_POISON,
     CDN_EF_PSYCHIC_ENHANCE,
     CDN_EF_DETOX,
-    CDN_EF_DEATH,
+    CDN_EF_INSTANT_DEATH,
     CDN_EF_EXPLODE,
     CDN_EF_MAX,
 };
@@ -122,10 +141,6 @@ enum condition_effect_setting_flags {
     CDN_ESF_RES_TYPE_POISONS,
     CDN_ESF_RES_TYPE_PSYCHIC,
 
-    /* if set, it directly modifies the base value 
-       of an characteristic, instead of damaging it. */
-    CDN_ESF_MODIFY_BASE,
-
     /* Regardless of the duration of the whole condition, 
        this effect stops after the first tick. */
     CDN_ESF_ONCE,
@@ -134,27 +149,17 @@ enum condition_effect_setting_flags {
 };
 
 enum cdn_strength {
-    CDN_DAMAGE_NONE,
-    CDN_DAMAGE_ONE,
-    CDN_DAMAGE_TWO,
-    CDN_DAMAGE_THREE,
-    CDN_DAMAGE_FIVE,
-    CDN_DAMAGE_TEN,
-    CDN_DAMAGE_1D5,
-    CDN_DAMAGE_1D10,
-    CDN_DAMAGE_2D10,
-    CDN_DAMAGE_3D10,
-    CDN_DAMAGE_4D10,
-    CDN_HEALTH_ONE,
-    CDN_HEALTH_TWO,
-    CDN_HEALTH_THREE,
-    CDN_HEALTH_FIVE,
-    CDN_HEALTH_TEN,
-    CDN_HEALTH_1D5,
-    CDN_HEALTH_1D10,
-    CDN_HEALTH_2D10,
-    CDN_HEALTH_3D10,
-    CDN_HEALTH_4D10,
+    CDN_STRENGTH_NONE,
+    CDN_STRENGTH_ONE,
+    CDN_STRENGTH_TWO,
+    CDN_STRENGTH_THREE,
+    CDN_STRENGTH_FIVE,
+    CDN_STRENGTH_TEN,
+    CDN_STRENGTH_1D5,
+    CDN_STRENGTH_1D10,
+    CDN_STRENGTH_2D10,
+    CDN_STRENGTH_3D10,
+    CDN_STRENGTH_4D10,
 };
 
 struct condition_effect_struct {
@@ -164,10 +169,10 @@ struct condition_effect_struct {
     int8_t strength;
     int8_t difficulty;
 
-    /* duration in turns, will be converted to energy when created */
-    uint16_t tick_energy_max;
-
-    uint16_t tick_energy;
+    /* operational variables. */
+    int16_t tick_energy_max;
+    int16_t tick_energy;
+    int8_t ticks_applied;
 };
 
 struct cdn_condition_list;
@@ -209,7 +214,8 @@ void cdn_list_exit(struct cdn_condition_list *cdn_list);
 bool cdn_verify_list(struct cdn_condition_list *cdn_list);
 int cdn_list_size(struct cdn_condition_list *cdn_list);
 struct cdn_condition *cdn_list_get_next_condition(struct cdn_condition_list *cdn_list, struct cdn_condition *prev);
-void cdn_process(struct cdn_condition_list *cdn_list, struct msr_monster *monster);
+void cdn_process(struct msr_monster *monster);
+void cdn_remove_all_non_permanent(struct msr_monster *monster);
 
 bool cdn_verify_condition(struct cdn_condition *cdn);
 

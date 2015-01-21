@@ -17,19 +17,6 @@
 #include "items/items_static.h"
 #include "dungeon/dungeon_map.h"
 
-static enum condition_effect_flags charac_to_condition_lot[] = {
-    [MSR_CHAR_WEAPON_SKILL]   = CDN_EF_MODIFY_WS,
-    [MSR_CHAR_BALISTIC_SKILL] = CDN_EF_MODIFY_BS,
-    [MSR_CHAR_STRENGTH]       = CDN_EF_MODIFY_STR,
-    [MSR_CHAR_AGILITY]        = CDN_EF_MODIFY_AG,
-    [MSR_CHAR_TOUGHNESS]      = CDN_EF_MODIFY_TGH,
-    [MSR_CHAR_INTELLIGENCE]   = CDN_EF_MODIFY_INT,
-    [MSR_CHAR_PERCEPTION]     = CDN_EF_MODIFY_PER,
-    [MSR_CHAR_WILLPOWER]      = CDN_EF_MODIFY_WS,
-    [MSR_CHAR_FELLOWSHIP]     = CDN_EF_MODIFY_FEL,
-};
-
-
 static TAILQ_HEAD(monster_list, msr_monster_list_entry) monster_list_head;
 static bool monster_list_initialised = false;
 
@@ -176,6 +163,8 @@ bool msr_verify_monster(struct msr_monster *monster) {
     assert(monster->monster_pre == MONSTER_PRE_CHECK);
     assert(monster->monster_post == MONSTER_POST_CHECK);
     assert(inv_verify_inventory(monster->inventory) == true );
+    assert(cdn_verify_list(monster->conditions) == true);
+
     if (monster->dead == true) return false;
 
     return true;
@@ -418,7 +407,12 @@ bool msr_do_dmg(struct msr_monster *monster, int dmg, enum dmg_type dmg_type, en
             }
 
             /* do critical hits! */
-            cdn_add_critical_hit(monster->conditions, abs(monster->cur_wounds), mhl, dmg_type);
+            if (mhl != MSR_HITLOC_NONE) {
+                cdn_add_critical_hit(monster->conditions, abs(monster->cur_wounds), mhl, dmg_type);
+            }
+            else if (monster->cur_wounds < -30) {
+                msr_die(monster, gbl_game->current_map);
+            }
         }
         return true;
     }
@@ -434,14 +428,10 @@ int msr_characteristic_check(struct msr_monster *monster, enum msr_characteristi
     lg_print("Check modifier is: %d (%d)", mod, charac + mod);
 
     int con_mod = 0;
-    if (cdn_has_effect(monster->conditions, charac_to_condition_lot[chr]) ) {
-        con_mod += cdn_condition_effect_strength(monster->conditions, charac_to_condition_lot[chr]);
-    }
     if (monster->fatique > 0) {
         con_mod -= (monster->fatique * 10);
     }
 
-    mod += con_mod;
     charac += mod;
     lg_print("Conditions modifier is: %d (%d)", con_mod, charac);
 
@@ -462,9 +452,13 @@ int msr_skill_check(struct msr_monster *monster, enum msr_skills skill, int mod)
 
     lg_print("Check modifier is: %d (%d)", mod, charac + mod);
 
-    if (cdn_has_effect(monster->conditions, CDN_EF_MODIFY_ALL_SKILLS) ) {
-        con_mod += cdn_condition_effect_strength(monster->conditions, CDN_EF_MODIFY_ALL_SKILLS);
+    if (cdn_has_effect(monster->conditions, CDN_EF_INCREASE_ALL_SKILLS) ) {
+        con_mod += cdn_condition_effect_strength(monster->conditions, CDN_EF_INCREASE_ALL_SKILLS);
     }
+    if (cdn_has_effect(monster->conditions, CDN_EF_DECREASE_ALL_SKILLS) ) {
+        con_mod += cdn_condition_effect_strength(monster->conditions, CDN_EF_DECREASE_ALL_SKILLS);
+    }
+
     if (monster->fatique > 0) {
         con_mod -= (monster->fatique * 10);
     }
@@ -495,7 +489,9 @@ int msr_skill_check(struct msr_monster *monster, enum msr_skills skill, int mod)
 int msr_calculate_characteristic(struct msr_monster *monster, enum msr_characteristic chr) {
     if (msr_verify_monster(monster) == false) return -1;
     if (chr >= MSR_CHAR_MAX) return -1;
-    return monster->characteristic[chr].base_value + (monster->characteristic[chr].advancement * 5);
+    return monster->characteristic[chr].base_value + 
+        (monster->characteristic[chr].advancement * 5) + 
+        monster->characteristic[chr].mod;
 }
 
 int msr_calculate_characteristic_bonus(struct msr_monster *monster, enum msr_characteristic chr) {
@@ -705,10 +701,12 @@ uint8_t msr_get_movement_rate(struct msr_monster *monster) {
         speed_mod += speed / 2;
     }
 
-    if (cdn_has_effect(monster->conditions, CDN_EF_MODIFY_MOVEMENT) ) {
-        speed_mod += cdn_condition_effect_strength(monster->conditions, CDN_EF_MODIFY_MOVEMENT);
+    if (cdn_has_effect(monster->conditions, CDN_EF_INCREASE_MOVEMENT) ) {
+        speed_mod += cdn_condition_effect_strength(monster->conditions, CDN_EF_INCREASE_MOVEMENT);
     }
-
+    if (cdn_has_effect(monster->conditions, CDN_EF_DECREASE_MOVEMENT) ) {
+        speed_mod += cdn_condition_effect_strength(monster->conditions, CDN_EF_DECREASE_MOVEMENT);
+    }
 
     if (speed < min_speed) speed = min_speed;
     if (speed > max_speed) speed = max_speed;
