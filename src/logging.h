@@ -82,11 +82,11 @@ int lg_size(struct logging *log);
 struct log_entry *lg_peek(struct logging *log, int idx);
 void lg_add_entry(struct logging *log_ctx, struct log_entry *le_given);
 
-#define msg(f, a...)        lg_printf_l(LG_DEBUG_LEVEL_GAME,          __FILE__, __LINE__, f, ##a)
+#define msg(f, a...)        lg_printf_l(LG_DEBUG_LEVEL_GAME,          __FILE__, __LINE__, cs_SYSTEM f cs_SYSTEM, ##a)
 #define lg_print(f, a...)   lg_printf_l(LG_DEBUG_LEVEL_INFORMATIONAL, __FILE__, __LINE__, f, ##a)
 #define lg_debug(f, a...)   lg_printf_l(LG_DEBUG_LEVEL_DEBUG,         __FILE__, __LINE__, f, ##a)
-#define lg_warning(f, a...) lg_printf_l(LG_DEBUG_LEVEL_WARNING,       __FILE__, __LINE__, f, ##a)
-#define lg_error(f, a...)   lg_printf_l(LG_DEBUG_LEVEL_ERROR,         __FILE__, __LINE__, f, ##a)
+#define lg_warning(f, a...) lg_printf_l(LG_DEBUG_LEVEL_WARNING,       __FILE__, __LINE__, cs_WARNING f cs_WARNING, ##a)
+#define lg_error(f, a...)   lg_printf_l(LG_DEBUG_LEVEL_ERROR,         __FILE__, __LINE__, cs_CRITICAL f cs_CRITICAL, ##a)
 
 #define GM_msg(f, a...)                 do                     { msg_internal(NULL,NULL,        __FILE__, __LINE__, cs_GM f cs_GM, ##a); } while (0)
 #define System_msg(f, a...)             do                     { msg_internal(NULL,NULL,        __FILE__, __LINE__, cs_SYSTEM f cs_SYSTEM, ##a); } while (0)
