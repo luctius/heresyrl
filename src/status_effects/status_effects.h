@@ -164,7 +164,7 @@ enum se_strength {
 
 struct se_type_struct {
     enum status_effect_type_flags effect;
-    uint32_t effect_setting_flags;
+    bitfield32_t effect_setting_flags;
 
     int8_t strength;
     int8_t difficulty;
@@ -183,7 +183,7 @@ struct status_effect {
     int uid;
     enum se_ids template_id;
 
-    uint16_t setting_flags;
+    bitfield32_t setting_flags;
     int8_t difficulty;
 
     const char *name;
