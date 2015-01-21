@@ -80,7 +80,7 @@ void tt_process_conditions(void) {
     while ( (monster = msrlst_get_next_monster(monster) ) != NULL) {
         if (monster->dead == false) {
             if (cdn_list_size(monster->conditions) > 0 ) {
-                cdn_process(monster->conditions, monster);
+                cdn_process(monster);
             }
         }
     }

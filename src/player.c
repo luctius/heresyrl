@@ -91,10 +91,7 @@ static bool plr_action_loop(struct msr_monster *player, void *controller) {
             refresh();
 
             cdn_add_condition(player->conditions, CID_FATEHEALTH);
-            /* remove all non-permanent conditions */
-            for (int i = 0; i < 10000; i++) {
-                cdn_process(player->conditions, player);
-            }
+            cdn_remove_all_non_permanent(player);
 
             You(player, "would have died if fate did not intervene...");
 
