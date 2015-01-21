@@ -238,8 +238,8 @@ struct itm_item {
     char icon;
     int icon_attr;
     float use_delay;
-    uint8_t stacked_quantity;
-    uint8_t max_quantity;
+    int8_t stacked_quantity;
+    int8_t max_quantity;
 
     /* total amount of time this item exists, in energy*/
     unsigned long age;

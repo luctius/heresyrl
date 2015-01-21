@@ -142,10 +142,10 @@ bool inv_add_stack(struct inv_inventory *inv, struct itm_item *item) {
         if (i->template_id == item->template_id) {
             if (i->stacked_quantity < i->max_quantity) {
                 if (itm_stack_compatible(i, item) == true) {
-                    int diff = (i->max_quantity - i->stacked_quantity);
-                    int max = MAX(diff, item->stacked_quantity);
-                    i->stacked_quantity += max;
-                    item->stacked_quantity -= max;
+                    int space_left = (i->max_quantity - i->stacked_quantity);
+                    int min = MIN(space_left, item->stacked_quantity);
+                    i->stacked_quantity += min;
+                    item->stacked_quantity -= min;
                 }
             }
         }
