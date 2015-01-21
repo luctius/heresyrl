@@ -20,7 +20,7 @@ static inline bool effect_clr_flag(struct se_type_struct *ces, enum status_effec
     return clr_bf(ces->effect_setting_flags, flag);
 }
 static inline bool effect_has_flag(struct se_type_struct *ces, enum status_effect_setting_flags flag) {
-    return set_bf(ces->effect_setting_flags, flag);
+    return test_bf(ces->effect_setting_flags, flag);
 }
 
 static inline bool status_effect_set_flag(struct status_effect *c, enum status_effect_flags flag) {
