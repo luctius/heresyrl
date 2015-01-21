@@ -186,7 +186,10 @@ static bool plr_action_loop(struct msr_monster *player, void *controller) {
                 has_action = mapwin_overlay_throw_cursor(gbl_game, gbl_game->current_map, player_pos); break;
             case INP_KEY_STAIRS_DOWN:
                 if (dm_get_map_tile(player_pos, gbl_game->current_map)->type == TILE_TYPE_STAIRS_DOWN) {
-                    You(player, "see a broken stairway."); } break;
+                    You(player, "win."); 
+                    gbl_game->running = false;
+                } 
+                break;
             case INP_KEY_STAIRS_UP:
                 if (dm_get_map_tile(player_pos, gbl_game->current_map)->type == TILE_TYPE_STAIRS_UP) {
                     You(player, "see a broken stairway."); } break;
