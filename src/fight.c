@@ -42,7 +42,9 @@ int fght_ranged_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght
 
     struct dm_map_entity *me = dm_get_map_me(tpos, gbl_game->current_map);
     struct msr_monster *target = me->monster;
-    if (msr_verify_monster(target) == false) return -1;
+    if (target != NULL) {
+        if (msr_verify_monster(target) == false) return -1;
+    }
 
     struct itm_item *witem = fght_get_working_weapon(monster, WEAPON_TYPE_RANGED, hand);
     if (witem == NULL) {
@@ -122,8 +124,10 @@ int fght_ranged_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght
         CALC_TOHIT(msr_has_talent(monster, wpn->wpn_talent) == false, FGHT_MODIFIER_UNTRAINED_WEAPON, "you are untrained in this weapon")
 
 
-        /* Conditions */
-        CALC_TOHIT(cdn_has_effect(target->conditions, CDN_EF_STUNNED), FGHT_MODIFIER_CONDITION_STUNNED, "target is stunned")
+        if (target != NULL) {
+            /* Conditions */
+            CALC_TOHIT(cdn_has_effect(target->conditions, CDN_EF_STUNNED), FGHT_MODIFIER_CONDITION_STUNNED, "target is stunned")
+        }
 
 
         /* Maximum modifier, keep these at the end! */
@@ -425,16 +429,19 @@ int fght_thrown_roll(struct random *r, struct msr_monster *monster, coord_t *pos
     if (msr_verify_monster(monster) == false) return -1;
     if (itm_verify_item(witem) == false) return -1;
 
+    bool print = false;
     struct msr_monster *target = dm_get_map_me(pos, gbl_game->current_map)->monster;
     if (target != NULL) {
         if (msr_verify_monster(target) == true) {
             You(monster,                 "throw an %s at %s.", witem->sd_name, msr_ldname(target) );
             Monster_tgt(monster, target, "throws an %s at %s.", witem->sd_name, msr_ldname(target) );
+            print = true;
         }
-        else {
-            You(monster,                 "throw an %s.", witem->sd_name);
-            Monster_tgt(monster, target, "throws an %s.", witem->sd_name);
-        }
+    }
+
+    if (print == false) {
+        You(monster,                 "throw an %s.", witem->sd_name);
+        Monster_tgt(monster, target, "throws an %s.", witem->sd_name);
     }
 
     int to_hit = fght_ranged_calc_tohit(monster, pos, hand);
