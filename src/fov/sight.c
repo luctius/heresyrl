@@ -46,8 +46,8 @@ static bool rpsc_check_translucent_los(struct rpsc_fov_set *set, coord_t *point,
     /* check if this point is within the map boundries. */
     if (cd_within_bound(point, &map->size) == false) return false;
 
-    /* if it is opague, return true, else return false. */
-    return ( (dm_get_map_tile(point,map)->attributes & TILE_ATTR_OPAGUE) > 0);
+    /* if it is translucent, return true, else return false. */
+    return ( (dm_get_map_tile(point,map)->attributes & TILE_ATTR_TRANSLUCENT) > 0);
 }
 
 static bool rpsc_apply_player_sight(struct rpsc_fov_set *set, coord_t *point, coord_t *origin) {

@@ -10,7 +10,7 @@
 
 enum tile_attributes {
     TILE_ATTR_TRAVERSABLE    = (1<<0),
-    TILE_ATTR_OPAGUE         = (1<<1),
+    TILE_ATTR_TRANSLUCENT    = (1<<1),
     TILE_ATTR_DOOR_CLOSED    = (1<<2),
     TILE_ATTR_DOOR_OPEN      = (1<<3),
     TILE_ATTR_STAIRS_UP      = (1<<4),

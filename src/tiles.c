@@ -44,7 +44,7 @@ static struct tl_tile tile_array[] = {
     },
     [TILE_ID_CONCRETE_FLOOR] = {
         .id = TILE_ID_CONCRETE_FLOOR,
-        .attributes = TILE_ATTR_TRAVERSABLE | TILE_ATTR_OPAGUE,
+        .attributes = TILE_ATTR_TRAVERSABLE | TILE_ATTR_TRANSLUCENT,
         .type = TILE_TYPE_FLOOR,
         .icon = '.',
         .icon_attr = TERM_COLOUR_WHITE,
@@ -64,7 +64,7 @@ static struct tl_tile tile_array[] = {
     },
     [TILE_ID_WOODEN_OPEN_DOOR] = {
         .id = TILE_ID_WOODEN_OPEN_DOOR,
-        .attributes = TILE_ATTR_TRAVERSABLE | TILE_ATTR_OPAGUE | TILE_ATTR_DOOR_OPEN,
+        .attributes = TILE_ATTR_TRAVERSABLE | TILE_ATTR_TRANSLUCENT | TILE_ATTR_DOOR_OPEN,
         .type = TILE_TYPE_DOOR_OPEN,
         .icon = '/',
         .icon_attr = TERM_COLOUR_UMBER,
@@ -74,7 +74,7 @@ static struct tl_tile tile_array[] = {
     },
     [TILE_ID_CONCRETE_STAIRS_UP] = {
         .id = TILE_ID_CONCRETE_STAIRS_UP,
-        .attributes = TILE_ATTR_TRAVERSABLE | TILE_ATTR_OPAGUE | TILE_ATTR_STAIRS_UP,
+        .attributes = TILE_ATTR_TRAVERSABLE | TILE_ATTR_TRANSLUCENT | TILE_ATTR_STAIRS_UP,
         .type = TILE_TYPE_STAIRS_UP,
         .icon = '<',
         .icon_attr = TERM_COLOUR_WHITE,
@@ -84,7 +84,7 @@ static struct tl_tile tile_array[] = {
     },
     [TILE_ID_CONCRETE_STAIRS_DOWN] = {
         .id = TILE_ID_CONCRETE_STAIRS_DOWN,
-        .attributes = TILE_ATTR_TRAVERSABLE | TILE_ATTR_OPAGUE | TILE_ATTR_STAIRS_DOWN,
+        .attributes = TILE_ATTR_TRAVERSABLE | TILE_ATTR_TRANSLUCENT | TILE_ATTR_STAIRS_DOWN,
         .type = TILE_TYPE_STAIRS_DOWN,
         .icon = '>',
         .icon_attr = TERM_COLOUR_WHITE,
