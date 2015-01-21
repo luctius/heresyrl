@@ -2,9 +2,9 @@
 #define STATUS_EFFECTS_H
 
 #include "heresyrl_def.h"
-#include "status_effects_static.h"
 #include "enums.h"
-#include "monster.h"
+#include "status_effects/status_effects_static.h"
+#include "monster/monster.h"
 
 #define STATUS_EFFECT_MAX_NR_EFFECTS 10
 

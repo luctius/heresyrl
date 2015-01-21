@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#include "monster/status_effects.h"
+#include "status_effects/status_effects.h"
 
 #define TILE_HAS_ATTRIBUTE(tile, attr) ((tile->attributes & attr) > 0)
 #define TILE_MOVEMENT_MAX (UINT8_MAX)

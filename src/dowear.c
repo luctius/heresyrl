@@ -1,7 +1,7 @@
 #include <assert.h>
 
 #include "monster/monster.h"
-#include "monster/status_effects.h"
+#include "status_effects/status_effects.h"
 #include "items/items.h"
 #include "inventory.h"
 #include "game.h"

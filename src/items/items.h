@@ -9,7 +9,7 @@
 #include "coord.h"
 #include "enums.h"
 #include "inventory.h"
-#include "monster/status_effects_static.h"
+#include "status_effects/status_effects_static.h"
 
 enum item_types {
     ITEM_TYPE_WEARABLE,

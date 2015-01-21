@@ -5,7 +5,7 @@
 #include <string.h>
 
 #include "status_effects.h"
-#include "monster.h"
+#include "monster/monster.h"
 #include "logging.h"
 #include "heresyrl_def.h"
 #include "random.h"

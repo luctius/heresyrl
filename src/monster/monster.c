@@ -7,7 +7,7 @@
 
 #include "monster.h"
 #include "monster_static.h"
-#include "status_effects.h"
+#include "status_effects/status_effects.h"
 #include "game.h"
 #include "random.h"
 #include "tiles.h"

@@ -32,7 +32,7 @@ heresyrl_SOURCES =  \
                     ai/pathfinding.c \
                     monster/monster_action.c \
                     monster/monster.c \
-                    monster/status_effects.c \
+                    status_effects/status_effects.c \
                     fov/sight.c \
                     fov/rpsc_fov.c \
                     items/items.c \

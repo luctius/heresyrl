@@ -18,7 +18,7 @@
 #include "random.h"
 #include "inventory.h"
 #include "monster/monster.h"
-#include "monster/status_effects.h"
+#include "status_effects/status_effects.h"
 #include "items/items.h"
 #include "dungeon/dungeon_map.h"
 #include "ai/ai.h"
