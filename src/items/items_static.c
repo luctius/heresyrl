@@ -181,8 +181,7 @@ static struct itm_item static_item_list[] = {
     ITEM(IID_STIMM_HEALTH,  "health stimm", "an injector with a regenerative liquid", ITEM_AVAIL_AVERAGE,ITEM_QLTY_AVERAGE,   0, 1, 1), STIMM(FOOD_TYPE_INJECTION, SEID_HEALTH_STIMM), ITEM_END,
 
     /* debug items */
-    //ITEM(IID_STIMM_DEATH,   "death debug",  "an injector with a deadly liquid",       ITEM_AVAIL_VERY_RARE,ITEM_QLTY_AVERAGE, 0, 1, 1), STIMM(FOOD_TYPE_INJECTION, SEID_DEATH_STIMM), ITEM_END,
-    ITEM(IID_STIMM_DEATH,   "death debug",  "an injector with a deadly liquid",       ITEM_AVAIL_VERY_RARE,ITEM_QLTY_AVERAGE, 0, 1, 1), STIMM(FOOD_TYPE_INJECTION, SEID_IMPACT_CRITICAL_RARMS_3), ITEM_END,
+    ITEM(IID_STIMM_DEATH,   "death debug",  "an injector with a deadly liquid",       ITEM_AVAIL_VERY_RARE,ITEM_QLTY_AVERAGE, 0, 1, 1), STIMM(FOOD_TYPE_INJECTION, SEID_DEATH_STIMM), ITEM_END,
 };
 
 static const char *item_quality_strings[] = {
