@@ -60,7 +60,7 @@ static struct status_effect static_status_effect_list[] = {
     STATUS_EFFECT(SEID_WEAPON_FLAME, "flames", "flames are engulving you", "You catch fire.", "%s has catched fire.", "You manage to put out the flames.", "%s stomps out the flames.", 
             /* Type         Effect           Flags                        Strength          Difficulty   Interval   */
             EFFECT(     SETF_ON_FIRE,          0,                       SE_STRENGTH_NONE,     0),
-            TICK_EFFECT(SETF_DAMAGE_TICK, bf(SESF_DMG_TYPE_ENERGY),  SE_STRENGTH_1D10,     0,           1), ),
+            TICK_EFFECT(SETF_DAMAGE_TICK, bf(SESF_DMG_TYPE_ENERGY),     SE_STRENGTH_1D10,     0,           1), ),
             /*Settings      Flags       Difficulty    Next          Minimum  -  Maximum Turns*/
             SETTINGS(bf(SEF_REQ_AG_CHECK),   0,    SEID_NONE,         1,             10),
     STATUS_EFFECT_END,
