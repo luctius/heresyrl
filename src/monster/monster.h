@@ -166,8 +166,8 @@ struct msr_monster {
     /* inventory of this monster. */
     struct inv_inventory *inventory;
 
-    /* conditions effecting this monster. */
-    struct cdn_condition_list *conditions;
+    /* status_effects effecting this monster. */
+    struct status_effect_list *status_effects;
 
     uint32_t monster_post;
 };

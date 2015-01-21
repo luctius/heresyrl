@@ -7,7 +7,7 @@
 
 #include "monster.h"
 #include "monster_static.h"
-#include "conditions.h"
+#include "status_effects.h"
 #include "game.h"
 #include "random.h"
 #include "tiles.h"
@@ -56,7 +56,7 @@ void msrlst_monster_list_exit(void) {
         e = monster_list_head.tqh_first;
         TAILQ_REMOVE(&monster_list_head, monster_list_head.tqh_first, entries);
         msr_clear_controller(&e->monster);
-        cdn_list_exit(e->monster.conditions);
+        se_list_exit(e->monster.status_effects);
         inv_exit(e->monster.inventory);
         free(e);
     }
@@ -106,7 +106,7 @@ struct msr_monster *msr_create(uint32_t template_id) {
     m->monster.energy = TT_ENERGY_FULL;
     m->monster.faction = 1;
     m->monster.inventory = NULL;
-    m->monster.conditions = cdn_list_init();
+    m->monster.status_effects = se_list_init();
     m->monster.description=msr_descs[template_id];
     assert(m->monster.description != NULL);
 
@@ -150,7 +150,7 @@ void msr_destroy(struct msr_monster *monster, struct dm_map *map) {
         msr_remove_monster(monster, map);
     }
     inv_exit(monster->inventory);
-    cdn_list_exit(monster->conditions);
+    se_list_exit(monster->status_effects);
 
     if (monster->unique_name != NULL) free(monster->unique_name);
 
@@ -163,7 +163,7 @@ bool msr_verify_monster(struct msr_monster *monster) {
     assert(monster->monster_pre == MONSTER_PRE_CHECK);
     assert(monster->monster_post == MONSTER_POST_CHECK);
     assert(inv_verify_inventory(monster->inventory) == true );
-    assert(cdn_verify_list(monster->conditions) == true);
+    assert(se_verify_list(monster->status_effects) == true);
 
     if (monster->dead == true) return false;
 
@@ -258,7 +258,7 @@ int msr_get_near_sight_range(struct msr_monster *monster) {
     if (msr_verify_monster(monster) == false) return -1;
     int sight_near = ( (msr_calculate_characteristic(monster, MSR_CHAR_PERCEPTION) * 1.5f) / 10) +1;
 
-    if (cdn_has_effect(monster->conditions, CDN_EF_BLINDNESS) ) sight_near = 0;
+    if (se_has_effect(monster->status_effects, SETF_BLINDNESS) ) sight_near = 0;
     return sight_near;
 }
 
@@ -266,7 +266,7 @@ int msr_get_medium_sight_range(struct msr_monster *monster) {
     if (msr_verify_monster(monster) == false) return -1;
     int sight_medium = ( (msr_calculate_characteristic(monster, MSR_CHAR_PERCEPTION) * 2) / 10) +1;
 
-    if (cdn_has_effect(monster->conditions, CDN_EF_BLINDNESS) ) sight_medium = 0;
+    if (se_has_effect(monster->status_effects, SETF_BLINDNESS) ) sight_medium = 0;
     return  sight_medium;
 }
 
@@ -274,7 +274,7 @@ int msr_get_far_sight_range(struct msr_monster *monster) {
     if (msr_verify_monster(monster) == false) return -1;
     int sight_far = ( (msr_calculate_characteristic(monster, MSR_CHAR_PERCEPTION) * 2.5f) / 10) +1;
 
-    if (cdn_has_effect(monster->conditions, CDN_EF_BLINDNESS) ) sight_far = 0;
+    if (se_has_effect(monster->status_effects, SETF_BLINDNESS) ) sight_far = 0;
     return sight_far;
 }
 
@@ -408,7 +408,7 @@ bool msr_do_dmg(struct msr_monster *monster, int dmg, enum dmg_type dmg_type, en
 
             /* do critical hits! */
             if (mhl != MSR_HITLOC_NONE) {
-                cdn_add_critical_hit(monster->conditions, abs(monster->cur_wounds), mhl, dmg_type);
+                se_add_critical_hit(monster->status_effects, abs(monster->cur_wounds), mhl, dmg_type);
             }
             else if (monster->cur_wounds < -30) {
                 msr_die(monster, gbl_game->current_map);
@@ -452,11 +452,11 @@ int msr_skill_check(struct msr_monster *monster, enum msr_skills skill, int mod)
 
     lg_print("Check modifier is: %d (%d)", mod, charac + mod);
 
-    if (cdn_has_effect(monster->conditions, CDN_EF_INCREASE_ALL_SKILLS) ) {
-        con_mod += cdn_condition_effect_strength(monster->conditions, CDN_EF_INCREASE_ALL_SKILLS);
+    if (se_has_effect(monster->status_effects, SETF_INCREASE_ALL_SKILLS) ) {
+        con_mod += se_status_effect_strength(monster->status_effects, SETF_INCREASE_ALL_SKILLS);
     }
-    if (cdn_has_effect(monster->conditions, CDN_EF_DECREASE_ALL_SKILLS) ) {
-        con_mod += cdn_condition_effect_strength(monster->conditions, CDN_EF_DECREASE_ALL_SKILLS);
+    if (se_has_effect(monster->status_effects, SETF_DECREASE_ALL_SKILLS) ) {
+        con_mod += se_status_effect_strength(monster->status_effects, SETF_DECREASE_ALL_SKILLS);
     }
 
     if (monster->fatique > 0) {
@@ -685,27 +685,27 @@ uint8_t msr_get_movement_rate(struct msr_monster *monster) {
     int min_speed = MSR_MOVEMENT_MIN;
     int max_speed = MSR_MOVEMENT_MAX;
 
-    if ( (cdn_has_effect(monster->conditions, CDN_EF_DISABLE_RLEG) == true) &&
-         (cdn_has_effect(monster->conditions, CDN_EF_DISABLE_LLEG) == true) ) {
+    if ( (se_has_effect(monster->status_effects, SETF_DISABLE_RLEG) == true) &&
+         (se_has_effect(monster->status_effects, SETF_DISABLE_LLEG) == true) ) {
         return 0;
     }
 
-    if (cdn_has_effect(monster->conditions, CDN_EF_DISABLE_RLEG) ) {
+    if (se_has_effect(monster->status_effects, SETF_DISABLE_RLEG) ) {
         min_speed -= MSR_MOVEMENT_MIN / 2;
         max_speed -= 20;
         speed_mod += speed / 2;
     }
-    if (cdn_has_effect(monster->conditions, CDN_EF_DISABLE_LLEG) ) {
+    if (se_has_effect(monster->status_effects, SETF_DISABLE_LLEG) ) {
         min_speed -= MSR_MOVEMENT_MIN / 2;
         max_speed -= 20;
         speed_mod += speed / 2;
     }
 
-    if (cdn_has_effect(monster->conditions, CDN_EF_INCREASE_MOVEMENT) ) {
-        speed_mod += cdn_condition_effect_strength(monster->conditions, CDN_EF_INCREASE_MOVEMENT);
+    if (se_has_effect(monster->status_effects, SETF_INCREASE_MOVEMENT) ) {
+        speed_mod += se_status_effect_strength(monster->status_effects, SETF_INCREASE_MOVEMENT);
     }
-    if (cdn_has_effect(monster->conditions, CDN_EF_DECREASE_MOVEMENT) ) {
-        speed_mod += cdn_condition_effect_strength(monster->conditions, CDN_EF_DECREASE_MOVEMENT);
+    if (se_has_effect(monster->status_effects, SETF_DECREASE_MOVEMENT) ) {
+        speed_mod += se_status_effect_strength(monster->status_effects, SETF_DECREASE_MOVEMENT);
     }
 
     if (speed < min_speed) speed = min_speed;

@@ -260,11 +260,11 @@ static void mapwin_examine(struct dm_map_entity *me) {
                     else if (me->monster->cur_wounds != me->monster->max_wounds) ui_printf(char_win, "%s is wounded.\n", msr_gender_name(me->monster, false) );
                 }
 
-                if (cdn_list_size(me->monster->conditions) > 0) {
+                if (se_list_size(me->monster->status_effects) > 0) {
                     ui_printf(char_win, "\nThis one is affected by:\n");
 
-                    struct cdn_condition *c = NULL;
-                    while ( (c = cdn_list_get_next_condition(me->monster->conditions, c) ) != NULL) {
+                    struct status_effect *c = NULL;
+                    while ( (c = se_list_get_next_status_effect(me->monster->status_effects, c) ) != NULL) {
                         ui_printf(char_win, "- %s\n", c->name);
                     }
                 }
@@ -1194,8 +1194,8 @@ Basic weapon traning SP     ...                  |
     ui_printf(&pad, "----------\n");
 
     names_len = 0;
-    struct cdn_condition *c = NULL;
-    while ( (c = cdn_list_get_next_condition(mon->conditions, c) ) != NULL) {
+    struct status_effect *c = NULL;
+    while ( (c = se_list_get_next_status_effect(mon->status_effects, c) ) != NULL) {
         ui_printf(&pad, "%s\n", c->name);
     }
 

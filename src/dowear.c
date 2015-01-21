@@ -1,7 +1,7 @@
 #include <assert.h>
 
 #include "monster/monster.h"
-#include "monster/conditions.h"
+#include "monster/status_effects.h"
 #include "items/items.h"
 #include "inventory.h"
 #include "game.h"
@@ -247,7 +247,7 @@ bool dw_use_item(struct msr_monster *monster, struct itm_item *item) {
             You(monster,     "inject %s", item->ld_name);
             Monster(monster, "injects %s", item->ld_name);
 
-            cdn_add_condition(monster->conditions, food->convey_condition);
+            se_add_status_effect(monster->status_effects, food->convey_status_effect);
 
             item->stacked_quantity -= 1;
             if (item->stacked_quantity <= 0) {

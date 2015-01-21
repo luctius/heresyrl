@@ -9,7 +9,7 @@
 #include "coord.h"
 #include "enums.h"
 #include "inventory.h"
-#include "monster/conditions_static.h"
+#include "monster/status_effects_static.h"
 
 enum item_types {
     ITEM_TYPE_WEARABLE,
@@ -178,7 +178,7 @@ struct item_weapon_specific {
     bitfield_t upgrades;
     bitfield_t wpn_talent;  /* talent required for this weapon to operate.*/
     bool jammed;
-    enum cdn_ids convey_condition;
+    enum se_ids convey_status_effect;
 };
 
 struct item_wearable_specific {
@@ -200,7 +200,7 @@ struct item_food_specific {
     enum item_food_type food_type;
     int nutrition;
     int nutrition_left;
-    enum cdn_ids convey_condition;
+    enum se_ids convey_status_effect;
 };
 
 struct item_ammo_specific {
@@ -208,7 +208,7 @@ struct item_ammo_specific {
     int energy;
     int energy_left;
     bitfield_t upgrades;
-    enum cdn_ids convey_condition;
+    enum se_ids convey_status_effect;
 };
 
 enum item_owner {

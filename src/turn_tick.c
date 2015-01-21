@@ -1,6 +1,6 @@
 #include "turn_tick.h"
 #include "monster/monster.h"
-#include "monster/conditions.h"
+#include "monster/status_effects.h"
 #include "items/items.h"
 #include "coord.h"
 #include "game.h"
@@ -40,7 +40,7 @@ void tt_process_monsters(struct dm_map *map) {
         if (monster->controller.interrupted == true) do_action = true;
 
         /* A stunned monster can do nothing. */
-        if (cdn_has_effect(monster->conditions, CDN_EF_STUNNED) ) do_action = false;
+        if (se_has_effect(monster->status_effects, SETF_STUNNED) ) do_action = false;
 
         if (monster->fatique > 0) {
             if (monster->fatique_turn > (MSR_FATIQUE_RECOVER_DELAY * TT_ENERGY_TURN) ) {
@@ -74,13 +74,13 @@ void tt_process_items(struct dm_map *map) {
     }
 }
 
-void tt_process_conditions(void) {
+void tt_process_status_effects(void) {
     struct msr_monster *monster = NULL;
 
     while ( (monster = msrlst_get_next_monster(monster) ) != NULL) {
         if (monster->dead == false) {
-            if (cdn_list_size(monster->conditions) > 0 ) {
-                cdn_process(monster);
+            if (se_list_size(monster->status_effects) > 0 ) {
+                se_process(monster);
             }
         }
     }
@@ -89,7 +89,7 @@ void tt_process_conditions(void) {
 void tt_process(struct dm_map *map) {
     tt_process_items(map);
 
-    tt_process_conditions();
+    tt_process_status_effects();
     tt_process_monsters(map);
 }
 

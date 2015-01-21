@@ -112,9 +112,9 @@ static bool sv_save_monsters(FILE *file, int indent) {
             }
             fprintf(file,"sz=%d,},", t_sz);
 
-            fprintf(file,"conditions={sz=%d,", cdn_list_size(m->conditions) );
-            struct cdn_condition *c = NULL;
-            while ( (c = cdn_list_get_next_condition(m->conditions, c) ) != NULL) {
+            fprintf(file,"status_effects={sz=%d,", se_list_size(m->status_effects) );
+            struct status_effect *c = NULL;
+            while ( (c = se_list_get_next_status_effect(m->status_effects, c) ) != NULL) {
                 fprintf(file,"{");
                     fprintf(file,"uid=%d,", c->uid);
                     fprintf(file,"tid=%d,", c->template_id);
@@ -124,8 +124,8 @@ static bool sv_save_monsters(FILE *file, int indent) {
 
                     int e_sz = 0;
                     fprintf(file,"effects={");
-                    for (int i = 0; i < CONDITION_MAX_NR_EFFECTS; i++) {
-                        if (c->effects[i].effect == CDN_EF_NONE) i = CONDITION_MAX_NR_EFFECTS;
+                    for (int i = 0; i < STATUS_EFFECT_MAX_NR_EFFECTS; i++) {
+                        if (c->effects[i].effect == SETF_NONE) i = STATUS_EFFECT_MAX_NR_EFFECTS;
                         fprintf(file,"{");
                             fprintf(file,"effect=%d,", c->effects[i].effect);
                             fprintf(file,"effect_setting_flags=%d,", c->effects[i].effect_setting_flags);

@@ -33,7 +33,7 @@ void game_init(struct pl_player *plr, unsigned long initial_seed) {
             msrlst_monster_list_init();
             itmlst_items_list_init();
             tt_init();
-            cdn_init();
+            se_init();
 
             gbl_game->sight = sgt_init();
             gbl_game->input = inp_init();
@@ -132,7 +132,7 @@ bool game_exit() {
     struct pl_player *plr = &gbl_game->player_data;
     free(plr->player->unique_name);
 
-    cdn_exit();
+    se_exit();
     tt_exit();
     msrlst_monster_list_exit();
     itmlst_items_list_exit();

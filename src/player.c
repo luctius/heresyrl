@@ -90,8 +90,8 @@ static bool plr_action_loop(struct msr_monster *player, void *controller) {
             clear();
             refresh();
 
-            cdn_add_condition(player->conditions, CID_FATEHEALTH);
-            cdn_remove_all_non_permanent(player);
+            se_add_status_effect(player->status_effects, SEID_FATEHEALTH);
+            se_remove_all_non_permanent(player);
 
             You(player, "would have died if fate did not intervene...");
 

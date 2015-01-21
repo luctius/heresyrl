@@ -126,7 +126,7 @@ int fght_ranged_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght
 
         if (target != NULL) {
             /* Conditions */
-            CALC_TOHIT(cdn_has_effect(target->conditions, CDN_EF_STUNNED), FGHT_MODIFIER_CONDITION_STUNNED, "target is stunned")
+            CALC_TOHIT(se_has_effect(target->status_effects, SETF_STUNNED), FGHT_MODIFIER_STATUS_EFFECT_STUNNED, "target is stunned")
         }
 
 
@@ -197,7 +197,7 @@ int fght_melee_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght_
         CALC_TOHIT(msr_has_talent(monster, wpn->wpn_talent) == false, FGHT_MODIFIER_UNTRAINED_WEAPON, "you are untrained in this weapon")
 
         /* Conditions */
-        CALC_TOHIT(cdn_has_effect(target->conditions, CDN_EF_STUNNED), FGHT_MODIFIER_CONDITION_STUNNED, "target is stunned")
+        CALC_TOHIT(se_has_effect(target->status_effects, SETF_STUNNED), FGHT_MODIFIER_STATUS_EFFECT_STUNNED, "target is stunned")
 
         /* Maximum modifier, keep these at the end! */
         if (to_hit_mod < -FGHT_MODIFIER_MAX) to_hit_mod = -FGHT_MODIFIER_MAX;
@@ -759,7 +759,7 @@ struct itm_item *fght_get_weapon(struct msr_monster *monster, enum item_weapon_t
 
 /*  
     same as fght_get_weapon except we also check 
-    if the weapon is in working condition.
+    if the weapon is in working status_effect.
  */
 struct itm_item *fght_get_working_weapon(struct msr_monster *monster, enum item_weapon_type type, enum fght_hand hand) {
     struct itm_item *item = fght_get_weapon(monster, type, hand);

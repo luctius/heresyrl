@@ -28,22 +28,22 @@
 #define CREATURE_MELEE(wpn_cat,dmg_die,dmg_add,_dmg_type,_penetration,special) .icon=' ',.stacked_quantity=0, .max_quantity=1,\
             .item_type=ITEM_TYPE_WEAPON, .dropable=false, .specific.weapon={.weapon_type=WEAPON_TYPE_MELEE,\
             .weapon_category=wpn_cat, .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=0,\
-            .penetration=_penetration, .special_quality=special, .wpn_talent=TLT_NONE, .convey_condition=CID_NONE, }
+            .penetration=_penetration, .special_quality=special, .wpn_talent=TLT_NONE, .convey_status_effect=SEID_NONE, }
 
 #define MELEE(wpn_cat,dmg_die,dmg_add,_dmg_type,_penetration,_upgrades,special,talent) .icon='|',.stacked_quantity=0, .max_quantity=1,\
             .item_type=ITEM_TYPE_WEAPON, .specific.weapon={.weapon_type=WEAPON_TYPE_MELEE, .weapon_category=wpn_cat, \
             .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=0, .penetration=_penetration, \
-            .special_quality=special, .upgrades=_upgrades, .wpn_talent=talent, .convey_condition=CID_NONE, }, .dropable=true
+            .special_quality=special, .upgrades=_upgrades, .wpn_talent=talent, .convey_status_effect=SEID_NONE, }, .dropable=true
 
 #define THROWN_WEAPON(dmg_die,dmg_add,_penetration,_range,_dmg_type,_upgrades,special,talent) .icon='|',.stacked_quantity=0, .max_quantity=100,\
             .item_type=ITEM_TYPE_WEAPON, .specific.weapon={.weapon_type=WEAPON_TYPE_THROWN, .weapon_category=WEAPON_CATEGORY_THROWN_WEAPON, \
             .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=_range, .penetration=_penetration, \
-            .special_quality=special, .upgrades=_upgrades, .wpn_talent=talent, .convey_condition=CID_NONE, }, .dropable=true
+            .special_quality=special, .upgrades=_upgrades, .wpn_talent=talent, .convey_status_effect=SEID_NONE, }, .dropable=true
 
 #define THROWN_GRENADE(dmg_die,dmg_add,_penetration,_range,_dmg_type,_upgrades,special,talent, cid) .icon='|',.stacked_quantity=0, .max_quantity=100,\
             .item_type=ITEM_TYPE_WEAPON, .specific.weapon={.weapon_type=WEAPON_TYPE_THROWN, .weapon_category=WEAPON_CATEGORY_THROWN_GRENADE, \
             .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=_range, .penetration=_penetration, \
-            .special_quality=special, .upgrades=_upgrades, .wpn_talent=talent, .convey_condition=cid, }, .dropable=true
+            .special_quality=special, .upgrades=_upgrades, .wpn_talent=talent, .convey_status_effect=cid, }, .dropable=true
 
 #define PISTOL_SP(_dmg_type,dmg_die,dmg_add,_range,rof_single,rof_semi,rof_auto,mag_sz,_penetration,_upgrades,special) \
             .icon='|', .stacked_quantity=0, .max_quantity=1, .item_type=ITEM_TYPE_WEAPON, .specific.weapon={ \
@@ -51,7 +51,7 @@
             .rof[WEAPON_ROF_SETTING_SINGLE]=rof_single, .rof[WEAPON_ROF_SETTING_SEMI]=rof_semi, .rof[WEAPON_ROF_SETTING_AUTO]=rof_auto, \
             .rof_set=WEAPON_ROF_SETTING_SINGLE, .magazine_sz=mag_sz, .magazine_left=mag_sz, .penetration=_penetration, \
             .ammo_type=AMMO_TYPE_PISTOL_SP, .ammo_used_template_id=IID_PISTOL_AMMO_SP, .special_quality=special, .upgrades=_upgrades, \
-            .wpn_talent=TLT_PISTOL_WPN_TRNG_SP, .jammed=false, .convey_condition=CID_NONE, }, .dropable=true
+            .wpn_talent=TLT_PISTOL_WPN_TRNG_SP, .jammed=false, .convey_status_effect=SEID_NONE, }, .dropable=true
 
 #define PISTOL_LAS(_dmg_type,dmg_die,dmg_add,_range,rof_single,rof_semi,rof_auto,mag_sz,_penetration,_upgrades,special) \
             .icon='|', .stacked_quantity=0, .max_quantity=1, .item_type=ITEM_TYPE_WEAPON, .specific.weapon={ \
@@ -59,7 +59,7 @@
             .rof[WEAPON_ROF_SETTING_SINGLE]=rof_single, .rof[WEAPON_ROF_SETTING_SEMI]=rof_semi, .rof[WEAPON_ROF_SETTING_AUTO]=rof_auto, \
             .rof_set=WEAPON_ROF_SETTING_SINGLE, .magazine_sz=mag_sz, .magazine_left=mag_sz, .penetration=_penetration, \
             .ammo_type=AMMO_TYPE_PISTOL_LAS, .ammo_used_template_id=IID_PISTOL_AMMO_LAS, .special_quality=special, .upgrades=_upgrades, \
-            .wpn_talent=TLT_PISTOL_WPN_TRNG_LAS, .jammed=false, .convey_condition=CID_NONE, }, .dropable=true
+            .wpn_talent=TLT_PISTOL_WPN_TRNG_LAS, .jammed=false, .convey_status_effect=SEID_NONE, }, .dropable=true
 
 #define BASIC_SP(_dmg_type,dmg_die,dmg_add,_range,rof_single,rof_semi,rof_auto,mag_sz,_penetration,_upgrades,special) \
             .icon='|', .stacked_quantity=0, .max_quantity=1, .item_type=ITEM_TYPE_WEAPON, .specific.weapon={ \
@@ -67,7 +67,7 @@
             .rof[WEAPON_ROF_SETTING_SINGLE]=rof_single, .rof[WEAPON_ROF_SETTING_SEMI]=rof_semi, .rof[WEAPON_ROF_SETTING_AUTO]=rof_auto, \
             .rof_set=WEAPON_ROF_SETTING_SINGLE, .magazine_sz=mag_sz, .magazine_left=mag_sz, .penetration=_penetration, \
             .ammo_type=AMMO_TYPE_BASIC_SP, .ammo_used_template_id=IID_BASIC_AMMO_SP, .special_quality=special, .upgrades=_upgrades, \
-            .wpn_talent=TLT_BASIC_WPN_TRNG_SP, .jammed=false, .convey_condition=CID_NONE, }, .dropable=true
+            .wpn_talent=TLT_BASIC_WPN_TRNG_SP, .jammed=false, .convey_status_effect=SEID_NONE, }, .dropable=true
 
 #define BASIC_LAS(_dmg_type,dmg_die,dmg_add,_range,rof_single,rof_semi,rof_auto,mag_sz,_penetration,_upgrades,special) \
             .icon='|', .stacked_quantity=0, .max_quantity=1, .item_type=ITEM_TYPE_WEAPON, .specific.weapon={ \
@@ -75,13 +75,13 @@
             .rof[WEAPON_ROF_SETTING_SINGLE]=rof_single, .rof[WEAPON_ROF_SETTING_SEMI]=rof_semi, .rof[WEAPON_ROF_SETTING_AUTO]=rof_auto, \
             .rof_set=WEAPON_ROF_SETTING_SINGLE, .magazine_sz=mag_sz, .magazine_left=mag_sz, .penetration=_penetration, \
             .ammo_type=AMMO_TYPE_BASIC_LAS, .ammo_used_template_id=IID_BASIC_AMMO_LAS, .special_quality=special, .upgrades=_upgrades, \
-            .wpn_talent=TLT_BASIC_WPN_TRNG_LAS, .jammed=false, .convey_condition=CID_NONE, }, .dropable=true
+            .wpn_talent=TLT_BASIC_WPN_TRNG_LAS, .jammed=false, .convey_status_effect=SEID_NONE, }, .dropable=true
 
 #define AMMO(_ammo_type,_energy, cid) .icon='^', .stacked_quantity=1, .max_quantity=100, .dropable=true, \
-            .item_type=ITEM_TYPE_AMMO, .specific.ammo={ .ammo_type=_ammo_type, .energy=_energy, .energy_left=_energy, .convey_condition=cid, }
+            .item_type=ITEM_TYPE_AMMO, .specific.ammo={ .ammo_type=_ammo_type, .energy=_energy, .energy_left=_energy, .convey_status_effect=cid, }
 
 #define STIMM(_food_type,cid) .icon='?', .stacked_quantity=1, .max_quantity=100, .dropable=true, \
-            .item_type=ITEM_TYPE_FOOD, .specific.food={ .food_type=_food_type, .nutrition=0, .nutrition_left=0, .convey_condition=cid, }
+            .item_type=ITEM_TYPE_FOOD, .specific.food={ .food_type=_food_type, .nutrition=0, .nutrition_left=0, .convey_status_effect=cid, }
 
 static const char *itm_descs[] = {
     [IID_FIXED_LIGHT]       = "",
@@ -151,9 +151,9 @@ static struct itm_item static_item_list[] = {
 
 
     /* Thrown */
-    /*    ID               short name         long name          availability         quality          (wgt,cst,dly)  CATEGORY xd10,+X,pen,range   dmg type    upgrades    special qualities     talent    condition*/
-    ITEM(IID_FRAG_GRENADE, "frag grenade",   "a frag grenade",   ITEM_AVAIL_AVERAGE,  ITEM_QLTY_AVERAGE, 5, 10, 1), THROWN_GRENADE(2, 0, 0, 3,  DMG_TYPE_EXPLOSIVE, 0, bf(WPN_SPCQLTY_BLAST_4),  TLT_NONE, CID_NONE), ITEM_END,
-    ITEM(IID_BODYPART_GRENADE, "",           "status effect",    ITEM_AVAIL_AVERAGE,  ITEM_QLTY_AVERAGE, 5, 10, 1), THROWN_GRENADE(1, 0, 0, 3,  DMG_TYPE_EXPLOSIVE, 0, bf(WPN_SPCQLTY_BLAST_2),  TLT_NONE, CID_NONE), ITEM_END,
+    /*    ID               short name         long name          availability         quality          (wgt,cst,dly)  CATEGORY xd10,+X,pen,range   dmg type    upgrades    special qualities     talent    status_effect*/
+    ITEM(IID_FRAG_GRENADE, "frag grenade",   "a frag grenade",   ITEM_AVAIL_AVERAGE,  ITEM_QLTY_AVERAGE, 5, 10, 1), THROWN_GRENADE(2, 0, 0, 3,  DMG_TYPE_EXPLOSIVE, 0, bf(WPN_SPCQLTY_BLAST_4),  TLT_NONE, SEID_NONE), ITEM_END,
+    ITEM(IID_BODYPART_GRENADE, "",           "status effect",    ITEM_AVAIL_AVERAGE,  ITEM_QLTY_AVERAGE, 5, 10, 1), THROWN_GRENADE(1, 0, 0, 3,  DMG_TYPE_EXPLOSIVE, 0, bf(WPN_SPCQLTY_BLAST_2),  TLT_NONE, SEID_NONE), ITEM_END,
     ITEM(IID_THROWING_KNIFE,"throwing knife","a throwing knife", ITEM_AVAIL_PLENTIFUL,ITEM_QLTY_AVERAGE, 5, 5,  1), THROWN_WEAPON( 0, 0, 0, 5,  DMG_TYPE_RENDING,   0, bf(WPN_SPCQLTY_PRIMITIVE),TLT_THROWN_WPN_TRNG_PRIMITIVE), ITEM_END,
 
     /* Pistols */
@@ -170,19 +170,19 @@ static struct itm_item static_item_list[] = {
 
     /* Ammo */
     /*    ID                 short name            long name                               availability       quality           (wgt,cst,dly)         ammo Type         energy level*/
-    ITEM(IID_PISTOL_AMMO_SP, "solid pistol ammo", "a clip of solid projectile pistol ammo",ITEM_AVAIL_AVERAGE,ITEM_QLTY_AVERAGE,  0, 1,  0), AMMO(AMMO_TYPE_PISTOL_SP,  0   , CID_NONE), ITEM_END,
-    ITEM(IID_PISTOL_AMMO_LAS,"pistol charge pack","a pistol charge pack",                  ITEM_AVAIL_AVERAGE,ITEM_QLTY_AVERAGE,  0, 1,  0), AMMO(AMMO_TYPE_PISTOL_LAS, 1000, CID_NONE), ITEM_END,
+    ITEM(IID_PISTOL_AMMO_SP, "solid pistol ammo", "a clip of solid projectile pistol ammo",ITEM_AVAIL_AVERAGE,ITEM_QLTY_AVERAGE,  0, 1,  0), AMMO(AMMO_TYPE_PISTOL_SP,  0   , SEID_NONE), ITEM_END,
+    ITEM(IID_PISTOL_AMMO_LAS,"pistol charge pack","a pistol charge pack",                  ITEM_AVAIL_AVERAGE,ITEM_QLTY_AVERAGE,  0, 1,  0), AMMO(AMMO_TYPE_PISTOL_LAS, 1000, SEID_NONE), ITEM_END,
 
-    ITEM(IID_BASIC_AMMO_SP,  "solid basic ammo", "a clip of solid projectile basic ammo",  ITEM_AVAIL_AVERAGE,ITEM_QLTY_AVERAGE,  0, 1,  0), AMMO(AMMO_TYPE_BASIC_SP,   0   , CID_NONE), ITEM_END,
-    ITEM(IID_BASIC_AMMO_LAS, "basic charge pack", "a basic weapon charge pack",            ITEM_AVAIL_AVERAGE,ITEM_QLTY_AVERAGE,  0, 1,  0), AMMO(AMMO_TYPE_BASIC_LAS,  1000, CID_NONE), ITEM_END,
+    ITEM(IID_BASIC_AMMO_SP,  "solid basic ammo", "a clip of solid projectile basic ammo",  ITEM_AVAIL_AVERAGE,ITEM_QLTY_AVERAGE,  0, 1,  0), AMMO(AMMO_TYPE_BASIC_SP,   0   , SEID_NONE), ITEM_END,
+    ITEM(IID_BASIC_AMMO_LAS, "basic charge pack", "a basic weapon charge pack",            ITEM_AVAIL_AVERAGE,ITEM_QLTY_AVERAGE,  0, 1,  0), AMMO(AMMO_TYPE_BASIC_LAS,  1000, SEID_NONE), ITEM_END,
 
     /* Stimms */
-    /*    ID                  short name            long name                         availability       quality           (wgt,cst,dly)      Food Type            condition*/
-    ITEM(IID_STIMM_HEALTH,  "health stimm", "an injector with a regenerative liquid", ITEM_AVAIL_AVERAGE,ITEM_QLTY_AVERAGE,   0, 1, 1), STIMM(FOOD_TYPE_INJECTION, CID_HEALTH_STIMM), ITEM_END,
+    /*    ID                  short name            long name                         availability       quality           (wgt,cst,dly)      Food Type            status_effect*/
+    ITEM(IID_STIMM_HEALTH,  "health stimm", "an injector with a regenerative liquid", ITEM_AVAIL_AVERAGE,ITEM_QLTY_AVERAGE,   0, 1, 1), STIMM(FOOD_TYPE_INJECTION, SEID_HEALTH_STIMM), ITEM_END,
 
     /* debug items */
-    //ITEM(IID_STIMM_DEATH,   "death debug",  "an injector with a deadly liquid",       ITEM_AVAIL_VERY_RARE,ITEM_QLTY_AVERAGE, 0, 1, 1), STIMM(FOOD_TYPE_INJECTION, CID_DEATH_STIMM), ITEM_END,
-    ITEM(IID_STIMM_DEATH,   "death debug",  "an injector with a deadly liquid",       ITEM_AVAIL_VERY_RARE,ITEM_QLTY_AVERAGE, 0, 1, 1), STIMM(FOOD_TYPE_INJECTION, CID_IMPACT_CRITICAL_RARMS_3), ITEM_END,
+    //ITEM(IID_STIMM_DEATH,   "death debug",  "an injector with a deadly liquid",       ITEM_AVAIL_VERY_RARE,ITEM_QLTY_AVERAGE, 0, 1, 1), STIMM(FOOD_TYPE_INJECTION, SEID_DEATH_STIMM), ITEM_END,
+    ITEM(IID_STIMM_DEATH,   "death debug",  "an injector with a deadly liquid",       ITEM_AVAIL_VERY_RARE,ITEM_QLTY_AVERAGE, 0, 1, 1), STIMM(FOOD_TYPE_INJECTION, SEID_IMPACT_CRITICAL_RARMS_3), ITEM_END,
 };
 
 static const char *item_quality_strings[] = {
