@@ -38,8 +38,8 @@ struct random;
 struct sgt_sight;
 struct pl_player;
 struct input;
-struct cdn_condition_list;
-struct cdn_condition;
+struct status_effect_list;
+struct status_effect;
 
 enum tile_types;
 enum dm_dungeon_type;
