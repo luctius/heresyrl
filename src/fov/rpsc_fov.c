@@ -31,7 +31,7 @@
     a previous row. We do not need to check to current rows, because a cell on the 
     current row can never block a cell on that row. 
     If it is blocked, we add it to a blocking list and it will be used on the next row.
-    If it is not, we check if it itself can block others (i.e. not opaque) and if so, 
+    If it is not, we check if it itself can block others (i.e. not translucent) and if so, 
     add it to the blocking list and it will be used on the next row.
 
     At the end of a row, we try to combine all the blocking cells into one big blocker.
@@ -397,7 +397,7 @@ static void rpsc_fov_octant(struct rpsc_fov_set *set, coord_t *src, int radius, 
                     if (set->apply != NULL) set->apply(set, &point, src);
 
                     /* check if it will block others */
-                    if (set->is_opaque(set, &point, src) == false) {
+                    if (set->is_translucent(set, &point, src) == false) {
                         /* it does, adding it to the blocklist */
                         blocked_list[obstacles_total + obstacles_this_row] = as;
                         obstacles_this_row++;
@@ -427,7 +427,7 @@ static void rpsc_fov_octant(struct rpsc_fov_set *set, coord_t *src, int radius, 
 /* calculates the complete fov */
 bool rpsc_fov(struct rpsc_fov_set *set, coord_t *src, int radius) {
     if (set == NULL) return false;
-    if (set->is_opaque == NULL) return false;
+    if (set->is_translucent == NULL) return false;
     if (cd_within_bound(src, &set->size) == false) return false;
 
     if (set->apply != NULL) set->apply(set, src, src);
@@ -444,7 +444,7 @@ bool rpsc_fov(struct rpsc_fov_set *set, coord_t *src, int radius) {
 /*
 bool rpsc_cone(struct rpsc_fov_set *set, coord_t *src, coord_t *dst, int angle, int radius) {
     if (set == NULL) return false;
-    if (set->is_opaque == NULL) return false;
+    if (set->is_translucent == NULL) return false;
     if (cd_within_bound(src, &set->size) == false) return false;
     if (cd_within_bound(dst, &set->size) == false) return false;
 
@@ -483,7 +483,7 @@ bool rpsc_cone(struct rpsc_fov_set *set, coord_t *src, coord_t *dst, int angle, 
 */
 bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst) {
     if (set == NULL) return false;
-    if (set->is_opaque == NULL) return false;
+    if (set->is_translucent == NULL) return false;
     if (cd_within_bound(src, &set->size) == false) return false;
     if (cd_within_bound(dst, &set->size) == false) return false;
     bool visible = true;
@@ -597,13 +597,13 @@ bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst) {
             if (blocked == false) {
                 /* 
                    We check if this cell will block others (i.e. is a wall).
-                   Given a strict is_opaque funciton however, the target square 
+                   Given a strict is_translucent funciton however, the target square 
                    could also be blocked (for example to check line of fire, but the 
                    target square also has an actor).
 
                    Thus we do not do block the target square.
                  */
-                if ( (set->is_opaque(set, &point, src) == false) && (destination == false) ) {
+                if ( (set->is_translucent(set, &point, src) == false) && (destination == false) ) {
                     /* add it to the obstacle list. */
                     blocked_list[obstacles_total + obstacles_this_row] = as;
                     obstacles_this_row++;

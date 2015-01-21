@@ -15,7 +15,7 @@ struct sgt_sight {
 };
 
 /* checks if this is a walkable path, without a monster.  */
-static bool rpsc_check_opaque_lof(struct rpsc_fov_set *set, coord_t *point, coord_t *origin) {
+static bool rpsc_check_translucent_lof(struct rpsc_fov_set *set, coord_t *point, coord_t *origin) {
     struct dm_map *map = set->map;
 
     FIX_UNUSED(origin);
@@ -36,7 +36,7 @@ static bool rpsc_check_opaque_lof(struct rpsc_fov_set *set, coord_t *point, coor
 }
 
 /* check if there is a line of sight path on this point */
-static bool rpsc_check_opaque_los(struct rpsc_fov_set *set, coord_t *point, coord_t *origin) {
+static bool rpsc_check_translucent_los(struct rpsc_fov_set *set, coord_t *point, coord_t *origin) {
     struct dm_map *map = set->map;
 
     FIX_UNUSED(origin);
@@ -199,7 +199,7 @@ bool sgt_calculate_light_source(struct sgt_sight *sight, struct dm_map *map, str
         .not_visible_blocks_vision = true,
         .map = map,
         .size = map->size,
-        .is_opaque = rpsc_check_opaque_los,
+        .is_translucent = rpsc_check_translucent_los,
         .apply = rpsc_apply_light_source,
     };
 
@@ -231,7 +231,7 @@ bool sgt_calculate_player_sight(struct sgt_sight *sight, struct dm_map *map, str
         .not_visible_blocks_vision = true,
         .map = map,
         .size = map->size,
-        .is_opaque = rpsc_check_opaque_los,
+        .is_translucent = rpsc_check_translucent_los,
         .apply = rpsc_apply_player_sight,
     };
 
@@ -278,7 +278,7 @@ int sgt_explosion(struct sgt_sight *sight, struct dm_map *map, coord_t *pos, int
         .not_visible_blocks_vision = true,
         .map = map,
         .size = map->size,
-        .is_opaque = rpsc_check_opaque_los,
+        .is_translucent = rpsc_check_translucent_los,
         .apply = rpsc_apply_explosion,
     };
 
@@ -335,7 +335,7 @@ int sgt_los_path(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_
         .not_visible_blocks_vision = true,
         .map = map,
         .size = map->size,
-        .is_opaque = rpsc_check_opaque_lof,
+        .is_translucent = rpsc_check_translucent_lof,
         .apply = rpsc_apply_projectile_path,
     };
 
@@ -443,7 +443,7 @@ bool sgt_has_los(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_
         .area = RPSC_AREA_CIRCLE,
         .map = map,
         .size = map->size,
-        .is_opaque = rpsc_check_opaque_los,
+        .is_translucent = rpsc_check_translucent_los,
         .apply = NULL,
     };
 
@@ -461,7 +461,7 @@ bool sgt_has_lof(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_
         .area = RPSC_AREA_CIRCLE,
         .map = map,
         .size = map->size,
-        .is_opaque = rpsc_check_opaque_lof,
+        .is_translucent = rpsc_check_translucent_lof,
         .apply = NULL,
     };
 
@@ -469,167 +469,3 @@ bool sgt_has_lof(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_
     return rpsc_los(&set, s, e);
 }
 
-#if 0
-int bresenham(struct dm_map *map, coord_t *s, coord_t *e, coord_t plist[], int plist_sz) {
-    int x_1 = s->x;
-    int y_1 = s->y;
-    int x_2 = e->x;
-    int y_2 = e->y;
-    int plist_idx = 0;
-    int delta_x = (x_2 - x_1);
-    // if x_1 == x_2, then it does not matter what we set here
-    signed char const ix = ((delta_x > 0) - (delta_x < 0));
-    delta_x = abs(delta_x) << 1;
-
-    int delta_y = (y_2 - y_1);
-    // if y_1 == y_2, then it does not matter what we set here
-    signed char const iy = ((delta_y > 0) - (delta_y < 0));
-    delta_y = abs(delta_y) << 1;
-
-    plist[plist_idx++] = *s;
-    if (plist_idx >= plist_sz) return -1;
-
-    if (delta_x >= delta_y)
-    {
-        // error may go below zero
-        int error = (delta_y - (delta_x >> 1));
-
-        while (x_1 != x_2)
-        {
-            if ((error >= 0) && (error || (ix > 0)))
-            {
-                error -= delta_x;
-                y_1 += iy;
-            }
-            // else do nothing
-
-            error += delta_y;
-            x_1 += ix;
-
-            plist[plist_idx++] = cd_create(x_1,y_1);
-            if ( (dm_get_map_tile(&plist[plist_idx-1],map)->attributes & TILE_ATTR_TRAVERSABLE) == 0) return -1;
-            if (plist_idx >= plist_sz) return -1;
-        }
-    }
-    else
-    {
-        // error may go below zero
-        int error = (delta_x - (delta_y >> 1));
-
-        while (y_1 != y_2)
-        {
-            if ((error >= 0) && (error || (iy > 0)))
-            {
-                error -= delta_y;
-                x_1 += ix;
-            }
-            // else do nothing
-
-            error += delta_x;
-            y_1 += iy;
-
-            plist[plist_idx++] = cd_create(x_1,y_1);
-            if ( (dm_get_map_tile(&plist[plist_idx-1],map)->attributes & TILE_ATTR_TRAVERSABLE) == 0) return -1;
-            if (plist_idx >= plist_sz) return -1;
-        }
-    }
-
-    return plist_idx;
-}
-
-#define ipart_(X) ((int)(X))
-#define round_(X) ((int)(((double)(X))+0.5))
-#define fpart_(X) (((double)(X))-(double)ipart_(X))
-#define rfpart_(X) (1.0-fpart_(X))
- 
-#define swap_(a, b) do{ __typeof__(a) tmp;  tmp = a; a = b; b = tmp; }while(0)
-int wu_line(coord_t *s, coord_t *e, coord_t plst[], int plst_sz) {
-  unsigned int x_1 = s->x;
-  unsigned int y_1 = s->y;
-  unsigned int x_2 = e->x;
-  unsigned int y_2 = e->y;
-  double dx = (double)x_2 - (double)x_1;
-  double dy = (double)y_2 - (double)y_1;
-
-  int length = 0;
-
-  if ( fabs(dx) > fabs(dy) ) {
-    if ( x_2 < x_1 ) {
-      swap_(x_1, x_2);
-      swap_(y_1, y_2);
-    }
-
-    if (dx == 0) return -1;
-
-    double gradient = dy / dx;
-    double xend = round_(x_1);
-    double yend = y_1 + gradient*(xend - x_1);
-    int xpxl1 = xend;
-    int ypxl1 = ipart_(yend);
-
-    plst[length++] = cd_create(xpxl1,ypxl1);
-    plst[length++] = cd_create(xpxl1,ypxl1+1);
-
-    double intery = yend + gradient;
- 
-    xend = round_(x_2);
-    yend = y_2 + gradient*(xend - x_2);
-    int xpxl2 = xend;
-    int ypxl2 = ipart_(yend);
-
-    plst[length++] = cd_create(xpxl2,ypxl2);
-    plst[length++] = cd_create(xpxl2,ypxl2+1);
- 
-    int x;
-    for(x=xpxl1+1; x <= (xpxl2-1); x++) {
-      plst[length++] = cd_create(x,ipart_(intery) );
-      plst[length++] = cd_create(x,ipart_(intery) +1);
-
-      intery += gradient;
-
-    }
-  } else {
-    if ( y_2 < y_1 ) {
-      swap_(x_1, x_2);
-      swap_(y_1, y_2);
-    }
-
-    if (dy == 0) return -1;
-
-    double gradient = dx / dy;
-    double yend = round_(y_1);
-    double xend = x_1 + gradient*(yend - y_1);
-    int ypxl1 = yend;
-    int xpxl1 = ipart_(xend);
-
-    plst[length++] = cd_create(xpxl1,ypxl1);
-    plst[length++] = cd_create(xpxl1,ypxl1+1);
-
-    double interx = xend + gradient;
- 
-    yend = round_(y_2);
-    xend = x_2 + gradient*(yend - y_2);
-    int ypxl2 = yend;
-    int xpxl2 = ipart_(xend);
-
-    plst[length++] = cd_create(xpxl2,ypxl2);
-    plst[length++] = cd_create(xpxl2,ypxl2+1);
- 
-    int y;
-    for(y=ypxl1+1; y <= (ypxl2-1); y++) {
-      plst[length++] = cd_create(ipart_(interx), y);
-      plst[length++] = cd_create(ipart_(interx) +1, y);
-
-      interx += gradient;
-    }
-  }
-
-  return length;
-}
-#undef swap_
-#undef plot_
-#undef ipart_
-#undef fpart_
-#undef round_
-#undef rfpart_
-#endif
