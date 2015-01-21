@@ -6,6 +6,7 @@ enum dmg_type {
     DMG_TYPE_EXPLOSIVE,
     DMG_TYPE_ENERGY,
     DMG_TYPE_RENDING,
+    DMG_TYPE_MAGIC,
     DMG_TYPE_MAX,
     DMG_TYPE_RANDOM,
 };
