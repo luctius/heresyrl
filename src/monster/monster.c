@@ -645,7 +645,7 @@ static struct itm_item *msr_unarmed_weapon(struct msr_monster *monster) {
     return item;
 }
 
-bool msr_has_creature_trait(struct msr_monster *monster,  bitfield_t trait) {
+bool msr_has_creature_trait(struct msr_monster *monster,  bitfield64_t trait) {
     if (msr_verify_monster(monster) == false) return false;
     return ( (monster->creature_traits & trait) > 0);
 }

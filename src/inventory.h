@@ -28,12 +28,12 @@ enum inv_locations {
     INV_LOC_MAX             = (1<<14)+1,
 };
 
-struct inv_inventory *inv_init(bitfield_t locations);
+struct inv_inventory *inv_init(bitfield32_t locations);
 void inv_exit(struct inv_inventory *inv);
 bool inv_verify_inventory(struct inv_inventory *inv);
 
-void inv_disable_location(struct inv_inventory *inv, bitfield_t loc);
-void inv_enable_location(struct inv_inventory *inv, bitfield_t loc);
+void inv_disable_location(struct inv_inventory *inv, bitfield32_t loc);
+void inv_enable_location(struct inv_inventory *inv, bitfield32_t loc);
 
 bool inv_has_item(struct inv_inventory *inv, struct itm_item *item);
 
@@ -51,19 +51,19 @@ struct itm_item *inv_get_next_item(struct inv_inventory *inv, struct itm_item *p
 int inv_inventory_size(struct inv_inventory *inv);
 
 /* check if the inventory supports that location. */
-bool inv_support_location(struct inv_inventory *inv, bitfield_t location);
+bool inv_support_location(struct inv_inventory *inv, bitfield32_t location);
 
 /* move item to that inventory location or locations.*/
-bool inv_move_item_to_location(struct inv_inventory *inv, struct itm_item *item, bitfield_t location);
+bool inv_move_item_to_location(struct inv_inventory *inv, struct itm_item *item, bitfield32_t location);
 
 /* get the item currently worn on that location, or NULL of it is empty. */
-struct itm_item *inv_get_item_from_location(struct inv_inventory *inv, bitfield_t location);
+struct itm_item *inv_get_item_from_location(struct inv_inventory *inv, bitfield32_t location);
 
 /* true if the location is empty (ie. no item worn there), false otherwise. */
-bool inv_loc_empty(struct inv_inventory *inv, bitfield_t location);
+bool inv_loc_empty(struct inv_inventory *inv, bitfield32_t location);
 
 /* given an item, give the locations it is worn.*/
-bitfield_t inv_get_item_locations(struct inv_inventory *inv, struct itm_item *item);
+bitfield32_t inv_get_item_locations(struct inv_inventory *inv, struct itm_item *item);
 
 /* true if the item is in another location than inventory.
    worn items include wielded items, but not vice versa. */
@@ -71,7 +71,7 @@ bool inv_item_worn(struct inv_inventory *inv, struct itm_item *item);
 bool inv_item_wielded(struct inv_inventory *inv, struct itm_item *item);
 
 /* get a description of a location */
-const char *inv_location_name(bitfield_t loc);
+const char *inv_location_name(bitfield32_t loc);
 
 #define inv_loc_human \
     ( INV_LOC_FEET            | INV_LOC_LEGS          | \

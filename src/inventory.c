@@ -11,7 +11,7 @@
 #define inv_loc(loc) (1<<loc)
 
 struct inv_entry {
-    bitfield_t location;
+    bitfield32_t location;
     struct itm_item *item;
     TAILQ_ENTRY(inv_entry) entries;
 };
@@ -19,7 +19,7 @@ struct inv_entry {
 struct inv_inventory {
     uint32_t inv_pre;
 
-    bitfield_t available_locations;
+    bitfield32_t available_locations;
     TAILQ_HEAD(invhead, inv_entry) head;
 
     uint32_t inv_post;
@@ -29,7 +29,7 @@ struct inv_inventory {
 #define INVENTORY_PRE_CHECK (16524)
 #define INVENTORY_POST_CHECK (411)
 
-struct inv_inventory *inv_init(bitfield_t locations) {
+struct inv_inventory *inv_init(bitfield32_t locations) {
     struct inv_inventory *i= calloc(1, sizeof(struct inv_inventory) );
     if (i != NULL) {
         TAILQ_INIT(&i->head);
@@ -67,7 +67,7 @@ struct itm_item *inv_get_next_item(struct inv_inventory *inv, struct itm_item *p
     struct inv_entry *ie = inv->head.tqh_first;
 
     struct itm_item *item = NULL;
-    bitfield_t item_location = 0;
+    bitfield32_t item_location = 0;
 
     if (prev == NULL) { 
         item = ie->item; /* if this is the first attempt take the first item */ 
@@ -98,14 +98,14 @@ struct itm_item *inv_get_next_item(struct inv_inventory *inv, struct itm_item *p
     return item;
 }
 
-void inv_disable_location(struct inv_inventory *inv, bitfield_t loc) {
+void inv_disable_location(struct inv_inventory *inv, bitfield32_t loc) {
     if (inv_verify_inventory(inv) == false) return;
     if (inv_support_location(inv, loc) == false) return;
 
     inv->available_locations &= (~loc);
 }
 
-void inv_enable_location(struct inv_inventory *inv, bitfield_t loc) {
+void inv_enable_location(struct inv_inventory *inv, bitfield32_t loc) {
     if (inv_verify_inventory(inv) == false) return;
     if (inv_support_location(inv, loc) == true) return;
 
@@ -199,14 +199,14 @@ int inv_inventory_size(struct inv_inventory *inv) {
     return sz;
 }
 
-bool inv_support_location(struct inv_inventory *inv, bitfield_t location) {
+bool inv_support_location(struct inv_inventory *inv, bitfield32_t location) {
     if (inv_verify_inventory(inv) == false) return false;
     if (location > INV_LOC_MAX) return false;
     if ( (inv->available_locations & location) > 0) return true;
     return false;
 }
 
-bool inv_move_item_to_location(struct inv_inventory *inv, struct itm_item *item, bitfield_t location) {
+bool inv_move_item_to_location(struct inv_inventory *inv, struct itm_item *item, bitfield32_t location) {
     if (inv_verify_inventory(inv) == false) return false;
     if (itm_verify_item(item) == false) return false;
     if (inv_has_item(inv, item) == false) return false;
@@ -230,7 +230,7 @@ bool inv_move_item_to_location(struct inv_inventory *inv, struct itm_item *item,
     return false;
 }
 
-struct itm_item *inv_get_item_from_location(struct inv_inventory *inv, bitfield_t location) {
+struct itm_item *inv_get_item_from_location(struct inv_inventory *inv, bitfield32_t location) {
     if (inv_verify_inventory(inv) == false) return NULL;
     if (inv_support_location(inv, location) == false) return NULL;
 
@@ -245,7 +245,7 @@ struct itm_item *inv_get_item_from_location(struct inv_inventory *inv, bitfield_
     return NULL;
 }
 
-bool inv_loc_empty(struct inv_inventory *inv, bitfield_t location) {
+bool inv_loc_empty(struct inv_inventory *inv, bitfield32_t location) {
     if (inv_verify_inventory(inv) == false) return false;
     if (inv_support_location(inv, location) == false) return false;
     if (location == INV_LOC_INVENTORY) return true; /*Inventory is the base where everything can go */
@@ -253,7 +253,7 @@ bool inv_loc_empty(struct inv_inventory *inv, bitfield_t location) {
     return (inv_get_item_from_location(inv, location) == NULL);
 }
 
-bitfield_t inv_get_item_locations(struct inv_inventory *inv, struct itm_item *item) {
+bitfield32_t inv_get_item_locations(struct inv_inventory *inv, struct itm_item *item) {
     if (inv_verify_inventory(inv) == false) return INV_LOC_NONE;
     if (itm_verify_item(item) == false) return INV_LOC_NONE;
     if (inv_has_item(inv, item) == false) return INV_LOC_NONE;
@@ -321,7 +321,7 @@ static const char *location_name_lst[] = {
     [INV_LOC_MAX] = "",
 };
 
-const char *inv_location_name(bitfield_t loc) {
+const char *inv_location_name(bitfield32_t loc) {
     if (loc >= INV_LOC_MAX) return NULL;
     for (int i = 0; inv_loc(i) < INV_LOC_MAX; i++) {
         if ( (loc & inv_loc(i) ) > 0) {

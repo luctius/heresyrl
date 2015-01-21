@@ -222,7 +222,7 @@ bool ma_do_throw(struct msr_monster *monster, coord_t *pos, struct itm_item *ite
     int cost = MSR_ACTION_THROW;
     bool change = false;
     bool thrown = false;
-    bitfield_t locs;
+    bitfield32_t locs;
 
     /* Check in which hand the item is, or, if it is not, 
        exchange the main hand weapon temporarily with this item*/

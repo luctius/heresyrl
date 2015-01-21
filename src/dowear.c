@@ -16,7 +16,7 @@ static bool wield_melee_weapon(struct msr_monster *monster, struct itm_item *ite
     if (wpn_is_type(item, WEAPON_TYPE_MELEE) == false) return false;
     struct inv_inventory *inv = monster->inventory;
     
-    bitfield_t location = INV_LOC_NONE;
+    bitfield32_t location = INV_LOC_NONE;
     if (wpn_is_catergory(item, WEAPON_CATEGORY_2H_MELEE) ) {
         if ( (inv_support_location(inv, INV_LOC_MAINHAND_WIELD) == false) ||
              (inv_support_location(inv, INV_LOC_OFFHAND_WIELD) == false) ) {
@@ -51,7 +51,7 @@ static bool wield_ranged_weapon(struct msr_monster *monster, struct itm_item *it
     if (wpn_is_type(item, WEAPON_TYPE_RANGED) == false) return false;
     struct inv_inventory *inv = monster->inventory;
 
-    bitfield_t location = INV_LOC_NONE;
+    bitfield32_t location = INV_LOC_NONE;
     if (wpn_is_catergory(item, WEAPON_CATEGORY_BASIC) || wpn_is_catergory(item, WEAPON_CATEGORY_HEAVY) ) {
         if ( (inv_support_location(inv, INV_LOC_MAINHAND_WIELD) == false) ||
              (inv_support_location(inv, INV_LOC_OFFHAND_WIELD) == false) ) {

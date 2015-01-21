@@ -174,9 +174,9 @@ struct item_weapon_specific {
     uint8_t penetration;
     enum item_ammo_type ammo_type;
     uint32_t ammo_used_template_id; /* item template id of the ammo currently used. this is used to unload the ammo and check for special attributes. */
-    bitfield_t special_quality;
-    bitfield_t upgrades;
-    bitfield_t wpn_talent;  /* talent required for this weapon to operate.*/
+    bitfield64_t special_quality;
+    bitfield64_t upgrades;
+    bitfield64_t wpn_talent;  /* talent required for this weapon to operate.*/
     bool jammed;
     enum se_ids convey_status_effect;
 };
@@ -185,7 +185,7 @@ struct item_wearable_specific {
     enum item_wearable_type wearable_type;
     enum inv_locations locations;
     uint8_t damage_reduction;
-    bitfield_t special_quality;
+    bitfield64_t special_quality;
 };
 
 struct item_tool_specific {
@@ -207,7 +207,7 @@ struct item_ammo_specific {
     enum item_ammo_type ammo_type;
     int energy;
     int energy_left;
-    bitfield_t upgrades;
+    bitfield64_t upgrades;
     enum se_ids convey_status_effect;
 };
 

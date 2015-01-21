@@ -149,10 +149,10 @@ struct msr_monster {
        skills, divided in basic (has the skill), advanced and expert.
        a skill in advanced should also be in basic, etc.
      */
-    bitfield_t skills[MSR_SKILL_RATE_MAX];
+    bitfield64_t skills[MSR_SKILL_RATE_MAX];
 
     /* special creature traits. */
-    bitfield_t creature_traits;
+    bitfield64_t creature_traits;
 
     /* base characteris score, +advancement. every advancement is 5 extra points. */
     struct msr_char characteristic[MSR_CHAR_MAX];
@@ -253,7 +253,7 @@ int msr_get_medium_sight_range(struct msr_monster *monster);
 int msr_get_far_sight_range(struct msr_monster *monster);
 
 
-bool msr_has_creature_trait(struct msr_monster *monster,  bitfield_t trait);
+bool msr_has_creature_trait(struct msr_monster *monster,  bitfield64_t trait);
 bool msr_has_talent(struct msr_monster *monster, enum msr_talents talent);
 bool msr_set_talent(struct msr_monster *monster, enum msr_talents talent);
 enum msr_skill_rate msr_has_skill(struct msr_monster *monster,  enum msr_skills skill);

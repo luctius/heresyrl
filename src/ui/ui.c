@@ -682,7 +682,7 @@ void charwin_refresh() {
 
     struct itm_item *item;
     for (int i = 0; i<2; i++) {
-        bitfield_t loc = INV_LOC_MAINHAND_WIELD;
+        bitfield32_t loc = INV_LOC_MAINHAND_WIELD;
         if (i == 1) loc = INV_LOC_OFFHAND_WIELD;
         if ( (item == inv_get_item_from_location(player->inventory, loc) ) ) continue; /*ignore off=hand when wielding 2h weapon.*/
 
@@ -1138,7 +1138,7 @@ Basic weapon traning SP     ...                  |
             while ( (item = inv_get_next_item(mon->inventory, item) ) != NULL) {
                 if ( (inv_item_worn(mon->inventory, item) == true) && 
                      (inv_item_wielded(mon->inventory, item) == false) ) {
-                    bitfield_t locs = inv_get_item_locations(mon->inventory, item);
+                    bitfield32_t locs = inv_get_item_locations(mon->inventory, item);
 
                     bool first = true;
                     for (enum inv_locations i = 1; i < INV_LOC_MAX; i <<= 1) {

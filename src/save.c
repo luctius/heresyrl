@@ -165,7 +165,7 @@ static bool sv_save_monsters(FILE *file, int indent) {
                         continue;
                     }
 
-                    fprintf(file, "{uid=%d,position=%"PRIu64"},", item->uid, inv_get_item_locations(m->inventory, item) );
+                    fprintf(file, "{uid=%d,position=%"PRIu32"},", item->uid, inv_get_item_locations(m->inventory, item) );
                 }
                 fprintf(file, "sz=%d,", invsz);
                 fprintf(file, "},");
