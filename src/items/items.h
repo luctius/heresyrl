@@ -355,6 +355,9 @@ bool ammo_is_type(struct itm_item *item, enum item_ammo_type type);
 /* true if the item is a tool, and the tool is of this type */
 bool tool_is_type(struct itm_item *item, enum item_tool_type type);
 
+/* true if both items can be stacked. */
+bool itm_stack_compatible(struct itm_item *item1, struct itm_item *item2);
+
 const char *itm_quality_string(struct itm_item *item);
 const char *wpn_ammo_string(enum item_ammo_type iat);
 

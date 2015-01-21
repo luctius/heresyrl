@@ -141,7 +141,7 @@ bool inv_add_stack(struct inv_inventory *inv, struct itm_item *item) {
     while ( (i = inv_get_next_item(inv, i) ) != NULL ) {
         if (i->template_id == item->template_id) {
             if (i->stacked_quantity < i->max_quantity) {
-                if (memcmp(i, item, sizeof(struct itm_item) ) == 0) {
+                if (itm_stack_compatible(i, item) == true) {
                     int diff = (i->max_quantity - i->stacked_quantity);
                     int max = MAX(diff, item->stacked_quantity);
                     i->stacked_quantity += max;

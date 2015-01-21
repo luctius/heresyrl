@@ -240,6 +240,56 @@ int itm_get_energy(struct itm_item *item) {
     return item->energy;
 }
 
+bool itm_stack_compatible(struct itm_item *item1, struct itm_item *item2) {
+    if (itm_verify_item(item1) == false) return false;
+    if (itm_verify_item(item2) == false) return false;
+
+    if (item1->template_id != item2->template_id) return false;
+    if (item1->item_type != item2->item_type) return false;
+    if (item1->quality != item2->quality) return false;
+    if (item1->weight != item2->weight) return false;
+    if (item1->cost != item2->cost) return false;
+    if (item1->sd_name != item2->sd_name) return false;
+    if (item1->ld_name != item2->ld_name) return false;
+    if (item1->description != item2->description) return false;
+    if (item1->icon != item2->icon) return false;
+    if (item1->icon_attr != item2->icon_attr) return false;
+    if (item1->use_delay != item2->use_delay) return false;
+    if (item1->max_quantity != item2->max_quantity) return false;
+
+    switch(item1->item_type) {
+        case ITEM_TYPE_TOOL:
+            if (item1->specific.tool.tool_type != item2->specific.tool.tool_type) return false;
+            if (item1->specific.tool.energy_left != item2->specific.tool.energy_left) return false;
+            if (item1->specific.tool.energy != item2->specific.tool.energy) return false;
+            break;
+        case ITEM_TYPE_WEAPON:
+            if (item1->specific.weapon.upgrades != item2->specific.weapon.upgrades) return false;
+            if (item1->specific.weapon.jammed != item2->specific.weapon.jammed) return false;
+            break;
+        case ITEM_TYPE_WEARABLE:
+            if (item1->specific.wearable.wearable_type != item2->specific.wearable.wearable_type) return false;
+            if (item1->specific.wearable.locations != item2->specific.wearable.locations) return false;
+            if (item1->specific.wearable.damage_reduction != item2->specific.wearable.damage_reduction) return false;
+            if (item1->specific.wearable.special_quality != item2->specific.wearable.special_quality) return false;
+            break;
+        case ITEM_TYPE_AMMO: 
+            if (item1->specific.ammo.ammo_type != item2->specific.ammo.ammo_type) return false;
+            if (item1->specific.ammo.upgrades != item2->specific.ammo.upgrades) return false;
+            if (item1->specific.ammo.convey_status_effect != item2->specific.ammo.convey_status_effect) return false;
+            break;
+        case ITEM_TYPE_FOOD:
+            if (item1->specific.food.food_type != item2->specific.food.food_type) return false;
+            if (item1->specific.food.nutrition != item2->specific.food.nutrition) return false;
+            if (item1->specific.food.nutrition_left != item2->specific.food.nutrition_left) return false;
+            if (item1->specific.food.convey_status_effect != item2->specific.food.convey_status_effect) return false;
+            break;
+        default: return false;
+    }
+
+    return true;
+}
+
 bool wpn_is_type(struct itm_item *item, enum item_weapon_type type) {
     if (item == NULL) return false;
     if (itm_verify_item(item) == false) return false;
