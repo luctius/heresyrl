@@ -74,6 +74,7 @@ enum msr_hit_location {
 struct msr_char {
     uint8_t base_value;
     uint8_t advancement;
+    int8_t mod;
 };
 
 struct monster_controller {

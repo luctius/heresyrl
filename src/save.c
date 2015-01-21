@@ -150,6 +150,7 @@ static bool sv_save_monsters(FILE *file, int indent) {
                 fprintf(file,"{");
                     fprintf(file,"base_value=%d,",  m->characteristic[i].base_value);
                     fprintf(file,"advancement=%d,", m->characteristic[i].advancement);
+                    fprintf(file,"mod=%d,",         m->characteristic[i].mod);
                 fprintf(file,"},");
             }
             fprintf(file, "},");

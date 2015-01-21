@@ -473,6 +473,8 @@ static bool load_monsters(lua_State *L, struct dm_map *map, struct gm_game *g) {
                     monster->characteristic[j].base_value = t;
                     lua_intexpr(L, &t, "game.monsters[%d].characteristic[%d].advancement", i+1,j+1);
                     monster->characteristic[j].advancement = t;
+                    lua_intexpr(L, &t, "game.monsters[%d].characteristic[%d].mod", i+1,j+1);
+                    monster->characteristic[j].mod = t;
                 }
             }
         }
