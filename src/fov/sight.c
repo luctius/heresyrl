@@ -49,7 +49,7 @@ static bool rpsc_check_translucent_los(struct rpsc_fov_set *set, coord_t *point,
     if (cd_within_bound(point, &map->size) == false) return false;
 
     /* if it is translucent, return true, else return false. */
-    if (test_bf(dm_get_map_tile(point,map)->attributes,TILE_ATTR_TRANSLUCENT) == false) {
+    if ( (dm_get_map_tile(point,map)->attributes & TILE_ATTR_TRANSLUCENT) == 0) {
         translucent = false;
     }
     else if (dm_get_map_me(point, map)->status_effect != NULL) {
@@ -58,6 +58,7 @@ static bool rpsc_check_translucent_los(struct rpsc_fov_set *set, coord_t *point,
             translucent = se_has_flag(se, SEF_BLOCKS_SIGHT);
         }
     }
+
     return translucent;
 }
 
