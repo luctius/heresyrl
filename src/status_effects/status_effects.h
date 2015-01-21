@@ -37,6 +37,9 @@ enum status_effect_flags {
      */
     SEF_REMOVE_CONTINUE,
 
+    /* If set and on the ground will make the tile opague. */
+    SEF_BLOCKS_SIGHT,
+
     SEF_MAX,
 };
 
@@ -191,6 +194,11 @@ struct status_effect {
 
     struct se_type_struct effects[STATUS_EFFECT_MAX_NR_EFFECTS];
 
+    bool permissible_on_ground;
+    char icon;
+    int icon_attr;
+    const char *see_description;
+
     /*duration in turns, will be converted to energy when created. */
     int duration_energy_min;
     int duration_energy_max;
@@ -222,6 +230,7 @@ void se_remove_all_non_permanent(struct msr_monster *monster);
 bool se_verify_status_effect(struct status_effect *se);
 
 struct status_effect *se_get_status_effect_tid(struct status_effect_list *se_list, enum se_ids tid);
+bool se_has_flag(struct status_effect *se, enum status_effect_flags flag);
 bool se_has_effect(struct status_effect_list *se_list, enum status_effect_type_flags effect);
 bool se_has_effect_permanent(struct status_effect_list *se_list, enum status_effect_type_flags effect);
 bool se_has_tid(struct status_effect_list *se_list, enum se_ids tid);

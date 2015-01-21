@@ -252,6 +252,11 @@ bool se_verify_status_effect(struct status_effect *se) {
     return true;
 }
 
+bool se_has_flag(struct status_effect *se, enum status_effect_flags flag) {
+    if (se_verify_status_effect(se) == false) return false;
+    return status_effect_has_flag(se, flag);
+}
+
 bool se_has_tid(struct status_effect_list *se_list, enum se_ids tid) {
     if (se_verify_list(se_list) == false) return false;
 

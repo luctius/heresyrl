@@ -10,6 +10,7 @@
 #include "items/items.h"
 #include "dungeon/dungeon_map.h"
 #include "monster/monster.h"
+#include "status_effects/status_effects.h"
 
 struct sgt_sight {
 };
@@ -38,6 +39,7 @@ static bool rpsc_check_translucent_lof(struct rpsc_fov_set *set, coord_t *point,
 /* check if there is a line of sight path on this point */
 static bool rpsc_check_translucent_los(struct rpsc_fov_set *set, coord_t *point, coord_t *origin) {
     struct dm_map *map = set->map;
+    bool translucent = true;
 
     FIX_UNUSED(origin);
 
@@ -47,7 +49,16 @@ static bool rpsc_check_translucent_los(struct rpsc_fov_set *set, coord_t *point,
     if (cd_within_bound(point, &map->size) == false) return false;
 
     /* if it is translucent, return true, else return false. */
-    return ( (dm_get_map_tile(point,map)->attributes & TILE_ATTR_TRANSLUCENT) > 0);
+    if (test_bf(dm_get_map_tile(point,map)->attributes,TILE_ATTR_TRANSLUCENT) == false) {
+        translucent = false;
+    }
+    else if (dm_get_map_me(point, map)->status_effect != NULL) {
+        struct status_effect *se = dm_get_map_me(point, map)->status_effect;
+        if (se_verify_status_effect(se) ) {
+            translucent = se_has_flag(se, SEF_BLOCKS_SIGHT);
+        }
+    }
+    return translucent;
 }
 
 static bool rpsc_apply_player_sight(struct rpsc_fov_set *set, coord_t *point, coord_t *origin) {
@@ -119,7 +130,7 @@ static bool rpsc_apply_light_source(struct rpsc_fov_set *set, coord_t *point, co
     if ( (item->specific.tool.light_luminem - cd_pyth(point, origin) ) <= 0) return false;
 
     /* Only light walls who are the origin of the light. */
-    if ( (cd_equal(point, origin) == false) && ( (dm_get_map_tile(point,map)->attributes & TILE_ATTR_OPAGUE) == 0) ) return false;
+    if ( (cd_equal(point, origin) == false) && ( (dm_get_map_tile(point,map)->attributes & TILE_ATTR_TRANSLUCENT) == 0) ) return false;
 
     dm_get_map_me(point,map)->light_level = item->specific.tool.light_luminem - cd_pyth(point, origin);
     return true;
