@@ -196,6 +196,8 @@ struct status_effect {
     int duration_energy_max;
     int duration_energy;
 
+    const char *on_first_plr;
+    const char *on_first_msr;
     const char *on_apply_plr;
     const char *on_apply_msr;
     const char *on_exit_plr;

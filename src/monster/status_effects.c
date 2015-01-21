@@ -790,6 +790,7 @@ void se_process(struct msr_monster *monster) {
         bool destroy    = false;
         bool first_time = false;
         bool last_time  = true;
+        bool applied    = false;
 
         /* Check if this status_effect is new, or maybe even for the last time. */
         if (c->duration_energy == c->duration_energy_max) first_time = true;
@@ -837,8 +838,8 @@ void se_process(struct msr_monster *monster) {
                 if (destroy == false) {
                     if (status_effect_has_flag(c, SEF_INVISIBLE) == false) {
                         lg_debug("Condition %p(%s) is to be applyed.", c, c->name);
-                        if (c->on_apply_plr != NULL) You_msg(monster, c->on_apply_plr);
-                        if (c->on_apply_msr != NULL) Monster_msg(monster, c->on_apply_msr, msr_ldname(monster) );
+                        if (c->on_first_plr != NULL) You_msg(monster, c->on_first_plr);
+                        if (c->on_first_msr != NULL) Monster_msg(monster, c->on_first_msr, msr_ldname(monster) );
                     }
                 }
                 else {

@@ -1,6 +1,6 @@
-#define STATUS_EFFECT(_id, _name, _desc, _oa_plr, _oa_msr, _oe_plr, _oe_msr, l...) \
-                [_id] = { .uid=0, .template_id=_id, .name=_name, .description=_desc, .on_apply_plr=_oa_plr, \
-                          .on_apply_msr=_oa_msr, .on_exit_plr=_oe_plr, .on_exit_msr=_oe_msr, .effects = { l }
+#define STATUS_EFFECT(_id, _name, _desc, _of_plr, _of_msr, _oe_plr, _oe_msr, l...) \
+                [_id] = { .uid=0, .template_id=_id, .name=_name, .description=_desc, .on_first_plr=_of_plr, \
+                          .on_first_msr=_of_msr, .on_exit_plr=_oe_plr, .on_exit_msr=_oe_msr, .effects = { l }
 #define STATUS_EFFECT_END }
 
 #define SETTINGS(_flags, _diff, _con, _dmin, _dmax) .setting_flags=_flags, .difficulty=_diff, \
@@ -21,38 +21,38 @@ static struct status_effect static_status_effect_list[] = {
 
     STATUS_EFFECT(SEID_WITHDRAWL_HEALTH_STIMM, "health stimm withdrawl", "", "You start to crave for more health stimms.", "%s starts to shake.", "You overcome your cravings.", "%s regains his posture.", 
             /* Type         Effect        Flags     Damage     Difficulty   Interval   */
-            TICK_EFFECT(SETF_DECREASE_WS,   0, SE_STRENGTH_FIVE, 0,          4), 
-            TICK_EFFECT(SETF_DECREASE_BS,   0, SE_STRENGTH_FIVE, 0,          4), 
-            TICK_EFFECT(SETF_DECREASE_STR,  0, SE_STRENGTH_FIVE, 0,          4), 
-            TICK_EFFECT(SETF_DECREASE_AG,   0, SE_STRENGTH_FIVE, 0,          4), 
-            TICK_EFFECT(SETF_DECREASE_TGH,  0, SE_STRENGTH_FIVE, 0,          4), 
-            TICK_EFFECT(SETF_DECREASE_PER,  0, SE_STRENGTH_FIVE, 0,          4), 
-            TICK_EFFECT(SETF_DECREASE_WILL, 0, SE_STRENGTH_FIVE, 0,          4), 
-            TICK_EFFECT(SETF_DECREASE_INT,  0, SE_STRENGTH_FIVE, 0,          4), 
-            TICK_EFFECT(SETF_DECREASE_FEL,  0, SE_STRENGTH_FIVE, 0,          4), ),
+            TICK_EFFECT(SETF_DECREASE_WS,   0, SE_STRENGTH_ONE, 0,          5), 
+            TICK_EFFECT(SETF_DECREASE_BS,   0, SE_STRENGTH_ONE, 0,          5), 
+            TICK_EFFECT(SETF_DECREASE_STR,  0, SE_STRENGTH_ONE, 0,          5), 
+            TICK_EFFECT(SETF_DECREASE_AG,   0, SE_STRENGTH_ONE, 0,          5), 
+            TICK_EFFECT(SETF_DECREASE_TGH,  0, SE_STRENGTH_ONE, 0,          5), 
+            TICK_EFFECT(SETF_DECREASE_PER,  0, SE_STRENGTH_ONE, 0,          5), 
+            TICK_EFFECT(SETF_DECREASE_WILL, 0, SE_STRENGTH_ONE, 0,          5), 
+            TICK_EFFECT(SETF_DECREASE_INT,  0, SE_STRENGTH_ONE, 0,          5), 
+            TICK_EFFECT(SETF_DECREASE_FEL,  0, SE_STRENGTH_ONE, 0,          5), ),
             /*Settings      Flags                                                               Difficulty    Next     Minimum  -  Maximum Turns*/
             SETTINGS(bf(SEF_REQ_CHEM_USE_CHECK) | bf(SEF_DETOXABLE), -20,   SEID_NONE,   20,          50),
     STATUS_EFFECT_END,
 
     /* Stimms*/
     STATUS_EFFECT(SEID_HEALTH_STIMM, "health stimm", "", "Your wounds begin to heal.", "%s's wounds begin to heal.", "You feel the healing wearing off.", NULL, 
-            /* Type         Effect        Flags     Strength     Difficulty   Interval   */
+            /* Type         Effect        Flags   Strength     Difficulty   Interval   */
             TICK_EFFECT(SETF_HEALTH_TICK, 0,   SE_STRENGTH_ONE, 0,           1), ),
-            /*Settings      Flags                 Difficulty    Next             Minimum  -  Maximum Turns*/
+            /*Settings      Flags         Difficulty    Next                Minimum  -  Maximum Turns*/
             SETTINGS( bf(SEF_REMOVE_CONTINUE), 0, SEID_WITHDRAWL_HEALTH_STIMM, 10,        10),
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_FATEHEALTH, "fatepoint_health", "", NULL, NULL, NULL, NULL, 
-            /* Type         Effect        Flags     Strength     Difficulty   Interval */
+            /* Type         Effect      Flags     Strength     Difficulty   Interval */
             TICK_EFFECT(SETF_HEALTH_TICK, 0, SE_STRENGTH_TEN,    0,            1), ),
             /*Settings      Flags     Difficulty    Next             Minimum  -  Maximum Turns*/
             SETTINGS(       0,        0,          SEID_NONE,        20,         20),
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_DEATH_STIMM, "death stimm", "", NULL, NULL, NULL, NULL,
-            /* Type         Effect        Flags     Strength     Difficulty   Interval   */
-            TICK_EFFECT(SETF_INSTANT_DEATH,       0,  SE_STRENGTH_NONE, 0,            0), ),
-            /*Settings      Flags     Difficulty    Next          Minimum  -  Maximum Turns*/
+            /* Type         Effect         Flags     Strength     Difficulty   Interval   */
+            TICK_EFFECT(SETF_INSTANT_DEATH,  0,  SE_STRENGTH_NONE, 0,            0), ),
+            /*Settings   Flags     Difficulty       Next    Minimum  -  Maximum Turns*/
             SETTINGS(       0,        0,          SEID_NONE,      0,          0),
     STATUS_EFFECT_END,
 
@@ -61,8 +61,8 @@ static struct status_effect static_status_effect_list[] = {
             /* Type         Effect           Flags                        Strength          Difficulty   Interval   */
             EFFECT(     SETF_ON_FIRE,          0,                       SE_STRENGTH_NONE,     0),
             TICK_EFFECT(SETF_DAMAGE_TICK, bf(SESF_DMG_TYPE_ENERGY),  SE_STRENGTH_1D10,     0,           1), ),
-            /*Settings      Flags     Difficulty    Next          Minimum  -  Maximum Turns*/
-            SETTINGS(bf(SEF_REQ_AG_CHECK), 0, SEID_NONE, 1, 10),
+            /*Settings      Flags       Difficulty    Next          Minimum  -  Maximum Turns*/
+            SETTINGS(bf(SEF_REQ_AG_CHECK),   0,    SEID_NONE,         1,             10),
     STATUS_EFFECT_END,
 
 
