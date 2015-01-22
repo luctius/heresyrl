@@ -168,6 +168,45 @@ bool dm_tile_instance(struct dm_map *map, enum tile_types tt, int instance, coor
     return false;
 }
 
+bool dm_populate_map(struct dm_map *map, struct random *r, uint32_t monster_chance, uint32_t item_chance, int level) {
+    if (dm_verify_map(map) == false) return false;
+    if (r == NULL) return false;
+    coord_t c;
+    int idx;
+
+    int nogo_radius = 20;
+
+    for (int xi = 0; xi < map->size.x; xi++) {
+        for (int yi = 0; yi < map->size.y; yi++) {
+            c = cd_create(xi,yi);
+            if (cd_pyth(&map->stair_down, &c) <= nogo_radius) continue; /* no npc's too close to the start */
+
+            if ( (random_int32(r) % 10000) <= monster_chance) {
+                if (TILE_HAS_ATTRIBUTE(dm_get_map_me(&c,map)->tile, TILE_ATTR_TRAVERSABLE) == true) {
+                    idx = msr_spawn(random_float(r), level);
+                    if (idx != -1) {
+                        struct msr_monster *monster = msr_create(idx);
+
+                        msr_insert_monster(monster, map, &c);
+                        ai_monster_init(monster, 0);
+                    }
+                }
+            }
+
+            if ( (random_int32(r) % 10000) <= item_chance) {
+                if (TILE_HAS_ATTRIBUTE(dm_get_map_me(&c,map)->tile, TILE_ATTR_TRAVERSABLE) == true) {
+                    idx = itm_spawn(random_float(r), level);
+                    struct itm_item *item = itm_create(idx);
+
+                    itm_insert_item(item, map, &c);
+                }
+            }
+        }
+    }
+
+    return true;
+}
+
 static bool dm_generate_map_simple(struct dm_map *map, struct random *r, enum dm_dungeon_type type, int level) {
     if (dm_verify_map(map) == false) return false;
     FIX_UNUSED(r);
@@ -409,6 +448,8 @@ bool dm_generate_map(struct dm_map *map, enum dm_dungeon_type type, int level, u
     }
 
     pf_exit(pf_ctx);
+
+    dm_populate_map(map, r, 100, 10, level);
     random_exit(r);
 
     return true;

@@ -73,20 +73,18 @@ bool game_init_map(void) {
     int x = 100;
     int y = 100;
 
+    plr_init(&gbl_game->player_data);
+
     if (gbl_game->current_map == NULL) {
         gbl_game->current_map = dm_alloc_map(x,y);
         //dm_generate_map(gbl_game->current_map, DM_DUNGEON_TYPE_SIMPLE, 1, random_int32(gbl_game->random) );
         dm_generate_map(gbl_game->current_map, DM_DUNGEON_TYPE_CAVE, 1, random_int32(gbl_game->random) );
     }
 
-    //plr_init(&gbl_game->player_data, "Tester", MSR_RACE_HUMAN, MSR_GENDER_MALE);
-    plr_init(&gbl_game->player_data);
-
     coord_t c = cd_create(0,0);
     if (cd_equal(&gbl_game->player_data.player->pos, &c) == true) {
         if (dm_tile_instance(gbl_game->current_map, TILE_TYPE_STAIRS_DOWN, 0, &c) == false) exit(1);
         if (msr_insert_monster(gbl_game->player_data.player, gbl_game->current_map, &c) == false) exit(1);
-        spwn_populate_map(gbl_game->current_map, gbl_game->random, 100, 10);
     }
 
     dm_clear_map_visibility(gbl_game->current_map, &c, &gbl_game->current_map->size);
