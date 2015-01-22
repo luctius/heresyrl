@@ -10,6 +10,8 @@
 #include "heresyrl_def.h"
 #include "random.h"
 #include "turn_tick.h"
+#include "inventory.h"
+#include "items/items.h"
 #include "items/items_static.h"
 #include "dungeon/dungeon_map.h"
 
