@@ -16,6 +16,7 @@
 #include "items/items.h"
 #include "items/items_static.h"
 #include "dungeon/dungeon_map.h"
+#include "dowear.h"
 
 static TAILQ_HEAD(monster_list, msr_monster_list_entry) monster_list_head;
 static bool monster_list_initialised = false;
@@ -87,7 +88,7 @@ static uint32_t msrlst_next_id(void) {
 
 #define MONSTER_PRE_CHECK (10477)
 #define MONSTER_POST_CHECK (10706)
-static struct itm_item *msr_unarmed_weapon(struct msr_monster *monster);
+static void msr_default_weapon(struct msr_monster *monster);
 
 struct msr_monster *msr_create(uint32_t template_id) {
     if (monster_list_initialised == false) msrlst_monster_list_init();
@@ -128,12 +129,7 @@ struct msr_monster *msr_create(uint32_t template_id) {
             break;
     }
 
-    if (inv_loc_empty(m->monster.inventory, INV_LOC_CREATURE_WIELD1) ) {
-        struct itm_item *item = msr_unarmed_weapon(&m->monster);
-        if (inv_add_item(m->monster.inventory, item) == true) {
-            assert(inv_move_item_to_location(m->monster.inventory, item, INV_LOC_CREATURE_WIELD1) );
-        }
-    }
+    msr_default_weapon(&m->monster);
 
     lg_debug("creating monster[%d, %s, %c]", m->monster.uid, m->monster.ld_name, m->monster.icon);
 
@@ -624,25 +620,39 @@ bool msr_weapon_next_selection(struct msr_monster *monster) {
     return true;
 }
 
-static struct itm_item *msr_unarmed_weapon(struct msr_monster *monster) {
-    if (msr_verify_monster(monster) == false) return false;
+static void msr_default_weapon(struct msr_monster *monster) {
+    if (msr_verify_monster(monster) == false) return;
     struct itm_item *item = NULL;
     
-    switch (monster->race) {
-        case MSR_RACE_HUMAN:
-            item = itm_create(IID_HUMAN_UNARMED);
-            break;
-        case MSR_RACE_BEAST:
-            item = itm_create(IID_CREATURE_BITE_TRAINED);
-            break;
-        case MSR_RACE_DOMESTIC:
-            item = itm_create(IID_CREATURE_BITE_TRAINED);
-            break;
-        default:
-            assert(false);
-            break;
+    for (int i = 0; i < MSR_NR_DEFAULT_WEAPONS_MAX; i++) {
+        if (monster->def_wpns[i] != IID_NONE) {
+            item = itm_create(monster->def_wpns[i]);
+            if (itm_verify_item(item) == true) {
+                assert(itm_is_type(item, ITEM_TYPE_WEAPON) );
+
+                if (inv_add_item(monster->inventory, item) == true) {
+                    if (wpn_has_spc_quality(item, WPN_SPCQLTY_CREATURE) ) {
+                        if (inv_loc_empty(monster->inventory, INV_LOC_CREATURE_WIELD1) ) {
+                            assert(inv_move_item_to_location(monster->inventory, item, INV_LOC_CREATURE_WIELD1) );
+                        }
+                    }
+                    else {
+                        assert(dw_wear_item(monster, item) == true);
+
+                        if (wpn_uses_ammo(item) ) {
+                            enum item_ids ammo_id = wpn_get_ammo_used_id(item);
+                            struct itm_item *ammo = itm_create(ammo_id);
+                            int nr = 1;//(random_int32(gbl_game->random) % (ammo->max_quantity * 0.2) );
+                            ammo->stacked_quantity = nr;
+                            assert (inv_add_item(monster->inventory, ammo) == true);
+                        }
+                    }
+                }
+            }
+        }
     }
-    return item;
+
+    assert(inv_loc_empty(monster->inventory, INV_LOC_CREATURE_WIELD1) == false);
 }
 
 bool msr_has_creature_trait(struct msr_monster *monster,  bitfield64_t trait) {

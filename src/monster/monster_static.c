@@ -19,10 +19,12 @@
     .skills[MSR_SKILL_RATE_ADVANCED]=advanced_skills, .skills[MSR_SKILL_RATE_EXPERT]=expert_skills
 
 #define HUMAN( t...) .race=MSR_RACE_HUMAN, .size=MSR_SIZE_AVERAGE, \
-    .talents = { t, TLT_NONE }, .creature_traits = 0
+    .talents = { t, TLT_NONE }, .creature_traits = 0, .def_wpns[0]=IID_HUMAN_UNARMED
 
 #define BEAST( t...) .race=MSR_RACE_BEAST, .size=MSR_SIZE_AVERAGE, \
-    .talents = { t , TLT_NONE }, .creature_traits = bf(CTRTRTS_BESTIAL) | bf(CTRTRTS_QUADRUPED)
+    .talents = { t , TLT_NONE }, .creature_traits = bf(CTRTRTS_BESTIAL) | bf(CTRTRTS_QUADRUPED), .def_wpns[0]=IID_CREATURE_BITE_TRAINED
+
+#define DEF_WPN(wpn_idx, item_id) .def_wpns[wpn_idx+1]=item_id
 
 static const char *msr_descs[] = {
     [MID_DUMMY]       = "unknown",
@@ -53,6 +55,8 @@ static struct msr_monster static_monster_list[] = {
     MONSTER(MID_HIVE_GANGER,'h',"human","a hive human",MSR_GENDER_MALE,1)
         HUMAN(TLT_BASIC_WPN_TRNG_SP, TLT_PISTOL_WPN_TRNG_SP),
         CHARACTERISTICS(30,30,30,30,30,30,30,30,30),
+        DEF_WPN(0, IID_STUB_AUTOMATIC),
+        DEF_WPN(1, IID_KNIFE),
         SKILLS(0,0,0), MONSTER_END,
 
     MONSTER(MID_VICIOUS_DOG,'d',"dog","a vicious dog",MSR_GENDER_MALE,1)

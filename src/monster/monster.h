@@ -9,7 +9,10 @@
 #include "coord.h"
 #include "enums.h"
 
+#include "items/items_static.h"
+
 #define MSR_NR_TALENTS_MAX 10
+#define MSR_NR_DEFAULT_WEAPONS_MAX 3
 #define MSR_FATIQUE_RECOVER_DELAY (100)
 
 #define MSR_MOVEMENT_MIN 10
@@ -168,6 +171,8 @@ struct msr_monster {
 
     /* status_effects effecting this monster. */
     struct status_effect_list *status_effects;
+
+    enum item_ids def_wpns[MSR_NR_DEFAULT_WEAPONS_MAX];
 
     uint32_t monster_post;
 };
