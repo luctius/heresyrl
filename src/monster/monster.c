@@ -201,6 +201,7 @@ struct msr_monster *msr_get_monster_by_uid(uint32_t uid) {
 
     while (me != NULL) {
         if (uid == me->monster.uid) return &me->monster;
+        me = me->entries.tqe_next;
     }
     return NULL;
 }
