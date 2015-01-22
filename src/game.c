@@ -35,7 +35,6 @@ void game_init(struct pl_player *plr, unsigned long initial_seed) {
             tt_init();
             se_init();
 
-            gbl_game->sight = sgt_init();
             gbl_game->input = inp_init();
         }
     }
@@ -88,8 +87,8 @@ bool game_init_map(void) {
     }
 
     dm_clear_map_visibility(gbl_game->current_map, &c, &gbl_game->current_map->size);
-    sgt_calculate_all_light_sources(gbl_game->sight, gbl_game->current_map);
-    sgt_calculate_player_sight(gbl_game->sight, gbl_game->current_map, gbl_game->player_data.player);
+    sgt_calculate_all_light_sources(gbl_game->current_map);
+    sgt_calculate_player_sight(gbl_game->current_map, gbl_game->player_data.player);
     gbl_game->running = true;
 
     if (gbl_game->player_data.xp_current > TT_ENERGY_TURN) GM_msg("You have XP to spend, press '@' to level-up.");
@@ -136,7 +135,6 @@ bool game_exit() {
     itmlst_items_list_exit();
 
     inp_exit(gbl_game->input);
-    sgt_exit(gbl_game->sight);
 
     random_exit(gbl_game->random);
 

@@ -10,7 +10,6 @@
 #include "player.h"
 
 struct dm_map;
-struct sgt_sight;
 struct logging;
 
 void game_init(struct pl_player *plr, unsigned long initial_seed);

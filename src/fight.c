@@ -34,11 +34,10 @@ static struct tohit_desc tohit_descr_lst[MAX_TO_HIT_MODS];
 
 int fght_ranged_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght_hand hand) {
     if (msr_verify_monster(monster) == false) return -1;
-    struct sgt_sight *sight = gbl_game->sight;
     struct dm_map *map = gbl_game->current_map;
 
     /* check los with a rediculous radius. if true, it means that there is a LoS. */
-    if (sgt_has_los(sight, map, &monster->pos, tpos, map->size.x + map->size.y) == false) return false;
+    if (sgt_has_los(map, &monster->pos, tpos, map->size.x + map->size.y) == false) return false;
 
     struct dm_map_entity *me = dm_get_map_me(tpos, gbl_game->current_map);
     struct msr_monster *target = me->monster;
@@ -106,12 +105,12 @@ int fght_ranged_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght
             int near_range = msr_get_near_sight_range(monster);
 
             /* target is out of sight range... */
-            CALC_TOHIT(sgt_has_los(sight, map, &monster->pos, tpos, far_range) == false, FGHT_MODIFIER_VISION_COMPLETE_DARKNESS, "target is in complete darkness")
+            CALC_TOHIT(sgt_has_los(map, &monster->pos, tpos, far_range) == false, FGHT_MODIFIER_VISION_COMPLETE_DARKNESS, "target is in complete darkness")
             else if (me->light_level == 0) {
                 /* target is within far sight, but there is no light on the tile */
-                CALC_TOHIT(sgt_has_los(sight, map, &monster->pos, tpos, medium_range) == false, FGHT_MODIFIER_VISION_DARKNESS, "target is in darkness")
+                CALC_TOHIT(sgt_has_los(map, &monster->pos, tpos, medium_range) == false, FGHT_MODIFIER_VISION_DARKNESS, "target is in darkness")
                 /* target is within medium sight, but there is no light on the tile */
-                else CALC_TOHIT(sgt_has_los(sight, map, &monster->pos, tpos, near_range) == false, FGHT_MODIFIER_VISION_SHADOWS, "target is in shadows")
+                else CALC_TOHIT(sgt_has_los(map, &monster->pos, tpos, near_range) == false, FGHT_MODIFIER_VISION_SHADOWS, "target is in shadows")
             }
         }
 
@@ -140,11 +139,10 @@ int fght_ranged_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght
 
 int fght_melee_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght_hand hand) {
     if (msr_verify_monster(monster) == false) return -1;
-    struct sgt_sight *sight = gbl_game->sight;
     struct dm_map *map = gbl_game->current_map;
 
     /* check los with a rediculous radius. if true, it means that there is a LoS. */
-    if (sgt_has_los(sight, map, &monster->pos, tpos, map->size.x + map->size.y) == false) return false;
+    if (sgt_has_los(map, &monster->pos, tpos, map->size.x + map->size.y) == false) return false;
 
     struct dm_map_entity *me = dm_get_map_me(tpos, gbl_game->current_map);
     struct msr_monster *target = me->monster;
@@ -184,12 +182,12 @@ int fght_melee_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght_
             int near_range = msr_get_near_sight_range(monster);
 
             /* target is out of sight range... */
-            CALC_TOHIT(sgt_has_los(sight, map, &monster->pos, tpos, far_range) == false, FGHT_MODIFIER_VISION_COMPLETE_DARKNESS, "target is in complete darkness")
+            CALC_TOHIT(sgt_has_los(map, &monster->pos, tpos, far_range) == false, FGHT_MODIFIER_VISION_COMPLETE_DARKNESS, "target is in complete darkness")
             else if (me->light_level == 0) {
                 /* target is within far sight, but there is no light on the tile */
-                CALC_TOHIT(sgt_has_los(sight, map, &monster->pos, tpos, medium_range) == false, FGHT_MODIFIER_VISION_DARKNESS, "target is in darkness")
+                CALC_TOHIT(sgt_has_los(map, &monster->pos, tpos, medium_range) == false, FGHT_MODIFIER_VISION_DARKNESS, "target is in darkness")
                 /* target is within medium sight, but there is no light on the tile */
-                else CALC_TOHIT(sgt_has_los(sight, map, &monster->pos, tpos, near_range) == false, FGHT_MODIFIER_VISION_SHADOWS, "target is in shadows")
+                else CALC_TOHIT(sgt_has_los(map, &monster->pos, tpos, near_range) == false, FGHT_MODIFIER_VISION_SHADOWS, "target is in shadows")
             }
         }
 
@@ -501,7 +499,7 @@ bool fght_explosion(struct random *r, struct itm_item *bomb, struct dm_map *map)
     Event_msg(&c, "%s explodes.", bomb->ld_name);
 
     coord_t *gridlist = NULL;
-    int gridlist_sz = sgt_explosion(gbl_game->sight, map, &c, radius, &gridlist);
+    int gridlist_sz = sgt_explosion(map, &c, radius, &gridlist);
     /*struct item_weapon_specific *wpn = &bomb->specific.weapon; TODO: is this used? */
 
     for (int i = 0; i < gridlist_sz; i++) {
@@ -526,7 +524,7 @@ bool fght_throw_weapon(struct random *r, struct msr_monster *monster, struct dm_
     if (msr_verify_monster(monster) == false) return false;
     if (dm_verify_map(map) == false) return false;
     if (cd_within_bound(e, &map->size) == false) return false;
-    if (sgt_has_los(gbl_game->sight, map, &monster->pos, e, 1000) == false) return false;
+    if (sgt_has_los(map, &monster->pos, e, 1000) == false) return false;
     coord_t end = *e;
 
     lg_debug("Throwing weapon to (%d,%d)", e->x, e->y);
@@ -539,7 +537,7 @@ bool fght_throw_weapon(struct random *r, struct msr_monster *monster, struct dm_
            the shooter position, and continue the same path 
            untill an obstacle is found.*/
         coord_t *path;
-        int path_len = sgt_los_path(gbl_game->sight, map, &monster->pos, &end, &path, false);
+        int path_len = sgt_los_path(map, &monster->pos, &end, &path, false);
         ui_animate_projectile(map, path, path_len);
 
         /* if the path was succesfully created, free it here */
@@ -558,13 +556,13 @@ bool fght_throw_weapon(struct random *r, struct msr_monster *monster, struct dm_
         }
         else {
             /* if we miss, scatter the object */
-            end = sgt_scatter(gbl_game->sight, map, r, e, random_xd5(r, 1) );
+            end = sgt_scatter(map, r, e, random_xd5(r, 1) );
             lg_debug("%s is scattered towards (%d,%d)", witem->ld_name, end.x, end.y);
 
             /* I first wanted to do the animation in one go, scatter them animate the whole path
                But it is very possible that the scattered target is out of LoS of the origin.  */
             path = NULL;
-            path_len = sgt_los_path(gbl_game->sight, map, e, &end, &path, false);
+            path_len = sgt_los_path(map, e, &end, &path, false);
             ui_animate_projectile(map, path, path_len);
 
             /* if the path was succesfully created, free it here */
@@ -617,7 +615,7 @@ bool fght_shoot(struct random *r, struct msr_monster *monster, struct dm_map *ma
     if (dm_verify_map(map) == false) return false;
     if (cd_within_bound(&monster->pos, &map->size) == false) return false;
     if (msr_weapon_type_check(monster, WEAPON_TYPE_RANGED) == false) return false;
-    if (sgt_has_los(gbl_game->sight, map, &monster->pos, e, 1000) == false) return false;
+    if (sgt_has_los(map, &monster->pos, e, 1000) == false) return false;
     struct itm_item *item1 = fght_get_working_weapon(monster, WEAPON_TYPE_RANGED, FGHT_MAIN_HAND);
     struct itm_item *item2 = fght_get_working_weapon(monster, WEAPON_TYPE_RANGED, FGHT_OFF_HAND);
     if ( (item1 == NULL) && (item2 == NULL) ) return false;
@@ -640,7 +638,7 @@ bool fght_shoot(struct random *r, struct msr_monster *monster, struct dm_map *ma
        the shooter position, and continue the same path 
        untill an obstacle is found.*/
     coord_t *path;
-    int path_len = sgt_los_path(gbl_game->sight, map, &monster->pos, e, &path, true);
+    int path_len = sgt_los_path(map, &monster->pos, e, &path, true);
 
     /*  
         Here we loop over the

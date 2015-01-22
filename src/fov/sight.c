@@ -12,9 +12,6 @@
 #include "monster/monster.h"
 #include "status_effects/status_effects.h"
 
-struct sgt_sight {
-};
-
 /* checks if this is a walkable path, without a monster.  */
 static bool rpsc_check_translucent_lof(struct rpsc_fov_set *set, coord_t *point, coord_t *origin) {
     struct dm_map *map = set->map;
@@ -113,7 +110,7 @@ static bool rpsc_apply_player_sight(struct rpsc_fov_set *set, coord_t *point, co
 
             if (radius > 0) {
                 /* if the roll was a success, scatter the blip. */
-                coord_t sp = sgt_scatter(gbl_game->sight, map, gbl_game->random, point, radius);
+                coord_t sp = sgt_scatter(map, gbl_game->random, point, radius);
                 dm_get_map_me(&sp, map)->icon_override = '?';
             }
         }
@@ -182,21 +179,7 @@ static bool rpsc_apply_projectile_path(struct rpsc_fov_set *set, coord_t *point,
     return true;
 }
 
-struct sgt_sight *sgt_init(void) {
-    struct sgt_sight *retval = malloc(sizeof(struct sgt_sight) );
-    if (retval != NULL) {
-    }
-    return retval;
-}
-
-void sgt_exit(struct sgt_sight *sight) {
-    if (sight != NULL) {
-        free(sight);
-    }
-}
-
-bool sgt_calculate_light_source(struct sgt_sight *sight, struct dm_map *map, struct itm_item *item) {
-    if (sight == NULL) return false;
+bool sgt_calculate_light_source(struct dm_map *map, struct itm_item *item) {
     if (dm_verify_map(map) == false) return false;
     if (itm_verify_item(item) == false) return false;
     if (tool_is_type(item, TOOL_TYPE_LIGHT) == false) return false;
@@ -219,19 +202,17 @@ bool sgt_calculate_light_source(struct sgt_sight *sight, struct dm_map *map, str
     return true;
 }
 
-bool sgt_calculate_all_light_sources(struct sgt_sight *sight, struct dm_map *map) {
-    if (sight == NULL) return false;
+bool sgt_calculate_all_light_sources(struct dm_map *map) {
     if (dm_verify_map(map) == false) return false;
 
     struct itm_item *item = NULL;
     while ( (item = itmlst_get_next_item(item) ) != NULL){
-        sgt_calculate_light_source(sight, map, item);
+        sgt_calculate_light_source(map, item);
     }
     return true;
 }
 
-bool sgt_calculate_player_sight(struct sgt_sight *sight, struct dm_map *map, struct msr_monster *monster) {
-    if (sight == NULL) return false;
+bool sgt_calculate_player_sight(struct dm_map *map, struct msr_monster *monster) {
     if (dm_verify_map(map) == false) return false;
     if (msr_verify_monster(monster) == false) return false;
 
@@ -251,8 +232,7 @@ bool sgt_calculate_player_sight(struct sgt_sight *sight, struct dm_map *map, str
     return true;
 }
 
-int sgt_explosion(struct sgt_sight *sight, struct dm_map *map, coord_t *pos, int radius, coord_t *grid_list[]) {
-    if (sight == NULL) return false;
+int sgt_explosion(struct dm_map *map, coord_t *pos, int radius, coord_t *grid_list[]) {
     if (dm_verify_map(map) == false) return false;
 
     /*handle case of radius zero*/
@@ -307,8 +287,7 @@ int sgt_explosion(struct sgt_sight *sight, struct dm_map *map, coord_t *pos, int
     return ex.list_idx;
 }
 
-int sgt_los_path(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_t *e, coord_t *path_lst[], bool continue_path) {
-    if (sight == NULL) return -1;
+int sgt_los_path(struct dm_map *map, coord_t *s, coord_t *e, coord_t *path_lst[], bool continue_path) {
     if (dm_verify_map(map) == false) return -1;
 
     /* if start and end are equal, or if end is a wall, bailout. */
@@ -410,7 +389,7 @@ int sgt_los_path(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_
     return psz;
 }
 
-coord_t sgt_scatter(struct sgt_sight *sight, struct dm_map *map, struct random *r, coord_t *p, int radius) {
+coord_t sgt_scatter(struct dm_map *map, struct random *r, coord_t *p, int radius) {
     /* Do not try forever. */
     int i_max = radius * radius;
     coord_t c = *p;
@@ -434,7 +413,7 @@ coord_t sgt_scatter(struct sgt_sight *sight, struct dm_map *map, struct random *
             if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(&c,map), TILE_ATTR_TRAVERSABLE) == false) continue;
 
             /* require line of sight */
-            if (sgt_has_los(sight, map, p, &c, radius) == false) continue;
+            if (sgt_has_los(map, p, &c, radius) == false) continue;
             
             /* we found a point which mathes our restrictions*/
             break;
@@ -445,8 +424,7 @@ coord_t sgt_scatter(struct sgt_sight *sight, struct dm_map *map, struct random *
     return c;
 }
 
-bool sgt_has_los(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_t *e, int radius) {
-    if (sight == NULL) return false;
+bool sgt_has_los(struct dm_map *map, coord_t *s, coord_t *e, int radius) {
     if (dm_verify_map(map) == false) return false;
 
     struct rpsc_fov_set set = {
@@ -463,8 +441,7 @@ bool sgt_has_los(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_
     return rpsc_los(&set, s, e);
 }
 
-bool sgt_has_lof(struct sgt_sight *sight, struct dm_map *map, coord_t *s, coord_t *e, int radius) {
-    if (sight == NULL) return false;
+bool sgt_has_lof(struct dm_map *map, coord_t *s, coord_t *e, int radius) {
     if (dm_verify_map(map) == false) return false;
 
     struct rpsc_fov_set set = {

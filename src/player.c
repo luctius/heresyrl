@@ -71,8 +71,8 @@ static bool plr_action_loop(struct msr_monster *player) {
 
     coord_t zero = cd_create(0,0);
     dm_clear_map_visibility(map, &zero, &map->size);
-    sgt_calculate_all_light_sources(gbl_game->sight, map);
-    sgt_calculate_player_sight(gbl_game->sight, map, player);
+    sgt_calculate_all_light_sources(map);
+    sgt_calculate_player_sight(map, player);
 
     coord_t pos = player->pos;
     coord_t *player_pos = &player->pos;
@@ -245,8 +245,8 @@ static bool plr_action_loop(struct msr_monster *player) {
     }
 
     dm_clear_map_visibility(map, &zero, &map->size);
-    sgt_calculate_all_light_sources(gbl_game->sight, map);
-    sgt_calculate_player_sight(gbl_game->sight, map, player);
+    sgt_calculate_all_light_sources(map);
+    sgt_calculate_player_sight(map, player);
 
     return has_action;
 }

@@ -39,7 +39,7 @@ static struct msr_monster *aiu_get_enemy_near(struct msr_monster *monster, struc
             if (cd_pyth(&target->pos, &monster->pos) >= msr_get_near_sight_range(monster) ) continue;
         }
 
-        if (sgt_has_los(gbl_game->sight, map, &monster->pos, &target->pos, msr_get_far_sight_range(monster) ) == true) {
+        if (sgt_has_los(map, &monster->pos, &target->pos, msr_get_far_sight_range(monster) ) == true) {
             return target;
         }
     }
@@ -81,7 +81,7 @@ struct msr_monster *aiu_get_nearest_monster(coord_t *pos, int radius, int ignore
         if (cd_equal(&target->pos, pos) ) continue; /* ignore current position*/
         if (cd_pyth(&target->pos, pos) > radius) continue; /* ignore out of radius */
 
-        if (sgt_has_los(gbl_game->sight, map, pos, &target->pos, radius) == true) {
+        if (sgt_has_los(map, pos, &target->pos, radius) == true) {
             ignore_cnt--;
             if (ignore_cnt < 0) return target;
         }
