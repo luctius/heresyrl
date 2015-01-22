@@ -28,7 +28,7 @@
 #define CREATURE_MELEE(wpn_cat,dmg_die,dmg_add,_dmg_type,_penetration,special) .icon=' ',.stacked_quantity=0, .max_quantity=1,\
             .item_type=ITEM_TYPE_WEAPON, .dropable=false, .specific.weapon={.weapon_type=WEAPON_TYPE_MELEE,\
             .weapon_category=wpn_cat, .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=0,\
-            .penetration=_penetration, .special_quality=special, .wpn_talent=TLT_NONE, .convey_status_effect=SEID_NONE, }
+            .penetration=_penetration, .special_quality=bf(WPN_SPCQLTY_CREATURE) | special, .wpn_talent=TLT_NONE, .convey_status_effect=SEID_NONE, }
 
 #define MELEE(wpn_cat,dmg_die,dmg_add,_dmg_type,_penetration,_upgrades,special,talent) .icon='|',.stacked_quantity=0, .max_quantity=1,\
             .item_type=ITEM_TYPE_WEAPON, .specific.weapon={.weapon_type=WEAPON_TYPE_MELEE, .weapon_category=wpn_cat, \
@@ -99,6 +99,8 @@ static const char *itm_descs[] = {
     [IID_CREATURE_BITE_UNTRAINED] = "",
     [IID_CREATURE_BITE_TRAINED]   = "",
 
+    [IID_KNIFE]             = "a basic knife",
+
     [IID_FRAG_GRENADE]      = "",
     [IID_BODYPART_GRENADE]  = "used in status effects",
     [IID_THROWING_KNIFE]    = "",
@@ -148,7 +150,8 @@ static struct itm_item static_item_list[] = {
     ITEM(IID_CREATURE_BITE_TRAINED,  "teeth",   "teeth",   ITEM_AVAIL_NONE, ITEM_QLTY_NONE, 0, 0, 0), CREATURE_MELEE(WEAPON_CATEGORY_2H_MELEE,1,  0, DMG_TYPE_RENDING, 0,  0), ITEM_END,
 
     /* Melee */
-
+    /*    ID      short name, long name  availability     quality       (wgt,cst,dly)            CATEGORY          xd10 +X, dmg type        pen   upgrades   special qualities, talent*/
+    ITEM(IID_KNIFE,"knife","a knife",ITEM_AVAIL_AVERAGE,ITEM_QLTY_AVERAGE, 15, 50, 1),MELEE(WEAPON_CATEGORY_2H_MELEE,0, 0,  DMG_TYPE_IMPACT, 0,    0,          0,                TLT_NONE), ITEM_END,
 
     /* Thrown */
     /*    ID               short name         long name          availability         quality          (wgt,cst,dly)  CATEGORY xd10,+X,pen,range   dmg type    upgrades    special qualities     talent    status_effect*/
@@ -192,7 +195,9 @@ static const char *item_quality_strings[] = {
 };
 
 static const char *ammo_type_strings[] = {
-    [AMMO_TYPE_ARROW]  =  "arrows",
+    [AMMO_TYPE_NONE]            =  "none",
+
+    [AMMO_TYPE_ARROW]           =  "arrows",
 
     [AMMO_TYPE_PISTOL_SP]       =  "pistol solid projectile ammo",
     [AMMO_TYPE_PISTOL_LAS]      =  "pistol charge packs",

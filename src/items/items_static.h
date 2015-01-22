@@ -1,9 +1,9 @@
 #ifndef ITEMS_STATIC_H
 #define ITEMS_STATIC_H
 
-#include "items.h"
-
 enum item_ids {
+    IID_NONE,
+
     /* Wearables*/
     IID_FLAK_HELMET,
     IID_FLAK_GAUNTLETS,
@@ -32,6 +32,9 @@ enum item_ids {
     IID_HUMAN_UNARMED,
     IID_CREATURE_BITE_UNTRAINED,
     IID_CREATURE_BITE_TRAINED,
+
+    /* Melee */
+    IID_KNIFE,
 
     /* Pistols*/
     IID_STUB_AUTOMATIC,
