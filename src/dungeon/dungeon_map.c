@@ -18,6 +18,7 @@
 #include "inventory.h"
 #include "items/items.h"
 #include "items/items_static.h"
+#include "fov/sight.h"
 
 extern inline struct dm_map_entity *dm_get_map_me(coord_t *c, struct dm_map *map);
 extern inline struct tl_tile *dm_get_map_tile(coord_t *c, struct dm_map *map);
@@ -181,20 +182,39 @@ bool dm_populate_map(struct dm_map *map, struct random *r, uint32_t monster_chan
             c = cd_create(xi,yi);
             if (cd_pyth(&map->stair_down, &c) <= nogo_radius) continue; /* no npc's too close to the start */
 
-            if ( (random_int32(r) % 10000) <= monster_chance) {
-                if (TILE_HAS_ATTRIBUTE(dm_get_map_me(&c,map)->tile, TILE_ATTR_TRAVERSABLE) == true) {
+            if ( (random_int32(r) % 10000) <= (monster_chance/100)+1 ) {
+                uint32_t leader = 0;
+                int msr_cnt = random_int32(r) % 10;
+                for (int i = 0; i < msr_cnt; i++) {
                     idx = msr_spawn(random_float(r), level, map->type);
-                    if (idx != -1) {
-                        struct msr_monster *monster = msr_create(idx);
+                    coord_t cp = sgt_scatter(map, r, &c, 10);
 
-                        msr_insert_monster(monster, map, &c);
-                        ai_monster_init(monster, 0);
+                    if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(&cp,map), TILE_ATTR_TRAVERSABLE) == true) {
+                        if (dm_get_map_me(&cp,map)->monster == NULL) {
+                            struct msr_monster *monster = msr_create(idx);
+
+                            msr_insert_monster(monster, map, &c);
+                            ai_monster_init(monster, leader);
+                            if (leader == 0) {
+                                leader = monster->uid;
+                                lg_debug("created swarm leader at (%d,%d)", cp.x, cp.y);
+                            }
+                            else lg_debug("created swarm member at (%d,%d)", cp.x, cp.y); 
+                        }
                     }
                 }
             }
+            else if ( (random_int32(r) % 10000) <= monster_chance) {
+                if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(&c,map), TILE_ATTR_TRAVERSABLE) == true) {
+                    idx = msr_spawn(random_float(r), level, map->type);
+                    struct msr_monster *monster = msr_create(idx);
 
-            if ( (random_int32(r) % 10000) <= item_chance) {
-                if (TILE_HAS_ATTRIBUTE(dm_get_map_me(&c,map)->tile, TILE_ATTR_TRAVERSABLE) == true) {
+                    msr_insert_monster(monster, map, &c);
+                    ai_monster_init(monster, 0);
+                }
+            }
+            else if ( (random_int32(r) % 10000) <= item_chance) {
+                if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(&c,map), TILE_ATTR_TRAVERSABLE) == true) {
                     idx = itm_spawn(random_float(r), level);
                     struct itm_item *item = itm_create(idx);
 
