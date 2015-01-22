@@ -20,6 +20,7 @@ enum weapon_special_quality {
     WPN_SPCQLTY_BLAST_2,     /* All within the weapon's blast radius in squares is hit */
     WPN_SPCQLTY_BLAST_3,
     WPN_SPCQLTY_BLAST_4,
+    WPN_SPCQLTY_CREATURE,    /* Non dropable creature weapon. */
     WPN_SPCQLTY_DEFENSIVE,   /* +15 Parry, -10 to hit  */
     WPN_SPCQLTY_FLAME,       /* No BS Test, All in arc take Agility Test or take damage, 2nd Ag. test to avoid catch fire. */
     WPN_SPCQLTY_FLEXIBLE,    /* Cannot be Parried. */
