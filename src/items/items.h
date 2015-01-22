@@ -124,19 +124,6 @@ enum item_quality {
     ITEM_QLTY_RANDOM,
 };
 
-enum item_availability {
-    ITEM_AVAIL_NONE,
-    ITEM_AVAIL_PLENTIFUL,
-    ITEM_AVAIL_AVERAGE,
-    ITEM_AVAIL_COMMON,
-    ITEM_AVAIL_POOR,
-    ITEM_AVAIL_SCARCE,
-    ITEM_AVAIL_RARE,
-    ITEM_AVAIL_VERY_RARE,
-    ITEM_AVAIL_MAX,
-    ITEM_AVAIL_RANDOM,
-};
-
 enum item_weapon_category {
     /* Ranged weapons*/
     WEAPON_CATEGORY_PISTOL,
@@ -230,7 +217,11 @@ struct itm_item {
     uint32_t template_id;
     enum item_types item_type;
     /*enum item_material material;*/
-    enum item_availability availability;
+
+    int spawn_weight;
+    int spawn_min_level;
+    int spawn_max_level;
+
     enum item_quality quality;
     int weight;
     int cost;
@@ -295,8 +286,8 @@ struct itm_item *itmlst_get_next_item(struct itm_item *prev);
 /* search the items list for the item with this uid. */
 struct itm_item *itmlst_item_by_uid(uint32_t uid);
 
-/* generate an item by its general type*/
-struct itm_item *itm_generate(enum item_types type);
+/* retrieves a item template id based on parameters */
+int itm_spawn(double roll, int level);
 
 /* create an item instance of this template id*/
 struct itm_item *itm_create(int template_id);

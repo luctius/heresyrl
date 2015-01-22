@@ -86,8 +86,8 @@ bool spwn_populate_map(struct dm_map *map, struct random *r, uint32_t monster_ch
 
             if ( (random_int32(r) % 10000) <= item_chance) {
                 if (TILE_HAS_ATTRIBUTE(dm_get_map_me(&c,map)->tile, TILE_ATTR_TRAVERSABLE) == true) {
-                    idx = spawn_item(random_float(r) );
-                    struct itm_item *item = itm_create(item_weights[idx].id);
+                    idx = itm_spawn(random_float(r), 1);
+                    struct itm_item *item = itm_create(idx);
 
                     itm_insert_item(item, map, &c);
                 }

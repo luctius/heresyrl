@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <string.h>
 #include <sys/queue.h>
+#include <float.h>
 
 #include "items.h"
 #include "items_static.h"
@@ -89,10 +90,37 @@ static uint32_t itmlst_next_id(void) {
     return uid;
 }
 
-struct itm_item *itm_generate(enum item_types type) {
-    FIX_UNUSED(type);
-    if (items_list_initialised == false) itmlst_items_list_init();
-    return NULL;
+int itm_spawn(double roll, int level) {
+    int sz = ARRAY_SZ(static_item_list);
+    double prob_arr[sz];
+    double cumm_prob_arr[sz];
+    double sum = 0;
+
+    int idx = MID_NONE;
+
+    cumm_prob_arr[0] = DBL_MAX;
+    for (int i = MID_NONE+1; i < sz; i++) {
+        if ( (level >= static_item_list[i].spawn_min_level) 
+                && (level <= static_item_list[i].spawn_max_level) ) {
+            sum += static_item_list[i].spawn_weight;
+        }
+        else cumm_prob_arr[i] = DBL_MAX;
+    }
+
+    double cumm = 0;
+    for (int i = MID_NONE+1; i < sz; i++) {
+        if (cumm_prob_arr[i] == DBL_MAX) continue;
+        prob_arr[i] = static_item_list[i].spawn_weight / sum;
+        cumm += prob_arr[i];
+        cumm_prob_arr[i] = cumm;
+    }
+
+    for (int i = sz-1; i > MID_NONE+1; i--) {
+        if (cumm_prob_arr[i] == DBL_MAX) continue;
+        if (roll < cumm_prob_arr[i]) idx = i;
+    }
+
+    return idx;
 }
 
 #define ITEM_PRE_CHECK (11867)
