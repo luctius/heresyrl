@@ -35,7 +35,6 @@ struct inv_inventory;
 struct dm_map_entity;
 struct dm_map;
 struct random;
-struct sgt_sight;
 struct pl_player;
 struct input;
 struct status_effect_list;
@@ -62,7 +61,6 @@ struct gm_game {
     unsigned long initial_seed;
     struct random *random;
 
-    struct sgt_sight *sight;
     struct inp_input *input;
 
     struct dm_map *current_map;
