@@ -10,6 +10,7 @@
 #include "enums.h"
 #include "inventory.h"
 #include "status_effects/status_effects_static.h"
+#include "items_static.h"
 
 enum item_types {
     ITEM_TYPE_WEARABLE,
@@ -72,6 +73,7 @@ enum item_tool_type {
 };
 
 enum item_ammo_type {
+    AMMO_TYPE_NONE,
     AMMO_TYPE_ARROW,
     AMMO_TYPE_PISTOL_SP,
     AMMO_TYPE_PISTOL_SHOTGUN,
@@ -173,7 +175,7 @@ struct item_weapon_specific {
     uint8_t magazine_left;
     uint8_t penetration;
     enum item_ammo_type ammo_type;
-    uint32_t ammo_used_template_id; /* item template id of the ammo currently used. this is used to unload the ammo and check for special attributes. */
+    enum item_ids ammo_used_template_id; /* <enum item_ids> item template id of the ammo currently used. this is used to unload the ammo and check for special attributes. */
     bitfield64_t special_quality;
     bitfield64_t upgrades;
     bitfield64_t wpn_talent;  /* talent required for this weapon to operate.*/
@@ -314,6 +316,8 @@ bool itm_remove_item(struct itm_item *item, struct dm_map *map, coord_t *pos);
 /* get the grid position this item is on */
 coord_t itm_get_pos(struct itm_item *item);
 
+bool itm_is_type(struct itm_item *item, enum item_types type);
+
 /* true if this item has this quality*/
 bool itm_has_quality(struct itm_item *item, enum item_quality q);
 
@@ -337,11 +341,20 @@ bool wpn_ranged_weapon_rof_set_check(struct itm_item *item);
 /* cycle to the next valid rof setting */
 bool wpn_ranged_next_rof_set(struct itm_item *item);
 
-/* true if the weapon has this upgrade*/
+/* true if the weapon has this upgrade */
 bool wpn_has_upgrade(struct itm_item *item, enum weapon_upgrades u);
 
-/* true if the weapon has this special quality*/
+/* true if the weapon has this special quality */
 bool wpn_has_spc_quality(struct itm_item *item, enum weapon_special_quality q);
+
+/* true if the weapon uses ammo */
+bool wpn_uses_ammo(struct itm_item *item);
+
+/* return the id of the ammo template; AMMO_TYPE_NONE on error */
+enum item_ammo_type wpn_get_ammo_type(struct itm_item *item);
+
+/* return the id of the ammo used; IID_NONE on error */
+enum item_ids wpn_get_ammo_used_id(struct itm_item *item);
 
 /* true if this item is wearable and is of this type*/
 bool wbl_is_type(struct itm_item *item, enum item_wearable_type type);

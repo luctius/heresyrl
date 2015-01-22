@@ -188,6 +188,12 @@ coord_t itm_get_pos(struct itm_item *item) {
             return cd_create(0,0);
     }
 }
+
+bool itm_is_type(struct itm_item *item, enum item_types type) {
+    if (itm_verify_item(item) == false) return false;
+    return (item->item_type == type);
+}
+
 bool itm_has_quality(struct itm_item *item, enum item_quality q) {
     if (itm_verify_item(item) == false) return false;
     return (item->quality == q);
@@ -324,6 +330,24 @@ bool wpn_has_spc_quality(struct itm_item *item, enum weapon_special_quality q) {
     if (itm_verify_item(item) == false) return false;
     if (item->item_type != ITEM_TYPE_WEAPON) return false;
     return ( (item->specific.weapon.special_quality & bf(q) ) > 0);
+}
+
+bool wpn_uses_ammo(struct itm_item *item) {
+    if (itm_verify_item(item) == false) return false;
+    if (item->item_type != ITEM_TYPE_WEAPON) return false;
+    return ( (item->specific.weapon.ammo_type != AMMO_TYPE_NONE) );
+}
+
+enum item_ammo_type wpn_get_ammo_type(struct itm_item *item) {
+    if (itm_verify_item(item) == false) return AMMO_TYPE_NONE;
+    if (item->item_type != ITEM_TYPE_WEAPON) return AMMO_TYPE_NONE;
+    return item->specific.weapon.ammo_type;
+}
+
+enum item_ids wpn_get_ammo_used_id(struct itm_item *item) {
+    if (itm_verify_item(item) == false) return IID_NONE;
+    if (item->item_type != ITEM_TYPE_WEAPON) return IID_NONE;
+    return item->specific.weapon.ammo_used_template_id;
 }
 
 bool wbl_is_type(struct itm_item *item, enum item_wearable_type type) {
