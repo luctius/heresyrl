@@ -23,13 +23,13 @@
 #define SKILLS(basic_skills, advanced_skills, expert_skills) .skills[MSR_SKILL_RATE_BASIC]=basic_skills, \
     .skills[MSR_SKILL_RATE_ADVANCED]=advanced_skills, .skills[MSR_SKILL_RATE_EXPERT]=expert_skills
 
+#define DEF_WPN(wpn_idx, item_id) .def_wpns[wpn_idx+1]=item_id
+
 #define HUMAN( t...) .race=MSR_RACE_HUMAN, .size=MSR_SIZE_AVERAGE, \
     .talents = { t, TLT_NONE }, .creature_traits = 0, .def_wpns[0]=IID_HUMAN_UNARMED
 
 #define BEAST( t...) .race=MSR_RACE_BEAST, .size=MSR_SIZE_AVERAGE, \
     .talents = { t , TLT_NONE }, .creature_traits = bf(CTRTRTS_BESTIAL) | bf(CTRTRTS_QUADRUPED), .def_wpns[0]=IID_CREATURE_BITE_TRAINED
-
-#define DEF_WPN(wpn_idx, item_id) .def_wpns[wpn_idx+1]=item_id
 
 static struct msr_monster static_monster_list[] = {
 

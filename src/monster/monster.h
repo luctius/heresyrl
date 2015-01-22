@@ -13,7 +13,7 @@
 
 #include "items/items_static.h"
 
-#define MSR_NR_TALENTS_MAX 10
+#define MSR_NR_TALENTS_MAX 30
 #define MSR_NR_DEFAULT_WEAPONS_MAX 3
 #define MSR_FATIQUE_RECOVER_DELAY (100)
 
