@@ -817,7 +817,7 @@ void invwin_examine(struct hrl_window *window, struct itm_item *item) {
 
             if (wpn_is_type(item, WEAPON_TYPE_RANGED) ) {
                 ui_printf(char_win, "- Magazine size %d\n", wpn->magazine_sz);
-                ui_printf(char_win, "- Uses %s\n", wpn_ammo_string(wpn->ammo_type) );
+                if (wpn_uses_ammo(item) ) ui_printf(char_win, "- Uses %s\n", wpn_ammo_string(wpn->ammo_type) );
 
                 int single = wpn->rof[WEAPON_ROF_SETTING_SINGLE];
                 int semi = wpn->rof[WEAPON_ROF_SETTING_SEMI];
