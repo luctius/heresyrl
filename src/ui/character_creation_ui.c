@@ -15,7 +15,7 @@
 #include "inventory.h"
 #include "input.h"
 #include "game.h"
-#include "spawn.h"
+#include "dungeon/spawn.h"
 #include "monster/monster.h"
 #include "monster/monster_static.h"
 
@@ -49,7 +49,7 @@ bool char_creation_window(void) {
     wrefresh(char_win->win);
 
     struct pl_player *plr = &gbl_game->player_data;
-    plr->player = msr_create(0);
+    plr->player = msr_create(MID_DUMMY);
 
     struct msr_monster *player = plr->player;
     player->unique_name = "";

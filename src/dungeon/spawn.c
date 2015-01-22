@@ -38,29 +38,6 @@ static int spawn_item(double roll) {
     return idx;
 }
 
-static int spawn_monster(double roll) {
-    int sz = ARRAY_SZ(monster_weights);
-    double prob_arr[sz];
-    double cumm_prob_arr[sz];
-    double sum = 0;
-
-    for (int i = 0; i < sz; i++) {
-        sum += monster_weights[i].weight;
-    }
-    double cumm = 0;
-    for (int i = 0; i < sz; i++) {
-        prob_arr[i] = monster_weights[i].weight / sum;
-        cumm += prob_arr[i];
-        cumm_prob_arr[i] = cumm;
-    }
-    int idx = -1;
-    for (int i = sz; i > 0; i--) {
-        if (roll < cumm_prob_arr[i-1]) idx = i-1;
-        else return idx;
-    }
-    return idx;
-}
-
 bool spwn_add_item_to_monster(struct msr_monster *monster, struct spwn_monster_item *sitem, struct random *r) {
     int nr = sitem->min;
     if (sitem->min != sitem->max) {
@@ -97,17 +74,12 @@ bool spwn_populate_map(struct dm_map *map, struct random *r, uint32_t monster_ch
 
             if ( (random_int32(r) % 10000) <= monster_chance) {
                 if (TILE_HAS_ATTRIBUTE(dm_get_map_me(&c,map)->tile, TILE_ATTR_TRAVERSABLE) == true) {
-                    idx = spawn_monster(random_float(r) );
-                    struct msr_monster *monster = msr_create(monster_weights[idx].id);
+                    idx = msr_spawn(random_float(r), 1);
+                    if (idx != -1) {
+                        struct msr_monster *monster = msr_create(idx);
 
-                    msr_insert_monster(monster, map, &c);
-                    ai_monster_init(monster);
-
-                    struct spwn_monster_item *items = monster_weights[idx].items;
-                    int i = 0;
-                    while (items[i].max != 0) {
-                        spwn_add_item_to_monster(monster, &items[i], r);
-                        i++;
+                        msr_insert_monster(monster, map, &c);
+                        ai_monster_init(monster);
                     }
                 }
             }

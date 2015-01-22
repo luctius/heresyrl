@@ -23,10 +23,10 @@ heresyrl_SOURCES =  \
                     load.c \
                     save.c \
                     options.c \
-                    spawn.c \
                     turn_tick.c \
                     dungeon/dungeon_cave.c \
                     dungeon/dungeon_map.c \
+                    dungeon/spawn.c \
                     ai/ai.c \
                     ai/ai_utils.c \
                     ai/pathfinding.c \

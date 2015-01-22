@@ -8,6 +8,7 @@
 #include "heresyrl_def.h"
 #include "coord.h"
 #include "enums.h"
+#include "monster_static.h"
 
 #include "items/items_static.h"
 
@@ -94,7 +95,7 @@ struct msr_monster {
     uint32_t uid;
 
     /* id of the base template of this monster */
-    uint32_t template_id;
+    enum msr_ids template_id;
 
     /* current grid position */
     coord_t pos;
@@ -172,6 +173,10 @@ struct msr_monster {
     /* status_effects effecting this monster. */
     struct status_effect_list *status_effects;
 
+    /* Monster creation. */
+    int weight;
+    int min_level;
+    int max_level;
     enum item_ids def_wpns[MSR_NR_DEFAULT_WEAPONS_MAX];
 
     uint32_t monster_post;
@@ -188,8 +193,11 @@ void msrlst_monster_list_exit(void);
 */
 struct msr_monster *msrlst_get_next_monster(struct msr_monster *prev);
 
+/* retrieves a monster template id based on parameters */
+int msr_spawn(double roll, int level);
+
 /* create a instance of this monster template. */
-struct msr_monster *msr_create(uint32_t template_id);
+struct msr_monster *msr_create(enum msr_ids template_id);
 
 /* remove monster from map and global monster list. */
 void msr_destroy(struct msr_monster *monster, struct dm_map *map);

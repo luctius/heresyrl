@@ -1,8 +1,13 @@
-#define MONSTER(tid,_icon,_sd_name,_ld_name,_gender,maxwounds) \
-    [tid]={.uid=0, .template_id=tid, .icon=_icon, \
-        .sd_name=cs_MONSTER _sd_name cs_MONSTER, .ld_name=cs_MONSTER _ld_name cs_MONSTER, \
+#define MONSTER(_icon,_sd_name,_ld_name,_gender,maxwounds) \
+        {.uid=0, .icon=_icon, .sd_name=cs_MONSTER _sd_name cs_MONSTER, \
+        .ld_name=cs_MONSTER _ld_name cs_MONSTER, \
         .gender=_gender, .cur_wounds=maxwounds, .max_wounds=maxwounds,
 #define MONSTER_END }
+
+#define CREATION(wght, minlvl, maxlvl) \
+    .weight=wght, .min_level=minlvl, .max_level=maxlvl
+
+#define DESCRIPTION(desc) .description=desc
 
 #define CHARACTERISTICS(ws,bs,st,tg,ag,in,pr,wl,fl) \
     .characteristic[MSR_CHAR_WEAPON_SKILL]={ .base_value=ws,}, \
@@ -26,43 +31,60 @@
 
 #define DEF_WPN(wpn_idx, item_id) .def_wpns[wpn_idx+1]=item_id
 
-static const char *msr_descs[] = {
-    [MID_DUMMY]       = "unknown",
-    [MID_BASIC_FERAL] = "you",
-    [MID_BASIC_HIVE]  = "you",
-    [MID_HIVE_GANGER] = "description of a hive ganger",
-    [MID_VICIOUS_DOG] = "description of a vicious dog",
-};
-
 static struct msr_monster static_monster_list[] = {
 
     /*----------------- CHARACTER TEMPLATES  --------------------*/
-    MONSTER(MID_DUMMY,'h',"dummy","a dummy",MSR_GENDER_MALE,1) 
+    [MID_DUMMY]=MONSTER('h',"dummy","a dummy",MSR_GENDER_MALE,1) 
         HUMAN(0), CHARACTERISTICS(0,0,0,0,0,0,0,0,0), SKILLS(0,0,0),
     MONSTER_END,
 
-    MONSTER(MID_BASIC_FERAL,'h',"human","a feral human",MSR_GENDER_MALE,14)
+    [MID_BASIC_FERAL]=MONSTER('h',"human","a feral human",MSR_GENDER_MALE,14)
         HUMAN(TLT_BASIC_WPN_TRNG_LAS, TLT_PISTOL_WPN_TRNG_LAS, TLT_BASIC_WPN_TRNG_SP, TLT_PISTOL_WPN_TRNG_SP),
         CHARACTERISTICS(30,30,30,30,30,30,30,30,30),
         SKILLS(0,0,0), .fate_points=2, MONSTER_END,
 
-    MONSTER(MID_BASIC_HIVE,'h',"human","a hive human",MSR_GENDER_MALE,14)
+    [MID_BASIC_HIVE]=MONSTER('h',"human","a hive human",MSR_GENDER_MALE,14)
         HUMAN(TLT_BASIC_WPN_TRNG_SP, TLT_PISTOL_WPN_TRNG_LAS, TLT_BASIC_WPN_TRNG_LAS, TLT_PISTOL_WPN_TRNG_SP),
         CHARACTERISTICS(30,30,30,30,30,30,30,30,30),
         SKILLS(0,0,0), .fate_points=2, MONSTER_END,
     /*----------------------------------------------------------*/
 
-    MONSTER(MID_HIVE_GANGER,'h',"human","a hive human",MSR_GENDER_MALE,1)
+    MONSTER('h',"human","a hive human",MSR_GENDER_MALE,1)
+        HUMAN(TLT_BASIC_WPN_TRNG_SP, TLT_PISTOL_WPN_TRNG_SP),
+        CHARACTERISTICS(30,30,30,30,30,30,30,30,30),
+        DEF_WPN(0, IID_KNIFE),
+        SKILLS(0,0,0),
+        DESCRIPTION("description of a hive ganger"),
+        CREATION(10,1,3),
+    MONSTER_END,
+
+    MONSTER('h',"human","a hive human",MSR_GENDER_MALE,1)
         HUMAN(TLT_BASIC_WPN_TRNG_SP, TLT_PISTOL_WPN_TRNG_SP),
         CHARACTERISTICS(30,30,30,30,30,30,30,30,30),
         DEF_WPN(0, IID_STUB_AUTOMATIC),
         DEF_WPN(1, IID_KNIFE),
-        SKILLS(0,0,0), MONSTER_END,
+        SKILLS(0,0,0),
+        DESCRIPTION("description of a hive ganger"),
+        CREATION(10,1,3),
+    MONSTER_END,
 
-    MONSTER(MID_VICIOUS_DOG,'d',"dog","a vicious dog",MSR_GENDER_MALE,1)
+    MONSTER('h',"human","a hive human",MSR_GENDER_MALE,1)
+        HUMAN(TLT_BASIC_WPN_TRNG_LAS, TLT_PISTOL_WPN_TRNG_LAS),
+        CHARACTERISTICS(30,30,30,30,30,30,30,30,30),
+        DEF_WPN(0, IID_LAS_PISTOL),
+        DEF_WPN(1, IID_KNIFE),
+        SKILLS(0,0,0),
+        DESCRIPTION("description of a hive ganger"),
+        CREATION(10,1,3),
+    MONSTER_END,
+
+    MONSTER('d',"dog","a vicious dog",MSR_GENDER_MALE,1)
         BEAST(0),
         CHARACTERISTICS(30,0,30,30,30,15,38,40,30),
-        SKILLS(MSR_SKILLS_AWARENESS|MSR_SKILLS_SILENT_MOVE|MSR_SKILLS_TRACKING, MSR_SKILLS_AWARENESS|MSR_SKILLS_SILENT_MOVE|MSR_SKILLS_TRACKING ,0), MONSTER_END,
+        SKILLS(MSR_SKILLS_AWARENESS|MSR_SKILLS_SILENT_MOVE|MSR_SKILLS_TRACKING, MSR_SKILLS_AWARENESS|MSR_SKILLS_SILENT_MOVE|MSR_SKILLS_TRACKING ,0),
+        DESCRIPTION("description of a viscious dog"),
+        CREATION(6,1,3),
+     MONSTER_END,
 };
 
 static enum msr_characteristic msr_skill_charac[] = {

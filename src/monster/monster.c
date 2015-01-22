@@ -4,6 +4,7 @@
 #include <sys/param.h>
 #include <ncurses.h>
 #include <assert.h>
+#include <float.h>
 
 #include "monster.h"
 #include "monster_static.h"
@@ -29,18 +30,10 @@ struct msr_monster_list_entry {
 };
 
 void msrlst_monster_list_init(void) {
-    for (unsigned int i = 0; i < MID_MAX; i++) {
+    for (unsigned int i = 1; i < ARRAY_SZ(static_monster_list); i++) {
         struct msr_monster *template_monster = &static_monster_list[i];
-        if (template_monster->template_id != i) {
+        if (template_monster->icon == '\0') {
             fprintf(stderr, "Monster list integrity check failed! [%d]\n", i);
-            exit(EXIT_FAILURE);
-        }
-    }
-
-    for (int i = 0; i < MID_MAX; i++) {
-        const char *string = msr_descs[i];
-        if (string == NULL) {
-            fprintf(stderr, "Monster description list integrity check failed! (%s [%d])\n", static_monster_list[i].sd_name, i);
             exit(EXIT_FAILURE);
         }
     }
@@ -86,14 +79,47 @@ static uint32_t msrlst_next_id(void) {
     return uid;
 }
 
+int msr_spawn(double roll, int level) {
+    int sz = ARRAY_SZ(static_monster_list);
+    double prob_arr[sz];
+    double cumm_prob_arr[sz];
+    double sum = 0;
+
+    int idx = MID_NONE;
+
+    cumm_prob_arr[0] = DBL_MAX;
+    for (int i = MID_NONE+1; i < sz; i++) {
+        if ( (level >= static_monster_list[i].min_level) 
+                && (level <= static_monster_list[i].max_level) ) {
+            sum += static_monster_list[i].weight;
+        }
+        else cumm_prob_arr[i] = DBL_MAX;
+    }
+
+    double cumm = 0;
+    for (int i = MID_NONE+1; i < sz; i++) {
+        if (cumm_prob_arr[i] == DBL_MAX) continue;
+        prob_arr[i] = static_monster_list[i].weight / sum;
+        cumm += prob_arr[i];
+        cumm_prob_arr[i] = cumm;
+    }
+
+    for (int i = sz-1; i > MID_NONE+1; i--) {
+        if (cumm_prob_arr[i] == DBL_MAX) continue;
+        if (roll < cumm_prob_arr[i]) idx = i;
+    }
+
+    return idx;
+}
+
 #define MONSTER_PRE_CHECK (10477)
 #define MONSTER_POST_CHECK (10706)
 static void msr_default_weapon(struct msr_monster *monster);
 
-struct msr_monster *msr_create(uint32_t template_id) {
+struct msr_monster *msr_create(enum msr_ids template_id) {
     if (monster_list_initialised == false) msrlst_monster_list_init();
-    if (template_id >= MID_MAX) return NULL;
     if (template_id >= (int) ARRAY_SZ(static_monster_list)) return NULL;
+    if (template_id == MID_NONE) return NULL;
     struct msr_monster *template_monster = &static_monster_list[template_id];
 
     struct msr_monster_list_entry *m = calloc(1,sizeof(struct msr_monster_list_entry) );
@@ -104,11 +130,14 @@ struct msr_monster *msr_create(uint32_t template_id) {
     m->monster.controller.controller_cb = NULL;
     m->monster.pos = cd_create(0,0);
     m->monster.uid = msrlst_next_id();
+    m->monster.template_id = template_id;
     m->monster.energy = TT_ENERGY_FULL;
     m->monster.faction = 1;
     m->monster.inventory = NULL;
     m->monster.status_effects = se_list_init();
-    m->monster.description=msr_descs[template_id];
+    if (m->monster.description == NULL) {
+        m->monster.description = "none";
+    }
     assert(m->monster.description != NULL);
 
     m->monster.monster_pre = MONSTER_PRE_CHECK;
@@ -637,7 +666,9 @@ static void msr_default_weapon(struct msr_monster *monster) {
                         }
                     }
                     else {
-                        assert(dw_wear_item(monster, item) == true);
+                        if (dw_can_wear_item(monster, item) ) {
+                            assert(dw_wear_item(monster, item) == true);
+                        }
 
                         if (wpn_uses_ammo(item) ) {
                             enum item_ids ammo_id = wpn_get_ammo_used_id(item);

@@ -84,6 +84,7 @@
             .item_type=ITEM_TYPE_FOOD, .specific.food={ .food_type=_food_type, .nutrition=0, .nutrition_left=0, .convey_status_effect=cid, }
 
 static const char *itm_descs[] = {
+    [IID_NONE]              = "none",
     [IID_FIXED_LIGHT]       = "",
     [IID_GLOW_GLOBE]        = "This a generic glow globe",
 

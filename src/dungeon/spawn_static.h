@@ -2,7 +2,6 @@
 #define SPAWN_STATIC_H
 
 #include "items/items_static.h"
-#include "monster/monster_static.h"
 #include "spawn.h"
 
 struct spwn_item {
