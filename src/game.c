@@ -129,10 +129,11 @@ bool game_exit() {
     struct pl_player *plr = &gbl_game->player_data;
     free(plr->player->unique_name);
 
-    se_exit();
-    tt_exit();
+    /* order is important due to freeing of items*/
     msrlst_monster_list_exit();
     itmlst_items_list_exit();
+    se_exit();
+    tt_exit();
 
     inp_exit(gbl_game->input);
 
