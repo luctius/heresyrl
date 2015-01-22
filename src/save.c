@@ -98,6 +98,7 @@ static bool sv_save_monsters(FILE *file, int indent) {
             fprintf(file,"corruption_points=%d,", m->corruption_points);
             fprintf(file,"is_player=%d,", m->is_player);
             fprintf(file,"wpn_sel=%d,", m->wpn_sel);
+            fprintf(file,"ai_leader=%u,", msr_get_ai_ctx(m)->leader_uid );
             fprintf(file,"pos={x=%d,y=%d,},", m->pos.x,m->pos.y);
             fprintf(file,"creature_traits=%"PRIu64",",m->creature_traits);
             if (m->unique_name != NULL) fprintf(file, "unique_name=\"%s\",",m->unique_name);

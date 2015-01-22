@@ -79,7 +79,7 @@ bool spwn_populate_map(struct dm_map *map, struct random *r, uint32_t monster_ch
                         struct msr_monster *monster = msr_create(idx);
 
                         msr_insert_monster(monster, map, &c);
-                        ai_monster_init(monster);
+                        ai_monster_init(monster, 0);
                     }
                 }
             }

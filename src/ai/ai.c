@@ -1,5 +1,6 @@
 #include <sys/param.h>
 #include <string.h>
+#include <assert.h>
 
 #include "ai.h"
 #include "ai_utils.h"
@@ -26,12 +27,19 @@ struct beast_ai_struct {
     struct pf_context *pf_ctx;
 };
 
-static bool ai_beast_loop(struct msr_monster *monster, void *controller) {
+static bool ai_beast_loop(struct msr_monster *monster) {
     if (monster->dead == true) {
         msr_clear_controller(monster);
     }
     struct dm_map *map = gbl_game->current_map;
-    struct beast_ai_struct *ai = controller;
+    struct ai *ai_s = msr_get_ai_ctx(monster);
+    assert(ai_s != NULL);
+
+    struct beast_ai_struct *ai = ai_s->ai_ctx;
+    assert(ai != NULL);
+
+    struct msr_monster *leader = msr_get_monster_by_uid(ai_s->leader_uid);
+
     bool has_action = false;
     monster->wpn_sel = MSR_WEAPON_SELECT_CREATURE1;
 
@@ -88,12 +96,19 @@ struct human_ai_struct {
     int time_last_pos;
     struct pf_context *pf_ctx;
 };
-static bool ai_human_loop(struct msr_monster *monster, void *controller) {
+static bool ai_human_loop(struct msr_monster *monster) {
     if (monster->dead == true) {
         msr_clear_controller(monster);
     }
     struct dm_map *map = gbl_game->current_map;
-    struct human_ai_struct *ai = controller;
+    struct ai *ai_s = msr_get_ai_ctx(monster);
+    assert (ai_s != NULL);
+
+    struct human_ai_struct *ai = ai_s->ai_ctx;
+    assert (ai != NULL);
+
+    struct msr_monster *leader = msr_get_monster_by_uid(ai_s->leader_uid);
+
     bool has_action = false;
     monster->wpn_sel = MSR_WEAPON_SELECT_CREATURE1;
 
@@ -177,7 +192,9 @@ static void init_human_ai(struct msr_monster *monster) {
     struct human_ai_struct *ai = calloc(1, sizeof(struct human_ai_struct) );
     if (ai != NULL) {
         struct monster_controller mc = {
-            .controller_ctx = ai,
+            .ai = {
+                .ai_ctx = ai,
+            },
             .controller_cb = ai_human_loop,
         };
 
@@ -189,7 +206,9 @@ static void init_bestial_ai(struct msr_monster *monster) {
     struct beast_ai_struct *ai = calloc(1, sizeof(struct beast_ai_struct) );
     if (ai != NULL) {
         struct monster_controller mc = {
-            .controller_ctx = ai,
+            .ai = {
+                .ai_ctx = ai,
+            },
             .controller_cb = ai_beast_loop,
         };
 
@@ -197,12 +216,21 @@ static void init_bestial_ai(struct msr_monster *monster) {
     }
 }
 
-void ai_monster_init(struct msr_monster *monster) {
+void ai_monster_init(struct msr_monster *monster, uint32_t leader_uid) {
     switch(monster->race) {
         case MSR_RACE_HUMAN: init_human_ai(monster); break;
 
         default:
         case MSR_RACE_BEAST: init_bestial_ai(monster); break;
     }
+
+    struct ai *ai_s = msr_get_ai_ctx(monster);
+    assert(ai_s != NULL);
+    if (leader_uid != 0) ai_s->leader_uid = leader_uid;
+}
+
+void ai_monster_free(struct msr_monster *monster) {
+    if (monster->is_player) return;
+    if (monster->controller.ai.ai_ctx != NULL) free(monster->controller.ai.ai_ctx);
 }
 

@@ -380,6 +380,8 @@ static bool load_monsters(lua_State *L, struct dm_map *map, struct gm_game *g) {
     if (L == NULL) return false;
     if (lua_intexpr(L, &t, "game.monsters.sz") == 0) return false;
 
+    uint32_t leader_uid;
+
     int monsters_sz = t;
     for (int i = 0; i < monsters_sz; i++) {
         if (lua_intexpr(L, &t, "game.monsters[%d].template_id", i+1) == 0) return false;
@@ -397,6 +399,8 @@ static bool load_monsters(lua_State *L, struct dm_map *map, struct gm_game *g) {
         lua_intexpr(L, &t, "game.monsters[%d].fate_points", i+1); monster->fate_points = t;
         lua_intexpr(L, &t, "game.monsters[%d].insanity_points", i+1); monster->insanity_points = t;
         lua_intexpr(L, &t, "game.monsters[%d].corruption_points", i+1); monster->corruption_points = t;
+
+        lua_intexpr(L, &t, "game.monsters[%d].ai_leader", i+1); leader_uid = t;
 
         lua_intexpr(L, &t, "game.monsters[%d].creature_traits", i+1); monster->creature_traits = t;
         lua_intexpr(L, &t, "game.monsters[%d].is_player", i+1); monster->is_player = t;
@@ -501,7 +505,7 @@ static bool load_monsters(lua_State *L, struct dm_map *map, struct gm_game *g) {
         if (msr_weapons_check(monster) == false) msr_weapon_next_selection(monster);
 
         msr_insert_monster(monster, map, &monster->pos);
-        ai_monster_init(monster);
+        ai_monster_init(monster, leader_uid);
     }
     return true;
 }

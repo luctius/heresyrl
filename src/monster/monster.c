@@ -126,7 +126,7 @@ struct msr_monster *msr_create(enum msr_ids template_id) {
     assert(m != NULL);
 
     memcpy(&m->monster, template_monster, sizeof(struct msr_monster) );
-    m->monster.controller.controller_ctx = NULL;
+    m->monster.controller.ai.ai_ctx = NULL;
     m->monster.controller.controller_cb = NULL;
     m->monster.pos = cd_create(0,0);
     m->monster.uid = msrlst_next_id();
@@ -195,6 +195,16 @@ bool msr_verify_monster(struct msr_monster *monster) {
     return true;
 }
 
+struct msr_monster *msr_get_monster_by_uid(uint32_t uid) {
+    if (monster_list_initialised == false) return NULL;
+    struct msr_monster_list_entry *me = monster_list_head.tqh_first;
+
+    while (me != NULL) {
+        if (uid == me->monster.uid) return &me->monster;
+    }
+    return NULL;
+}
+
 void msr_assign_controller(struct msr_monster *monster, struct monster_controller *controller) {
     if (msr_verify_monster(monster) == false) return;
     if (controller == NULL) return;
@@ -203,7 +213,7 @@ void msr_assign_controller(struct msr_monster *monster, struct monster_controlle
 
 void msr_clear_controller(struct msr_monster *monster) {
     if (msr_verify_monster(monster) == false) return;
-    /*if (monster->controller.controller_ctx != NULL) free(monster->controller.controller_ctx); TODO: fix this memory leak*/
+    ai_monster_free(monster);
     memset(&monster->controller, 0x0, sizeof(struct monster_controller) );
 }
 
@@ -753,6 +763,10 @@ uint8_t msr_get_movement_rate(struct msr_monster *monster) {
     if (speed > max_speed) speed = max_speed;
 
     return speed;
+}
+
+struct ai *msr_get_ai_ctx(struct msr_monster *monster) {
+    return &monster->controller.ai;
 }
 
 const char *msr_ldname(struct msr_monster *monster) {

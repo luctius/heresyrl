@@ -50,7 +50,7 @@ void tt_process_monsters(struct dm_map *map) {
 
         if (do_action || monster->dead) {
             if (monster->controller.controller_cb != NULL) {
-                monster->controller.controller_cb(monster, monster->controller.controller_ctx);
+                monster->controller.controller_cb(monster);
             }
             monster->controller.interrupted = false;
         }

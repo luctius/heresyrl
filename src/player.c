@@ -16,7 +16,7 @@
 #include "monster/monster_action.h"
 #include "items/items.h"
 
-static bool plr_action_loop(struct msr_monster *player, void *controller);
+static bool plr_action_loop(struct msr_monster *player);
 
 void plr_create(struct pl_player *plr, char *name, uint32_t template_id, enum msr_gender gender) {
     if (plr->player != NULL) {
@@ -37,7 +37,9 @@ void plr_create(struct pl_player *plr, char *name, uint32_t template_id, enum ms
 
 void plr_init(struct pl_player *plr) {
     struct monster_controller mc = {
-        .controller_ctx = plr,
+        .ai = {
+            .ai_ctx = plr,
+        },
         .controller_cb = plr_action_loop,
     };
 
@@ -61,11 +63,9 @@ struct pf_context *plr_map(struct pl_player *plr, struct dm_map *map) {
 
 static bool low_wounds_warning = false;
 static bool critical_wounds_warning = false;
-static bool plr_action_loop(struct msr_monster *player, void *controller) {
+static bool plr_action_loop(struct msr_monster *player) {
     if (player == NULL) return false;
-    if (controller == NULL) return false;
     struct dm_map *map = gbl_game->current_map;
-    //struct pl_player *plr = controller;
     int ch;
     bool has_action = false;
 

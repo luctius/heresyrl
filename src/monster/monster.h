@@ -8,6 +8,7 @@
 #include "heresyrl_def.h"
 #include "coord.h"
 #include "enums.h"
+#include "ai/ai.h"
 #include "monster_static.h"
 
 #include "items/items_static.h"
@@ -84,8 +85,8 @@ struct msr_char {
 struct monster_controller {
     bool interruptable;  /* this monster should be interrupted if anythin interresting happens near it. */
     bool interrupted;    /* this monster *is* interrupted. */
-    void *controller_ctx; /* private struct for this monster */
-    bool (*controller_cb)(struct msr_monster *monster, void *controller_ctx); /* ai/player callback. */
+    struct ai ai; /* private struct for this monster */
+    bool (*controller_cb)(struct msr_monster *monster); /* ai/player callback. */
 };
 
 struct msr_monster {
@@ -202,6 +203,9 @@ struct msr_monster *msr_create(enum msr_ids template_id);
 /* remove monster from map and global monster list. */
 void msr_destroy(struct msr_monster *monster, struct dm_map *map);
 
+/* find a monster with the specified uid. return NULL if not found. */
+struct msr_monster *msr_get_monster_by_uid(uint32_t uid);
+
 /* verify monster structure. */
 bool msr_verify_monster(struct msr_monster *monster);
 
@@ -256,6 +260,8 @@ int msr_get_energy(struct msr_monster *monster);
 
 /* change the monster's energy by this much, true if succefull. */
 bool msr_change_energy(struct msr_monster *monster, int energy);
+
+struct ai *msr_get_ai_ctx(struct msr_monster *monster);
 
 /* 
    get range of the sight.
