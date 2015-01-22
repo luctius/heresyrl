@@ -5,7 +5,6 @@
 #include "logging.h"
 #include "game.h"
 #include "tiles.h"
-#include "spawn_static.h"
 #include "random.h"
 #include "dowear.h"
 #include "ai/ai.h"
