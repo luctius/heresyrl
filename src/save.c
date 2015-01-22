@@ -113,30 +113,12 @@ static bool sv_save_monsters(FILE *file, int indent) {
             }
             fprintf(file,"sz=%d,},", t_sz);
 
+            int se_sz = 0;
             fprintf(file,"status_effects={sz=%d,", se_list_size(m->status_effects) );
             struct status_effect *c = NULL;
             while ( (c = se_list_get_next_status_effect(m->status_effects, c) ) != NULL) {
-                fprintf(file,"{");
-                    fprintf(file,"uid=%d,", c->uid);
-                    fprintf(file,"tid=%d,", c->template_id);
-                    fprintf(file,"duration_energy_min=%d,", c->duration_energy_min);
-                    fprintf(file,"duration_energy_max=%d,", c->duration_energy_max);
-                    fprintf(file,"duration_energy=%d,",     c->duration_energy);
-
-                    int e_sz = 0;
-                    fprintf(file,"effects={");
-                    for (int i = 0; i < STATUS_EFFECT_MAX_NR_EFFECTS; i++) {
-                        if (c->effects[i].effect == SETF_NONE) i = STATUS_EFFECT_MAX_NR_EFFECTS;
-                        fprintf(file,"{");
-                            fprintf(file,"effect=%d,", c->effects[i].effect);
-                            fprintf(file,"effect_setting_flags=%d,", c->effects[i].effect_setting_flags);
-                            fprintf(file,"tick_energy_max=%d,",      c->effects[i].tick_energy_max);
-                            fprintf(file,"tick_energy=%d,",          c->effects[i].tick_energy);
-                        fprintf(file,"},");
-                        e_sz++;
-                    }
-                    fprintf(file,"sz=%d,},", e_sz);
-                fprintf(file,"},");
+                fprintf(file,"%d,", c->uid);
+                se_sz++;
             }
             fprintf(file,"},");
 
@@ -179,6 +161,44 @@ static bool sv_save_monsters(FILE *file, int indent) {
         fprintf(file, "%*s" "sz=%d,\n", indent, "", sz);
     } indent -= 2; fprintf(file, "%*s" "},\n", indent, "");
 
+    fflush(file);
+    return true;
+}
+
+static bool sv_save_status_effects(FILE *file, int indent) {
+    if (file == NULL) return false;
+    int sz = 0;
+
+    fprintf(file, "%*s" "status_effects={\n", indent, ""); { indent += 2;
+        struct status_effect *se = NULL;
+        while ( (se = selst_get_next_status_effect(se) ) != NULL) {
+            fprintf(file, "%*s" "{uid=%d,",  indent, "", se->uid);
+            fprintf(file, "template_id=%d,",  se->template_id);
+
+            fprintf(file,"duration_energy_min=%d,", se->duration_energy_min);
+            fprintf(file,"duration_energy_max=%d,", se->duration_energy_max);
+            fprintf(file,"duration_energy=%d,",     se->duration_energy);
+
+            int e_sz = 0;
+            fprintf(file,"effects={");
+            for (int i = 0; i < STATUS_EFFECT_MAX_NR_EFFECTS; i++) {
+                if (se->effects[i].effect == SETF_NONE) i = STATUS_EFFECT_MAX_NR_EFFECTS;
+                    fprintf(file,"{");
+                        fprintf(file,"effect=%d,",               se->effects[i].effect);
+                        fprintf(file,"effect_setting_flags=%d,", se->effects[i].effect_setting_flags);
+                        fprintf(file,"tick_energy_max=%d,",      se->effects[i].tick_energy_max);
+                        fprintf(file,"tick_energy=%d,",          se->effects[i].tick_energy);
+                        fprintf(file,"ticks_applied=%d,",        se->effects[i].ticks_applied);
+                    fprintf(file,"},");
+                    e_sz++;
+                }
+                fprintf(file,"sz=%d,},", e_sz);
+            fprintf(file, "},\n");
+            sz++;
+        }
+
+        fprintf(file, "%*s" "sz=%d,\n",  indent, "", sz);
+    } indent -= 2; fprintf(file, "%*s" "},\n", indent, "");
     fflush(file);
     return true;
 }
@@ -292,7 +312,7 @@ bool sv_save_game(const char *filename, struct gm_game *gm) {
         sv_save_player(file, indent, &gm->player_data);
 
         sv_save_items(file, indent);
-
+        sv_save_status_effects(file, indent);
         sv_save_monsters(file, indent);
 
         fprintf(file, "%*s" "maps={\n", indent, ""); { indent += 2;

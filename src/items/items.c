@@ -131,7 +131,7 @@ struct itm_item *itm_create(int template_id) {
     if (template_id >= (int) ARRAY_SZ(static_item_list)) return NULL;
     if (items_list_initialised == false) itmlst_items_list_init();
 
-    struct itm_item_list_entry *i = calloc(1, sizeof(struct itm_item_list_entry) );
+    struct itm_item_list_entry *i = malloc(sizeof(struct itm_item_list_entry) );
     assert(i != NULL);
 
     memcpy(&i->item, &static_item_list[template_id], sizeof(static_item_list[template_id]));

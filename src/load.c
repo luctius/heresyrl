@@ -375,6 +375,49 @@ static bool load_items_list(lua_State *L) {
     return true;
 }
 
+static bool load_status_effect_list(lua_State *L) {
+    uint64_t t;
+    if (L == NULL) return false;
+    if (lua_intexpr(L, &t, "game.status_effects.sz") == 0) return false;
+
+    if (lua_intexpr(L, &t, "game.status_effects.sz") == 1) {
+        int status_effect_sz = t;
+        for (int j = 0; j < status_effect_sz; j++) {
+            if (lua_intexpr(L, &t, "game.status_effects[%d].tid", j+1) == 1) {
+                struct status_effect *c = se_create(t);
+                if (c != NULL) {
+                    lua_intexpr(L, &t, "game.status_effects[%d].uid", j+1); c->uid = t;
+                    lua_intexpr(L, &t, "game.status_effects[%d].duration_energy_min", j+1); c->duration_energy_min = t;
+                    lua_intexpr(L, &t, "game.status_effects[%d].duration_energy_max", j+1); c->duration_energy_max = t;
+                    lua_intexpr(L, &t, "game.status_effects[%d].duration_energy", j+1);     c->duration_energy = t;
+
+                    lua_intexpr(L, &t, "game.status_effects[%d].effects.sz", j+1);
+                    int effects_sz = t;
+                    for (int e = 0; e < effects_sz; e++) {
+                        c->effects[e].effect = SETF_NONE;
+                        c->effects[e].effect_setting_flags = 0;
+
+                        if (e < effects_sz) {
+                            lua_intexpr(L, &t, "game.status_effects[%d].effects[%d].effect", j+1, e+1); 
+                                                    c->effects[e].effect = t;
+                            lua_intexpr(L, &t, "game.status_effects[%d].effects[%d].effect_setting_flags", j+1, e+1); 
+                                                    c->effects[e].effect_setting_flags = t;
+                            lua_intexpr(L, &t, "game.status_effects[%d].effects[%d].tick_energy_max", j+1, e+1);
+                                                    c->effects[e].tick_energy_max = t;
+                            lua_intexpr(L, &t, "game.status_effects[%d].effects[%d].tick_energy", j+1, e+1);
+                                                    c->effects[e].tick_energy = t;
+                            lua_intexpr(L, &t, "game.status_effects[%d].effects[%d].ticks_applied", j+1, e+1);
+                                                    c->effects[e].ticks_applied = t;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return true;
+}
+
 static bool load_monsters(lua_State *L, struct dm_map *map, struct gm_game *g) {
     uint64_t t;
     if (L == NULL) return false;
@@ -425,34 +468,11 @@ static bool load_monsters(lua_State *L, struct dm_map *map, struct gm_game *g) {
         if (lua_intexpr(L, &t, "game.monsters[%d].status_effects.sz", i+1) == 1) {
             int status_effect_sz = t;
             for (int j = 0; j < status_effect_sz; j++) {
-                if (lua_intexpr(L, &t, "game.monsters[%d].status_effects[%d].tid", i+1, j+1) == 1) {
-                    struct status_effect *c = se_create(monster->status_effects, t);
+                if (lua_intexpr(L, &t, "game.monsters[%d].status_effects[%d].uid", i+1, j+1) == 1) {
+                    struct status_effect *c = selst_status_effect_by_uid(t);
                     if (c != NULL) {
-                        lua_intexpr(L, &t, "game.monsters[%d].status_effects[%d].uid", i+1, j+1); c->uid = t;
-                        lua_intexpr(L, &t, "game.monsters[%d].status_effects[%d].duration_energy_min", i+1, j+1); c->duration_energy_min = t;
-                        lua_intexpr(L, &t, "game.monsters[%d].status_effects[%d].duration_energy_max", i+1, j+1); c->duration_energy_max = t;
-                        lua_intexpr(L, &t, "game.monsters[%d].status_effects[%d].duration_energy", i+1, j+1);     c->duration_energy = t;
-
-                        lua_intexpr(L, &t, "game.monsters[%d].status_effects[%d].effects.sz", i+1, j+1);
-                        int effects_sz = t;
-                        for (int e = 0; e < effects_sz; e++) {
-                            c->effects[e].effect = SETF_NONE;
-                            c->effects[e].effect_setting_flags = 0;
-
-                            if (e < effects_sz) {
-                                lua_intexpr(L, &t, "game.monsters[%d].status_effects[%d].effects[%d].effect", i+1, j+1, e+1); 
-                                                        c->effects[e].effect = t;
-                                lua_intexpr(L, &t, "game.monsters[%d].status_effects[%d].effects[%d].effect_setting_flags", i+1, j+1, e+1); 
-                                                        c->effects[e].effect_setting_flags = t;
-                                lua_intexpr(L, &t, "game.monsters[%d].status_effects[%d].effects[%d].tick_energy_max", i+1, j+1, e+1);
-                                                        c->effects[e].tick_energy_max = t;
-                                lua_intexpr(L, &t, "game.monsters[%d].status_effects[%d].effects[%d].tick_energy", i+1, j+1, e+1);
-                                                        c->effects[e].tick_energy = t;
-                            }
-                        }
+                        se_add_to_list(monster->status_effects, c);
                     }
-
-                    se_add_to_list(monster->status_effects, c);
                 }
             }
         }
@@ -581,6 +601,7 @@ bool ld_read_save_file(const char *path, struct gm_game *g) {
         if (options.play_recording == false) {
             load_player(L, &g->player_data);
             load_items_list(L);
+            load_status_effect_list(L);
             load_map(L, &g->current_map, 1);
             load_monsters(L, g->current_map, g);
         }

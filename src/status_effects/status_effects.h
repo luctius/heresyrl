@@ -223,6 +223,8 @@ struct status_effect {
 };
 
 void se_init(void);
+struct status_effect *selst_get_next_status_effect(struct status_effect *prev);
+struct status_effect *selst_status_effect_by_uid(uint32_t status_effect_uid);
 void se_exit(void);
 
 struct status_effect_list *se_list_init(void);
@@ -242,7 +244,7 @@ bool se_has_effect_permanent(struct status_effect_list *se_list, enum status_eff
 bool se_has_tid(struct status_effect_list *se_list, enum se_ids tid);
 int se_status_effect_strength(struct status_effect_list *se_list, enum status_effect_type_flags effect);
 
-struct status_effect *se_create(struct status_effect_list *se_list, enum se_ids tid);
+struct status_effect *se_create(enum se_ids tid);
 bool se_add_to_list(struct status_effect_list *se_list, struct status_effect *con);
 
 bool se_add_status_effect(struct status_effect_list *se_list, enum se_ids tid);

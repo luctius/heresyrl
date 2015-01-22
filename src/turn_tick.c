@@ -61,6 +61,7 @@ void tt_process_monsters(struct dm_map *map) {
 
 void tt_process_items(struct dm_map *map) {
     struct itm_item *item = NULL;
+    if (gbl_game->running == false) return;
 
     while ( (item = itmlst_get_next_item(item) ) != NULL) {
         if (item->energy_action == true) {
@@ -76,6 +77,7 @@ void tt_process_items(struct dm_map *map) {
 
 void tt_process_status_effects(void) {
     struct msr_monster *monster = NULL;
+    if (gbl_game->running == false) return;
 
     while ( (monster = msrlst_get_next_monster(monster) ) != NULL) {
         if (monster->dead == false) {

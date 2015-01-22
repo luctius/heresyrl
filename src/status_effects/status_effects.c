@@ -194,7 +194,7 @@ static int se_calc_strength(struct se_type_struct *ces) {
     return dmg;
 }
 
-struct status_effect *se_create(struct status_effect_list *se_list, enum se_ids tid) {
+struct status_effect *se_create(enum se_ids tid) {
     if (tid == SEID_NONE) return false;
     if (tid >= SEID_MAX) return false;
     if (tid >= (int) ARRAY_SZ(static_status_effect_list) ) return false;
@@ -268,7 +268,7 @@ bool se_add_status_effect(struct status_effect_list *se_list, uint32_t tid) {
         }
     }
 
-    c = se_create(se_list, tid);
+    c = se_create(tid);
     if (c == NULL) return false;
 
     return se_add_to_list(se_list, c);
