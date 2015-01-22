@@ -628,12 +628,12 @@ bool fght_shoot(struct random *r, struct msr_monster *monster, struct dm_map *ma
     if (item1 != NULL) {
         struct item_weapon_specific *wpn = &item1->specific.weapon;
         ammo1 = MIN(wpn->magazine_left, wpn->rof[wpn->rof_set]);
-        wpn->magazine_left -= ammo1;
+        if (wpn_uses_ammo(item1) ) wpn->magazine_left -= ammo1;
     }
     if (item2 != NULL) {
         struct item_weapon_specific *wpn = &item2->specific.weapon;
         ammo2 = MIN(wpn->magazine_left, wpn->rof[wpn->rof_set]);
-        wpn->magazine_left -= ammo2;
+        if (wpn_uses_ammo(item2) ) wpn->magazine_left -= ammo2;
     }
 
     /* Genereate a path our projectile will take. Start at 
