@@ -14,6 +14,10 @@
                 {.effect=_effect, .effect_setting_flags=bf(SESF_ACTIVE) | bf(SESF_TICK) | _flags, \
                 .strength=_dmg, .difficulty=_diff, .tick_energy_max=(_tmax*TT_ENERGY_TURN), .tick_energy=0, }
 
+#define TALENT_EFFECT(_effect, _flags, _opt) \
+                {.effect=_effect, .effect_setting_flags=bf(SESF_ACTIVE) | _flags, .optional=_opt, \
+                .tick_energy_max=1, .tick_energy=0, }
+
 static struct status_effect static_status_effect_list[] = {
     STATUS_EFFECT(SEID_NONE, "", "", NULL, NULL, NULL, NULL),
             SETTINGS( 0, 0, SEID_NONE, 0, 0),
@@ -43,10 +47,10 @@ static struct status_effect static_status_effect_list[] = {
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_FATEHEALTH, "fatepoint_health", "", NULL, NULL, NULL, NULL, 
-            /* Type         Effect      Flags     Strength     Difficulty   Interval */
-            TICK_EFFECT(SETF_HEALTH_TICK, 0, SE_STRENGTH_TEN,    0,            1), ),
-            /*Settings      Flags     Difficulty    Next             Minimum  -  Maximum Turns*/
-            SETTINGS(       0,        0,          SEID_NONE,        20,         20),
+            /* Type         Effect      Flags     Strength     Difficulty  Interval */
+            TICK_EFFECT(SETF_HEALTH_TICK, 0, SE_STRENGTH_4D10,    0,         1), ),
+            /*Settings      Flags     Difficulty    Next       Minimum  -  Maximum Turns*/
+            SETTINGS(       0,        0,          SEID_NONE,      2,         2),
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_DEATH_STIMM, "death stimm", "", NULL, NULL, NULL, NULL,

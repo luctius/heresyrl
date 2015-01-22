@@ -698,9 +698,23 @@ static void msr_default_weapon(struct msr_monster *monster) {
     assert(inv_loc_empty(monster->inventory, INV_LOC_CREATURE_WIELD1) == false);
 }
 
-bool msr_has_creature_trait(struct msr_monster *monster,  bitfield64_t trait) {
+bool msr_has_creature_trait(struct msr_monster *monster,  enum msr_creature_traits trait) {
     if (msr_verify_monster(monster) == false) return false;
-    return ( (monster->creature_traits & trait) > 0);
+    return ( (monster->creature_traits & bf(trait) ) > 0);
+}
+
+bool msr_set_creature_trait(struct msr_monster *monster,  enum msr_creature_traits trait) {
+    if (msr_verify_monster(monster) == false) return false;
+    if (msr_has_creature_trait(monster, trait) == true) return false;
+    return monster->creature_traits |= bf(trait);
+}
+
+bool msr_clr_creature_trait(struct msr_monster *monster,  enum msr_creature_traits trait) {
+    if (msr_verify_monster(monster) == false) return false;
+    if (msr_has_creature_trait(monster, trait) == false) return false;
+    monster->creature_traits &= ~bf(trait);
+
+    return msr_has_creature_trait(monster, trait);
 }
 
 bool msr_has_talent(struct msr_monster *monster, enum msr_talents talent) {
@@ -710,24 +724,35 @@ bool msr_has_talent(struct msr_monster *monster, enum msr_talents talent) {
 
     for (unsigned int i = 0; i < ARRAY_SZ(monster->talents); i++) {
         if (monster->talents[i] == talent) return true;
-        if (monster->talents[i] == TLT_NONE) return false;
     }
     return false;
 }
 
 bool msr_set_talent(struct msr_monster *monster, enum msr_talents talent) {
     if (msr_verify_monster(monster) == false) return false;
+    if (msr_has_talent(monster, talent) == true) return false;
     if (talent >= MSR_TALENTS_MAX) return false;
 
     for (unsigned int i = 0; i < ARRAY_SZ(monster->talents); i++) {
         if (monster->talents[i] == TLT_NONE) {
             monster->talents[i] = talent;
-            if (i+1 < MSR_TALENTS_MAX) {
-                monster->talents[i+1] = TLT_NONE;
-            }
             return true;
         }
     }
+    return false;
+}
+
+bool msr_clr_talent(struct msr_monster *monster, enum msr_talents talent) {
+    if (msr_verify_monster(monster) == false) return false;
+    if (msr_has_talent(monster, talent) == false) return false;
+
+    for (unsigned int i = 0; i < ARRAY_SZ(monster->talents); i++) {
+        if (monster->talents[i] == talent) {
+            monster->talents[i] = talent;
+            return true;
+        }
+    }
+
     return false;
 }
 

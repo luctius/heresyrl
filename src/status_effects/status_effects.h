@@ -110,6 +110,11 @@ enum status_effect_type_flags {
     SETF_DETOX,
     SETF_INSTANT_DEATH,
     SETF_EXPLODE,
+
+    SETF_TALENT,
+    SETF_SKILL,
+    SETF_TRAIT,
+
     SETF_MAX,
 };
 
@@ -171,6 +176,7 @@ struct se_type_struct {
 
     int8_t strength;
     int8_t difficulty;
+    int optional;
 
     /* operational variables. */
     int16_t tick_energy_max;

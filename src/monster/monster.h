@@ -272,10 +272,12 @@ int msr_get_near_sight_range(struct msr_monster *monster);
 int msr_get_medium_sight_range(struct msr_monster *monster);
 int msr_get_far_sight_range(struct msr_monster *monster);
 
-
-bool msr_has_creature_trait(struct msr_monster *monster,  bitfield64_t trait);
+bool msr_has_creature_trait(struct msr_monster *monster, enum msr_creature_traits trait);
+bool msr_set_creature_trait(struct msr_monster *monster, enum msr_creature_traits trait);
+bool msr_clr_creature_trait(struct msr_monster *monster, enum msr_creature_traits trait);
 bool msr_has_talent(struct msr_monster *monster, enum msr_talents talent);
 bool msr_set_talent(struct msr_monster *monster, enum msr_talents talent);
+bool msr_clr_talent(struct msr_monster *monster, enum msr_talents talent);
 enum msr_skill_rate msr_has_skill(struct msr_monster *monster,  enum msr_skills skill);
 bool msr_set_skill(struct msr_monster *monster, enum msr_skills skill, enum msr_skill_rate);
 uint8_t msr_get_movement_rate(struct msr_monster *monster);

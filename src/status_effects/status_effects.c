@@ -424,6 +424,19 @@ void se_process_effects_first(struct se_type_struct *ces, struct msr_monster *mo
         case SETF_DECREASE_FEL: break;
         case SETF_INCREASE_FEL: break;
 
+        case SETF_TALENT:
+            if (msr_has_talent(monster, ces->optional) ) {
+                effect_clr_flag(ces, SESF_ACTIVE);
+            }
+            else msr_set_talent(monster, ces->optional);
+            break;
+        case SETF_TRAIT: 
+            if (msr_has_creature_trait(monster, ces->optional) ) {
+                effect_clr_flag(ces, SESF_ACTIVE);
+            }
+            else msr_set_creature_trait(monster, ces->optional);
+            break;
+
         case SETF_SET_WS: {
             int8_t strength = ces->strength;
             ces->strength = monster->characteristic[MSR_CHAR_WEAPON_SKILL].base_value;
@@ -545,6 +558,13 @@ void se_process_effects_last(struct se_type_struct *ces, struct msr_monster *mon
         case SETF_HEALTH: break;
         case SETF_HEALTH_TICK: break;
         case SETF_BLOODLOSS: break;
+
+        case SETF_TALENT:
+            msr_clr_talent(monster, ces->optional);
+            break;
+        case SETF_TRAIT: 
+            msr_set_creature_trait(monster, ces->optional);
+            break;
 
         case SETF_SET_WS:
             monster->characteristic[MSR_CHAR_WEAPON_SKILL].base_value = ces->strength;
@@ -695,6 +715,9 @@ void se_process_effects_during(struct se_type_struct *ces, struct msr_monster *m
         case SETF_DISABLE_LARM: break;
         case SETF_DISABLE_RARM: break;
         case SETF_DETOX: break;
+
+        case SETF_TALENT: break;
+        case SETF_TRAIT: break;
 
         case SETF_DECREASE_FATIQUE: mod = -1;
         case SETF_INCREASE_FATIQUE:
