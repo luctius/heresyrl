@@ -187,7 +187,7 @@ bool cave_generate_map(struct dm_map *map, struct random *r, enum dm_dungeon_typ
     int ii, jj, yi, xi;
     FIX_UNUSED(level);
 
-    if (type != DM_DUNGEON_TYPE_CAVE) return -1;
+    if (type != DUNGEON_TYPE_CAVE) return -1;
 
     size_x     = map->size.x;
     size_y     = map->size.y;

@@ -4,8 +4,8 @@
         .gender=_gender, .cur_wounds=maxwounds, .max_wounds=maxwounds,
 #define MONSTER_END }
 
-#define CREATION(wght, minlvl, maxlvl) \
-    .weight=wght, .min_level=minlvl, .max_level=maxlvl
+#define CREATION(wght, minlvl, maxlvl, l) \
+    .weight=wght, .min_level=minlvl, .max_level=maxlvl, .monsters_locale=l
 
 #define DESCRIPTION(desc) .description=desc
 
@@ -55,7 +55,7 @@ static struct msr_monster static_monster_list[] = {
         DEF_WPN(0, IID_KNIFE),
         SKILLS(0,0,0),
         DESCRIPTION("description of a hive ganger"),
-        CREATION(10,1,3),
+        CREATION(10,1,3, bf(DUNGEON_TYPE_CAVE) | bf(DUNGEON_TYPE_SIMPLE) ),
     MONSTER_END,
 
     MONSTER('h',"human","a hive human",MSR_GENDER_MALE,1)
@@ -65,7 +65,7 @@ static struct msr_monster static_monster_list[] = {
         DEF_WPN(1, IID_KNIFE),
         SKILLS(0,0,0),
         DESCRIPTION("description of a hive ganger"),
-        CREATION(10,1,3),
+        CREATION(10,1,3, bf(DUNGEON_TYPE_CAVE) | bf(DUNGEON_TYPE_SIMPLE) ),
     MONSTER_END,
 
     MONSTER('h',"human","a hive human",MSR_GENDER_MALE,1)
@@ -75,7 +75,7 @@ static struct msr_monster static_monster_list[] = {
         DEF_WPN(1, IID_KNIFE),
         SKILLS(0,0,0),
         DESCRIPTION("description of a hive ganger"),
-        CREATION(10,1,3),
+        CREATION(10,1,3, bf(DUNGEON_TYPE_CAVE) | bf(DUNGEON_TYPE_SIMPLE) ),
     MONSTER_END,
 
     MONSTER('d',"dog","a vicious dog",MSR_GENDER_MALE,1)
@@ -83,7 +83,7 @@ static struct msr_monster static_monster_list[] = {
         CHARACTERISTICS(30,0,30,30,30,15,38,40,30),
         SKILLS(MSR_SKILLS_AWARENESS|MSR_SKILLS_SILENT_MOVE|MSR_SKILLS_TRACKING, MSR_SKILLS_AWARENESS|MSR_SKILLS_SILENT_MOVE|MSR_SKILLS_TRACKING ,0),
         DESCRIPTION("description of a viscious dog"),
-        CREATION(6,1,3),
+        CREATION(10,1,3, bf(DUNGEON_TYPE_CAVE) | bf(DUNGEON_TYPE_SIMPLE) ),
      MONSTER_END,
 };
 

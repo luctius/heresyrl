@@ -183,7 +183,7 @@ bool dm_populate_map(struct dm_map *map, struct random *r, uint32_t monster_chan
 
             if ( (random_int32(r) % 10000) <= monster_chance) {
                 if (TILE_HAS_ATTRIBUTE(dm_get_map_me(&c,map)->tile, TILE_ATTR_TRAVERSABLE) == true) {
-                    idx = msr_spawn(random_float(r), level);
+                    idx = msr_spawn(random_float(r), level, map->type);
                     if (idx != -1) {
                         struct msr_monster *monster = msr_create(idx);
 
@@ -411,7 +411,7 @@ bool dm_generate_map(struct dm_map *map, enum dm_dungeon_type type, int level, u
 
     struct random *r = random_init_genrand(seed);
     switch(type) {
-        case DM_DUNGEON_TYPE_CAVE:
+        case DUNGEON_TYPE_CAVE:
             cave_generate_map(map, r, type, level);
             break;
         default:

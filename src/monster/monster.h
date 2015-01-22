@@ -118,6 +118,7 @@ struct msr_monster {
 
     /* faction this monster belongs to. should probably be a bitfield. */
     int faction;
+    bitfield32_t monsters_locale;
 
     enum msr_race race;
     enum msr_size size;
@@ -195,7 +196,7 @@ void msrlst_monster_list_exit(void);
 struct msr_monster *msrlst_get_next_monster(struct msr_monster *prev);
 
 /* retrieves a monster template id based on parameters */
-int msr_spawn(double roll, int level);
+int msr_spawn(double roll, int level, enum dm_dungeon_type dt);
 
 /* create a instance of this monster template. */
 struct msr_monster *msr_create(enum msr_ids template_id);
