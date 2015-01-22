@@ -46,6 +46,13 @@ struct status_effect_list {
     uint32_t post_check;
 };
 
+struct status_effect_list_entry {
+    struct se_entry se;
+    TAILQ_ENTRY(status_effect_list_entry) entries;
+};
+static TAILQ_HEAD(status_effects_list, status_effect_list_entry) status_effects_list_head;
+static bool status_effects_list_initialised = false;
+
 #include "status_effects_static.c"
 
 /* Garanteed to be random, rolled it myself ;)  */
@@ -58,13 +65,57 @@ void se_init(void) {
     for (unsigned int i = 0; i < SEID_MAX; i++) {
         struct status_effect *status_effect = &static_status_effect_list[i];
         if (status_effect->template_id != i) {
-            fprintf(stderr, "Condition list integrity check failed! [%d]\n", i);
+            fprintf(stderr, "Status Effects list integrity check failed! [%d]\n", i);
             exit(EXIT_FAILURE);
         }
     }
+    TAILQ_INIT(&status_effects_list_head);
 }
 
 void se_exit(void) {
+    struct status_effect_list_entry *e = NULL;
+    while (status_effects_list_head.tqh_first != NULL) {
+        e = status_effects_list_head.tqh_first;
+        TAILQ_REMOVE(&status_effects_list_head, status_effects_list_head.tqh_first, entries);
+        free(e);
+    }
+    status_effects_list_initialised = false;
+}
+
+struct status_effect *selst_get_next_status_effect(struct status_effect *prev) {
+    if (status_effects_list_initialised == false) return NULL;
+
+    if (prev == NULL) {
+        if (status_effects_list_head.tqh_first != NULL) return &status_effects_list_head.tqh_first->se.status_effect;
+        return NULL;
+    }
+    struct se_entry *se = container_of(prev, struct se_entry, status_effect);
+    struct status_effect_list_entry *sele = container_of(se, struct status_effect_list_entry, se);
+    if (sele == NULL) return NULL;
+    return &sele->entries.tqe_next->se.status_effect;
+}
+
+struct status_effect *selst_status_effect_by_uid(uint32_t status_effect_uid) {
+    if (status_effects_list_initialised == false) return false;
+    struct status_effect_list_entry *sele = status_effects_list_head.tqh_first;
+
+    while (sele != NULL) {
+        if (status_effect_uid == sele->se.status_effect.uid) return &sele->se.status_effect;
+        sele = sele->entries.tqe_next;
+    }
+    return NULL;
+}
+
+static uint32_t selst_next_id(void) {
+    if (status_effects_list_initialised == false) return false;
+    struct status_effect_list_entry *sele = status_effects_list_head.tqh_first;
+    uint32_t uid = 1;
+
+    while (sele != NULL) {
+        if (uid <= sele->se.status_effect.uid) uid = sele->se.status_effect.uid+1;
+        sele = sele->entries.tqe_next;
+    }
+    return uid;
 }
 
 struct status_effect_list *se_list_init(void) {
@@ -82,8 +133,11 @@ void se_list_exit(struct status_effect_list *se_list) {
 
     struct se_entry *ce;
     while ( (ce = se_list->head.lh_first ) != NULL) {
-        LIST_REMOVE(se_list->head.lh_first, entries);
-        free(ce);
+        struct status_effect_list_entry *sele = container_of(ce, struct status_effect_list_entry, se);
+
+        LIST_REMOVE(ce, entries);
+        TAILQ_REMOVE(&status_effects_list_head, sele, entries);
+        free(sele);
     }
     free(se_list);
 }
@@ -120,18 +174,6 @@ int se_list_size(struct status_effect_list *se_list) {
     return i;
 }
 
-static int se_calc_uid(struct status_effect_list *se_list) {
-    if (se_verify_list(se_list) == false) return false;
-    int id = 0;
-
-    struct status_effect *c = NULL;
-    while ( (c = se_list_get_next_status_effect(se_list, c) ) != NULL) {
-        if (c->uid >= id) id = c->uid+1;
-    }
-
-    return id;
-}
-
 static int se_calc_strength(struct se_type_struct *ces) {
     int dmg = 0;
     switch(ces->strength) {
@@ -160,16 +202,20 @@ struct status_effect *se_create(struct status_effect_list *se_list, enum se_ids 
     struct status_effect *se_template = &static_status_effect_list[tid];
     assert(se_template != NULL);
 
-    struct se_entry *ce = malloc(sizeof(struct se_entry) );
-    if (ce == NULL) return false;
+    struct status_effect_list_entry *sele = malloc(sizeof(struct status_effect_list_entry) );
+    assert(sele != NULL);
+
+    struct se_entry *ce = &sele->se;
+    assert(ce != NULL);
 
     memcpy(&ce->status_effect, se_template, sizeof(struct status_effect) );
+    TAILQ_INSERT_TAIL(&status_effects_list_head, sele, entries);
     struct status_effect *cc = &ce->status_effect;
 
     cc->status_effect_pre = STATUS_EFFECT_PRE_CHECK;
     cc->status_effect_post = STATUS_EFFECT_POST_CHECK;
 
-    cc->uid = se_calc_uid(se_list);
+    cc->uid = selst_next_id();
 
     int range = (cc->duration_energy_max - cc->duration_energy_min);
     cc->duration_energy = cc->duration_energy_min;
@@ -235,9 +281,11 @@ bool se_remove_status_effect(struct status_effect_list *se_list, struct status_e
     while ( (cc = se_list_get_next_status_effect(se_list, cc) ) != NULL) {
         if (cc == con) {
             struct se_entry *ce = container_of(cc, struct se_entry, status_effect);
+            struct status_effect_list_entry *sele = container_of(ce, struct status_effect_list_entry, se);
 
             LIST_REMOVE(ce, entries);
-            free(ce);
+            TAILQ_REMOVE(&status_effects_list_head, sele, entries);
+            free(sele);
 
             return true;
         }
