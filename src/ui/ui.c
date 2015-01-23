@@ -366,14 +366,32 @@ void targetwin_examine(struct hrl_window *window, struct dm_map *map, struct msr
     ui_print_reset(window);
 
     if (me->monster != NULL) {
-        ui_printf(window,"Target: %s.\n", msr_ldname(me->monster) );
+        if (me->monster->is_player == true) {
+            ui_printf(window, "Target: " cs_PLAYER "you" cs_PLAYER ".\n");
 
-        int tohit = fght_ranged_calc_tohit(player, pos, FGHT_MAIN_HAND);
-        ui_printf(window,"Total change of hitting: %d.\n", tohit);
+            if (me->monster->cur_wounds < 0) ui_printf(window, "You are criticly wounded.\n");
+            else if (me->monster->cur_wounds != me->monster->max_wounds) ui_printf(window, "You are wounded.\n");
+        } else {
+            ui_printf(window, "Target %s.\n", msr_ldname(me->monster) );
+
+            if (me->monster->cur_wounds < 0) ui_printf(window, "%s is criticly wounded.\n", msr_gender_name(me->monster, false) );
+            else if (me->monster->cur_wounds != me->monster->max_wounds) ui_printf(window, "%s is wounded.\n", msr_gender_name(me->monster, false) );
+        }
+
     }
     else ui_printf(window,"No Target.\n");
 
-    ui_printf(window,"Ballistic Skill: %d\n\n", msr_calculate_characteristic(player, MSR_CHAR_BALISTIC_SKILL) );
+    int tohit = 0;
+    if (wpn_is_type(witem, WEAPON_TYPE_MELEE) && (cd_pyth(&player->pos, pos) == 1) ) {
+        tohit = fght_melee_calc_tohit(player, pos, FGHT_MAIN_HAND);
+        ui_printf(window,"Weapon Skill: %d\n\n", msr_calculate_characteristic(player, MSR_CHAR_WEAPON_SKILL) );
+    }
+    else if (wpn_is_type(witem, WEAPON_TYPE_RANGED) || wpn_is_type(witem, WEAPON_TYPE_THROWN) ) {
+        tohit = fght_ranged_calc_tohit(player, pos, FGHT_MAIN_HAND);
+        ui_printf(window,"Ballistic Skill: %d\n\n", msr_calculate_characteristic(player, MSR_CHAR_BALISTIC_SKILL) );
+    }
+    else return;
+    ui_printf(window,"Total change of hitting: %d.\n", tohit);
 
     int idx = 0;
     struct tohit_desc *thd = NULL;
@@ -403,8 +421,9 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dm_map *map, coord_t *
 
     struct pl_player *plr = &g->player_data;
     if (plr == NULL) return false;
-    if (msr_weapon_type_check(plr->player, WEAPON_TYPE_RANGED) == false) {
-        You(plr->player, "do not wield a ranged weapon.");
+
+    if (msr_weapon_type_check(plr->player, WEAPON_TYPE_MELEE) && (cd_pyth(&plr->player->pos, p_pos) > 1)) {
+        You(plr->player, "cannot reach your target with your weapon.");
         return false;
     }
 
@@ -458,6 +477,10 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dm_map *map, coord_t *
                     mapwin_display_map(map, p_pos);
                     return true;
                 }
+                if(ma_do_melee(plr->player, &e_pos) == true) {
+                    mapwin_display_map(map, p_pos);
+                    return true;
+                }
                 else Your(plr->player, "weapon(s) failed to fire.");
                 fire_mode=false;
             }
@@ -485,6 +508,8 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dm_map *map, coord_t *
 
         struct itm_item *witem = fght_get_working_weapon(plr->player, WEAPON_TYPE_RANGED, FGHT_MAIN_HAND);
         if (witem == NULL) witem = fght_get_working_weapon(plr->player, WEAPON_TYPE_RANGED, FGHT_OFF_HAND);
+        if (witem == NULL) witem = fght_get_working_weapon(plr->player, WEAPON_TYPE_MELEE, FGHT_MAIN_HAND);
+        if (witem == NULL) witem = fght_get_working_weapon(plr->player, WEAPON_TYPE_MELEE, FGHT_OFF_HAND);
         targetwin_examine(char_win, gbl_game->current_map, plr->player, &e_pos, witem);
     }
     while((ch = inp_get_input(gbl_game->input)) != INP_KEY_ESCAPE && fire_mode);

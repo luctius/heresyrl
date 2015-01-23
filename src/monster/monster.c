@@ -365,6 +365,7 @@ bool msr_change_energy(struct msr_monster *monster, int energy) {
     if (msr_verify_monster(monster) == false) return false;
     monster->energy += energy;
     if (monster->energy < 0) monster->energy = 0;
+    lg_debug("%s energy: %d", monster->sd_name, monster->energy);
     return true;
 }
 

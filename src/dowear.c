@@ -278,9 +278,9 @@ bool dw_can_wear_item(struct msr_monster *monster, struct itm_item *item) {
         case ITEM_TYPE_TOOL: retval = false; break;
         case ITEM_TYPE_WEARABLE: retval = true; break;
         case ITEM_TYPE_WEAPON:
-                 if (wpn_is_type(item, WEAPON_TYPE_RANGED) )   retval = true; break;
-                 if (wpn_is_type(item, WEAPON_TYPE_MELEE) )    retval = true; break;
-                 if (wpn_is_type(item, WEAPON_TYPE_THROWN) )   retval = false; break;
+                 if (wpn_is_type(item, WEAPON_TYPE_RANGED) )   { retval = true; break;  }
+                 if (wpn_is_type(item, WEAPON_TYPE_MELEE) )    { retval = true; break;  }
+                 if (wpn_is_type(item, WEAPON_TYPE_THROWN) )   { retval = false; break; }
         default: break;
     }
 

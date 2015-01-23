@@ -183,7 +183,7 @@ static struct itm_item static_item_list[] = {
 
     /* Melee */
     /*    ID      short name, long name  quality       (wgt,cst,dly)            CATEGORY          xd10 +X, dmg type        pen   upgrades   special qualities, talent*/
-    ITEM(IID_KNIFE,"knife","a knife",ITEM_QLTY_AVERAGE, 15, 50, 1),MELEE(WEAPON_CATEGORY_2H_MELEE,0, 0,  DMG_TYPE_IMPACT, 0,    0,          0,                TLT_NONE), CREATION(20,1,100), ITEM_END,
+    ITEM(IID_KNIFE,"knife","a knife",ITEM_QLTY_AVERAGE, 15, 50, 0),MELEE(WEAPON_CATEGORY_1H_MELEE,0, 0,  DMG_TYPE_IMPACT, 0,    0,          0,                TLT_NONE), CREATION(20,1,100), ITEM_END,
 
     /* Thrown */
     /*    ID               short name         long name          quality       (wgt,cst,dly)  CATEGORY xd10,+X,pen,range   dmg type  upgrades   special qualities   talent    status_effect*/
