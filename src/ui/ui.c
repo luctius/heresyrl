@@ -167,6 +167,16 @@ static void mapwin_display_map_noref(struct dm_map *map, coord_t *player) {
                         }
                     }
                 }
+                /* Else see status effects lingering on the ground */
+                if (modified == false) {
+                    if ( (me->visible == true) || (map_see) ) {
+                        if (me->status_effect != NULL) {
+                            icon = me->status_effect->icon;
+                            attr_mod = me->status_effect->icon_attr;
+                            modified = true;
+                        }
+                    }
+                }
                 /* Else see items */
                 if (modified == false) {
                     if ( (me->visible == true) || (map_see) ) {
