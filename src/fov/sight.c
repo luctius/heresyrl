@@ -396,6 +396,8 @@ coord_t sgt_scatter(struct dm_map *map, struct random *r, coord_t *p, int radius
 
     if (radius > 0) {
         int i = 0;
+
+        coord_t tc;
         while (i < i_max) {
             i++;
 
@@ -404,18 +406,19 @@ coord_t sgt_scatter(struct dm_map *map, struct random *r, coord_t *p, int radius
             int dy = random_int32(r) % radius;
 
             /* create the point relative to p */
-            c = cd_create(p->x + dx, p->y +dy);
+            tc = cd_create(p->x + dx, p->y +dy);
 
             /* require a point within map */
-            if (cd_within_bound(&c, &map->size) == false) continue;
+            if (cd_within_bound(&tc, &map->size) == false) continue;
 
             /* require an traversable point */
-            if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(&c,map), TILE_ATTR_TRAVERSABLE) == false) continue;
+            if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(&tc,map), TILE_ATTR_TRAVERSABLE) == false) continue;
 
             /* require line of sight */
-            if (sgt_has_los(map, p, &c, radius) == false) continue;
+            if (sgt_has_los(map, p, &tc, radius) == false) continue;
             
             /* we found a point which mathes our restrictions*/
+            c = tc;
             break;
         }
     }
