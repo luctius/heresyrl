@@ -408,7 +408,7 @@ bool tool_is_type(struct itm_item *item, enum item_tool_type type) {
 const char *itm_you_use_desc(struct itm_item *item) {
     if (itm_verify_item(item) == false) return NULL;
     int cnt = 0;
-    for (int i = 0; i < ARRAY_SZ(item->you_use_desc); i++) {
+    for (int i = 0; i < (int) ARRAY_SZ(item->you_use_desc); i++) {
         if (item->you_use_desc != NULL) cnt++;
     }
     int idx = random_int32(gbl_game->random) % (cnt-1);
@@ -417,7 +417,7 @@ const char *itm_you_use_desc(struct itm_item *item) {
 const char *itm_msr_use_desc(struct itm_item *item) {
     if (itm_verify_item(item) == false) return NULL;
     int cnt = 0;
-    for (int i = 0; i < ARRAY_SZ(item->msr_use_desc); i++) {
+    for (int i = 0; i < (int) ARRAY_SZ(item->msr_use_desc); i++) {
         if (item->msr_use_desc != NULL) cnt++;
     }
     int idx = random_int32(gbl_game->random) % (cnt-1);

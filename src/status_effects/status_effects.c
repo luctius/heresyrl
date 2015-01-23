@@ -488,7 +488,6 @@ void se_process_effects_first(struct se_type_struct *ces, struct msr_monster *mo
     if (msr_verify_monster(monster) == false) return;
     if (se_verify_status_effect(c) == false) return;
 
-    int mod = 1;
     switch(ces->effect) {
         case SETF_DECREASE_MOVEMENT: break;
         case SETF_INCREASE_MOVEMENT: break;
@@ -925,7 +924,6 @@ void se_process(struct msr_monster *monster) {
         bool destroy    = false;
         bool first_time = false;
         bool last_time  = true;
-        bool applied    = false;
 
         /* Check if this status_effect is new, or maybe even for the last time. */
         if (c->duration_energy == c->duration_energy_max) first_time = true;

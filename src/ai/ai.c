@@ -38,7 +38,7 @@ static bool ai_beast_loop(struct msr_monster *monster) {
     struct beast_ai_struct *ai = ai_s->ai_ctx;
     assert(ai != NULL);
 
-    struct msr_monster *leader = msr_get_monster_by_uid(ai_s->leader_uid);
+    /*struct msr_monster *leader = msr_get_monster_by_uid(ai_s->leader_uid);*/
 
     bool has_action = false;
     monster->wpn_sel = MSR_WEAPON_SELECT_CREATURE1;
@@ -107,7 +107,7 @@ static bool ai_human_loop(struct msr_monster *monster) {
     struct human_ai_struct *ai = ai_s->ai_ctx;
     assert (ai != NULL);
 
-    struct msr_monster *leader = msr_get_monster_by_uid(ai_s->leader_uid);
+    /* struct msr_monster *leader = msr_get_monster_by_uid(ai_s->leader_uid); */
 
     bool has_action = false;
     monster->wpn_sel = MSR_WEAPON_SELECT_CREATURE1;

@@ -189,7 +189,7 @@ struct status_effect_list;
 struct status_effect {
     uint32_t status_effect_pre;
 
-    int uid;
+    uint32_t uid;
     enum se_ids template_id;
 
     bitfield32_t setting_flags;
@@ -229,7 +229,7 @@ void se_init(void);
 struct status_effect *selst_get_next_status_effect(struct status_effect *prev);
 struct status_effect *selst_status_effect_by_uid(uint32_t status_effect_uid);
 void se_exit(void);
-void se_process_grnd();
+void se_process_grnd(void);
 
 struct status_effect_list *se_list_init(void);
 void se_list_exit(struct status_effect_list *se_list);
