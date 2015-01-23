@@ -22,13 +22,11 @@ static bool sv_save_log(FILE *file, int indent, struct logging *lctx) {
 
     int log_sz = lg_size(lctx);
     int sz = MAX(log_sz-2, 0);
-    //int sz = MIN( MAX(log_sz-2, 0), 100);
 
-    int print_ctr = 1;
+    int print_ctr = 0;
     if (sz > 0) {
         fprintf(file, "%*s" "log={\n", indent, ""); { indent += 2;
 
-            //for (int i = log_sz-2; i >= sz; i--) {
             for (int i = 0; i < lg_size(lctx) -1; i++) {
                 struct log_entry *le = lg_peek(lctx, i);
                 if (le->level <= LG_DEBUG_LEVEL_GAME_INFO) {
