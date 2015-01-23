@@ -8,8 +8,10 @@
 #include "coord.h"
 
 enum dm_dungeon_type {
+    DUNGEON_TYPE_NONE,
     DUNGEON_TYPE_SIMPLE,
     DUNGEON_TYPE_CAVE,
+    DUNGEON_TYPE_ALL,
 };
 
 struct dm_map_entity {
