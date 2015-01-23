@@ -106,6 +106,7 @@ static const char *itm_descs[] = {
     [IID_KNIFE]             = "a basic knife",
 
     [IID_FRAG_GRENADE]      = "",
+    [IID_FIRE_BOMB]         = "",
     [IID_BODYPART_GRENADE]  = "used in status effects",
     [IID_THROWING_KNIFE]    = "",
 
@@ -158,8 +159,9 @@ static struct itm_item static_item_list[] = {
     ITEM(IID_KNIFE,"knife","a knife",ITEM_QLTY_AVERAGE, 15, 50, 1),MELEE(WEAPON_CATEGORY_2H_MELEE,0, 0,  DMG_TYPE_IMPACT, 0,    0,          0,                TLT_NONE), CREATION(20,1,100), ITEM_END,
 
     /* Thrown */
-    /*    ID               short name         long name          quality          (wgt,cst,dly)  CATEGORY xd10,+X,pen,range   dmg type    upgrades    special qualities     talent    status_effect*/
-    ITEM(IID_FRAG_GRENADE, "frag grenade",   "a frag grenade",   ITEM_QLTY_AVERAGE, 5, 10, 1), THROWN_GRENADE(2, 0, 0, 3,  DMG_TYPE_EXPLOSIVE, 0, bf(WPN_SPCQLTY_BLAST_4),  TLT_NONE, SEID_NONE), CREATION(30,1,100), ITEM_END,
+    /*    ID               short name         long name          quality       (wgt,cst,dly)  CATEGORY xd10,+X,pen,range   dmg type    upgrades    special qualities     talent    status_effect*/
+    ITEM(IID_FRAG_GRENADE,"frag grenade", "a frag grenade", ITEM_QLTY_AVERAGE, 5, 10, 1), THROWN_GRENADE(2, 0, 0, 3,  DMG_TYPE_EXPLOSIVE, 0, bf(WPN_SPCQLTY_BLAST_4),  TLT_NONE, SEID_NONE), CREATION(30,1,100), ITEM_END,
+    ITEM(IID_FIRE_BOMB,   "fire bomb",     "a fire bomb",   ITEM_QLTY_AVERAGE, 5, 10, 1), THROWN_GRENADE(1, 0, 0, 3,  DMG_TYPE_EXPLOSIVE, 0, bf(WPN_SPCQLTY_BLAST_3),  TLT_NONE, SEID_WEAPON_FLAME_AREA), CREATION(30,1,100), ITEM_END,
     ITEM(IID_THROWING_KNIFE,"throwing knife","a throwing knife", ITEM_QLTY_AVERAGE, 5, 5,  1), THROWN_WEAPON( 0, 0, 0, 5,  DMG_TYPE_RENDING,   0, bf(WPN_SPCQLTY_PRIMITIVE),TLT_THROWN_WPN_TRNG_PRIMITIVE),CREATION(40,1,100), ITEM_END,
 
     /* Pistols */

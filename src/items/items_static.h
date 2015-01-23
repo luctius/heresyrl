@@ -50,6 +50,7 @@ enum item_ids {
 
     /* Grenades */
     IID_FRAG_GRENADE,
+    IID_FIRE_BOMB,
 
     /* Ammo */
     //IID_ARROW,
