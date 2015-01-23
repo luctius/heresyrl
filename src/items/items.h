@@ -272,6 +272,9 @@ struct itm_item {
         struct item_wearable_specific wearable;
     } specific;
 
+    const char *you_use_desc[5];
+    const char *msr_use_desc[5];
+
     int item_post;
 };
 
@@ -361,6 +364,9 @@ bool tool_is_type(struct itm_item *item, enum item_tool_type type);
 
 /* true if both items can be stacked. */
 bool itm_stack_compatible(struct itm_item *item1, struct itm_item *item2);
+
+const char *itm_you_use_desc(struct itm_item *item);
+const char *itm_msr_use_desc(struct itm_item *item);
 
 const char *itm_quality_string(struct itm_item *item);
 const char *wpn_ammo_string(enum item_ammo_type iat);

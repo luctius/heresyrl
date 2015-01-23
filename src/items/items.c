@@ -405,6 +405,25 @@ bool tool_is_type(struct itm_item *item, enum item_tool_type type) {
     return false;
 }
 
+const char *itm_you_use_desc(struct itm_item *item) {
+    if (itm_verify_item(item) == false) return NULL;
+    int cnt = 0;
+    for (int i = 0; i < ARRAY_SZ(item->you_use_desc); i++) {
+        if (item->you_use_desc != NULL) cnt++;
+    }
+    int idx = random_int32(gbl_game->random) % (cnt-1);
+    return item->you_use_desc[idx];
+}
+const char *itm_msr_use_desc(struct itm_item *item) {
+    if (itm_verify_item(item) == false) return NULL;
+    int cnt = 0;
+    for (int i = 0; i < ARRAY_SZ(item->msr_use_desc); i++) {
+        if (item->msr_use_desc != NULL) cnt++;
+    }
+    int idx = random_int32(gbl_game->random) % (cnt-1);
+    return item->msr_use_desc[idx];
+}
+
 const char *itm_quality_string(struct itm_item *item) {
     if (itm_verify_item(item) == false) return NULL;
     if (item->quality >= ITEM_QLTY_MAX) return NULL;

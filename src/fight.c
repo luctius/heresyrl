@@ -351,8 +351,8 @@ int fght_ranged_roll(struct random *r, struct msr_monster *monster, struct msr_m
 
     lg_debug("roll %d vs to hit %d, jamm_threshold %d", roll, to_hit, jammed_threshold);
 
-    You(monster,                 "fire at %s.",  msr_ldname(target) );
-    Monster_tgt(monster, target, "fires at %s.", msr_ldname(target) );
+    You(monster,                 "%s at %s.",  itm_you_use_desc(witem), msr_ldname(target) );
+    Monster_tgt(monster, target, "%s at %s.", itm_msr_use_desc(witem), msr_ldname(target) );
 
     /* Do jamming test */
     if (roll >= jammed_threshold) {
@@ -406,8 +406,8 @@ int fght_melee_roll(struct random *r, struct msr_monster *monster, struct msr_mo
     witem = fght_get_working_weapon(monster, WEAPON_TYPE_MELEE, hand);
     if (witem == NULL) return -1;
 
-    You(monster,                 "slash at %s.", msr_ldname(target));
-    Monster_tgt(monster, target, "slashes at %s.", msr_ldname(target) );
+    You(monster,                 "%s at %s.", itm_you_use_desc(witem), msr_ldname(target));
+    Monster_tgt(monster, target, "%s at %s.", itm_msr_use_desc(witem), msr_ldname(target) );
 
     /* TODO add Melee attack options */
 
@@ -437,8 +437,8 @@ int fght_thrown_roll(struct random *r, struct msr_monster *monster, coord_t *pos
     struct msr_monster *target = dm_get_map_me(pos, gbl_game->current_map)->monster;
     if (target != NULL) {
         if (msr_verify_monster(target) == true) {
-            You(monster,                 "throw an %s at %s.", witem->sd_name, msr_ldname(target) );
-            Monster_tgt(monster, target, "throws an %s at %s.", witem->sd_name, msr_ldname(target) );
+            You(monster,                 "%s an %s at %s.", itm_you_use_desc(witem), witem->sd_name, msr_ldname(target) );
+            Monster_tgt(monster, target, "%s an %s at %s.", itm_msr_use_desc(witem), witem->sd_name, msr_ldname(target) );
             print = true;
         }
     }

@@ -4,6 +4,26 @@
    TODO create a nice solution.
  */
 
+#define ranged_desc \
+    .you_use_desc = {"shoot",  "take aim",  "fire", NULL}, \
+    .msr_use_desc = {"shoots", "takes aim", "fires", NULL}
+
+#define melee_desc \
+    .you_use_desc = {"slash",   "chop",  "bash",   "hack", "lung"}, \
+    .msr_use_desc = {"slashes", "chops", "bashes", "hack", "lunges"}
+
+#define creature_desc \
+    .you_use_desc = {"bite",  "claw",  "rend",  "gnaw", NULL}, \
+    .msr_use_desc = {"bites", "claws", "rends", "gnaws", NULL}
+
+#define martial_desc \
+    .you_use_desc = {"kick",  "punch", NULL}, \
+    .msr_use_desc = {"kicks", "punches", NULL}, \
+
+#define throw_desc \
+    .you_use_desc = {"throw",  "lob",  "fling", NULL}, \
+    .msr_use_desc = {"throws", "lobs", "flings", NULL}
+
 #define ITEM(item_id,_sd_name,_ld_name,item_quality,item_weight,item_cost,delay) \
             [item_id]={.uid=0, .template_id=item_id, .quality=item_quality, .age=0, \
             .weight=item_weight, .cost=item_cost, .sd_name=cs_ITEM _sd_name cs_ITEM , .ld_name=cs_ITEM _ld_name cs_ITEM, \
@@ -28,15 +48,23 @@
             .specific.wearable={ .wearable_type=WEARABLE_TYPE_ARMOUR, .locations=_locations, \
             .special_quality=_special_quality, .damage_reduction=_damage_reduction,}, .dropable=true
 
+#define MARTIAL(wpn_cat,dmg_die,dmg_add,_dmg_type,_penetration,special) .icon=' ',.stacked_quantity=0, .max_quantity=1,\
+            .item_type=ITEM_TYPE_WEAPON, .dropable=false, .specific.weapon={.weapon_type=WEAPON_TYPE_MELEE,\
+            .weapon_category=wpn_cat, .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=0,\
+            .penetration=_penetration, .special_quality=bf(WPN_SPCQLTY_CREATURE) | special, .wpn_talent=TLT_NONE, .convey_status_effect=SEID_NONE, }, \
+            martial_desc
+            
+
 #define CREATURE_MELEE(wpn_cat,dmg_die,dmg_add,_dmg_type,_penetration,special) .icon=' ',.stacked_quantity=0, .max_quantity=1,\
             .item_type=ITEM_TYPE_WEAPON, .dropable=false, .specific.weapon={.weapon_type=WEAPON_TYPE_MELEE,\
             .weapon_category=wpn_cat, .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=0,\
-            .penetration=_penetration, .special_quality=bf(WPN_SPCQLTY_CREATURE) | special, .wpn_talent=TLT_NONE, .convey_status_effect=SEID_NONE, }
+            .penetration=_penetration, .special_quality=bf(WPN_SPCQLTY_CREATURE) | special, .wpn_talent=TLT_NONE, .convey_status_effect=SEID_NONE, }, \
+            creature_desc 
 
 #define MELEE(wpn_cat,dmg_die,dmg_add,_dmg_type,_penetration,_upgrades,special,talent) .icon='|',.stacked_quantity=0, .max_quantity=1,\
             .item_type=ITEM_TYPE_WEAPON, .specific.weapon={.weapon_type=WEAPON_TYPE_MELEE, .weapon_category=wpn_cat, \
             .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=0, .penetration=_penetration, \
-            .special_quality=special, .upgrades=_upgrades, .wpn_talent=talent, .convey_status_effect=SEID_NONE, }, .dropable=true
+            .special_quality=special, .upgrades=_upgrades, .wpn_talent=talent, .convey_status_effect=SEID_NONE, }, .dropable=true, melee_desc
 
 #define THROWN_WEAPON(dmg_die,dmg_add,_penetration,_range,_dmg_type,_upgrades,special,talent) .icon='|',.stacked_quantity=0, .max_quantity=100,\
             .item_type=ITEM_TYPE_WEAPON, .specific.weapon={.weapon_type=WEAPON_TYPE_THROWN, .weapon_category=WEAPON_CATEGORY_THROWN_WEAPON, \
@@ -54,7 +82,7 @@
             .rof[WEAPON_ROF_SETTING_SINGLE]=rof_single, .rof[WEAPON_ROF_SETTING_SEMI]=rof_semi, .rof[WEAPON_ROF_SETTING_AUTO]=rof_auto, \
             .rof_set=WEAPON_ROF_SETTING_SINGLE, .magazine_sz=mag_sz, .magazine_left=mag_sz, .penetration=_penetration, \
             .ammo_type=AMMO_TYPE_PISTOL_SP, .ammo_used_template_id=IID_PISTOL_AMMO_SP, .special_quality=special, .upgrades=_upgrades, \
-            .wpn_talent=TLT_PISTOL_WPN_TRNG_SP, .jammed=false, .convey_status_effect=SEID_NONE, }, .dropable=true
+            .wpn_talent=TLT_PISTOL_WPN_TRNG_SP, .jammed=false, .convey_status_effect=SEID_NONE, }, .dropable=true, ranged_desc
 
 #define PISTOL_LAS(_dmg_type,dmg_die,dmg_add,_range,rof_single,rof_semi,rof_auto,mag_sz,_penetration,_upgrades,special) \
             .icon='|', .stacked_quantity=0, .max_quantity=1, .item_type=ITEM_TYPE_WEAPON, .specific.weapon={ \
@@ -62,7 +90,7 @@
             .rof[WEAPON_ROF_SETTING_SINGLE]=rof_single, .rof[WEAPON_ROF_SETTING_SEMI]=rof_semi, .rof[WEAPON_ROF_SETTING_AUTO]=rof_auto, \
             .rof_set=WEAPON_ROF_SETTING_SINGLE, .magazine_sz=mag_sz, .magazine_left=mag_sz, .penetration=_penetration, \
             .ammo_type=AMMO_TYPE_PISTOL_LAS, .ammo_used_template_id=IID_PISTOL_AMMO_LAS, .special_quality=special, .upgrades=_upgrades, \
-            .wpn_talent=TLT_PISTOL_WPN_TRNG_LAS, .jammed=false, .convey_status_effect=SEID_NONE, }, .dropable=true
+            .wpn_talent=TLT_PISTOL_WPN_TRNG_LAS, .jammed=false, .convey_status_effect=SEID_NONE, }, .dropable=true, ranged_desc
 
 #define BASIC_SP(_dmg_type,dmg_die,dmg_add,_range,rof_single,rof_semi,rof_auto,mag_sz,_penetration,_upgrades,special) \
             .icon='|', .stacked_quantity=0, .max_quantity=1, .item_type=ITEM_TYPE_WEAPON, .specific.weapon={ \
@@ -70,7 +98,7 @@
             .rof[WEAPON_ROF_SETTING_SINGLE]=rof_single, .rof[WEAPON_ROF_SETTING_SEMI]=rof_semi, .rof[WEAPON_ROF_SETTING_AUTO]=rof_auto, \
             .rof_set=WEAPON_ROF_SETTING_SINGLE, .magazine_sz=mag_sz, .magazine_left=mag_sz, .penetration=_penetration, \
             .ammo_type=AMMO_TYPE_BASIC_SP, .ammo_used_template_id=IID_BASIC_AMMO_SP, .special_quality=special, .upgrades=_upgrades, \
-            .wpn_talent=TLT_BASIC_WPN_TRNG_SP, .jammed=false, .convey_status_effect=SEID_NONE, }, .dropable=true
+            .wpn_talent=TLT_BASIC_WPN_TRNG_SP, .jammed=false, .convey_status_effect=SEID_NONE, }, .dropable=true, ranged_desc
 
 #define BASIC_LAS(_dmg_type,dmg_die,dmg_add,_range,rof_single,rof_semi,rof_auto,mag_sz,_penetration,_upgrades,special) \
             .icon='|', .stacked_quantity=0, .max_quantity=1, .item_type=ITEM_TYPE_WEAPON, .specific.weapon={ \
@@ -78,7 +106,7 @@
             .rof[WEAPON_ROF_SETTING_SINGLE]=rof_single, .rof[WEAPON_ROF_SETTING_SEMI]=rof_semi, .rof[WEAPON_ROF_SETTING_AUTO]=rof_auto, \
             .rof_set=WEAPON_ROF_SETTING_SINGLE, .magazine_sz=mag_sz, .magazine_left=mag_sz, .penetration=_penetration, \
             .ammo_type=AMMO_TYPE_BASIC_LAS, .ammo_used_template_id=IID_BASIC_AMMO_LAS, .special_quality=special, .upgrades=_upgrades, \
-            .wpn_talent=TLT_BASIC_WPN_TRNG_LAS, .jammed=false, .convey_status_effect=SEID_NONE, }, .dropable=true
+            .wpn_talent=TLT_BASIC_WPN_TRNG_LAS, .jammed=false, .convey_status_effect=SEID_NONE, }, .dropable=true, ranged_desc
 
 #define AMMO(_ammo_type,_energy, cid) .icon='^', .stacked_quantity=1, .max_quantity=100, .dropable=true, \
             .item_type=ITEM_TYPE_AMMO, .specific.ammo={ .ammo_type=_ammo_type, .energy=_energy, .energy_left=_energy, .convey_status_effect=cid, }
