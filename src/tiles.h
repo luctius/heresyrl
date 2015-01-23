@@ -49,12 +49,13 @@ struct tl_tile {
     enum tile_ids id;
     uint16_t attributes;
     enum tile_types type;
+    bitfield32_t dungeon_locale;
 
     char icon;
     int icon_attr;
 
     uint8_t movement_cost;
-    enum se_ids status_effect_id;
+    enum se_ids status_effect_tid;
 
     const char *sd_name;
     const char *ld_name;

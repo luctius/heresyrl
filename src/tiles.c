@@ -1,3 +1,5 @@
+#include <assert.h>
+
 #include "tiles.h"
 #include "heresyrl_def.h"
 
@@ -106,7 +108,7 @@ static void process_tiles(void) {
 }
 
 struct tl_tile *ts_get_tile_specific(enum tile_ids ti) {
-    if (ti >= TILE_ID_MAX) return &tile_array[0];
+    assert(ti < TILE_ID_MAX);
 
     process_tiles();
     return &tile_array[ti];
