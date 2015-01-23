@@ -89,12 +89,18 @@ int msr_spawn(double roll, int level, enum dm_dungeon_type dt) {
 
     cumm_prob_arr[0] = DBL_MAX;
     for (int i = MID_NONE+1; i < sz; i++) {
-        if ( ( (level >= static_monster_list[i].min_level) && 
-             (level <= static_monster_list[i].max_level) ) &&
-             test_bf(static_monster_list[i].max_level, dt) ) {
-            sum += static_monster_list[i].weight;
+        bool valid = false;
+        if ( (level >= static_monster_list[i].min_level) && 
+             (level <= static_monster_list[i].max_level) ) {
+
+            if (test_bf(static_monster_list[i].dungeon_locale, dt) ||
+                 test_bf(static_monster_list[i].dungeon_locale, DUNGEON_TYPE_ALL) ){
+                valid = true;
+                sum += static_monster_list[i].weight;
+            }
         }
-        else cumm_prob_arr[i] = DBL_MAX;
+
+        if (!valid) cumm_prob_arr[i] = DBL_MAX;
     }
 
     double cumm = 0;
