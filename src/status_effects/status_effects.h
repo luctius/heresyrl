@@ -203,10 +203,11 @@ struct status_effect {
     bool permissible_on_ground;
     char icon;
     int icon_attr;
-    const char *see_description;
+    const char *grnd_description;
     int grnd_duration_energy_min;
     int grnd_duration_energy_max;
     int grnd_duration_energy;
+    struct dm_map_entity *me;
 
     int duration_energy_min;
     int duration_energy_max;
@@ -228,6 +229,7 @@ void se_init(void);
 struct status_effect *selst_get_next_status_effect(struct status_effect *prev);
 struct status_effect *selst_status_effect_by_uid(uint32_t status_effect_uid);
 void se_exit(void);
+void se_process_grnd();
 
 struct status_effect_list *se_list_init(void);
 void se_list_exit(struct status_effect_list *se_list);
@@ -246,7 +248,8 @@ bool se_has_effect_permanent(struct status_effect_list *se_list, enum status_eff
 bool se_has_tid(struct status_effect_list *se_list, enum se_ids tid);
 int se_status_effect_strength(struct status_effect_list *se_list, enum status_effect_type_flags effect);
 
-struct status_effect *se_create(enum se_ids tid);
+struct status_effect *se_create(enum se_ids tid); /* Do NOT use directly unless you know what you are doing. */
+struct status_effect *se_create_ground(enum se_ids tid, struct dm_map_entity *me);
 bool se_add_to_list(struct status_effect_list *se_list, struct status_effect *con);
 
 bool se_add_status_effect(struct status_effect_list *se_list, enum se_ids tid);

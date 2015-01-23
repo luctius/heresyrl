@@ -525,7 +525,7 @@ bool fght_explosion(struct random *r, struct itm_item *bomb, struct dm_map *map)
 
         if (ground) {
             if (me->status_effect == NULL) {
-                me->status_effect = se_create(wpn->convey_status_effect);
+                me->status_effect = se_create_ground(wpn->convey_status_effect, me);
             }
         }
     }

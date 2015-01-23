@@ -256,6 +256,10 @@ static void mapwin_examine(struct dm_map_entity *me) {
         ui_printf(char_win, "\n");
 
         if (me->visible) {
+            if (me->status_effect != NULL) {
+                ui_printf(char_win, "%s\n", me->status_effect->grnd_description);
+            }
+
             if (me->monster != NULL) {
 
                 if (me->monster->is_player == true) {

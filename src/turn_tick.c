@@ -79,6 +79,8 @@ void tt_process_status_effects(void) {
     struct msr_monster *monster = NULL;
     if (gbl_game->running == false) return;
 
+    se_process_grnd();
+
     while ( (monster = msrlst_get_next_monster(monster) ) != NULL) {
         if (monster->dead == false) {
             if (se_list_size(monster->status_effects) > 0 ) {

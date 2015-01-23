@@ -146,6 +146,34 @@ void se_list_exit(struct status_effect_list *se_list) {
     free(se_list);
 }
 
+void se_process_grnd() {
+    if (status_effects_list_initialised == false) return;
+    struct status_effect *se = NULL;
+
+    while ( (se = selst_get_next_status_effect(se) ) != NULL) {
+        if (se->permissible_on_ground) {
+            if (se->me != NULL) {
+                se->grnd_duration_energy -= TT_ENERGY_TICK;
+                if (se->grnd_duration_energy < 0) {
+                    se->me->status_effect = NULL;
+                    se->me = NULL;
+
+                    struct se_entry *ce = container_of(se, struct se_entry, status_effect);
+                    struct status_effect_list_entry *sele = container_of(ce, struct status_effect_list_entry, se);
+
+                    TAILQ_REMOVE(&status_effects_list_head, sele, entries);
+                    free(sele);
+                }
+                else if ( (se->grnd_duration_energy % TT_ENERGY_TURN) == 0) {
+                    if (se->me->monster != NULL) {
+                        assert(se_add_status_effect(se->me->monster->status_effects, se->template_id) );
+                    }
+                }
+            }
+        }
+    }
+}
+
 bool se_verify_list(struct status_effect_list *se_list) {
     assert(se_list != NULL);
     assert(se_list->pre_check == STATUS_EFFECT_LIST_PRE_CHECK);
@@ -221,6 +249,16 @@ struct status_effect *se_create(enum se_ids tid) {
 
     cc->uid = selst_next_id();
 
+    if (cc->permissible_on_ground) {
+        int range = (cc->grnd_duration_energy_max - cc->grnd_duration_energy_min);
+        cc->grnd_duration_energy = cc->grnd_duration_energy_min;
+        if (range > 0) cc->grnd_duration_energy += (random_int32(gbl_game->random) % range);
+        if (cc->grnd_duration_energy == 0) cc->grnd_duration_energy = 1;
+        lg_debug("Creating se grnd: %p(%s) duration: %d, max: %d", cc, cc->name, cc->grnd_duration_energy, cc->grnd_duration_energy_max);
+        cc->grnd_duration_energy_max = cc->grnd_duration_energy;
+        cc->icon_attr = get_colour(cc->icon_attr);
+    }
+
     int range = (cc->duration_energy_max - cc->duration_energy_min);
     cc->duration_energy = cc->duration_energy_min;
     if (range > 0) cc->duration_energy += (random_int32(gbl_game->random) % range);
@@ -237,6 +275,15 @@ struct status_effect *se_create(enum se_ids tid) {
 
     assert(se_verify_status_effect(cc) );
     return cc;
+}
+
+struct status_effect *se_create_ground(enum se_ids tid, struct dm_map_entity *me) {
+    struct status_effect *se = se_create(tid);
+    assert(se != NULL);
+    assert(se->permissible_on_ground);
+    se->me = me;
+
+    return se;
 }
 
 bool se_add_to_list(struct status_effect_list *se_list, struct status_effect *con) {

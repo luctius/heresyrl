@@ -4,7 +4,7 @@
 #define STATUS_EFFECT_END }
 
 #define GROUND(_icon, _iconattr, _dmin, _dmax, _desc) \
-                .permissible_on_ground=true, .icon=_icon, .icon_attr=_iconattr, .see_description=_desc, \
+                .permissible_on_ground=true, .icon=_icon, .icon_attr=_iconattr, .grnd_description=_desc, \
                 .grnd_duration_energy_min=(_dmin*TT_ENERGY_TURN), .grnd_duration_energy_max=(_dmax*TT_ENERGY_TURN)
 
 #define SETTINGS(_flags, _diff, _con, _dmin, _dmax) .setting_flags=_flags, .difficulty=_diff, \
@@ -80,7 +80,7 @@ static struct status_effect static_status_effect_list[] = {
             /*Settings      Flags                       Difficulty    Next          Minimum  -  Maximum Turns*/
             SETTINGS(bf(SEF_REQ_AG_CHECK),   0,    SEID_NONE,         1,             10),
             /*Ground,  Icon, Colour,  Minimum - Maximum Turns,  Description */
-            GROUND(    '~',  0,        2,        4,           "Flames linger on the ground."),
+            GROUND(    '~',  TERM_COLOUR_RED,        2,        4,           "Flames linger on the ground."),
     STATUS_EFFECT_END,
 
 
