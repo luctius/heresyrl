@@ -150,7 +150,7 @@ int random_xd5(struct random *r, int nr_die) {
     if (r == NULL) return -1;
     int total = 0;
     for (int i = 0; i < nr_die; i++) {
-        total += random_int32(r) % 5;
+        total += (random_int32(r) % 5) +1;
     }
     return total;
 }
@@ -158,14 +158,14 @@ int random_xd10(struct random *r, int nr_die) {
     if (r == NULL) return -1;
     int total = 0;
     for (int i = 0; i < nr_die; i++) {
-        total += random_int32(r) % 10;
+        total += (random_int32(r) % 10) +1;
     }
     return total;
 }
 
 int random_d100(struct random *r) {
     if (r == NULL) return -1;
-    return random_int32(r) % 100;
+    return (random_int32(r) % 100) +1;
 }
 
 /* generates a random number on [0,0xffffffff]-interval */
