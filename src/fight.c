@@ -466,7 +466,7 @@ int fght_thrown_roll(struct random *r, struct msr_monster *monster, coord_t *pos
     return -1;
 }
 
-static enum fght_hand wpn_hand_list[FGHT_MAX_HAND] = { FGHT_MAIN_HAND, FGHT_OFF_HAND, FGHT_CREATURE_HAND, };
+static enum fght_hand wpn_hand_list[] = { FGHT_MAIN_HAND, FGHT_OFF_HAND, FGHT_CREATURE_HAND, };
 
 bool fght_melee(struct random *r, struct msr_monster *monster, struct msr_monster *target) {
     if (msr_verify_monster(monster) == false) return false;
@@ -476,7 +476,7 @@ bool fght_melee(struct random *r, struct msr_monster *monster, struct msr_monste
     if (cd_pyth(&monster->pos, &target->pos) > 1) return false;
     int hits = 0;
 
-    for (int w = 0; w < FGHT_MAX_HAND; w++) {
+    for (int w = 0; w < (int) ARRAY_SZ(wpn_hand_list); w++) {
         enum fght_hand hand = wpn_hand_list[w];
 
         /* check of we can hit the target */
@@ -682,7 +682,7 @@ bool fght_shoot(struct random *r, struct msr_monster *monster, struct dm_map *ma
 
 
                 /* Do damage with our weapon, if any */
-                for (int w = 0; w < FGHT_MAX_HAND; w++) {
+                for (int w = 0; w < (int) ARRAY_SZ(wpn_hand_list); w++) {
                     enum fght_hand hand = wpn_hand_list[w];
 
                     /* do weapon checks and roll tohit */

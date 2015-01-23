@@ -236,8 +236,8 @@ bool msr_insert_monster(struct msr_monster *monster, struct dm_map *map, coord_t
         if (me_future->monster == NULL) {
             me_future->monster = monster;
             monster->pos = *pos;
-            lg_debug("Inserting monster %s (%c) [uid:%d, tid:%d] to (%d,%d)", 
-                        monster->sd_name, monster->icon, monster->uid, monster->template_id, monster->pos.x, monster->pos.y);
+            lg_ai_debug(monster, "inserting \'%s\'(%c) to (%d,%d)",
+                        monster->sd_name, monster->icon, monster->pos.x, monster->pos.y);
             retval = true;
         }
     }
@@ -347,7 +347,7 @@ bool msr_remove_monster(struct msr_monster *monster, struct dm_map *map) {
 
     struct dm_map_entity *me_current = dm_get_map_me(&monster->pos, map);
     if (me_current->monster == monster) {
-        lg_debug("removed (%d,%d)", monster->pos.x, monster->pos.y);
+        lg_ai_debug(monster, "removed (%d,%d)", monster->pos.x, monster->pos.y);
         me_current->monster = NULL;
         monster->pos = cd_create(0,0);
         retval = true;
@@ -365,7 +365,7 @@ bool msr_change_energy(struct msr_monster *monster, int energy) {
     if (msr_verify_monster(monster) == false) return false;
     monster->energy += energy;
     if (monster->energy < 0) monster->energy = 0;
-    lg_debug("%s energy: %d", monster->sd_name, monster->energy);
+    //lg_ai_debug(monster, "energy: %d", monster->energy);
     return true;
 }
 

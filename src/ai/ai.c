@@ -48,7 +48,7 @@ static bool ai_beast_loop(struct msr_monster *monster) {
     if (msr_weapon_type_check(monster, WEAPON_TYPE_MELEE) ) {
         struct msr_monster *enemy = NULL;
         if ( (enemy = aiu_get_nearest_enemy(monster, 0, map) ) != NULL) {
-            lg_debug("[uid: %d, tid: %d] sees an enemy (melee)", monster->uid, monster->template_id);
+            lg_ai_debug(monster, "attacks an enemy (melee)");
             ai->last_pos = enemy->pos;
             ai->time_last_pos = 1;
 
@@ -64,7 +64,7 @@ static bool ai_beast_loop(struct msr_monster *monster) {
                 }
             }
             else {
-                lg_debug("[uid: %d, tid: %d] attacks an enemy", monster->uid, monster->template_id);
+                lg_ai_debug(monster, "attacks an enemy (ranged)");
                 if (ma_do_melee(monster, &enemy->pos) == true) {
                     has_action = true;
                 }
@@ -84,6 +84,7 @@ static bool ai_beast_loop(struct msr_monster *monster) {
         }
     }
 
+    lg_ai_debug(monster, "is done");
     if (has_action == false) {
         return ma_do_guard(monster);
     }
@@ -145,7 +146,7 @@ static bool ai_human_loop(struct msr_monster *monster) {
     if (msr_weapon_type_check(monster, WEAPON_TYPE_MELEE) ) {
         struct msr_monster *enemy = NULL;
         if ( (enemy = aiu_get_nearest_enemy(monster, 0, map) ) != NULL) {
-            lg_debug("[uid: %d, tid: %d] sees an enemy (melee)", monster->uid, monster->template_id);
+            lg_ai_debug(monster, "sees an enemy (melee)");
             ai->last_pos = enemy->pos;
             ai->time_last_pos = 1;
 
@@ -161,7 +162,7 @@ static bool ai_human_loop(struct msr_monster *monster) {
                 }
             }
             else {
-                lg_debug("[uid: %d, tid: %d] attacks an enemy", monster->uid, monster->template_id);
+                lg_ai_debug(monster, "attacks an enemy");
                 if (ma_do_melee(monster, &enemy->pos) == true) {
                     has_action = true;
                 }
@@ -181,6 +182,7 @@ static bool ai_human_loop(struct msr_monster *monster) {
         }
     }
 
+    lg_ai_debug(monster, "is done");
     if (has_action == false) {
         return ma_do_guard(monster);
     }

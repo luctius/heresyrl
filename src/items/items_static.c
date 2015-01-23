@@ -10,7 +10,7 @@
 
 #define melee_desc \
     .you_use_desc = {"slash",   "chop",  "bash",   "hack", "lung"}, \
-    .msr_use_desc = {"slashes", "chops", "bashes", "hack", "lunges"}
+    .msr_use_desc = {"slashes", "chops", "bashes", "hacks", "lunges"}
 
 #define creature_desc \
     .you_use_desc = {"bite",  "claw",  "rend",  "gnaw", NULL}, \
@@ -297,8 +297,8 @@ static const char *wpn_spcqlty_desc[] = {
     [WPN_SPCQLTY_BALANCED]      = " +10 Parry ",
     [WPN_SPCQLTY_BLAST_1]	    = " All within the weapon's blast radius in squares is hit ",
     [WPN_SPCQLTY_BLAST_2]	    = " All within the weapon's blast radius in squares is hit ",
-    [WPN_SPCQLTY_BLAST_3]       = "",
-    [WPN_SPCQLTY_BLAST_4]       = "",
+    [WPN_SPCQLTY_BLAST_3]       = " All within the weapon's blast radius in squares is hit ",
+    [WPN_SPCQLTY_BLAST_4]       = " All within the weapon's blast radius in squares is hit ",
     [WPN_SPCQLTY_DEFENSIVE]	    = " +15 Parry, -10 to hit  ",
     [WPN_SPCQLTY_FLAME]	        = " No BS Test, All in arc take Agility Test or take damage, 2nd Ag. test to avoid catch fire. ",
     [WPN_SPCQLTY_FLEXIBLE]	    = " Cannot be Parried. ",

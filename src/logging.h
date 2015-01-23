@@ -88,6 +88,7 @@ void lg_add_entry(struct logging *log_ctx, struct log_entry *le_given);
 #define lg_debug(f, a...)   lg_printf_l(LG_DEBUG_LEVEL_DEBUG,         __FILE__, __LINE__, f, ##a)
 #define lg_warning(f, a...) lg_printf_l(LG_DEBUG_LEVEL_WARNING,       __FILE__, __LINE__, cs_WARNING f cs_WARNING, ##a)
 #define lg_error(f, a...)   lg_printf_l(LG_DEBUG_LEVEL_ERROR,         __FILE__, __LINE__, cs_CRITICAL f cs_CRITICAL, ##a)
+#define lg_ai_debug(msr, f, a...)lg_printf_l(LG_DEBUG_LEVEL_DEBUG,         __FILE__, __LINE__, "[uid %d, tid %d] " f,  monster->uid, monster->template_id, ##a)
 
 #define GM_msg(f, a...)                 do                     { msg_internal(NULL,NULL,        __FILE__, __LINE__, cs_GM f cs_GM, ##a); } while (0)
 #define System_msg(f, a...)             do                     { msg_internal(NULL,NULL,        __FILE__, __LINE__, cs_SYSTEM f cs_SYSTEM, ##a); } while (0)
