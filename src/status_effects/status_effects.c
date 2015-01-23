@@ -472,15 +472,33 @@ static enum se_ids dmg_type_to_id_lot[MSR_HITLOC_MAX][DMG_TYPE_MAX] = {
     },
 };
 
+static int crit_value_table[10][10] = {
+       /*+1 +2 +3 +4 +5 +6 +7 +8 +9 +10*/
+    [0]={ 5, 7, 9,10,10,10,10,10,10,10,},
+    [1]={ 5, 6, 8, 9,10,10,10,10,10,10,},
+    [2]={ 4, 6, 8, 9, 9,10,10,10,10,10,},
+    [3]={ 4, 5, 7, 8, 9, 9,10,10,10,10,},
+    [4]={ 3, 5, 7, 8, 8, 9, 9,10,10,10,},
+    [5]={ 3, 4, 6, 7, 8, 8, 9, 9,10,10,},
+    [6]={ 2, 4, 6, 7, 7, 8, 8, 9, 9,10,},
+    [7]={ 2, 3, 5, 6, 7, 7, 8, 8, 9, 9,},
+    [8]={ 1, 3, 5, 6, 6, 7, 7, 8, 8, 9,},
+    [9]={ 1, 2, 4, 5, 6, 6, 7, 7, 8, 8,},
+};
+
 bool se_add_critical_hit(struct status_effect_list *se_list, int critical_dmg, enum msr_hit_location mhl, enum dmg_type type) {
     if (se_verify_list(se_list) == false) return false;
-    if (critical_dmg > (SE_NR_CRITICAL_HITS_PER_LOCATION * 2) ) critical_dmg = (SE_NR_CRITICAL_HITS_PER_LOCATION * 2);
-    critical_dmg /= 2; /* every 2 damage is a new critical hit effect */
-    critical_dmg -= 1; /* idx to offset */
+
+    if (critical_dmg > 10) critical_dmg = 10;
+
+    int rand = random_xd10(gbl_game->random, 1);
+    int idx  = crit_value_table[rand-1][critical_dmg-1] -1;
 
     enum se_ids tid = dmg_type_to_id_lot[mhl][type];
     if (tid == SEID_NONE) return false;
-    return se_add_status_effect(se_list, tid +critical_dmg);
+
+    /* TODO: update this when more critical hits become available */
+    return se_add_status_effect(se_list, tid +(idx/2) );
 }
 
 
@@ -587,6 +605,7 @@ void se_process_effects_first(struct se_type_struct *ces, struct msr_monster *mo
             monster->characteristic[MSR_CHAR_FELLOWSHIP].base_value = strength;
         } break;
 
+        case SETF_DISABLE_EYE: break;
         case SETF_DISABLE_LLEG: break;
         case SETF_DISABLE_RLEG: break;
         case SETF_DISABLE_LARM:
@@ -743,6 +762,7 @@ void se_process_effects_last(struct se_type_struct *ces, struct msr_monster *mon
                                     monster->cur_wounds : monster->max_wounds;
             break;
 
+        case SETF_DISABLE_EYE: break;
         case SETF_DISABLE_LLEG: break;
         case SETF_DISABLE_RLEG: break;
         case SETF_DISABLE_LARM:
@@ -814,6 +834,7 @@ void se_process_effects_during(struct se_type_struct *ces, struct msr_monster *m
         case SETF_SET_FEL: break;
         case SETF_INCREASE_ALL_SKILLS: break;
         case SETF_DECREASE_ALL_SKILLS: break;
+        case SETF_DISABLE_EYE: break;
         case SETF_DISABLE_LLEG: break;
         case SETF_DISABLE_RLEG: break;
         case SETF_DISABLE_LARM: break;

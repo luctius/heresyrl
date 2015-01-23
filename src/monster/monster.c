@@ -439,7 +439,10 @@ bool msr_die(struct msr_monster *monster, struct dm_map *map) {
 bool msr_do_dmg(struct msr_monster *monster, int dmg, enum dmg_type dmg_type, enum msr_hit_location mhl) {
     if (msr_verify_monster(monster) == false) return false;
     bool critic = false;
+    int wounds_above_zero = 0;
+
     if (monster->cur_wounds < 0) critic = true;
+    else wounds_above_zero = monster->cur_wounds;
 
     if (dmg > 0) {
         monster->cur_wounds -= dmg;
@@ -450,9 +453,12 @@ bool msr_do_dmg(struct msr_monster *monster, int dmg, enum dmg_type dmg_type, en
                 Monster(monster, "is criticly wounded.");
             }
 
+            if ( (dmg - wounds_above_zero) > 10) {
+                msr_die(monster, gbl_game->current_map);
+            }
             /* do critical hits! */
-            if (mhl != MSR_HITLOC_NONE) {
-                se_add_critical_hit(monster->status_effects, abs(monster->cur_wounds), mhl, dmg_type);
+            else if (mhl != MSR_HITLOC_NONE) {
+                se_add_critical_hit(monster->status_effects, dmg - wounds_above_zero, mhl, dmg_type);
             }
             else if (monster->cur_wounds < -30) {
                 msr_die(monster, gbl_game->current_map);
