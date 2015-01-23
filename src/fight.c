@@ -289,6 +289,12 @@ int fght_calc_dmg(struct random *r, struct msr_monster *monster, struct msr_mons
         lg_debug("Doing %d%s+%d damage => %d(%d), %d wnds left.", wpn->nr_dmg_die, random_die_name(dmg_die_sz), wpn->dmg_addition, dmg, total_damage, target->cur_wounds);
         if (target->dead) h = hits;
     }
+
+    if ( (target->dead == false) && (total_damage > 0) ) {
+        if (wpn->convey_status_effect != SEID_NONE) {
+            assert(se_add_status_effect(target->status_effects, wpn->convey_status_effect) );
+        }
+    }
     return total_damage;
 }
 
@@ -500,7 +506,14 @@ bool fght_explosion(struct random *r, struct itm_item *bomb, struct dm_map *map)
 
     coord_t *gridlist = NULL;
     int gridlist_sz = sgt_explosion(map, &c, radius, &gridlist);
-    /*struct item_weapon_specific *wpn = &bomb->specific.weapon; TODO: is this used? */
+    struct item_weapon_specific *wpn = &bomb->specific.weapon;
+
+    bool ground = false;
+    if (wpn->convey_status_effect != SEID_NONE) {
+        if (se_tid_ground_permissible(wpn->convey_status_effect) ) {
+            ground = true;
+        }
+    }
 
     for (int i = 0; i < gridlist_sz; i++) {
         struct dm_map_entity *me = dm_get_map_me(&gridlist[i], map);
@@ -508,6 +521,12 @@ bool fght_explosion(struct random *r, struct itm_item *bomb, struct dm_map *map)
         if (target != NULL) {
             enum msr_hit_location mhl = msr_get_hit_location(target, random_d100(r));
             fght_calc_dmg(r, NULL, target, 1, bomb, mhl);
+        }
+
+        if (ground) {
+            if (me->status_effect == NULL) {
+                me->status_effect = se_create(wpn->convey_status_effect);
+            }
         }
     }
 
