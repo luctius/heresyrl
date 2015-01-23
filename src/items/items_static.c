@@ -18,7 +18,7 @@
 
 #define martial_desc \
     .you_use_desc = {"kick",  "punch", NULL}, \
-    .msr_use_desc = {"kicks", "punches", NULL}, \
+    .msr_use_desc = {"kicks", "punches", NULL}
 
 #define throw_desc \
     .you_use_desc = {"throw",  "lob",  "fling", NULL}, \
@@ -53,7 +53,6 @@
             .weapon_category=wpn_cat, .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=0,\
             .penetration=_penetration, .special_quality=bf(WPN_SPCQLTY_CREATURE) | special, .wpn_talent=TLT_NONE, .convey_status_effect=SEID_NONE, }, \
             martial_desc
-            
 
 #define CREATURE_MELEE(wpn_cat,dmg_die,dmg_add,_dmg_type,_penetration,special) .icon=' ',.stacked_quantity=0, .max_quantity=1,\
             .item_type=ITEM_TYPE_WEAPON, .dropable=false, .specific.weapon={.weapon_type=WEAPON_TYPE_MELEE,\
@@ -178,7 +177,7 @@ static struct itm_item static_item_list[] = {
     /* Weapons */
     /* Creature Attacks */
     /*    ID                         short name long name  quality       (wgt,cst,dly)            CATEGORY               xd10  +X  dmg type     upgrades   special qualities*/
-    ITEM(IID_HUMAN_UNARMED,          "hands",   "hands",   ITEM_QLTY_NONE, 0, 0, 0), CREATURE_MELEE(WEAPON_CATEGORY_2H_MELEE,0, -3, DMG_TYPE_IMPACT,  0,  bf(WPN_SPCQLTY_UNARMED) ), ITEM_END,
+    ITEM(IID_HUMAN_UNARMED,          "hands",   "hands",   ITEM_QLTY_NONE, 0, 0, 0), MARTIAL(       WEAPON_CATEGORY_2H_MELEE,0, -3, DMG_TYPE_IMPACT,  0,  bf(WPN_SPCQLTY_UNARMED) ), ITEM_END,
     ITEM(IID_CREATURE_BITE_UNTRAINED,"teeth",   "teeth",   ITEM_QLTY_NONE, 0, 0, 0), CREATURE_MELEE(WEAPON_CATEGORY_2H_MELEE,1, -3, DMG_TYPE_RENDING, 0,  bf(WPN_SPCQLTY_UNARMED) ), ITEM_END,
     ITEM(IID_CREATURE_BITE_TRAINED,  "teeth",   "teeth",   ITEM_QLTY_NONE, 0, 0, 0), CREATURE_MELEE(WEAPON_CATEGORY_2H_MELEE,1,  0, DMG_TYPE_RENDING, 0,  0), ITEM_END,
 
@@ -187,10 +186,10 @@ static struct itm_item static_item_list[] = {
     ITEM(IID_KNIFE,"knife","a knife",ITEM_QLTY_AVERAGE, 15, 50, 1),MELEE(WEAPON_CATEGORY_2H_MELEE,0, 0,  DMG_TYPE_IMPACT, 0,    0,          0,                TLT_NONE), CREATION(20,1,100), ITEM_END,
 
     /* Thrown */
-    /*    ID               short name         long name          quality       (wgt,cst,dly)  CATEGORY xd10,+X,pen,range   dmg type    upgrades    special qualities     talent    status_effect*/
-    ITEM(IID_FRAG_GRENADE,"frag grenade", "a frag grenade", ITEM_QLTY_AVERAGE, 5, 10, 1), THROWN_GRENADE(2, 0, 0, 3,  DMG_TYPE_EXPLOSIVE, 0, bf(WPN_SPCQLTY_BLAST_4),  TLT_NONE, SEID_NONE), CREATION(30,1,100), ITEM_END,
-    ITEM(IID_FIRE_BOMB,   "fire bomb",     "a fire bomb",   ITEM_QLTY_AVERAGE, 5, 10, 1), THROWN_GRENADE(1, 0, 0, 3,  DMG_TYPE_EXPLOSIVE, 0, bf(WPN_SPCQLTY_BLAST_3),  TLT_NONE, SEID_WEAPON_FLAME_AREA), CREATION(30,1,100), ITEM_END,
-    ITEM(IID_THROWING_KNIFE,"throwing knife","a throwing knife", ITEM_QLTY_AVERAGE, 5, 5,  1), THROWN_WEAPON( 0, 0, 0, 5,  DMG_TYPE_RENDING,   0, bf(WPN_SPCQLTY_PRIMITIVE),TLT_THROWN_WPN_TRNG_PRIMITIVE),CREATION(40,1,100), ITEM_END,
+    /*    ID               short name         long name          quality       (wgt,cst,dly)  CATEGORY xd10,+X,pen,range   dmg type  upgrades   special qualities   talent    status_effect*/
+    ITEM(IID_FRAG_GRENADE,"frag grenade", "a frag grenade", ITEM_QLTY_AVERAGE, 5, 10, 1), THROWN_GRENADE(2, 0, 0, 3,DMG_TYPE_EXPLOSIVE,0, bf(WPN_SPCQLTY_BLAST_4),  TLT_NONE, SEID_NONE), CREATION(30,1,100), ITEM_END,
+    ITEM(IID_FIRE_BOMB,   "fire bomb",     "a fire bomb",   ITEM_QLTY_AVERAGE, 5, 10, 1), THROWN_GRENADE(1, 0, 0, 3,DMG_TYPE_EXPLOSIVE,0, bf(WPN_SPCQLTY_BLAST_3),  TLT_NONE, SEID_WEAPON_FLAME_AREA), CREATION(30,1,100), ITEM_END,
+    ITEM(IID_THROWING_KNIFE,"throwing knife","a throwing knife",ITEM_QLTY_AVERAGE, 5, 5,1),THROWN_WEAPON(0, 0, 0, 5,DMG_TYPE_RENDING,  0, bf(WPN_SPCQLTY_PRIMITIVE),TLT_THROWN_WPN_TRNG_PRIMITIVE),CREATION(40,1,100), ITEM_END,
 
     /* Pistols */
     /*    ID                short name        long name         quality           (wgt,cst,dly)         dmg type      xd10 +x range  (S/X/X)  mag_sz pen upgrades  special*/
