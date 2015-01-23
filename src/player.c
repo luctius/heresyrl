@@ -7,6 +7,7 @@
 #include "inventory.h"
 #include "fov/sight.h"
 #include "game.h"
+#include "random.h"
 #include "tiles.h"
 #include "ui/ui.h"
 #include "ai/ai_utils.h"
@@ -25,14 +26,26 @@ void plr_create(struct pl_player *plr, char *name, uint32_t template_id, enum ms
     }
 
     plr->player = msr_create(template_id);
-    plr->player->unique_name = name;
-    plr->player->race = MSR_RACE_HUMAN;
-    plr->player->gender = gender;
-    plr->player->is_player = true;
-    plr->player_map_pos = cd_create(0,0);
+    struct msr_monster *player = plr->player;
 
+    player->unique_name = name;
+    player->race = MSR_RACE_HUMAN;
+    player->gender = gender;
+    player->is_player = true;
+
+    player->characteristic[MSR_CHAR_WEAPON_SKILL].base_value   += random_xd10(gbl_game->random, 2);
+    player->characteristic[MSR_CHAR_BALISTIC_SKILL].base_value += random_xd10(gbl_game->random, 2);
+    player->characteristic[MSR_CHAR_STRENGTH].base_value       += random_xd10(gbl_game->random, 2);
+    player->characteristic[MSR_CHAR_TOUGHNESS].base_value      += random_xd10(gbl_game->random, 2);
+    player->characteristic[MSR_CHAR_AGILITY].base_value        += random_xd10(gbl_game->random, 2);
+    player->characteristic[MSR_CHAR_INTELLIGENCE].base_value   += random_xd10(gbl_game->random, 2);
+    player->characteristic[MSR_CHAR_WILLPOWER].base_value      += random_xd10(gbl_game->random, 2);
+    player->characteristic[MSR_CHAR_PERCEPTION].base_value     += random_xd10(gbl_game->random, 2);
+    player->characteristic[MSR_CHAR_FELLOWSHIP].base_value     += random_xd10(gbl_game->random, 2);
+
+    plr->player_map_pos = cd_create(0,0);
     plr->xp_spend = 0;
-    plr->xp_current = 0;//500 * TT_ENERGY_TURN;
+    plr->xp_current = 0;
 }
 
 void plr_init(struct pl_player *plr) {
