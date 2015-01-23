@@ -12,8 +12,8 @@ enum status_effect_flags {
     /* The status_effect will be permanent (if it passes the initial checks) */
     SEF_PERMANENT,
 
-    /* Only a single instance of this status_effect id will be permitted inside a list */
-    SEF_UNIQUE,
+    /* Multiple instances of this status_effect id will be permitted inside a list */
+    SEF_NOT_UNIQUE,
 
     /* Require an specific check with difficulty as modifier, 
        if the monster succeeds, the status_effect will be removed.
@@ -204,8 +204,10 @@ struct status_effect {
     char icon;
     int icon_attr;
     const char *see_description;
+    int grnd_duration_energy_min;
+    int grnd_duration_energy_max;
+    int grnd_duration_energy;
 
-    /*duration in turns, will be converted to energy when created. */
     int duration_energy_min;
     int duration_energy_max;
     int duration_energy;
@@ -249,6 +251,8 @@ bool se_add_to_list(struct status_effect_list *se_list, struct status_effect *co
 
 bool se_add_status_effect(struct status_effect_list *se_list, enum se_ids tid);
 bool se_remove_status_effect(struct status_effect_list *se_list, struct status_effect *c);
+
+bool se_tid_ground_permissible(enum se_ids tid);
 
 bool se_add_critical_hit(struct status_effect_list *se_list, int critical_dmg, enum msr_hit_location mhl, enum dmg_type type);
 

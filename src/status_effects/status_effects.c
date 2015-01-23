@@ -256,14 +256,19 @@ bool se_add_status_effect(struct status_effect_list *se_list, uint32_t tid) {
     if (tid >= ARRAY_SZ(static_status_effect_list) ) return false;
     struct status_effect *c = NULL;
 
+    /* Check if the status effect does allready exist in this list. */
     if (se_has_tid(se_list, tid) ) {
         c = se_get_status_effect_tid(se_list, tid);
         if (c != NULL) {
-            if (status_effect_has_flag(c, SEF_UNIQUE) ) {
+
+            /* If the condition is unique */
+            if (status_effect_has_flag(c, SEF_NOT_UNIQUE) == false) {
+                /* and permanent, we do nothing */
                 if (status_effect_has_flag(c, SEF_PERMANENT) ) {
                     return false;
                 }
-
+                
+                /* if not permanent but is unique, then we restart the duration. */
                 lg_debug("Restarting status_effect: %p(%s)", c, c->name);
                 /* restart status_effect */
                 c->duration_energy = c->duration_energy_max -1;
@@ -272,6 +277,7 @@ bool se_add_status_effect(struct status_effect_list *se_list, uint32_t tid) {
         }
     }
 
+    /* if it does not yet exist, or the NOT_UNIQUE flag is set, create an new instance. */
     c = se_create(tid);
     if (c == NULL) return false;
 
@@ -1040,3 +1046,9 @@ void se_remove_all_non_permanent(struct msr_monster *monster) {
     }
 }
 
+bool se_tid_ground_permissible(enum se_ids tid) {
+    if (tid == SEID_NONE) return false;
+    if (tid >= SEID_MAX) return false;
+    if (tid >= (int) ARRAY_SZ(static_status_effect_list) ) return false;
+    return static_status_effect_list[tid].permissible_on_ground;
+}
