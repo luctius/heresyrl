@@ -173,7 +173,7 @@ static bool sv_save_status_effects(FILE *file, int indent) {
         struct status_effect *se = NULL;
         while ( (se = selst_get_next_status_effect(se) ) != NULL) {
             fprintf(file, "%*s" "{uid=%d,",  indent, "", se->uid);
-            fprintf(file, "template_id=%d,",  se->template_id);
+            fprintf(file, "tid=%d,",  se->template_id);
 
             fprintf(file,"duration_energy_min=%d,", se->duration_energy_min);
             fprintf(file,"duration_energy_max=%d,", se->duration_energy_max);

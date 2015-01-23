@@ -380,7 +380,7 @@ static bool load_status_effect_list(lua_State *L) {
     if (L == NULL) return false;
     if (lua_intexpr(L, &t, "game.status_effects.sz") == 0) return false;
 
-    if (lua_intexpr(L, &t, "game.status_effects.sz") == 1) {
+    if (lua_intexpr(L, &t, "game.status_effects.sz") >= 1) {
         int status_effect_sz = t;
         for (int j = 0; j < status_effect_sz; j++) {
             if (lua_intexpr(L, &t, "game.status_effects[%d].tid", j+1) == 1) {
@@ -468,7 +468,7 @@ static bool load_monsters(lua_State *L, struct dm_map *map, struct gm_game *g) {
         if (lua_intexpr(L, &t, "game.monsters[%d].status_effects.sz", i+1) == 1) {
             int status_effect_sz = t;
             for (int j = 0; j < status_effect_sz; j++) {
-                if (lua_intexpr(L, &t, "game.monsters[%d].status_effects[%d].uid", i+1, j+1) == 1) {
+                if (lua_intexpr(L, &t, "game.monsters[%d].status_effects[%d]", i+1, j+1) == 1) {
                     struct status_effect *c = selst_status_effect_by_uid(t);
                     if (c != NULL) {
                         se_add_to_list(monster->status_effects, c);

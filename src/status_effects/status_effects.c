@@ -69,7 +69,11 @@ void se_init(void) {
             exit(EXIT_FAILURE);
         }
     }
-    TAILQ_INIT(&status_effects_list_head);
+
+    if (status_effects_list_initialised == false) {
+        TAILQ_INIT(&status_effects_list_head);
+        status_effects_list_initialised = true;
+    }
 }
 
 void se_exit(void) {
