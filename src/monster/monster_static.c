@@ -5,7 +5,7 @@
 #define MONSTER_END }
 
 #define CREATION(wght, minlvl, maxlvl, l) \
-    .weight=wght, .min_level=minlvl, .max_level=maxlvl, .monsters_locale=l
+    .weight=wght, .min_level=minlvl, .max_level=maxlvl, .dungeon_locale=l
 
 #define DESCRIPTION(desc) .description=desc
 

@@ -118,7 +118,7 @@ struct msr_monster {
 
     /* faction this monster belongs to. should probably be a bitfield. */
     int faction;
-    bitfield32_t monsters_locale;
+    bitfield32_t dungeon_locale;
 
     enum msr_race race;
     enum msr_size size;
