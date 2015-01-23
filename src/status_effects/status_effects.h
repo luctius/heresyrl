@@ -88,6 +88,7 @@ enum status_effect_type_flags {
     SETF_DISABLE_RLEG,
     SETF_DISABLE_LARM,
     SETF_DISABLE_RARM,
+    SETF_DISABLE_EYE,
 
     /*Warning, damage status_effects trigger critical hits, do not use in critical hit tables. */
     SETF_DAMAGE,
