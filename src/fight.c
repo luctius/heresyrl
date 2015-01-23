@@ -444,8 +444,8 @@ int fght_thrown_roll(struct random *r, struct msr_monster *monster, coord_t *pos
     }
 
     if (print == false) {
-        You(monster,                 "throw an %s.", witem->sd_name);
-        Monster_tgt(monster, target, "throws an %s.", witem->sd_name);
+        You(monster,                 "%s an %s.", itm_you_use_desc(witem), witem->sd_name);
+        Monster_tgt(monster, target, "%s an %s.", itm_msr_use_desc(witem), witem->sd_name);
     }
 
     int to_hit = fght_ranged_calc_tohit(monster, pos, hand);
