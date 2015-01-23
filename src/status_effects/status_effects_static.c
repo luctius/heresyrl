@@ -3,6 +3,10 @@
                           .on_first_msr=_of_msr, .on_exit_plr=_oe_plr, .on_exit_msr=_oe_msr, .effects = { l }
 #define STATUS_EFFECT_END }
 
+#define GROUND(_icon, _iconattr, _dmin, _dmax, _desc) \
+                .permissible_on_ground=true, .icon=_icon, .icon_attr=_iconattr, .see_description=_desc, \
+                .grnd_duration_energy_min=(_dmin*TT_ENERGY_TURN), .grnd_duration_energy_max=(_dmax*TT_ENERGY_TURN)
+
 #define SETTINGS(_flags, _diff, _con, _dmin, _dmax) .setting_flags=_flags, .difficulty=_diff, \
                     .continues_to_id=_con, .duration_energy_min=(_dmin*TT_ENERGY_TURN), .duration_energy_max=(_dmax*TT_ENERGY_TURN)
 
@@ -34,7 +38,7 @@ static struct status_effect static_status_effect_list[] = {
             TICK_EFFECT(SETF_DECREASE_WILL, 0, SE_STRENGTH_ONE, 0,          5), 
             TICK_EFFECT(SETF_DECREASE_INT,  0, SE_STRENGTH_ONE, 0,          5), 
             TICK_EFFECT(SETF_DECREASE_FEL,  0, SE_STRENGTH_ONE, 0,          5), ),
-            /*Settings      Flags                                                               Difficulty    Next     Minimum  -  Maximum Turns*/
+            /*Settings      Flags                                Difficulty    Next     Minimum  -  Maximum Turns*/
             SETTINGS(bf(SEF_REQ_CHEM_USE_CHECK) | bf(SEF_DETOXABLE), -20,   SEID_NONE,   20,          50),
     STATUS_EFFECT_END,
 
@@ -65,12 +69,19 @@ static struct status_effect static_status_effect_list[] = {
             /* Type         Effect           Flags                        Strength          Difficulty   Interval   */
             EFFECT(     SETF_ON_FIRE,          0,                       SE_STRENGTH_NONE,     0),
             TICK_EFFECT(SETF_DAMAGE_TICK, bf(SESF_DMG_TYPE_ENERGY),     SE_STRENGTH_1D10,     0,           1), ),
-            /*Settings      Flags       Difficulty    Next          Minimum  -  Maximum Turns*/
+            /*Settings      Flags                       Difficulty    Next          Minimum  -  Maximum Turns*/
             SETTINGS(bf(SEF_REQ_AG_CHECK),   0,    SEID_NONE,         1,             10),
     STATUS_EFFECT_END,
 
-
-
+    STATUS_EFFECT(SEID_WEAPON_FLAME_AREA, "flames", "flames are engulving you", "You catch fire.", "%s has catched fire.", "You manage to put out the flames.", "%s stomps out the flames.", 
+            /* Type         Effect           Flags                        Strength          Difficulty   Interval   */
+            EFFECT(     SETF_ON_FIRE,          0,                       SE_STRENGTH_NONE,     0),
+            TICK_EFFECT(SETF_DAMAGE_TICK, bf(SESF_DMG_TYPE_ENERGY),     SE_STRENGTH_1D10,     0,           1), ),
+            /*Settings      Flags                       Difficulty    Next          Minimum  -  Maximum Turns*/
+            SETTINGS(bf(SEF_REQ_AG_CHECK),   0,    SEID_NONE,         1,             10),
+            /*Ground,  Icon, Colour,  Minimum - Maximum Turns,  Description */
+            GROUND(    '~',  0,        2,        4,           "Flames linger on the ground."),
+    STATUS_EFFECT_END,
 
 
 
@@ -93,142 +104,142 @@ static struct status_effect static_status_effect_list[] = {
             EFFECT(SETF_DECREASE_WILL, 0, SE_STRENGTH_TEN, 0), 
             EFFECT(SETF_DECREASE_INT,  0, SE_STRENGTH_TEN, 0), 
             EFFECT(SETF_DECREASE_FEL,  0, SE_STRENGTH_TEN, 0), ),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 1, 1),
+            SETTINGS(0, 0, SEID_NONE, 1, 1),
     STATUS_EFFECT_END,
 
     /* blinded for 1 round */
     STATUS_EFFECT(SEID_ENERGY_CRITICAL_HEAD_2, "energy critical head 2", "", "", "", "", "", 
             EFFECT(SETF_BLINDNESS,  0, SE_STRENGTH_NONE, 0), ),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 1, 1),
+            SETTINGS(0, 0, SEID_NONE, 1, 1),
     STATUS_EFFECT_END,
 
     /* stunned for 1 round, 1 lvl of fatique */
     STATUS_EFFECT(SEID_ENERGY_CRITICAL_HEAD_3, "energy critical head 3", "", "", "", "", "", 
             EFFECT(SETF_STUNNED,        0, SE_STRENGTH_NONE, 0),
             EFFECT(SETF_DECREASE_FATIQUE, 0, SE_STRENGTH_ONE,  0), ),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 1, 1),
+            SETTINGS(0, 0, SEID_NONE, 1, 1),
     STATUS_EFFECT_END,
 
     /* blindess for 1d5 rounds, fatique 2 lvls */
     STATUS_EFFECT(SEID_ENERGY_CRITICAL_HEAD_4, "energy critical head 4", "", "", "", "", "", 
             EFFECT(SETF_BLINDNESS,      0, SE_STRENGTH_NONE, 0),
             EFFECT(SETF_DECREASE_FATIQUE, 0, SE_STRENGTH_TWO,  0), ),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 1, 5),
+            SETTINGS(0, 0, SEID_NONE, 1, 5),
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_ENERGY_CRITICAL_HEAD_5, "energy critical head 5", "", NULL, "", NULL, "", 
             EFFECT(SETF_INSTANT_DEATH,  0, SE_STRENGTH_NONE, 0), ),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+            SETTINGS(0, 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
     /* Chest */
     STATUS_EFFECT(SEID_ENERGY_CRITICAL_BODY_1, "energy critical body 1", "", NULL, NULL, NULL, NULL),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+            SETTINGS(0, 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_ENERGY_CRITICAL_BODY_2, "energy critical body 2", "", NULL, NULL, NULL, NULL),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+            SETTINGS(0, 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_ENERGY_CRITICAL_BODY_3, "energy critical body 3", "", NULL, NULL, NULL, NULL),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+            SETTINGS(0, 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_ENERGY_CRITICAL_BODY_4, "energy critical body 4", "", NULL, NULL, NULL, NULL),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+            SETTINGS(0, 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_ENERGY_CRITICAL_BODY_5, "energy critical body 5", "", NULL, NULL, NULL, NULL,
             EFFECT(SETF_INSTANT_DEATH,  0, SE_STRENGTH_NONE, 0), ),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+            SETTINGS(0, 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
     /* Arms */
     STATUS_EFFECT(SEID_ENERGY_CRITICAL_RARMS_1, "energy critical arms 1", "", NULL, NULL, NULL, NULL),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+            SETTINGS(0, 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_ENERGY_CRITICAL_RARMS_2, "energy critical arms 2", "", NULL, NULL, NULL, NULL),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+            SETTINGS(0, 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_ENERGY_CRITICAL_RARMS_3, "energy critical arms 3", "", NULL, NULL, NULL, NULL),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+            SETTINGS(0, 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_ENERGY_CRITICAL_RARMS_4, "energy critical arms 4", "", NULL, NULL, NULL, NULL),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+            SETTINGS(0, 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_ENERGY_CRITICAL_RARMS_5, "energy critical arms 5", "", NULL, NULL, NULL, NULL,
             EFFECT(SETF_INSTANT_DEATH,  0, SE_STRENGTH_NONE, 0), ),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+            SETTINGS(0, 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
     /* Legs */
     STATUS_EFFECT(SEID_ENERGY_CRITICAL_RLEGS_1, "energy critical legs 1", "", NULL, NULL, NULL, NULL),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+            SETTINGS(0, 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_ENERGY_CRITICAL_RLEGS_2, "energy critical legs 2", "", NULL, NULL, NULL, NULL),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+            SETTINGS(0, 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_ENERGY_CRITICAL_RLEGS_3, "energy critical legs 3", "", NULL, NULL, NULL, NULL),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+            SETTINGS(0, 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_ENERGY_CRITICAL_RLEGS_4, "energy critical legs 4", "", NULL, NULL, NULL, NULL),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+            SETTINGS(0, 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_ENERGY_CRITICAL_RLEGS_5, "energy critical legs 5", "", NULL, NULL, NULL, NULL,
             EFFECT(SETF_INSTANT_DEATH,  0, SE_STRENGTH_NONE, 0), ),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+            SETTINGS(0, 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
     /* Arms */
     STATUS_EFFECT(SEID_ENERGY_CRITICAL_LARMS_1, "energy critical arms 1", "", NULL, NULL, NULL, NULL),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+            SETTINGS(0, 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_ENERGY_CRITICAL_LARMS_2, "energy critical arms 2", "", NULL, NULL, NULL, NULL),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+            SETTINGS(0, 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_ENERGY_CRITICAL_LARMS_3, "energy critical arms 3", "", NULL, NULL, NULL, NULL),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+            SETTINGS(0, 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_ENERGY_CRITICAL_LARMS_4, "energy critical arms 4", "", NULL, NULL, NULL, NULL),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+            SETTINGS(0, 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_ENERGY_CRITICAL_LARMS_5, "energy critical arms 5", "", NULL, NULL, NULL, NULL,
             EFFECT(SETF_INSTANT_DEATH,  0, SE_STRENGTH_NONE, 0), ),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+            SETTINGS(0, 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
     /* Legs */
     STATUS_EFFECT(SEID_ENERGY_CRITICAL_LLEGS_1, "energy critical legs 1", "", NULL, NULL, NULL, NULL),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+            SETTINGS(0, 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_ENERGY_CRITICAL_LLEGS_2, "energy critical legs 2", "", NULL, NULL, NULL, NULL),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+            SETTINGS(0, 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_ENERGY_CRITICAL_LLEGS_3, "energy critical legs 3", "", NULL, NULL, NULL, NULL),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+            SETTINGS(0, 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_ENERGY_CRITICAL_LLEGS_4, "energy critical legs 4", "", NULL, NULL, NULL, NULL),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+            SETTINGS(0, 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_ENERGY_CRITICAL_LLEGS_5, "energy critical legs 5", "", NULL, NULL, NULL, NULL,
             EFFECT(SETF_INSTANT_DEATH,  0, SE_STRENGTH_NONE, 0), ),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+            SETTINGS(0, 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
                 /* Impact critical hits */
@@ -242,7 +253,7 @@ static struct status_effect static_status_effect_list[] = {
                             NULL,
                             NULL, 
                         EFFECT(SETF_DECREASE_FATIQUE,  bf(SESF_REQ_TGH_CHECK) , SE_STRENGTH_ONE, 0), ),
-                        SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 1, 1),
+                        SETTINGS(0, 0, SEID_NONE, 1, 1),
                 STATUS_EFFECT_END,
 
                 STATUS_EFFECT(SEID_IMPACT_CRITICAL_HEAD_2,
@@ -254,7 +265,7 @@ static struct status_effect static_status_effect_list[] = {
                             NULL, 
                         EFFECT(SETF_BLINDNESS,                         0, SE_STRENGTH_NONE, 0),
                         EFFECT(SETF_STUNNED,   bf(SESF_REQ_TGH_CHECK), SE_STRENGTH_NONE, 0), ),
-                        SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 1, 1),
+                        SETTINGS(0, 0, SEID_NONE, 1, 1),
                 STATUS_EFFECT_END,
 
                 STATUS_EFFECT(SEID_IMPACT_CRITICAL_HEAD_3,
@@ -267,7 +278,7 @@ static struct status_effect static_status_effect_list[] = {
                         EFFECT(SETF_STUNNED,        0,                     SE_STRENGTH_NONE, 0),
                         EFFECT(SETF_DECREASE_FATIQUE, 0,                     SE_STRENGTH_ONE,  0),
                         EFFECT(SETF_DECREASE_INT,     bf(SESF_PERMANENT), SE_STRENGTH_ONE,  0), ),
-                        SETTINGS( bf(SEF_UNIQUE),  0, SEID_NONE, 1, 1),
+                        SETTINGS(0,  0, SEID_NONE, 1, 1),
                 STATUS_EFFECT_END,
 
                 STATUS_EFFECT(SEID_IMPACT_CRITICAL_HEAD_4, 
@@ -278,7 +289,7 @@ static struct status_effect static_status_effect_list[] = {
                             "Blood pours from your eyes, ears and nose as the attack pulverizes your brain.",
                             "Blood pours from %s eyes, ears and nose as the attack pulverizes the brain.", 
                         EFFECT(SETF_INSTANT_DEATH,         0, SE_STRENGTH_NONE,  0), ),
-                        SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+                        SETTINGS(0, 0, SEID_NONE, 0, 0),
                 STATUS_EFFECT_END,
 
                 STATUS_EFFECT(SEID_IMPACT_CRITICAL_HEAD_5,
@@ -289,7 +300,7 @@ static struct status_effect static_status_effect_list[] = {
                             "Your head bursts open, spraying brain matter in all directions",
                             "%s head bursts open, spraying brain matter in all directions", 
                         EFFECT(SETF_EXPLODE,       0, SE_STRENGTH_NONE, 0), ),
-                        SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+                        SETTINGS(0, 0, SEID_NONE, 0, 0),
                 STATUS_EFFECT_END,
 
                 /* Chest */
@@ -301,7 +312,7 @@ static struct status_effect static_status_effect_list[] = {
                             NULL,
                             NULL,
                         EFFECT(SETF_STUNNED,       0, SE_STRENGTH_NONE, 0), ),
-                        SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0.5, 0.5),
+                        SETTINGS(0, 0, SEID_NONE, 0.5, 0.5),
                 STATUS_EFFECT_END,
 
                 STATUS_EFFECT(SEID_IMPACT_CRITICAL_BODY_2, 
@@ -312,7 +323,7 @@ static struct status_effect static_status_effect_list[] = {
                             NULL,
                             NULL, 
                         EFFECT(SETF_STUNNED, 0, SE_STRENGTH_NONE, 0), ),
-                        SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 1.5, 1.5),
+                        SETTINGS(0, 0, SEID_NONE, 1.5, 1.5),
                 STATUS_EFFECT_END,
 
                 STATUS_EFFECT(SEID_IMPACT_CRITICAL_BODY_3,
@@ -324,7 +335,7 @@ static struct status_effect static_status_effect_list[] = {
                             NULL,
                         EFFECT(SETF_STUNNED,        0,                         SE_STRENGTH_NONE,  0),
                         EFFECT(SETF_DECREASE_FATIQUE, bf(SESF_REQ_TGH_CHECK), SE_STRENGTH_1D5,   0), ),
-                        SETTINGS( bf(SEF_UNIQUE),  0, SEID_NONE, 2, 2),
+                        SETTINGS(0,  0, SEID_NONE, 2, 2),
                 STATUS_EFFECT_END,
 
                 STATUS_EFFECT(SEID_IMPACT_CRITICAL_BODY_4,
@@ -336,7 +347,7 @@ static struct status_effect static_status_effect_list[] = {
                             NULL,
                         EFFECT(SETF_BLOODLOSS,      0, SE_STRENGTH_NONE,   0),
                         EFFECT(SETF_DECREASE_FATIQUE, 0, SE_STRENGTH_1D10,   0), ),
-                        SETTINGS( bf(SEF_UNIQUE),  0, SEID_NONE, 1, 10),
+                        SETTINGS(0,  0, SEID_NONE, 1, 10),
                 STATUS_EFFECT_END,
 
                 STATUS_EFFECT(SEID_IMPACT_CRITICAL_BODY_5, 
@@ -347,7 +358,7 @@ static struct status_effect static_status_effect_list[] = {
                             "You jerk back from the force of the attack, throwing back your head and spewing out a yet of blood.",
                             "Jerking back from the force of the attack, %s spews out a yet of blood.", 
                         EFFECT(SETF_INSTANT_DEATH,         0, SE_STRENGTH_NONE, 0), ),
-                        SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+                        SETTINGS(0, 0, SEID_NONE, 0, 0),
                 STATUS_EFFECT_END,
 
                 /* Right Arms */
@@ -359,7 +370,7 @@ static struct status_effect static_status_effect_list[] = {
                             NULL,
                             NULL,
                         EFFECT(SETF_DISABLE_RARM,  0, SE_STRENGTH_NONE, 0), ),
-                        SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 1, 1),
+                        SETTINGS(0, 0, SEID_NONE, 1, 1),
                 STATUS_EFFECT_END,
 
                 STATUS_EFFECT(SEID_IMPACT_CRITICAL_RARMS_2,
@@ -371,7 +382,7 @@ static struct status_effect static_status_effect_list[] = {
                             NULL,
                         EFFECT(SETF_STUNNED,       0, SE_STRENGTH_NONE, 0),
                         EFFECT(SETF_DISABLE_RARM,  0, SE_STRENGTH_NONE, 0), ),
-                        SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 1, 1),
+                        SETTINGS(0, 0, SEID_NONE, 1, 1),
                 STATUS_EFFECT_END,
 
                 STATUS_EFFECT(SEID_IMPACT_CRITICAL_RARMS_3,
@@ -382,7 +393,7 @@ static struct status_effect static_status_effect_list[] = {
                             NULL, 
                             NULL,
                         EFFECT(SETF_DISABLE_RARM,  0, SE_STRENGTH_NONE, 0), ),
-                        SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 50, 200),
+                        SETTINGS(0, 0, SEID_NONE, 50, 200),
                 STATUS_EFFECT_END,
 
                 STATUS_EFFECT(SEID_IMPACT_CRITICAL_RARMS_4,
@@ -393,7 +404,7 @@ static struct status_effect static_status_effect_list[] = {
                             NULL,
                             NULL,
                         EFFECT(SETF_DISABLE_RARM,  0, SE_STRENGTH_NONE, 0), ),
-                        SETTINGS( bf(SEF_UNIQUE), bf(SEF_PERMANENT), SEID_NONE, 0, 0),
+                        SETTINGS(0, bf(SEF_PERMANENT), SEID_NONE, 0, 0),
                 STATUS_EFFECT_END,
 
                 STATUS_EFFECT(SEID_IMPACT_CRITICAL_RARMS_5,
@@ -404,7 +415,7 @@ static struct status_effect static_status_effect_list[] = {
                             "In a rain of blood, gore and meat, the your right arm is removed from your body. Screaming incoherently, you twists about in agony for a few seconds before collapsing to the ground.",
                             "In a rain of blood, gore and meat, the right arm is removed from %s's body. Screaming incoherently, it twists about in agony for a few seconds before collapsing to the ground.",
                         EFFECT(SETF_INSTANT_DEATH,         0, SE_STRENGTH_NONE, 0), ),
-                        SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+                        SETTINGS(0, 0, SEID_NONE, 0, 0),
                 STATUS_EFFECT_END,
 
                 /* Right Legs */
@@ -416,7 +427,7 @@ static struct status_effect static_status_effect_list[] = {
                             NULL,
                             NULL,
                         EFFECT(SETF_DECREASE_FATIQUE, bf(SESF_REQ_TGH_CHECK), SE_STRENGTH_ONE, 0), ),
-                        SETTINGS( bf(SEF_UNIQUE),  0, SEID_NONE, 0, 0),
+                        SETTINGS(0,  0, SEID_NONE, 0, 0),
                 STATUS_EFFECT_END,
 
                 STATUS_EFFECT(SEID_IMPACT_CRITICAL_RLEGS_2,
@@ -428,7 +439,7 @@ static struct status_effect static_status_effect_list[] = {
                             NULL,
                         EFFECT(SETF_DISABLE_RLEG,   0, SE_STRENGTH_NONE, 0),
                         EFFECT(SETF_DECREASE_FATIQUE, 0, SE_STRENGTH_1D5,  0), ),
-                        SETTINGS( bf(SEF_UNIQUE),  0, SEID_NONE, 1, 5),
+                        SETTINGS(0,  0, SEID_NONE, 1, 5),
                 STATUS_EFFECT_END,
 
                 STATUS_EFFECT(SEID_IMPACT_CRITICAL_RLEGS_3,
@@ -440,7 +451,7 @@ static struct status_effect static_status_effect_list[] = {
                             NULL,
                         EFFECT(SETF_DECREASE_AG,      0, SE_STRENGTH_1D5, 0),
                         EFFECT(SETF_DECREASE_FATIQUE, 0, SE_STRENGTH_1D5, 0), ),
-                        SETTINGS( bf(SEF_UNIQUE),  0, SEID_NONE, 0, 0),
+                        SETTINGS(0,  0, SEID_NONE, 0, 0),
                 STATUS_EFFECT_END,
 
                 STATUS_EFFECT(SEID_IMPACT_CRITICAL_RLEGS_4,
@@ -452,7 +463,7 @@ static struct status_effect static_status_effect_list[] = {
                             NULL,
                         EFFECT(SETF_DISABLE_RLEG,   0, SE_STRENGTH_1D5, 0),
                         EFFECT(SETF_DECREASE_FATIQUE, 0, SE_STRENGTH_TWO, 0), ),
-                        SETTINGS( bf(SEF_UNIQUE) | bf(SEF_PERMANENT), 0, SEID_NONE, 0, 0),
+                        SETTINGS(0 | bf(SEF_PERMANENT), 0, SEID_NONE, 0, 0),
                 STATUS_EFFECT_END,
 
                 STATUS_EFFECT(SEID_IMPACT_CRITICAL_RLEGS_5,
@@ -463,7 +474,7 @@ static struct status_effect static_status_effect_list[] = {
                             "The hit rips apart the flesh of the right leg, causing blood to spray out in all directions. Even as you try futilely to stop the sudden flood of vital fluid, you fall to ground and die in a spreading pool of gore.",
                             "The hit rips apart the flesh of the right leg, causing blood to spray out in all directions. Trying futilely to stop the sudden flood of vital fluid, %s falls to ground and dies in a spreading pool of gore.",
                         EFFECT(SETF_INSTANT_DEATH,         0, SE_STRENGTH_NONE, 0), ),
-                        SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+                        SETTINGS(0, 0, SEID_NONE, 0, 0),
                 STATUS_EFFECT_END,
 
                 /* Left Arms */
@@ -475,7 +486,7 @@ static struct status_effect static_status_effect_list[] = {
                             NULL,
                             NULL,
                         EFFECT(SETF_DISABLE_LARM,  0, SE_STRENGTH_NONE, 0), ),
-                        SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 1, 1),
+                        SETTINGS(0, 0, SEID_NONE, 1, 1),
                 STATUS_EFFECT_END,
 
                 STATUS_EFFECT(SEID_IMPACT_CRITICAL_LARMS_2,
@@ -487,7 +498,7 @@ static struct status_effect static_status_effect_list[] = {
                             NULL,
                         EFFECT(SETF_STUNNED,      0, SE_STRENGTH_NONE, 0),
                         EFFECT(SETF_DISABLE_LARM, 0, SE_STRENGTH_NONE, 0), ),
-                        SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 1, 1),
+                        SETTINGS(0, 0, SEID_NONE, 1, 1),
                 STATUS_EFFECT_END,
 
                 STATUS_EFFECT(SEID_IMPACT_CRITICAL_LARMS_3,
@@ -498,7 +509,7 @@ static struct status_effect static_status_effect_list[] = {
                             NULL,
                             NULL,
                         EFFECT(SETF_DISABLE_RARM,  0, SE_STRENGTH_NONE, 0), ),
-                        SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 50, 200),
+                        SETTINGS(0, 0, SEID_NONE, 50, 200),
                 STATUS_EFFECT_END,
 
                 STATUS_EFFECT(SEID_IMPACT_CRITICAL_LARMS_4,
@@ -509,7 +520,7 @@ static struct status_effect static_status_effect_list[] = {
                             NULL,
                             NULL,
                         EFFECT(SETF_DISABLE_LARM,  0, SE_STRENGTH_NONE, 0), ),
-                        SETTINGS( bf(SEF_UNIQUE), bf(SEF_PERMANENT), SEID_NONE, 0, 0),
+                        SETTINGS(0, bf(SEF_PERMANENT), SEID_NONE, 0, 0),
                 STATUS_EFFECT_END,
 
                 STATUS_EFFECT(SEID_IMPACT_CRITICAL_LARMS_5,
@@ -520,7 +531,7 @@ static struct status_effect static_status_effect_list[] = {
                             "In a rain of blood, gore and meat, the your left arm is removed from your body. Screaming incoherently, you twists about in agony for a few seconds before collapsing to the ground.",
                             "In a rain of blood, gore and meat, the left arm is removed from %s's body. Screaming incoherently, it twists about in agony for a few seconds before collapsing to the ground.",
                         EFFECT(SETF_INSTANT_DEATH,         0, SE_STRENGTH_NONE, 0), ),
-                        SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+                        SETTINGS(0, 0, SEID_NONE, 0, 0),
                 STATUS_EFFECT_END,
 
                 /* Left Legs */
@@ -532,7 +543,7 @@ static struct status_effect static_status_effect_list[] = {
                             NULL,
                             NULL,
                         EFFECT(SETF_DECREASE_FATIQUE, bf(SESF_REQ_TGH_CHECK), SE_STRENGTH_ONE, 0), ),
-                        SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+                        SETTINGS(0, 0, SEID_NONE, 0, 0),
                 STATUS_EFFECT_END,
 
                 STATUS_EFFECT(SEID_IMPACT_CRITICAL_LLEGS_2,
@@ -544,7 +555,7 @@ static struct status_effect static_status_effect_list[] = {
                             NULL,
                         EFFECT(SETF_DISABLE_LLEG,   0, SE_STRENGTH_NONE, 0),
                         EFFECT(SETF_DECREASE_FATIQUE, 0, SE_STRENGTH_1D5,  0), ),
-                        SETTINGS( bf(SEF_UNIQUE),  0, SEID_NONE, 1, 5),
+                        SETTINGS(0,  0, SEID_NONE, 1, 5),
                 STATUS_EFFECT_END,
 
                 STATUS_EFFECT(SEID_IMPACT_CRITICAL_LLEGS_3,
@@ -556,7 +567,7 @@ static struct status_effect static_status_effect_list[] = {
                                 NULL,
                         EFFECT(SETF_DECREASE_AG,      0, SE_STRENGTH_1D5, 0),
                         EFFECT(SETF_DECREASE_FATIQUE, 0, SE_STRENGTH_1D5, 0), ),
-                        SETTINGS( bf(SEF_UNIQUE),  0, SEID_NONE, 0, 0),
+                        SETTINGS(0,  0, SEID_NONE, 0, 0),
                 STATUS_EFFECT_END,
 
                 STATUS_EFFECT(SEID_IMPACT_CRITICAL_LLEGS_4,
@@ -568,7 +579,7 @@ static struct status_effect static_status_effect_list[] = {
                             NULL,
                         EFFECT(SETF_DISABLE_LLEG,   0, SE_STRENGTH_1D5, 0),
                         EFFECT(SETF_DECREASE_FATIQUE, 0, SE_STRENGTH_TWO, 0), ),
-                        SETTINGS( bf(SEF_UNIQUE) | bf(SEF_PERMANENT), 0, SEID_NONE, 0, 0),
+                        SETTINGS(0 | bf(SEF_PERMANENT), 0, SEID_NONE, 0, 0),
                 STATUS_EFFECT_END,
 
                 STATUS_EFFECT(SEID_IMPACT_CRITICAL_LLEGS_5,
@@ -579,7 +590,7 @@ static struct status_effect static_status_effect_list[] = {
                             "The hit rips apart the flesh of the right leg, causing blood to spray out in all directions. Even as you try futilely to stop the sudden flood of vital fluid, you fall to ground and die in a spreading pool of gore.",
                             "The hit rips apart the flesh of the right leg, causing blood to spray out in all directions. Trying futilely to stop the sudden flood of vital fluid, %s falls to ground and dies in a spreading pool of gore.",
                         EFFECT(SETF_INSTANT_DEATH,         0, SE_STRENGTH_NONE, 0), ),
-                        SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+                        SETTINGS(0, 0, SEID_NONE, 0, 0),
                 STATUS_EFFECT_END,
 
     /* Rending critical hits */
@@ -587,137 +598,137 @@ static struct status_effect static_status_effect_list[] = {
     /*Head*/
     STATUS_EFFECT(SEID_RENDING_CRITICAL_HEAD_1, "rending critical head 1", "", "", "", "", "", 
             EFFECT(SETF_DECREASE_FEL,  0, SE_STRENGTH_TEN, 0), ),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 1, 1),
+            SETTINGS(0, 0, SEID_NONE, 1, 1),
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_RENDING_CRITICAL_HEAD_2, "rending critical head 2", "", "", "", "", "", 
             EFFECT(SETF_BLINDNESS,  0, SE_STRENGTH_NONE, 0), ),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 1, 1),
+            SETTINGS(0, 0, SEID_NONE, 1, 1),
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_RENDING_CRITICAL_HEAD_3, "rending critical head 3", "", "", "", "", "", 
             EFFECT(SETF_DECREASE_FATIQUE, 0, SE_STRENGTH_ONE,  0), ),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 1, 1),
+            SETTINGS(0, 0, SEID_NONE, 1, 1),
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_RENDING_CRITICAL_HEAD_4, "rending critical head 4", "", "", "", "", "", 
             EFFECT(SETF_DECREASE_FATIQUE, 0, SE_STRENGTH_TWO,  0), ),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 1, 5),
+            SETTINGS(0, 0, SEID_NONE, 1, 5),
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_RENDING_CRITICAL_HEAD_5, "rending critical head 5", "", NULL, "", NULL, "", 
             EFFECT(SETF_INSTANT_DEATH,  0, SE_STRENGTH_NONE, 0), ),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+            SETTINGS(0, 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
     /* Chest */
     STATUS_EFFECT(SEID_RENDING_CRITICAL_BODY_1, "rending critical body 1", "", NULL, NULL, NULL, NULL),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+            SETTINGS(0, 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_RENDING_CRITICAL_BODY_2, "rending critical body 2", "", NULL, NULL, NULL, NULL),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+            SETTINGS(0, 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_RENDING_CRITICAL_BODY_3, "rending critical body 3", "", NULL, NULL, NULL, NULL),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+            SETTINGS(0, 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_RENDING_CRITICAL_BODY_4, "rending critical body 4", "", NULL, NULL, NULL, NULL),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+            SETTINGS(0, 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_RENDING_CRITICAL_BODY_5, "rending critical body 5", "", NULL, NULL, NULL, NULL,
             EFFECT(SETF_INSTANT_DEATH,  0, SE_STRENGTH_NONE, 0), ),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+            SETTINGS(0, 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
     /* Arms */
     STATUS_EFFECT(SEID_RENDING_CRITICAL_RARMS_1, "rending critical arms 1", "", NULL, NULL, NULL, NULL),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+            SETTINGS(0, 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_RENDING_CRITICAL_RARMS_2, "rending critical arms 2", "", NULL, NULL, NULL, NULL),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+            SETTINGS(0, 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_RENDING_CRITICAL_RARMS_3, "rending critical arms 3", "", NULL, NULL, NULL, NULL),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+            SETTINGS(0, 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_RENDING_CRITICAL_RARMS_4, "rending critical arms 4", "", NULL, NULL, NULL, NULL),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+            SETTINGS(0, 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_RENDING_CRITICAL_RARMS_5, "rending critical arms 5", "", NULL, NULL, NULL, NULL,
             EFFECT(SETF_INSTANT_DEATH,  0, SE_STRENGTH_NONE, 0), ),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+            SETTINGS(0, 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
     /* Legs */
     STATUS_EFFECT(SEID_RENDING_CRITICAL_RLEGS_1, "rending critical legs 1", "", NULL, NULL, NULL, NULL),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+            SETTINGS(0, 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_RENDING_CRITICAL_RLEGS_2, "rending critical legs 2", "", NULL, NULL, NULL, NULL),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+            SETTINGS(0, 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_RENDING_CRITICAL_RLEGS_3, "rending critical legs 3", "", NULL, NULL, NULL, NULL),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+            SETTINGS(0, 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_RENDING_CRITICAL_RLEGS_4, "rending critical legs 4", "", NULL, NULL, NULL, NULL),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+            SETTINGS(0, 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_RENDING_CRITICAL_RLEGS_5, "rending critical legs 5", "", NULL, NULL, NULL, NULL,
             EFFECT(SETF_INSTANT_DEATH,  0, SE_STRENGTH_NONE, 0), ),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+            SETTINGS(0, 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
     /* Arms */
     STATUS_EFFECT(SEID_RENDING_CRITICAL_LARMS_1, "rending critical arms 1", "", NULL, NULL, NULL, NULL),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+            SETTINGS(0, 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_RENDING_CRITICAL_LARMS_2, "rending critical arms 2", "", NULL, NULL, NULL, NULL),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+            SETTINGS(0, 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_RENDING_CRITICAL_LARMS_3, "rending critical arms 3", "", NULL, NULL, NULL, NULL),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+            SETTINGS(0, 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_RENDING_CRITICAL_LARMS_4, "rending critical arms 4", "", NULL, NULL, NULL, NULL),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+            SETTINGS(0, 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_RENDING_CRITICAL_LARMS_5, "rending critical arms 5", "", NULL, NULL, NULL, NULL,
             EFFECT(SETF_INSTANT_DEATH,  0, SE_STRENGTH_NONE, 0), ),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+            SETTINGS(0, 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
     /* Legs */
     STATUS_EFFECT(SEID_RENDING_CRITICAL_LLEGS_1, "rending critical legs 1", "", NULL, NULL, NULL, NULL),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+            SETTINGS(0, 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_RENDING_CRITICAL_LLEGS_2, "rending critical legs 2", "", NULL, NULL, NULL, NULL),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+            SETTINGS(0, 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_RENDING_CRITICAL_LLEGS_3, "rending critical legs 3", "", NULL, NULL, NULL, NULL),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+            SETTINGS(0, 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_RENDING_CRITICAL_LLEGS_4, "rending critical legs 4", "", NULL, NULL, NULL, NULL),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+            SETTINGS(0, 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_RENDING_CRITICAL_LLEGS_5, "rending critical legs 5", "", NULL, NULL, NULL, NULL,
             EFFECT(SETF_INSTANT_DEATH,  0, SE_STRENGTH_NONE, 0), ),
-            SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+            SETTINGS(0, 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
                 /* Explosive critical hits */
@@ -725,137 +736,137 @@ static struct status_effect static_status_effect_list[] = {
                 /*Head*/
                 STATUS_EFFECT(SEID_EXPLOSIVE_CRITICAL_HEAD_1, "explosive critical head 1", "", "", "", "", "", 
                         EFFECT(SETF_DECREASE_FEL,  0, SE_STRENGTH_TEN, 0), ),
-                        SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 1, 1),
+                        SETTINGS(0, 0, SEID_NONE, 1, 1),
                 STATUS_EFFECT_END,
 
                 STATUS_EFFECT(SEID_EXPLOSIVE_CRITICAL_HEAD_2, "explosive critical head 2", "", "", "", "", "", 
                         EFFECT(SETF_BLINDNESS,  0, SE_STRENGTH_NONE, 0), ),
-                        SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 1, 1),
+                        SETTINGS(0, 0, SEID_NONE, 1, 1),
                 STATUS_EFFECT_END,
 
                 STATUS_EFFECT(SEID_EXPLOSIVE_CRITICAL_HEAD_3, "explosive critical head 3", "", "", "", "", "", 
                         EFFECT(SETF_DECREASE_FATIQUE, 0, SE_STRENGTH_ONE,  0), ),
-                        SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 1, 1),
+                        SETTINGS(0, 0, SEID_NONE, 1, 1),
                 STATUS_EFFECT_END,
 
                 STATUS_EFFECT(SEID_EXPLOSIVE_CRITICAL_HEAD_4, "explosive critical head 4", "", "", "", "", "", 
                         EFFECT(SETF_DECREASE_FATIQUE, 0, SE_STRENGTH_TWO,  0), ),
-                        SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 1, 5),
+                        SETTINGS(0, 0, SEID_NONE, 1, 5),
                 STATUS_EFFECT_END,
 
                 STATUS_EFFECT(SEID_EXPLOSIVE_CRITICAL_HEAD_5, "explosive critical head 5", "", NULL, "", NULL, "", 
                         EFFECT(SETF_INSTANT_DEATH,  0, SE_STRENGTH_NONE, 0), ),
-                        SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+                        SETTINGS(0, 0, SEID_NONE, 0, 0),
                 STATUS_EFFECT_END,
 
                 /* Chest */
                 STATUS_EFFECT(SEID_EXPLOSIVE_CRITICAL_BODY_1, "explosive critical body 1", "", NULL, NULL, NULL, NULL),
-                        SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+                        SETTINGS(0, 0, SEID_NONE, 0, 0),
                 STATUS_EFFECT_END,
 
                 STATUS_EFFECT(SEID_EXPLOSIVE_CRITICAL_BODY_2, "explosive critical body 2", "", NULL, NULL, NULL, NULL),
-                        SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+                        SETTINGS(0, 0, SEID_NONE, 0, 0),
                 STATUS_EFFECT_END,
 
                 STATUS_EFFECT(SEID_EXPLOSIVE_CRITICAL_BODY_3, "explosive critical body 3", "", NULL, NULL, NULL, NULL),
-                        SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+                        SETTINGS(0, 0, SEID_NONE, 0, 0),
                 STATUS_EFFECT_END,
 
                 STATUS_EFFECT(SEID_EXPLOSIVE_CRITICAL_BODY_4, "explosive critical body 4", "", NULL, NULL, NULL, NULL),
-                        SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+                        SETTINGS(0, 0, SEID_NONE, 0, 0),
                 STATUS_EFFECT_END,
 
                 STATUS_EFFECT(SEID_EXPLOSIVE_CRITICAL_BODY_5, "explosive critical body 5", "", NULL, NULL, NULL, NULL,
                         EFFECT(SETF_INSTANT_DEATH,  0, SE_STRENGTH_NONE, 0), ),
-                        SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+                        SETTINGS(0, 0, SEID_NONE, 0, 0),
                 STATUS_EFFECT_END,
 
                 /* Arms */
                 STATUS_EFFECT(SEID_EXPLOSIVE_CRITICAL_RARMS_1, "explosive critical arms 1", "", NULL, NULL, NULL, NULL),
-                        SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+                        SETTINGS(0, 0, SEID_NONE, 0, 0),
                 STATUS_EFFECT_END,
 
                 STATUS_EFFECT(SEID_EXPLOSIVE_CRITICAL_RARMS_2, "explosive critical arms 2", "", NULL, NULL, NULL, NULL),
-                        SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+                        SETTINGS(0, 0, SEID_NONE, 0, 0),
                 STATUS_EFFECT_END,
 
                 STATUS_EFFECT(SEID_EXPLOSIVE_CRITICAL_RARMS_3, "explosive critical arms 3", "", NULL, NULL, NULL, NULL),
-                        SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+                        SETTINGS(0, 0, SEID_NONE, 0, 0),
                 STATUS_EFFECT_END,
 
                 STATUS_EFFECT(SEID_EXPLOSIVE_CRITICAL_RARMS_4, "explosive critical arms 4", "", NULL, NULL, NULL, NULL),
-                        SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+                        SETTINGS(0, 0, SEID_NONE, 0, 0),
                 STATUS_EFFECT_END,
 
                 STATUS_EFFECT(SEID_EXPLOSIVE_CRITICAL_RARMS_5, "explosive critical arms 5", "", NULL, NULL, NULL, NULL,
                         EFFECT(SETF_INSTANT_DEATH,  0, SE_STRENGTH_NONE, 0), ),
-                        SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+                        SETTINGS(0, 0, SEID_NONE, 0, 0),
                 STATUS_EFFECT_END,
 
                 /* Legs */
                 STATUS_EFFECT(SEID_EXPLOSIVE_CRITICAL_RLEGS_1, "explosive critical legs 1", "", NULL, NULL, NULL, NULL),
-                        SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+                        SETTINGS(0, 0, SEID_NONE, 0, 0),
                 STATUS_EFFECT_END,
 
                 STATUS_EFFECT(SEID_EXPLOSIVE_CRITICAL_RLEGS_2, "explosive critical legs 2", "", NULL, NULL, NULL, NULL),
-                        SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+                        SETTINGS(0, 0, SEID_NONE, 0, 0),
                 STATUS_EFFECT_END,
 
                 STATUS_EFFECT(SEID_EXPLOSIVE_CRITICAL_RLEGS_3, "explosive critical legs 3", "", NULL, NULL, NULL, NULL),
-                        SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+                        SETTINGS(0, 0, SEID_NONE, 0, 0),
                 STATUS_EFFECT_END,
 
                 STATUS_EFFECT(SEID_EXPLOSIVE_CRITICAL_RLEGS_4, "explosive critical legs 4", "", NULL, NULL, NULL, NULL),
-                        SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+                        SETTINGS(0, 0, SEID_NONE, 0, 0),
                 STATUS_EFFECT_END,
 
                 STATUS_EFFECT(SEID_EXPLOSIVE_CRITICAL_RLEGS_5, "explosive critical legs 5", "", NULL, NULL, NULL, NULL,
                         EFFECT(SETF_INSTANT_DEATH,  0, SE_STRENGTH_NONE, 0), ),
-                        SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+                        SETTINGS(0, 0, SEID_NONE, 0, 0),
                 STATUS_EFFECT_END,
 
                 /* Arms */
                 STATUS_EFFECT(SEID_EXPLOSIVE_CRITICAL_LARMS_1, "explosive critical arms 1", "", NULL, NULL, NULL, NULL),
-                        SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+                        SETTINGS(0, 0, SEID_NONE, 0, 0),
                 STATUS_EFFECT_END,
 
                 STATUS_EFFECT(SEID_EXPLOSIVE_CRITICAL_LARMS_2, "explosive critical arms 2", "", NULL, NULL, NULL, NULL),
-                        SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+                        SETTINGS(0, 0, SEID_NONE, 0, 0),
                 STATUS_EFFECT_END,
 
                 STATUS_EFFECT(SEID_EXPLOSIVE_CRITICAL_LARMS_3, "explosive critical arms 3", "", NULL, NULL, NULL, NULL),
-                        SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+                        SETTINGS(0, 0, SEID_NONE, 0, 0),
                 STATUS_EFFECT_END,
 
                 STATUS_EFFECT(SEID_EXPLOSIVE_CRITICAL_LARMS_4, "explosive critical arms 4", "", NULL, NULL, NULL, NULL),
-                        SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+                        SETTINGS(0, 0, SEID_NONE, 0, 0),
                 STATUS_EFFECT_END,
 
                 STATUS_EFFECT(SEID_EXPLOSIVE_CRITICAL_LARMS_5, "explosive critical arms 5", "", NULL, NULL, NULL, NULL,
                         EFFECT(SETF_INSTANT_DEATH,  0, SE_STRENGTH_NONE, 0), ),
-                        SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+                        SETTINGS(0, 0, SEID_NONE, 0, 0),
                 STATUS_EFFECT_END,
 
                 /* Legs */
                 STATUS_EFFECT(SEID_EXPLOSIVE_CRITICAL_LLEGS_1, "explosive critical legs 1", "", NULL, NULL, NULL, NULL),
-                        SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+                        SETTINGS(0, 0, SEID_NONE, 0, 0),
                 STATUS_EFFECT_END,
 
                 STATUS_EFFECT(SEID_EXPLOSIVE_CRITICAL_LLEGS_2, "explosive critical legs 2", "", NULL, NULL, NULL, NULL),
-                        SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+                        SETTINGS(0, 0, SEID_NONE, 0, 0),
                 STATUS_EFFECT_END,
 
                 STATUS_EFFECT(SEID_EXPLOSIVE_CRITICAL_LLEGS_3, "explosive critical legs 3", "", NULL, NULL, NULL, NULL),
-                        SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+                        SETTINGS(0, 0, SEID_NONE, 0, 0),
                 STATUS_EFFECT_END,
 
                 STATUS_EFFECT(SEID_EXPLOSIVE_CRITICAL_LLEGS_4, "explosive critical legs 4", "", NULL, NULL, NULL, NULL),
-                        SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+                        SETTINGS(0, 0, SEID_NONE, 0, 0),
                 STATUS_EFFECT_END,
 
                 STATUS_EFFECT(SEID_EXPLOSIVE_CRITICAL_LLEGS_5, "explosive critical legs 5", "", NULL, NULL, NULL, NULL,
                         EFFECT(SETF_INSTANT_DEATH,  0, SE_STRENGTH_NONE, 0), ),
-                        SETTINGS( bf(SEF_UNIQUE), 0, SEID_NONE, 0, 0),
+                        SETTINGS(0, 0, SEID_NONE, 0, 0),
                 STATUS_EFFECT_END,
 };
 

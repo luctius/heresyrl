@@ -15,6 +15,7 @@ enum se_ids {
 
     /* Weapons */
     SEID_WEAPON_FLAME,
+    SEID_WEAPON_FLAME_AREA,
 
     /* Criticals -- it is required that these are in order! ie. HEAD1 , HEAD2, HEAD3 ... */
     /* Energy Head */
