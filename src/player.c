@@ -17,6 +17,7 @@
 #include "monster/monster_static.h"
 #include "monster/monster_action.h"
 #include "items/items.h"
+#include "careers/careers.h"
 
 static bool plr_action_loop(struct msr_monster *player);
 
@@ -96,9 +97,12 @@ void plr_create(struct pl_player *plr, char *name, uint32_t template_id, enum ms
         }
     }
 
+    plr->career = cr_get_career_by_id(cr_spawn(random_float(gbl_game->random), player->race) );
+    cr_give_trappings_to_player(player, plr->career);
+
     plr->player_map_pos = cd_create(0,0);
     plr->xp_spend = 0;
-    plr->xp_current = 0;
+    plr->xp_current = 300;
 }
 
 void plr_init(struct pl_player *plr) {

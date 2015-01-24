@@ -28,29 +28,29 @@
     .characteristic[MSR_SEC_CHAR_ATTACKS]={ .base_value=1, }, \
     .characteristic[MSR_SEC_CHAR_MOVEMENT]={ .base_value=3, }, \
     .characteristic[MSR_SEC_CHAR_MAGIC]={ .base_value=0, }, \
-    .talents = { t, TLT_NONE }, .creature_traits = 0, .def_wpns[0]=IID_HUMAN_UNARMED
+    .talents = { t, TLT_NONE, }, .creature_traits = 0, .def_wpns[0]=IID_HUMAN_UNARMED
 
 #define ELF( t...) .race=MSR_RACE_ELF, .size=MSR_SIZE_AVERAGE, \
     .characteristic[MSR_SEC_CHAR_ATTACKS]={ .base_value=1, }, \
     .characteristic[MSR_SEC_CHAR_MOVEMENT]={ .base_value=5, }, \
     .characteristic[MSR_SEC_CHAR_MAGIC]={ .base_value=0, }, \
-    .talents = { t, TLT_NONE }, .creature_traits = 0, .def_wpns[0]=IID_HUMAN_UNARMED
+    .talents = { t, TLT_NONE, }, .creature_traits = 0, .def_wpns[0]=IID_HUMAN_UNARMED
 
 #define HALFLING( t...) .race=MSR_RACE_HALFLING, .size=MSR_SIZE_AVERAGE, \
     .characteristic[MSR_SEC_CHAR_ATTACKS]={ .base_value=1, }, \
     .characteristic[MSR_SEC_CHAR_MOVEMENT]={ .base_value=3, }, \
     .characteristic[MSR_SEC_CHAR_MAGIC]={ .base_value=0, }, \
-    .talents = { t, TLT_NONE }, .creature_traits = 0, .def_wpns[0]=IID_HUMAN_UNARMED
+    .talents = { t, TLT_NONE, }, .creature_traits = 0, .def_wpns[0]=IID_HUMAN_UNARMED
 
 #define HUMAN( t...) .race=MSR_RACE_HUMAN, .size=MSR_SIZE_AVERAGE, \
     .characteristic[MSR_SEC_CHAR_ATTACKS]={ .base_value=1, }, \
     .characteristic[MSR_SEC_CHAR_MOVEMENT]={ .base_value=4, }, \
     .characteristic[MSR_SEC_CHAR_MAGIC]={ .base_value=0, }, \
-    .talents = { t, TLT_NONE }, .creature_traits = 0, .def_wpns[0]=IID_HUMAN_UNARMED
+    .talents = { t, TLT_NONE, }, .creature_traits = 0, .def_wpns[0]=IID_HUMAN_UNARMED
 
 
 #define BEAST( t...) .race=MSR_RACE_BEAST, .size=MSR_SIZE_AVERAGE, \
-    .talents = { t , TLT_NONE }, .creature_traits = bf(CTRTRTS_BESTIAL) | bf(CTRTRTS_QUADRUPED), .def_wpns[0]=IID_CREATURE_BITE_TRAINED
+    .talents = { t , TLT_NONE, }, .creature_traits = bf(CTRTRTS_BESTIAL) | bf(CTRTRTS_QUADRUPED), .def_wpns[0]=IID_CREATURE_BITE_TRAINED
 
 struct msr_monster static_monster_list[] = {
 

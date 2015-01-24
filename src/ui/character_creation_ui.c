@@ -18,18 +18,13 @@
 #include "dungeon/spawn.h"
 #include "monster/monster.h"
 #include "monster/monster_static.h"
+#include "careers/careers.h"
 
 extern struct msr_monster static_monster_list[];
 
 struct spwn_monster_item items[] = {  
-    {.id=IID_LEATHER_JACK,   .min=1,.max=1,.wear=true}, 
-    {.id=IID_HAND_WEAPON,    .min=1,.max=1,.wear=true}, 
-    {.id=IID_SHORT_BOW,      .min=1,.max=1,.wear=false}, 
-    {.id=IID_ARROW,          .min=20,.max=50,.wear=false},
     {.id=IID_TORCH,          .min=1,.max=1,.wear=false},
     {.id=IID_FIRE_BOMB,      .min=1,.max=3,.wear=false},
-    {.id=IID_THROWING_KNIFE, .min=1,.max=3,.wear=false},
-    {.id=IID_KNIFE,          .min=1,.max=1,.wear=false},
     {.id=IID_STIMM_HEALTH,   .min=2,.max=4,.wear=false},
     {.id=IID_STIMM_DEATH,    .min=5,.max=5,.wear=false},
     {0,0,0,0,} };
@@ -43,6 +38,7 @@ bool char_creation_window(void) {
 
     struct pl_player *plr = &gbl_game->player_data;
     plr->player = msr_create(MID_DUMMY);
+    plr->career = cr_get_career_by_id(CRID_NONE);
 
     struct msr_monster *player = plr->player;
     player->unique_name = "";

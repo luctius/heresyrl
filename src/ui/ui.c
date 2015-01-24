@@ -23,6 +23,7 @@
 #include "monster/monster.h"
 #include "monster/monster_action.h"
 #include "items/items.h"
+#include "careers/careers.h"
 #include "dungeon/dungeon_map.h"
 
 void show_msg(struct hrl_window *window);
@@ -688,7 +689,7 @@ void charwin_refresh() {
     struct msr_monster *player = plr->player;
 
     ui_printf(char_win, "Name      %s\n", player->unique_name);
-    ui_printf(char_win, "Career    %s\n", "Thug");
+    ui_printf(char_win, "Career    %s\n", plr->career->title);
     ui_printf(char_win, "Turn      %d.%d\n", gbl_game->turn / TT_ENERGY_TURN, gbl_game->turn % TT_ENERGY_TURN);
     ui_printf(char_win, "\n");
 
@@ -1098,10 +1099,7 @@ Basic weapon traning SP     ...                  |
     ui_print_reset(&pad);
     ui_printf(&pad, "Name:          %-20s\n", mon->unique_name);
     ui_printf(&pad, "Gender         %-20s\n", msr_gender_string(mon) );
-    ui_printf(&pad, "Career:        %-20s\n", "tester");
-    ui_printf(&pad, "Rank:          %-20s\n", "beginner");
-    ui_printf(&pad, "Origin:        %-20s\n", "computer");
-    ui_printf(&pad, "Divination:    %-20s\n", "You will die...");
+    ui_printf(&pad, "Career         %-20s\n", plr->career->title);
 
     ui_printf(&pad, "Wounds:        %d/%d\n", mon->cur_wounds, mon->max_wounds);
     ui_printf(&pad, "Fatique:       %d\n", mon->fatique);

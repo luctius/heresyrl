@@ -67,7 +67,6 @@ bool ma_do_wear(struct msr_monster *monster, struct itm_item *item) {
     if (dw_can_wear_item(monster, item) == false) return false;
 
     if (dw_wear_item(monster, item) == false) return false;
-    msr_weapon_next_selection(monster);
 
     msr_change_energy(monster, -(MSR_ACTION_WEAR * item->use_delay) );
     monster->controller.interruptable = false;

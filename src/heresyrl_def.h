@@ -41,6 +41,7 @@ struct pl_player;
 struct input;
 struct status_effect_list;
 struct status_effect;
+struct cr_career;
 
 enum tile_types;
 enum dm_dungeon_type;
@@ -52,6 +53,7 @@ enum wpn_rof_setting;
 
 struct pl_player {
     struct msr_monster *player;
+    struct cr_career *career;
     int xp_current;
     int xp_spend;
 

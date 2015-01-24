@@ -24,6 +24,7 @@ heresyrl_SOURCES =  \
                     save.c \
                     options.c \
                     turn_tick.c \
+                    careers/careers.c \
                     dungeon/dungeon_cave.c \
                     dungeon/dungeon_map.c \
                     dungeon/spawn.c \
