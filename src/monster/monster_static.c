@@ -9,106 +9,114 @@
 
 #define DESCRIPTION(desc) .description=desc
 
-#define CHARACTERISTICS(ws,bs,st,tg,ag,in,pr,wl,fl) \
+#define CHARACTERISTICS(ws,bs,st,tg,ag,in,wl,per) \
     .characteristic[MSR_CHAR_WEAPON_SKILL]={ .base_value=ws,}, \
     .characteristic[MSR_CHAR_BALISTIC_SKILL]={ .base_value=bs,}, \
     .characteristic[MSR_CHAR_STRENGTH]={ .base_value=st,}, \
     .characteristic[MSR_CHAR_TOUGHNESS]={ .base_value=tg,}, \
     .characteristic[MSR_CHAR_AGILITY]={ .base_value=ag,}, \
-    .characteristic[MSR_CHAR_PERCEPTION]={ .base_value=pr,}, \
     .characteristic[MSR_CHAR_INTELLIGENCE]={ .base_value=in,}, \
     .characteristic[MSR_CHAR_WILLPOWER]={ .base_value=wl,}, \
-    .characteristic[MSR_CHAR_FELLOWSHIP]={ .base_value=fl,} 
+    .characteristic[MSR_CHAR_PERCEPTION]={ .base_value=per,} 
 
 #define SKILLS(basic_skills, advanced_skills, expert_skills) .skills[MSR_SKILL_RATE_BASIC]=basic_skills, \
     .skills[MSR_SKILL_RATE_ADVANCED]=advanced_skills, .skills[MSR_SKILL_RATE_EXPERT]=expert_skills
 
 #define DEF_WPN(wpn_idx, item_id) .def_wpns[wpn_idx+1]=item_id
 
-#define HUMAN( t...) .race=MSR_RACE_HUMAN, .size=MSR_SIZE_AVERAGE, \
+#define DWARF( t...) .race=MSR_RACE_DWARF, .size=MSR_SIZE_AVERAGE, \
+    .characteristic[MSR_SEC_CHAR_ATTACKS]={ .base_value=1, }, \
+    .characteristic[MSR_SEC_CHAR_MOVEMENT]={ .base_value=3, }, \
+    .characteristic[MSR_SEC_CHAR_MAGIC]={ .base_value=0, }, \
     .talents = { t, TLT_NONE }, .creature_traits = 0, .def_wpns[0]=IID_HUMAN_UNARMED
+
+#define ELF( t...) .race=MSR_RACE_ELF, .size=MSR_SIZE_AVERAGE, \
+    .characteristic[MSR_SEC_CHAR_ATTACKS]={ .base_value=1, }, \
+    .characteristic[MSR_SEC_CHAR_MOVEMENT]={ .base_value=5, }, \
+    .characteristic[MSR_SEC_CHAR_MAGIC]={ .base_value=0, }, \
+    .talents = { t, TLT_NONE }, .creature_traits = 0, .def_wpns[0]=IID_HUMAN_UNARMED
+
+#define HALFLING( t...) .race=MSR_RACE_HALFLING, .size=MSR_SIZE_AVERAGE, \
+    .characteristic[MSR_SEC_CHAR_ATTACKS]={ .base_value=1, }, \
+    .characteristic[MSR_SEC_CHAR_MOVEMENT]={ .base_value=3, }, \
+    .characteristic[MSR_SEC_CHAR_MAGIC]={ .base_value=0, }, \
+    .talents = { t, TLT_NONE }, .creature_traits = 0, .def_wpns[0]=IID_HUMAN_UNARMED
+
+#define HUMAN( t...) .race=MSR_RACE_HUMAN, .size=MSR_SIZE_AVERAGE, \
+    .characteristic[MSR_SEC_CHAR_ATTACKS]={ .base_value=1, }, \
+    .characteristic[MSR_SEC_CHAR_MOVEMENT]={ .base_value=4, }, \
+    .characteristic[MSR_SEC_CHAR_MAGIC]={ .base_value=0, }, \
+    .talents = { t, TLT_NONE }, .creature_traits = 0, .def_wpns[0]=IID_HUMAN_UNARMED
+
 
 #define BEAST( t...) .race=MSR_RACE_BEAST, .size=MSR_SIZE_AVERAGE, \
     .talents = { t , TLT_NONE }, .creature_traits = bf(CTRTRTS_BESTIAL) | bf(CTRTRTS_QUADRUPED), .def_wpns[0]=IID_CREATURE_BITE_TRAINED
 
-static struct msr_monster static_monster_list[] = {
+struct msr_monster static_monster_list[] = {
 
     /*----------------- CHARACTER TEMPLATES  --------------------*/
+    /*
+       Remember to modify the starting wounds table and the fatepoint table
+       in player.c when adding new player selectable races.
+     */
     [MID_DUMMY]=MONSTER('h',"dummy","a dummy",MSR_GENDER_MALE,1) 
-        HUMAN(0), CHARACTERISTICS(0,0,0,0,0,0,0,0,0), SKILLS(0,0,0),
+        HUMAN(TLT_NONE), CHARACTERISTICS(0,0,0,0,0,0,0,0), SKILLS(0,0,0),
     MONSTER_END,
 
-    [MID_BASIC_FERAL]=MONSTER('h',"human","a feral human",MSR_GENDER_MALE,14)
-        HUMAN(TLT_BASIC_WPN_TRNG_LAS, TLT_PISTOL_WPN_TRNG_LAS, TLT_BASIC_WPN_TRNG_SP, TLT_PISTOL_WPN_TRNG_SP),
-        CHARACTERISTICS(30,30,30,30,30,30,30,30,30),
-        SKILLS(0,0,0), .fate_points=2, MONSTER_END,
+    [MID_BASIC_DWARF]=MONSTER('d',"dwarf","a dwarf",MSR_GENDER_MALE,0)
+        DWARF(TLT_GRUDGE_BORN_FURY, TLT_NIGHT_VISION, TLT_RESITANCE_TO_MAGIC, TLT_STOUT_HEARTED, TLT_STURDY),
+        CHARACTERISTICS(30,20,20,30,10,20,20,10),
+        SKILLS(0,0,0), .fate_points=0, .is_player=true,
+        DESCRIPTION("description of a dwarf"),
+    MONSTER_END,
 
-    [MID_BASIC_HIVE]=MONSTER('h',"human","a hive human",MSR_GENDER_MALE,14)
-        HUMAN(TLT_BASIC_WPN_TRNG_SP, TLT_PISTOL_WPN_TRNG_LAS, TLT_BASIC_WPN_TRNG_LAS, TLT_PISTOL_WPN_TRNG_SP),
-        CHARACTERISTICS(30,30,30,30,30,30,30,30,30),
-        SKILLS(0,0,0), .fate_points=2, MONSTER_END,
+    [MID_BASIC_ELF]=MONSTER('e',"elf","an elf",MSR_GENDER_MALE,0)
+        ELF(TLT_NIGHT_VISION),
+        CHARACTERISTICS(15,30,15,20,30,20,20,20),
+        SKILLS(0,0,0), .fate_points=0,  .is_player=true,
+        DESCRIPTION("description of an elf"),
+    MONSTER_END,
+
+    [MID_BASIC_HALFLING]=MONSTER('h',"halfling","an halfling",MSR_GENDER_MALE,0)
+        HALFLING(TLT_NIGHT_VISION, TLT_RESITANCE_TO_CHAOS, TLT_SPEC_WPN_GRP_SLING),
+        CHARACTERISTICS(10,30,10,10,30,20,20,30),
+        SKILLS(0,0,0), .fate_points=0,  .is_player=true,
+        DESCRIPTION("description of an halfling"),
+    MONSTER_END,
+
+    [MID_BASIC_HUMAN]=MONSTER('h',"human","a human",MSR_GENDER_MALE,0)
+        HUMAN(TLT_NONE),
+        CHARACTERISTICS(20,20,20,20,20,20,20,20),
+        SKILLS(0,0,0), .fate_points=0,  .is_player=true,
+        DESCRIPTION("description of an human"),
+    MONSTER_END,
     /*----------------------------------------------------------*/
 
-    MONSTER('h',"human","a hive human",MSR_GENDER_MALE,1)
-        HUMAN(TLT_BASIC_WPN_TRNG_SP, TLT_PISTOL_WPN_TRNG_SP),
-        CHARACTERISTICS(30,30,30,30,30,30,30,30,30),
-        DEF_WPN(0, IID_KNIFE),
+    MONSTER('h',"human","a human fighter",MSR_GENDER_MALE,1)
+        HUMAN(TLT_NONE),
+        CHARACTERISTICS(30,30,30,30,30,30,30,30),
+        DEF_WPN(0, IID_HAND_WEAPON),
         SKILLS(0,0,0),
-        DESCRIPTION("description of a hive ganger"),
+        DESCRIPTION("description of a human fighter"),
         CREATION(10,1,3, bf(DUNGEON_TYPE_CAVE) | bf(DUNGEON_TYPE_SIMPLE) ),
     MONSTER_END,
 
-    MONSTER('h',"human","a hive human",MSR_GENDER_MALE,1)
-        HUMAN(TLT_BASIC_WPN_TRNG_SP, TLT_PISTOL_WPN_TRNG_SP),
-        CHARACTERISTICS(30,30,30,30,30,30,30,30,30),
-        DEF_WPN(0, IID_STUB_AUTOMATIC),
-        DEF_WPN(1, IID_KNIFE),
+    MONSTER('h',"human","a human archer",MSR_GENDER_MALE,1)
+        HUMAN(TLT_NONE),
+        CHARACTERISTICS(30,30,30,30,30,30,30,30),
+        DEF_WPN(0, IID_SHORT_BOW),
         SKILLS(0,0,0),
-        DESCRIPTION("description of a hive ganger"),
-        CREATION(10,1,3, bf(DUNGEON_TYPE_CAVE) | bf(DUNGEON_TYPE_SIMPLE) ),
-    MONSTER_END,
-
-    MONSTER('h',"human","a hive human",MSR_GENDER_MALE,1)
-        HUMAN(TLT_BASIC_WPN_TRNG_LAS, TLT_PISTOL_WPN_TRNG_LAS),
-        CHARACTERISTICS(30,30,30,30,30,30,30,30,30),
-        DEF_WPN(0, IID_LAS_PISTOL),
-        DEF_WPN(1, IID_KNIFE),
-        SKILLS(0,0,0),
-        DESCRIPTION("description of a hive ganger"),
+        DESCRIPTION("description of a human archer"),
         CREATION(10,1,3, bf(DUNGEON_TYPE_CAVE) | bf(DUNGEON_TYPE_SIMPLE) ),
     MONSTER_END,
 
     MONSTER('d',"dog","a vicious dog",MSR_GENDER_MALE,1)
-        BEAST(0),
-        CHARACTERISTICS(30,0,30,30,30,15,38,40,30),
-        SKILLS(MSR_SKILLS_AWARENESS|MSR_SKILLS_SILENT_MOVE|MSR_SKILLS_TRACKING, MSR_SKILLS_AWARENESS|MSR_SKILLS_SILENT_MOVE|MSR_SKILLS_TRACKING ,0),
+        BEAST(TLT_NONE),
+        CHARACTERISTICS(30,0,30,30,30,15,40,30),
+        SKILLS(MSR_SKILLS_AWARENESS|MSR_SKILLS_SILENT_MOVE, MSR_SKILLS_AWARENESS|MSR_SKILLS_SILENT_MOVE,0),
         DESCRIPTION("description of a viscious dog"),
         CREATION(10,1,3, bf(DUNGEON_TYPE_CAVE) | bf(DUNGEON_TYPE_SIMPLE) ),
      MONSTER_END,
-};
-
-static enum msr_characteristic msr_skill_charac[] = {
-    [MSR_SKILLS_AWARENESS]      = MSR_CHAR_PERCEPTION,
-    [MSR_SKILLS_BARTER]         = MSR_CHAR_FELLOWSHIP,
-    [MSR_SKILLS_CHEM_USE]       = MSR_CHAR_INTELLIGENCE,
-    [MSR_SKILLS_COMMON_LORE]    = MSR_CHAR_INTELLIGENCE,
-    [MSR_SKILLS_CONCEALMENT]    = MSR_CHAR_AGILITY,
-    [MSR_SKILLS_DEMOLITION]     = MSR_CHAR_STRENGTH,
-    [MSR_SKILLS_DISGUISE]       = MSR_CHAR_FELLOWSHIP,
-    [MSR_SKILLS_DODGE]          = MSR_CHAR_AGILITY,
-    [MSR_SKILLS_EVALUATE]       = MSR_CHAR_INTELLIGENCE,
-    [MSR_SKILLS_FORBIDDEN_LORE] = MSR_CHAR_INTELLIGENCE,
-    [MSR_SKILLS_INVOCATION]     = MSR_CHAR_WILLPOWER,
-    [MSR_SKILLS_LOGIC]          = MSR_CHAR_INTELLIGENCE,
-    [MSR_SKILLS_MEDICAE]        = MSR_CHAR_INTELLIGENCE,
-    [MSR_SKILLS_PSYSCIENCE]     = MSR_CHAR_WILLPOWER,
-    [MSR_SKILLS_SCHOLASTIC_LORE]= MSR_CHAR_INTELLIGENCE,
-    [MSR_SKILLS_SEARCH]         = MSR_CHAR_PERCEPTION,
-    [MSR_SKILLS_SECURITY]       = MSR_CHAR_INTELLIGENCE,
-    [MSR_SKILLS_SILENT_MOVE]    = MSR_CHAR_AGILITY,
-    [MSR_SKILLS_SURVIVAL]       = MSR_CHAR_INTELLIGENCE,
-    [MSR_SKILLS_TECH_USE]       = MSR_CHAR_INTELLIGENCE,
-    [MSR_SKILLS_TRACKING]       = MSR_CHAR_INTELLIGENCE,
 };
 
 static const char *msr_skillrate_name[] = {
@@ -118,175 +126,151 @@ static const char *msr_skillrate_name[] = {
     [MSR_SKILL_RATE_EXPERT]     = "expert",
 };
 
+static enum msr_characteristic msr_skill_charac[] = {
+    [MSR_SKILLS_AWARENESS]          = MSR_CHAR_PERCEPTION,
+    [MSR_SKILLS_CHARM_ANIMAL]       = MSR_CHAR_INTELLIGENCE,
+    [MSR_SKILLS_CHANNELING]         = MSR_CHAR_WILLPOWER,
+    [MSR_SKILLS_CHEM_USE]           = MSR_CHAR_TOUGHNESS,
+    [MSR_SKILLS_COMMAND]            = MSR_CHAR_INTELLIGENCE,
+    [MSR_SKILLS_CONCEALMENT]        = MSR_CHAR_AGILITY,
+    [MSR_SKILLS_DODGE]              = MSR_CHAR_AGILITY,
+    [MSR_SKILLS_FOLLOW_TRAIL]       = MSR_CHAR_INTELLIGENCE,
+    [MSR_SKILLS_HAGGLE]             = MSR_CHAR_INTELLIGENCE,
+    [MSR_SKILLS_HEAL]               = MSR_CHAR_INTELLIGENCE,
+    [MSR_SKILLS_MAGICAL_SENSE]      = MSR_CHAR_WILLPOWER,
+    [MSR_SKILLS_PICK_LOCK]          = MSR_CHAR_AGILITY,
+    [MSR_SKILLS_PREPARE_POISON]     = MSR_CHAR_TOUGHNESS,
+    [MSR_SKILLS_READ_WRITE]         = MSR_CHAR_INTELLIGENCE,
+    [MSR_SKILLS_SCALE_SHEER_SURFACE]= MSR_CHAR_AGILITY,
+    [MSR_SKILLS_SEARCH]             = MSR_CHAR_PERCEPTION,
+    [MSR_SKILLS_SET_TRAP]           = MSR_CHAR_INTELLIGENCE,
+    [MSR_SKILLS_SILENT_MOVE]        = MSR_CHAR_AGILITY,
+    [MSR_SKILLS_SURVIVAL]           = MSR_CHAR_INTELLIGENCE,
+    [MSR_SKILLS_TORTURE]            = MSR_CHAR_STRENGTH,
+    [MSR_SKILLS_VENTRILOQUISM]      = MSR_CHAR_INTELLIGENCE,
+    [MSR_SKILLS_MAX]                = MSR_CHAR_MAX,
+};
+
 static const char *msr_skill_name[] = {
-    [MSR_SKILLS_AWARENESS]      = "Awareness",
-    [MSR_SKILLS_BARTER]         = "Barter",
-    [MSR_SKILLS_CHEM_USE]       = "Chem Use",
-    [MSR_SKILLS_COMMON_LORE]    = "Common Lore",
-    [MSR_SKILLS_CONCEALMENT]    = "Concealment",
-    [MSR_SKILLS_DEMOLITION]     = "Demolition",
-    [MSR_SKILLS_DISGUISE]       = "Disguise",
-    [MSR_SKILLS_DODGE]          = "Dodge",
-    [MSR_SKILLS_EVALUATE]       = "Evaluate",
-    [MSR_SKILLS_FORBIDDEN_LORE] = "Forbidden Lore",
-    [MSR_SKILLS_INVOCATION]     = "Invocation",
-    [MSR_SKILLS_LOGIC]          = "Logic",
-    [MSR_SKILLS_MEDICAE]        = "Medicae",
-    [MSR_SKILLS_PSYSCIENCE]     = "Psyscience",
-    [MSR_SKILLS_SCHOLASTIC_LORE]= "Scholastic Lore",
-    [MSR_SKILLS_SEARCH]         = "Search",
-    [MSR_SKILLS_SECURITY]       = "Security",
-    [MSR_SKILLS_SILENT_MOVE]    = "Silent Move",
-    [MSR_SKILLS_SURVIVAL]       = "Survival",
-    [MSR_SKILLS_TECH_USE]       = "Tech Use",
-    [MSR_SKILLS_TRACKING]       = "Tracking",
+    [MSR_SKILLS_AWARENESS]          = "Awareness",
+    [MSR_SKILLS_CHARM_ANIMAL]       = "Charm Animal",
+    [MSR_SKILLS_CHANNELING]         = "Channeling",
+    [MSR_SKILLS_CHEM_USE]           = "Chem Use",
+    [MSR_SKILLS_COMMAND]            = "Command",
+    [MSR_SKILLS_CONCEALMENT]        = "Concealment",
+    [MSR_SKILLS_DODGE]              = "Dodge",
+    [MSR_SKILLS_FOLLOW_TRAIL]       = "Follow Trail",
+    [MSR_SKILLS_HAGGLE]             = "Haggle",
+    [MSR_SKILLS_HEAL]               = "Heal",
+    [MSR_SKILLS_MAGICAL_SENSE]      = "Magical Sense",
+    [MSR_SKILLS_PICK_LOCK]          = "Pick Lock",
+    [MSR_SKILLS_PREPARE_POISON]     = "Prepare Poison",
+    [MSR_SKILLS_READ_WRITE]         = "Read/Write",
+    [MSR_SKILLS_SCALE_SHEER_SURFACE]= "Scale Sheer Surface",
+    [MSR_SKILLS_SEARCH]             = "Search",
+    [MSR_SKILLS_SET_TRAP]           = "Set Trap",
+    [MSR_SKILLS_SILENT_MOVE]        = "Silent Move",
+    [MSR_SKILLS_SURVIVAL]           = "Survival",
+    [MSR_SKILLS_TORTURE]            = "Torture",
+    [MSR_SKILLS_VENTRILOQUISM]      = "Ventriloquism",
+    [MSR_SKILLS_MAX]                = "Max,"
 };
 
 static const char *msr_talent_name[] = {
-    [TLT_NONE]                           = "none",
-    [TLT_BASIC_WPN_TRNG_BOLT]            = "basic weapon training bolt",
-    [TLT_BASIC_WPN_TRNG_FLAME]           = "basic weapon training flame",
-    [TLT_BASIC_WPN_TRNG_LAS]             = "basic weapon training las",
-    [TLT_BASIC_WPN_TRNG_LAUNCHER]        = "basic weapon training launcher",
-    [TLT_BASIC_WPN_TRNG_MELTA]           = "basic weapon training melta",
-    [TLT_BASIC_WPN_TRNG_PLASMA]          = "basic weapon training plasma",
-    [TLT_BASIC_WPN_TRNG_PRIMITIVE]       = "basic weapon training primitive",
-    [TLT_BASIC_WPN_TRNG_SP]              = "basic weapon training solid projectile",
-    [TLT_HEAVY_WPN_TRNG_BOLT]            = "heavy weapon training bolt",
-    [TLT_HEAVY_WPN_TRNG_FLAME]           = "heavy weapon training flame",
-    [TLT_HEAVY_WPN_TRNG_LAS]             = "heavy weapon training las",
-    [TLT_HEAVY_WPN_TRNG_LAUNCHER]        = "heavy weapon training launcher",
-    [TLT_HEAVY_WPN_TRNG_MELTA]           = "heavy weapon training melta",
-    [TLT_HEAVY_WPN_TRNG_PLASMA]          = "heavy weapon training plasma",
-    [TLT_HEAVY_WPN_TRNG_PRIMITIVE]       = "heavy weapon training primitive",
-    [TLT_HEAVY_WPN_TRNG_SP]              = "heavy weapon training solid projectile",
-    [TLT_PISTOL_WPN_TRNG_BOLT]           = "pistol weapon training bolt",
-    [TLT_PISTOL_WPN_TRNG_FLAME]          = "pistol weapon training flame",
-    [TLT_PISTOL_WPN_TRNG_LAS]            = "pistol weapon training las",
-    [TLT_PISTOL_WPN_TRNG_LAUNCHER]       = "pistol weapon training launcher",
-    [TLT_PISTOL_WPN_TRNG_MELTA]          = "pistol weapon training melta",
-    [TLT_PISTOL_WPN_TRNG_PLASMA]         = "pistol weapon trainig plasma",
-    [TLT_PISTOL_WPN_TRNG_PRIMITIVE]      = "pistol weapon training primitive",
-    [TLT_PISTOL_WPN_TRNG_SP]             = "pistol weapon training solid projectile",
-    [TLT_THROWN_WPN_TRNG_PRIMITIVE]      = "thrown weapon training primitive",
-    [TLT_THROWN_WPN_TRNG_CHAIN]          = "thrown weapon training chain",
-    [TLT_THROWN_WPN_TRNG_SHOCK]          = "thrown weapon training shock",
-    [TLT_THROWN_WPN_TRNG_POWER]          = "thrown weapon training power",
-    [TLT_MELEE_WPN_TRNG_PRIMITIVE]       = "melee weapon training primitive",
-    [TLT_MELEE_WPN_TRNG_CHAIN]           = "melee weapon training chain",
-    [TLT_MELEE_WPN_TRNG_SHOCK]           = "melee weapon training shock",
-    [TLT_MELEE_WPN_TRNG_POWER]           = "melee weapon training power",
-    [TLT_RESISTANCE_COLD]                = "cold resistance",
-    [TLT_RESISTANCE_HEAT]                = "heat resistance",
-    [TLT_RESISTANCE_FEAR]                = "fear resistance",
-    [TLT_RESISTANCE_POISON]              = "poison resistance",
-    [TLT_RESISTANCE_WARP]                = "warp resistance",
-    [TLT_HATRED_FACTION_CRIMINALS]       = "hatred faction criminals",
-    [TLT_HATRED_FACTION_DAEMONS]         = "hatred faction daemons",
-    [TLT_HATRED_FACTION_ORKS]            = "hatred faction orks",
-    [TLT_HATRED_FACTION_TYRANIDS]        = "hatred faction tyranids",
-    [TLT_HATRED_FACTION_PSYKERS]         = "hatred faction psykers",
-    [TLT_HATRED_FACTION_HERETICS]        = "hatred faction heretics",
-    [TLT_HATRED_FACTION_MUTANTS]         = "hatred faction mutants",
-    [TLT_EXOTIC_WPN_TRNG_NEEDLE_PISTOL]  = "exotic weapon training needle pistol",
-    [TLT_EXOTIC_WPN_TRNG_WEB_PISTOL]     = "exotic weapon training web pistol",
-    [TLT_EXOTIC_WPN_TRNG_NEEDLE_RIFLE]   = "exotic weapon training needle rifle",
-    [TLT_EXOTIC_WPN_TRNG_WEBBER]         = "exotic weapon training webber",
-    [TLT_PSY_RATING_1]                   = "psy rating 1",
-    [TLT_PSY_RATING_2]                   = "psy rating 2",
-    [TLT_PSY_RATING_3]                   = "psy rating 3",
-    [TLT_PSY_RATING_4]                   = "psy rating 4",
-    [TLT_PSY_RATING_5]                   = "psy rating 5",
-    [TLT_PSY_RATING_6]                   = "psy rating 6",
-
-    [TLT_TALENT_AWARENESS]		        = "awareness talent",
-    [TLT_TALENT_BARTER]		            = "barter talent",
-    [TLT_TALENT_CHEM_USE]		        = "chem use talent",
-    [TLT_TALENT_COMMON_LORE]		    = "common lore talent",
-    [TLT_TALENT_CONCEALMENT]		    = "concealment talent",
-    [TLT_TALENT_DEMOLITION]		        = "demolition talent",
-    [TLT_TALENT_DISGUISE]		        = "disguise talent",
-    [TLT_TALENT_DODGE]		            = "dodge talent",
-    [TLT_TALENT_EVALUATE]		        = "evaluate talent",
-    [TLT_TALENT_FORBIDDEN_LORE]		    = "forbidden lore talent",
-    [TLT_TALENT_INVOCATION]		        = "invocation talent",
-    [TLT_TALENT_LOGIC]		            = "logic talent",
-    [TLT_TALENT_MEDICAE]		        = "medicae talent",
-    [TLT_TALENT_PSYSCIENCE]		        = "psycience talent",
-    [TLT_TALENT_SCHOLASTIC_LORE]		= "scholastic lore talent",
-    [TLT_TALENT_SEARCH]		            = "search talent",
-    [TLT_TALENT_SECURITY]		        = "security talent",
-    [TLT_TALENT_SILENT_MOVE]		    = "silent move talent",
-    [TLT_TALENT_SURVIVAL]		        = "survival talent",
-    [TLT_TALENT_TECH_USE]		        = "tech use talent",
-    [TLT_AMBIDEXTROUS]		            = "ambidextrous",
-    [TLT_ARMOUR_OF_CONTEMPT]		    = "armour of contempt",
-    [TLT_ARMS_MASTER]		            = "arms master",
-    [TLT_ASSASSIN_STRIKE]		        = "assasin strike",
-    [TLT_AUTOSANGUINE]		            = "autosanguine",
-    [TLT_BATTLE_RAGE]		            = "battle rage",
-    [TLT_BLADE_MASTER]		            = "blade master",
-    [TLT_BLIND_FIGHTING]		        = "blind fighting",
-    [TLT_BULGING_BICEPS]		        = "bulging biceps",
-    [TLT_CLEANSE_AND_PURIFY]		    = "cleanse and purify",
-    [TLT_COMBAT_MASTER]		            = "combat master",
-    [TLT_CORPUS_CONVERSION]		        = "corpus conversion",
-    [TLT_COUNTER_ATTACK]		        = "counter attack",
-    [TLT_CRACK_SHOT]		            = "crack shot",
-    [TLT_DARK_SOUL]		                = "dark soul",
-    [TLT_DEADEYE_SHOT]		            = "deadeye shot",
-    [TLT_DEFLECT_SHOT]		            = "deflect shot",
-    [TLT_DIE_HARD]		                = "die hard",
-    [TLT_DISARM]		                = "disarm",
-    [TLT_DISCIPLINE_FOCUS]		        = "discipline focus",
-    [TLT_DOUBLE_TEAM]		            = "double team",
-    [TLT_DUAL_SHOT]		                = "dual shot",
-    [TLT_DUAL_STRIKE]		            = "dual strike",
-    [TLT_ELECTRICAL_SOCCOUR]		    = "",
-    [TLT_ELECTRO_GRAFT_USE]		        = "",
-    [TLT_FAVOURED_BY_THE_WARP]		    = "",
-    [TLT_FEARLESS]		                = "",
-    [TLT_FEEDBACK_SCREECH]		        = "",
-    [TLT_FLAGELLANT]		            = "",
-    [TLT_FORESIGHT]		                = "",
-    [TLT_FRENZY]		                = "",
-    [TLT_FURIOUS_ASSAULT]		        = "",
-    [TLT_GUN_BLESSING]		            = "",
-    [TLT_GUNSLINGER]		            = "",
-    [TLT_HARDY]		                    = "",
-    [TLT_HEIGHTENED_SENSES]		        = "",
-    [TLT_INSANELY_FAITHFULL]		    = "",
-    [TLT_IRON_JAW]		                = "",
-    [TLT_JADED]		                    = "",
-    [TLT_LIGHTNING_ATTACK]		        = "",
-    [TLT_LOGIS_IMPLANT]		            = "",
-    [TLT_LUMINEN_CHARGE]		        = "",
-    [TLT_MAGLEV_CHARGE]		            = "",
-    [TLT_MARKSMEN]		                = "",
-    [TLT_MASTER_CHIRUGEON]		        = "",
-    [TLT_MECHANDENDRIUSE]		        = "",
-    [TLT_MEDITATION]		            = "",
-    [TLT_MENTAL_FORTRESS]		        = "",
-    [TLT_MENTAL_RAGE]		            = "",
-    [TLT_MIGHSHOT]		                = "",
-    [TLT_MINOR_PSYCHIC_POWER]		    = "",
-    [TLT_NERVES_OF_STEEL]	        	= "",
-    [TLT_POWER_WELL]		            = "",
-    [TLT_PROSANGUINE]		            = "",
-    [TLT_QUICK_DRAW]		            = "",
-    [TLT_RAPID_RELOAD]		            = "",
-    [TLT_SOUND_CONSTITUTION]		    = "",
-    [TLT_SPRINT]		                = "",
-    [TLT_STEP_ASIDE]		            = "",
-    [TLT_STREET_FIGHTING]		        = "",
-    [TLT_STRONG_MINDED]		            = "",
-    [TLT_SWIFT_ATTACK]		            = "",
-    [TLT_TAKE_DOWN]		                = "",
-    [TLT_TECHNICAL_KNOCK]		        = "",
-    [TLT_TRUE_GRIT]		                = "",
-    [TLT_TWO_WEAPON_WIELDER_MELEE]		= "",
-    [TLT_TWO_WEAPON_WIELDER_BALLISTIC]  = "",
-    [TLT_UNSHAKEBLE_FAITH]		        = "",
-    [TLT_WALL_OF_STEEL]		            = "",
+    [TLT_NONE]                  = "none",
+	[TLT_ACUTE_SIGHT]			= "Acute Sight",
+	[TLT_AETHYRIC_ATTUNEMENT]	= "Aethyric Attunement",
+	[TLT_ALLEY_CAT]			    = "Alley Cat",
+	[TLT_ANIMAL_HANDLER]		= "Animal Handler",
+	[TLT_AMBIDEXTROUS]			= "Ambidextrous",
+	[TLT_ARCANE_LORE_BEAST]		= "Arcane Lore Beasts",
+	[TLT_ARCANE_LORE_DEATH]		= "Arcane Lore Death",
+	[TLT_ARCANE_LORE_FIRE]		= "Arcane Lore Fire",
+	[TLT_ARCANE_LORE_HEAVENS]	= "Arcane Lore Heavens",
+	[TLT_ARCANE_LORE_LIFE]		= "Arcane Lore Life",
+	[TLT_ARCANE_LORE_LIGHT]		= "Arcane Lore Light",
+	[TLT_ARCANE_LORE_METAL]		= "Arcane Lore Metal",
+	[TLT_ARCANE_LORE_SHADOW]	= "Arcane Lore Shadow",
+	[TLT_ARMOURED_CASTING]		= "Armoured Casting",
+	[TLT_BLIND_FIGHTING]		= "Blind Fighting",
+	[TLT_CRACK_SHOT]			= "Crack Shot",
+	[TLT_COOL_HEADED]			= "Cool Headed",
+	[TLT_CRY_OF_WAR]			= "Cry of War",
+	[TLT_CRIPPLING_STRIKE]		= "Crippling Strike",
+	[TLT_DARK_LORE_CHAOS]		= "Dark Lore Chaos",
+	[TLT_DARK_LORE_NECROMANCY]	= "Dark Lore Necromancy",
+	[TLT_DEAD_AIM]			    = "Dead Aim",
+	[TLT_DIVINE_LORE_MANANN]    = "Divine Lore Manann",
+	[TLT_DIVINE_LORE_MORR]		= "Divine Lore Morr",
+	[TLT_DIVINE_LORE_MYRMIDIA]	= "Divine Lore Myrmidia",
+	[TLT_DIVINE_LORE_RANALD]	= "Divine Lore Ranald",
+	[TLT_DIVINE_LORE_SHALLYA]	= "Divine Lore Shallya",
+	[TLT_DIVINE_LORE_SIGMAR]	= "Divine Lore Sigmar",
+	[TLT_DIVINE_LORE_TAAL_AND_RHYA]	= "Divine Lore Taal and Rhya",
+	[TLT_DIVINE_LORE_VERENA]	= "Divine Lore Verena",
+    [TLT_EXCELENT_VISION]       = "Excelent Vision",
+	[TLT_FAST_HANDS]			= "Fast Hands",
+	[TLT_FEARLESS]			    = "Fearless",
+	[TLT_FLEE]			        = "Flee",
+	[TLT_FLEET_FOOTED]			= "Fleet Footed",
+	[TLT_FOCUSSED_STRIKE]		= "Focussed Strike",
+	[TLT_FRENZY]			    = "Frenzy",
+	[TLT_GRUDGE_BORN_FURY]	    = "Grudge Born Fury",
+	[TLT_HAMMER_BLOW]			= "Hammer Blow",
+	[TLT_HARDY]			        = "Hardy",
+	[TLT_HEDGE_MAGIC]			= "Hedge Magic",
+	[TLT_HOVERER]			    = "Hoverer",
+	[TLT_KEEN_SENSES]			= "Keen Senses",
+	[TLT_LESSER_MAGIC_DISPEL]   = "Lesser Magic Dispel",
+	[TLT_LESSER_MAGIC_BLESSED_WEAPON] = "Lesser Magic Blessed Weapon",
+	[TLT_LIGHTNING_ATTACK]		= "Lightning Attack",
+	[TLT_LIGHTNING_REFLEXES]	= "Lighting Reflexes",
+	[TLT_LUCKY]			        = "Lucky",
+	[TLT_MARKSMAN]			    = "Marksman",
+	[TLT_MASTER_GUNNER]			= "Master Gunner",
+	[TLT_MEDITATION]			= "Meditation",
+	[TLT_MENACING]			    = "Menacing",
+	[TLT_MIGHTY_MISSILE]		= "Mighty Missile",
+	[TLT_MIGHTY_SHOT]			= "Mighty Shot",
+	[TLT_NIGHT_VISION]			= "Night Vision",
+	[TLT_PETTY_MAGIC_ARCANE]	= "Petty Magic Arcane",
+	[TLT_PETTY_MAGIC_DIVINE]	= "Petty Magic Divine",
+	[TLT_PETTY_MAGIC_HEDGE]		= "Petty Magic Hedge",
+	[TLT_QUICK_DRAW]			= "Quick Draw",
+	[TLT_RAPID_RELOAD]			= "Rapid Reload",
+	[TLT_RESITANCE_TO_CHAOS]	= "Resistance to Chaos",
+	[TLT_RESITANCE_TO_DISEASE]	= "Resistance to Disease",
+	[TLT_RESITANCE_TO_MAGIC]	= "Resistance to Magic",
+	[TLT_RESITANCE_TO_POISON]	= "Resistance to Poison",
+	[TLT_ROVER]			        = "Rover",
+	[TLT_SAVVY]			        = "Savvy",
+	[TLT_SHARPSHOOTER]			= "Sharpshooter",
+	[TLT_SIXTH_SENSE]			= "Sixth Sense",
+	[TLT_SPEC_WPN_GRP_CROSSBOW] = "Specialist Weapon Group (Crossbow)",
+	[TLT_SPEC_WPN_GRP_ENTANGLING] = "Specialist Weapon Group (Entangling)",
+	[TLT_SPEC_WPN_GRP_FENCING]	= "Specialist Weapon Group (Fencing)",
+	[TLT_SPEC_WPN_GRP_FLAIL]	= "Specialist Weapon Group (Flail)",
+	[TLT_SPEC_WPN_GRP_GUNPOWDER]= "Specialist Weapon Group (Gunpowder)",
+	[TLT_SPEC_WPN_GRP_LONGBOW]	= "Specialist Weapon Group (Longbow)",
+	[TLT_SPEC_WPN_GRP_PARRYING]	= "Specialist Weapon Group (Parrying)",
+	[TLT_SPEC_WPN_GRP_SLING]	= "Specialist Weapon Group (Sling)",
+	[TLT_SPEC_WPN_GRP_THROWING]	= "Specialist Weapon Group (Throwing)",
+	[TLT_SPEC_WPN_GRP_TWO_HANDED]= "Specialist Weapon Group (Two-Handed)",
+	[TLT_STOUT_HEARTED]			= "Strong Hearted",
+	[TLT_STREET_FIGHTING]		= "Street Fighting",
+	[TLT_STRIKE_MIGHTY_BLOW]	= "Strike Mighty Blow",
+	[TLT_STRIKE_TO_INJURE]		= "Strike to Injure",
+	[TLT_STRIKE_TO_STUN]		= "Strike to Stun",
+	[TLT_STRONG_MINDED]			= "Strong Minded",
+	[TLT_STURDY]			    = "Sturdy",
+	[TLT_SURE_SHOT]			    = "Sure Shot",
+	[TLT_SURGERY]			    = "Surgery",
+	[TLT_TRAPFINDING]			= "Trapfindig",
+	[TLT_TUNNEL_RAT]			= "Tunnel Rat",
+	[TLT_VERY_RESILIENT]		= "Very Resilient",
+	[TLT_VERY_STRONG]			= "Very Strong",
+	[TLT_WARRIOR_BORN]			= "Warrior Born",
+	[TLT_WRESTLING]			    = "Wrestling",
+    [TLT_MAX]                   = "max",
 };
 

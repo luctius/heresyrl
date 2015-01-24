@@ -27,6 +27,7 @@ void itmlst_items_list_init(void) {
         struct itm_item *item = &static_item_list[i];
         if (item->template_id != i) {
             fprintf(stderr, "Item list integrity check failed! [%d]\n", i);
+            fprintf(stderr, "Item: %s.\n", static_item_list[i].sd_name);
             exit(EXIT_FAILURE);
         }
     }

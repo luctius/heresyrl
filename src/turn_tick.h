@@ -8,8 +8,8 @@
 
 enum tt_energy {
     TT_ENERGY_TICK = 10,
-    TT_ENERGY_TURN = 100,
-    TT_ENERGY_FULL = 1000,
+    TT_ENERGY_TURN = 80,
+    TT_ENERGY_FULL = 800,
 };
 
 void tt_init(void);

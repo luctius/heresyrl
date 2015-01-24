@@ -64,9 +64,11 @@ int fght_ranged_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght
 
         /* weapon settings */
         if (wpn->weapon_type == WEAPON_TYPE_RANGED) {
+            /*
             CALC_TOHIT(wpn->rof_set == WEAPON_ROF_SETTING_SINGLE, FGHT_RANGED_MODIFIER_ROF_SINGLE, "using single shot")
             else CALC_TOHIT(wpn->rof_set == WEAPON_ROF_SETTING_SEMI, FGHT_RANGED_MODIFIER_ROF_SEMI, "using semi automatic")
             else CALC_TOHIT(wpn->rof_set == WEAPON_ROF_SETTING_AUTO, FGHT_RANGED_MODIFIER_ROF_AUTO, "using full automatic")
+            */
         }
 
         /* Target size modifiers */
@@ -92,8 +94,7 @@ int fght_ranged_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght
 
             /* normally you would not be able to fire with a normal weapon and get this penaly with a pistol, but that is too harsh since you cannot disengage. */
             /* TODO add check for other enemies in melee. */
-            CALC_TOHIT( (distance == FGHT_MELEE_RANGE) && (wpn_is_catergory(witem, WEAPON_CATEGORY_PISTOL) ), 0, "you are in melee combat with a pistol")
-            else CALC_TOHIT( (distance == FGHT_MELEE_RANGE), FGHT_RANGED_MODIFIER_MELEE, "you are in melee combat")
+            CALC_TOHIT( (distance == FGHT_MELEE_RANGE), FGHT_RANGED_MODIFIER_MELEE, "you are in melee combat")
             else CALC_TOHIT(dis_in_meters >= (weapon_range * 3), FGHT_RANGED_MODIFIER_EXTREME_RANGE, "target is at extreme range")
             else CALC_TOHIT(dis_in_meters >= (weapon_range * 2), FGHT_RANGED_MODIFIER_LONG_RANGE, "target is at long range")
             else CALC_TOHIT(distance <= FGHT_POINT_BLANK_RANGE, FGHT_RANGED_MODIFIER_POINT_BLACK, "target is at point-blank range")
@@ -265,11 +266,7 @@ int fght_calc_dmg(struct random *r, struct msr_monster *monster, struct msr_mons
             /* Modifiers to toughness here */
             {}
             /* Modifiers to armour here */
-            {
-                /* Armour counts double against primitive weapons, primitive armour counts as half against weapons, except against each other. */
-                if (wpn_has_spc_quality(witem, WPN_SPCQLTY_PRIMITIVE) > 0) armour *= 2;
-                if ( (aitem != NULL) && wbl_has_spc_quality(aitem, WBL_SPCQLTY_PRIMITIVE) > 0) armour /= 2;
-            }
+            { }
         }
 
         lg_debug("Armour %d, penetration %d, toughness %d, dmg %d, dmg_add %d", armour, penetration, toughness, dmg, dmg_add);
@@ -292,7 +289,7 @@ int fght_calc_dmg(struct random *r, struct msr_monster *monster, struct msr_mons
 
     if ( (target->dead == false) && (total_damage > 0) ) {
         if (wpn->convey_status_effect != SEID_NONE) {
-            assert(se_add_status_effect(target->status_effects, wpn->convey_status_effect) );
+            assert(se_add_status_effect(target, wpn->convey_status_effect) );
         }
     }
     return total_damage;
@@ -343,11 +340,15 @@ int fght_ranged_roll(struct random *r, struct msr_monster *monster, struct msr_m
     int roll = random_d100(r);
 
     /* Calculate jamming threshold*/
-    int jammed_threshold = FGHT_RANGED_JAM;
-    if ( (wpn->rof_set == WEAPON_ROF_SETTING_SEMI) || (wpn->rof_set == WEAPON_ROF_SETTING_AUTO) ) jammed_threshold = MIN(FGHT_RANGED_JAM_SEMI,jammed_threshold);
-    if (wpn_has_spc_quality(witem, WPN_SPCQLTY_UNRELIABLE) ) jammed_threshold = MIN(FGHT_RANGED_JAM_UNRELIABLE, jammed_threshold);
-    if (msr_has_talent(monster, wpn->wpn_talent) == false) jammed_threshold = MIN(FGHT_RANGED_JAM_UNRELIABLE, jammed_threshold);
-    if (itm_has_quality(witem, ITEM_QLTY_POOR) ) jammed_threshold = MIN(to_hit, jammed_threshold);
+    int jammed_threshold = 0;
+    if (wpn_has_spc_quality(witem, WPN_SPCQLTY_JAMS) ) {
+        jammed_threshold = FGHT_RANGED_JAM;
+
+        if ( (wpn->rof_set == WEAPON_ROF_SETTING_SEMI) || (wpn->rof_set == WEAPON_ROF_SETTING_AUTO) ) jammed_threshold = MIN(FGHT_RANGED_JAM_SEMI,jammed_threshold);
+        if (wpn_has_spc_quality(witem, WPN_SPCQLTY_UNRELIABLE) ) jammed_threshold = MIN(FGHT_RANGED_JAM_UNRELIABLE, jammed_threshold);
+        if (msr_has_talent(monster, wpn->wpn_talent) == false) jammed_threshold = MIN(FGHT_RANGED_JAM_UNRELIABLE, jammed_threshold);
+        if (itm_has_quality(witem, ITEM_QLTY_POOR) ) jammed_threshold = MIN(to_hit, jammed_threshold);
+    }
 
     lg_debug("roll %d vs to hit %d, jamm_threshold %d", roll, to_hit, jammed_threshold);
 

@@ -21,8 +21,9 @@ bool ma_do_move(struct msr_monster *monster, coord_t *pos) {
     if (msr_verify_monster(monster) == false) return false;
     if (pos == NULL) return false;
 
-    if (msr_get_movement_rate(monster) == 0) {
-        You(monster, "cannot move");
+    int speed = msr_get_movement_rate(monster);
+    if (speed == 0) {
+        You(monster, "are unable to move.");
         return false;
     }
 
@@ -34,8 +35,7 @@ bool ma_do_move(struct msr_monster *monster, coord_t *pos) {
             You(monster, "see %s. ", item->ld_name);
         }
 
-        int speed = msr_get_movement_rate(monster);
-        msr_change_energy(monster, -(MSR_ACTION_MOVE - speed) );
+        msr_change_energy(monster, -(MSR_ACTION_MOVE - (speed * TT_ENERGY_TICK) ) );
         monster->controller.interruptable = false;
         monster->controller.interrupted = false;
         return true;
@@ -331,22 +331,12 @@ static bool ma_has_ammo(struct msr_monster *monster, struct itm_item *item) {
             ammo = &a_item->specific.ammo;
 
             int to_fill = wpn->magazine_sz - wpn->magazine_left;
-            if (ammo->energy > 0) {
-                float mod = ammo->energy / (float) wpn->magazine_sz;
-                int ammo_in_pack = round(ammo->energy_left / mod);
-                int sz = MIN(to_fill, ammo_in_pack);
-                wpn->magazine_left += sz;
-                ammo->energy_left -= (sz * mod);
-                if (ammo->energy_left < 2) a_item->stacked_quantity = 0;
-            }
-            else {
-                /*
-                   Transfer ammo from stack to the magazine of the item.
-                 */
-                int sz = MIN(to_fill, a_item->stacked_quantity);
-                wpn->magazine_left += sz;
-                a_item->stacked_quantity -= sz;
-            }
+            /*
+               Transfer ammo from stack to the magazine of the item.
+             */
+            int sz = MIN(to_fill, a_item->stacked_quantity);
+            wpn->magazine_left += sz;
+            a_item->stacked_quantity -= sz;
 
             /* TODO: destroy all items in inventory of stack_qnty == 0 */
             if (a_item->stacked_quantity == 0) {
@@ -426,15 +416,8 @@ static bool unload(struct msr_monster *monster, struct itm_item *weapon_item) {
 
     struct item_ammo_specific *ammo = &ammo_item->specific.ammo;
 
-    if (ammo->energy > 0) {
-        /* We count charge packs with energy */
-        ammo_item->stacked_quantity = 1;
-        float mod = ammo->energy / (float) wpn->magazine_sz;
-        ammo->energy_left = wpn->magazine_left * mod;
-    } else {
-        /* We count individual bullets */
-        ammo_item->stacked_quantity = wpn->magazine_left;
-    }
+    /* We count individual bullets */
+    ammo_item->stacked_quantity = wpn->magazine_left;
     wpn->magazine_left = 0;
 
     You(monster, "have unloaded %s.", weapon_item->ld_name);

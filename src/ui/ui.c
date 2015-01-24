@@ -701,12 +701,12 @@ void charwin_refresh() {
     intel = msr_calculate_characteristic(player, MSR_CHAR_INTELLIGENCE);
     per = msr_calculate_characteristic(player, MSR_CHAR_PERCEPTION);
     wil = msr_calculate_characteristic(player, MSR_CHAR_WILLPOWER);
-    /*fel = msr_calculate_characteristic(player, MSR_CHAR_FELLOWSHIP);*/
+
     ui_printf(char_win, "WS   %d   BS   %d\n", ws,bs);
     ui_printf(char_win, "Str  %d   Tgh  %d\n", str, tgh);
     ui_printf(char_win, "Agi  %d   Int  %d\n", agi, intel);
     ui_printf(char_win, "Per  %d   Wil  %d\n", per, wil);
-    //ui_printf(char_win, "Fellowship   [%d]%d", chr/10, chr%10);
+
     ui_printf(char_win, "\n");
 
     ui_printf(char_win, "Wounds    [%2d/%2d]\n", player->cur_wounds, player->max_wounds);
@@ -936,11 +936,6 @@ void invwin_examine(struct hrl_window *window, struct itm_item *item) {
         case ITEM_TYPE_AMMO: {
             struct item_ammo_specific *ammo = &item->specific.ammo;
             ui_printf(char_win, "Provides %s\n", wpn_ammo_string(ammo->ammo_type) );
-
-            if (ammo->energy > 0) {
-                int energy_pc = (ammo->energy_left * 100) / ammo->energy;
-                ui_printf(char_win, "Energy left %d\%\n", energy_pc);
-            }
         } break;
         case ITEM_TYPE_FOOD: break;
         default: break;
@@ -1061,7 +1056,6 @@ void character_window(void) {
     int y_sub = 0;
     struct pl_player *plr = &gbl_game->player_data;
     struct msr_monster *mon = plr->player;
-    unsigned int names_len = 0;
 
     struct hrl_window pad;
     memmove(&pad, map_win, sizeof(struct hrl_window) );
@@ -1102,143 +1096,101 @@ Basic weapon traning SP     ...                  |
     /* General Stats */
 
     ui_print_reset(&pad);
-    ui_printf(&pad, "Name:       %s\n", mon->unique_name);
-    ui_printf(&pad, "Gender      %s\n", msr_gender_string(mon) );
-    ui_printf(&pad, "Career:     %s\n", "tester");
-    ui_printf(&pad, "Rank:       %s\n", "beginner");
-    ui_printf(&pad, "Origin:     %s\n", "computer");
-    ui_printf(&pad, "Divination: %s\n", "You will die...");
+    ui_printf(&pad, "Name:          %-20s\n", mon->unique_name);
+    ui_printf(&pad, "Gender         %-20s\n", msr_gender_string(mon) );
+    ui_printf(&pad, "Career:        %-20s\n", "tester");
+    ui_printf(&pad, "Rank:          %-20s\n", "beginner");
+    ui_printf(&pad, "Origin:        %-20s\n", "computer");
+    ui_printf(&pad, "Divination:    %-20s\n", "You will die...");
 
-    ui_printf(&pad, "Wounds:   %d/%d\n", mon->cur_wounds, mon->max_wounds);
-    ui_printf(&pad, "Fatique:  %d\n", mon->fatique);
-    ui_printf(&pad, "XP:        %d\n", plr->xp_current / TT_ENERGY_TURN);
+    ui_printf(&pad, "Wounds:        %d/%d\n", mon->cur_wounds, mon->max_wounds);
+    ui_printf(&pad, "Fatique:       %d\n", mon->fatique);
+    ui_printf(&pad, "XP:            %d\n", plr->xp_current);
 
-    ui_printf(&pad, "Fate:       %d/%d\n", mon->fate_points,0);
     ui_printf(&pad, "Corruption:    %d\n", mon->corruption_points);
     ui_printf(&pad, "Spend:         %d\n", plr->xp_spend);
 
-    /* Characteristics */
-    const char *char_names[] = {"Ws", "Bs", "Str", "Tgh", "Agi", "Int", "Per", "Wil", "Per"};
+    ui_printf(&pad, "\n");
+    ui_printf(&pad, "\n");
+    ui_printf(&pad, "WS   %-2d      BS   %-2d\n", msr_calculate_characteristic(mon, MSR_CHAR_WEAPON_SKILL),msr_calculate_characteristic(mon, MSR_CHAR_BALISTIC_SKILL) );
+    ui_printf(&pad, "Str  %-2d      Tgh  %-2d\n", msr_calculate_characteristic(mon, MSR_CHAR_STRENGTH),    msr_calculate_characteristic(mon, MSR_CHAR_TOUGHNESS) );
+    ui_printf(&pad, "Agi  %-2d      Int  %-2d\n", msr_calculate_characteristic(mon, MSR_CHAR_AGILITY),     msr_calculate_characteristic(mon, MSR_CHAR_INTELLIGENCE) );
+    ui_printf(&pad, "Per  %-2d      Wil  %-2d\n", msr_calculate_characteristic(mon, MSR_CHAR_PERCEPTION),  msr_calculate_characteristic(mon, MSR_CHAR_WILLPOWER) );
+    ui_printf(&pad, "\n");
+    ui_printf(&pad, "\n");
 
-    y += 1;
-    for (int i = 0; i < MSR_CHAR_MAX -1; i++) {
-        ui_printf(&pad, "[%3s] ", char_names[i]);
-    }
-
-    y += 1;
-    for (int i = 0; i < MSR_CHAR_MAX -1; i++) {
-        ui_printf(&pad, "[%3d] ", msr_calculate_characteristic(mon, i) );
-    }
-
-    y += 2;
 
     /* Armour  */
-    ui_printf(&pad, "Armour\n");
-    ui_printf(&pad, "------\n");
+    ui_printf(&pad, "Armour            Protection   Locations\n");
+    ui_printf(&pad, "------            ----------   ---------\n");
 
     /* Armour */
     struct itm_item *item = NULL;
     while ( (item = inv_get_next_item(mon->inventory, item) ) != NULL) {
         if ( (inv_item_worn(mon->inventory, item) == true) && 
              (inv_item_wielded(mon->inventory, item) == false) ) {
+            int armour = 0;
+            bitfield32_t locs = inv_get_item_locations(mon->inventory, item);
 
-            ui_printf(&pad, "%s", item->ld_name);
-
-            if (names_len < strlen(item->ld_name) ) {
-                names_len = strlen(item->ld_name);
+            if (wbl_is_type(item, WEARABLE_TYPE_ARMOUR) == true) {
+                armour = item->specific.wearable.damage_reduction;
             }
+
+            ui_printf(&pad, "%-30s %5d      ", item->ld_name, armour);
+
+            bool first = true;
+            for (enum inv_locations i = 1; i < INV_LOC_MAX; i <<= 1) {
+                if ( (locs & i) > 0) {
+                    if (first == false) ui_printf(&pad, "/");
+                    ui_printf(&pad, "%s", inv_location_name(locs & i) );
+                    first = false;
+                }
+            }
+            ui_printf(&pad, "\n");
         }
     }
-
-            ui_printf(&pad, "AP\n");
-            ui_printf(&pad, "--\n");
-            /* Armour */
-            item = NULL;
-            while ( (item = inv_get_next_item(mon->inventory, item) ) != NULL) {
-                if ( (inv_item_worn(mon->inventory, item) == true) && 
-                     (inv_item_wielded(mon->inventory, item) == false) ) {
-                    int armour = 0;
-
-                    if (wbl_is_type(item, WEARABLE_TYPE_ARMOUR) == true) {
-                        armour = item->specific.wearable.damage_reduction;
-                    }
-
-                    ui_printf(&pad, "%3d", armour);
-                }
-            }
-
-            ui_printf(&pad, "Location\n");
-            ui_printf(&pad, "--------\n");
-
-            y += y_sub;
-
-            y_sub = 0;
-            item = NULL;
-            while ( (item = inv_get_next_item(mon->inventory, item) ) != NULL) {
-                if ( (inv_item_worn(mon->inventory, item) == true) && 
-                     (inv_item_wielded(mon->inventory, item) == false) ) {
-                    bitfield32_t locs = inv_get_item_locations(mon->inventory, item);
-
-                    bool first = true;
-                    for (enum inv_locations i = 1; i < INV_LOC_MAX; i <<= 1) {
-                        if ( (locs & i) > 0) {
-                            if (first == false) ui_printf(&pad, "/");
-                            ui_printf(&pad, "%s", inv_location_name(locs & i) );
-                            first = false;
-                        }
-                    }
-                }
-            }
-    y += y_sub +1;
+    ui_printf(&pad, "\n");
+    ui_printf(&pad, "\n");
 
     /* Skills */
     ui_printf(&pad, "Skills\n");
     ui_printf(&pad, "------\n");
 
     for (unsigned int i = 0; i < MSR_SKILLS_MAX; i++) {
-        if (names_len < strlen(msr_skill_names(i) ) ) {
-            names_len = strlen(msr_skill_names(i) );
-        }
-        ui_printf(&pad, "%s\n", msr_skill_names(i) );
-    }
+        if (msr_has_skill(mon, i) ) {
+            ui_printf(&pad, "%s\n", msr_skill_names(i) );
 
-            ui_printf(&pad, "Proficiency\n");
-            ui_printf(&pad, "-----------\n");
-            for (unsigned int i = 0; i < MSR_SKILLS_MAX; i++) {
-                enum msr_skill_rate skillrate = msr_has_skill(mon,  i);
-                lg_debug("skill rate: %d", skillrate);
-                ui_printf(&pad, "%s\n", msr_skillrate_names(skillrate));
-            }
-    y += y_sub +1;
+            enum msr_skill_rate skillrate = msr_has_skill(mon,  i);
+            lg_debug("skill rate: %d", skillrate);
+            ui_printf(&pad, "%s\n", msr_skillrate_names(skillrate));
+        }
+    }
+    ui_printf(&pad, "\n");
+    ui_printf(&pad, "\n");
 
     /* Talents */
     ui_printf(&pad, "Talents\n");
     ui_printf(&pad, "-------\n");
 
-    names_len = 0;
-    for (unsigned int i = 1; i < MSR_TALENTS_MAX; i++) {
+    for (unsigned int i = 1; i < TLT_MAX; i++) {
         if (msr_has_talent(mon, i) ) {
-            if (names_len < strlen(msr_talent_names(i) ) ) {
-                names_len = strlen(msr_talent_names(i) );
-            }
             ui_printf(&pad, "%s\n", msr_talent_names(i) );
         }
     }
+    ui_printf(&pad, "\n");
+    ui_printf(&pad, "\n");
 
-    y += y_sub +1;
 
-
-    /* Conditions */
-    ui_printf(&pad, "Conditions\n");
+    /* Status Effects */
+    ui_printf(&pad, "Status Effects\n");
     ui_printf(&pad, "----------\n");
 
-    names_len = 0;
     struct status_effect *c = NULL;
     while ( (c = se_list_get_next_status_effect(mon->status_effects, c) ) != NULL) {
         ui_printf(&pad, "%s\n", c->name);
     }
-
-    y += y_sub +1;
+    ui_printf(&pad, "\n");
+    y = ui_printf(&pad, "\n");
 
 
 
@@ -1247,7 +1199,7 @@ Basic weapon traning SP     ...                  |
     int line = 0;
     bool watch = true;
     while(watch == true) {
-        prefresh(pad.win, line,0,1,1,pad.lines -4,pad.cols);
+        prefresh(pad.win, line,0,1,1,pad.lines,pad.cols);
 
         switch (inp_get_input(gbl_game->input) ) {
             case INP_KEY_UP_RIGHT:   line += 20; break;

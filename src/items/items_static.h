@@ -5,27 +5,32 @@ enum item_ids {
     IID_NONE,
 
     /* Wearables*/
-    IID_FLAK_HELMET,
-    IID_FLAK_GAUNTLETS,
-    IID_FLAK_LIGHT_COAT,
-    IID_FLAK_VEST,
-    IID_FLAK_JACKET,
-    IID_FLAK_CLOAK,
-    IID_FLAK_GUARD_ARMOUR,
+    IID_LEATHER_SKULLCAP,
+    IID_LEATHER_JERKIN,
+    IID_LEATHER_JACK,
+    IID_LEATHER_LEGGINS,
+    IID_LEATHER_FULL,
+
+    IID_STDD_LEATHER_SKULLCAP,
+    IID_STDD_LEATHER_JERKIN,
+    IID_STDD_LEATHER_JACK,
+    IID_STDD_LEATHER_LEGGINS,
+    IID_STDD_LEATHER_FULL,
+
+    IID_MAIL_COIF,
+    IID_MAIL_SHIRT,
+    IID_MAIL_SLEEVED_SHIRT,
+    IID_MAIL_COAT,
+    IID_MAIL_SLEEVED_COAT,
+    IID_MAIL_LEGGINS,
+    IID_MAIL_FULL,
 
     /* Tools */
     /* Fixed Items */
     IID_FIXED_LIGHT,
 
     /* Tools */
-    IID_GLOW_GLOBE, //GLOWGLOBE
-    //Screamer
-    //Respirator
-    //photovisor
-    //medipack
-    //infra-red goggles
-    //filter plugs
-    //bio-scanner
+    IID_TORCH,
 
     /* Weapons */
     /* Creature Attacks */
@@ -35,53 +40,24 @@ enum item_ids {
 
     /* Melee */
     IID_KNIFE,
+    IID_HAND_WEAPON,
+    IID_AXE_GOOD,
+    IID_PICK_GOOD,
+    IID_HAMMER_GOOD,
+    IID_SWORD_GOOD,
 
-    /* Pistols*/
-    IID_STUB_AUTOMATIC,
-    IID_STUB_REVOLVER,
-    IID_LAS_PISTOL,
-
-    /* Basic weapons */
-    IID_LAS_GUN,
-    IID_AUTO_GUN,
+    /* Ranged */
+    IID_SHORT_BOW,
+    IID_LONG_BOW,
 
     /* Thrown */
     IID_THROWING_KNIFE,
 
     /* Grenades */
-    IID_FRAG_GRENADE,
     IID_FIRE_BOMB,
 
     /* Ammo */
-    //IID_ARROW,
-    IID_PISTOL_AMMO_SP,
-    //IID_PISTOL_AMMO_SP_DUMDUM,
-    //IID_PISTOL_AMMO_SP_MANSTOPPER,
-    IID_PISTOL_AMMO_LAS,
-    //IID_PISTOL_AMMO_PLASMA,
-    //IID_PISTOL_AMMO_MELTA,
-    //IID_PISTOL_AMMO_FLAME,
-    //IID_PISTOL_AMMO_BOLT,
-    //IID_PISTOL_AMMO_SHURIKEN,
-    IID_BASIC_AMMO_SP,
-    //IID_BASIC_AMMO_SP_DUMDUM,
-    //IID_BASIC_AMMO_SP_MANSTOPPER,
-    //IID_BASIC_AMMO_SHOTGUN,
-    IID_BASIC_AMMO_LAS,
-    //IID_BASIC_AMMO_PLASMA,
-    //IID_BASIC_AMMO_MELTA,
-    //IID_BASIC_AMMO_FLAME,
-    //IID_BASIC_AMMO_BOLT,
-    //IID_BASIC_AMMO_SHURIKEN,
-    //IID_BASIC_AMMO_GRENADE,
-    //IID_HEAVY_AMMO_SP,
-    //IID_HEAVY_AMMO_LAS,
-    //IID_HEAVY_AMMO_PLASMA,
-    //IID_HEAVY_AMMO_MELTA,
-    //IID_HEAVY_AMMO_FLAME,
-    //IID_HEAVY_AMMO_BOLT,
-    //IID_HEAVY_AMMO_GRENADE,
-    //IID_HEAVY_AMMO_ROCKET,
+    IID_ARROW,
 
     /* Food */
     /* Stimms */

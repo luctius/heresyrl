@@ -54,7 +54,6 @@ enum status_effect_type_flags {
     SETF_SET_PER,
     SETF_SET_WILL,
     SETF_SET_INT,
-    SETF_SET_FEL,
 
     SETF_DECREASE_FATIQUE,
     SETF_DECREASE_WS,
@@ -65,7 +64,6 @@ enum status_effect_type_flags {
     SETF_DECREASE_PER,
     SETF_DECREASE_WILL,
     SETF_DECREASE_INT,
-    SETF_DECREASE_FEL,
     SETF_DECREASE_MOVEMENT,
     SETF_DECREASE_MAX_WOUNDS,
     SETF_DECREASE_ALL_SKILLS,
@@ -79,7 +77,6 @@ enum status_effect_type_flags {
     SETF_INCREASE_PER,
     SETF_INCREASE_WILL,
     SETF_INCREASE_INT,
-    SETF_INCREASE_FEL,
     SETF_INCREASE_MOVEMENT,
     SETF_INCREASE_MAX_WOUNDS,
     SETF_INCREASE_ALL_SKILLS,
@@ -251,13 +248,13 @@ int se_status_effect_strength(struct status_effect_list *se_list, enum status_ef
 
 struct status_effect *se_create(enum se_ids tid); /* Do NOT use directly unless you know what you are doing. */
 struct status_effect *se_create_ground(enum se_ids tid, struct dm_map_entity *me);
-bool se_add_to_list(struct status_effect_list *se_list, struct status_effect *con);
+bool se_add_to_list(struct msr_monster *monster, struct status_effect *con);
 
-bool se_add_status_effect(struct status_effect_list *se_list, enum se_ids tid);
+bool se_add_status_effect(struct msr_monster *monster, uint32_t tid);
 bool se_remove_status_effect(struct status_effect_list *se_list, struct status_effect *c);
 
 bool se_tid_ground_permissible(enum se_ids tid);
 
-bool se_add_critical_hit(struct status_effect_list *se_list, int critical_dmg, enum msr_hit_location mhl, enum dmg_type type);
+bool se_add_critical_hit(struct msr_monster *monster, int critical_dmg, enum msr_hit_location mhl, enum dmg_type type);
 
 #endif /* STATUS_EFFECTS_H */

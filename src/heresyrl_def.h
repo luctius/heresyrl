@@ -27,6 +27,8 @@ typedef uint_least64_t bitfield64_t;
 typedef uint_least32_t bitfield32_t;
 #define bitfield_width (sizeof(bitfield_t) * CHAR_BIT)
 
+#define RANGE_MULTIPLIER (0.50f)
+
 struct gm_game;
 struct tl_tile;
 struct msr_monster;

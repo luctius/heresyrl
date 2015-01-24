@@ -17,8 +17,8 @@
 #define MSR_NR_DEFAULT_WEAPONS_MAX 3
 #define MSR_FATIQUE_RECOVER_DELAY (100)
 
-#define MSR_MOVEMENT_MIN 10
-#define MSR_MOVEMENT_MAX 90
+#define MSR_MOVEMENT_MIN 1
+#define MSR_MOVEMENT_MAX 9
 
 enum msr_gender {
     MSR_GENDER_MALE,
@@ -28,9 +28,13 @@ enum msr_gender {
 };
 
 enum msr_race {
+    MSR_RACE_DWARF,
+    MSR_RACE_ELF,
+    MSR_RACE_HALFLING,
     MSR_RACE_HUMAN,
     MSR_RACE_BEAST,
     MSR_RACE_DOMESTIC,
+    MSR_RACE_MAX,
 };
 
 enum msr_characteristic {
@@ -40,9 +44,11 @@ enum msr_characteristic {
     MSR_CHAR_TOUGHNESS,
     MSR_CHAR_AGILITY,
     MSR_CHAR_INTELLIGENCE,
-    MSR_CHAR_PERCEPTION,
     MSR_CHAR_WILLPOWER,
-    MSR_CHAR_FELLOWSHIP,
+    MSR_CHAR_PERCEPTION,
+    MSR_SEC_CHAR_ATTACKS,
+    MSR_SEC_CHAR_MOVEMENT,
+    MSR_SEC_CHAR_MAGIC,
     MSR_CHAR_MAX,
 };
 
@@ -155,7 +161,7 @@ struct msr_monster {
        skills, divided in basic (has the skill), advanced and expert.
        a skill in advanced should also be in basic, etc.
      */
-    bitfield64_t skills[MSR_SKILL_RATE_MAX];
+    bitfield32_t skills[MSR_SKILL_RATE_MAX];
 
     /* special creature traits. */
     bitfield64_t creature_traits;

@@ -52,7 +52,7 @@ static bool wield_ranged_weapon(struct msr_monster *monster, struct itm_item *it
     struct inv_inventory *inv = monster->inventory;
 
     bitfield32_t location = INV_LOC_NONE;
-    if (wpn_is_catergory(item, WEAPON_CATEGORY_BASIC) || wpn_is_catergory(item, WEAPON_CATEGORY_HEAVY) ) {
+    if (wpn_is_catergory(item, WEAPON_CATEGORY_2H_RANGED) ) {
         if ( (inv_support_location(inv, INV_LOC_MAINHAND_WIELD) == false) ||
              (inv_support_location(inv, INV_LOC_OFFHAND_WIELD) == false) ) {
             You(monster, "do not have two hands.");
@@ -247,7 +247,7 @@ bool dw_use_item(struct msr_monster *monster, struct itm_item *item) {
             You(monster,     "inject %s.",  item->ld_name);
             Monster(monster, "injects %s.", item->ld_name);
 
-            se_add_status_effect(monster->status_effects, food->convey_status_effect);
+            se_add_status_effect(monster, food->convey_status_effect);
 
             item->stacked_quantity -= 1;
             if (item->stacked_quantity <= 0) {

@@ -126,9 +126,8 @@ enum item_quality {
 
 enum item_weapon_category {
     /* Ranged weapons*/
-    WEAPON_CATEGORY_PISTOL,
-    WEAPON_CATEGORY_BASIC,
-    WEAPON_CATEGORY_HEAVY,
+    WEAPON_CATEGORY_1H_RANGED,
+    WEAPON_CATEGORY_2H_RANGED,
 
     /* Melee weapons*/
     WEAPON_CATEGORY_1H_MELEE,
@@ -194,8 +193,6 @@ struct item_food_specific {
 
 struct item_ammo_specific {
     enum item_ammo_type ammo_type;
-    int energy;
-    int energy_left;
     bitfield64_t upgrades;
     enum se_ids convey_status_effect;
 };

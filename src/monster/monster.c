@@ -151,6 +151,9 @@ struct msr_monster *msr_create(enum msr_ids template_id) {
     m->monster.monster_post = MONSTER_POST_CHECK;
 
     switch (m->monster.race) {
+        case MSR_RACE_DWARF:
+        case MSR_RACE_ELF:
+        case MSR_RACE_HALFLING:
         case MSR_RACE_HUMAN:
             m->monster.inventory = inv_init(inv_loc_human);
             break;
@@ -160,7 +163,7 @@ struct msr_monster *msr_create(enum msr_ids template_id) {
             break;
         default:
             free(m);
-            assert(false);
+            assert(false && "Unkown Race");
             return NULL;
             break;
     }
@@ -300,6 +303,10 @@ bool msr_remove_item(struct msr_monster *monster, struct itm_item *item) {
 int msr_get_near_sight_range(struct msr_monster *monster) {
     if (msr_verify_monster(monster) == false) return -1;
     int sight_near = ( (msr_calculate_characteristic(monster, MSR_CHAR_PERCEPTION) * 1.5f) / 10) +1;
+    if (msr_has_talent(monster, TLT_NIGHT_VISION) ) {
+        int nv_sight = 16 * RANGE_MULTIPLIER;
+        if(sight_near < nv_sight) sight_near = nv_sight;
+    }
 
     if (se_has_effect(monster->status_effects, SETF_BLINDNESS) ) sight_near = 0;
     return sight_near;
@@ -308,6 +315,10 @@ int msr_get_near_sight_range(struct msr_monster *monster) {
 int msr_get_medium_sight_range(struct msr_monster *monster) {
     if (msr_verify_monster(monster) == false) return -1;
     int sight_medium = ( (msr_calculate_characteristic(monster, MSR_CHAR_PERCEPTION) * 2) / 10) +1;
+    if (msr_has_talent(monster, TLT_NIGHT_VISION) ) {
+        int nv_sight = 16 * RANGE_MULTIPLIER;
+        if(sight_medium < nv_sight) sight_medium = nv_sight;
+    }
 
     if (se_has_effect(monster->status_effects, SETF_BLINDNESS) ) sight_medium = 0;
     return  sight_medium;
@@ -316,6 +327,10 @@ int msr_get_medium_sight_range(struct msr_monster *monster) {
 int msr_get_far_sight_range(struct msr_monster *monster) {
     if (msr_verify_monster(monster) == false) return -1;
     int sight_far = ( (msr_calculate_characteristic(monster, MSR_CHAR_PERCEPTION) * 2.5f) / 10) +1;
+    if (msr_has_talent(monster, TLT_NIGHT_VISION) ) {
+        int nv_sight = 16 * RANGE_MULTIPLIER;
+        if(sight_far < nv_sight) sight_far = nv_sight;
+    }
 
     if (se_has_effect(monster->status_effects, SETF_BLINDNESS) ) sight_far = 0;
     return sight_far;
@@ -458,7 +473,7 @@ bool msr_do_dmg(struct msr_monster *monster, int dmg, enum dmg_type dmg_type, en
             }
             /* do critical hits! */
             else if (mhl != MSR_HITLOC_NONE) {
-                se_add_critical_hit(monster->status_effects, dmg - wounds_above_zero, mhl, dmg_type);
+                se_add_critical_hit(monster, dmg - wounds_above_zero, mhl, dmg_type);
             }
             else if (monster->cur_wounds < -30) {
                 msr_die(monster, gbl_game->current_map);
@@ -618,8 +633,7 @@ bool msr_weapons_check(struct msr_monster *monster) {
         if (inv_loc_empty(inv, INV_LOC_MAINHAND_WIELD) == true) return false;
         if (inv_get_item_from_location(inv, INV_LOC_MAINHAND_WIELD)->item_type != ITEM_TYPE_WEAPON) return false;
 
-        if ( (wpn_is_catergory(inv_get_item_from_location(inv, INV_LOC_MAINHAND_WIELD), WEAPON_CATEGORY_BASIC) == false) &&
-             (wpn_is_catergory(inv_get_item_from_location(inv, INV_LOC_MAINHAND_WIELD), WEAPON_CATEGORY_HEAVY) == false) &&
+        if ( (wpn_is_catergory(inv_get_item_from_location(inv, INV_LOC_MAINHAND_WIELD), WEAPON_CATEGORY_2H_RANGED) == false) &&
              (wpn_is_catergory(inv_get_item_from_location(inv, INV_LOC_MAINHAND_WIELD), WEAPON_CATEGORY_2H_MELEE) == false) ) {
             return false;
         }
@@ -733,7 +747,7 @@ bool msr_clr_creature_trait(struct msr_monster *monster,  enum msr_creature_trai
 bool msr_has_talent(struct msr_monster *monster, enum msr_talents talent) {
     if (msr_verify_monster(monster) == false) return false;
     if (talent == TLT_NONE) return true;
-    if (talent >= MSR_TALENTS_MAX) return false;
+    if (talent >= TLT_MAX) return false;
 
     for (unsigned int i = 0; i < ARRAY_SZ(monster->talents); i++) {
         if (monster->talents[i] == talent) return true;
@@ -744,7 +758,7 @@ bool msr_has_talent(struct msr_monster *monster, enum msr_talents talent) {
 bool msr_set_talent(struct msr_monster *monster, enum msr_talents talent) {
     if (msr_verify_monster(monster) == false) return false;
     if (msr_has_talent(monster, talent) == true) return false;
-    if (talent >= MSR_TALENTS_MAX) return false;
+    if (talent >= TLT_MAX) return false;
 
     for (unsigned int i = 0; i < ARRAY_SZ(monster->talents); i++) {
         if (monster->talents[i] == TLT_NONE) {
@@ -771,7 +785,7 @@ bool msr_clr_talent(struct msr_monster *monster, enum msr_talents talent) {
 
 uint8_t msr_get_movement_rate(struct msr_monster *monster) {
     if (msr_verify_monster(monster) == false) return false;
-    int speed = (msr_calculate_characteristic_bonus(monster, MSR_CHAR_AGILITY) * 10);
+    int speed = (msr_calculate_characteristic(monster, MSR_SEC_CHAR_MOVEMENT) );
     int speed_mod = 0;
     int min_speed = MSR_MOVEMENT_MIN;
     int max_speed = MSR_MOVEMENT_MAX;
@@ -782,14 +796,12 @@ uint8_t msr_get_movement_rate(struct msr_monster *monster) {
     }
 
     if (se_has_effect(monster->status_effects, SETF_DISABLE_RLEG) ) {
-        min_speed -= MSR_MOVEMENT_MIN / 2;
-        max_speed -= 20;
-        speed_mod += speed / 2;
+        max_speed -= 2;
+        speed_mod -= speed / 2;
     }
     if (se_has_effect(monster->status_effects, SETF_DISABLE_LLEG) ) {
-        min_speed -= MSR_MOVEMENT_MIN / 2;
-        max_speed -= 20;
-        speed_mod += speed / 2;
+        max_speed -= 2;
+        speed_mod -= speed / 2;
     }
 
     if (se_has_effect(monster->status_effects, SETF_INCREASE_MOVEMENT) ) {
@@ -799,8 +811,9 @@ uint8_t msr_get_movement_rate(struct msr_monster *monster) {
         speed_mod += se_status_effect_strength(monster->status_effects, SETF_DECREASE_MOVEMENT);
     }
 
-    if (speed < min_speed) speed = min_speed;
+    speed += speed_mod;
     if (speed > max_speed) speed = max_speed;
+    if (speed < min_speed) speed = min_speed;
 
     return speed;
 }
@@ -837,12 +850,12 @@ const char *msr_skill_names(enum msr_skills s) {
 }
 
 const char *msr_skillrate_names(enum msr_skill_rate sr) {
-    if (sr >= MSR_SKILL_RATE_MAX) return NULL;
+    if (sr >= TLT_MAX) return NULL;
     return msr_skillrate_name[sr];
 }
 
 const char *msr_talent_names(enum msr_talents t) {
-    if (t >= MSR_TALENTS_MAX) return NULL;
+    if (t >= TLT_MAX) return NULL;
     return msr_talent_name[t];
 }
 

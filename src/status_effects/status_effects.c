@@ -166,7 +166,7 @@ void se_process_grnd() {
                 }
                 else if ( (se->grnd_duration_energy % TT_ENERGY_TURN) == 0) {
                     if (se->me->monster != NULL) {
-                        assert(se_add_status_effect(se->me->monster->status_effects, se->template_id) );
+                        assert(se_add_status_effect(se->me->monster, se->template_id) );
                     }
                 }
             }
@@ -286,7 +286,12 @@ struct status_effect *se_create_ground(enum se_ids tid, struct dm_map_entity *me
     return se;
 }
 
-bool se_add_to_list(struct status_effect_list *se_list, struct status_effect *con) {
+static void se_process_effect(struct msr_monster *monster, struct status_effect *c);
+
+bool se_add_to_list(struct msr_monster *monster, struct status_effect *con) {
+    if (msr_verify_monster(monster) == false) return false;
+
+    struct status_effect_list *se_list = monster->status_effects;
     if (se_verify_list(se_list) == false) return false;
     if (se_verify_status_effect(con) == false) return false;
 
@@ -294,10 +299,16 @@ bool se_add_to_list(struct status_effect_list *se_list, struct status_effect *co
 
     struct se_entry *ce = container_of(con, struct se_entry, status_effect);
     LIST_INSERT_HEAD(&se_list->head, ce, entries);
+
+    se_process_effect(monster, con);
+
     return true;
 }
 
-bool se_add_status_effect(struct status_effect_list *se_list, uint32_t tid) {
+bool se_add_status_effect(struct msr_monster *monster, uint32_t tid) {
+    if (msr_verify_monster(monster) == false) return false;
+
+    struct status_effect_list *se_list = monster->status_effects;
     if (se_verify_list(se_list) == false) return false;
     if (tid == SEID_NONE) return false;
     if (tid >= ARRAY_SZ(static_status_effect_list) ) return false;
@@ -328,7 +339,7 @@ bool se_add_status_effect(struct status_effect_list *se_list, uint32_t tid) {
     c = se_create(tid);
     if (c == NULL) return false;
 
-    return se_add_to_list(se_list, c);
+    return se_add_to_list(monster, c);
 }
 
 bool se_remove_status_effect(struct status_effect_list *se_list, struct status_effect *con) {
@@ -427,48 +438,77 @@ int se_status_effect_strength(struct status_effect_list *se_list, enum status_ef
     return strength;
 }
 
+/*
+   This lookup table retrieves the starting entry of the 
+   critical hit table. The damage is then added to that 
+   to get to the correct entry.
+*/
 static enum se_ids dmg_type_to_id_lot[MSR_HITLOC_MAX][DMG_TYPE_MAX] = {
     [MSR_HITLOC_LEFT_LEG] = { 
-        [DMG_TYPE_IMPACT]    = SEID_IMPACT_CRITICAL_LLEGS_1, 
-        [DMG_TYPE_EXPLOSIVE] = SEID_EXPLOSIVE_CRITICAL_LLEGS_1, 
-        [DMG_TYPE_ENERGY]    = SEID_ENERGY_CRITICAL_LLEGS_1, 
-        [DMG_TYPE_RENDING]   = SEID_RENDING_CRITICAL_LLEGS_1, 
-        [DMG_TYPE_MAGIC]     = SEID_NONE, 
+        [DMG_TYPE_ARROW]    = SEID_GENERAL_CRITICAL_LLEGS_1,
+        [DMG_TYPE_BLUNT]    = SEID_GENERAL_CRITICAL_LLEGS_1,
+        [DMG_TYPE_BULLET]   = SEID_GENERAL_CRITICAL_LLEGS_1,
+        [DMG_TYPE_CLAW]     = SEID_GENERAL_CRITICAL_LLEGS_1,
+        [DMG_TYPE_CUTTING]  = SEID_GENERAL_CRITICAL_LLEGS_1,
+        [DMG_TYPE_ENERGY]   = SEID_NONE,
+        [DMG_TYPE_PIERCING] = SEID_GENERAL_CRITICAL_LLEGS_1,
+        [DMG_TYPE_SHRAPNEL] = SEID_GENERAL_CRITICAL_LLEGS_1,
+        [DMG_TYPE_UNARMED]  = SEID_GENERAL_CRITICAL_LLEGS_1,
     },
     [MSR_HITLOC_RIGHT_LEG] = { 
-        [DMG_TYPE_IMPACT]    = SEID_IMPACT_CRITICAL_RLEGS_1, 
-        [DMG_TYPE_EXPLOSIVE] = SEID_EXPLOSIVE_CRITICAL_RLEGS_1, 
-        [DMG_TYPE_ENERGY]    = SEID_ENERGY_CRITICAL_RLEGS_1, 
-        [DMG_TYPE_RENDING]   = SEID_RENDING_CRITICAL_RLEGS_1,
-        [DMG_TYPE_MAGIC]     = SEID_NONE, 
+        [DMG_TYPE_ARROW]    = SEID_GENERAL_CRITICAL_RLEGS_1,
+        [DMG_TYPE_BLUNT]    = SEID_GENERAL_CRITICAL_RLEGS_1,
+        [DMG_TYPE_BULLET]   = SEID_GENERAL_CRITICAL_RLEGS_1,
+        [DMG_TYPE_CLAW]     = SEID_GENERAL_CRITICAL_RLEGS_1,
+        [DMG_TYPE_CUTTING]  = SEID_GENERAL_CRITICAL_RLEGS_1,
+        [DMG_TYPE_ENERGY]   = SEID_NONE,
+        [DMG_TYPE_PIERCING] = SEID_GENERAL_CRITICAL_RLEGS_1,
+        [DMG_TYPE_SHRAPNEL] = SEID_GENERAL_CRITICAL_RLEGS_1,
+        [DMG_TYPE_UNARMED]  = SEID_GENERAL_CRITICAL_RLEGS_1,
     },
     [MSR_HITLOC_LEFT_ARM] = { 
-        [DMG_TYPE_IMPACT]    = SEID_IMPACT_CRITICAL_LARMS_1, 
-        [DMG_TYPE_EXPLOSIVE] = SEID_EXPLOSIVE_CRITICAL_LARMS_1, 
-        [DMG_TYPE_ENERGY]    = SEID_ENERGY_CRITICAL_LARMS_1, 
-        [DMG_TYPE_RENDING]   = SEID_RENDING_CRITICAL_LARMS_1,
-        [DMG_TYPE_MAGIC]     = SEID_NONE, 
+        [DMG_TYPE_ARROW]    = SEID_GENERAL_CRITICAL_LARMS_1,
+        [DMG_TYPE_BLUNT]    = SEID_GENERAL_CRITICAL_LARMS_1,
+        [DMG_TYPE_BULLET]   = SEID_GENERAL_CRITICAL_LARMS_1,
+        [DMG_TYPE_CLAW]     = SEID_GENERAL_CRITICAL_LARMS_1,
+        [DMG_TYPE_CUTTING]  = SEID_GENERAL_CRITICAL_LARMS_1,
+        [DMG_TYPE_ENERGY]   = SEID_NONE,
+        [DMG_TYPE_PIERCING] = SEID_GENERAL_CRITICAL_LARMS_1,
+        [DMG_TYPE_SHRAPNEL] = SEID_GENERAL_CRITICAL_LARMS_1,
+        [DMG_TYPE_UNARMED]  = SEID_GENERAL_CRITICAL_LARMS_1,
     },
     [MSR_HITLOC_RIGHT_ARM] = { 
-        [DMG_TYPE_IMPACT]    = SEID_IMPACT_CRITICAL_RARMS_1, 
-        [DMG_TYPE_EXPLOSIVE] = SEID_EXPLOSIVE_CRITICAL_RARMS_1, 
-        [DMG_TYPE_ENERGY]    = SEID_ENERGY_CRITICAL_RARMS_1, 
-        [DMG_TYPE_RENDING]   = SEID_RENDING_CRITICAL_RARMS_1,
-        [DMG_TYPE_MAGIC]     = SEID_NONE, 
+        [DMG_TYPE_ARROW]    = SEID_GENERAL_CRITICAL_RARMS_1,
+        [DMG_TYPE_BLUNT]    = SEID_GENERAL_CRITICAL_RARMS_1,
+        [DMG_TYPE_BULLET]   = SEID_GENERAL_CRITICAL_RARMS_1,
+        [DMG_TYPE_CLAW]     = SEID_GENERAL_CRITICAL_RARMS_1,
+        [DMG_TYPE_CUTTING]  = SEID_GENERAL_CRITICAL_RARMS_1,
+        [DMG_TYPE_ENERGY]   = SEID_NONE,
+        [DMG_TYPE_PIERCING] = SEID_GENERAL_CRITICAL_RARMS_1,
+        [DMG_TYPE_SHRAPNEL] = SEID_GENERAL_CRITICAL_RARMS_1,
+        [DMG_TYPE_UNARMED]  = SEID_GENERAL_CRITICAL_RARMS_1,
     },
     [MSR_HITLOC_BODY] = { 
-        [DMG_TYPE_IMPACT]    = SEID_IMPACT_CRITICAL_BODY_1,  
-        [DMG_TYPE_EXPLOSIVE] = SEID_EXPLOSIVE_CRITICAL_BODY_1,  
-        [DMG_TYPE_ENERGY]    = SEID_ENERGY_CRITICAL_BODY_1,  
-        [DMG_TYPE_RENDING]   = SEID_RENDING_CRITICAL_BODY_1,
-        [DMG_TYPE_MAGIC]     = SEID_NONE, 
+        [DMG_TYPE_ARROW]    = SEID_GENERAL_CRITICAL_BODY_1,
+        [DMG_TYPE_BLUNT]    = SEID_GENERAL_CRITICAL_BODY_1,
+        [DMG_TYPE_BULLET]   = SEID_GENERAL_CRITICAL_BODY_1,
+        [DMG_TYPE_CLAW]     = SEID_GENERAL_CRITICAL_BODY_1,
+        [DMG_TYPE_CUTTING]  = SEID_GENERAL_CRITICAL_BODY_1,
+        [DMG_TYPE_ENERGY]   = SEID_NONE,
+        [DMG_TYPE_PIERCING] = SEID_GENERAL_CRITICAL_BODY_1,
+        [DMG_TYPE_SHRAPNEL] = SEID_GENERAL_CRITICAL_BODY_1,
+        [DMG_TYPE_UNARMED]  = SEID_GENERAL_CRITICAL_BODY_1,
     },
     [MSR_HITLOC_HEAD] = { 
-        [DMG_TYPE_IMPACT]    = SEID_IMPACT_CRITICAL_HEAD_1,  
-        [DMG_TYPE_EXPLOSIVE] = SEID_EXPLOSIVE_CRITICAL_HEAD_1,  
-        [DMG_TYPE_ENERGY]    = SEID_ENERGY_CRITICAL_HEAD_1,  
-        [DMG_TYPE_RENDING]   = SEID_RENDING_CRITICAL_HEAD_1,
-        [DMG_TYPE_MAGIC]     = SEID_NONE, 
+        [DMG_TYPE_ARROW]    = SEID_GENERAL_CRITICAL_HEAD_1,
+        [DMG_TYPE_BLUNT]    = SEID_GENERAL_CRITICAL_HEAD_1,
+        [DMG_TYPE_BULLET]   = SEID_GENERAL_CRITICAL_HEAD_1,
+        [DMG_TYPE_CLAW]     = SEID_GENERAL_CRITICAL_HEAD_1,
+        [DMG_TYPE_CUTTING]  = SEID_GENERAL_CRITICAL_HEAD_1,
+        [DMG_TYPE_ENERGY]   = SEID_NONE,
+        [DMG_TYPE_PIERCING] = SEID_GENERAL_CRITICAL_HEAD_1,
+        [DMG_TYPE_SHRAPNEL] = SEID_GENERAL_CRITICAL_HEAD_1,
+        [DMG_TYPE_UNARMED]  = SEID_GENERAL_CRITICAL_HEAD_1,
     },
 };
 
@@ -486,7 +526,10 @@ static int crit_value_table[10][10] = {
     [9]={ 1, 2, 4, 5, 6, 6, 7, 7, 8, 8,},
 };
 
-bool se_add_critical_hit(struct status_effect_list *se_list, int critical_dmg, enum msr_hit_location mhl, enum dmg_type type) {
+bool se_add_critical_hit(struct msr_monster *monster, int critical_dmg, enum msr_hit_location mhl, enum dmg_type type) {
+    if (msr_verify_monster(monster) == false) return false;
+
+    struct status_effect_list *se_list = monster->status_effects;
     if (se_verify_list(se_list) == false) return false;
 
     if (critical_dmg > 10) critical_dmg = 10;
@@ -498,7 +541,7 @@ bool se_add_critical_hit(struct status_effect_list *se_list, int critical_dmg, e
     if (tid == SEID_NONE) return false;
 
     /* TODO: update this when more critical hits become available */
-    return se_add_status_effect(se_list, tid +(idx/2) );
+    return se_add_status_effect(monster, tid +(idx/2) );
 }
 
 
@@ -543,8 +586,6 @@ void se_process_effects_first(struct se_type_struct *ces, struct msr_monster *mo
         case SETF_INCREASE_WILL: break;
         case SETF_DECREASE_INT: break;
         case SETF_INCREASE_INT: break;
-        case SETF_DECREASE_FEL: break;
-        case SETF_INCREASE_FEL: break;
 
         case SETF_TALENT:
             if (msr_has_talent(monster, ces->optional) ) {
@@ -598,11 +639,6 @@ void se_process_effects_first(struct se_type_struct *ces, struct msr_monster *mo
             int8_t strength = ces->strength;
             ces->strength = monster->characteristic[MSR_CHAR_INTELLIGENCE].base_value;
             monster->characteristic[MSR_CHAR_INTELLIGENCE].base_value = strength;
-        } break;
-        case SETF_SET_FEL: {
-            int8_t strength = ces->strength;
-            ces->strength = monster->characteristic[MSR_CHAR_FELLOWSHIP].base_value;
-            monster->characteristic[MSR_CHAR_FELLOWSHIP].base_value = strength;
         } break;
 
         case SETF_DISABLE_EYE: break;
@@ -713,9 +749,6 @@ void se_process_effects_last(struct se_type_struct *ces, struct msr_monster *mon
         case SETF_SET_INT:
             monster->characteristic[MSR_CHAR_INTELLIGENCE].base_value = ces->strength;
             break;
-        case SETF_SET_FEL:
-            monster->characteristic[MSR_CHAR_FELLOWSHIP].base_value = ces->strength;
-            break;
 
         case SETF_DECREASE_WS: mod = 1;
         case SETF_INCREASE_WS:
@@ -749,10 +782,6 @@ void se_process_effects_last(struct se_type_struct *ces, struct msr_monster *mon
         case SETF_DECREASE_INT: mod = 1;
         case SETF_INCREASE_INT:
                 monster->characteristic[MSR_CHAR_INTELLIGENCE].mod += (ces->strength * mod) * ces->ticks_applied;
-                break;
-        case SETF_DECREASE_FEL: mod = 1;
-        case SETF_INCREASE_FEL:
-                monster->characteristic[MSR_CHAR_FELLOWSHIP].mod += (ces->strength * mod) * ces->ticks_applied;
                 break;
 
         case SETF_DECREASE_MAX_WOUNDS: mod = 1;
@@ -831,7 +860,6 @@ void se_process_effects_during(struct se_type_struct *ces, struct msr_monster *m
         case SETF_SET_PER: break;
         case SETF_SET_WILL: break;
         case SETF_SET_INT: break;
-        case SETF_SET_FEL: break;
         case SETF_INCREASE_ALL_SKILLS: break;
         case SETF_DECREASE_ALL_SKILLS: break;
         case SETF_DISABLE_EYE: break;
@@ -882,14 +910,10 @@ void se_process_effects_during(struct se_type_struct *ces, struct msr_monster *m
         case SETF_INCREASE_INT:
             monster->characteristic[MSR_CHAR_INTELLIGENCE].mod += ces->strength * mod;
             break;
-        case SETF_DECREASE_FEL: mod = -1;
-        case SETF_INCREASE_FEL:
-            monster->characteristic[MSR_CHAR_FELLOWSHIP].mod += ces->strength * mod;
-            break;
 
         case SETF_DAMAGE: break;
         case SETF_DAMAGE_TICK: 
-            msr_do_dmg(monster, ces->strength, DMG_TYPE_MAGIC, MSR_HITLOC_NONE);
+            msr_do_dmg(monster, ces->strength, DMG_TYPE_ENERGY, MSR_HITLOC_NONE);
             break;
 
         case SETF_HEALTH: break;
@@ -922,6 +946,178 @@ void se_process_effects_during(struct se_type_struct *ces, struct msr_monster *m
     ces->ticks_applied++;
 }
 
+static void se_process_effect(struct msr_monster *monster, struct status_effect *c) {
+    if (msr_verify_monster(monster) == false) return;
+    if (se_verify_status_effect(c) == false) return;
+
+    struct status_effect_list *se_list = monster->status_effects;
+    if (se_verify_list(se_list) == false) return;
+    /* 
+       if the monster is dead, do nothing.
+       we do this here because an effect can cause death.
+     */
+    if (monster->dead) return;
+
+
+    bool destroy    = false;
+    bool first_time = false;
+    bool last_time  = true;
+
+    struct status_effect *c_prev = NULL;
+    /* Check if this status_effect is new, or maybe even for the last time. */
+    if (c->duration_energy == c->duration_energy_max) first_time = true;
+    if ( (status_effect_has_flag(c, SEF_PERMANENT) == true) ) last_time = false;
+    else if (c->duration_energy > 0) last_time = false;
+
+    {   /* Pre checks */
+        if (first_time) {
+            lg_debug("Condition %p(%s) is processed for the first time.", c, c->name);
+
+            int inactive = 0;
+            for (unsigned int i = 0; i < (ARRAY_SZ(c->effects) ); i++) {
+                struct se_type_struct *ces = &c->effects[i];
+                if (ces->effect != SETF_NONE) {
+                    if (effect_has_flag(ces, SESF_ACTIVE) == false) {
+                        inactive++;
+                    }
+                }
+            }
+            if (inactive == ARRAY_SZ(c->effects) ) destroy = true;
+
+            if (c->template_id == SEID_NONE) destroy = true;
+
+            if (status_effect_has_flag(c, SEF_REQ_WILL_CHECK) ) {
+                if ( (msr_characteristic_check(monster, MSR_CHAR_WILLPOWER, c->difficulty) ) >= 1) {
+                    destroy = true;
+                }
+            }
+            if (status_effect_has_flag(c, SEF_REQ_TGH_CHECK) ) {
+                if ( (msr_characteristic_check(monster, MSR_CHAR_TOUGHNESS, c->difficulty) ) >= 1) {
+                    destroy = true;
+                }
+            }
+            if (status_effect_has_flag(c, SEF_REQ_AG_CHECK) ) {
+                if ( (msr_characteristic_check(monster, MSR_CHAR_AGILITY, c->difficulty) ) >= 1) {
+                    destroy = true;
+                }
+            }
+            if (status_effect_has_flag(c, SEF_REQ_CHEM_USE_CHECK) ) {
+                if ( (msr_skill_check(monster, MSR_SKILLS_CHEM_USE, c->difficulty) ) >= 1) {
+                    destroy = true;
+                }
+            }
+
+            if (destroy == false) {
+                if (status_effect_has_flag(c, SEF_INVISIBLE) == false) {
+                    lg_debug("Condition %p(%s) is to be applyed.", c, c->name);
+                    if (c->on_first_plr != NULL) You_msg(monster, c->on_first_plr);
+                    if (c->on_first_msr != NULL) Monster_msg(monster, c->on_first_msr, msr_ldname(monster) );
+                }
+            }
+            else {
+                first_time = false;
+            }
+        }
+        else if (last_time) {
+            lg_debug("Condition %p(%s) ends.", c, c->name);
+
+            if (status_effect_has_flag(c, SEF_INVISIBLE) == false) {
+                if (c->on_exit_plr != NULL) You_msg(monster, c->on_exit_plr);
+                if (c->on_exit_msr != NULL) Monster_msg(monster, c->on_exit_msr, msr_ldname(monster) );
+            }
+            destroy = true;
+        }
+    }
+
+    /*
+       Remove the id which this status_effect continues in,
+       apparently this continues releaves the cravings 
+       set by the continues_status_effect. Later offcourse,
+       this status_effect will continue in that so it will 
+       not stop it at all.
+     */
+    if (status_effect_has_flag(c, SEF_REMOVE_CONTINUE) ) {
+        struct status_effect *c_temp = NULL;
+        while ( (c_temp = se_get_status_effect_tid(se_list, c->continues_to_id) ) != NULL) {
+            if (status_effect_has_flag(c_temp, SEF_INVISIBLE) == false) {
+                if (c_temp->on_exit_plr != NULL) You(monster, "%s.", c_temp->on_exit_plr);
+                if (c_temp->on_exit_msr != NULL) Monster(monster, "%s.", c_temp->on_exit_msr);
+            }
+            se_remove_status_effect(se_list, c_temp);
+        }
+    }
+
+    for (unsigned int i = 0; i < (ARRAY_SZ(c->effects) ); i++) {
+        struct se_type_struct *ces = &c->effects[i];
+        if (effect_has_flag(ces, SESF_ACTIVE) == false) continue;
+
+        if (effect_has_flag(ces, SESF_TICK) && (ces->tick_energy > 0) ) {
+            ces->tick_energy -= TT_ENERGY_TICK;
+            if (!first_time && !last_time) continue;
+        }
+
+        /* 
+           These tests will check if the status_effect still has to be active.
+           They are run the first time and whenever another tick happens.
+         */
+        if (effect_has_flag(ces, SESF_REQ_WILL_CHECK) ) {
+            if (msr_characteristic_check(monster, MSR_CHAR_WILLPOWER, ces->difficulty) >= 1) {
+                effect_clr_flag(ces, SESF_ACTIVE);
+            }
+        }
+        if (effect_has_flag(ces, SESF_REQ_TGH_CHECK) ) {
+            if (msr_characteristic_check(monster, MSR_CHAR_TOUGHNESS, ces->difficulty) >= 1) {
+                effect_clr_flag(ces, SESF_ACTIVE);
+            }
+        }
+        if (effect_has_flag(ces, SESF_REQ_AG_CHECK) ) {
+            if (msr_characteristic_check(monster, MSR_CHAR_AGILITY, ces->difficulty) >= 1) {
+                effect_clr_flag(ces, SESF_ACTIVE);
+            }
+        }
+        if (effect_has_flag(ces, SESF_REQ_CHEM_USE_CHECK) ) {
+            if (msr_skill_check(monster, MSR_SKILLS_CHEM_USE, ces->difficulty) >= 1) {
+                effect_clr_flag(ces, SESF_ACTIVE);
+            }
+        }
+
+        if (first_time) {
+            se_process_effects_first(ces, monster, c);
+            se_process_effects_during(ces, monster, c);
+
+            /* if ONCE is set, the second time this effect has been processed, 
+               disable it. the first time will be the TICK directly after the 
+               status_effect is applied, the second time will be the turn after 
+               that. */
+            if (effect_has_flag(ces, SESF_ONCE) ) {
+                effect_clr_flag(ces, SESF_ACTIVE);
+            }
+        }
+        else if (last_time) {
+            se_process_effects_during(ces, monster, c);
+            se_process_effects_last(ces, monster, c);
+            destroy = true;
+        }
+        else if (effect_has_flag(ces, SESF_TICK) && (ces->tick_energy <= 0) ) {
+            se_process_effects_during(ces, monster, c);
+        }
+    }
+
+    if (destroy) {
+        lg_debug("Condition %p(%s) is to be destroyed.", c, c->name);
+        if (c->continues_to_id != SEID_NONE) {
+            se_add_status_effect(monster, c->continues_to_id);
+        }
+        se_remove_status_effect(se_list, c);
+        c = c_prev;
+    }
+    else if (c->duration_energy > 0) {
+        c->duration_energy -= MIN(TT_ENERGY_TICK, c->duration_energy);
+    }
+
+    c_prev = c;
+}
+
 /* Process status_effects */
 void se_process(struct msr_monster *monster) {
     if (msr_verify_monster(monster) == false) return;
@@ -929,175 +1125,9 @@ void se_process(struct msr_monster *monster) {
     struct status_effect_list *se_list = monster->status_effects;
     if (se_verify_list(se_list) == false) return;
 
-    struct status_effect *c_prev = NULL;
     struct status_effect *c = NULL;
     while ( (c = se_list_get_next_status_effect(se_list, c) ) != NULL) {
-
-        /* 
-           if the monster is dead, do nothing.
-           we do this here because an effect can cause death.
-         */
-        if (monster->dead) return;
-
-        /*  Paranoia */
-        if (se_verify_status_effect(c) == false) return;
-
-        bool destroy    = false;
-        bool first_time = false;
-        bool last_time  = true;
-
-        /* Check if this status_effect is new, or maybe even for the last time. */
-        if (c->duration_energy == c->duration_energy_max) first_time = true;
-        if ( (status_effect_has_flag(c, SEF_PERMANENT) == true) ) last_time = false;
-        else if (c->duration_energy > 0) last_time = false;
-
-        {   /* Pre checks */
-            if (first_time) {
-                lg_debug("Condition %p(%s) is processed for the first time.", c, c->name);
-
-                int inactive = 0;
-                for (unsigned int i = 0; i < (ARRAY_SZ(c->effects) ); i++) {
-                    struct se_type_struct *ces = &c->effects[i];
-                    if (ces->effect != SETF_NONE) {
-                        if (effect_has_flag(ces, SESF_ACTIVE) == false) {
-                            inactive++;
-                        }
-                    }
-                }
-                if (inactive == ARRAY_SZ(c->effects) ) destroy = true;
-
-                if (c->template_id == SEID_NONE) destroy = true;
-
-                if (status_effect_has_flag(c, SEF_REQ_WILL_CHECK) ) {
-                    if ( (msr_characteristic_check(monster, MSR_CHAR_WILLPOWER, c->difficulty) ) >= 1) {
-                        destroy = true;
-                    }
-                }
-                if (status_effect_has_flag(c, SEF_REQ_TGH_CHECK) ) {
-                    if ( (msr_characteristic_check(monster, MSR_CHAR_TOUGHNESS, c->difficulty) ) >= 1) {
-                        destroy = true;
-                    }
-                }
-                if (status_effect_has_flag(c, SEF_REQ_AG_CHECK) ) {
-                    if ( (msr_characteristic_check(monster, MSR_CHAR_AGILITY, c->difficulty) ) >= 1) {
-                        destroy = true;
-                    }
-                }
-                if (status_effect_has_flag(c, SEF_REQ_CHEM_USE_CHECK) ) {
-                    if ( (msr_skill_check(monster, MSR_SKILLS_CHEM_USE, c->difficulty) ) >= 1) {
-                        destroy = true;
-                    }
-                }
-
-                if (destroy == false) {
-                    if (status_effect_has_flag(c, SEF_INVISIBLE) == false) {
-                        lg_debug("Condition %p(%s) is to be applyed.", c, c->name);
-                        if (c->on_first_plr != NULL) You_msg(monster, c->on_first_plr);
-                        if (c->on_first_msr != NULL) Monster_msg(monster, c->on_first_msr, msr_ldname(monster) );
-                    }
-                }
-                else {
-                    first_time = false;
-                }
-            }
-            else if (last_time) {
-                lg_debug("Condition %p(%s) ends.", c, c->name);
-
-                if (status_effect_has_flag(c, SEF_INVISIBLE) == false) {
-                    if (c->on_exit_plr != NULL) You_msg(monster, c->on_exit_plr);
-                    if (c->on_exit_msr != NULL) Monster_msg(monster, c->on_exit_msr, msr_ldname(monster) );
-                }
-                destroy = true;
-            }
-        }
-
-        /*
-           Remove the id which this status_effect continues in,
-           apparently this continues releaves the cravings 
-           set by the continues_status_effect. Later offcourse,
-           this status_effect will continue in that so it will 
-           not stop it at all.
-         */
-        if (status_effect_has_flag(c, SEF_REMOVE_CONTINUE) ) {
-            struct status_effect *c_temp = NULL;
-            while ( (c_temp = se_get_status_effect_tid(se_list, c->continues_to_id) ) != NULL) {
-                if (status_effect_has_flag(c_temp, SEF_INVISIBLE) == false) {
-                    if (c_temp->on_exit_plr != NULL) You(monster, "%s.", c_temp->on_exit_plr);
-                    if (c_temp->on_exit_msr != NULL) Monster(monster, "%s.", c_temp->on_exit_msr);
-                }
-                se_remove_status_effect(se_list, c_temp);
-            }
-        }
-
-        for (unsigned int i = 0; i < (ARRAY_SZ(c->effects) ); i++) {
-            struct se_type_struct *ces = &c->effects[i];
-            if (effect_has_flag(ces, SESF_ACTIVE) == false) continue;
-
-            if (effect_has_flag(ces, SESF_TICK) && (ces->tick_energy > 0) ) {
-                ces->tick_energy -= TT_ENERGY_TICK;
-                if (!first_time && !last_time) continue;
-            }
-
-            /* 
-               These tests will check if the status_effect still has to be active.
-               They are run the first time and whenever another tick happens.
-             */
-            if (effect_has_flag(ces, SESF_REQ_WILL_CHECK) ) {
-                if (msr_characteristic_check(monster, MSR_CHAR_WILLPOWER, ces->difficulty) >= 1) {
-                    effect_clr_flag(ces, SESF_ACTIVE);
-                }
-            }
-            if (effect_has_flag(ces, SESF_REQ_TGH_CHECK) ) {
-                if (msr_characteristic_check(monster, MSR_CHAR_TOUGHNESS, ces->difficulty) >= 1) {
-                    effect_clr_flag(ces, SESF_ACTIVE);
-                }
-            }
-            if (effect_has_flag(ces, SESF_REQ_AG_CHECK) ) {
-                if (msr_characteristic_check(monster, MSR_CHAR_AGILITY, ces->difficulty) >= 1) {
-                    effect_clr_flag(ces, SESF_ACTIVE);
-                }
-            }
-            if (effect_has_flag(ces, SESF_REQ_CHEM_USE_CHECK) ) {
-                if (msr_skill_check(monster, MSR_SKILLS_CHEM_USE, ces->difficulty) >= 1) {
-                    effect_clr_flag(ces, SESF_ACTIVE);
-                }
-            }
-
-            if (first_time) {
-                se_process_effects_first(ces, monster, c);
-                se_process_effects_during(ces, monster, c);
-
-                /* if ONCE is set, the second time this effect has been processed, 
-                   disable it. the first time will be the TICK directly after the 
-                   status_effect is applied, the second time will be the turn after 
-                   that. */
-                if (effect_has_flag(ces, SESF_ONCE) ) {
-                    effect_clr_flag(ces, SESF_ACTIVE);
-                }
-            }
-            else if (last_time) {
-                se_process_effects_during(ces, monster, c);
-                se_process_effects_last(ces, monster, c);
-                destroy = true;
-            }
-            else if (effect_has_flag(ces, SESF_TICK) && (ces->tick_energy <= 0) ) {
-                se_process_effects_during(ces, monster, c);
-            }
-        }
-
-        if (destroy) {
-            lg_debug("Condition %p(%s) is to be destroyed.", c, c->name);
-            if (c->continues_to_id != SEID_NONE) {
-                se_add_status_effect(se_list, c->continues_to_id);
-            }
-            se_remove_status_effect(se_list, c);
-            c = c_prev;
-        }
-        else if (c->duration_energy > 0) {
-            c->duration_energy -= MIN(TT_ENERGY_TICK, c->duration_energy);
-        }
-
-        c_prev = c;
+        se_process_effect(monster, c);
     }
 }
 

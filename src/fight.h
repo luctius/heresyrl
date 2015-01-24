@@ -6,7 +6,7 @@
 #include "coord.h"
 
 /* ranged modifiers */
-#define FGHT_RANGE_MULTIPLIER (0.25f)
+#define FGHT_RANGE_MULTIPLIER RANGE_MULTIPLIER
 #define FGHT_MODIFIER_MAX (80)
 #define FGHT_MELEE_RANGE (1)
 #define FGHT_POINT_BLANK_RANGE (3)

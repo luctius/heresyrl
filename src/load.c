@@ -366,8 +366,6 @@ static bool load_items_list(lua_State *L) {
                     lua_intexpr(L, &t, "game.items[%d].tool.energy_left", i+1); tool->energy_left = t;
                 } break;
             case ITEM_TYPE_AMMO: {
-                    struct item_ammo_specific *ammo = &item->specific.ammo;
-                    lua_intexpr(L, &t, "game.items[%d].ammo.energy_left", i+1); ammo->energy_left = t;
                 } break;
             default: break;
         }
@@ -471,7 +469,7 @@ static bool load_monsters(lua_State *L, struct dm_map *map, struct gm_game *g) {
                 if (lua_intexpr(L, &t, "game.monsters[%d].status_effects[%d]", i+1, j+1) == 1) {
                     struct status_effect *c = selst_status_effect_by_uid(t);
                     if (c != NULL) {
-                        se_add_to_list(monster->status_effects, c);
+                        se_add_to_list(monster, c);
                     }
                 }
             }

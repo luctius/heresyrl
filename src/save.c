@@ -122,7 +122,7 @@ static bool sv_save_monsters(FILE *file, int indent) {
 
             fprintf(file,"skills={sz=%d,", MSR_SKILL_RATE_MAX);
             for (int i = 0; i < MSR_SKILL_RATE_MAX; i++) {
-                fprintf(file,"%"PRIu64",", m->skills[i]);
+                fprintf(file,"%"PRIu32",", m->skills[i]);
             }
             fprintf(file, "},");
 
@@ -232,10 +232,7 @@ static bool sv_save_items(FILE *file, int indent) {
                             struct item_tool_specific *tool = &item->specific.tool;
                             fprintf(file, "tool={lit=%d,energy_left=%d},", tool->lit, tool->energy_left);
                         } break;
-                    case ITEM_TYPE_AMMO: {
-                            struct item_ammo_specific *ammo = &item->specific.ammo;
-                            fprintf(file, "ammo={energy_left=%d},", ammo->energy_left);
-                        } break;
+                    case ITEM_TYPE_AMMO: { } break;
                     default: break;
                 }
             fprintf(file, "},\n");

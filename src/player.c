@@ -1,6 +1,7 @@
 #include <unistd.h>
 #include <ncurses.h>
 
+#include "enums.h"
 #include "player.h"
 #include "fight.h"
 #include "input.h"
@@ -19,6 +20,43 @@
 
 static bool plr_action_loop(struct msr_monster *player);
 
+static int starting_wounds[MSR_RACE_MAX][4]= {
+                    /*     <=3, <=6, <=9, ==10*/
+    [MSR_RACE_DWARF]   = {  11,  12,  13,   14,},
+    [MSR_RACE_ELF]     = {   9,  10,  11,   12,},
+    [MSR_RACE_HALFLING]= {   8,   9,  10,   11,},
+    [MSR_RACE_HUMAN]   = {  10,  11,  12,   13,},
+};
+
+static int gen_starting_wnds(enum msr_race race, int roll_d10) {
+    if (roll_d10 <= 3)  return starting_wounds[race][0];
+    if (roll_d10 <= 6)  return starting_wounds[race][1];
+    if (roll_d10 <= 9)  return starting_wounds[race][2];
+    if (roll_d10 <= 10) return starting_wounds[race][3];
+    return 0;
+}
+
+static int starting_fatepoints[MSR_RACE_MAX][3]= {
+                    /*     <=4, <=7, <=10*/
+    [MSR_RACE_DWARF]   = {   1,   2,   3, },
+    [MSR_RACE_ELF]     = {   1,   2,   2, },
+    [MSR_RACE_HALFLING]= {   2,   2,   3, },
+    [MSR_RACE_HUMAN]   = {   2,   3,   3, },
+};
+
+static int gen_starting_fp(enum msr_race race, int roll_d10) {
+    if (roll_d10 <= 4)  return starting_fatepoints[race][0];
+    if (roll_d10 <= 7)  return starting_fatepoints[race][1];
+    if (roll_d10 <= 10) return starting_fatepoints[race][2];
+    return 0;
+}
+
+static enum msr_talents random_talent[]=
+{ TLT_ACUTE_SIGHT, TLT_AMBIDEXTROUS, TLT_COOL_HEADED, TLT_EXCELENT_VISION, TLT_FLEET_FOOTED, 
+  TLT_HARDY, TLT_LIGHTNING_REFLEXES, TLT_LUCKY, TLT_MARKSMAN, TLT_NIGHT_VISION, TLT_RESITANCE_TO_MAGIC, 
+  TLT_RESITANCE_TO_DISEASE, TLT_RESITANCE_TO_POISON, TLT_SAVVY, TLT_SIXTH_SENSE, TLT_STRONG_MINDED, 
+  TLT_STURDY, TLT_VERY_RESILIENT, TLT_VERY_STRONG, TLT_WARRIOR_BORN,};
+
 void plr_create(struct pl_player *plr, char *name, uint32_t template_id, enum msr_gender gender) {
     if (plr->player != NULL) {
         msr_destroy(plr->player, NULL);
@@ -29,7 +67,6 @@ void plr_create(struct pl_player *plr, char *name, uint32_t template_id, enum ms
     struct msr_monster *player = plr->player;
 
     player->unique_name = name;
-    player->race = MSR_RACE_HUMAN;
     player->gender = gender;
     player->is_player = true;
 
@@ -41,7 +78,23 @@ void plr_create(struct pl_player *plr, char *name, uint32_t template_id, enum ms
     player->characteristic[MSR_CHAR_INTELLIGENCE].base_value   += random_xd10(gbl_game->random, 2);
     player->characteristic[MSR_CHAR_WILLPOWER].base_value      += random_xd10(gbl_game->random, 2);
     player->characteristic[MSR_CHAR_PERCEPTION].base_value     += random_xd10(gbl_game->random, 2);
-    player->characteristic[MSR_CHAR_FELLOWSHIP].base_value     += random_xd10(gbl_game->random, 2);
+    player->max_wounds = gen_starting_wnds(player->race, random_xd10(gbl_game->random, 1) );
+    player->cur_wounds = player->max_wounds;
+    player->fate_points = gen_starting_fp(player->race, random_xd10(gbl_game->random, 1) );
+
+    /* give humans and halflings a random talent */
+    if (player->race == MSR_RACE_HALFLING || player->race == MSR_RACE_HUMAN) {
+        int talents = 1;
+        if (player->race == MSR_RACE_HUMAN) talents = 3;
+
+        int trys = 10;
+        for (int i = 0; i < trys; i++) {
+            int ri = random_int32(gbl_game->random) % ARRAY_SZ(random_talent);
+            enum msr_talents t = random_talent[ri];
+            if (msr_set_talent(player, t) == true) talents--;
+            if (talents == 0) break;
+        }
+    }
 
     plr->player_map_pos = cd_create(0,0);
     plr->xp_spend = 0;
@@ -103,7 +156,7 @@ static bool plr_action_loop(struct msr_monster *player) {
             clear();
             refresh();
 
-            se_add_status_effect(player->status_effects, SEID_FATEHEALTH);
+            se_add_status_effect(player, SEID_FATEHEALTH);
             se_remove_all_non_permanent(player);
 
             You(player, "would have died if fate did not intervene...");

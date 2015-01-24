@@ -19,22 +19,14 @@
 #include "monster/monster.h"
 #include "monster/monster_static.h"
 
-struct homeworld_id {
-    int id;
-    const char *desc;
-    const char *long_desc;
-};
-
-static struct homeworld_id homeworld_id[] =  { 
-    { .id = MID_BASIC_FERAL, .desc = "Feral", .long_desc = "...", }, 
-    { .id = MID_BASIC_HIVE,  .desc = "Hive",  .long_desc = "...", }, 
-};
+extern struct msr_monster static_monster_list[];
 
 struct spwn_monster_item items[] = {  
-    {.id=IID_FLAK_JACKET,    .min=1,.max=1,.wear=true}, 
-    {.id=IID_AUTO_GUN,       .min=1,.max=1,.wear=true}, 
-    {.id=IID_BASIC_AMMO_SP,  .min=100,.max=500,.wear=false},
-    {.id=IID_GLOW_GLOBE,     .min=1,.max=1,.wear=false},
+    {.id=IID_LEATHER_JACK,   .min=1,.max=1,.wear=true}, 
+    {.id=IID_HAND_WEAPON,    .min=1,.max=1,.wear=true}, 
+    {.id=IID_SHORT_BOW,      .min=1,.max=1,.wear=false}, 
+    {.id=IID_ARROW,          .min=20,.max=50,.wear=false},
+    {.id=IID_TORCH,          .min=1,.max=1,.wear=false},
     {.id=IID_FIRE_BOMB,      .min=1,.max=3,.wear=false},
     {.id=IID_THROWING_KNIFE, .min=1,.max=3,.wear=false},
     {.id=IID_KNIFE,          .min=1,.max=1,.wear=false},
@@ -56,10 +48,12 @@ bool char_creation_window(void) {
     player->unique_name = "";
     charwin_refresh();
 
-    const char *enter_name_string = "Please enter your name: ";
-    mvwprintw(map_win->win, 1, 1, enter_name_string);
+    const char *enter_name_string = "Please enter your name:";
 
-    int name_buffer_sz = 20;
+    ui_print_reset(map_win);
+    ui_printf(map_win, "%s ", enter_name_string);
+
+    int name_buffer_sz = 200;
     int name_buffer_idx = 0;
     char name_buffer[name_buffer_sz];
     memset(name_buffer, 0x0, name_buffer_sz * sizeof(char) );
@@ -85,9 +79,8 @@ bool char_creation_window(void) {
                 }
         }
 
-        wmove(map_win->win, 1, strlen(enter_name_string) +2 );
-        wclrtoeol(map_win->win);
-        mvwprintw(map_win->win, 1, strlen(enter_name_string) +2, name_buffer);
+        ui_print_reset(map_win);
+        ui_printf(map_win, "%s %s", enter_name_string, name_buffer);
     }
 
     player->unique_name = malloc( (name_buffer_idx +5) * sizeof(char) );
@@ -99,10 +92,12 @@ bool char_creation_window(void) {
 
     bool race_done = false;
     while (race_done == false) {
-        mvwprintw(map_win->win, 1, 1, "Choose your homeworld");
-        for (unsigned int i = 0; i < ARRAY_SZ(homeworld_id); i++) {
-            const char *hw_desc = homeworld_id[i].desc;
-            mvwprintw(map_win->win, 4 + i, 1, "%c) %s", inp_key_translate_idx(i), hw_desc);
+        int valid_choice = 0;
+        ui_printf(map_win, "Choose your Race\n");
+        for (unsigned int i = 0; i < MID_MAX; i++) {
+            if (static_monster_list[i].is_player == true) {
+                ui_printf(map_win, "%c) %s\n", inp_key_translate_idx(valid_choice++), static_monster_list[i].sd_name);
+            }
         }
         mvwprintw(map_win->win, map_win->lines -2, 1, "[U] choose  [x] examine");
         mvwprintw(map_win->win, map_win->lines -1, 1, "[q] quit");
@@ -116,7 +111,7 @@ bool char_creation_window(void) {
             case INP_KEY_ESCAPE: return false; break;
             case INP_KEY_UP_RIGHT: 
             case INP_KEY_USE: 
-                mvwprintw(map_win->win, map_win->lines -3, 1, "Choose which homeworld?");
+                (map_win->win, map_win->lines -3, 1, "Choose which homeworld?");
                 wrefresh(map_win->win);
                 werase(map_win->win);
 
@@ -129,22 +124,25 @@ bool char_creation_window(void) {
                 werase(map_win->win);
 
                 sel_idx = inp_get_input_idx(gbl_game->input);
-                if (sel_idx < (int) ARRAY_SZ(homeworld_id) ) {
-                    ui_printf(map_win,"%s", homeworld_id[sel_idx].long_desc);
+                if (sel_idx < (int) MID_MAX) {
+                    ui_print_reset(map_win);
+                    ui_printf(map_win,"%s", static_monster_list[sel_idx+MID_DUMMY+1].description);
                     wrefresh(map_win->win);
+                    inp_get_input(gbl_game->input);
+                    ui_print_reset(map_win);
                 }
                 sel_idx = -1;
                 break;
             default: break;
         }
 
-        if ( (sel_idx >= 0) && (sel_idx < (int) ARRAY_SZ(homeworld_id) ) ) {
+        if ( (sel_idx >= 0) && (sel_idx < (int) MID_MAX) ) {
             /* copy name*/
             char *name = player->unique_name;
             player->unique_name = NULL;
 
             /* create player */
-            plr_create(plr, name, homeworld_id[sel_idx].id, MSR_GENDER_MALE);
+            plr_create(plr, name, sel_idx +MID_DUMMY+1, MSR_GENDER_MALE);
             charwin_refresh();
             race_done = true;
         }
