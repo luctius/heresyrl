@@ -5,6 +5,8 @@
 #include "coord.h"
 #include "game.h"
 
+#include "ui/ui.h"
+
 bool tt_interrupt_event(uint32_t monster_uid) {
     struct msr_monster *monster = NULL;
     while ( (monster = msrlst_get_next_monster(monster) ) != NULL) {
@@ -56,6 +58,9 @@ void tt_process_monsters(struct dm_map *map) {
         }
 
         if (gbl_game->running == false) return;
+
+        /* TODO, HACK: performance drain, improve this!! */
+        update_screen();
     }
 }
 
