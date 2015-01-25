@@ -26,6 +26,7 @@ struct cr_career {
 
     /* career generation */
     int weight[MSR_RACE_MAX];
+    bool available[MSR_RACE_MAX];
 };
 
 struct cr_career *cr_get_career_by_id(enum career_ids template_id);
