@@ -50,7 +50,11 @@
 
 
 #define BEAST( t...) .race=MSR_RACE_BEAST, .size=MSR_SIZE_AVERAGE, \
-    .talents = { t , TLT_NONE, }, .creature_traits = bf(CTRTRTS_BESTIAL) | bf(CTRTRTS_QUADRUPED), .def_wpns[0]=IID_CREATURE_BITE_TRAINED
+    .talents = { t , TLT_NONE, }, .creature_traits = bf(CTRTRTS_BESTIAL) | bf(CTRTRTS_QUADRUPED), \
+    .def_wpns[0]=IID_CREATURE_BITE_TRAINED, \
+    .characteristic[MSR_SEC_CHAR_ATTACKS]={ .base_value=1, }, \
+    .characteristic[MSR_SEC_CHAR_MOVEMENT]={ .base_value=6, }, \
+    .characteristic[MSR_SEC_CHAR_MAGIC]={ .base_value=0, }
 
 struct msr_monster static_monster_list[] = {
 
@@ -94,26 +98,26 @@ struct msr_monster static_monster_list[] = {
 
     MONSTER('h',"human","a human fighter",MSR_GENDER_MALE,1)
         HUMAN(TLT_NONE),
-        CHARACTERISTICS(30,30,30,30,30,30,30,30),
+        CHARACTERISTICS(29,42,30,31,35,30,28,30),
         DEF_WPN(0, IID_HAND_WEAPON),
-        SKILLS(0,0,0),
+        SKILLS(MSR_SKILLS_CHARM_ANIMAL|MSR_SKILLS_CONCEALMENT|MSR_SKILLS_AWARENESS|MSR_SKILLS_SCALE_SHEER_SURFACE|MSR_SKILLS_SET_TRAP|MSR_SKILLS_SILENT_MOVE,0,0),
         DESCRIPTION("description of a human fighter"),
         CREATION(10,1,3, bf(DUNGEON_TYPE_CAVE) | bf(DUNGEON_TYPE_SIMPLE) ),
     MONSTER_END,
 
     MONSTER('h',"human","a human archer",MSR_GENDER_MALE,1)
         HUMAN(TLT_NONE),
-        CHARACTERISTICS(30,30,30,30,30,30,30,30),
+        CHARACTERISTICS(29,42,30,31,35,30,28,30),
         DEF_WPN(0, IID_SHORT_BOW),
-        SKILLS(0,0,0),
+        SKILLS(MSR_SKILLS_CHARM_ANIMAL|MSR_SKILLS_CONCEALMENT|MSR_SKILLS_AWARENESS|MSR_SKILLS_SCALE_SHEER_SURFACE|MSR_SKILLS_SET_TRAP|MSR_SKILLS_SILENT_MOVE,0,0),
         DESCRIPTION("description of a human archer"),
         CREATION(10,1,3, bf(DUNGEON_TYPE_CAVE) | bf(DUNGEON_TYPE_SIMPLE) ),
     MONSTER_END,
 
-    MONSTER('d',"dog","a vicious dog",MSR_GENDER_MALE,1)
-        BEAST(TLT_NONE),
-        CHARACTERISTICS(30,0,30,30,30,15,40,30),
-        SKILLS(MSR_SKILLS_AWARENESS|MSR_SKILLS_SILENT_MOVE, MSR_SKILLS_AWARENESS|MSR_SKILLS_SILENT_MOVE,0),
+    MONSTER('w',"wolf","a vicious wolf",MSR_GENDER_MALE,1)
+        BEAST(TLT_KEEN_SENSES),
+        CHARACTERISTICS(30,0,30,30,40,14,25,30),
+        SKILLS(MSR_SKILLS_AWARENESS|MSR_SKILLS_SILENT_MOVE, 0,0),
         DESCRIPTION("description of a viscious dog"),
         CREATION(10,1,3, bf(DUNGEON_TYPE_CAVE) | bf(DUNGEON_TYPE_SIMPLE) ),
      MONSTER_END,

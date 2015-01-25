@@ -35,7 +35,7 @@ bool ma_do_move(struct msr_monster *monster, coord_t *pos) {
             You(monster, "see %s. ", item->ld_name);
         }
 
-        msr_change_energy(monster, -(MSR_ACTION_MOVE - (speed * TT_ENERGY_TICK) ) );
+        msr_change_energy(monster, -(MSR_ACTION_MOVE / speed) );
         monster->controller.interruptable = false;
         monster->controller.interrupted = false;
         return true;
@@ -178,32 +178,11 @@ bool ma_do_melee(struct msr_monster *monster, coord_t *target_pos) {
     if (msr_verify_monster(target) == false) return false;
 
     struct itm_item *item = NULL;
-    int cost = MSR_ACTION_MELEE;
-
-    /* 
-       Here we check with how many weapons we try to hit.
-       If it is more than one, the cost of the action increases.
-       In addition, we nerf creatures by having them have the higher cost
-       anyway.
-
-       we should include weapon talents here too.
-     */
-    int hand_lst[] = {FGHT_MAIN_HAND, FGHT_OFF_HAND,};
-    int hits = 0;
-    for (unsigned int i = 0; i < ARRAY_SZ(hand_lst); i++) {
-        item = fght_get_working_weapon(monster, WEAPON_TYPE_MELEE, hand_lst[i]);
-        if (item != NULL) {
-            hits++;
-            if (hand_lst[i] == MSR_WEAPON_SELECT_CREATURE1) hits++;
-        }
-    }
+    int cost = MSR_ACTION_MELEE / msr_calculate_characteristic(monster, MSR_SEC_CHAR_ATTACKS); 
 
     if (fght_melee(gbl_game->random, monster, target) == false) {
         return false;
     }
-
-    /* if we do only one attack, we have a lower cost */
-    if (hits == 1) cost = MSR_ACTION_SINGLE_MELEE;
 
     msr_change_energy(monster, -(cost) );
     monster->controller.interruptable = false;
@@ -218,7 +197,7 @@ bool ma_do_throw(struct msr_monster *monster, coord_t *pos, struct itm_item *ite
     struct itm_item *item_bkp = NULL;
     enum msr_weapon_selection wsel = monster->wpn_sel;
     enum fght_hand hand = FGHT_MAIN_HAND;
-    int cost = MSR_ACTION_THROW;
+    int cost = MSR_ACTION_THROW / msr_calculate_characteristic(monster, MSR_SEC_CHAR_ATTACKS); 
     bool change = false;
     bool thrown = false;
     bitfield32_t locs;
@@ -292,23 +271,13 @@ bool ma_do_fire(struct msr_monster *monster, coord_t *pos) {
     if (pos == NULL) return false;
     struct itm_item *item = NULL;
     struct item_weapon_specific *wpn = NULL;
-    int shots = 0;
-    int cost = MSR_ACTION_FIRE;
+    int cost = MSR_ACTION_FIRE / msr_calculate_characteristic(monster, MSR_SEC_CHAR_ATTACKS); 
     int hand_lst[] = {FGHT_MAIN_HAND, FGHT_OFF_HAND,};
-
-    for (unsigned int i = 0; i < ARRAY_SZ(hand_lst); i++) {
-        item = fght_get_working_weapon(monster, WEAPON_TYPE_RANGED, hand_lst[i]);
-        if (item != NULL) {
-            wpn = &item->specific.weapon;
-            shots += wpn->rof[wpn->rof_set];
-        }
-    }
 
     if (fght_shoot(gbl_game->random, monster, gbl_game->current_map, pos) == false) {
         return false;
     }
 
-    if (shots == 1) cost = MSR_ACTION_SINGLE_SHOT;
 
     msr_change_energy(monster, -(cost) );
     monster->controller.interruptable = false;
@@ -368,13 +337,26 @@ bool ma_do_reload_carried(struct msr_monster *monster, struct itm_item *ammo_ite
     uint32_t cost = 0;
     int hand_lst[] = {FGHT_MAIN_HAND, FGHT_OFF_HAND,};
 
+    int reload_cost = MSR_ACTION_RELOAD;
+    if (msr_has_talent(monster, TLT_RAPID_RELOAD) ) {
+        reload_cost = MSR_ACTION_RELOAD / 2;
+    }
+
     for (unsigned int i = 0; i < ARRAY_SZ(hand_lst); i++) {
         item = fght_get_weapon(monster, WEAPON_TYPE_RANGED, hand_lst[i]);
         if (item != NULL) {
             wpn = &item->specific.weapon;
             if (wpn->magazine_left < wpn->magazine_sz) {
                 if (ma_has_ammo(monster, item) == true ) {
-                    cost += MSR_ACTION_RELOAD * item->use_delay;
+                    cost += reload_cost * item->use_delay;
+
+                    /* Actors with Rapid Reload which reload an item which has a 
+                       use delay of half or less, for free. */
+                    if (msr_has_talent(monster, TLT_RAPID_RELOAD) ) {
+                        if (cost <= (MSR_ACTION_RELOAD / 2) ) {
+                            cost = 0;
+                        }
+                    }
 
                     You(monster, "reload %s.", item->ld_name);
                     Monster(monster, "reloads %s.", item->ld_name);

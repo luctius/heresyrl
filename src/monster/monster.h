@@ -71,6 +71,13 @@ enum msr_weapon_selection {
     MSR_WEAPON_SELECT_MAX,
 };
 
+enum msr_evasions {
+    MSR_EVASION_MAIN_HAND,
+    MSR_EVASION_OFF_HAND,
+    MSR_EVASION_DODGE,
+    MSR_EVASION_MAX,
+};
+
 enum msr_hit_location {
     MSR_HITLOC_LEFT_LEG,
     MSR_HITLOC_RIGHT_LEG,
@@ -135,6 +142,9 @@ struct msr_monster {
     /* maxmimum number of wounds, more is better */
     int8_t max_wounds;
 
+    /* number of wounds added due to career advancements. */
+    int8_t wounds_added;
+
     /* current number of fate points, not used. */
     uint8_t fate_points;
 
@@ -147,6 +157,8 @@ struct msr_monster {
     /* current level of fatique. */
     uint8_t fatique;
     uint32_t fatique_turn;
+
+    uint32_t evasion_last_used[MSR_EVASION_MAX];
 
     /* true if the monster is dead and to be cleaned up. */
     bool dead;
@@ -255,6 +267,9 @@ struct itm_item *msr_get_armour_from_hitloc(struct msr_monster *monster, enum ms
 /* get the damage reduction of that hit location*/
 int msr_calculate_armour(struct msr_monster *monster, enum msr_hit_location hitloc);
 
+bool msr_can_use_evasion(struct msr_monster *monster, enum msr_evasions evasion);
+bool msr_use_evasion(struct msr_monster *monster, struct msr_monster *attacker, struct itm_item *atk_wpn, enum msr_evasions evasion, int to_hit_DoS, int mod);
+
 /* do damage to that hit location, including critical hits, and handle the first part of monster death. */
 bool msr_do_dmg(struct msr_monster *monster, int dmg, enum dmg_type type, enum msr_hit_location mhl);
 bool msr_die(struct msr_monster *monster, struct dm_map *map);
@@ -308,5 +323,6 @@ const char *msr_gender_name(struct msr_monster *monster, bool possesive);
 const char *msr_skill_names(enum msr_skills s);
 const char *msr_skillrate_names(enum msr_skill_rate sr);
 const char *msr_talent_names(enum msr_talents t);
+const char *msr_hitloc_name(struct msr_monster *monster, enum msr_hit_location mhl);
 
 #endif /*MONSTER_H_*/

@@ -9,8 +9,8 @@
 #include "coord.h"
 
 enum MSR_ACTION_COSTS {
-    MSR_ACTION_MOVE   = TT_ENERGY_TURN, /* minus agility bonus * 10 */
-    MSR_ACTION_IDLE   = TT_ENERGY_TURN / 4,
+    MSR_ACTION_MOVE   = TT_ENERGY_TURN, /* divided by movement char */
+    MSR_ACTION_IDLE   = TT_ENERGY_TICK,
     MSR_ACTION_WEAR   = TT_ENERGY_TURN, /* times use_delay */ 
     MSR_ACTION_REMOVE = TT_ENERGY_TURN, /* times use_delay */
     MSR_ACTION_PICKUP = TT_ENERGY_TURN, /* times nr items */
@@ -20,11 +20,9 @@ enum MSR_ACTION_COSTS {
     MSR_ACTION_UNLOAD = TT_ENERGY_TURN, /* times use_delay */
 
     MSR_ACTION_GUARD  = TT_ENERGY_TURN,
-    MSR_ACTION_THROW  = TT_ENERGY_TURN,
-    MSR_ACTION_MELEE  = TT_ENERGY_TURN,
-    MSR_ACTION_FIRE   = TT_ENERGY_TURN,
-    MSR_ACTION_SINGLE_SHOT  = (TT_ENERGY_TURN / 2) + TT_ENERGY_TICK,
-    MSR_ACTION_SINGLE_MELEE = (TT_ENERGY_TURN / 2) + TT_ENERGY_TICK,
+    MSR_ACTION_THROW  = TT_ENERGY_TURN, /* divided by attack char */
+    MSR_ACTION_MELEE  = TT_ENERGY_TURN, /* divided by attack char */
+    MSR_ACTION_FIRE   = TT_ENERGY_TURN, /* divided by attack char */
 };
 
 /*

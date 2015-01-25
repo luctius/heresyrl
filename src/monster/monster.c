@@ -418,6 +418,77 @@ int msr_calculate_armour(struct msr_monster *monster, enum msr_hit_location mhl)
     return armour;
 }
 
+bool msr_can_use_evasion(struct msr_monster *monster, enum msr_evasions evasion) {
+    if (msr_verify_monster(monster) == false) return false;
+    if (monster->evasion_last_used[evasion] < (gbl_game->turn +TT_ENERGY_TURN) ) return false;
+
+    struct inv_inventory *inv = monster->inventory;
+    if (inv_verify_inventory(monster->inventory) == false) return false;
+
+    switch(evasion) {
+        case MSR_EVASION_MAIN_HAND: {
+            struct itm_item *witem = inv_get_item_from_location(inv, INV_LOC_MAINHAND_WIELD);
+            if (wpn_is_type(witem, WEAPON_TYPE_MELEE) == false) return false;
+            if (wpn_has_spc_quality(witem, WPN_SPCQLTY_UNBALANCED) ) return false;
+            break; }
+        case MSR_EVASION_OFF_HAND: {
+            struct itm_item *witem = inv_get_item_from_location(inv, INV_LOC_OFFHAND_WIELD);
+            if (wpn_is_type(witem, WEAPON_TYPE_MELEE) == false) return false;
+            if (wpn_has_spc_quality(witem, WPN_SPCQLTY_UNBALANCED) ) return false;
+            break; }
+        case MSR_EVASION_DODGE:
+            if (msr_has_skill(monster, MSR_SKILLS_DODGE) == false) return false;
+            break;
+        case MSR_EVASION_MAX:
+        default:
+            return false;
+    }
+
+    return true;
+}
+
+bool msr_use_evasion(struct msr_monster *monster, struct msr_monster *attacker, struct itm_item *atk_wpn, enum msr_evasions evasion, int to_hit_DoS, int mod) {
+    if (msr_verify_monster(monster) == false) return false;
+    if (msr_can_use_evasion(monster, evasion) == false) return false;
+
+    struct inv_inventory *inv = monster->inventory;
+    if (inv_verify_inventory(inv) == false) return false;
+
+    if (wpn_has_spc_quality(atk_wpn, WPN_SPCQLTY_FLEXIBLE) ) return false;
+    if (wpn_has_spc_quality(atk_wpn, WPN_SPCQLTY_FAST) ) mod -= 10;
+    if (wpn_has_spc_quality(atk_wpn, WPN_SPCQLTY_SLOW) ) mod += 10;
+
+    int roll = 0;
+    switch(evasion) {
+        case MSR_EVASION_MAIN_HAND: {
+            struct itm_item *witem = inv_get_item_from_location(inv, INV_LOC_MAINHAND_WIELD);
+            if (wpn_has_spc_quality(witem, WPN_SPCQLTY_UNBALANCED) ) return false;
+            if (wpn_has_spc_quality(witem, WPN_SPCQLTY_DEFENSIVE) ) mod += 10;
+            if (wpn_has_spc_quality(witem, WPN_SPCQLTY_UNWIELDY) ) mod -= 10;
+            roll = msr_characteristic_check(monster, MSR_CHAR_WEAPON_SKILL, mod);
+            Info("Using main-hand, unable to parry with it for one turn.");
+            break; }
+        case MSR_EVASION_OFF_HAND: {
+            struct itm_item *witem = inv_get_item_from_location(inv, INV_LOC_OFFHAND_WIELD);
+            if (wpn_has_spc_quality(witem, WPN_SPCQLTY_UNBALANCED) ) return false;
+            if (wpn_has_spc_quality(witem, WPN_SPCQLTY_DEFENSIVE) ) mod += 10;
+            if (wpn_has_spc_quality(witem, WPN_SPCQLTY_UNWIELDY) ) mod -= 10;
+            roll = msr_characteristic_check(monster, MSR_CHAR_WEAPON_SKILL, mod);
+            Info("Using off-hand, unable to parry or attack with it for one turn.");
+            break; }
+        case MSR_EVASION_DODGE: {
+            roll = msr_skill_check(monster, MSR_SKILLS_DODGE, mod);
+            Info("Using dodge, cannot dodge anymore for one turn.");
+            break; }
+        case MSR_EVASION_MAX:
+        default:
+            return false;
+    }
+
+    monster->evasion_last_used[evasion] = gbl_game->turn;
+    return roll >= to_hit_DoS;
+}
+
 enum msr_hit_location msr_get_hit_location(struct msr_monster *monster, int hit_roll) {
     if (msr_verify_monster(monster) == false) return MSR_HITLOC_NONE;
     if (hit_roll > 99) hit_roll %= 100;
@@ -474,6 +545,7 @@ bool msr_do_dmg(struct msr_monster *monster, int dmg, enum dmg_type dmg_type, en
             /* do critical hits! */
             else if (mhl != MSR_HITLOC_NONE) {
                 se_add_critical_hit(monster, dmg - wounds_above_zero, mhl, dmg_type);
+                monster->insanity_points++;
             }
             else if (monster->cur_wounds < -30) {
                 msr_die(monster, gbl_game->current_map);
@@ -554,16 +626,51 @@ int msr_skill_check(struct msr_monster *monster, enum msr_skills skill, int mod)
 int msr_calculate_characteristic(struct msr_monster *monster, enum msr_characteristic chr) {
     if (msr_verify_monster(monster) == false) return -1;
     if (chr >= MSR_CHAR_MAX) return -1;
-    return monster->characteristic[chr].base_value + 
-        (monster->characteristic[chr].advancement * 5) + 
-        monster->characteristic[chr].mod;
+    int mod = 0;
+
+    if (chr == MSR_CHAR_AGILITY) {
+        if (inv_wears_wearable_with_spcqlty(monster->inventory, WBL_SPCQLTY_PLATE) ) {
+            mod -= 20;
+        }
+        else if (inv_wears_wearable_with_spcqlty(monster->inventory, WBL_SPCQLTY_SCALE) ) {
+            mod -= 10;
+        }
+        else if (inv_wears_wearable_with_spcqlty(monster->inventory, WBL_SPCQLTY_MAIL) ) {
+            mod -= 10;
+        }
+    }
+
+    int adv = 0;
+    switch(chr) {
+        case MSR_CHAR_WEAPON_SKILL:
+        case MSR_CHAR_BALISTIC_SKILL:
+        case MSR_CHAR_STRENGTH:
+        case MSR_CHAR_TOUGHNESS:
+        case MSR_CHAR_AGILITY:
+        case MSR_CHAR_WILLPOWER:
+        case MSR_CHAR_INTELLIGENCE:
+        case MSR_CHAR_PERCEPTION:
+            adv = (monster->characteristic[chr].advancement * 5);
+            break;
+        case MSR_SEC_CHAR_MOVEMENT:
+        case MSR_SEC_CHAR_ATTACKS:
+        case MSR_SEC_CHAR_MAGIC:
+            adv = (monster->characteristic[chr].advancement * 1);
+            break;
+        default: assert(false && "unkown characteristic.");
+    }
+
+    return monster->characteristic[chr].base_value + adv + monster->characteristic[chr].mod + mod;
 }
 
 int msr_calculate_characteristic_bonus(struct msr_monster *monster, enum msr_characteristic chr) {
     if (msr_verify_monster(monster) == false) return -1;
-    if (chr >= MSR_CHAR_MAX) return -1;
-    if (chr == MSR_CHAR_WEAPON_SKILL) return -1;
+    if (chr >= MSR_CHAR_MAX)            return -1;
+    if (chr == MSR_CHAR_WEAPON_SKILL)   return -1;
     if (chr == MSR_CHAR_BALISTIC_SKILL) return -1;
+    if (chr == MSR_SEC_CHAR_MOVEMENT)   return -1;
+    if (chr == MSR_SEC_CHAR_ATTACKS)    return -1;
+    if (chr == MSR_SEC_CHAR_MAGIC)      return -1;
     return ( msr_calculate_characteristic(monster, chr) / 10);
 }
 
@@ -679,7 +786,10 @@ bool msr_weapon_next_selection(struct msr_monster *monster) {
     if (msr_verify_monster(monster) == false) return false;
 
     if ( (inv_loc_empty(monster->inventory, INV_LOC_MAINHAND_WIELD) == true) &&
-         (inv_loc_empty(monster->inventory, INV_LOC_OFFHAND_WIELD) == true) ) return false;
+         (inv_loc_empty(monster->inventory, INV_LOC_OFFHAND_WIELD) == true) ) {
+        monster->wpn_sel = MSR_WEAPON_SELECT_CREATURE1;
+        return false;
+    }
 
     do {
         monster->wpn_sel++;
@@ -712,7 +822,7 @@ static void msr_default_weapon(struct msr_monster *monster) {
                         if (wpn_uses_ammo(item) ) {
                             enum item_ids ammo_id = wpn_get_ammo_used_id(item);
                             struct itm_item *ammo = itm_create(ammo_id);
-                            int nr = 1;//(random_int32(gbl_game->random) % (ammo->max_quantity * 0.2) );
+                            int nr = (random_int32(gbl_game->random) % (ammo->max_quantity / 5) );
                             ammo->stacked_quantity = nr;
                             assert (inv_add_item(monster->inventory, ammo) == true);
                         }
@@ -811,6 +921,13 @@ uint8_t msr_get_movement_rate(struct msr_monster *monster) {
         speed_mod += se_status_effect_strength(monster->status_effects, SETF_DECREASE_MOVEMENT);
     }
 
+    if (inv_wears_wearable_with_spcqlty(monster->inventory, WBL_SPCQLTY_PLATE) ) {
+        speed_mod -= 1;
+    }
+    else if (inv_wears_wearable_with_spcqlty(monster->inventory, WBL_SPCQLTY_SCALE) ) {
+        speed_mod -= 1;
+    }
+
     speed += speed_mod;
     if (speed > max_speed) speed = max_speed;
     if (speed < min_speed) speed = min_speed;
@@ -857,5 +974,21 @@ const char *msr_skillrate_names(enum msr_skill_rate sr) {
 const char *msr_talent_names(enum msr_talents t) {
     if (t >= TLT_MAX) return NULL;
     return msr_talent_name[t];
+}
+
+const char *msr_hitloc_name(struct msr_monster *monster, enum msr_hit_location mhl) {
+    if (msr_verify_monster(monster) == false) return NULL;
+    if (mhl >= MSR_HITLOC_MAX) return NULL;
+
+    switch(mhl) {
+        case MSR_HITLOC_BODY:       return "thorax";
+        case MSR_HITLOC_LEFT_LEG:   return "left leg";
+        case MSR_HITLOC_RIGHT_LEG:  return "right leg";
+        case MSR_HITLOC_LEFT_ARM:   return "left arm";
+        case MSR_HITLOC_RIGHT_ARM:  return "right arm";
+        case MSR_HITLOC_HEAD:       return "head";
+        default: break;
+    }
+    return NULL;
 }
 
