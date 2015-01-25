@@ -302,6 +302,38 @@ bool inv_item_wielded(struct inv_inventory *inv, struct itm_item *item) {
     return false;
 }
 
+bool inv_wields_weapon_with_spcqlty(struct inv_inventory *inv, enum weapon_special_quality spcqlty) {
+    if (inv_verify_inventory(inv) == false) return false;
+
+    struct inv_entry *ie = inv->head.tqh_first;
+    while (ie != NULL) {
+        struct itm_item *i = ie->item;
+        if (inv_item_wielded(inv, i) ) {
+            if (itm_is_type(i, ITEM_TYPE_WEAPON) ) {
+                if (wpn_has_spc_quality(i, spcqlty) ) return true;
+            }
+        }
+        ie = ie->entries.tqe_next;
+    }
+    return false;
+}
+
+bool inv_wears_wearable_with_spcqlty(struct inv_inventory *inv, enum wearable_special_quality spcqlty) {
+    if (inv_verify_inventory(inv) == false) return false;
+
+    struct inv_entry *ie = inv->head.tqh_first;
+    while (ie != NULL) {
+        struct itm_item *i = ie->item;
+        if (inv_item_worn(inv, i) ) {
+            if (itm_is_type(i, ITEM_TYPE_WEARABLE) ) {
+                if (wpn_has_spc_quality(i, spcqlty) ) return true;
+            }
+        }
+        ie = ie->entries.tqe_next;
+    }
+    return false;
+}
+
 static const char *location_name_lst[] = {
     [INV_LOC_NONE] = "",
     [INV_LOC_INVENTORY] = "",

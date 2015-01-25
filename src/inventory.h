@@ -2,6 +2,7 @@
 #define INVENTORY_H
 
 #include "heresyrl_def.h"
+#include "enums.h"
 
 struct inv_inventory;
 
@@ -69,6 +70,9 @@ bitfield32_t inv_get_item_locations(struct inv_inventory *inv, struct itm_item *
    worn items include wielded items, but not vice versa. */
 bool inv_item_worn(struct inv_inventory *inv, struct itm_item *item);
 bool inv_item_wielded(struct inv_inventory *inv, struct itm_item *item);
+
+bool inv_wields_weapon_with_spcqlty(struct inv_inventory *inv, enum weapon_special_quality spcqlty);
+bool inv_wears_wearable_with_spcqlty(struct inv_inventory *inv, enum wearable_special_quality spcqlty);
 
 /* get a description of a location */
 const char *inv_location_name(bitfield32_t loc);
