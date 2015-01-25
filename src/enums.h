@@ -18,15 +18,15 @@ enum dmg_type {
 
 enum weapon_special_quality {
     WPN_SPCQLTY_ACCURATE,    /* Additional +10 to hit when used with the aim action */
-    WPN_SPCQLTY_BALANCED,    /* +10 Parry */
+    WPN_SPCQLTY_BALANCED,    /* Ignore the -20% Dual Wield Penalty */
     WPN_SPCQLTY_BLAST_1,     /* All within the weapon's blast radius in squares is hit */
     WPN_SPCQLTY_BLAST_2,     /* All within the weapon's blast radius in squares is hit */
     WPN_SPCQLTY_BLAST_3,
     WPN_SPCQLTY_BLAST_4,
     WPN_SPCQLTY_CREATURE,    /* Non dropable creature weapon. */
-    WPN_SPCQLTY_DEFENSIVE,   /* +15 Parry, -5 to hit  */
+    WPN_SPCQLTY_DEFENSIVE,   /* +10 Parry, -10 WS to attack */
     WPN_SPCQLTY_EXPERIMENTAL,/* Unstable, 96-98, jam, 99-00 -> explodes.  */
-    WPN_SPCQLTY_FAST,        /* -10% to parry or dodge agains */
+    WPN_SPCQLTY_FAST,        /* -10% to parry or dodge against */
     WPN_SPCQLTY_FLAME,       /* No BS Test, All in arc take Agility Test or take damage, 2nd Ag. test to avoid catch fire. */
     WPN_SPCQLTY_FLEXIBLE,    /* Cannot be Parried. */
     WPN_SPCQLTY_IMPACT,      /* 2x 1d10, pick highest */
@@ -38,6 +38,7 @@ enum weapon_special_quality {
     WPN_SPCQLTY_PUMMELING,   /* +10% on Strength for Strike to Stun */
     WPN_SPCQLTY_RELIABLE,    /* If jam, 10 on 1d10 to actually jam. <I> */
     WPN_SPCQLTY_SCATTER,     /* Point Blank: 2 DoS score another hit, AP doubled at Long and Extreme ranges. */
+    WPN_SPCQLTY_SHIELD,      /* Gives -10% against ranged attackers. */
     WPN_SPCQLTY_SHRAPNEL,    /* Fires in a Cone, requires an Agility Check */
     WPN_SPCQLTY_SHOCKING,    /* If damage, test Toughness or be stunned. */
     WPN_SPCQLTY_SLOW,        /* +10% to parry or dodge against. */
@@ -51,10 +52,10 @@ enum weapon_special_quality {
     WPN_SPCQLTY_UNSTABLE,    /* on hit, roll 1d10: 1: half dmg, 2-9: normal, 10: double damage */
     WPN_SPCQLTY_UNWIELDY,    /* Cannot be used to parry. */
     WPN_SPCQLTY_MAX,
-    WPN_SPCQLTY_LAS,         /* IDEA: single shot +1 dmg, las weapons only...*/
 };
 
 enum wearable_special_quality {
+    WBL_SPCQLTY_PRIMITIVE, /* Half armour bonus. */
     WBL_SPCQLTY_LEATHER,   /* No Penalties */
     WBL_SPCQLTY_MAIL,      /* -10% Agility */
     WBL_SPCQLTY_SCALE,     /* -10% Agility -1 Movement */
