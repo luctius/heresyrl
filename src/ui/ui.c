@@ -732,7 +732,9 @@ void charwin_refresh() {
                 ui_printf(char_win, "%s Wpn: %s\n", (i==0) ? "Main" : "Sec.", item->sd_name);
                 if (wpn->nr_dmg_die == 0) ui_printf(char_win, " Dmg 1D5");
                 else ui_printf(char_win, " Dmg %dD10", wpn->nr_dmg_die);
-                ui_printf(char_win, "+%d,%d", wpn->dmg_addition, wpn->penetration);
+                int add = wpn->dmg_addition;
+                if (wpn_is_type(item, WEAPON_TYPE_MELEE) ) add += msr_calculate_characteristic_bonus(player, MSR_CHAR_STRENGTH);
+                ui_printf(char_win, "+%d,%d", add, wpn->penetration);
 
                 if (wpn->weapon_type == WEAPON_TYPE_RANGED) {
                     if (wpn->jammed == false) {
@@ -835,6 +837,9 @@ void invwin_examine(struct hrl_window *window, struct itm_item *item) {
     werase(window->win);
     ui_print_reset(window);
 
+    struct msr_monster *player = gbl_game->player_data.player;
+    if (msr_verify_monster(player) == false) return;
+
     if (strlen(item->description) > 0) {
         ui_printf(window, "%s.\n", item->description);
     }
@@ -849,7 +854,10 @@ void invwin_examine(struct hrl_window *window, struct itm_item *item) {
             ui_printf(char_win, "- Dmg ");
             if (wpn->nr_dmg_die == 0) ui_printf(char_win, "1D5");
             else ui_printf(char_win, "%dD10", wpn->nr_dmg_die);
-                ui_printf(char_win, "+%d, pen %d\n", wpn->dmg_addition, wpn->penetration);
+
+            int add = wpn->dmg_addition;
+            if (wpn_is_type(item, WEAPON_TYPE_MELEE) ) add += msr_calculate_characteristic_bonus(player, MSR_CHAR_STRENGTH);
+            ui_printf(char_win, "+%d\n", add);
 
             if (wpn_is_type(item, WEAPON_TYPE_RANGED) || wpn_is_type(item, WEAPON_TYPE_THROWN) ) {
                 ui_printf(char_win, "- Range %d\n", wpn->range);
@@ -889,6 +897,10 @@ void invwin_examine(struct hrl_window *window, struct itm_item *item) {
             if (wpn->special_quality != 0) {
                 ui_printf(char_win, "\n");
                 ui_printf(char_win, "Weapon qualities:\n");
+
+                if (wpn->penetration > 0) {
+                    ui_printf(char_win, "- Armour Penetration (%d).\n", wpn->penetration);
+                }
 
                 for (int i = 0; i < WPN_SPCQLTY_MAX; i++) {
                     if (wpn_has_spc_quality(item, i) )  {
