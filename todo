@@ -1,6 +1,7 @@
+item generation via groups (archery group, melee group, light armour group) to enemies.
 group ai and generation             -- TBD
 add effects to tiles                -- nothing done yet.
-move towards wfrp2                  -- nothing yet
+move towards wfrp2                  -- working on it
 doors                               -- nothing done yet.
 basic career and homeworld system   -- nothing done yet.
 use and remove fatique              -- nothing done yet.
@@ -20,52 +21,22 @@ insanity system
 corruption system
 
 
+
 ideas:
-Vendor machines and Medical machines.
 create dungeon objects (like barrels) and treat them as cover.
 oil and fire which spreads
 status effects add temporary talent
 markdown readme ingame
-fght descriptors per weapon (fire,slash,spit,spray,chop ... )
 move spawn decisions to map
 elves suffer -5 to tgh and str
 
-is this true?
-critical hit cause autogain insanity point
+reminder
 rolling 1 on magic die causes will check or 1 insanity.
 
 wfrp:
-attack mode -> single, full attack, lightning strike, charge, etc.
-    Aim: (80)
-        1 standard attack with +10% BS/WS
-    Cast: (varies)
-        Cast spell
-    Charge Attack: (80)
-        actor moves 2 grid points in a straight line
-        and makes an attack. Gains +10% weapon bonus.
-    Move: (80-(m*10) )
-        Move One Grid.
-    Inventory: (40/varies)
-        equip weapon, use simple item
-    Reload: (varies)
-        reload missile weapon
-    Attack: (40)
-        standard attack
-    Swift Attack: (80)
-        3 or more attacks
-    All Out attack: (80)
-        +20 WS, no dodge or parry
-    Defensive Stance: (80)
-        attack gain -20% WS
-    Delay: (20)
-        Do nothing
-    Parry: (40/free if offhand has light melee weapon which did not attack.)
-        Chance to Parry all incoming melee attacks
+Move (TURN/movement)
+Attack (TURN/attack)
+main hand parry 1/TURN, unless main hand is used for attack.
+off- hand parry 1/TURN, unless off hand is used for attack.
+dodge 1/TURN, unless dodge is not trained.
 
-
-armour (cumulative): (old world armoury 23)
-    leather: no penalties
-    mail: -10% penalty to agility
-    scale: -10% penalty to agility, -1 movement characteristic
-    plate: -1 penalty to movement characteristic
-    (how should I read this?)
