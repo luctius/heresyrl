@@ -53,8 +53,10 @@ static bool wield_ranged_weapon(struct msr_monster *monster, struct itm_item *it
 
     bitfield32_t location = INV_LOC_NONE;
     if (wpn_is_catergory(item, WEAPON_CATEGORY_2H_RANGED) ) {
-        if ( (inv_support_location(inv, INV_LOC_MAINHAND_WIELD) == false) ||
-             (inv_support_location(inv, INV_LOC_OFFHAND_WIELD) == false) ) {
+        if ( ( (inv_support_location(inv, INV_LOC_MAINHAND_WIELD) == false) ||
+             (inv_support_location(inv, INV_LOC_OFFHAND_WIELD) == false) )  ||
+             ( (inv_loc_empty(inv, INV_LOC_MAINHAND_WIELD) == false) ||
+               (inv_loc_empty(inv, INV_LOC_OFFHAND_WIELD) == false) ) ) {
             You(monster, "do not have two hands.");
             return false;
         }
@@ -73,6 +75,7 @@ static bool wield_ranged_weapon(struct msr_monster *monster, struct itm_item *it
             return false;
         }
     }
+
 
     assert(inv_move_item_to_location(inv, item, location) == true);
     return true;
