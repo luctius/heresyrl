@@ -108,7 +108,7 @@ static bool rpsc_apply_player_sight(struct rpsc_fov_set *set, coord_t *point, co
             /* the scatter radius decreases depending on the number of successes in our roll*/
             int radius = 4 - DoS;
 
-            if (radius > 0) {
+            if (radius > 0 && radius <= 4) {
                 /* if the roll was a success, scatter the blip. */
                 coord_t sp = sgt_scatter(map, gbl_game->random, point, radius);
                 dm_get_map_me(&sp, map)->icon_override = '?';
