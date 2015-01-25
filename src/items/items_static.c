@@ -55,44 +55,44 @@
             .light_luminem=_light_luminem, .lit=false,}, .dropable=true
 
 #define ARMOUR(_damage_reduction,_locations,_special_quality) \
-            .icon=']', .stacked_quantity=0, .max_quantity=1, .item_type=ITEM_TYPE_WEARABLE, \
+            .icon=']', .stacked_quantity=0, .max_quantity=0, .item_type=ITEM_TYPE_WEARABLE, \
             .specific.wearable={ .wearable_type=WEARABLE_TYPE_ARMOUR, .locations=_locations, \
             .special_quality=_special_quality, .damage_reduction=_damage_reduction,}, .dropable=true
 
-#define MARTIAL(wpn_cat,dmg_die,dmg_add,_dmg_type,_penetration,special) .icon=' ',.stacked_quantity=0, .max_quantity=1,\
+#define MARTIAL(wpn_cat,dmg_die,dmg_add,_dmg_type,_penetration,special) .icon=' ',.stacked_quantity=0, .max_quantity=0,\
             .item_type=ITEM_TYPE_WEAPON, .dropable=false, .specific.weapon={.weapon_type=WEAPON_TYPE_MELEE,\
             .weapon_category=wpn_cat, .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=0,\
             .penetration=_penetration, .special_quality=bf(WPN_SPCQLTY_CREATURE) | special, .wpn_talent=TLT_NONE, .convey_status_effect=SEID_NONE, }, \
             martial_desc
 
-#define CREATURE_MELEE(wpn_cat,dmg_die,dmg_add,_dmg_type,_penetration,special) .icon=' ',.stacked_quantity=0, .max_quantity=1,\
+#define CREATURE_MELEE(wpn_cat,dmg_die,dmg_add,_dmg_type,_penetration,special) .icon=' ',.stacked_quantity=0, .max_quantity=0,\
             .item_type=ITEM_TYPE_WEAPON, .dropable=false, .specific.weapon={.weapon_type=WEAPON_TYPE_MELEE,\
             .weapon_category=wpn_cat, .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=0,\
             .penetration=_penetration, .special_quality=bf(WPN_SPCQLTY_CREATURE) | special, .wpn_talent=TLT_NONE, .convey_status_effect=SEID_NONE, }, \
             creature_desc 
 
-#define MELEE_1H(dmg_die,dmg_add,_dmg_type,_penetration,special,talent) .icon='|',.stacked_quantity=0, .max_quantity=1,\
+#define MELEE_1H(dmg_die,dmg_add,_dmg_type,_penetration,special,talent) .icon='|',.stacked_quantity=0, .max_quantity=0,\
             .item_type=ITEM_TYPE_WEAPON, .specific.weapon={.weapon_type=WEAPON_TYPE_MELEE, .weapon_category=WEAPON_CATEGORY_1H_MELEE, \
             .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=0, .penetration=_penetration, \
             .special_quality=special, .upgrades=0, .wpn_talent=talent, .convey_status_effect=SEID_NONE, }, .dropable=true, melee_desc
 
-#define MELEE_2H(dmg_die,dmg_add,_dmg_type,_penetration,special,talent) .icon='|',.stacked_quantity=0, .max_quantity=1,\
+#define MELEE_2H(dmg_die,dmg_add,_dmg_type,_penetration,special,talent) .icon='|',.stacked_quantity=0, .max_quantity=0,\
             .item_type=ITEM_TYPE_WEAPON, .specific.weapon={.weapon_type=WEAPON_TYPE_MELEE, .weapon_category=WEAPON_CATEGORY_2H_MELEE, \
             .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=0, .penetration=_penetration, \
             .special_quality=special, .upgrades=0, .wpn_talent=talent, .convey_status_effect=SEID_NONE, }, .dropable=true, melee_desc
 
-#define THROWN_WEAPON(_dmg_type,dmg_die,dmg_add,_penetration,_range,special,talent) .icon='|',.stacked_quantity=0, .max_quantity=100,\
+#define THROWN_WEAPON(_dmg_type,dmg_die,dmg_add,_penetration,_range,special,talent) .icon='|',.stacked_quantity=1, .max_quantity=100,\
             .item_type=ITEM_TYPE_WEAPON, .specific.weapon={.weapon_type=WEAPON_TYPE_THROWN, .weapon_category=WEAPON_CATEGORY_THROWN_WEAPON, \
             .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=_range, .penetration=_penetration, \
             .special_quality=special, .upgrades=0, .wpn_talent=talent, .convey_status_effect=SEID_NONE, }, .dropable=true
 
-#define THROWN_GRENADE(_dmg_type,dmg_die,dmg_add,_penetration,_range,special,talent, cid) .icon='|',.stacked_quantity=0, .max_quantity=100,\
+#define THROWN_GRENADE(_dmg_type,dmg_die,dmg_add,_penetration,_range,special,talent, cid) .icon='|',.stacked_quantity=1, .max_quantity=100,\
             .item_type=ITEM_TYPE_WEAPON, .specific.weapon={.weapon_type=WEAPON_TYPE_THROWN, .weapon_category=WEAPON_CATEGORY_THROWN_GRENADE, \
             .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=_range, .penetration=_penetration, \
             .special_quality=special, .upgrades=0, .wpn_talent=talent, .convey_status_effect=cid, }, .dropable=true
 
 #define RANGED_1H(_dmg_type,dmg_die,dmg_add,_penetration,_range,special,talent) \
-            .icon='|', .stacked_quantity=0, .max_quantity=1, .item_type=ITEM_TYPE_WEAPON, .specific.weapon={ \
+            .icon='|', .stacked_quantity=0, .max_quantity=0, .item_type=ITEM_TYPE_WEAPON, .specific.weapon={ \
             .weapon_category=WEAPON_CATEGORY_1H_RANGED, .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=_range, \
             .rof[WEAPON_ROF_SETTING_SINGLE]=1, .rof[WEAPON_ROF_SETTING_SEMI]=0, .rof[WEAPON_ROF_SETTING_AUTO]=0, \
             .rof_set=WEAPON_ROF_SETTING_SINGLE, .magazine_sz=1, .magazine_left=1, .penetration=_penetration, \
@@ -100,30 +100,12 @@
             .wpn_talent=talent, .jammed=false, .convey_status_effect=SEID_NONE, }, .dropable=true, ranged_desc
 
 #define RANGED_2H(_dmg_type,dmg_die,dmg_add,_penetration,_range,special,talent) \
-            .icon='|', .stacked_quantity=0, .max_quantity=1, .item_type=ITEM_TYPE_WEAPON, .specific.weapon={ \
+            .icon='|', .stacked_quantity=0, .max_quantity=0, .item_type=ITEM_TYPE_WEAPON, .specific.weapon={ \
             .weapon_category=WEAPON_CATEGORY_2H_RANGED, .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=_range, \
             .rof[WEAPON_ROF_SETTING_SINGLE]=1, .rof[WEAPON_ROF_SETTING_SEMI]=0, .rof[WEAPON_ROF_SETTING_AUTO]=0, \
             .rof_set=WEAPON_ROF_SETTING_SINGLE, .magazine_sz=1, .magazine_left=1, .penetration=_penetration, \
             .ammo_type=AMMO_TYPE_ARROW, .ammo_used_template_id=IID_ARROW, .special_quality=special, .upgrades=0, \
             .wpn_talent=talent, .jammed=false, .convey_status_effect=SEID_NONE, }, .dropable=true, ranged_desc
-
-/*
-#define PISTOL_SP(_dmg_type,dmg_die,dmg_add,_range,rof_single,rof_semi,rof_auto,mag_sz,_penetration,_upgrades,special) \
-            .icon='|', .stacked_quantity=0, .max_quantity=1, .item_type=ITEM_TYPE_WEAPON, .specific.weapon={ \
-            .weapon_category=WEAPON_CATEGORY_PISTOL, .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=_range, \
-            .rof[WEAPON_ROF_SETTING_SINGLE]=rof_single, .rof[WEAPON_ROF_SETTING_SEMI]=rof_semi, .rof[WEAPON_ROF_SETTING_AUTO]=rof_auto, \
-            .rof_set=WEAPON_ROF_SETTING_SINGLE, .magazine_sz=mag_sz, .magazine_left=mag_sz, .penetration=_penetration, \
-            .ammo_type=AMMO_TYPE_PISTOL_SP, .ammo_used_template_id=IID_PISTOL_AMMO_SP, .special_quality=special, .upgrades=_upgrades, \
-            .wpn_talent=TLT_NONE, .jammed=false, .convey_status_effect=SEID_NONE, }, .dropable=true, ranged_desc
-
-#define BASIC_SP(_dmg_type,dmg_die,dmg_add,_range,rof_single,rof_semi,rof_auto,mag_sz,_penetration,_upgrades,special) \
-            .icon='|', .stacked_quantity=0, .max_quantity=1, .item_type=ITEM_TYPE_WEAPON, .specific.weapon={ \
-            .weapon_category=WEAPON_CATEGORY_BASIC, .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=_range, \
-            .rof[WEAPON_ROF_SETTING_SINGLE]=rof_single, .rof[WEAPON_ROF_SETTING_SEMI]=rof_semi, .rof[WEAPON_ROF_SETTING_AUTO]=rof_auto, \
-            .rof_set=WEAPON_ROF_SETTING_SINGLE, .magazine_sz=mag_sz, .magazine_left=mag_sz, .penetration=_penetration, \
-            .ammo_type=AMMO_TYPE_BASIC_SP, .ammo_used_template_id=IID_BASIC_AMMO_SP, .special_quality=special, .upgrades=_upgrades, \
-            .wpn_talent=TLT_NONE, .jammed=false, .convey_status_effect=SEID_NONE, }, .dropable=true, ranged_desc
-*/
 
 #define AMMO(_ammo_type,cid) .icon='^', .stacked_quantity=1, .max_quantity=100, .dropable=true, \
             .item_type=ITEM_TYPE_AMMO, .specific.ammo={ .ammo_type=_ammo_type, .convey_status_effect=cid, }
@@ -222,8 +204,8 @@ static struct itm_item static_item_list[] = {
 
     /* Ranged */
     /*    ID                    short name       long name        (wgt,cst,dly)              dmg type       xd10 +x pen range  special qualities     talents*/
-    ITEM_AVG(IID_SHORT_BOW,     "short bow",     "a short bow",     75, 7, 1),RANGED_2H(     DMG_TYPE_PIERCING,1, 3, 0,  8,     0,                   TLT_NONE),                         CREATION(10,1,100), ITEM_END,
-    ITEM_AVG(IID_LONG_BOW,      "long bow",      "a long bow",      90,15, 1),RANGED_2H(     DMG_TYPE_PIERCING,1, 3, 1, 16,     0,                   TLT_NONE),                         CREATION(10,1,100), ITEM_END,
+    ITEM_AVG(IID_SHORT_BOW,     "short bow",     "a short bow",     75, 7, 0.5),RANGED_2H(   DMG_TYPE_PIERCING,1, 3, 0,  8,     0,                   TLT_NONE),                         CREATION(10,1,100), ITEM_END,
+    ITEM_AVG(IID_LONG_BOW,      "long bow",      "a long bow",      90,15, 0.5),RANGED_2H(   DMG_TYPE_PIERCING,1, 3, 1, 16,     0,                   TLT_NONE),                         CREATION(10,1,100), ITEM_END,
     ITEM_AVG(IID_THROWING_KNIFE,"throwing knife","a throwing knife", 5, 5, 1),THROWN_WEAPON( DMG_TYPE_PIERCING,1,-3, 0,  5,     0,                   TLT_SPEC_WPN_GRP_THROWING),        CREATION(40,1,100), ITEM_END,
     ITEM_AVG(IID_FIRE_BOMB,     "fire bomb",     "a fire bomb",      5,10, 1),THROWN_GRENADE(DMG_TYPE_SHRAPNEL,1, 0, 0,  3,bf(WPN_SPCQLTY_BLAST_3),  TLT_NONE, SEID_WEAPON_FLAME_AREA), CREATION(30,1,100), ITEM_END,
 
@@ -233,7 +215,7 @@ static struct itm_item static_item_list[] = {
 
     /* Creature Attacks */
     /*    ID                            hort name long name  (wgt,cst,dly)            CATEGORY               xd10  +X  dmg type     upgrades   special qualities*/
-    ITEM_NONE(IID_HUMAN_UNARMED,          "hands",   "hands",   0, 0, 0), MARTIAL(       WEAPON_CATEGORY_2H_MELEE,1, -4, DMG_TYPE_UNARMED,0,  bf(WPN_SPCQLTY_UNARMED) ), ITEM_END,
+    ITEM_NONE(IID_HUMAN_UNARMED,          "hands",   "hands",   0, 0, 0), MARTIAL(       WEAPON_CATEGORY_2H_MELEE,1, -4, DMG_TYPE_UNARMED,0,  bf(WPN_SPCQLTY_UNARMED) | bf(WPN_SPCQLTY_PRIMITIVE) ), ITEM_END,
     ITEM_NONE(IID_CREATURE_BITE_UNTRAINED,"teeth",   "teeth",   0, 0, 0), CREATURE_MELEE(WEAPON_CATEGORY_2H_MELEE,1, -4, DMG_TYPE_CLAW,   0,  bf(WPN_SPCQLTY_UNARMED) ), ITEM_END,
     ITEM_NONE(IID_CREATURE_BITE_TRAINED,  "teeth",   "teeth",   0, 0, 0), CREATURE_MELEE(WEAPON_CATEGORY_2H_MELEE,1,  0, DMG_TYPE_CLAW,   0,  0), ITEM_END,
 
@@ -261,30 +243,31 @@ static const char *ammo_type_strings[] = {
 };
 
 static const char *wpn_spcqlty_name[] = {
-    [WPN_SPCQLTY_ACCURATE]	    = "accurate",
-    [WPN_SPCQLTY_BALANCED]      = "balanced",
-    [WPN_SPCQLTY_BLAST_1]	    = "blast 1",
-    [WPN_SPCQLTY_BLAST_2]	    = "blast 2",
-    [WPN_SPCQLTY_BLAST_3]       = "blast 3",
-    [WPN_SPCQLTY_BLAST_4]       = "blast 4",
-    [WPN_SPCQLTY_DEFENSIVE]	    = "defensive",
-    [WPN_SPCQLTY_FLAME]	        = "flame",
-    [WPN_SPCQLTY_FLEXIBLE]      = "flexible",
-    [WPN_SPCQLTY_INACCURATE]    = "inaccurate",
-    [WPN_SPCQLTY_OVERHEATS]     = "overheats",
-    [WPN_SPCQLTY_PRIMITIVE]	    = "primitive",
-    [WPN_SPCQLTY_RELIABLE]	    = "reliable",
-    [WPN_SPCQLTY_SCATTER]	    = "scatter",
-    [WPN_SPCQLTY_SHOCKING]	    = "shocking",
-    [WPN_SPCQLTY_SMOKE]	        = "smoke",
-    [WPN_SPCQLTY_SNARE]	        = "snare",
-    [WPN_SPCQLTY_TEARING]	    = "tearing",
-    [WPN_SPCQLTY_TOXIC]	        = "toxic",
-    [WPN_SPCQLTY_UNARMED]	    = "unarmed",
-    [WPN_SPCQLTY_UNBALANCED]	= "unbalanced",
-    [WPN_SPCQLTY_UNRELIABLE]	= "unreliable",
-    [WPN_SPCQLTY_UNSTABLE]	    = "unstable",
-    [WPN_SPCQLTY_UNWIELDY]	    = "unwieldy",
+    [WPN_SPCQLTY_ACCURATE]	    = "Accurate",
+    [WPN_SPCQLTY_BALANCED]      = "Balanced",
+    [WPN_SPCQLTY_BLAST_1]	    = "Blast 1",
+    [WPN_SPCQLTY_BLAST_2]	    = "Blast 2",
+    [WPN_SPCQLTY_BLAST_3]       = "Blast 3",
+    [WPN_SPCQLTY_BLAST_4]       = "Blast 4",
+    [WPN_SPCQLTY_DEFENSIVE]	    = "Defensive",
+    [WPN_SPCQLTY_FLAME]	        = "Flame",
+    [WPN_SPCQLTY_FLEXIBLE]      = "Flexible",
+    [WPN_SPCQLTY_INACCURATE]    = "Inaccurate",
+    [WPN_SPCQLTY_OVERHEATS]     = "Overheats",
+    [WPN_SPCQLTY_PRIMITIVE]	    = "Primitive",
+    [WPN_SPCQLTY_RELIABLE]	    = "Reliable",
+    [WPN_SPCQLTY_SCATTER]	    = "Scatter",
+    [WPN_SPCQLTY_SHOCKING]	    = "Shocking",
+    [WPN_SPCQLTY_SHIELD]        = "Shield",
+    [WPN_SPCQLTY_SMOKE]	        = "Smoke",
+    [WPN_SPCQLTY_SNARE]	        = "Snare",
+    [WPN_SPCQLTY_TEARING]	    = "Tearing",
+    [WPN_SPCQLTY_TOXIC]	        = "Toxic",
+    [WPN_SPCQLTY_UNARMED]	    = "Unarmed",
+    [WPN_SPCQLTY_UNBALANCED]	= "Unbalanced",
+    [WPN_SPCQLTY_UNRELIABLE]	= "Unreliable",
+    [WPN_SPCQLTY_UNSTABLE]	    = "Unstable",
+    [WPN_SPCQLTY_UNWIELDY]	    = "Unwieldy",
 };
 
 static const char *wpn_spcqlty_desc[] = {
@@ -300,9 +283,10 @@ static const char *wpn_spcqlty_desc[] = {
     [WPN_SPCQLTY_INACCURATE]	= " No bonus with aim action ",
     [WPN_SPCQLTY_OVERHEATS]	    = " 90+ -> Overheat ",
     [WPN_SPCQLTY_PRIMITIVE]	    = " AP doubled, unless armour is also primitive ",
-    [WPN_SPCQLTY_RELIABLE]	    = " If jam, 10 on 1d10 to actually jam. <I> ",
+    [WPN_SPCQLTY_RELIABLE]	    = " If jam, 10 on 1d10 to actually jam.",
     [WPN_SPCQLTY_SCATTER]	    = " Point Blank: 2 DoS score another hit, AP doubled at Long and Extreme ranges. ",
     [WPN_SPCQLTY_SHOCKING]	    = " If damage, test Toughness or be stunned. ",
+    [WPN_SPCQLTY_SHIELD]        = " Gives ranged attackers a -10% to hit.",
     [WPN_SPCQLTY_SMOKE]	        = " Creates smoke screen 3d10 metres in diameters, lasts 2d10 Rounds. ",
     [WPN_SPCQLTY_SNARE]	        = " Ag. test or be immobilised ",
     [WPN_SPCQLTY_TEARING]	    = " Roll twice, take highest damage ",
@@ -316,16 +300,18 @@ static const char *wpn_spcqlty_desc[] = {
 
 
 static const char *wbl_spcqlty_name[] = {
-    [WBL_SPCQLTY_LEATHER]	= "leather",
-    [WBL_SPCQLTY_MAIL]	    = "mail",
-    [WBL_SPCQLTY_SCALE]	    = "scale",
-    [WBL_SPCQLTY_PLATE]	    = "plate",
+    [WBL_SPCQLTY_PRIMITIVE]	= "Primitive",
+    [WBL_SPCQLTY_LEATHER]	= "Leather",
+    [WBL_SPCQLTY_MAIL]	    = "Mail",
+    [WBL_SPCQLTY_SCALE]	    = "Scale",
+    [WBL_SPCQLTY_PLATE]	    = "Plate",
 };
 
 static const char *wbl_spcqlty_desc[] = {
+    [WBL_SPCQLTY_PRIMITIVE]	= "Halfs armour bonus against non-primitive weapons",
     [WBL_SPCQLTY_LEATHER]	= "Basic armour which give no penalties",
-    [WBL_SPCQLTY_MAIL]    	= "armour which give penalties",
-    [WBL_SPCQLTY_SCALE]    	= "armour which give penalties",
-    [WBL_SPCQLTY_PLATE]    	= "armour which give penalties",
+    [WBL_SPCQLTY_MAIL]    	= "Armour which give penalties",
+    [WBL_SPCQLTY_SCALE]    	= "Armour which give penalties",
+    [WBL_SPCQLTY_PLATE]    	= "Armour which give penalties",
 };
 
