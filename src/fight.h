@@ -26,6 +26,7 @@
 #define FGHT_RANGED_MODIFIER_LONG_RANGE    (-10)
 #define FGHT_RANGED_MODIFIER_SHORT_RANGE   (10)
 #define FGHT_RANGED_MODIFIER_POINT_BLACK   (30)
+#define FGHT_RANGED_MODIFIER_SHIELD       (-10)
 
 #define FGHT_MODIFIER_SURPRISED (30)
 #define FGHT_MODIFIER_OFF_HAND (-20)
@@ -79,6 +80,7 @@
         Shooting at a target at Long Range (two times wpn range)
         Shooting a scrawny target
         Making Lighning melee attack. //TODO
+        Shooting at a target with a shield
     -20
         A called shot at a specific location
         Shooting in melee combat

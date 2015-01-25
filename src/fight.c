@@ -127,6 +127,12 @@ int fght_ranged_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght
         if (target != NULL) {
             /* Conditions */
             CALC_TOHIT(se_has_effect(target->status_effects, SETF_STUNNED), FGHT_MODIFIER_STATUS_EFFECT_STUNNED, "target is stunned")
+
+            struct itm_item *tgt_witem1 = inv_get_item_from_location(target->inventory, INV_LOC_MAINHAND_WIELD);
+            struct itm_item *tgt_witem2 = inv_get_item_from_location(target->inventory, INV_LOC_OFFHAND_WIELD);
+            CALC_TOHIT(wpn_has_spc_quality(tgt_witem1, WPN_SPCQLTY_SHIELD) || wpn_has_spc_quality(tgt_witem2, WPN_SPCQLTY_SHIELD),
+                                         FGHT_RANGED_MODIFIER_SHIELD, "target is equiped with a shield")
+
         }
 
 
@@ -188,7 +194,8 @@ int fght_melee_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght_
                 /* target is within far sight, but there is no light on the tile */
                 CALC_TOHIT(sgt_has_los(map, &monster->pos, tpos, medium_range) == false, FGHT_MODIFIER_VISION_DARKNESS, "target is in darkness")
                 /* target is within medium sight, but there is no light on the tile */
-                else CALC_TOHIT(sgt_has_los(map, &monster->pos, tpos, near_range) == false, FGHT_MODIFIER_VISION_SHADOWS, "target is in shadows")
+                //else CALC_TOHIT(sgt_has_los(map, &monster->pos, tpos, near_range) == false, FGHT_MODIFIER_VISION_SHADOWS, "target is in shadows")
+                else CALC_TOHIT(true, FGHT_MODIFIER_VISION_SHADOWS, "target is in shadows")
             }
         }
 
@@ -242,7 +249,6 @@ int fght_calc_dmg(struct random *r, struct msr_monster *monster, struct msr_mons
     if (wpn->nr_dmg_die == 0) dmg_die_sz = 5;
     for (int h = 0; h < hits; h++) {
         int dmg = random_xd10(r, wpn->nr_dmg_die);
-        if (wpn->nr_dmg_die == 0) dmg = random_xd5(r, 1); /*TODO Emperors fury */
 
         int dmg_add = wpn->dmg_addition;
         int penetration = wpn->penetration;
@@ -266,7 +272,11 @@ int fght_calc_dmg(struct random *r, struct msr_monster *monster, struct msr_mons
             /* Modifiers to toughness here */
             {}
             /* Modifiers to armour here */
-            { }
+            {
+                /*  Armour counts double against primitive weapons, primitive armour counts as half against weapons, except against each other. */
+                if (wpn_has_spc_quality(witem, WPN_SPCQLTY_PRIMITIVE) > 0) armour *= 2;
+                if ( (aitem != NULL) && wbl_has_spc_quality(aitem, WBL_SPCQLTY_PRIMITIVE) > 0) armour /= 2;
+            }
         }
 
         lg_debug("Armour %d, penetration %d, toughness %d, dmg %d, dmg_add %d", armour, penetration, toughness, dmg, dmg_add);
@@ -283,7 +293,7 @@ int fght_calc_dmg(struct random *r, struct msr_monster *monster, struct msr_mons
 
         msr_do_dmg(target, total_damage, wpn->dmg_type, mhl);
 
-        lg_debug("Doing %d%s+%d damage => %d(%d), %d wnds left.", wpn->nr_dmg_die, random_die_name(dmg_die_sz), wpn->dmg_addition, dmg, total_damage, target->cur_wounds);
+        Info("Doing %d%s+%d damage => %d, %d wnds left.", wpn->nr_dmg_die, random_die_name(dmg_die_sz), dmg_add, dmg, target->cur_wounds);
         if (target->dead) h = hits;
     }
 
@@ -318,6 +328,12 @@ bool fght_do_weapon_dmg(struct random *r, struct msr_monster *monster, struct ms
     if (wpn->weapon_category == WEAPON_CATEGORY_THROWN_GRENADE) return false;
 
     enum msr_hit_location mhl = msr_get_hit_location(target, random_d100(r));
+
+    You(monster,                 "%s at %s's %s.", itm_you_use_desc(witem), msr_ldname(target), msr_hitloc_name(target, mhl) );
+
+    char *add_str = "'s"; if (target->is_player) add_str = "";
+    Monster_tgt(monster, target, "%s at %s%s %s.", itm_msr_use_desc(witem), msr_ldname(target), msr_hitloc_name(target, mhl) );
+
     fght_calc_dmg(r, monster, target, hits, witem, mhl);
 
     return true;
@@ -352,8 +368,10 @@ int fght_ranged_roll(struct random *r, struct msr_monster *monster, struct msr_m
 
     lg_debug("roll %d vs to hit %d, jamm_threshold %d", roll, to_hit, jammed_threshold);
 
+    /*
     You(monster,                 "%s at %s.",  itm_you_use_desc(witem), msr_ldname(target) );
     Monster_tgt(monster, target, "%s at %s.", itm_msr_use_desc(witem), msr_ldname(target) );
+    */
 
     /* Do jamming test */
     if (roll >= jammed_threshold) {
@@ -380,9 +398,16 @@ int fght_ranged_roll(struct random *r, struct msr_monster *monster, struct msr_m
         return 0;
     }
 
-    lg_debug("Shot attempt with calcBS: %d => %d", roll, to_hit);
+    Info("Ranged to-hit: roll %d, target: %d", roll, to_hit);
     if (roll < to_hit) {
         int dos = (to_hit - roll) / 10;
+        if (msr_can_use_evasion(monster, MSR_EVASION_DODGE) == true) {
+            if (msr_use_evasion(target, monster, witem, MSR_EVASION_DODGE, dos, 0) == true) {
+                You(monster, "defly dodge out of the way.");
+                Monster(monster, "defly dodges out of the way.");
+                return 0;
+            }
+        }
 
         /* Single Shot: max 1 hit */
         if (wpn->rof_set == WEAPON_ROF_SETTING_SINGLE) return MIN(ammo, 1);
@@ -407,8 +432,10 @@ int fght_melee_roll(struct random *r, struct msr_monster *monster, struct msr_mo
     witem = fght_get_working_weapon(monster, WEAPON_TYPE_MELEE, hand);
     if (witem == NULL) return -1;
 
+    /*
     You(monster,                 "%s at %s.", itm_you_use_desc(witem), msr_ldname(target));
     Monster_tgt(monster, target, "%s at %s.", itm_msr_use_desc(witem), msr_ldname(target) );
+    */
 
     /* TODO add Melee attack options */
 
@@ -420,8 +447,20 @@ int fght_melee_roll(struct random *r, struct msr_monster *monster, struct msr_mo
         return -1;
     }
 
-    lg_debug("Melee attempt with calcWS: %d => %d", roll, to_hit);
+    Info("Melee to-hit: roll %d, target: %d", roll, to_hit);
     if (roll < to_hit) {
+        for (int i = 0; i < MSR_EVASION_MAX; i++) {
+            if (msr_can_use_evasion(target, i) == true) {
+                /* TODO: check if the target is aware of the attack (ie can see it coming). */
+                int to_hit_DoS = (to_hit - roll) / 10;
+                if (msr_use_evasion(target, monster, witem, i, to_hit_DoS, 0) == true) {
+                    You(monster, "defly evade the attack.");
+                    Monster(monster, "defly evades the attack.");
+                    return 0;
+                }
+                break;
+            }
+        }
         return 1;
     }
 
@@ -438,15 +477,19 @@ int fght_thrown_roll(struct random *r, struct msr_monster *monster, coord_t *pos
     struct msr_monster *target = dm_get_map_me(pos, gbl_game->current_map)->monster;
     if (target != NULL) {
         if (msr_verify_monster(target) == true) {
+            /*
             You(monster,                 "%s an %s at %s.", itm_you_use_desc(witem), witem->sd_name, msr_ldname(target) );
             Monster_tgt(monster, target, "%s an %s at %s.", itm_msr_use_desc(witem), witem->sd_name, msr_ldname(target) );
+            */
             print = true;
         }
     }
 
     if (print == false) {
+        /*
         You(monster,                 "%s an %s.", itm_you_use_desc(witem), witem->sd_name);
         Monster_tgt(monster, target, "%s an %s.", itm_msr_use_desc(witem), witem->sd_name);
+        */
     }
 
     int to_hit = fght_ranged_calc_tohit(monster, pos, hand);
@@ -484,7 +527,14 @@ bool fght_melee(struct random *r, struct msr_monster *monster, struct msr_monste
         hits = fght_melee_roll(r, monster, target, hand);
 
         /* Do the actual damage if we did score a hit. */
-        if (hits > 0) fght_do_weapon_dmg(r, monster, target, hits, hand);
+        if (hits > 0) {
+            fght_do_weapon_dmg(r, monster, target, hits, hand);
+
+            if (hand == FGHT_OFF_HAND) {
+                /* disable offhand parry for this turn. */
+                msr_can_use_evasion(monster, MSR_EVASION_OFF_HAND);
+            }
+        }
     }
 
     return true;
@@ -793,6 +843,15 @@ struct itm_item *fght_get_working_weapon(struct msr_monster *monster, enum item_
         if (item->specific.weapon.magazine_left == 0) {
             Your(monster, "%s-hand weapon is empty.", fght_weapon_hand_name(hand) );
             return NULL;
+        }
+    }
+
+    if (type == WEAPON_TYPE_MELEE) {
+        if (hand == FGHT_OFF_HAND) {
+            /* Off hand can only be used once per round, and only if it is not used for an evasion that round. */
+            if (msr_can_use_evasion(monster, MSR_EVASION_OFF_HAND) == false) {
+                return NULL;
+            }
         }
     }
 
