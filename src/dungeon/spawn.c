@@ -24,7 +24,7 @@ bool spwn_add_item_to_monster(struct msr_monster *monster, struct spwn_monster_i
             item->stacked_quantity = MIN(nr, item->max_quantity);
             assert(msr_give_item(monster, item) == true);
             if (sitem->wear == true) {
-                assert(dw_wear_item(monster, item) == true);
+                dw_wear_item(monster, item);
                 return true;
             }
         }
