@@ -68,8 +68,8 @@ void plr_create(struct pl_player *plr, char *name, uint32_t template_id, enum ms
     struct msr_monster *player = plr->player;
 
     player->unique_name = name;
-    player->gender = gender;
-    player->is_player = true;
+    player->gender      = gender;
+    player->is_player   = true;
 
     player->characteristic[MSR_CHAR_WEAPON_SKILL].base_value   += random_xd10(gbl_game->random, 2);
     player->characteristic[MSR_CHAR_BALISTIC_SKILL].base_value += random_xd10(gbl_game->random, 2);
@@ -79,9 +79,9 @@ void plr_create(struct pl_player *plr, char *name, uint32_t template_id, enum ms
     player->characteristic[MSR_CHAR_INTELLIGENCE].base_value   += random_xd10(gbl_game->random, 2);
     player->characteristic[MSR_CHAR_WILLPOWER].base_value      += random_xd10(gbl_game->random, 2);
     player->characteristic[MSR_CHAR_PERCEPTION].base_value     += random_xd10(gbl_game->random, 2);
-    player->max_wounds = gen_starting_wnds(player->race, random_xd10(gbl_game->random, 1) );
-    player->cur_wounds = player->max_wounds;
-    player->fate_points = gen_starting_fp(player->race, random_xd10(gbl_game->random, 1) );
+    player->max_wounds    = gen_starting_wnds(player->race, random_xd10(gbl_game->random, 1) );
+    player->cur_wounds    = player->max_wounds;
+    player->fate_points   = gen_starting_fp(player->race, random_xd10(gbl_game->random, 1) );
 
     /* give humans and halflings a random talent */
     if (player->race == MSR_RACE_HALFLING || player->race == MSR_RACE_HUMAN) {
@@ -266,7 +266,7 @@ static bool plr_action_loop(struct msr_monster *player) {
             case INP_KEY_RELOAD: 
                 has_action = ma_do_reload_carried(player, NULL); break;
             case INP_KEY_WAIT: 
-                has_action = ma_do_guard(player); break;
+                has_action = ma_do_idle(player); break; //ma_do_guard(player); break;
             case INP_KEY_UNLOAD: 
                 has_action = ma_do_unload(player, NULL); break;
             case INP_KEY_WEAPON_SETTING: 
