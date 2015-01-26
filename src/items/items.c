@@ -98,7 +98,8 @@ static uint32_t itmlst_next_id(void) {
 
 static bool itm_is_in_group(struct itm_item *item, enum item_group ig) {
     switch(ig) {
-        case ITEM_GROUP_NONE: return false;
+        case ITEM_GROUP_NONE: 
+            return false;
         case ITEM_GROUP_1H_MELEE:
             return wpn_is_catergory(item, WEAPON_CATEGORY_1H_MELEE);
         case ITEM_GROUP_2H_MELEE:
@@ -120,37 +121,51 @@ int itm_spawn(double roll, int level, enum item_group ig) {
     int sz = ARRAY_SZ(static_item_list);
     double prob_arr[sz];
     double cumm_prob_arr[sz];
-    double sum = 0;
+    double sum = 0.f;
 
     if (ig == ITEM_GROUP_NONE) return IID_NONE;
     int idx = IID_NONE;
 
     cumm_prob_arr[0] = DBL_MAX;
-    for (int i = IID_NONE+1; i < sz; i++) {
+    for (int i = IID_NONE; i < sz; i++) {
         if ( (level >= static_item_list[i].spawn_level) &&
              (itm_is_in_group(&static_item_list[i], ig) ) ) {
             sum += static_item_list[i].spawn_weight;
+            cumm_prob_arr[i] = 0.f;
         }
         else cumm_prob_arr[i] = DBL_MAX;
     }
 
-    double cumm = 0;
-    for (int i = IID_NONE+1; i < sz; i++) {
+    if (sum == 0) {
+        printf("bla");
+    }
+
+    double cumm = 0.f;
+    for (int i = IID_NONE; i < sz; i++) {
         if (cumm_prob_arr[i] == DBL_MAX) continue;
         prob_arr[i] = static_item_list[i].spawn_weight / sum;
         cumm += prob_arr[i];
         cumm_prob_arr[i] = cumm;
     }
 
-    for (int i = sz-1; i > IID_NONE+1; i--) {
+    if (cumm == 0) {
+        printf("bla");
+    }
+
+    for (int i = sz-1; i > IID_NONE; i--) {
         if (cumm_prob_arr[i] == DBL_MAX) continue;
         if (roll < cumm_prob_arr[i]) idx = i;
+    }
+
+    if (idx == IID_NONE) {
+        printf("bla");
     }
 
     return idx;
 }
 
 struct itm_item *itm_create(int template_id) {
+    if (template_id <= IID_NONE) return NULL;
     if (template_id >= IID_MAX) return NULL;
     if (template_id >= (int) ARRAY_SZ(static_item_list)) return NULL;
     if (items_list_initialised == false) itmlst_items_list_init();
