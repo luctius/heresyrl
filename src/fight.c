@@ -168,11 +168,19 @@ int fght_melee_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght_
     {/*add to-hit modifiers here*/ 
 
         /* Dual-wielding and Off-hand Weapon */
+        if (hand == FGHT_OFF_HAND) {
+            CALC_TOHIT(true, FGHT_MODIFIER_OFF_HAND, "using off-hand")
+            CALC_TOHIT(wpn_has_spc_quality(witem, WPN_SPCQLTY_LIGHT), FGHT_MODIFIER_DUAL_WIELD_WEAPON_LIGHT,  "your off-hand weapon is light")
+            CALC_TOHIT( (hand == FGHT_OFF_HAND) && msr_has_talent(monster, TLT_AMBIDEXTROUS), FGHT_MODIFIER_OFF_HAND_DUAL_WIELD,  "you are ambidextrous")
+        }
+
         if (monster->wpn_sel == MSR_WEAPON_SELECT_DUAL_HAND) {
             CALC_TOHIT(hand == FGHT_MAIN_HAND, FGHT_MODIFIER_MAIN_HAND_DUAL_WIELD, "you are dual wielding, this is your main hand")
-            CALC_TOHIT(hand == FGHT_OFF_HAND,  FGHT_MODIFIER_OFF_HAND_DUAL_WIELD,  "you are dual wielding, this is your off-hand")
+            else CALC_TOHIT(hand == FGHT_OFF_HAND,  FGHT_MODIFIER_OFF_HAND_DUAL_WIELD,  "you are dual wielding, this is your off-hand")
+
+            CALC_TOHIT(msr_has_talent(monster, TLT_TWO_WEAPON_FIGHTING),  FGHT_MODIFIER_DUAL_WIELD_TWO_WEAPON_FIGHTING,  "you are trained in dual wielding")
+            CALC_TOHIT( (hand == FGHT_MAIN_HAND) && wpn_has_spc_quality(witem, WPN_SPCQLTY_LIGHT), FGHT_MODIFIER_DUAL_WIELD_WEAPON_LIGHT,  "your off-hand weapon is light")
         }
-        else CALC_TOHIT(hand == FGHT_OFF_HAND, FGHT_MODIFIER_OFF_HAND, "using off-hand")
 
         /* Unarmed */
         CALC_TOHIT(wpn_has_spc_quality(witem, WPN_SPCQLTY_UNARMED), FGHT_MODIFIER_MELEE_UNARMED, "you are unarmed")
