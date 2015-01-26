@@ -130,8 +130,8 @@ int fght_ranged_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght
 
             struct itm_item *tgt_witem1 = inv_get_item_from_location(target->inventory, INV_LOC_MAINHAND_WIELD);
             struct itm_item *tgt_witem2 = inv_get_item_from_location(target->inventory, INV_LOC_OFFHAND_WIELD);
-            CALC_TOHIT( (tgt_witem1 != NULL && wpn_has_spc_quality(tgt_witem1, WPN_SPCQLTY_SHIELD) ) ||
-                        (tgt_witem2 != NULL && wpn_has_spc_quality(tgt_witem2, WPN_SPCQLTY_SHIELD) ),
+            CALC_TOHIT( ( (tgt_witem1 != NULL) && wpn_has_spc_quality(tgt_witem1, WPN_SPCQLTY_SHIELD) ) ||
+                        ( (tgt_witem2 != NULL) && wpn_has_spc_quality(tgt_witem2, WPN_SPCQLTY_SHIELD) ),
                                          FGHT_RANGED_MODIFIER_SHIELD, "target is equiped with a shield")
 
         }
