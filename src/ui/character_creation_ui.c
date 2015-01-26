@@ -67,10 +67,13 @@ bool char_creation_window(void) {
             case '\n': if (strlen(name_buffer) > 0 ) { name_done = true; } break;
             case 24: return false;
             case INP_KEY_BACKSPACE: 
-                if (name_buffer_idx >= 0) {
+                if (name_buffer_idx > 0) {
                     name_buffer[name_buffer_idx--] = '\0'; 
                     name_buffer[name_buffer_idx] = '\0'; 
                 }
+                werase(map_win->win);
+                ui_print_reset(map_win);
+                ui_printf(map_win, "%s ", enter_name_string);
                 break;
             default:
                 if (name_buffer_idx < (name_buffer_sz-2) ) {
