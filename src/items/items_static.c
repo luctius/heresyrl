@@ -194,7 +194,7 @@ static struct itm_item static_item_list[] = {
 
     /* Melee */
     /*    ID                 short name,   long name              (wgt,cst,dly)      xd10 +X, dmg type         pen, special qualities,         talent*/
-    ITEM_AVG(IID_KNIFE,      "knife",      "a knife",              15, 50, 0),MELEE_1H(1, 0,  DMG_TYPE_PIERCING,0,  bf(WPN_SPCQLTY_LIGHT),    TLT_NONE), CREATION(20,1), ITEM_END,
+    ITEM_AVG(IID_KNIFE,      "knife",      "a knife",              15, 50, 0),MELEE_1H(1,-4,  DMG_TYPE_PIERCING,0,  bf(WPN_SPCQLTY_LIGHT),    TLT_NONE), CREATION(20,1), ITEM_END,
     ITEM_AVG(IID_HAND_WEAPON,"hand weapon","a generic hand weapon",50, 10, 0),MELEE_1H(1, 0,  DMG_TYPE_PIERCING,0,  0,                        TLT_NONE), CREATION(20,1), ITEM_END,
     ITEM_GOOD(IID_AXE_GOOD,  "axe",        "a military axe",       50,100, 0),MELEE_1H(1, 0,  DMG_TYPE_CUTTING, 0,  bf(WPN_SPCQLTY_IMPACT),   TLT_NONE), CREATION(20,1), ITEM_END,
     ITEM_GOOD(IID_HAMMER_GOOD,"hammer",    "a military hammer",    50,100, 0),MELEE_1H(1, 0,  DMG_TYPE_BLUNT,   0,  bf(WPN_SPCQLTY_PUMMELING),TLT_NONE), CREATION(20,1), ITEM_END,
