@@ -40,3 +40,6 @@ main hand parry 1/TURN, unless main hand is used for attack.
 off- hand parry 1/TURN, unless off hand is used for attack.
 dodge 1/TURN, unless dodge is not trained.
 
+BUGS:
+cannot throw tools anymore.
+vision is not a circle

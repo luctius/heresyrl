@@ -63,8 +63,7 @@ AC_CHECK_FUNCS([memmove memset mkdir sqrt strtol])
 
 
 AC_CONFIG_FILES([Makefile
-                 utils/Makefile 
-                 src/Makefile 
                  heresyrl.ggo])
+                 #src/Makefile 
 AC_OUTPUT
 
