@@ -167,8 +167,12 @@ int fght_melee_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght_
 
     {/*add to-hit modifiers here*/ 
 
-        /* Offhand Weapon */
-        CALC_TOHIT(hand == FGHT_OFF_HAND, FGHT_MODIFIER_OFF_HAND, "using off-hand")
+        /* Dual-wielding and Off-hand Weapon */
+        if (monster->wpn_sel == MSR_WEAPON_SELECT_DUAL_HAND) {
+            CALC_TOHIT(hand == FGHT_MAIN_HAND, FGHT_MODIFIER_MAIN_HAND_DUAL_WIELD, "you are dual wielding, this is your main hand")
+            CALC_TOHIT(hand == FGHT_OFF_HAND,  FGHT_MODIFIER_OFF_HAND_DUAL_WIELD,  "you are dual wielding, this is your off-hand")
+        }
+        else CALC_TOHIT(hand == FGHT_OFF_HAND, FGHT_MODIFIER_OFF_HAND, "using off-hand")
 
         /* Unarmed */
         CALC_TOHIT(wpn_has_spc_quality(witem, WPN_SPCQLTY_UNARMED), FGHT_MODIFIER_MELEE_UNARMED, "you are unarmed")
