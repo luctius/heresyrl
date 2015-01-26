@@ -110,7 +110,7 @@ bool char_creation_window(void) {
             case INP_KEY_ESCAPE: return false; break;
             case INP_KEY_UP_RIGHT: 
             case INP_KEY_USE: 
-                (map_win->win, map_win->lines -3, 1, "Choose which homeworld?");
+                mvwprintw(map_win->win, map_win->lines -3, 1, "Choose which Race?");
                 wrefresh(map_win->win);
                 werase(map_win->win);
 
@@ -118,7 +118,7 @@ bool char_creation_window(void) {
                 break;
 
             case INP_KEY_EXAMINE: 
-                mvwprintw(map_win->win, map_win->lines -3, 1, "Examine which homeworld?");
+                mvwprintw(map_win->win, map_win->lines -3, 1, "Examine which Race?");
                 wrefresh(map_win->win);
                 werase(map_win->win);
 
