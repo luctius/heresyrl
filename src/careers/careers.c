@@ -57,7 +57,7 @@ struct cr_career *cr_get_career_by_id(enum career_ids template_id) {
 enum career_ids cr_get_next_career_id_for_race(enum msr_race race, enum career_ids prev_tid) {
     if (prev_tid < CRID_NONE) return CRID_NONE;
 
-    for (int i = prev_tid; i < ARRAY_SZ(static_career_list); i++) {
+    for (int i = prev_tid; i < (int) ARRAY_SZ(static_career_list); i++) {
         if (static_career_list[i].available[race] == true) return i;
     }
     return CRID_NONE;
