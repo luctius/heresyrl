@@ -32,6 +32,7 @@ enum weapon_special_quality {
     WPN_SPCQLTY_IMPACT,      /* 2x 1d10, pick highest */
     WPN_SPCQLTY_INACCURATE,  /* No bonus with aim action */
     WPN_SPCQLTY_JAMS,        /* Can Jam on 95% */
+    WPN_SPCQLTY_LIGHT,       /* This light weapon is easier to handle in your off-hand. */
     WPN_SPCQLTY_OVERHEATS,   /* 90+ -> Overheat */
     WPN_SPCQLTY_PRIMITIVE,   /* AP doubled, unless armour is also primitive */
     WPN_SPCQLTY_PRECISE,     /* +1 Critical hit value */
@@ -261,6 +262,7 @@ enum msr_talents {
     TLT_SURE_SHOT,
     TLT_SURGERY,
     TLT_TRAPFINDING,
+    TLT_TWO_WEAPON_FIGHTING,
     TLT_TUNNEL_RAT,
     TLT_VERY_RESILIENT,
     TLT_VERY_STRONG,
