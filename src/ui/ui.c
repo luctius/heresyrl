@@ -283,6 +283,15 @@ static void mapwin_examine(struct dm_map_entity *me) {
                         ui_printf(char_win, "- %s\n", c->name);
                     }
                 }
+
+                if (inv_loc_empty(me->monster->inventory, INV_LOC_MAINHAND_WIELD) == false) {
+                    struct itm_item *witem = inv_get_item_from_location(me->monster->inventory, INV_LOC_MAINHAND_WIELD);
+                    ui_printf(char_win, "%s wields %s.\n", msr_gender_name(me->monster, false), witem->ld_name);
+                }
+                if (inv_loc_empty(me->monster->inventory, INV_LOC_OFFHAND_WIELD) == false) {
+                    struct itm_item *witem = inv_get_item_from_location(me->monster->inventory, INV_LOC_OFFHAND_WIELD);
+                    ui_printf(char_win, "%s wields %s in his off-hand.\n", msr_gender_name(me->monster, false), witem->ld_name);
+                }
             }
 
             ui_printf(char_win, "\n");
@@ -363,6 +372,7 @@ void targetwin_examine(struct hrl_window *window, struct dm_map *map, struct msr
         return;
     }
 
+    wclear(window->win);
     werase(window->win);
     ui_print_reset(window);
 
@@ -834,6 +844,7 @@ void invwin_examine(struct hrl_window *window, struct itm_item *item) {
     if (itm_verify_item(item) == false) return;
     if (window->type != HRL_WINDOW_TYPE_CHARACTER) return;
 
+    wclear(window->win);
     werase(window->win);
     ui_print_reset(window);
 
