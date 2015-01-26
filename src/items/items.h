@@ -75,32 +75,6 @@ enum item_tool_type {
 enum item_ammo_type {
     AMMO_TYPE_NONE,
     AMMO_TYPE_ARROW,
-    AMMO_TYPE_PISTOL_SP,
-    AMMO_TYPE_PISTOL_SHOTGUN,
-    AMMO_TYPE_PISTOL_LAS,
-    AMMO_TYPE_PISTOL_PLASMA,
-    AMMO_TYPE_PISTOL_MELTA,
-    AMMO_TYPE_PISTOL_FLAME,
-    AMMO_TYPE_PISTOL_BOLT,
-    AMMO_TYPE_PISTOL_SHURIKEN,
-    AMMO_TYPE_BASIC_SP,
-    AMMO_TYPE_BASIC_SHOTGUN,
-    AMMO_TYPE_BASIC_LAS,
-    AMMO_TYPE_BASIC_PLASMA,
-    AMMO_TYPE_BASIC_MELTA,
-    AMMO_TYPE_BASIC_FLAME,
-    AMMO_TYPE_BASIC_BOLT,
-    AMMO_TYPE_BASIC_SHURIKEN,
-    AMMO_TYPE_BASIC_GRENADE,
-    AMMO_TYPE_BASIC_ROCKET,
-    AMMO_TYPE_HEAVY_SP,
-    AMMO_TYPE_HEAVY_LAS,
-    AMMO_TYPE_HEAVY_PLASMA,
-    AMMO_TYPE_HEAVY_MELTA,
-    AMMO_TYPE_HEAVY_FLAME,
-    AMMO_TYPE_HEAVY_BOLT,
-    AMMO_TYPE_HEAVY_GRENADE,
-    AMMO_TYPE_HEAVY_ROCKET,
     AMMO_TYPE_MAX,
     AMMO_TYPE_RANDOM,
 };
@@ -204,6 +178,19 @@ enum item_owner {
     ITEM_OWNER_MAX,
 };
 
+enum item_group {
+    ITEM_GROUP_NONE,
+    ITEM_GROUP_UNARMED,
+    ITEM_GROUP_ARMOUR,
+    ITEM_GROUP_SHIELD,
+    ITEM_GROUP_RANGED,
+    ITEM_GROUP_1H_MELEE,
+    ITEM_GROUP_2H_MELEE,
+    ITEM_GROUP_POTION,
+    ITEM_GROUP_TRAP,
+    ITEM_GROUP_ANY,
+};
+
 struct itm_item {
     int item_pre;
 
@@ -216,8 +203,7 @@ struct itm_item {
     /*enum item_material material;*/
 
     int spawn_weight;
-    int spawn_min_level;
-    int spawn_max_level;
+    int spawn_level;
 
     enum item_quality quality;
     int weight;
@@ -287,7 +273,7 @@ struct itm_item *itmlst_get_next_item(struct itm_item *prev);
 struct itm_item *itmlst_item_by_uid(uint32_t uid);
 
 /* retrieves a item template id based on parameters */
-int itm_spawn(double roll, int level);
+int itm_spawn(double roll, int level, enum item_group ig);
 
 /* create an item instance of this template id*/
 struct itm_item *itm_create(int template_id);

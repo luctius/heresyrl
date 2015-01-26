@@ -41,8 +41,8 @@
 #define ITEM_BEST(item_id,_sd_name,_ld_name,item_weight,item_cost,delay) \
                 ITEM(item_id,_sd_name,_ld_name,ITEM_QLTY_BEST,item_weight,item_cost,delay)
 
-#define CREATION(wght, minlvl, maxlvl) \
-            .spawn_weight=wght, .spawn_min_level=minlvl, .spawn_max_level=maxlvl
+#define CREATION(wght, lvl) \
+            .spawn_weight=wght, .spawn_level=lvl
 
 #define FIXED_LIGHT(_tool_type,_energy,_light_luminem) \
             .icon='(', .stacked_quantity=1, .max_quantity=100, .item_type=ITEM_TYPE_TOOL, \
@@ -171,47 +171,47 @@ static struct itm_item static_item_list[] = {
     /* Lights */
     /*    ID              short name    long name    quality          weight,cost,delay             tool type         energy  luminem*/
     ITEM(IID_FIXED_LIGHT, "torch",      "a torch",   ITEM_QLTY_AVERAGE, 1,     1,   1), FIXED_LIGHT(TOOL_TYPE_LIGHT,  65000,   10),  ITEM_END,
-    ITEM(IID_TORCH,       "torch",      "a torch",   ITEM_QLTY_AVERAGE, 1,     1,   1),       LIGHT(TOOL_TYPE_LIGHT,   1000,    10), CREATION(1,1,100), ITEM_END,
+    ITEM(IID_TORCH,       "torch",      "a torch",   ITEM_QLTY_AVERAGE, 1,     1,   1),       LIGHT(TOOL_TYPE_LIGHT,   1000,    10), CREATION(1,1), ITEM_END,
 
     /* Wearables */
     /*    ID                           short name                    long name                             (wgt,cst,dly)      dr   locations                                     special qualities*/
-    ITEM_AVG(IID_LEATHER_SKULLCAP,     "leather helmet",             "a leather helmet",                  10, 3,2), ARMOUR(1,INV_LOC_HEAD,                                       bf(WBL_SPCQLTY_LEATHER) ), CREATION(6,1,100), ITEM_END,
-    ITEM_AVG(IID_LEATHER_JERKIN,       "leather jerkin",             "a leather jerkin",                  40, 6,2), ARMOUR(1,INV_LOC_BODY,                                       bf(WBL_SPCQLTY_LEATHER) ), CREATION(6,1,100), ITEM_END,
-    ITEM_AVG(IID_LEATHER_JACK,         "light leather jack",         "a light leather jack",              50,12,4), ARMOUR(1,INV_LOC_ARMS|INV_LOC_BODY,                          bf(WBL_SPCQLTY_LEATHER) ), CREATION(5,1,100), ITEM_END,
-    ITEM_AVG(IID_LEATHER_LEGGINS,      "leather leggings",           "a pair of leather leggings",        20,10,3), ARMOUR(1,INV_LOC_LEGS,                                       bf(WBL_SPCQLTY_LEATHER) ), CREATION(6,1,100), ITEM_END,
-    ITEM_AVG(IID_LEATHER_FULL,         "full leather armour",        "a full leather armour",             80,25,4), ARMOUR(1,INV_LOC_HEAD|INV_LOC_ARMS|INV_LOC_BODY|INV_LOC_LEGS,bf(WBL_SPCQLTY_LEATHER) ), CREATION(4,1,100), ITEM_END,
-    ITEM_AVG(IID_STDD_LEATHER_SKULLCAP,"studded leather helmet",     "a studded leather helmet",          10, 3,2), ARMOUR(2,INV_LOC_HEAD,                                       bf(WBL_SPCQLTY_LEATHER) ), CREATION(6,1,100), ITEM_END,
-    ITEM_AVG(IID_STDD_LEATHER_JERKIN,  "studded leather jerkin",     "a studded leather jerkin",          40, 6,2), ARMOUR(2,INV_LOC_BODY,                                       bf(WBL_SPCQLTY_LEATHER) ), CREATION(5,1,100), ITEM_END,
-    ITEM_AVG(IID_STDD_LEATHER_JACK,    "light studded leather jack", "a light studded leather jack",      50,12,4), ARMOUR(2,INV_LOC_ARMS|INV_LOC_BODY,                          bf(WBL_SPCQLTY_LEATHER) ), CREATION(6,1,100), ITEM_END,
-    ITEM_AVG(IID_STDD_LEATHER_LEGGINS, "studded leather leggings",   "a pair of studded leather leggings",20,10,3), ARMOUR(2,INV_LOC_LEGS,                                       bf(WBL_SPCQLTY_LEATHER) ), CREATION(6,1,100), ITEM_END,
-    ITEM_AVG(IID_STDD_LEATHER_FULL,    "full studded leather armour","a full studded leather armour",     80,25,4), ARMOUR(2,INV_LOC_HEAD|INV_LOC_ARMS|INV_LOC_BODY|INV_LOC_LEGS,bf(WBL_SPCQLTY_LEATHER) ), CREATION(4,1,100), ITEM_END,
-    ITEM_AVG(IID_MAIL_COIF,            "mail coif",                  "a mail coif",                       10, 3,2), ARMOUR(1,INV_LOC_HEAD,                                       bf(WBL_SPCQLTY_MAIL) ), CREATION(6,1,100), ITEM_END,
-    ITEM_AVG(IID_MAIL_SHIRT,           "mail shirt",                 "a mail shirt",                      40, 6,2), ARMOUR(1,INV_LOC_BODY,                                       bf(WBL_SPCQLTY_MAIL) ), CREATION(6,1,100), ITEM_END,
-    ITEM_AVG(IID_MAIL_SLEEVED_SHIRT,   "sleeved mail shirt",         "a sleeved mail shirt",              50,12,4), ARMOUR(1,INV_LOC_ARMS|INV_LOC_BODY,                          bf(WBL_SPCQLTY_MAIL) ), CREATION(5,1,100), ITEM_END,
-    ITEM_AVG(IID_MAIL_COAT,            "mail coat",                  "a mail coat",                       40, 6,2), ARMOUR(1,INV_LOC_BODY|INV_LOC_LEGS,                          bf(WBL_SPCQLTY_MAIL) ), CREATION(6,1,100), ITEM_END,
-    ITEM_AVG(IID_MAIL_SLEEVED_COAT,    "sleeved mail coat",          "a sleeved mail coat",               50,12,4), ARMOUR(1,INV_LOC_ARMS|INV_LOC_BODY|INV_LOC_LEGS,             bf(WBL_SPCQLTY_MAIL) ), CREATION(5,1,100), ITEM_END,
-    ITEM_AVG(IID_MAIL_LEGGINS,         "mail leggings",              "a pair of mail leggings",           20,10,3), ARMOUR(1,INV_LOC_LEGS,                                       bf(WBL_SPCQLTY_MAIL) ), CREATION(6,1,100), ITEM_END,
-    ITEM_AVG(IID_MAIL_FULL,            "full mail armour",           "a full mail armour",                80,25,4), ARMOUR(1,INV_LOC_HEAD|INV_LOC_ARMS|INV_LOC_BODY|INV_LOC_LEGS,bf(WBL_SPCQLTY_MAIL) ), CREATION(4,1,100), ITEM_END,
+    ITEM_AVG(IID_LEATHER_SKULLCAP,     "leather helmet",             "a leather helmet",                  10, 3,2), ARMOUR(1,INV_LOC_HEAD,                                       bf(WBL_SPCQLTY_LEATHER) ), CREATION(6,1), ITEM_END,
+    ITEM_AVG(IID_LEATHER_JERKIN,       "leather jerkin",             "a leather jerkin",                  40, 6,2), ARMOUR(1,INV_LOC_BODY,                                       bf(WBL_SPCQLTY_LEATHER) ), CREATION(6,1), ITEM_END,
+    ITEM_AVG(IID_LEATHER_JACK,         "light leather jack",         "a light leather jack",              50,12,4), ARMOUR(1,INV_LOC_ARMS|INV_LOC_BODY,                          bf(WBL_SPCQLTY_LEATHER) ), CREATION(5,1), ITEM_END,
+    ITEM_AVG(IID_LEATHER_LEGGINS,      "leather leggings",           "a pair of leather leggings",        20,10,3), ARMOUR(1,INV_LOC_LEGS,                                       bf(WBL_SPCQLTY_LEATHER) ), CREATION(6,1), ITEM_END,
+    ITEM_AVG(IID_LEATHER_FULL,         "full leather armour",        "a full leather armour",             80,25,4), ARMOUR(1,INV_LOC_HEAD|INV_LOC_ARMS|INV_LOC_BODY|INV_LOC_LEGS,bf(WBL_SPCQLTY_LEATHER) ), CREATION(4,1), ITEM_END,
+    ITEM_AVG(IID_STDD_LEATHER_SKULLCAP,"studded leather helmet",     "a studded leather helmet",          10, 3,2), ARMOUR(2,INV_LOC_HEAD,                                       bf(WBL_SPCQLTY_LEATHER) ), CREATION(6,1), ITEM_END,
+    ITEM_AVG(IID_STDD_LEATHER_JERKIN,  "studded leather jerkin",     "a studded leather jerkin",          40, 6,2), ARMOUR(2,INV_LOC_BODY,                                       bf(WBL_SPCQLTY_LEATHER) ), CREATION(5,1), ITEM_END,
+    ITEM_AVG(IID_STDD_LEATHER_JACK,    "light studded leather jack", "a light studded leather jack",      50,12,4), ARMOUR(2,INV_LOC_ARMS|INV_LOC_BODY,                          bf(WBL_SPCQLTY_LEATHER) ), CREATION(6,1), ITEM_END,
+    ITEM_AVG(IID_STDD_LEATHER_LEGGINS, "studded leather leggings",   "a pair of studded leather leggings",20,10,3), ARMOUR(2,INV_LOC_LEGS,                                       bf(WBL_SPCQLTY_LEATHER) ), CREATION(6,1), ITEM_END,
+    ITEM_AVG(IID_STDD_LEATHER_FULL,    "full studded leather armour","a full studded leather armour",     80,25,4), ARMOUR(2,INV_LOC_HEAD|INV_LOC_ARMS|INV_LOC_BODY|INV_LOC_LEGS,bf(WBL_SPCQLTY_LEATHER) ), CREATION(4,1), ITEM_END,
+    ITEM_AVG(IID_MAIL_COIF,            "mail coif",                  "a mail coif",                       10, 3,2), ARMOUR(1,INV_LOC_HEAD,                                       bf(WBL_SPCQLTY_MAIL) ), CREATION(6,1), ITEM_END,
+    ITEM_AVG(IID_MAIL_SHIRT,           "mail shirt",                 "a mail shirt",                      40, 6,2), ARMOUR(1,INV_LOC_BODY,                                       bf(WBL_SPCQLTY_MAIL) ), CREATION(6,1), ITEM_END,
+    ITEM_AVG(IID_MAIL_SLEEVED_SHIRT,   "sleeved mail shirt",         "a sleeved mail shirt",              50,12,4), ARMOUR(1,INV_LOC_ARMS|INV_LOC_BODY,                          bf(WBL_SPCQLTY_MAIL) ), CREATION(5,1), ITEM_END,
+    ITEM_AVG(IID_MAIL_COAT,            "mail coat",                  "a mail coat",                       40, 6,2), ARMOUR(1,INV_LOC_BODY|INV_LOC_LEGS,                          bf(WBL_SPCQLTY_MAIL) ), CREATION(6,1), ITEM_END,
+    ITEM_AVG(IID_MAIL_SLEEVED_COAT,    "sleeved mail coat",          "a sleeved mail coat",               50,12,4), ARMOUR(1,INV_LOC_ARMS|INV_LOC_BODY|INV_LOC_LEGS,             bf(WBL_SPCQLTY_MAIL) ), CREATION(5,1), ITEM_END,
+    ITEM_AVG(IID_MAIL_LEGGINS,         "mail leggings",              "a pair of mail leggings",           20,10,3), ARMOUR(1,INV_LOC_LEGS,                                       bf(WBL_SPCQLTY_MAIL) ), CREATION(6,1), ITEM_END,
+    ITEM_AVG(IID_MAIL_FULL,            "full mail armour",           "a full mail armour",                80,25,4), ARMOUR(1,INV_LOC_HEAD|INV_LOC_ARMS|INV_LOC_BODY|INV_LOC_LEGS,bf(WBL_SPCQLTY_MAIL) ), CREATION(4,1), ITEM_END,
 
     /* Melee */
     /*    ID                 short name,   long name              (wgt,cst,dly)      xd10 +X, dmg type         pen, special qualities,         talent*/
-    ITEM_AVG(IID_KNIFE,      "knife",      "a knife",              15, 50, 0),MELEE_1H(1, 0,  DMG_TYPE_PIERCING,0,  0,                        TLT_NONE), CREATION(20,1,100), ITEM_END,
-    ITEM_AVG(IID_HAND_WEAPON,"hand weapon","a generic hand weapon",50, 10, 0),MELEE_1H(1, 0,  DMG_TYPE_PIERCING,0,  0,                        TLT_NONE), CREATION(20,1,100), ITEM_END,
-    ITEM_GOOD(IID_AXE_GOOD,  "axe",        "a military axe",       50,100, 0),MELEE_1H(1, 0,  DMG_TYPE_CUTTING, 0,  bf(WPN_SPCQLTY_IMPACT),   TLT_NONE), CREATION(20,1,100), ITEM_END,
-    ITEM_GOOD(IID_HAMMER_GOOD,"hammer",    "a military hammer",    50,100, 0),MELEE_1H(1, 0,  DMG_TYPE_BLUNT,   0,  bf(WPN_SPCQLTY_PUMMELING),TLT_NONE), CREATION(20,1,100), ITEM_END,
-    ITEM_GOOD(IID_PICK_GOOD,  "pick",      "a military pick",      50,100, 0),MELEE_1H(1, 0,  DMG_TYPE_PIERCING,1,  bf(WPN_SPCQLTY_SLOW),     TLT_NONE), CREATION(20,1,100), ITEM_END,
-    ITEM_GOOD(IID_SWORD_GOOD, "sword",     "a military sword",     50,100, 0),MELEE_1H(1, 0,  DMG_TYPE_CUTTING, 0,  bf(WPN_SPCQLTY_DEFENSIVE),TLT_NONE), CREATION(20,1,100), ITEM_END,
+    ITEM_AVG(IID_KNIFE,      "knife",      "a knife",              15, 50, 0),MELEE_1H(1, 0,  DMG_TYPE_PIERCING,0,  0,                        TLT_NONE), CREATION(20,1), ITEM_END,
+    ITEM_AVG(IID_HAND_WEAPON,"hand weapon","a generic hand weapon",50, 10, 0),MELEE_1H(1, 0,  DMG_TYPE_PIERCING,0,  0,                        TLT_NONE), CREATION(20,1), ITEM_END,
+    ITEM_GOOD(IID_AXE_GOOD,  "axe",        "a military axe",       50,100, 0),MELEE_1H(1, 0,  DMG_TYPE_CUTTING, 0,  bf(WPN_SPCQLTY_IMPACT),   TLT_NONE), CREATION(20,1), ITEM_END,
+    ITEM_GOOD(IID_HAMMER_GOOD,"hammer",    "a military hammer",    50,100, 0),MELEE_1H(1, 0,  DMG_TYPE_BLUNT,   0,  bf(WPN_SPCQLTY_PUMMELING),TLT_NONE), CREATION(20,1), ITEM_END,
+    ITEM_GOOD(IID_PICK_GOOD,  "pick",      "a military pick",      50,100, 0),MELEE_1H(1, 0,  DMG_TYPE_PIERCING,1,  bf(WPN_SPCQLTY_SLOW),     TLT_NONE), CREATION(20,1), ITEM_END,
+    ITEM_GOOD(IID_SWORD_GOOD, "sword",     "a military sword",     50,100, 0),MELEE_1H(1, 0,  DMG_TYPE_CUTTING, 0,  bf(WPN_SPCQLTY_DEFENSIVE),TLT_NONE), CREATION(20,1), ITEM_END,
 
     /* Ranged */
     /*    ID                    short name       long name        (wgt,cst,dly)              dmg type       xd10 +x pen range  special qualities     talents*/
-    ITEM_AVG(IID_SHORT_BOW,     "short bow",     "a short bow",     75, 7, 0.5),RANGED_2H(   DMG_TYPE_PIERCING,1, 3, 0,  8,     0,                   TLT_NONE),                         CREATION(10,1,100), ITEM_END,
-    ITEM_AVG(IID_LONG_BOW,      "long bow",      "a long bow",      90,15, 0.5),RANGED_2H(   DMG_TYPE_PIERCING,1, 3, 1, 16,     0,                   TLT_NONE),                         CREATION(10,1,100), ITEM_END,
-    ITEM_AVG(IID_THROWING_KNIFE,"throwing knife","a throwing knife", 5, 5, 1),THROWN_WEAPON( DMG_TYPE_PIERCING,1,-3, 0,  5,     0,                   TLT_SPEC_WPN_GRP_THROWING),        CREATION(40,1,100), ITEM_END,
-    ITEM_AVG(IID_FIRE_BOMB,     "fire bomb",     "a fire bomb",      5,10, 1),THROWN_GRENADE(DMG_TYPE_SHRAPNEL,1, 0, 0,  3,bf(WPN_SPCQLTY_BLAST_3),  TLT_NONE, SEID_WEAPON_FLAME_AREA), CREATION(30,1,100), ITEM_END,
+    ITEM_AVG(IID_SHORT_BOW,     "short bow",     "a short bow",     75, 7, 0.5),RANGED_2H(   DMG_TYPE_PIERCING,1, 3, 0,  8,     0,                   TLT_NONE),                         CREATION(10,1), ITEM_END,
+    ITEM_AVG(IID_LONG_BOW,      "long bow",      "a long bow",      90,15, 0.5),RANGED_2H(   DMG_TYPE_PIERCING,1, 3, 1, 16,     0,                   TLT_NONE),                         CREATION(10,1), ITEM_END,
+    ITEM_AVG(IID_THROWING_KNIFE,"throwing knife","a throwing knife", 5, 5, 1),THROWN_WEAPON( DMG_TYPE_PIERCING,1,-3, 0,  5,     0,                   TLT_SPEC_WPN_GRP_THROWING),        CREATION(40,1), ITEM_END,
+    ITEM_AVG(IID_FIRE_BOMB,     "fire bomb",     "a fire bomb",      5,10, 1),THROWN_GRENADE(DMG_TYPE_SHRAPNEL,1, 0, 0,  3,bf(WPN_SPCQLTY_BLAST_3),  TLT_NONE, SEID_WEAPON_FLAME_AREA), CREATION(30,1), ITEM_END,
 
     /* Ammo */
     /*    ID                    short name       long name        (wgt,cst,dly)     ammo type       status effect id*/
-    ITEM_AVG(IID_ARROW,         "arrows",        "arrows",          10, 1, 1), AMMO(AMMO_TYPE_ARROW,SEID_NONE), CREATION(10,1,100), ITEM_END,
+    ITEM_AVG(IID_ARROW,         "arrows",        "arrows",          10, 1, 1), AMMO(AMMO_TYPE_ARROW,SEID_NONE), CREATION(10,1), ITEM_END,
 
     /* Creature Attacks */
     /*    ID                            hort name long name  (wgt,cst,dly)            CATEGORY               xd10  +X  dmg type     upgrades   special qualities*/
@@ -221,7 +221,7 @@ static struct itm_item static_item_list[] = {
 
     /* Stimms */
     /*    ID                  short name            long name                         quality           (wgt,cst,dly)      Food Type            status_effect*/
-    ITEM(IID_STIMM_HEALTH,  "health stimm", "an injector with a regenerative liquid", ITEM_QLTY_AVERAGE,   0, 1, 1), STIMM(FOOD_TYPE_INJECTION, SEID_HEALTH_STIMM), CREATION(10,1,100), ITEM_END,
+    ITEM(IID_STIMM_HEALTH,  "health stimm", "an injector with a regenerative liquid", ITEM_QLTY_AVERAGE,   0, 1, 1), STIMM(FOOD_TYPE_INJECTION, SEID_HEALTH_STIMM), CREATION(10,1), ITEM_END,
 
     /* status effect items */
     ITEM(IID_BODYPART_GRENADE,"","status effect",ITEM_QLTY_AVERAGE,5,10,1),THROWN_GRENADE(DMG_TYPE_SHRAPNEL,1,0,0,3,bf(WPN_SPCQLTY_BLAST_2),TLT_NONE,SEID_NONE),ITEM_END,
@@ -252,13 +252,16 @@ static const char *wpn_spcqlty_name[] = {
     [WPN_SPCQLTY_DEFENSIVE]	    = "Defensive",
     [WPN_SPCQLTY_FLAME]	        = "Flame",
     [WPN_SPCQLTY_FLEXIBLE]      = "Flexible",
+    [WPN_SPCQLTY_IMPACT]        = "Impact",
     [WPN_SPCQLTY_INACCURATE]    = "Inaccurate",
     [WPN_SPCQLTY_OVERHEATS]     = "Overheats",
     [WPN_SPCQLTY_PRIMITIVE]	    = "Primitive",
+    [WPN_SPCQLTY_PUMMELING]     = "Pummeling",
     [WPN_SPCQLTY_RELIABLE]	    = "Reliable",
     [WPN_SPCQLTY_SCATTER]	    = "Scatter",
     [WPN_SPCQLTY_SHOCKING]	    = "Shocking",
     [WPN_SPCQLTY_SHIELD]        = "Shield",
+    [WPN_SPCQLTY_SLOW]          = "Slow",
     [WPN_SPCQLTY_SMOKE]	        = "Smoke",
     [WPN_SPCQLTY_SNARE]	        = "Snare",
     [WPN_SPCQLTY_TEARING]	    = "Tearing",
@@ -280,13 +283,16 @@ static const char *wpn_spcqlty_desc[] = {
     [WPN_SPCQLTY_DEFENSIVE]	    = " +15 Parry, -10 to hit  ",
     [WPN_SPCQLTY_FLAME]	        = " No BS Test, All in arc take Agility Test or take damage, 2nd Ag. test to avoid catch fire. ",
     [WPN_SPCQLTY_FLEXIBLE]	    = " Cannot be Parried. ",
+    [WPN_SPCQLTY_IMPACT]        = " Damage is rolled twice and the highest is picked. ",
     [WPN_SPCQLTY_INACCURATE]	= " No bonus with aim action ",
     [WPN_SPCQLTY_OVERHEATS]	    = " 90+ -> Overheat ",
     [WPN_SPCQLTY_PRIMITIVE]	    = " AP doubled, unless armour is also primitive ",
+    [WPN_SPCQLTY_PUMMELING]     = " +10% on Strength for Strike to Stun ",
     [WPN_SPCQLTY_RELIABLE]	    = " If jam, 10 on 1d10 to actually jam.",
     [WPN_SPCQLTY_SCATTER]	    = " Point Blank: 2 DoS score another hit, AP doubled at Long and Extreme ranges. ",
     [WPN_SPCQLTY_SHOCKING]	    = " If damage, test Toughness or be stunned. ",
     [WPN_SPCQLTY_SHIELD]        = " Gives ranged attackers a -10% to hit.",
+    [WPN_SPCQLTY_SLOW]          = " Defenders can parry this weapon easier.",
     [WPN_SPCQLTY_SMOKE]	        = " Creates smoke screen 3d10 metres in diameters, lasts 2d10 Rounds. ",
     [WPN_SPCQLTY_SNARE]	        = " Ag. test or be immobilised ",
     [WPN_SPCQLTY_TEARING]	    = " Roll twice, take highest damage ",

@@ -22,6 +22,9 @@ static bool items_list_initialised = false;
 
 #include "items_static.c"
 
+#define ITEM_PRE_CHECK (11867)
+#define ITEM_POST_CHECK (8708)
+
 void itmlst_items_list_init(void) {
     for (unsigned int i = 0; i < IID_MAX; i++) {
         struct itm_item *item = &static_item_list[i];
@@ -30,6 +33,8 @@ void itmlst_items_list_init(void) {
             fprintf(stderr, "Item: %s.\n", static_item_list[i].sd_name);
             exit(EXIT_FAILURE);
         }
+        item->item_pre  = ITEM_PRE_CHECK;
+        item->item_post = ITEM_POST_CHECK;
     }
 
     for (int i = 0; i < IID_MAX; i++) {
@@ -91,41 +96,59 @@ static uint32_t itmlst_next_id(void) {
     return uid;
 }
 
-int itm_spawn(double roll, int level) {
+static bool itm_is_in_group(struct itm_item *item, enum item_group ig) {
+    switch(ig) {
+        case ITEM_GROUP_NONE: return false;
+        case ITEM_GROUP_1H_MELEE:
+            return wpn_is_catergory(item, WEAPON_CATEGORY_1H_MELEE);
+        case ITEM_GROUP_2H_MELEE:
+            return wpn_is_catergory(item, WEAPON_CATEGORY_2H_MELEE);
+        case ITEM_GROUP_ARMOUR:
+            return wbl_is_type(item, WEARABLE_TYPE_ARMOUR);
+        case ITEM_GROUP_POTION: break;
+        case ITEM_GROUP_RANGED:
+            return wpn_is_type(item, WEAPON_TYPE_RANGED);
+        case ITEM_GROUP_SHIELD: break;
+        case ITEM_GROUP_TRAP: break;
+        case ITEM_GROUP_ANY: return true;
+        default: break;
+    }
+    return false;
+}
+
+int itm_spawn(double roll, int level, enum item_group ig) {
     int sz = ARRAY_SZ(static_item_list);
     double prob_arr[sz];
     double cumm_prob_arr[sz];
     double sum = 0;
 
-    int idx = MID_NONE;
+    if (ig == ITEM_GROUP_NONE) return IID_NONE;
+    int idx = IID_NONE;
 
     cumm_prob_arr[0] = DBL_MAX;
-    for (int i = MID_NONE+1; i < sz; i++) {
-        if ( (level >= static_item_list[i].spawn_min_level) 
-                && (level <= static_item_list[i].spawn_max_level) ) {
+    for (int i = IID_NONE+1; i < sz; i++) {
+        if ( (level >= static_item_list[i].spawn_level) &&
+             (itm_is_in_group(&static_item_list[i], ig) ) ) {
             sum += static_item_list[i].spawn_weight;
         }
         else cumm_prob_arr[i] = DBL_MAX;
     }
 
     double cumm = 0;
-    for (int i = MID_NONE+1; i < sz; i++) {
+    for (int i = IID_NONE+1; i < sz; i++) {
         if (cumm_prob_arr[i] == DBL_MAX) continue;
         prob_arr[i] = static_item_list[i].spawn_weight / sum;
         cumm += prob_arr[i];
         cumm_prob_arr[i] = cumm;
     }
 
-    for (int i = sz-1; i > MID_NONE+1; i--) {
+    for (int i = sz-1; i > IID_NONE+1; i--) {
         if (cumm_prob_arr[i] == DBL_MAX) continue;
         if (roll < cumm_prob_arr[i]) idx = i;
     }
 
     return idx;
 }
-
-#define ITEM_PRE_CHECK (11867)
-#define ITEM_POST_CHECK (8708)
 
 struct itm_item *itm_create(int template_id) {
     if (template_id >= IID_MAX) return NULL;
@@ -410,16 +433,17 @@ const char *itm_you_use_desc(struct itm_item *item) {
     if (itm_verify_item(item) == false) return NULL;
     int cnt = 0;
     for (int i = 0; i < (int) ARRAY_SZ(item->you_use_desc); i++) {
-        if (item->you_use_desc != NULL) cnt++;
+        if (item->you_use_desc[i] != NULL) cnt++;
     }
     int idx = random_int32(gbl_game->random) % (cnt-1);
     return item->you_use_desc[idx];
 }
+
 const char *itm_msr_use_desc(struct itm_item *item) {
     if (itm_verify_item(item) == false) return NULL;
     int cnt = 0;
     for (int i = 0; i < (int) ARRAY_SZ(item->msr_use_desc); i++) {
-        if (item->msr_use_desc != NULL) cnt++;
+        if (item->msr_use_desc[i] != NULL) cnt++;
     }
     int idx = random_int32(gbl_game->random) % (cnt-1);
     return item->msr_use_desc[idx];
