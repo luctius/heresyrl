@@ -130,7 +130,8 @@ int fght_ranged_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght
 
             struct itm_item *tgt_witem1 = inv_get_item_from_location(target->inventory, INV_LOC_MAINHAND_WIELD);
             struct itm_item *tgt_witem2 = inv_get_item_from_location(target->inventory, INV_LOC_OFFHAND_WIELD);
-            CALC_TOHIT(wpn_has_spc_quality(tgt_witem1, WPN_SPCQLTY_SHIELD) || wpn_has_spc_quality(tgt_witem2, WPN_SPCQLTY_SHIELD),
+            CALC_TOHIT( (tgt_witem1 != NULL && wpn_has_spc_quality(tgt_witem1, WPN_SPCQLTY_SHIELD) ) ||
+                        (tgt_witem2 != NULL && wpn_has_spc_quality(tgt_witem2, WPN_SPCQLTY_SHIELD) ),
                                          FGHT_RANGED_MODIFIER_SHIELD, "target is equiped with a shield")
 
         }
@@ -249,6 +250,10 @@ int fght_calc_dmg(struct random *r, struct msr_monster *monster, struct msr_mons
     if (wpn->nr_dmg_die == 0) dmg_die_sz = 5;
     for (int h = 0; h < hits; h++) {
         int dmg = random_xd10(r, wpn->nr_dmg_die);
+        if (wpn_has_spc_quality(witem, WPN_SPCQLTY_IMPACT) ) {
+            int dmg2 = random_xd10(r, wpn->nr_dmg_die);
+            if (dmg2 > dmg) dmg = dmg2;
+        }
 
         int dmg_add = wpn->dmg_addition;
         int penetration = wpn->penetration;
@@ -274,7 +279,7 @@ int fght_calc_dmg(struct random *r, struct msr_monster *monster, struct msr_mons
             /* Modifiers to armour here */
             {
                 /*  Armour counts double against primitive weapons, primitive armour counts as half against weapons, except against each other. */
-                if (wpn_has_spc_quality(witem, WPN_SPCQLTY_PRIMITIVE) > 0) armour *= 2;
+                if (wpn_has_spc_quality(witem, WPN_SPCQLTY_PRIMITIVE) ) armour *= 2;
                 if ( (aitem != NULL) && wbl_has_spc_quality(aitem, WBL_SPCQLTY_PRIMITIVE) > 0) armour /= 2;
             }
         }
@@ -356,7 +361,7 @@ int fght_ranged_roll(struct random *r, struct msr_monster *monster, struct msr_m
     int roll = random_d100(r);
 
     /* Calculate jamming threshold*/
-    int jammed_threshold = 0;
+    int jammed_threshold = 101;
     if (wpn_has_spc_quality(witem, WPN_SPCQLTY_JAMS) ) {
         jammed_threshold = FGHT_RANGED_JAM;
 
@@ -680,29 +685,20 @@ bool fght_throw_weapon(struct random *r, struct msr_monster *monster, struct dm_
     return false;
 }
 
-bool fght_shoot(struct random *r, struct msr_monster *monster, struct dm_map *map, coord_t *e) {
+bool fght_shoot(struct random *r, struct msr_monster *monster, struct dm_map *map, coord_t *e, enum fght_hand hand) {
     if (msr_verify_monster(monster) == false) return false;
     if (dm_verify_map(map) == false) return false;
     if (cd_within_bound(&monster->pos, &map->size) == false) return false;
     if (msr_weapon_type_check(monster, WEAPON_TYPE_RANGED) == false) return false;
     if (sgt_has_los(map, &monster->pos, e, 1000) == false) return false;
-    struct itm_item *item1 = fght_get_working_weapon(monster, WEAPON_TYPE_RANGED, FGHT_MAIN_HAND);
-    struct itm_item *item2 = fght_get_working_weapon(monster, WEAPON_TYPE_RANGED, FGHT_OFF_HAND);
-    if ( (item1 == NULL) && (item2 == NULL) ) return false;
-    int ammo1 = 0;
-    int ammo2 = 0;
+    struct itm_item *item = fght_get_working_weapon(monster, WEAPON_TYPE_RANGED, hand);
+    if (item == NULL) return false;
+    int ammo = 0;
 
     /* Check if we can actually shoot and substract ammo from our attempt. */
-    if (item1 != NULL) {
-        struct item_weapon_specific *wpn = &item1->specific.weapon;
-        ammo1 = MIN(wpn->magazine_left, wpn->rof[wpn->rof_set]);
-        if (wpn_uses_ammo(item1) ) wpn->magazine_left -= ammo1;
-    }
-    if (item2 != NULL) {
-        struct item_weapon_specific *wpn = &item2->specific.weapon;
-        ammo2 = MIN(wpn->magazine_left, wpn->rof[wpn->rof_set]);
-        if (wpn_uses_ammo(item2) ) wpn->magazine_left -= ammo2;
-    }
+    struct item_weapon_specific *wpn = &item->specific.weapon;
+    ammo = MIN(wpn->magazine_left, wpn->rof[wpn->rof_set]);
+    if (wpn_uses_ammo(item) && ammo == 0) return false;
 
     /* Genereate a path our projectile will take. Start at 
        the shooter position, and continue the same path 
@@ -729,21 +725,14 @@ bool fght_shoot(struct random *r, struct msr_monster *monster, struct dm_map *ma
 
                 /* get the monster on the tile as our target */
                 struct msr_monster *target = dm_get_map_me(&path[i], map)->monster;
-                int hits = 0;
 
+                /* do weapon checks and roll tohit */
+                int hits = fght_ranged_roll(r, monster, target, hand, ammo);
 
-                /* Do damage with our weapon, if any */
-                for (int w = 0; w < (int) ARRAY_SZ(wpn_hand_list); w++) {
-                    enum fght_hand hand = wpn_hand_list[w];
-
-                    /* do weapon checks and roll tohit */
-                    hits = fght_ranged_roll(r, monster, target, hand, ammo1);
-
-                    /* do damage */
-                    if (hits > 0) {
-                        if (fght_do_weapon_dmg(r, monster, target, hits, hand) ) has_hit = true;
-                        //we can also splatter some blood on the target's tile
-                    }
+                /* do damage */
+                if (hits > 0) {
+                    if (fght_do_weapon_dmg(r, monster, target, hits, hand) ) has_hit = true;
+                    //we can also splatter some blood on the target's tile
                 }
 
                 if (has_hit) {
@@ -773,6 +762,7 @@ bool fght_shoot(struct random *r, struct msr_monster *monster, struct dm_map *ma
         free(path);
     }
 
+    if (wpn_uses_ammo(item) ) wpn->magazine_left -= ammo;
     if (unblocked_length >= 0) return true;
     return false;
 }
