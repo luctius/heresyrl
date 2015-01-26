@@ -35,7 +35,7 @@ enum weapon_special_quality {
     WPN_SPCQLTY_LIGHT,       /* This light weapon is easier to handle in your off-hand. */
     WPN_SPCQLTY_OVERHEATS,   /* 90+ -> Overheat */
     WPN_SPCQLTY_PRIMITIVE,   /* AP doubled, unless armour is also primitive */
-    WPN_SPCQLTY_PRECISE,     /* +1 Critical hit value */
+    WPN_SPCQLTY_PRECISE,     /* +2 Critical hit value */
     WPN_SPCQLTY_PUMMELING,   /* +10% on Strength for Strike to Stun */
     WPN_SPCQLTY_RELIABLE,    /* If jam, 10 on 1d10 to actually jam. <I> */
     WPN_SPCQLTY_SCATTER,     /* Point Blank: 2 DoS score another hit, AP doubled at Long and Extreme ranges. */
