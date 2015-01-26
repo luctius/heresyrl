@@ -4,8 +4,8 @@
         .gender=_gender, .cur_wounds=maxwounds, .max_wounds=maxwounds,
 #define MONSTER_END }
 
-#define CREATION(wght, minlvl, maxlvl, l) \
-    .weight=wght, .min_level=minlvl, .max_level=maxlvl, .dungeon_locale=l
+#define CREATION(wght, lvl, l) \
+    .weight=wght, .level=lvl, .dungeon_locale=l
 
 #define DESCRIPTION(desc) .description=desc
 
@@ -22,36 +22,36 @@
 #define SKILLS(basic_skills, advanced_skills, expert_skills) .skills[MSR_SKILL_RATE_BASIC]=basic_skills, \
     .skills[MSR_SKILL_RATE_ADVANCED]=advanced_skills, .skills[MSR_SKILL_RATE_EXPERT]=expert_skills
 
-#define DEF_WPN(wpn_idx, item_id) .def_wpns[wpn_idx+1]=item_id
+#define DEF_ITEM(idx, item_id) .def_items[idx]=item_id
 
 #define DWARF( t...) .race=MSR_RACE_DWARF, .size=MSR_SIZE_AVERAGE, \
     .characteristic[MSR_SEC_CHAR_ATTACKS]={ .base_value=1, }, \
     .characteristic[MSR_SEC_CHAR_MOVEMENT]={ .base_value=3, }, \
     .characteristic[MSR_SEC_CHAR_MAGIC]={ .base_value=0, }, \
-    .talents = { t, TLT_NONE, }, .creature_traits = 0, .def_wpns[0]=IID_HUMAN_UNARMED
+    .talents = { t, TLT_NONE, }, .creature_traits = 0, .crtr_wpn=IID_HUMAN_UNARMED
 
 #define ELF( t...) .race=MSR_RACE_ELF, .size=MSR_SIZE_AVERAGE, \
     .characteristic[MSR_SEC_CHAR_ATTACKS]={ .base_value=1, }, \
     .characteristic[MSR_SEC_CHAR_MOVEMENT]={ .base_value=5, }, \
     .characteristic[MSR_SEC_CHAR_MAGIC]={ .base_value=0, }, \
-    .talents = { t, TLT_NONE, }, .creature_traits = 0, .def_wpns[0]=IID_HUMAN_UNARMED
+    .talents = { t, TLT_NONE, }, .creature_traits = 0, .crtr_wpn=IID_HUMAN_UNARMED
 
 #define HALFLING( t...) .race=MSR_RACE_HALFLING, .size=MSR_SIZE_AVERAGE, \
     .characteristic[MSR_SEC_CHAR_ATTACKS]={ .base_value=1, }, \
     .characteristic[MSR_SEC_CHAR_MOVEMENT]={ .base_value=3, }, \
     .characteristic[MSR_SEC_CHAR_MAGIC]={ .base_value=0, }, \
-    .talents = { t, TLT_NONE, }, .creature_traits = 0, .def_wpns[0]=IID_HUMAN_UNARMED
+    .talents = { t, TLT_NONE, }, .creature_traits = 0, .crtr_wpn=IID_HUMAN_UNARMED
 
 #define HUMAN( t...) .race=MSR_RACE_HUMAN, .size=MSR_SIZE_AVERAGE, \
     .characteristic[MSR_SEC_CHAR_ATTACKS]={ .base_value=1, }, \
     .characteristic[MSR_SEC_CHAR_MOVEMENT]={ .base_value=4, }, \
     .characteristic[MSR_SEC_CHAR_MAGIC]={ .base_value=0, }, \
-    .talents = { t, TLT_NONE, }, .creature_traits = 0, .def_wpns[0]=IID_HUMAN_UNARMED
+    .talents = { t, TLT_NONE, }, .creature_traits = 0, .crtr_wpn=IID_HUMAN_UNARMED
 
 
 #define BEAST( t...) .race=MSR_RACE_BEAST, .size=MSR_SIZE_AVERAGE, \
     .talents = { t , TLT_NONE, }, .creature_traits = bf(CTRTRTS_BESTIAL) | bf(CTRTRTS_QUADRUPED), \
-    .def_wpns[0]=IID_CREATURE_BITE_TRAINED, \
+    .crtr_wpn=IID_CREATURE_BITE_TRAINED, \
     .characteristic[MSR_SEC_CHAR_ATTACKS]={ .base_value=1, }, \
     .characteristic[MSR_SEC_CHAR_MOVEMENT]={ .base_value=6, }, \
     .characteristic[MSR_SEC_CHAR_MAGIC]={ .base_value=0, }
@@ -99,19 +99,19 @@ struct msr_monster static_monster_list[] = {
     MONSTER('h',"human","a human fighter",MSR_GENDER_MALE,1)
         HUMAN(TLT_NONE),
         CHARACTERISTICS(29,42,30,31,35,30,28,30),
-        DEF_WPN(0, IID_HAND_WEAPON),
+        DEF_ITEM(0, ITEM_GROUP_1H_MELEE),
         SKILLS(MSR_SKILLS_CHARM_ANIMAL|MSR_SKILLS_CONCEALMENT|MSR_SKILLS_AWARENESS|MSR_SKILLS_SCALE_SHEER_SURFACE|MSR_SKILLS_SET_TRAP|MSR_SKILLS_SILENT_MOVE,0,0),
         DESCRIPTION("description of a human fighter"),
-        CREATION(10,1,3, bf(DUNGEON_TYPE_CAVE) | bf(DUNGEON_TYPE_SIMPLE) ),
+        CREATION(10,1,bf(DUNGEON_TYPE_CAVE) | bf(DUNGEON_TYPE_SIMPLE) ),
     MONSTER_END,
 
     MONSTER('h',"human","a human archer",MSR_GENDER_MALE,1)
         HUMAN(TLT_NONE),
         CHARACTERISTICS(29,42,30,31,35,30,28,30),
-        DEF_WPN(0, IID_SHORT_BOW),
+        DEF_ITEM(0, ITEM_GROUP_RANGED),
         SKILLS(MSR_SKILLS_CHARM_ANIMAL|MSR_SKILLS_CONCEALMENT|MSR_SKILLS_AWARENESS|MSR_SKILLS_SCALE_SHEER_SURFACE|MSR_SKILLS_SET_TRAP|MSR_SKILLS_SILENT_MOVE,0,0),
         DESCRIPTION("description of a human archer"),
-        CREATION(10,1,3, bf(DUNGEON_TYPE_CAVE) | bf(DUNGEON_TYPE_SIMPLE) ),
+        CREATION(10,1,bf(DUNGEON_TYPE_CAVE) | bf(DUNGEON_TYPE_SIMPLE) ),
     MONSTER_END,
 
     MONSTER('w',"wolf","a vicious wolf",MSR_GENDER_MALE,1)
@@ -119,7 +119,7 @@ struct msr_monster static_monster_list[] = {
         CHARACTERISTICS(30,0,30,30,40,14,25,30),
         SKILLS(MSR_SKILLS_AWARENESS|MSR_SKILLS_SILENT_MOVE, 0,0),
         DESCRIPTION("description of a viscious dog"),
-        CREATION(10,1,3, bf(DUNGEON_TYPE_CAVE) | bf(DUNGEON_TYPE_SIMPLE) ),
+        CREATION(10,1,bf(DUNGEON_TYPE_CAVE) | bf(DUNGEON_TYPE_SIMPLE) ),
      MONSTER_END,
 };
 

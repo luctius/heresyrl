@@ -272,9 +272,9 @@ bool ma_do_fire(struct msr_monster *monster, coord_t *pos) {
     struct itm_item *item = NULL;
     struct item_weapon_specific *wpn = NULL;
     int cost = MSR_ACTION_FIRE / msr_calculate_characteristic(monster, MSR_SEC_CHAR_ATTACKS); 
-    int hand_lst[] = {FGHT_MAIN_HAND, FGHT_OFF_HAND,};
 
-    if (fght_shoot(gbl_game->random, monster, gbl_game->current_map, pos) == false) {
+    if ( (fght_shoot(gbl_game->random, monster, gbl_game->current_map, pos, FGHT_MAIN_HAND) == false) &&
+         (fght_shoot(gbl_game->random, monster, gbl_game->current_map, pos, FGHT_OFF_HAND) == false) ) {
         return false;
     }
 

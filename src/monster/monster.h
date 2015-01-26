@@ -11,6 +11,7 @@
 #include "ai/ai.h"
 #include "monster_static.h"
 
+#include "items/items.h"
 #include "items/items_static.h"
 
 #define MSR_NR_TALENTS_MAX 30
@@ -195,9 +196,9 @@ struct msr_monster {
 
     /* Monster creation. */
     int weight;
-    int min_level;
-    int max_level;
-    enum item_ids def_wpns[MSR_NR_DEFAULT_WEAPONS_MAX];
+    int level;
+    enum item_ids crtr_wpn;
+    enum item_group def_items[MSR_NR_DEFAULT_WEAPONS_MAX];
 
     uint32_t monster_post;
 };
