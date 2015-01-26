@@ -303,7 +303,7 @@ bool msr_remove_item(struct msr_monster *monster, struct itm_item *item) {
 
 int msr_get_near_sight_range(struct msr_monster *monster) {
     if (msr_verify_monster(monster) == false) return -1;
-    int sight_near = ( (msr_calculate_characteristic(monster, MSR_CHAR_PERCEPTION) * 1.5f) / 10) +1;
+    int sight_near = 5 + ( (msr_calculate_characteristic(monster, MSR_CHAR_PERCEPTION) * 0.5f) / 10) +1;
     if (msr_has_talent(monster, TLT_NIGHT_VISION) ) {
         int nv_sight = 16 * RANGE_MULTIPLIER;
         if(sight_near < nv_sight) sight_near = nv_sight;
@@ -315,7 +315,7 @@ int msr_get_near_sight_range(struct msr_monster *monster) {
 
 int msr_get_medium_sight_range(struct msr_monster *monster) {
     if (msr_verify_monster(monster) == false) return -1;
-    int sight_medium = ( (msr_calculate_characteristic(monster, MSR_CHAR_PERCEPTION) * 2) / 10) +1;
+    int sight_medium = 5 + ( (msr_calculate_characteristic(monster, MSR_CHAR_PERCEPTION) * 1) / 10) +1;
     if (msr_has_talent(monster, TLT_NIGHT_VISION) ) {
         int nv_sight = 16 * RANGE_MULTIPLIER;
         if(sight_medium < nv_sight) sight_medium = nv_sight;
@@ -327,7 +327,7 @@ int msr_get_medium_sight_range(struct msr_monster *monster) {
 
 int msr_get_far_sight_range(struct msr_monster *monster) {
     if (msr_verify_monster(monster) == false) return -1;
-    int sight_far = ( (msr_calculate_characteristic(monster, MSR_CHAR_PERCEPTION) * 2.5f) / 10) +1;
+    int sight_far = 5 + ( (msr_calculate_characteristic(monster, MSR_CHAR_PERCEPTION) * 2) / 10) +1;
     if (msr_has_talent(monster, TLT_NIGHT_VISION) ) {
         int nv_sight = 16 * RANGE_MULTIPLIER;
         if(sight_far < nv_sight) sight_far = nv_sight;
@@ -669,11 +669,7 @@ int msr_calculate_characteristic(struct msr_monster *monster, enum msr_character
 int msr_calculate_characteristic_bonus(struct msr_monster *monster, enum msr_characteristic chr) {
     if (msr_verify_monster(monster) == false) return -1;
     if (chr >= MSR_CHAR_MAX)            return -1;
-    if (chr == MSR_CHAR_WEAPON_SKILL)   return -1;
-    if (chr == MSR_CHAR_BALISTIC_SKILL) return -1;
-    if (chr == MSR_SEC_CHAR_MOVEMENT)   return -1;
-    if (chr == MSR_SEC_CHAR_ATTACKS)    return -1;
-    if (chr == MSR_SEC_CHAR_MAGIC)      return -1;
+
     return ( msr_calculate_characteristic(monster, chr) / 10);
 }
 
@@ -920,7 +916,7 @@ bool msr_clr_talent(struct msr_monster *monster, enum msr_talents talent) {
 
 uint8_t msr_get_movement_rate(struct msr_monster *monster) {
     if (msr_verify_monster(monster) == false) return false;
-    int speed = (msr_calculate_characteristic(monster, MSR_SEC_CHAR_MOVEMENT) );
+    int speed = (msr_calculate_characteristic_bonus(monster, MSR_SEC_CHAR_MOVEMENT) );
     int speed_mod = 0;
     int min_speed = MSR_MOVEMENT_MIN;
     int max_speed = MSR_MOVEMENT_MAX;
