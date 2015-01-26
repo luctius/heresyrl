@@ -12,6 +12,7 @@
 #include "dungeon/dungeon_map.h"
 #include "monster/monster.h"
 #include "items/items.h"
+#include "fov/sight.h"
 
 #include "careers_static.c"
 
@@ -63,16 +64,32 @@ enum career_ids cr_get_next_career_id_for_race(enum msr_race race, enum career_i
     return CRID_NONE;
 }
 
-bool cr_give_trappings_to_player(struct msr_monster *monster, struct cr_career *car) {
-    if (msr_verify_monster(monster) == false) return false;
+bool cr_give_trappings_to_player(struct cr_career *car, struct msr_monster *player) {
+    if (msr_verify_monster(player) == false) return false;
 
     for (int i = 0; i < (int) ARRAY_SZ(car->trappings); i++) {
         if (car->trappings[i] != IID_NONE) {
             struct itm_item *item = itm_create(car->trappings[i]);
             assert(item != NULL);
-            assert( (msr_give_item(monster, item) ) );
+            assert( (msr_give_item(player, item) ) );
         }
     }
+    return true;
+}
+
+bool cr_generate_allies(struct cr_career *car, struct msr_monster *player, struct dm_map *map) {
+    if (msr_verify_monster(player) == false) return false;
+
+    for (int i = 0; i < (int) ARRAY_SZ(car->allies_ids); i++) {
+        if (car->allies_ids[i] != MID_NONE) {
+            struct msr_monster *monster = msr_create(car->allies_ids[i]);
+            coord_t c = sgt_scatter(map, gbl_game->random, &player->pos, 5);
+            msr_insert_monster(monster, map, &c);
+            monster->faction = 0;
+            ai_monster_init(monster, 0);
+        }
+    }
+
     return true;
 }
 

@@ -10,6 +10,7 @@
 
 #define CR_EXIT_IDS_MAX  10
 #define CR_TRAPPINGS_MAX 10
+#define CR_ALLIES_MAX    2
 struct cr_career {
     enum career_ids template_id;
 
@@ -23,6 +24,7 @@ struct cr_career {
 
     enum item_ids trappings[CR_TRAPPINGS_MAX];
     enum career_ids exit_template_ids[CR_EXIT_IDS_MAX];
+    enum msr_ids allies_ids[CR_ALLIES_MAX];
 
     /* career generation */
     int weight[MSR_RACE_MAX];
@@ -33,6 +35,7 @@ struct cr_career *cr_get_career_by_id(enum career_ids template_id);
 enum career_ids cr_get_next_career_id_for_race(enum msr_race race, enum career_ids prev_tid);
 enum career_ids cr_spawn(double roll, enum msr_race race);
 
-bool cr_give_trappings_to_player(struct msr_monster *monster, struct cr_career *car);
+bool cr_give_trappings_to_player(struct cr_career *car, struct msr_monster *monster);
+bool cr_generate_allies(struct cr_career *car, struct msr_monster *player, struct dm_map *map);
 
 #endif /* CAREER_H */
