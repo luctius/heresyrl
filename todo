@@ -43,4 +43,6 @@ dodge 1/TURN, unless dodge is not trained.
 BUGS:
 cannot throw tools anymore.
 vision is not a circle
-backspace in chargen locks up everything.
+could not wield a shortbow after dropping it? (low ammo?)
+switching weapons sometimes sets weapon select to unarmed.
+unarmed and offhand weapons do not offer a targetting window.
