@@ -745,7 +745,9 @@ void charwin_refresh() {
                 else ui_printf(char_win, " Dmg %dD10", wpn->nr_dmg_die);
                 int add = wpn->dmg_addition;
                 if (wpn_is_type(item, WEAPON_TYPE_MELEE) ) add += msr_calculate_characteristic_bonus(player, MSR_CHAR_STRENGTH);
-                ui_printf(char_win, "+%d,%d", add, wpn->penetration);
+                char sign = ' ';
+                if (add > 0) sign = '+';
+                ui_printf(char_win, "%c%d,%d", sign, add, wpn->penetration);
 
                 if (wpn->weapon_type == WEAPON_TYPE_RANGED) {
                     if (wpn->jammed == false) {
