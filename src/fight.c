@@ -336,8 +336,8 @@ bool fght_do_weapon_dmg(struct random *r, struct msr_monster *monster, struct ms
 
     You(monster,                 "%s at %s's %s.", itm_you_use_desc(witem), msr_ldname(target), msr_hitloc_name(target, mhl) );
 
-    char *add_str = "'s"; if (target->is_player) add_str = "";
-    Monster_tgt(monster, target, "%s at %s%s %s.", itm_msr_use_desc(witem), msr_ldname(target), add_str, msr_hitloc_name(target, mhl) );
+    if (target->is_player) Monster_tgt(monster, target, "%s at " cs_PLAYER "your" cs_PLAYER " %s.", itm_msr_use_desc(witem), msr_hitloc_name(target, mhl) );
+    Monster_tgt(monster, target, "%s at %s %s.", itm_msr_use_desc(witem), msr_ldname(target), msr_hitloc_name(target, mhl) );
 
     fght_calc_dmg(r, monster, target, hits, witem, mhl);
 

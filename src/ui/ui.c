@@ -264,15 +264,25 @@ static void mapwin_examine(struct dm_map_entity *me) {
             if (me->monster != NULL) {
 
                 if (me->monster->is_player == true) {
-                    ui_printf(char_win, "You see yourself.\n");
+                    ui_printf(char_win, cs_PLAYER "You" cs_PLAYER " see yourself.\n");
 
-                    if (me->monster->cur_wounds < 0) ui_printf(char_win, "You are criticly wounded.\n");
-                    else if (me->monster->cur_wounds != me->monster->max_wounds) ui_printf(char_win, "You are wounded.\n");
+                    if (me->monster->cur_wounds < 0) ui_printf(char_win, cs_PLAYER "You" cs_PLAYER " are criticly wounded.\n");
+                    else if (me->monster->cur_wounds != me->monster->max_wounds) ui_printf(char_win, cs_PLAYER "You" cs_PLAYER " are wounded.\n");
                 } else {
-                    ui_printf(char_win, "You see %s.\n", me->monster->ld_name);
+                    ui_printf(char_win, cs_PLAYER "You" cs_PLAYER " see %s.\n", me->monster->ld_name);
 
                     if (me->monster->cur_wounds < 0) ui_printf(char_win, "%s is criticly wounded.\n", msr_gender_name(me->monster, false) );
                     else if (me->monster->cur_wounds != me->monster->max_wounds) ui_printf(char_win, "%s is wounded.\n", msr_gender_name(me->monster, false) );
+
+
+                    if (inv_loc_empty(me->monster->inventory, INV_LOC_MAINHAND_WIELD) == false) {
+                        struct itm_item *witem = inv_get_item_from_location(me->monster->inventory, INV_LOC_MAINHAND_WIELD);
+                        ui_printf(char_win, "%s wields %s.\n", msr_gender_name(me->monster, false), witem->ld_name);
+                    }
+                    if (inv_loc_empty(me->monster->inventory, INV_LOC_OFFHAND_WIELD) == false) {
+                        struct itm_item *witem = inv_get_item_from_location(me->monster->inventory, INV_LOC_OFFHAND_WIELD);
+                        ui_printf(char_win, "%s wields %s in his off-hand.\n", msr_gender_name(me->monster, false), witem->ld_name);
+                    }
                 }
 
                 if (se_list_size(me->monster->status_effects) > 0) {
@@ -282,15 +292,6 @@ static void mapwin_examine(struct dm_map_entity *me) {
                     while ( (c = se_list_get_next_status_effect(me->monster->status_effects, c) ) != NULL) {
                         ui_printf(char_win, "- %s\n", c->name);
                     }
-                }
-
-                if (inv_loc_empty(me->monster->inventory, INV_LOC_MAINHAND_WIELD) == false) {
-                    struct itm_item *witem = inv_get_item_from_location(me->monster->inventory, INV_LOC_MAINHAND_WIELD);
-                    ui_printf(char_win, "%s wields %s.\n", msr_gender_name(me->monster, false), witem->ld_name);
-                }
-                if (inv_loc_empty(me->monster->inventory, INV_LOC_OFFHAND_WIELD) == false) {
-                    struct itm_item *witem = inv_get_item_from_location(me->monster->inventory, INV_LOC_OFFHAND_WIELD);
-                    ui_printf(char_win, "%s wields %s in his off-hand.\n", msr_gender_name(me->monster, false), witem->ld_name);
                 }
             }
 
@@ -1085,6 +1086,9 @@ void character_window(void) {
     pad.win = newpad(map_win->lines * 10, map_win->cols);
     assert(pad.win != NULL);
 
+    wclear(map_win->win);
+    werase(map_win->win);
+
     touchwin(pad.win);
     werase(pad.win);
 
@@ -1182,7 +1186,7 @@ Basic weapon traning SP     ...                  |
 
             enum msr_skill_rate skillrate = msr_has_skill(mon,  i);
             lg_debug("skill rate: %d", skillrate);
-            ui_printf(&pad, "%s\n", msr_skillrate_names(skillrate));
+            ui_printf(&pad, "%s \t%s\n", msr_skill_names(i),  msr_skillrate_names(skillrate));
         }
     }
     ui_printf(&pad, "\n");
@@ -1207,7 +1211,7 @@ Basic weapon traning SP     ...                  |
 
     struct status_effect *c = NULL;
     while ( (c = se_list_get_next_status_effect(mon->status_effects, c) ) != NULL) {
-        ui_printf(&pad, "%s\n", c->name);
+        ui_printf(&pad, "%s %s\n", c->name, c->description);
     }
     ui_printf(&pad, "\n");
     y = ui_printf(&pad, "\n");
@@ -1219,7 +1223,11 @@ Basic weapon traning SP     ...                  |
     int line = 0;
     bool watch = true;
     while(watch == true) {
-        prefresh(pad.win, line,0,1,1,pad.lines,pad.cols);
+        mvwprintw(map_win->win, map_win->lines -2, 1, "[q] exit, [@] spend XP.");
+        mvwprintw(map_win->win, map_win->lines -1, 1, "[up] up,  [down] down.");
+        wrefresh(map_win->win);
+        prefresh(pad.win, line,0,1,1,pad.lines-3,pad.cols);
+
 
         switch (inp_get_input(gbl_game->input) ) {
             case INP_KEY_UP_RIGHT:   line += 20; break;
@@ -1230,6 +1238,7 @@ Basic weapon traning SP     ...                  |
             case INP_KEY_QUIT:
             case INP_KEY_NO:
             case INP_KEY_YES: watch = false; break;
+            case INP_KEY_CHARACTER: System_msg("Not Yet Implemented(tm).");
             default: break;
         }
 
@@ -1249,6 +1258,9 @@ void show_log(struct hrl_window *window, bool input) {
     memmove(&pad, window, sizeof(struct hrl_window) );
     pad.win = newpad(MAX(log_sz, window->lines) , window->cols);
     assert(pad.win != NULL);
+
+    wclear(map_win->win);
+    werase(map_win->win);
 
     touchwin(pad.win);
     werase(pad.win);
@@ -1325,7 +1337,10 @@ void show_log(struct hrl_window *window, bool input) {
         int line = 0;
         bool watch = true;
         while(watch == true) {
-            prefresh(pad.win, line,0,pad.y,pad.x, pad.y + pad.lines -1, pad.x + pad.cols);
+            mvwprintw(map_win->win, map_win->lines -2, 1, "[q] exit.");
+            mvwprintw(map_win->win, map_win->lines -1, 1, "[up] up,  [down] down.");
+            wrefresh(map_win->win);
+            prefresh(pad.win, line,0,pad.y,pad.x, pad.y + pad.lines -4, pad.x + pad.cols);
 
             switch (inp_get_input(gbl_game->input) ) {
                 case INP_KEY_UP_RIGHT:   line += 20; break;
