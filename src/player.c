@@ -103,6 +103,8 @@ void plr_create(struct pl_player *plr, char *name, uint32_t template_id, enum ms
     plr->player_map_pos = cd_create(0,0);
     plr->xp_spend = 0;
     plr->xp_current = 300;
+
+    System_msg("Welcome %s %s.", plr->career->title, player->unique_name);
 }
 
 void plr_init(struct pl_player *plr) {
