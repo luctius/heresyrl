@@ -15,6 +15,7 @@
 #include "monster/monster_action.h"
 #include "fov/sight.h"
 #include "ui/ui.h"
+#include "careers/careers.h"
 
 #define LOAD 1
 #define SAVE 1
@@ -71,10 +72,12 @@ bool game_init_map(void) {
 
     int x = 100;
     int y = 100;
+    bool new_map = false;
 
     plr_init(&gbl_game->player_data);
 
     if (gbl_game->current_map == NULL) {
+        new_map = true;
         gbl_game->current_map = dm_alloc_map(x,y);
         //dm_generate_map(gbl_game->current_map, DUNGEON_TYPE_SIMPLE, 1, random_int32(gbl_game->random) );
         dm_generate_map(gbl_game->current_map, DUNGEON_TYPE_CAVE, 1, random_int32(gbl_game->random) );
@@ -84,6 +87,7 @@ bool game_init_map(void) {
     if (cd_equal(&gbl_game->player_data.player->pos, &c) == true) {
         if (dm_tile_instance(gbl_game->current_map, TILE_TYPE_STAIRS_DOWN, 0, &c) == false) exit(1);
         if (msr_insert_monster(gbl_game->player_data.player, gbl_game->current_map, &c) == false) exit(1);
+        if (new_map) cr_generate_allies(gbl_game->player_data.career, gbl_game->player_data.player, gbl_game->current_map);
     }
 
     dm_clear_map_visibility(gbl_game->current_map, &c, &gbl_game->current_map->size);
