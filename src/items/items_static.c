@@ -139,7 +139,6 @@ static const char *itm_descs[] = {
 
     /* Melee */
     [IID_KNIFE]                 = "a basic knife",
-    [IID_HAND_WEAPON]           = "",
     [IID_SWORD_GOOD]            = "",
     [IID_AXE_GOOD]              = "",
     [IID_HAMMER_GOOD]           = "",
