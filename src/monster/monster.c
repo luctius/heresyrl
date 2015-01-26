@@ -452,6 +452,8 @@ bool msr_use_evasion(struct msr_monster *monster, struct msr_monster *attacker, 
     if (msr_verify_monster(monster) == false) return false;
     if (msr_can_use_evasion(monster, evasion) == false) return false;
 
+    FIX_UNUSED(attacker);
+
     struct inv_inventory *inv = monster->inventory;
     if (inv_verify_inventory(inv) == false) return false;
 
@@ -990,7 +992,7 @@ const char *msr_skill_names(enum msr_skills s) {
 }
 
 const char *msr_skillrate_names(enum msr_skill_rate sr) {
-    if (sr >= TLT_MAX) return NULL;
+    if (sr >= MSR_SKILL_RATE_NONE) return NULL;
     return msr_skillrate_name[sr];
 }
 
