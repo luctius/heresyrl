@@ -55,12 +55,12 @@ void tt_process_monsters(struct dm_map *map) {
                 monster->controller.controller_cb(monster);
             }
             monster->controller.interrupted = false;
+
+            /* TODO, HACK: performance drain, improve this!! */
+            update_screen();
         }
 
         if (gbl_game->running == false) return;
-
-        /* TODO, HACK: performance drain, improve this!! */
-        update_screen();
     }
 }
 
