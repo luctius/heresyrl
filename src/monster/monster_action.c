@@ -177,7 +177,6 @@ bool ma_do_melee(struct msr_monster *monster, coord_t *target_pos) {
     if (target == NULL) return false;
     if (msr_verify_monster(target) == false) return false;
 
-    struct itm_item *item = NULL;
     int cost = MSR_ACTION_MELEE / msr_calculate_characteristic(monster, MSR_SEC_CHAR_ATTACKS); 
 
     if (fght_melee(gbl_game->random, monster, target) == false) {
@@ -269,8 +268,6 @@ bool ma_do_throw(struct msr_monster *monster, coord_t *pos, struct itm_item *ite
 bool ma_do_fire(struct msr_monster *monster, coord_t *pos) {
     if (msr_verify_monster(monster) == false) return false;
     if (pos == NULL) return false;
-    struct itm_item *item = NULL;
-    struct item_weapon_specific *wpn = NULL;
     int cost = MSR_ACTION_FIRE / msr_calculate_characteristic(monster, MSR_SEC_CHAR_ATTACKS); 
 
     if ( (fght_shoot(gbl_game->random, monster, gbl_game->current_map, pos, FGHT_MAIN_HAND) == false) &&
@@ -291,13 +288,10 @@ static bool ma_has_ammo(struct msr_monster *monster, struct itm_item *item) {
     if (wpn_is_type(item, WEAPON_TYPE_RANGED) == false) return false;
 
     struct item_weapon_specific *wpn = &item->specific.weapon;
-    struct item_ammo_specific *ammo = NULL;
     struct itm_item *a_item = NULL;
 
     while ( (a_item = inv_get_next_item(monster->inventory, a_item) ) != NULL) {
         if (ammo_is_type(a_item, wpn->ammo_type) ) {
-            ammo = &a_item->specific.ammo;
-
             int to_fill = wpn->magazine_sz - wpn->magazine_left;
             /*
                Transfer ammo from stack to the magazine of the item.
@@ -394,8 +388,6 @@ static bool unload(struct msr_monster *monster, struct itm_item *weapon_item) {
     struct itm_item *ammo_item = itm_create(wpn->ammo_used_template_id);
     if (itm_verify_item(ammo_item) == false) return false;
     assert(ammo_is_type(ammo_item, wpn->ammo_type) == true);
-
-    struct item_ammo_specific *ammo = &ammo_item->specific.ammo;
 
     /* We count individual bullets */
     ammo_item->stacked_quantity = wpn->magazine_left;
