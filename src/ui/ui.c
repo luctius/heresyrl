@@ -1077,7 +1077,6 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
 
 void character_window(void) {
     int y = 0;
-    int y_sub = 0;
     struct pl_player *plr = &gbl_game->player_data;
     struct msr_monster *mon = plr->player;
 
@@ -1382,7 +1381,6 @@ void show_msg(struct hrl_window *window) {
             }
         }
 
-        int last_turn = -1;
         if (ctr > 0) {
             for (int i = min; i < log_sz; i++) {
                 bool old = false;
@@ -1405,8 +1403,6 @@ void show_msg(struct hrl_window *window) {
                             y = ui_printf(&pad, "%s%s (x%d)%s\n", old_str, tmp_entry->string, tmp_entry->repeat, old_str);
                         }
                         else y = ui_printf(&pad, "%s%s%s\n", old_str, tmp_entry->string, old_str);
-
-                        last_turn = tmp_entry->turn;
                     }
                 }
             }

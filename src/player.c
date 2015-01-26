@@ -98,7 +98,7 @@ void plr_create(struct pl_player *plr, char *name, uint32_t template_id, enum ms
     }
 
     plr->career = cr_get_career_by_id(cr_spawn(random_float(gbl_game->random), player->race) );
-    cr_give_trappings_to_player(player, plr->career);
+    cr_give_trappings_to_player(plr->career, player);
 
     plr->player_map_pos = cd_create(0,0);
     plr->xp_spend = 0;
