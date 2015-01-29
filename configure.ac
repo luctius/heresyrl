@@ -25,11 +25,17 @@ AC_DEFINE([CMDLINE_PARSER_VERSION], "0.1.0" " (" GIT_VERSION ") <" __DATE__ " " 
 # Checks for libraries.
 # FIXME: Replace `main' with a function in `-lm':
 AC_CHECK_LIB([m], [main])
-PKG_CHECK_MODULES([lua], [lua],  [], [PKG_CHECK_MODULES([lua], [lua5.1] )] )
+
+PKG_CHECK_MODULES([lua], [lua],  [], [
+    PKG_CHECK_MODULES([lua], [lua5.1], [],  [
+        PKG_CHECK_MODULES([lua], [lua5.2], [],[]  )
+    ] )
+] )
 AC_SEARCH_LIBS(initscr, ncurses, [], [AC_MSG_ERROR([Unable to find ncurses])], [])
 #AC_SEARCH_LIBS(new_panel, panel, [], [AC_MSG_ERROR([Unable to find ncurses panel])], [])
 #AC_SEARCH_LIBS(new_menu, menu,   [], [AC_MSG_ERROR([Unable to find ncurses menu])], [])
 #AC_SEARCH_LIBS(new_form, form,   [], [AC_MSG_ERROR([Unable to find ncurses form])], [])
+AC_PATH_PROGS(GENGETOPT, gengetopt)
 
 # Checks for header files.
 AC_CHECK_HEADERS([float.h inttypes.h limits.h stddef.h stdint.h stdlib.h string.h sys/param.h unistd.h])
