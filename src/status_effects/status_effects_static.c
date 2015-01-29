@@ -25,6 +25,10 @@
                 {.effect=_effect, .effect_setting_flags=bf(SESF_ACTIVE) | _flags, .optional=_opt, \
                 .tick_energy_max=1, .tick_energy=0, }
 
+/*
+   Long term and permanent conditions should ideally be offloaded to specific status effects to easy creation of cures.
+*/
+
 static struct status_effect static_status_effect_list[] = {
     STATUS_EFFECT(SEID_NONE, "", "", NULL, NULL, NULL, NULL),
             SETTINGS( 0, 0, SEID_NONE, 0, 0),
@@ -495,7 +499,7 @@ static struct status_effect static_status_effect_list[] = {
             EFFECT(SETF_DISABLE_LLEG,   0, SE_STRENGTH_1D5, 0),
             EFFECT(SETF_DECREASE_FATIQUE, 0, SE_STRENGTH_TWO, 0),
         EFFECTS_END,
-        SETTINGS(0 | bf(SEF_PERMANENT), 0, SEID_NONE, 0, 0),
+        SETTINGS(bf(SEF_PERMANENT), 0, SEID_NONE, 0, 0),
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_GENERAL_CRITICAL_LLEGS_5,
