@@ -95,8 +95,6 @@ bool game_init_map(void) {
     sgt_calculate_player_sight(gbl_game->current_map, gbl_game->player_data.player);
     gbl_game->running = true;
 
-    if (gbl_game->player_data.xp_current > TT_ENERGY_TURN) GM_msg("You have XP to spend, press '@' to level-up.");
-
     return gbl_game->running;
 }
 

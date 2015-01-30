@@ -16,6 +16,7 @@
 #include "monster/monster.h"
 #include "items/items.h"
 #include "dungeon/dungeon_map.h"
+#include "careers/careers.h"
 
 static bool sv_save_log(FILE *file, int indent, struct logging *lctx) {
     if (file == NULL) return false;
@@ -70,8 +71,9 @@ static bool sv_save_player(FILE *file, int indent, struct pl_player *plr) {
     if (file == NULL) return false;
 
     fprintf(file, "%*s" "player={", indent, "");
-    fprintf(file,"xp_current=%d,", plr->xp_current);
-    fprintf(file,"xp_spend=%d,", plr->xp_spend);
+    fprintf(file,"career_id  = %d,", plr->career->template_id);
+    fprintf(file,"xp_current = %d,", plr->xp_current);
+    fprintf(file,"xp_spend   = %d,", plr->xp_spend);
     fprintf(file, "},\n");
     fflush(file);
     return true;
@@ -91,6 +93,7 @@ static bool sv_save_monsters(FILE *file, int indent) {
             fprintf(file,"gender=%d,", m->gender);
             fprintf(file,"cur_wounds=%d,", m->cur_wounds);
             fprintf(file,"max_wounds=%d,", m->max_wounds);
+            fprintf(file,"wounds_added=%d,", m->wounds_added);
             fprintf(file,"fate_points=%d,", m->fate_points);
             fprintf(file,"insanity_points=%d,", m->insanity_points);
             fprintf(file,"corruption_points=%d,", m->corruption_points);

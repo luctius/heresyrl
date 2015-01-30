@@ -319,8 +319,9 @@ static bool load_player(lua_State *L, struct pl_player *plr) {
     uint64_t t;
     if (L == NULL) return false;
 
-    lua_intexpr(L, &t, "game.player.xp_spend"); plr->xp_spend = t;
-    lua_intexpr(L, &t, "game.player.xp_current"); plr->xp_current = t;
+    lua_intexpr(L, &t, "game.player.xp_spend");     plr->xp_spend = t;
+    lua_intexpr(L, &t, "game.player.xp_current");   plr->xp_current = t;
+    lua_intexpr(L, &t, "game.player.career_id");    plr->career = cr_get_career_by_id(t);
 
     return true;
 }
@@ -437,6 +438,7 @@ static bool load_monsters(lua_State *L, struct dm_map *map, struct gm_game *g) {
         lua_intexpr(L, &t, "game.monsters[%d].gender", i+1); monster->gender = t;
         lua_intexpr(L, &t, "game.monsters[%d].cur_wounds", i+1); monster->cur_wounds = t;
         lua_intexpr(L, &t, "game.monsters[%d].max_wounds", i+1); monster->max_wounds = t;
+        lua_intexpr(L, &t, "game.monsters[%d].wounds_added", i+1); monster->wounds_added = t;
         lua_intexpr(L, &t, "game.monsters[%d].fate_points", i+1); monster->fate_points = t;
         lua_intexpr(L, &t, "game.monsters[%d].insanity_points", i+1); monster->insanity_points = t;
         lua_intexpr(L, &t, "game.monsters[%d].corruption_points", i+1); monster->corruption_points = t;
