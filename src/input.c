@@ -149,6 +149,7 @@ enum inp_keys inp_get_input(struct inp_input *i) {
             case '.': case 53:                  k = INP_KEY_WAIT; break;
 
             case 'q':
+            case 'Q':
             case 27:        k = INP_KEY_ESCAPE; break;
 
             case '@':       k = INP_KEY_CHARACTER; break;
@@ -186,6 +187,8 @@ enum inp_keys inp_get_input(struct inp_input *i) {
 
             case ',':
             case 'g':       k = INP_KEY_PICKUP; break;
+
+            case '?':       k = INP_KEY_HELP; break;
 
             case '>':       k = INP_KEY_STAIRS_DOWN; break;
             case '<':       k = INP_KEY_STAIRS_UP; break;

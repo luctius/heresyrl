@@ -22,6 +22,7 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr);
 
 void character_window(void);
 void log_window(void);
+void help_window(void);
 bool char_creation_window(void);
 
 #endif /* UI_H */

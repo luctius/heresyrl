@@ -1261,8 +1261,8 @@ void show_log(struct hrl_window *window, bool input) {
     pad.win = newpad(MAX(log_sz, window->lines) , window->cols);
     assert(pad.win != NULL);
 
-    wclear(map_win->win);
-    werase(map_win->win);
+    wclear(window->win);
+    werase(window->win);
 
     touchwin(pad.win);
     werase(pad.win);
@@ -1339,9 +1339,9 @@ void show_log(struct hrl_window *window, bool input) {
         int line = 0;
         bool watch = true;
         while(watch == true) {
-            mvwprintw(map_win->win, map_win->lines -2, 1, "[q] exit.");
-            mvwprintw(map_win->win, map_win->lines -1, 1, "[up] up,  [down] down.");
-            wrefresh(map_win->win);
+            mvwprintw(window->win, window->lines -2, 1, "[q] exit.");
+            mvwprintw(window->win, window->lines -1, 1, "[up] up,  [down] down.");
+            wrefresh(window->win);
             prefresh(pad.win, line,0,pad.y,pad.x, pad.y + pad.lines -4, pad.x + pad.cols);
 
             switch (inp_get_input(gbl_game->input) ) {
@@ -1445,5 +1445,97 @@ void levelup_selection_window(void) {
 /*
 
 */
+}
+
+void show_help(struct hrl_window *window, bool input) {
+    int y = 0;
+    int log_sz = lg_size(gbl_log);
+    struct log_entry *tmp_entry = NULL;
+
+    struct hrl_window pad;
+    memmove(&pad, window, sizeof(struct hrl_window) );
+    pad.win = newpad(MAX(log_sz, window->lines) , window->cols);
+    assert(pad.win != NULL);
+
+    wclear(window->win);
+    werase(window->win);
+
+    touchwin(pad.win);
+    werase(pad.win);
+    ui_print_reset(&pad);
+
+    ui_printf(&pad, "HeresyRL help.\n");
+    ui_printf(&pad, "\n");
+    ui_printf(&pad, "\n");
+    ui_printf(&pad, "       [ctrl-X]: save and Quit.\n");
+    ui_printf(&pad, "\n");
+    ui_printf(&pad, "    VI movement:\n");
+    ui_printf(&pad, "      [h/j/k/l]: left/down/up/right.\n");
+    ui_printf(&pad, "      [y/u/b/n]: left-up/right-up/left-down/right-down.\n");
+    ui_printf(&pad, "Keypad movement:\n");
+    ui_printf(&pad, "      [4/2/8/6]: left/down/up/right.\n");
+    ui_printf(&pad, "      [7/9/1/3]: left-up/right-up/left-down/right-down.\n");
+    ui_printf(&pad, "\n");
+    ui_printf(&pad, "General Controls:\n");
+    ui_printf(&pad, " ['Escape'/q/Q]: Quit Window.\n");
+    ui_printf(&pad, "          [x/X]: eXamine.\n");
+    ui_printf(&pad, "          [a/A]: Apply.\n");
+    ui_printf(&pad, "          [c/C]: Cancel.\n");
+    ui_printf(&pad, "          [o/O]: Ok.\n");
+    ui_printf(&pad, "\n");
+    ui_printf(&pad, "        Windows:\n");
+    ui_printf(&pad, "            [@]: Character.\n");
+    ui_printf(&pad, "            [?]: This Help window.\n");
+    ui_printf(&pad, "            [L]: Log.\n");
+    ui_printf(&pad, "          [i/I]: Inventory.\n");
+    ui_printf(&pad, "\n");
+    ui_printf(&pad, "Main Window Controls:\n");
+    ui_printf(&pad, "          [f/F]: Fire or Fight.\n");
+    ui_printf(&pad, "          [t/T]: Throw.\n");
+    ui_printf(&pad, "            [r]: reload weapon.\n");
+    ui_printf(&pad, "            [R]: unload weapon.\n");
+    ui_printf(&pad, "          ['[']: Change weapon fire setting.\n");
+    ui_printf(&pad, "          [']']: Change weapon select.\n");
+    ui_printf(&pad, "          [,/g]: Pickup.\n");
+    ui_printf(&pad, "          [./5]: Wait.\n");
+    ui_printf(&pad, "\n");
+    ui_printf(&pad, "Inventory Controls:\n");
+    ui_printf(&pad, "          [d/D]: Drop.\n");
+    ui_printf(&pad, "\n");
+    ui_printf(&pad, "Fire Mode Controls:\n");
+    ui_printf(&pad, "        ['Tab']: Next Target.\n");
+
+    if (input) {
+        int line = 0;
+        bool watch = true;
+        while(watch == true) {
+            mvwprintw(window->win, window->lines -2, 1, "[q] exit.");
+            mvwprintw(window->win, window->lines -1, 1, "[up] up,  [down] down.");
+            wrefresh(window->win);
+            prefresh(pad.win, line,0,pad.y,pad.x, pad.y + pad.lines -4, pad.x + pad.cols);
+
+            switch (inp_get_input(gbl_game->input) ) {
+                case INP_KEY_UP_RIGHT:   line += 20; break;
+                case INP_KEY_DOWN_RIGHT: line -= 20; break;
+                case INP_KEY_UP:         line--; break;
+                case INP_KEY_DOWN:       line++; break;
+                case INP_KEY_ESCAPE:
+                case INP_KEY_QUIT:
+                case INP_KEY_NO:
+                case INP_KEY_YES: watch = false; break;
+                default: break;
+            }
+
+            if (line < 0) line = 0;
+            if (line > (y - pad.lines) ) line = y - pad.lines;
+        }
+    }
+    else prefresh(pad.win, 0,0, pad.y, pad.x, pad.y + pad.lines -1, pad.x + pad.cols);
+
+    delwin(pad.win);
+}
+
+void help_window(void) {
+    show_help(map_win, true);
 }
 

@@ -42,6 +42,7 @@ enum inp_keys {
     INP_KEY_MINUS,
     INP_KEY_TAB,
     INP_KEY_QUIT,
+    INP_KEY_HELP,
 
     INP_KEY_MAX,
     INP_KEY_BACKSPACE = KEY_BACKSPACE,
