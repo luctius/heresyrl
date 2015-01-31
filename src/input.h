@@ -30,7 +30,7 @@ enum inp_keys {
     INP_KEY_LOG,
     INP_KEY_PICKUP,
     INP_KEY_DROP,
-    INP_KEY_USE,
+    INP_KEY_APPLY,
     INP_KEY_THROW,
     INP_KEY_WEAR,
     INP_KEY_STAIRS_DOWN,

@@ -993,9 +993,9 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
             invstart = 0;
             dislen = invwin_printlist(map_win, invlist, invsz, invstart, invstart +winsz);
         }
-        mvwprintw(map_win->win, winsz +1, 1, "[q] exit, [space] next page.");
-        mvwprintw(map_win->win, winsz +2, 1, "[d] drop, [x] examine.");
-        mvwprintw(map_win->win, winsz +3, 1, "[U] use,  [w] wield/wear.");
+        mvwprintw(map_win->win, winsz +1, 1, "[q] exit,  [space] next page.");
+        mvwprintw(map_win->win, winsz +2, 1, "[d] drop,  [x] examine.");
+        mvwprintw(map_win->win, winsz +3, 1, "[a] apply, [w] wield/wear.");
         wrefresh(map_win->win);
         bool examine = false;
 
@@ -1003,8 +1003,8 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
         switch (ch) {
             case INP_KEY_YES: invstart += dislen; break;
             case INP_KEY_INVENTORY: inventory = false; break;
-            case INP_KEY_UP_RIGHT: 
-            case INP_KEY_USE: {
+            case INP_KEY_ALL:
+            case INP_KEY_APPLY: {
                 mvwprintw(map_win->win, winsz, 1, "Use which item?.");
                 wrefresh(map_win->win);
 

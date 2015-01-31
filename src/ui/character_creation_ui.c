@@ -90,18 +90,19 @@ bool char_creation_window(void) {
     charwin_refresh();
 
 
+    ui_print_reset(map_win);
     werase(map_win->win);
 
     bool race_done = false;
     while (race_done == false) {
         int valid_choice = 0;
-        ui_printf(map_win, "Choose your Race\n");
+        ui_printf(map_win, "    Choose your Race\n");
         for (unsigned int i = 0; i < MID_MAX; i++) {
             if (static_monster_list[i].is_player == true) {
                 ui_printf(map_win, "%c) %s\n", inp_key_translate_idx(valid_choice++), static_monster_list[i].sd_name);
             }
         }
-        mvwprintw(map_win->win, map_win->lines -2, 1, "[U] choose  [x] examine");
+        mvwprintw(map_win->win, map_win->lines -2, 1, "[a] apply,  [x] examine");
         mvwprintw(map_win->win, map_win->lines -1, 1, "[q] quit");
 
         wrefresh(map_win->win);
@@ -111,11 +112,12 @@ bool char_creation_window(void) {
         switch (k) {
             case INP_KEY_QUIT: 
             case INP_KEY_ESCAPE: return false; break;
-            case INP_KEY_UP_RIGHT: 
-            case INP_KEY_USE: 
+            case INP_KEY_ALL: 
+            case INP_KEY_APPLY: 
                 mvwprintw(map_win->win, map_win->lines -3, 1, "Choose which Race?");
                 wrefresh(map_win->win);
                 werase(map_win->win);
+                ui_print_reset(map_win);
 
                 sel_idx = inp_get_input_idx(gbl_game->input);
                 break;
@@ -135,7 +137,10 @@ bool char_creation_window(void) {
                 }
                 sel_idx = -1;
                 break;
-            default: break;
+            default: 
+                werase(map_win->win);
+                ui_print_reset(map_win);
+                break;
         }
 
         if ( (sel_idx >= 0) && (sel_idx < (int) MID_MAX) ) {

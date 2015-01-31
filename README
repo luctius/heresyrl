@@ -23,7 +23,7 @@ Dependencies:
 * Autotools
 * A C compiler (gcc or clang)
 
-run: 
+run:  
 'autoreconf -fim'  
 './configure'  
 'make'  

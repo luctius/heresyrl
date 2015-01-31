@@ -153,13 +153,19 @@ enum inp_keys inp_get_input(struct inp_input *i) {
 
             case '@':       k = INP_KEY_CHARACTER; break;
             case 'L':       k = INP_KEY_LOG; break;
+            case 'I':
             case 'i':       k = INP_KEY_INVENTORY; break;
+            case 'X':
             case 'x':       k = INP_KEY_EXAMINE; break;
+            case 'F':
             case 'f':       k = INP_KEY_FIRE; break;
+            case 'D':
             case 'd':       k = INP_KEY_DROP; break;
+            case 'T':
             case 't':       k = INP_KEY_THROW; break;
+            case 'W':
             case 'w':       k = INP_KEY_WEAR; break;
-            case 'U':       k = INP_KEY_USE; break;
+            case 'a':       k = INP_KEY_APPLY; break;
             case 'r':       k = INP_KEY_RELOAD; break;
             case 'R':       k = INP_KEY_UNLOAD; break;
             case '[':       k = INP_KEY_WEAPON_SETTING; break;
@@ -176,8 +182,7 @@ enum inp_keys inp_get_input(struct inp_input *i) {
             case 'o':       k = INP_KEY_YES; break;
             case 'C':
             case 'c':       k = INP_KEY_NO; break;
-            case 'A':
-            case 'a':       k = INP_KEY_ALL; break;
+            case 'A':       k = INP_KEY_ALL; break;
 
             case ',':
             case 'g':       k = INP_KEY_PICKUP; break;
