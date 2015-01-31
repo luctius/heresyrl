@@ -686,11 +686,12 @@ void charwin_refresh() {
     int starty = 1;
 
     werase(char_win->win);
+    ui_print_reset(char_win);
 
     if (options.play_recording) {
         int attr_mod = get_colour(TERM_COLOUR_RED);
         if (has_colors() == TRUE) wattron(char_win->win, attr_mod);
-        mvwprintw(char_win->win, 1,1, "playback x%d", options.play_delay);
+        ui_printf_ext(char_win, 1,1, "playback x%d", options.play_delay);
         if (has_colors() == TRUE) wattroff(char_win->win, attr_mod);
         starty += 2;
     }
@@ -804,13 +805,13 @@ struct inv_show_item {
 static int invwin_printlist(struct hrl_window *window, struct inv_show_item list[], int list_sz, int start, int end) {
     int max = MIN(list_sz, end);
 
-    if (list_sz == 0) {
-        mvwprintw(window->win, 1, 1, "Your inventory is empty");
-        return 0;
-    }
-
     werase(window->win);
     ui_print_reset(window);
+
+    if (list_sz == 0) {
+        ui_printf_ext(window, 1, 1, "Your inventory is empty");
+        return 0;
+    }
 
     max = MIN(max, INP_KEY_MAX_IDX);
     if (start >= max) return -1;
@@ -987,15 +988,17 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
         struct inv_show_item *invlist = calloc(invsz, sizeof(struct inv_show_item) );
         inv_create_list(plr->player->inventory, invlist, invsz);
 
+        ui_print_reset(map_win);
+
         mapwin_display_map_noref(map, &plr->player->pos);
         touchwin(map_win->win);
         if ( (dislen = invwin_printlist(map_win, invlist, invsz, invstart, invstart +winsz) ) == -1) {
             invstart = 0;
             dislen = invwin_printlist(map_win, invlist, invsz, invstart, invstart +winsz);
         }
-        mvwprintw(map_win->win, winsz +1, 1, "[q] exit,  [space] next page.");
-        mvwprintw(map_win->win, winsz +2, 1, "[d] drop,  [x] examine.");
-        mvwprintw(map_win->win, winsz +3, 1, "[a] apply, [w] wield/wear.");
+        ui_printf_ext(map_win, winsz +1, 1, cs_ATTR "[q]" cs_ATTR " exit,  " cs_ATTR "[space]" cs_ATTR " next page.");
+        ui_printf_ext(map_win, winsz +2, 1, cs_ATTR "[d]" cs_ATTR " drop,  " cs_ATTR "[x]" cs_ATTR " examine.");
+        ui_printf_ext(map_win, winsz +3, 1, cs_ATTR "[a]" cs_ATTR " apply, " cs_ATTR "[w]" cs_ATTR " wield/wear.");
         wrefresh(map_win->win);
         bool examine = false;
 
@@ -1005,7 +1008,7 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
             case INP_KEY_INVENTORY: inventory = false; break;
             case INP_KEY_ALL:
             case INP_KEY_APPLY: {
-                mvwprintw(map_win->win, winsz, 1, "Use which item?.");
+                ui_printf_ext(map_win, winsz, 1, "Use which item?.");
                 wrefresh(map_win->win);
 
                 int item_idx = inp_get_input_idx(gbl_game->input);
@@ -1018,7 +1021,7 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
                 return ma_do_use(plr->player, item);
             } break;
             case INP_KEY_WEAR: {
-                mvwprintw(map_win->win, winsz, 1, "Wear which item?.");
+                ui_printf_ext(map_win, winsz, 1, "Wear which item?.");
                 wrefresh(map_win->win);
 
                 int item_idx = inp_get_input_idx(gbl_game->input);
@@ -1036,7 +1039,7 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
                 }
             } break;
             case INP_KEY_EXAMINE: {
-                mvwprintw(map_win->win, winsz, 1, "Examine which item?.");
+                ui_printf_ext(map_win, winsz, 1, "Examine which item?.");
                 wrefresh(map_win->win);
 
                 int item_idx = inp_get_input_idx(gbl_game->input);
@@ -1049,7 +1052,7 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
                 examine = true;
             } break;
             case INP_KEY_DROP: {
-                mvwprintw(map_win->win, winsz, 1, "Drop which item?.");
+                ui_printf_ext(map_win, winsz, 1, "Drop which item?.");
                 wrefresh(map_win->win);
 
                 invsz = inv_inventory_size(plr->player->inventory);
@@ -1225,8 +1228,9 @@ Basic weapon traning SP     ...                  |
     int line = 0;
     bool watch = true;
     while(watch == true) {
-        mvwprintw(map_win->win, map_win->lines -2, 1, "[q] exit, [@] spend XP.");
-        mvwprintw(map_win->win, map_win->lines -1, 1, "[up] up,  [down] down.");
+        ui_print_reset(map_win);
+        ui_printf_ext(map_win, map_win->lines -2, 1, cs_ATTR "[q]" cs_ATTR " exit, " cs_ATTR "[@]" cs_ATTR " spend XP.");
+        ui_printf_ext(map_win, map_win->lines -1, 1, cs_ATTR "[up]" cs_ATTR " up,  " cs_ATTR "[down]" cs_ATTR " down.");
         wrefresh(map_win->win);
         prefresh(pad.win, line,0,1,1,pad.lines-3,pad.cols);
 
@@ -1339,8 +1343,9 @@ void show_log(struct hrl_window *window, bool input) {
         int line = 0;
         bool watch = true;
         while(watch == true) {
-            mvwprintw(window->win, window->lines -2, 1, "[q] exit.");
-            mvwprintw(window->win, window->lines -1, 1, "[up] up,  [down] down.");
+            ui_print_reset(window);
+            ui_printf_ext(window, window->lines -2, 1, cs_ATTR "[q]" cs_ATTR " exit.");
+            ui_printf_ext(window, window->lines -1, 1, cs_ATTR "[up]" cs_ATTR " up,  " cs_ATTR "[down]" cs_ATTR " down.");
             wrefresh(window->win);
             prefresh(pad.win, line,0,pad.y,pad.x, pad.y + pad.lines -4, pad.x + pad.cols);
 
@@ -1467,7 +1472,6 @@ void show_help(struct hrl_window *window, bool input) {
     ui_printf(&pad, "   " cs_ATTR "HeresyRL" cs_ATTR " help.\n");
     ui_printf(&pad, "\n");
     ui_printf(&pad, "\n");
-    ui_printf(&pad, "\n");
     ui_printf(&pad, "    VI movement:\n");
     ui_printf(&pad, "      " cs_ATTR "[h/j/k/l]:" cs_ATTR " left/down/up/right.\n");
     ui_printf(&pad, "      " cs_ATTR "[y/u/b/n]:" cs_ATTR " left-up/right-up/left-down/right-down.\n");
@@ -1509,8 +1513,8 @@ void show_help(struct hrl_window *window, bool input) {
         int line = 0;
         bool watch = true;
         while(watch == true) {
-            mvwprintw(window->win, window->lines -2, 1, "[q] exit.");
-            mvwprintw(window->win, window->lines -1, 1, "[up] up,  [down] down.");
+            ui_printf_ext(window, window->lines -2, 1, cs_ATTR "[q]" cs_ATTR " exit.");
+            ui_printf_ext(window, window->lines -1, 1, cs_ATTR "[up]" cs_ATTR " up,  " cs_ATTR "[down]" cs_ATTR " down.");
             wrefresh(window->win);
             prefresh(pad.win, line,0,pad.y,pad.x, pad.y + pad.lines -4, pad.x + pad.cols);
 
