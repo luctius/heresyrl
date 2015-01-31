@@ -87,7 +87,7 @@ bool game_init_map(void) {
 
     coord_t c = cd_create(0,0);
     if (cd_equal(&gbl_game->player_data.player->pos, &c) == true) {
-        if (dm_tile_instance(gbl_game->current_map, TILE_TYPE_STAIRS_DOWN, 0, &c) == false) exit(1);
+        if (dm_tile_instance(gbl_game->current_map, TILE_TYPE_STAIRS_UP, 0, &c) == false) exit(1);
         if (msr_insert_monster(gbl_game->player_data.player, gbl_game->current_map, &c) == false) exit(1);
         if (new_map) cr_generate_allies(gbl_game->player_data.career, gbl_game->player_data.player, gbl_game->current_map);
     }
