@@ -169,7 +169,7 @@ struct msr_monster *msr_create(enum msr_ids template_id) {
     }
 
     creature_weapon(&m->monster);
-    msr_give_items(&m->monster, m->monster.level, gbl_game->random);
+    //msr_give_items(&m->monster, m->monster.level, gbl_game->random);
 
     lg_debug("creating monster[%d, %s, %c]", m->monster.uid, m->monster.ld_name, m->monster.icon);
 

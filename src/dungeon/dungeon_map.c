@@ -184,7 +184,7 @@ bool dm_populate_map(struct dm_map *map, struct random *r, uint32_t monster_chan
 
             if ( (random_int32(r) % 10000) <= (monster_chance/100)+1 ) {
                 uint32_t leader = 0;
-                int msr_cnt = random_int32(r) % 10;
+                int msr_cnt = random_int32(r) % 20;
                 for (int i = 0; i < msr_cnt; i++) {
                     idx = msr_spawn(random_float(r), level, map->type);
                     coord_t cp = sgt_scatter(map, r, &c, 10);
@@ -192,6 +192,7 @@ bool dm_populate_map(struct dm_map *map, struct random *r, uint32_t monster_chan
                     if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(&cp,map), TILE_ATTR_TRAVERSABLE) == true) {
                         if (dm_get_map_me(&cp,map)->monster == NULL) {
                             struct msr_monster *monster = msr_create(idx);
+                            msr_give_items(monster, level, r);
 
                             msr_insert_monster(monster, map, &c);
                             ai_monster_init(monster, leader);
@@ -208,6 +209,7 @@ bool dm_populate_map(struct dm_map *map, struct random *r, uint32_t monster_chan
                 if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(&c,map), TILE_ATTR_TRAVERSABLE) == true) {
                     idx = msr_spawn(random_float(r), level, map->type);
                     struct msr_monster *monster = msr_create(idx);
+                    msr_give_items(monster, level, r);
 
                     msr_insert_monster(monster, map, &c);
                     ai_monster_init(monster, 0);
