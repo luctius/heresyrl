@@ -1,0 +1,30 @@
+HeresyRL
+========
+
+Introduction
+------------
+
+HeresyRL is a [roguelike](https://en.wikipedia.org/wiki/Roguelike) in the 
+vain of rogue, nethack, angband and crawl. It is based on the Warhammer 
+Roleplay version 2 ruleset.
+
+Right now it is in Alpha status, but eventually it will be an episodic game. 
+You will play a map (or maybe even a quest). At the end you will have the 
+oppertunity to heal, buy/sell items, and to train.
+
+
+Compiling
+---------
+
+Dependencies:
+* A *nix (linux or mac for example)
+* libncurses5-dev
+* lua 5.x
+* Autotools
+* A C compiler (gcc or clang)
+
+run:
+'autoreconf -fim'
+'./configure'
+'make'
+'./heresyrl'
