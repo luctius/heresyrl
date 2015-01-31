@@ -1019,6 +1019,7 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
                 wrefresh(map_win->win);
 
                 int item_idx = inp_get_input_idx(gbl_game->input);
+                if (item_idx < 0) break;
                 if (item_idx == INP_KEY_ESCAPE) break;
                 if ((item_idx + invstart) >= invsz) break;
                 item = invlist[item_idx +invstart].item;
@@ -1032,6 +1033,7 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
                 wrefresh(map_win->win);
 
                 int item_idx = inp_get_input_idx(gbl_game->input);
+                if (item_idx < 0) break;
                 if (item_idx == INP_KEY_ESCAPE) break;
                 if ((item_idx + invstart) >= invsz) break;
                 item = invlist[item_idx +invstart].item;
@@ -1050,6 +1052,7 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
                 wrefresh(map_win->win);
 
                 int item_idx = inp_get_input_idx(gbl_game->input);
+                if (item_idx < 0) break;
                 if (item_idx == INP_KEY_ESCAPE) break;
                 if ((item_idx + invstart) >= invsz) break;
                 item = invlist[item_idx +invstart].item;
@@ -1064,6 +1067,7 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
 
                 invsz = inv_inventory_size(plr->player->inventory);
                 int item_idx = inp_get_input_idx(gbl_game->input);
+                if (item_idx < 0) break;
                 if (item_idx == INP_KEY_ESCAPE) break;
                 if ((item_idx + invstart) >= invsz) break;
                 item = invlist[item_idx +invstart].item;
