@@ -7,15 +7,15 @@ AC_CONFIG_MACRO_DIR([m4])
 
 # Checks for programs.
 AC_PROG_MAKE_SET
-AC_PROG_CC
+#AC_PROG_CC
 AC_PROG_CC_C99
-AM_PROG_CC_C_O
-AC_PROG_CXX
-AC_PROG_AWK
+#AM_PROG_CC_C_O
+#AC_PROG_CXX
+#AC_PROG_AWK
 AC_PROG_CPP
 AC_PROG_INSTALL
 AC_PROG_LN_S
-AC_PROG_RANLIB
+#AC_PROG_RANLIB
 AC_PROG_MKDIR_P
 
 AC_DEFINE([_GNU_SOURCE], 1, [Use GNU extensions])
@@ -43,6 +43,7 @@ AC_CHECK_HEADERS([float.h inttypes.h limits.h stddef.h stdint.h stdlib.h string.
 # Checks for library functions.
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
+AC_HEADER_ASSERT
 AC_LANG_C
 AC_C_INLINE
 AC_C_CONST
