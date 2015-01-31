@@ -996,9 +996,9 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
             invstart = 0;
             dislen = invwin_printlist(map_win, invlist, invsz, invstart, invstart +winsz);
         }
-        ui_printf_ext(map_win, winsz +1, 1, cs_ATTR "[q]" cs_ATTR " exit,  " cs_ATTR "[space]" cs_ATTR " next page.");
-        ui_printf_ext(map_win, winsz +2, 1, cs_ATTR "[d]" cs_ATTR " drop,  " cs_ATTR "[x]" cs_ATTR " examine.");
-        ui_printf_ext(map_win, winsz +3, 1, cs_ATTR "[a]" cs_ATTR " apply, " cs_ATTR "[w]" cs_ATTR " wield/wear.");
+        ui_printf_ext(map_win, winsz +1, 1, cs_ATTR "[q]" cs_ATTR " exit,   " cs_ATTR "[space]" cs_ATTR " next page.");
+        ui_printf_ext(map_win, winsz +2, 1, cs_ATTR "[d]" cs_ATTR " drop,   " cs_ATTR "    [x]" cs_ATTR " examine.");
+        ui_printf_ext(map_win, winsz +3, 1, cs_ATTR "[a]" cs_ATTR " apply,  " cs_ATTR "    [w]" cs_ATTR " wield/wear.");
         wrefresh(map_win->win);
         bool examine = false;
 
@@ -1229,8 +1229,8 @@ Basic weapon traning SP     ...                  |
     bool watch = true;
     while(watch == true) {
         ui_print_reset(map_win);
-        ui_printf_ext(map_win, map_win->lines -2, 1, cs_ATTR "[q]" cs_ATTR " exit, " cs_ATTR "[@]" cs_ATTR " spend XP.");
-        ui_printf_ext(map_win, map_win->lines -1, 1, cs_ATTR "[up]" cs_ATTR " up,  " cs_ATTR "[down]" cs_ATTR " down.");
+        ui_printf_ext(map_win, map_win->lines -2, 1, cs_ATTR " [q]" cs_ATTR " exit, " cs_ATTR "    [@]" cs_ATTR " spend XP.");
+        ui_printf_ext(map_win, map_win->lines -1, 1, cs_ATTR "[up]" cs_ATTR " up,  " cs_ATTR "  [down]" cs_ATTR " down.");
         wrefresh(map_win->win);
         prefresh(pad.win, line,0,1,1,pad.lines-3,pad.cols);
 
@@ -1344,7 +1344,7 @@ void show_log(struct hrl_window *window, bool input) {
         bool watch = true;
         while(watch == true) {
             ui_print_reset(window);
-            ui_printf_ext(window, window->lines -2, 1, cs_ATTR "[q]" cs_ATTR " exit.");
+            ui_printf_ext(window, window->lines -2, 1, cs_ATTR " [q]" cs_ATTR " exit.");
             ui_printf_ext(window, window->lines -1, 1, cs_ATTR "[up]" cs_ATTR " up,  " cs_ATTR "[down]" cs_ATTR " down.");
             wrefresh(window->win);
             prefresh(pad.win, line,0,pad.y,pad.x, pad.y + pad.lines -4, pad.x + pad.cols);
@@ -1454,12 +1454,12 @@ void levelup_selection_window(void) {
 
 void show_help(struct hrl_window *window, bool input) {
     int y = 0;
-    int log_sz = lg_size(gbl_log);
-    struct log_entry *tmp_entry = NULL;
+
+    int help_sz = 60;
 
     struct hrl_window pad;
     memmove(&pad, window, sizeof(struct hrl_window) );
-    pad.win = newpad(MAX(log_sz, window->lines) , window->cols);
+    pad.win = newpad(MAX(help_sz, window->lines) , window->cols);
     assert(pad.win != NULL);
 
     wclear(window->win);
@@ -1472,48 +1472,60 @@ void show_help(struct hrl_window *window, bool input) {
     ui_printf(&pad, "   " cs_ATTR "HeresyRL" cs_ATTR " help.\n");
     ui_printf(&pad, "\n");
     ui_printf(&pad, "\n");
-    ui_printf(&pad, "    VI movement:\n");
-    ui_printf(&pad, "      " cs_ATTR "[h/j/k/l]:" cs_ATTR " left/down/up/right.\n");
-    ui_printf(&pad, "      " cs_ATTR "[y/u/b/n]:" cs_ATTR " left-up/right-up/left-down/right-down.\n");
-    ui_printf(&pad, "Keypad movement:\n");
-    ui_printf(&pad, "      " cs_ATTR "[4/2/8/6]:" cs_ATTR " left/down/up/right.\n");
-    ui_printf(&pad, "      " cs_ATTR "[7/9/1/3]:" cs_ATTR " left-up/right-up/left-down/right-down.\n");
+    ui_printf(&pad, "      VI movement:\n");
+    ui_printf(&pad, "        " cs_ATTR "[h/j/k/l]:" cs_ATTR " left/down/up/right.\n");
+    ui_printf(&pad, "        " cs_ATTR "[y/u/b/n]:" cs_ATTR " left-up/right-up/left-down/right-down.\n");
     ui_printf(&pad, "\n");
-    ui_printf(&pad, "General Controls:\n");
-    ui_printf(&pad, "       " cs_ATTR "[ctrl-X]:" cs_ATTR " Save and Quit.\n");
-    ui_printf(&pad, " " cs_ATTR "['Escape'/q/Q]:" cs_ATTR " Quit Window.\n");
-    ui_printf(&pad, "          " cs_ATTR "[x/X]:" cs_ATTR " eXamine.\n");
-    ui_printf(&pad, "          " cs_ATTR "[a/A]:" cs_ATTR " Apply.\n");
-    ui_printf(&pad, "          " cs_ATTR "[c/C]:" cs_ATTR " Cancel.\n");
-    ui_printf(&pad, "          " cs_ATTR "[o/O]:" cs_ATTR " Ok.\n");
+    ui_printf(&pad, "  Keypad movement:\n");
+    ui_printf(&pad, "        " cs_ATTR "[4/2/8/6]:" cs_ATTR " left/down/up/right.\n");
+    ui_printf(&pad, "        " cs_ATTR "[7/9/1/3]:" cs_ATTR " left-up/right-up/left-down/right-down.\n");
     ui_printf(&pad, "\n");
-    ui_printf(&pad, "        Windows:\n");
-    ui_printf(&pad, "            " cs_ATTR "[@]:" cs_ATTR " Character.\n");
-    ui_printf(&pad, "            " cs_ATTR "[?]:" cs_ATTR " This Help window.\n");
-    ui_printf(&pad, "            " cs_ATTR "[L]:" cs_ATTR " Log.\n");
-    ui_printf(&pad, "          " cs_ATTR "[i/I]:" cs_ATTR " Inventory.\n");
+
+    /* <Do not touch this evil magic....> */
+    ui_printf(&pad, cs_ATTR "       7  8  9           y  k  u" cs_ATTR "\n");
+    ui_printf(&pad, "        \\ | /             \\ | /\n");
+    ui_printf(&pad, "      " cs_ATTR "4" cs_ATTR " - 5 - " cs_ATTR "6" cs_ATTR "         " cs_ATTR "h" cs_ATTR " - . - " cs_ATTR "l" cs_ATTR "\n");
+    ui_printf(&pad, "        / | \\             / | \\\n");
+    ui_printf(&pad, cs_ATTR "       1  2  3           b  j  n" cs_ATTR "\n");
+    ui_printf(&pad, "\n");
+    /* </Do not touch this evil magic....> */
+
+    ui_printf(&pad, " General Controls:\n");
+    ui_printf(&pad, "         " cs_ATTR "[ctrl-X]:" cs_ATTR " Save and Quit.\n");
+    ui_printf(&pad, "           " cs_ATTR "[/q/Q]:" cs_ATTR " Quit Window.\n");
+    ui_printf(&pad, "            " cs_ATTR "[x/X]:" cs_ATTR " eXamine.\n");
+    ui_printf(&pad, "            " cs_ATTR "[a/A]:" cs_ATTR " Apply.\n");
+    ui_printf(&pad, "            " cs_ATTR "[c/C]:" cs_ATTR " Cancel.\n");
+    ui_printf(&pad, "            " cs_ATTR "[o/O]:" cs_ATTR " Ok.\n");
+    ui_printf(&pad, "\n");
+    ui_printf(&pad, "          Windows:\n");
+    ui_printf(&pad, "              " cs_ATTR "[@]:" cs_ATTR " Character.\n");
+    ui_printf(&pad, "              " cs_ATTR "[?]:" cs_ATTR " This Help window.\n");
+    ui_printf(&pad, "              " cs_ATTR "[L]:" cs_ATTR " Log.\n");
+    ui_printf(&pad, "            " cs_ATTR "[i/I]:" cs_ATTR " Inventory.\n");
     ui_printf(&pad, "\n");
     ui_printf(&pad, "Main Window Controls:\n");
-    ui_printf(&pad, "          " cs_ATTR "[f/F]:" cs_ATTR " Fire or Fight.\n");
-    ui_printf(&pad, "          " cs_ATTR "[t/T]:" cs_ATTR " Throw.\n");
-    ui_printf(&pad, "            " cs_ATTR "[r]:" cs_ATTR " reload weapon.\n");
-    ui_printf(&pad, "            " cs_ATTR "[R]:" cs_ATTR " unload weapon.\n");
-    ui_printf(&pad, "          " cs_ATTR "['[']:" cs_ATTR " Change weapon fire setting.\n");
-    ui_printf(&pad, "          " cs_ATTR "[']']:" cs_ATTR " Change weapon select.\n");
-    ui_printf(&pad, "          " cs_ATTR "[,/g]:" cs_ATTR " Pickup.\n");
-    ui_printf(&pad, "          " cs_ATTR "[./5]:" cs_ATTR " Wait.\n");
+    ui_printf(&pad, "            " cs_ATTR "[f/F]:" cs_ATTR " Fire or Fight.\n");
+    ui_printf(&pad, "            " cs_ATTR "[t/T]:" cs_ATTR " Throw.\n");
+    ui_printf(&pad, "              " cs_ATTR "[r]:" cs_ATTR " reload weapon.\n");
+    ui_printf(&pad, "              " cs_ATTR "[R]:" cs_ATTR " unload weapon.\n");
+    ui_printf(&pad, "            " cs_ATTR "['[']:" cs_ATTR " Change weapon fire setting.\n");
+    ui_printf(&pad, "            " cs_ATTR "[']']:" cs_ATTR " Change weapon select.\n");
+    ui_printf(&pad, "            " cs_ATTR "[,/g]:" cs_ATTR " Pickup.\n");
+    ui_printf(&pad, "            " cs_ATTR "[./5]:" cs_ATTR " Wait.\n");
     ui_printf(&pad, "\n");
     ui_printf(&pad, "Inventory Controls:\n");
-    ui_printf(&pad, "          " cs_ATTR "[d/D]:" cs_ATTR " Drop.\n");
+    ui_printf(&pad, "            " cs_ATTR "[d/D]:" cs_ATTR " Drop.\n");
     ui_printf(&pad, "\n");
     ui_printf(&pad, "Fire Mode Controls:\n");
-    ui_printf(&pad, "        " cs_ATTR "['Tab']:" cs_ATTR " Next Target.\n");
+    ui_printf(&pad, "          " cs_ATTR "['Tab']:" cs_ATTR " Next Target.\n");
+    y = ui_printf(&pad, "\n");
 
     if (input) {
         int line = 0;
         bool watch = true;
         while(watch == true) {
-            ui_printf_ext(window, window->lines -2, 1, cs_ATTR "[q]" cs_ATTR " exit.");
+            ui_printf_ext(window, window->lines -2, 1, cs_ATTR " [q]" cs_ATTR " exit.");
             ui_printf_ext(window, window->lines -1, 1, cs_ATTR "[up]" cs_ATTR " up,  " cs_ATTR "[down]" cs_ATTR " down.");
             wrefresh(window->win);
             prefresh(pad.win, line,0,pad.y,pad.x, pad.y + pad.lines -4, pad.x + pad.cols);
