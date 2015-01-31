@@ -22,6 +22,7 @@
 #include "items/items.h"
 #include "dungeon/dungeon_map.h"
 #include "ai/ai.h"
+#include "careers/careers.h"
 
 /** 
 * Evaluates a Lua expression and returns the string result. 
