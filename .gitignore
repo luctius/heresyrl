@@ -61,8 +61,5 @@ perf.data
 .*.swp
 
 #Generated source files
-cmdline.c
-cmdline.h
-heresyrl.ggo
 config.h
 config.h.in~
