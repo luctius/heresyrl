@@ -527,6 +527,7 @@ bool msr_die(struct msr_monster *monster, struct dm_map *map) {
 
 bool msr_do_dmg(struct msr_monster *monster, int dmg, enum dmg_type dmg_type, enum msr_hit_location mhl) {
     if (msr_verify_monster(monster) == false) return false;
+    if (monster->dead) return false;
     bool critic = false;
     int wounds_above_zero = 0;
 

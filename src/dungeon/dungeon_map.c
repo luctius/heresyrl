@@ -423,7 +423,7 @@ static bool dm_get_tunnel_path(struct dm_map *map, struct pf_context *pf_ctx) {
     return retval;
 }
 
-bool dm_generate_map(struct dm_map *map, enum dm_dungeon_type type, int level, unsigned long seed) {
+bool dm_generate_map(struct dm_map *map, enum dm_dungeon_type type, int level, unsigned long seed, bool populate) {
     if (dm_verify_map(map) == false) return false;
 
     map->seed = seed;
@@ -472,7 +472,7 @@ bool dm_generate_map(struct dm_map *map, enum dm_dungeon_type type, int level, u
 
     pf_exit(pf_ctx);
 
-    dm_populate_map(map, r, 100, 5, level);
+    if (populate) dm_populate_map(map, r, 100, 5, level);
     random_exit(r);
 
     return true;

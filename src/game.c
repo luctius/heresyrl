@@ -80,7 +80,7 @@ bool game_init_map(void) {
         new_map = true;
         gbl_game->current_map = dm_alloc_map(x,y);
         //dm_generate_map(gbl_game->current_map, DUNGEON_TYPE_SIMPLE, 1, random_int32(gbl_game->random) );
-        dm_generate_map(gbl_game->current_map, DUNGEON_TYPE_CAVE, 1, random_int32(gbl_game->random) );
+        dm_generate_map(gbl_game->current_map, DUNGEON_TYPE_CAVE, 1, random_int32(gbl_game->random), true);
     }
 
     coord_t c = cd_create(0,0);

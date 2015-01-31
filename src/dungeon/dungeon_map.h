@@ -65,7 +65,7 @@ bool dm_free_map(struct dm_map *map);
 bool dm_verify_map(struct dm_map *map);
 
 bool dm_print_map(struct dm_map *map);
-bool dm_generate_map(struct dm_map *map, enum dm_dungeon_type type, int level, unsigned long seed);
+bool dm_generate_map(struct dm_map *map, enum dm_dungeon_type type, int level, unsigned long seed, bool populate);
 bool dm_tile_instance(struct dm_map *map, enum tile_types tt, int instance, coord_t *pos);
 bool dm_clear_map_visibility(struct dm_map *map, coord_t *start, coord_t *end);
 bool dm_clear_map(struct dm_map *map);

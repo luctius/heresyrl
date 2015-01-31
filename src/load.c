@@ -552,7 +552,7 @@ static bool load_map(lua_State *L, struct dm_map **m, int mapid) {
         *m = dm_alloc_map(x_sz, y_sz);
         if (*m != NULL) {
             struct dm_map *map = *m;
-            dm_generate_map(map, type, threat, seed);
+            dm_generate_map(map, type, threat, seed, false);
             dm_clear_map(map);
 
             for (int i = 0; i < map_sz; i++) {
@@ -591,6 +591,7 @@ bool ld_read_save_file(const char *path, struct gm_game *g) {
     if (path == NULL) return false;
     if (g == NULL) return false;
 
+    lg_debug("loading game from %s", path);
     lua_State *L = conf_open(path);
     
     if (L != NULL) {

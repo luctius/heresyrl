@@ -86,6 +86,8 @@ static bool sv_save_monsters(FILE *file, int indent) {
     fprintf(file, "%*s" "monsters={\n", indent, ""); { indent += 2;
         struct msr_monster *m = NULL;
         while ( (m = msrlst_get_next_monster(m) ) != NULL) {
+            if (m->dead) continue;
+
             fprintf(file,"%*s" "{uid=%d,", indent, "", m->uid);
             fprintf(file,"template_id=%d,", m->template_id);
             fprintf(file,"race=%d,", m->race);
@@ -299,6 +301,7 @@ bool sv_save_game(const char *filename, struct gm_game *gm) {
     if (gm == NULL) return false;
     int indent = 0;
 
+    lg_debug("saving game to %s", filename);
     FILE *file = fopen(filename, "w");
     fprintf(file, "%*s" "game={\n", indent, ""); { indent += 2;
         fprintf(file, "%*s" "version=\"%s\",\n", indent, "", VERSION);
