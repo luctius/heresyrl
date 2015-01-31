@@ -1457,7 +1457,9 @@ void log_window(void) {
     wrefresh(msg_win->win);
 
     show_log(map_win, true);
-    show_msg(msg_win); /* refresh log messages at log exit*/
+
+    /* refresh log messages at log exit*/
+    show_msg(msg_win);
 }
 
 void levelup_selection_window(void) {
