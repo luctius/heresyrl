@@ -748,7 +748,8 @@ void charwin_refresh() {
                 if (wpn_is_type(item, WEAPON_TYPE_MELEE) ) add += msr_calculate_characteristic_bonus(player, MSR_CHAR_STRENGTH);
                 char sign = ' ';
                 if (add > 0) sign = '+';
-                ui_printf(char_win, "%c%d,%d", sign, add, wpn->penetration);
+                ui_printf(char_win, "%c%d", sign, add);
+                if (wpn->penetration > 0) ui_printf(char_win, ", pen %d", wpn->penetration);
 
                 if (wpn->weapon_type == WEAPON_TYPE_RANGED) {
                     if (wpn->jammed == false) {
@@ -759,12 +760,15 @@ void charwin_refresh() {
                     int single = wpn->rof[WEAPON_ROF_SETTING_SINGLE];
                     int semi = wpn->rof[WEAPON_ROF_SETTING_SEMI];
                     int aut = wpn->rof[WEAPON_ROF_SETTING_AUTO];
-                    const char *set = (wpn->rof_set == WEAPON_ROF_SETTING_SINGLE) ? "single": 
-                                (wpn->rof_set == WEAPON_ROF_SETTING_SEMI) ? "semi": "auto";
-                    char semi_str[4]; snprintf(semi_str, 3, "%d", semi);
-                    char auto_str[4]; snprintf(auto_str, 3, "%d", aut);
-                    ui_printf(char_win, " " cs_ATTR "Setting:" cs_ATTR " %s (%s/%s/%s)\n", set, 
-                            (single > 0) ? "S" : "-", (semi > 0) ? semi_str : "-", (aut > 0) ? auto_str : "-");
+
+                    if (semi > 0 || aut > 0) {
+                        const char *set = (wpn->rof_set == WEAPON_ROF_SETTING_SINGLE) ? "single": 
+                                    (wpn->rof_set == WEAPON_ROF_SETTING_SEMI) ? "semi": "auto";
+                        char semi_str[4]; snprintf(semi_str, 3, "%d", semi);
+                        char auto_str[4]; snprintf(auto_str, 3, "%d", aut);
+                        ui_printf(char_win, " " cs_ATTR "Setting:" cs_ATTR " %s (%s/%s/%s)\n", set, 
+                                (single > 0) ? "S" : "-", (semi > 0) ? semi_str : "-", (aut > 0) ? auto_str : "-");
+                    }
                 }
                 else ui_printf(char_win, "\n");
             }
@@ -885,10 +889,13 @@ void invwin_examine(struct hrl_window *window, struct itm_item *item) {
                 int single = wpn->rof[WEAPON_ROF_SETTING_SINGLE];
                 int semi = wpn->rof[WEAPON_ROF_SETTING_SEMI];
                 int aut = wpn->rof[WEAPON_ROF_SETTING_AUTO];
-                char semi_str[4]; snprintf(semi_str, 3, "%d", semi);
-                char auto_str[4]; snprintf(auto_str, 3, "%d", aut);
-                ui_printf(char_win, "- Rate of Fire (%s/%s/%s)\n", 
-                        (single > 0) ? "S" : "-", (semi > 0) ? semi_str : "-", (aut > 0) ? auto_str : "-");
+
+                if (semi > 0 || aut > 0) {
+                    char semi_str[4]; snprintf(semi_str, 3, "%d", semi);
+                    char auto_str[4]; snprintf(auto_str, 3, "%d", aut);
+                    ui_printf(char_win, "- Rate of Fire (%s/%s/%s)\n", 
+                            (single > 0) ? "S" : "-", (semi > 0) ? semi_str : "-", (aut > 0) ? auto_str : "-");
+                }
 
                 ui_printf(char_win, "\n");
                 if (wpn->magazine_left == 0) {
@@ -1482,11 +1489,11 @@ void show_help(struct hrl_window *window, bool input) {
     ui_printf(&pad, "\n");
 
     /* <Do not touch this evil magic....> */
-    ui_printf(&pad, cs_ATTR "       7  8  9           y  k  u" cs_ATTR "\n");
-    ui_printf(&pad, "        \\ | /             \\ | /\n");
-    ui_printf(&pad, "      " cs_ATTR "4" cs_ATTR " - 5 - " cs_ATTR "6" cs_ATTR "         " cs_ATTR "h" cs_ATTR " - . - " cs_ATTR "l" cs_ATTR "\n");
-    ui_printf(&pad, "        / | \\             / | \\\n");
-    ui_printf(&pad, cs_ATTR "       1  2  3           b  j  n" cs_ATTR "\n");
+    ui_printf(&pad, cs_ATTR "         7  8  9           y  k  u" cs_ATTR "\n");
+    ui_printf(&pad, "          \\ | /             \\ | /\n");
+    ui_printf(&pad, "        " cs_ATTR "4" cs_ATTR " - 5 - " cs_ATTR "6" cs_ATTR "         " cs_ATTR "h" cs_ATTR " - . - " cs_ATTR "l" cs_ATTR "\n");
+    ui_printf(&pad, "          / | \\             / | \\\n");
+    ui_printf(&pad, cs_ATTR "         1  2  3           b  j  n" cs_ATTR "\n");
     ui_printf(&pad, "\n");
     /* </Do not touch this evil magic....> */
 
