@@ -23,8 +23,8 @@ Dependencies:
 * Autotools
 * A C compiler (gcc or clang)
 
-run:
-'autoreconf -fim'
-'./configure'
-'make'
-'./heresyrl'
+run: 
+'autoreconf -fim'  
+'./configure'  
+'make'  
+'./heresyrl'  
