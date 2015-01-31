@@ -1251,11 +1251,12 @@ Basic weapon traning SP     ...                  |
             case INP_KEY_DOWN_RIGHT: line -= 20; break;
             case INP_KEY_UP:         line--; break;
             case INP_KEY_DOWN:       line++; break;
+
+            case INP_KEY_CHARACTER:
             case INP_KEY_ESCAPE:
             case INP_KEY_QUIT:
             case INP_KEY_NO:
             case INP_KEY_YES: watch = false; break;
-            case INP_KEY_CHARACTER: System_msg("Not Yet Implemented(tm).");
             default: break;
         }
 
@@ -1365,6 +1366,8 @@ void show_log(struct hrl_window *window, bool input) {
                 case INP_KEY_DOWN_RIGHT: line -= 20; break;
                 case INP_KEY_UP:         line--; break;
                 case INP_KEY_DOWN:       line++; break;
+
+                case INP_KEY_LOG:
                 case INP_KEY_ESCAPE:
                 case INP_KEY_QUIT:
                 case INP_KEY_NO:
@@ -1493,11 +1496,11 @@ void show_help(struct hrl_window *window, bool input) {
     ui_printf(&pad, "\n");
 
     /* <Do not touch this evil magic....> */
-    ui_printf(&pad, cs_ATTR "         7  8  9           y  k  u" cs_ATTR "\n");
-    ui_printf(&pad, "          \\ | /             \\ | /\n");
+    ui_printf(&pad, cs_ATTR                "         7  8  9           y  k  u" cs_ATTR "\n");
+    ui_printf(&pad,                      "          \\ | /             \\ | /    \n");
     ui_printf(&pad, "        " cs_ATTR "4" cs_ATTR " - 5 - " cs_ATTR "6" cs_ATTR "         " cs_ATTR "h" cs_ATTR " - . - " cs_ATTR "l" cs_ATTR "\n");
-    ui_printf(&pad, "          / | \\             / | \\\n");
-    ui_printf(&pad, cs_ATTR "         1  2  3           b  j  n" cs_ATTR "\n");
+    ui_printf(&pad,                       "          / | \\             / | \\   \n");
+    ui_printf(&pad, cs_ATTR                "         1  2  3           b  j  n" cs_ATTR "\n");
     ui_printf(&pad, "\n");
     /* </Do not touch this evil magic....> */
 
@@ -1546,6 +1549,8 @@ void show_help(struct hrl_window *window, bool input) {
                 case INP_KEY_DOWN_RIGHT: line -= 20; break;
                 case INP_KEY_UP:         line--; break;
                 case INP_KEY_DOWN:       line++; break;
+
+                case INP_KEY_HELP:
                 case INP_KEY_ESCAPE:
                 case INP_KEY_QUIT:
                 case INP_KEY_NO:
