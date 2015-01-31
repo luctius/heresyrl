@@ -699,9 +699,9 @@ void charwin_refresh() {
 
     struct msr_monster *player = plr->player;
 
-    ui_printf(char_win, "Name      %s\n", player->unique_name);
-    ui_printf(char_win, "Career    %s\n", plr->career->title);
-    ui_printf(char_win, "Turn      %d.%d\n", gbl_game->turn / TT_ENERGY_TURN, gbl_game->turn % TT_ENERGY_TURN);
+    ui_printf(char_win, cs_ATTR "Name"   cs_ATTR "      %s\n", player->unique_name);
+    ui_printf(char_win, cs_ATTR "Career" cs_ATTR "    %s\n", plr->career->title);
+    ui_printf(char_win, cs_ATTR "Turn"   cs_ATTR "      %d.%d\n", gbl_game->turn / TT_ENERGY_TURN, gbl_game->turn % TT_ENERGY_TURN);
     ui_printf(char_win, "\n");
 
     int ws, bs, str, tgh, agi, intel, per, wil/*, fel*/;
@@ -714,15 +714,15 @@ void charwin_refresh() {
     per = msr_calculate_characteristic(player, MSR_CHAR_PERCEPTION);
     wil = msr_calculate_characteristic(player, MSR_CHAR_WILLPOWER);
 
-    ui_printf(char_win, "WS   %d   BS   %d\n", ws,bs);
-    ui_printf(char_win, "Str  %d   Tgh  %d\n", str, tgh);
-    ui_printf(char_win, "Agi  %d   Int  %d\n", agi, intel);
-    ui_printf(char_win, "Per  %d   Wil  %d\n", per, wil);
+    ui_printf(char_win, cs_ATTR "WS"  cs_ATTR "   %d   " cs_ATTR "BS"  cs_ATTR "   %d\n", ws, bs);
+    ui_printf(char_win, cs_ATTR "Str" cs_ATTR  "  %d   " cs_ATTR "Tgh" cs_ATTR  "  %d\n", str, tgh);
+    ui_printf(char_win, cs_ATTR "Agi" cs_ATTR  "  %d   " cs_ATTR "Int" cs_ATTR  "  %d\n", agi, intel);
+    ui_printf(char_win, cs_ATTR "Per" cs_ATTR  "  %d   " cs_ATTR "Wil" cs_ATTR  "  %d\n", per, wil);
 
     ui_printf(char_win, "\n");
 
-    ui_printf(char_win, "Wounds    [%2d/%2d]\n", player->cur_wounds, player->max_wounds);
-    ui_printf(char_win, "Armour [%d][%d][%d][%d][%d][%d]\n", 
+    ui_printf(char_win, cs_ATTR "Wounds" cs_ATTR "    [%2d/%2d]\n", player->cur_wounds, player->max_wounds);
+    ui_printf(char_win, cs_ATTR "Armour" cs_ATTR " [%d][%d][%d][%d][%d][%d]\n", 
                                             msr_calculate_armour(player, MSR_HITLOC_HEAD),
                                             msr_calculate_armour(player, MSR_HITLOC_BODY),
                                             msr_calculate_armour(player, MSR_HITLOC_LEFT_ARM),
@@ -740,9 +740,9 @@ void charwin_refresh() {
         if ( (item = inv_get_item_from_location(player->inventory, loc) ) != NULL) {
             if (item->item_type == ITEM_TYPE_WEAPON) {
                 struct item_weapon_specific *wpn = &item->specific.weapon;
-                ui_printf(char_win, "%s Wpn: %s\n", (i==0) ? "Main" : "Sec.", item->sd_name);
+                ui_printf(char_win, cs_ATTR "%s Wpn:" cs_ATTR " %s\n", (i==0) ? "Main" : "Sec.", item->sd_name);
                 if (wpn->nr_dmg_die == 0) ui_printf(char_win, " Dmg 1D5");
-                else ui_printf(char_win, " Dmg %dD10", wpn->nr_dmg_die);
+                else ui_printf(char_win, cs_ATTR " Dmg" cs_ATTR " %dD10", wpn->nr_dmg_die);
                 int add = wpn->dmg_addition;
                 if (wpn_is_type(item, WEAPON_TYPE_MELEE) ) add += msr_calculate_characteristic_bonus(player, MSR_CHAR_STRENGTH);
                 char sign = ' ';
@@ -751,18 +751,18 @@ void charwin_refresh() {
 
                 if (wpn->weapon_type == WEAPON_TYPE_RANGED) {
                     if (wpn->jammed == false) {
-                        ui_printf(char_win, "  Ammo %d/%d\n", wpn->magazine_left, wpn->magazine_sz);
+                        ui_printf(char_win, "  " cs_ATTR "Ammo" cs_ATTR " %d/%d\n", wpn->magazine_left, wpn->magazine_sz);
                     } 
-                    else ui_printf(char_win, "  jammed\n");
+                    else ui_printf(char_win, "  " cs_ATTR "jammed" cs_ATTR "\n");
 
                     int single = wpn->rof[WEAPON_ROF_SETTING_SINGLE];
                     int semi = wpn->rof[WEAPON_ROF_SETTING_SEMI];
                     int aut = wpn->rof[WEAPON_ROF_SETTING_AUTO];
-                    const char *set = (wpn->rof_set == WEAPON_ROF_SETTING_SINGLE) ? "single" : 
+                    const char *set = (wpn->rof_set == WEAPON_ROF_SETTING_SINGLE) ? "single": 
                                 (wpn->rof_set == WEAPON_ROF_SETTING_SEMI) ? "semi": "auto";
                     char semi_str[4]; snprintf(semi_str, 3, "%d", semi);
                     char auto_str[4]; snprintf(auto_str, 3, "%d", aut);
-                    ui_printf(char_win, " Setting: %s (%s/%s/%s)\n", set, 
+                    ui_printf(char_win, " " cs_ATTR "Setting:" cs_ATTR " %s (%s/%s/%s)\n", set, 
                             (single > 0) ? "S" : "-", (semi > 0) ? semi_str : "-", (aut > 0) ? auto_str : "-");
                 }
                 else ui_printf(char_win, "\n");
@@ -775,17 +775,17 @@ void charwin_refresh() {
          ( (item = inv_get_item_from_location(player->inventory, INV_LOC_OFFHAND_WIELD) ) != NULL) ) {
         switch (player->wpn_sel) {
             case MSR_WEAPON_SELECT_OFF_HAND:
-                ui_printf(char_win, "Using off-hand.\n");
+                ui_printf(char_win, cs_ATTR "Using off-hand." cs_ATTR "\n");
                 break;
             case MSR_WEAPON_SELECT_MAIN_HAND:
-                ui_printf(char_win, "Using main-hand.\n");
+                ui_printf(char_win, cs_ATTR "Using main-hand." cs_ATTR "\n");
                 break;
             case MSR_WEAPON_SELECT_BOTH_HAND:
             case MSR_WEAPON_SELECT_DUAL_HAND:
-                ui_printf(char_win, "Using both hands.\n");
+                ui_printf(char_win, cs_ATTR "Using both hands." cs_ATTR "\n");
                 break;
             case MSR_WEAPON_SELECT_CREATURE1:
-                ui_printf(char_win, "Unarmed.\n");
+                ui_printf(char_win, cs_ATTR "Unarmed." cs_ATTR "\n");
             default: break;
         }
     }
@@ -1125,30 +1125,30 @@ Basic weapon traning SP     ...                  |
     /* General Stats */
 
     ui_print_reset(&pad);
-    ui_printf(&pad, "Name:          %-20s\n", mon->unique_name);
-    ui_printf(&pad, "Gender         %-20s\n", msr_gender_string(mon) );
-    ui_printf(&pad, "Career         %-20s\n", plr->career->title);
+    ui_printf(&pad, cs_ATTR "Name:" cs_ATTR "          %-20s\n", mon->unique_name);
+    ui_printf(&pad, cs_ATTR "Gender:" cs_ATTR "        %-20s\n", msr_gender_string(mon) );
+    ui_printf(&pad, cs_ATTR "Career:" cs_ATTR "        %-20s\n", plr->career->title);
 
-    ui_printf(&pad, "Wounds:        %d/%d\n", mon->cur_wounds, mon->max_wounds);
-    ui_printf(&pad, "Fatique:       %d\n", mon->fatique);
-    ui_printf(&pad, "XP:            %d\n", plr->xp_current);
+    ui_printf(&pad, cs_ATTR "Wounds:" cs_ATTR "        %d/%d\n", mon->cur_wounds, mon->max_wounds);
+    ui_printf(&pad, cs_ATTR "Fatique:" cs_ATTR "       %d\n", mon->fatique);
+    ui_printf(&pad, cs_ATTR "XP:" cs_ATTR "            %d\n", plr->xp_current);
 
-    ui_printf(&pad, "Corruption:    %d\n", mon->corruption_points);
-    ui_printf(&pad, "Spend:         %d\n", plr->xp_spend);
+    ui_printf(&pad, cs_ATTR "Corruption:" cs_ATTR "    %d\n", mon->corruption_points);
+    ui_printf(&pad, cs_ATTR "Spend:" cs_ATTR "         %d\n", plr->xp_spend);
 
     ui_printf(&pad, "\n");
     ui_printf(&pad, "\n");
-    ui_printf(&pad, "WS   %-2d      BS   %-2d\n", msr_calculate_characteristic(mon, MSR_CHAR_WEAPON_SKILL),msr_calculate_characteristic(mon, MSR_CHAR_BALISTIC_SKILL) );
-    ui_printf(&pad, "Str  %-2d      Tgh  %-2d\n", msr_calculate_characteristic(mon, MSR_CHAR_STRENGTH),    msr_calculate_characteristic(mon, MSR_CHAR_TOUGHNESS) );
-    ui_printf(&pad, "Agi  %-2d      Int  %-2d\n", msr_calculate_characteristic(mon, MSR_CHAR_AGILITY),     msr_calculate_characteristic(mon, MSR_CHAR_INTELLIGENCE) );
-    ui_printf(&pad, "Per  %-2d      Wil  %-2d\n", msr_calculate_characteristic(mon, MSR_CHAR_PERCEPTION),  msr_calculate_characteristic(mon, MSR_CHAR_WILLPOWER) );
+    ui_printf(&pad, cs_ATTR "WS" cs_ATTR "   %-2d      " cs_ATTR "BS" cs_ATTR "   %-2d\n", msr_calculate_characteristic(mon, MSR_CHAR_WEAPON_SKILL),msr_calculate_characteristic(mon, MSR_CHAR_BALISTIC_SKILL) );
+    ui_printf(&pad, cs_ATTR "Str" cs_ATTR "  %-2d      " cs_ATTR "Tgh" cs_ATTR "  %-2d\n", msr_calculate_characteristic(mon, MSR_CHAR_STRENGTH),    msr_calculate_characteristic(mon, MSR_CHAR_TOUGHNESS) );
+    ui_printf(&pad, cs_ATTR "Agi" cs_ATTR "  %-2d      " cs_ATTR "Int" cs_ATTR "  %-2d\n", msr_calculate_characteristic(mon, MSR_CHAR_AGILITY),     msr_calculate_characteristic(mon, MSR_CHAR_INTELLIGENCE) );
+    ui_printf(&pad, cs_ATTR "Per" cs_ATTR "  %-2d      " cs_ATTR "Wil" cs_ATTR "  %-2d\n", msr_calculate_characteristic(mon, MSR_CHAR_PERCEPTION),  msr_calculate_characteristic(mon, MSR_CHAR_WILLPOWER) );
     ui_printf(&pad, "\n");
     ui_printf(&pad, "\n");
 
 
     /* Armour  */
-    ui_printf(&pad, "Armour            Protection   Locations\n");
-    ui_printf(&pad, "------            ----------   ---------\n");
+    ui_printf(&pad, cs_ATTR "Armour            Protection   Locations" cs_ATTR "\n");
+    ui_printf(&pad, cs_ATTR "------            ----------   ---------" cs_ATTR "\n");
 
     /* Armour */
     struct itm_item *item = NULL;
@@ -1179,8 +1179,8 @@ Basic weapon traning SP     ...                  |
     ui_printf(&pad, "\n");
 
     /* Skills */
-    ui_printf(&pad, "Skills\n");
-    ui_printf(&pad, "------\n");
+    ui_printf(&pad, cs_ATTR "Skills" cs_ATTR "\n");
+    ui_printf(&pad, cs_ATTR "------" cs_ATTR "\n");
 
     for (unsigned int i = 0; i < MSR_SKILLS_MAX; i++) {
         if (msr_has_skill(mon, i) ) {
@@ -1195,8 +1195,8 @@ Basic weapon traning SP     ...                  |
     ui_printf(&pad, "\n");
 
     /* Talents */
-    ui_printf(&pad, "Talents\n");
-    ui_printf(&pad, "-------\n");
+    ui_printf(&pad, cs_ATTR "Talents" cs_ATTR "\n");
+    ui_printf(&pad, cs_ATTR "-------" cs_ATTR "\n");
 
     for (unsigned int i = 1; i < TLT_MAX; i++) {
         if (msr_has_talent(mon, i) ) {
@@ -1208,8 +1208,8 @@ Basic weapon traning SP     ...                  |
 
 
     /* Status Effects */
-    ui_printf(&pad, "Status Effects\n");
-    ui_printf(&pad, "----------\n");
+    ui_printf(&pad, cs_ATTR "Status Effects" cs_ATTR "\n");
+    ui_printf(&pad, cs_ATTR "----------" cs_ATTR "\n");
 
     struct status_effect *c = NULL;
     while ( (c = se_list_get_next_status_effect(mon->status_effects, c) ) != NULL) {
