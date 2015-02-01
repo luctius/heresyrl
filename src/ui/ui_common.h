@@ -23,7 +23,7 @@
 #define MSG_LINES_FACTOR 0.10f
 
 #define CHAR_MIN_COLS 31
-#define CHAR_MAX_COLS 50
+#define CHAR_MAX_COLS 40
 #define CHAR_COLS_FACTOR 0.05f
 
 #define CHAR_MIN_LINES 30
@@ -31,6 +31,7 @@
 #define CHAR_LINES_FACTOR 1.00f
 
 enum window_type {
+    HRL_WINDOW_TYPE_MAIN,
     HRL_WINDOW_TYPE_MAP,
     HRL_WINDOW_TYPE_CHARACTER,
     HRL_WINDOW_TYPE_MESSAGE,
@@ -45,18 +46,11 @@ struct hrl_window {
     int x;
     enum window_type type;
 
-    char *text;
-    int text_sz;
-    int text_idx;
-    int text_sx;
-    int text_sy;
-    int text_ex;
-    int text_ey;
-
     int text_x;
     int text_y;
 };
 
+extern struct hrl_window *main_win;
 extern struct hrl_window *map_win;
 extern struct hrl_window *char_win;
 extern struct hrl_window *msg_win;

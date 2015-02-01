@@ -5,6 +5,7 @@
 #include "ui_common.h"
 #include "options.h"
 
+struct hrl_window *main_win = NULL;
 struct hrl_window *map_win = NULL;
 struct hrl_window *char_win = NULL;
 struct hrl_window *msg_win = NULL;
@@ -140,10 +141,6 @@ struct hrl_window *win_create(int height, int width, int starty, int startx, enu
         clear();
         refresh();
 
-        retval->text = NULL;
-        retval->text_sz = 0;
-        retval->text_idx = 0;
-
         retval->text_x = 0;
         retval->text_y = 0;
 
@@ -161,7 +158,6 @@ struct hrl_window *win_create(int height, int width, int starty, int startx, enu
 
 void win_destroy(struct hrl_window *window) {
     if (window != NULL) {
-        free(window->text);
         wrefresh(window->win);
         delwin(window->win);
         free(window);

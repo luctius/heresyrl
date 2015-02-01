@@ -37,13 +37,15 @@ bool ui_create(int cols, int lines) {
         hdr_lines = lines;
         hdr_cols = cols;
 
-        if ( (lines < 24) || (cols < 40) ) {
+        if ( (lines < 25) || (cols < 80) ) {
             endwin();           /*  End curses mode       */
-            fprintf(stderr, "Terminal is too small, minimum is 40x25, this terminal is %dx%d.\n", cols, lines);
+            fprintf(stderr, "Terminal is too small, minimum is 80x25, this terminal is %dx%d.\n", cols, lines);
             exit(1);
         }
 
         curs_set(0);
+
+
 
         /* Calculate 3 windows sizes */
         int map_cols = cols - CHAR_MIN_COLS;
@@ -74,6 +76,7 @@ bool ui_create(int cols, int lines) {
         if (total_cols > cols) { fprintf(stderr, "Too many cols used!\n"); exit(1); }
 
         if ( (map_win == NULL) || (char_win == NULL) ||(msg_win == NULL)  ) {
+            main_win = win_create(lines - 2, cols - 2, 1, 1, HRL_WINDOW_TYPE_MAIN);
             map_win = win_create(map_lines-2, map_cols-2, 1, 1, HRL_WINDOW_TYPE_MAP);
             char_win = win_create(char_lines, char_cols, 1, map_cols+1, HRL_WINDOW_TYPE_CHARACTER);
             msg_win = win_create(msg_lines, msg_cols-1, map_lines, 1, HRL_WINDOW_TYPE_MESSAGE);
@@ -97,6 +100,7 @@ bool ui_create(int cols, int lines) {
 
 void ui_destroy() {
     lg_set_callback(gbl_log, NULL, NULL);
+    if (main_win != NULL) win_destroy(main_win);
     if (map_win != NULL) win_destroy(map_win);
     if (char_win != NULL) win_destroy(char_win);
     if (msg_win != NULL) win_destroy(msg_win);
@@ -691,7 +695,7 @@ void charwin_refresh() {
     if (options.play_recording) {
         int attr_mod = get_colour(TERM_COLOUR_RED);
         if (has_colors() == TRUE) wattron(char_win->win, attr_mod);
-        ui_printf_ext(char_win, 1,1, "playback x%d", options.play_delay);
+        ui_printf_ext(char_win, 1,1, cs_ATTR "playback x%d" cs_ATTR "\n", options.play_delay);
         if (has_colors() == TRUE) wattroff(char_win->win, attr_mod);
         starty += 2;
     }
@@ -715,15 +719,25 @@ void charwin_refresh() {
     per = msr_calculate_characteristic(player, MSR_CHAR_PERCEPTION);
     wil = msr_calculate_characteristic(player, MSR_CHAR_WILLPOWER);
 
+    /*
     ui_printf(char_win, cs_ATTR "WS"  cs_ATTR "   %d   " cs_ATTR "BS"  cs_ATTR "   %d\n", ws, bs);
     ui_printf(char_win, cs_ATTR "Str" cs_ATTR  "  %d   " cs_ATTR "Tgh" cs_ATTR  "  %d\n", str, tgh);
     ui_printf(char_win, cs_ATTR "Agi" cs_ATTR  "  %d   " cs_ATTR "Int" cs_ATTR  "  %d\n", agi, intel);
     ui_printf(char_win, cs_ATTR "Per" cs_ATTR  "  %d   " cs_ATTR "Wil" cs_ATTR  "  %d\n", per, wil);
+    */
+    ui_printf(char_win, cs_ATTR "WS"  cs_ATTR "   %d", ws);
+        ui_printf(char_win, cs_ATTR "  BS"  cs_ATTR "   %d\n", bs);
+    ui_printf(char_win, cs_ATTR "Str" cs_ATTR  "  %d", str);
+        ui_printf(char_win, cs_ATTR "  Tgh" cs_ATTR  "  %d\n", tgh);
+    ui_printf(char_win, cs_ATTR "Agi" cs_ATTR  "  %d", agi);
+        ui_printf(char_win, cs_ATTR "  Int" cs_ATTR  "  %d\n", intel);
+    ui_printf(char_win, cs_ATTR "Per" cs_ATTR  "  %d", per);
+        ui_printf(char_win, cs_ATTR "  Wil" cs_ATTR  "  %d\n", wil);
 
     ui_printf(char_win, "\n");
 
     ui_printf(char_win, cs_ATTR "Wounds" cs_ATTR "    [%2d/%2d]\n", player->cur_wounds, player->max_wounds);
-    ui_printf(char_win, cs_ATTR "Armour" cs_ATTR " [%d][%d][%d][%d][%d][%d]\n", 
+    ui_printf(char_win, cs_ATTR "Armour" cs_ATTR);  ui_printf(char_win, " [%d][%d][%d][%d][%d][%d]\n", 
                                             msr_calculate_armour(player, MSR_HITLOC_HEAD),
                                             msr_calculate_armour(player, MSR_HITLOC_BODY),
                                             msr_calculate_armour(player, MSR_HITLOC_LEFT_ARM),
@@ -1097,13 +1111,15 @@ void character_window(void) {
     struct pl_player *plr = &gbl_game->player_data;
     struct msr_monster *mon = plr->player;
 
+    struct hrl_window *window = main_win;
     struct hrl_window pad;
-    memmove(&pad, map_win, sizeof(struct hrl_window) );
-    pad.win = newpad(map_win->lines * 10, map_win->cols);
+    memmove(&pad, window, sizeof(struct hrl_window) );
+    pad.lines -= 4;
+    pad.win = newpad(pad.lines, pad.cols);
     assert(pad.win != NULL);
 
-    wclear(map_win->win);
-    werase(map_win->win);
+    wclear(window->win);
+    werase(window->win);
 
     touchwin(pad.win);
     werase(pad.win);
@@ -1152,10 +1168,15 @@ Basic weapon traning SP     ...                  |
 
     ui_printf(&pad, "\n");
     ui_printf(&pad, "\n");
-    ui_printf(&pad, cs_ATTR "WS" cs_ATTR "   %-2d      " cs_ATTR "BS" cs_ATTR "   %-2d\n", msr_calculate_characteristic(mon, MSR_CHAR_WEAPON_SKILL),msr_calculate_characteristic(mon, MSR_CHAR_BALISTIC_SKILL) );
-    ui_printf(&pad, cs_ATTR "Str" cs_ATTR "  %-2d      " cs_ATTR "Tgh" cs_ATTR "  %-2d\n", msr_calculate_characteristic(mon, MSR_CHAR_STRENGTH),    msr_calculate_characteristic(mon, MSR_CHAR_TOUGHNESS) );
-    ui_printf(&pad, cs_ATTR "Agi" cs_ATTR "  %-2d      " cs_ATTR "Int" cs_ATTR "  %-2d\n", msr_calculate_characteristic(mon, MSR_CHAR_AGILITY),     msr_calculate_characteristic(mon, MSR_CHAR_INTELLIGENCE) );
-    ui_printf(&pad, cs_ATTR "Per" cs_ATTR "  %-2d      " cs_ATTR "Wil" cs_ATTR "  %-2d\n", msr_calculate_characteristic(mon, MSR_CHAR_PERCEPTION),  msr_calculate_characteristic(mon, MSR_CHAR_WILLPOWER) );
+    ui_printf(&pad, cs_ATTR "WS" cs_ATTR "   %-2d", msr_calculate_characteristic(mon, MSR_CHAR_WEAPON_SKILL) );
+        ui_printf(&pad, "   BS" cs_ATTR "    %-2d\n", msr_calculate_characteristic(mon, MSR_CHAR_BALISTIC_SKILL) );
+    ui_printf(&pad, cs_ATTR "Str" cs_ATTR "  %-2d", msr_calculate_characteristic(mon, MSR_CHAR_STRENGTH) );
+        ui_printf(&pad, "   Tgh" cs_ATTR "   %-2d\n", msr_calculate_characteristic(mon, MSR_CHAR_TOUGHNESS) );
+    ui_printf(&pad, cs_ATTR "Agi" cs_ATTR "  %-2d", msr_calculate_characteristic(mon, MSR_CHAR_AGILITY) );
+        ui_printf(&pad, "   Int" cs_ATTR "   %-2d\n", msr_calculate_characteristic(mon, MSR_CHAR_INTELLIGENCE) );
+    ui_printf(&pad, cs_ATTR "Per" cs_ATTR "  %-2d", msr_calculate_characteristic(mon, MSR_CHAR_PERCEPTION) );
+        ui_printf(&pad, "   Wil" cs_ATTR "   %-2d\n", msr_calculate_characteristic(mon, MSR_CHAR_WILLPOWER) );
+
     ui_printf(&pad, "\n");
     ui_printf(&pad, "\n");
 
@@ -1176,7 +1197,8 @@ Basic weapon traning SP     ...                  |
                 armour = item->specific.wearable.damage_reduction;
             }
 
-            ui_printf(&pad, "%-30s %5d      ", item->ld_name, armour);
+            ui_printf(&pad, "%-30s", item->ld_name);
+            ui_printf(&pad, "%5d  ", armour);
 
             bool first = true;
             for (enum inv_locations i = 1; i < INV_LOC_MAX; i <<= 1) {
@@ -1207,7 +1229,6 @@ Basic weapon traning SP     ...                  |
     }
     ui_printf(&pad, "\n");
     ui_printf(&pad, "\n");
-
     /* Talents */
     ui_printf(&pad, cs_ATTR "Talents" cs_ATTR "\n");
     ui_printf(&pad, cs_ATTR "-------" cs_ATTR "\n");
@@ -1223,28 +1244,26 @@ Basic weapon traning SP     ...                  |
 
     /* Status Effects */
     ui_printf(&pad, cs_ATTR "Status Effects" cs_ATTR "\n");
-    ui_printf(&pad, cs_ATTR "----------" cs_ATTR "\n");
+    ui_printf(&pad, cs_ATTR "--------------" cs_ATTR "\n");
 
     struct status_effect *c = NULL;
     while ( (c = se_list_get_next_status_effect(mon->status_effects, c) ) != NULL) {
         ui_printf(&pad, "%s %s\n", c->name, c->description);
     }
     ui_printf(&pad, "\n");
+
     y = ui_printf(&pad, "\n");
 
 
-
     /* Controls */
-
     int line = 0;
     bool watch = true;
     while(watch == true) {
-        ui_print_reset(map_win);
-        ui_printf_ext(map_win, map_win->lines -2, 1, cs_ATTR " [q]" cs_ATTR " exit, " cs_ATTR "    [@]" cs_ATTR " spend XP.");
-        ui_printf_ext(map_win, map_win->lines -1, 1, cs_ATTR "[up]" cs_ATTR " up,  " cs_ATTR "  [down]" cs_ATTR " down.");
-        wrefresh(map_win->win);
-        prefresh(pad.win, line,0,1,1,pad.lines-3,pad.cols);
-
+        ui_print_reset(window);
+        ui_printf_ext(window, window->lines -3, 1, cs_ATTR " [q]" cs_ATTR " exit. " cs_ATTR);
+        ui_printf_ext(window, window->lines -2, 1, cs_ATTR "[up]" cs_ATTR " up,  " cs_ATTR "  [down]" cs_ATTR " down.");
+        wrefresh(window->win);
+        prefresh(pad.win, line,0,pad.y,pad.x, pad.y + pad.lines -4, pad.x + pad.cols);
 
         switch (inp_get_input(gbl_game->input) ) {
             case INP_KEY_UP_RIGHT:   line += 20; break;
@@ -1265,6 +1284,9 @@ Basic weapon traning SP     ...                  |
     }
 
     delwin(pad.win);
+    wclear(window->win);
+    werase(window->win);
+    wrefresh(window->win);
 }
 
 void show_log(struct hrl_window *window, bool input) {
@@ -1463,9 +1485,6 @@ void log_window(void) {
 }
 
 void levelup_selection_window(void) {
-/*
-
-*/
 }
 
 void show_help(struct hrl_window *window, bool input) {
@@ -1541,8 +1560,8 @@ void show_help(struct hrl_window *window, bool input) {
         int line = 0;
         bool watch = true;
         while(watch == true) {
-            ui_printf_ext(window, window->lines -2, 1, cs_ATTR " [q]" cs_ATTR " exit.");
-            ui_printf_ext(window, window->lines -1, 1, cs_ATTR "[up]" cs_ATTR " up,  " cs_ATTR "[down]" cs_ATTR " down.");
+            ui_printf_ext(window, window->lines -3, 1, cs_ATTR " [q]" cs_ATTR " exit.");
+            ui_printf_ext(window, window->lines -2, 1, cs_ATTR "[up]" cs_ATTR " up,  " cs_ATTR "[down]" cs_ATTR " down.");
             wrefresh(window->win);
             prefresh(pad.win, line,0,pad.y,pad.x, pad.y + pad.lines -4, pad.x + pad.cols);
 
@@ -1567,9 +1586,14 @@ void show_help(struct hrl_window *window, bool input) {
     else prefresh(pad.win, 0,0, pad.y, pad.x, pad.y + pad.lines -1, pad.x + pad.cols);
 
     delwin(pad.win);
+
+    wclear(window->win);
+    werase(window->win);
+    wrefresh(window->win);
 }
 
 void help_window(void) {
-    show_help(map_win, true);
+    //show_help(map_win, true);
+    show_help(main_win, true);
 }
 
