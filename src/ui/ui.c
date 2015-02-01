@@ -37,9 +37,9 @@ bool ui_create(int cols, int lines) {
         hdr_lines = lines;
         hdr_cols = cols;
 
-        if ( (lines < 25) || (cols < 80) ) {
+        if ( (lines < 25) || (cols < 60) ) {
             endwin();           /*  End curses mode       */
-            fprintf(stderr, "Terminal is too small, minimum is 80x25, this terminal is %dx%d.\n", cols, lines);
+            fprintf(stderr, "Terminal is too small, minimum is 60x25, this terminal is %dx%d.\n", cols, lines);
             exit(1);
         }
 
@@ -1263,7 +1263,7 @@ Basic weapon traning SP     ...                  |
         ui_printf_ext(window, window->lines -3, 1, cs_ATTR " [q]" cs_ATTR " exit. " cs_ATTR);
         ui_printf_ext(window, window->lines -2, 1, cs_ATTR "[up]" cs_ATTR " up,  " cs_ATTR "  [down]" cs_ATTR " down.");
         wrefresh(window->win);
-        prefresh(pad.win, line,0,pad.y,pad.x, pad.y + pad.lines -4, pad.x + pad.cols);
+        prefresh(pad.win, line,0,pad.y,pad.x, pad.y + pad.lines -5, pad.x + pad.cols);
 
         switch (inp_get_input(gbl_game->input) ) {
             case INP_KEY_UP_RIGHT:   line += 20; break;
@@ -1378,10 +1378,10 @@ void show_log(struct hrl_window *window, bool input) {
         bool watch = true;
         while(watch == true) {
             ui_print_reset(window);
-            ui_printf_ext(window, window->lines -2, 1, cs_ATTR " [q]" cs_ATTR " exit.");
-            ui_printf_ext(window, window->lines -1, 1, cs_ATTR "[up]" cs_ATTR " up,  " cs_ATTR "[down]" cs_ATTR " down.");
+            ui_printf_ext(window, window->lines -3, 1, cs_ATTR " [q]" cs_ATTR " exit.");
+            ui_printf_ext(window, window->lines -2, 1, cs_ATTR "[up]" cs_ATTR " up,  " cs_ATTR "[down]" cs_ATTR " down.");
             wrefresh(window->win);
-            prefresh(pad.win, line,0,pad.y,pad.x, pad.y + pad.lines -4, pad.x + pad.cols);
+            prefresh(pad.win, line,0,pad.y,pad.x, pad.y + pad.lines -5, pad.x + pad.cols);
 
             switch (inp_get_input(gbl_game->input) ) {
                 case INP_KEY_UP_RIGHT:   line += 20; break;
@@ -1474,14 +1474,7 @@ void show_msg(struct hrl_window *window) {
 }
 
 void log_window(void) {
-    /* clear bottom messages to avoid confusion*/
-    wclear(msg_win->win);
-    wrefresh(msg_win->win);
-
-    show_log(map_win, true);
-
-    /* refresh log messages at log exit*/
-    show_msg(msg_win);
+    show_log(main_win, true);
 }
 
 void levelup_selection_window(void) {
@@ -1563,7 +1556,7 @@ void show_help(struct hrl_window *window, bool input) {
             ui_printf_ext(window, window->lines -3, 1, cs_ATTR " [q]" cs_ATTR " exit.");
             ui_printf_ext(window, window->lines -2, 1, cs_ATTR "[up]" cs_ATTR " up,  " cs_ATTR "[down]" cs_ATTR " down.");
             wrefresh(window->win);
-            prefresh(pad.win, line,0,pad.y,pad.x, pad.y + pad.lines -4, pad.x + pad.cols);
+            prefresh(pad.win, line,0,pad.y,pad.x, pad.y + pad.lines -5, pad.x + pad.cols);
 
             switch (inp_get_input(gbl_game->input) ) {
                 case INP_KEY_UP_RIGHT:   line += 20; break;

@@ -83,9 +83,6 @@ int main(int argc, char *argv[]) {
         sigaction( SIGINT,  &setmask, (struct sigaction *) NULL );      /* Interrupt (Ctrl-C) */
 
         while(gbl_game->running == true) {
-            getmaxyx(stdscr, lines, cols);
-            ui_create(cols, lines);
-
             tt_process(gbl_game->current_map);
             if (gbl_game->running) game_new_tick();
 

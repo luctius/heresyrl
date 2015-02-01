@@ -196,6 +196,12 @@ static bool plr_action_loop(struct msr_monster *player) {
 
     lg_debug("plr_action_loop");
     while (gbl_game->running && (has_action == false) ) {
+
+        /* Update screen dimensions if needed*/
+        int lines, cols;
+        getmaxyx(stdscr, lines, cols);
+        ui_create(cols, lines);
+
         mapwin_display_map(map, player_pos);
         charwin_refresh();
 
