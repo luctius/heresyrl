@@ -30,7 +30,8 @@ static bool sv_save_log(FILE *file, int indent, struct logging *lctx) {
 
             for (int i = 0; i < lg_size(lctx) -1; i++) {
                 struct log_entry *le = lg_peek(lctx, i);
-                if (le->level <= LG_DEBUG_LEVEL_GAME_INFO) {
+                if ( (le->level == LG_DEBUG_LEVEL_GAME) ||
+                     (le->level == LG_DEBUG_LEVEL_GAME_INFO) ) {
                     fprintf(file,"%*s" "{", indent, "");
                     fprintf(file, "turn=%d,",       le->turn);
                     fprintf(file, "repeated=%d,",   le->repeat);
