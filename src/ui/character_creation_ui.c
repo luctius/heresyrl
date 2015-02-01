@@ -131,11 +131,7 @@ bool char_creation_window(void) {
 
                 sel_idx = inp_get_input_idx(gbl_game->input);
                 if (sel_idx < (int) MID_MAX) {
-                    ui_print_reset(map_win);
-                    ui_printf(map_win,"%s", static_monster_list[sel_idx+MID_DUMMY+1].description);
-                    wrefresh(map_win->win);
-                    inp_get_input(gbl_game->input);
-                    ui_print_reset(map_win);
+                    charwin_examine("Race", static_monster_list[sel_idx+MID_DUMMY+1].sd_name, static_monster_list[sel_idx+MID_DUMMY+1].description);
                 }
                 sel_idx = -1;
                 break;

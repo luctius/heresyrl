@@ -120,7 +120,7 @@ enum inp_keys inp_get_input_text(struct inp_input *i) {
     enum inp_keys k = INP_KEY_ESCAPE;
 
     if (inp_log_has_keys(i) == false) {
-        while ( (isalpha(k = getch() ) == false) && (k != '\n') && (k != KEY_BACKSPACE) ) {
+        while ( (isalnum(k = getch() ) == false) && (k != ' ') && (k != '\n') && (k != KEY_BACKSPACE) ) {
             /*lg_debug("key %d", k);*/
         }
         inp_add_to_log(i, k);

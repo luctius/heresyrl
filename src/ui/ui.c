@@ -1013,7 +1013,7 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
         }
         ui_printf_ext(map_win, winsz +1, 1, cs_ATTR "[q]" cs_ATTR " exit,   " cs_ATTR "[space]" cs_ATTR " next page.");
         ui_printf_ext(map_win, winsz +2, 1, cs_ATTR "[d]" cs_ATTR " drop,   " cs_ATTR "    [x]" cs_ATTR " examine.");
-        ui_printf_ext(map_win, winsz +3, 1, cs_ATTR "[a]" cs_ATTR " apply,  " cs_ATTR "    [w]" cs_ATTR " wield/wear.");
+        ui_printf_ext(map_win, winsz +3, 1, cs_ATTR "[a]" cs_ATTR " apply,  " cs_ATTR "    [w]" cs_ATTR " wield/wear/remove.");
         wrefresh(map_win->win);
         bool examine = false;
 
@@ -1162,14 +1162,14 @@ Basic weapon traning SP     ...                  |
 
     ui_printf(&pad, "\n");
     ui_printf(&pad, "\n");
-    ui_printf(&pad, cs_ATTR "WS" cs_ATTR "   %-2d", msr_calculate_characteristic(mon, MSR_CHAR_WEAPON_SKILL) );
-        ui_printf(&pad, "   BS" cs_ATTR "    %-2d\n", msr_calculate_characteristic(mon, MSR_CHAR_BALISTIC_SKILL) );
-    ui_printf(&pad, cs_ATTR "Str" cs_ATTR "  %-2d", msr_calculate_characteristic(mon, MSR_CHAR_STRENGTH) );
-        ui_printf(&pad, "   Tgh" cs_ATTR "   %-2d\n", msr_calculate_characteristic(mon, MSR_CHAR_TOUGHNESS) );
-    ui_printf(&pad, cs_ATTR "Agi" cs_ATTR "  %-2d", msr_calculate_characteristic(mon, MSR_CHAR_AGILITY) );
-        ui_printf(&pad, "   Int" cs_ATTR "   %-2d\n", msr_calculate_characteristic(mon, MSR_CHAR_INTELLIGENCE) );
-    ui_printf(&pad, cs_ATTR "Per" cs_ATTR "  %-2d", msr_calculate_characteristic(mon, MSR_CHAR_PERCEPTION) );
-        ui_printf(&pad, "   Wil" cs_ATTR "   %-2d\n", msr_calculate_characteristic(mon, MSR_CHAR_WILLPOWER) );
+    ui_printf(&pad,           cs_ATTR "WS" cs_ATTR "   %-2d", msr_calculate_characteristic(mon, MSR_CHAR_WEAPON_SKILL) );
+        ui_printf(&pad, "   " cs_ATTR "BS" cs_ATTR "    %-2d\n", msr_calculate_characteristic(mon, MSR_CHAR_BALISTIC_SKILL) );
+    ui_printf(&pad,           cs_ATTR "Str" cs_ATTR "  %-2d", msr_calculate_characteristic(mon, MSR_CHAR_STRENGTH) );
+        ui_printf(&pad, "   " cs_ATTR "Tgh" cs_ATTR "   %-2d\n", msr_calculate_characteristic(mon, MSR_CHAR_TOUGHNESS) );
+    ui_printf(&pad,           cs_ATTR "Agi" cs_ATTR "  %-2d", msr_calculate_characteristic(mon, MSR_CHAR_AGILITY) );
+        ui_printf(&pad, "   " cs_ATTR "Int" cs_ATTR "   %-2d\n", msr_calculate_characteristic(mon, MSR_CHAR_INTELLIGENCE) );
+    ui_printf(&pad,           cs_ATTR "Per" cs_ATTR "  %-2d", msr_calculate_characteristic(mon, MSR_CHAR_PERCEPTION) );
+        ui_printf(&pad, "   " cs_ATTR "Wil" cs_ATTR "   %-2d\n", msr_calculate_characteristic(mon, MSR_CHAR_WILLPOWER) );
 
     ui_printf(&pad, "\n");
     ui_printf(&pad, "\n");
@@ -1469,7 +1469,7 @@ void log_window(void) {
     show_log(main_win, true);
 }
 
-static void charwin_examine(const char *type, const char *name, const char *description) {
+void charwin_examine(const char *type, const char *name, const char *description) {
     werase(char_win->win);
     ui_print_reset(char_win);
     
@@ -1489,6 +1489,7 @@ void levelup_selection_window(void) {
     if (career == NULL) return;
     struct msr_monster *player = gbl_game->player_data.player;
     if (msr_verify_monster(player) == false) return;
+    charwin_refresh();
 
     int abs_idx[MSR_CHAR_MAX + MSR_SKILLS_MAX + TLT_MAX];
 
@@ -1532,6 +1533,7 @@ void levelup_selection_window(void) {
                 break;
             case INP_KEY_APPLY: {
                     bool upgrade = false;
+                    charwin_refresh();
 
                     if (gbl_game->player_data.xp_current <= 0) {
                         System_msg(cs_PLAYER "You" cs_PLAYER " do not have enough experience points.");
