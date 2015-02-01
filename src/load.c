@@ -528,6 +528,8 @@ static bool load_monsters(lua_State *L, struct dm_map *map, struct gm_game *g) {
         msr_insert_monster(monster, map, &monster->pos);
         ai_monster_init(monster, leader_uid);
     }
+
+    if (g->player_data.player == NULL) return false;
     return true;
 }
 
@@ -595,19 +597,20 @@ bool ld_read_save_file(const char *path, struct gm_game *g) {
     lua_State *L = conf_open(path);
     
     if (L != NULL) {
-        load_game(L, g);
-        load_input(L, g);
+        if (load_game(L, g) == false) return false;
+        if (load_input(L, g) == false) return false;
 
-        load_log(L, gbl_log);
+        if (load_log(L, gbl_log) == false) return false;
 
         if (options.play_recording == false) {
-            load_player(L, &g->player_data);
-            load_items_list(L);
-            load_status_effect_list(L);
-            load_map(L, &g->current_map, 1);
-            load_monsters(L, g->current_map, g);
+            if (load_player(L, &g->player_data) == false) return false;
+            if (load_items_list(L) == false) return false;
+            if (load_status_effect_list(L) == false) return false;
+            if (load_map(L, &g->current_map, 1) == false) return false;
+            if (load_monsters(L, g->current_map, g) == false) return false;
         }
         lua_close(L);
+
         return true;
     }
     return false;

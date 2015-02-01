@@ -39,12 +39,13 @@ int main(int argc, char *argv[]) {
     opt_parse_options(&args_info);
     cmdline_parser_free(&args_info);
 
+    int debug_lvl = LG_DEBUG_LEVEL_GAME_INFO;
+    int log_size = 100;
     if (options.debug) {
-        gbl_log = lg_init(options.log_file_name, LG_DEBUG_LEVEL_DEBUG, 10000);
+        debug_lvl = LG_DEBUG_LEVEL_DEBUG;
+        log_size = 10000;
     }
-    else {
-        gbl_log = lg_init(options.log_file_name, LG_DEBUG_LEVEL_GAME_INFO, 100);
-    }
+    gbl_log = lg_init(options.log_file_name, debug_lvl, log_size);
 
  	srand(time(NULL));
     game_init(NULL, rand());
@@ -63,10 +64,21 @@ int main(int argc, char *argv[]) {
     keypad(stdscr, TRUE);
 
     bool valid_player = false;
-    if (game_load() && options.play_recording == false) valid_player = true;
+    if (game_load() && options.play_recording == false) {
+        if (gbl_game->player_data.player != NULL) valid_player = true;
+        else {
+            game_exit();
+            lg_exit(gbl_log);
+            gbl_log = lg_init(options.log_file_name, debug_lvl, log_size);
+            game_init(NULL, rand());
+            System_msg("Loading game failed.");
+        }
+    }
+
         /* char creation */
-    else if (char_creation_window() ) valid_player = true;
-    else options.debug_no_save = true;
+    if (valid_player == false) {
+        if (char_creation_window() ) valid_player = true;
+    }
 
     if (valid_player) {
         game_init_map();

@@ -74,7 +74,9 @@ bool game_init_map(void) {
     int y = 100;
     bool new_map = false;
 
-    plr_init(&gbl_game->player_data);
+    if (plr_init(&gbl_game->player_data) == false) {
+        return false;
+    }
 
     if (gbl_game->current_map == NULL) {
         new_map = true;
@@ -122,16 +124,29 @@ bool game_new_tick(void) {
 bool game_exit() {
     if (gbl_game == NULL) return false;
 
+    /* delete save game */
     if (options.debug_no_save == false) {
-        if (sv_save_game(options.save_file_name, gbl_game) == true) {
-            lg_print("Game Saved.");
+        FILE *f = fopen(options.save_file_name, "w");
+        fclose(f);
+    }
+
+    struct pl_player *plr = &gbl_game->player_data;
+    if (plr != NULL) {
+        if (plr->player != NULL) {
+            if (options.debug_no_save == false) {
+                if (plr->player->dead == false) {
+                    if (sv_save_game(options.save_file_name, gbl_game) == true) {
+                        lg_print("Game Saved.");
+                    }
+                }
+            }
+
+            free(plr->player->unique_name);
         }
     }
 
-    if (gbl_game->current_map != NULL) dm_free_map(gbl_game->current_map);
 
-    struct pl_player *plr = &gbl_game->player_data;
-    free(plr->player->unique_name);
+    if (gbl_game->current_map != NULL) dm_free_map(gbl_game->current_map);
 
     /* order is important due to freeing of items*/
     msrlst_monster_list_exit();

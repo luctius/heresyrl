@@ -1626,8 +1626,8 @@ void levelup_selection_window(void) {
 
         lg_debug("skill start: %d, talent start: %d, idx: %d", skill_start, talent_start, idx);
 
-        ui_printf_ext(map_win, map_win->lines - 3, 1, cs_ATTR "[q]" cs_ATTR " exit,  " cs_ATTR "    [?]" cs_ATTR " help.");
-        ui_printf_ext(map_win, map_win->lines - 2, 1, cs_ATTR "[a]" cs_ATTR " apply, " cs_ATTR "    [x]" cs_ATTR " examine.");
+        ui_printf_ext(map_win, map_win->lines - 3, 1, cs_ATTR "[q]" cs_ATTR " exit,    " cs_ATTR "  [?]" cs_ATTR " help.");
+        ui_printf_ext(map_win, map_win->lines - 2, 1, cs_ATTR "[a]" cs_ATTR " acquire, " cs_ATTR "  [x]" cs_ATTR " examine.");
         wrefresh(window->win);
 
     } while((lvl_up_done == false) && (ch = inp_get_input(gbl_game->input) ) != INP_KEY_ESCAPE);

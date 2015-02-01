@@ -105,7 +105,7 @@ void plr_create(struct pl_player *plr, char *name, uint32_t template_id, enum ms
     plr->xp_current = 300;
 }
 
-void plr_init(struct pl_player *plr) {
+bool plr_init(struct pl_player *plr) {
     struct monster_controller mc = {
         .ai = {
             .ai_ctx = plr,
@@ -119,7 +119,9 @@ void plr_init(struct pl_player *plr) {
         plr->player->icon = '@';
         plr->player->icon_attr = get_colour(TERM_COLOUR_WHITE);
         plr->player->faction = 0;
+        return true;
     }
+    return false;
 }
 
 struct pf_context *plr_map(struct pl_player *plr, struct dm_map *map) {
@@ -153,7 +155,7 @@ static bool plr_action_loop(struct msr_monster *player) {
             player->dead = false;
 
             msr_remove_monster(player, map);
-            if (dm_tile_instance(map, TILE_TYPE_STAIRS_DOWN, 0, &pos) == false) exit(1);
+            if (dm_tile_instance(map, TILE_TYPE_STAIRS_UP, 0, &pos) == false) exit(1);
             if (cd_equal(player_pos, &pos) == false) {
                 if (msr_insert_monster(player, map, &pos) == false) exit(1);
             }
