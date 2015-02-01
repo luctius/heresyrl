@@ -180,7 +180,7 @@ bool dm_populate_map(struct dm_map *map, struct random *r, uint32_t monster_chan
     for (int xi = 0; xi < map->size.x; xi++) {
         for (int yi = 0; yi < map->size.y; yi++) {
             c = cd_create(xi,yi);
-            if (cd_pyth(&map->stair_down, &c) <= nogo_radius) continue; /* no npc's too close to the start */
+            if (cd_pyth(&map->stair_up, &c) <= nogo_radius) continue; /* no npc's too close to the start */
 
             if ( (random_int32(r) % 10000) <= (monster_chance/100)+1 ) {
                 uint32_t leader = 0;
