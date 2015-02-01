@@ -24,5 +24,6 @@ void character_window(void);
 void log_window(void);
 void help_window(void);
 bool char_creation_window(void);
+void levelup_selection_window(void);
 
 #endif /* UI_H */

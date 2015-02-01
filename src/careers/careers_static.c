@@ -2,7 +2,7 @@
 
 #define CAREER_END }
 
-#define CHARACTERISTICS(ws,bs,st,tg,ag,in,wl,per,att,mov,mag)   \
+#define CHARACTERISTICS(ws,bs,st,tg,ag,in,wl,per,att,mov,mag,wnds)   \
     .char_advancements[MSR_CHAR_WEAPON_SKILL]=ws,   \
     .char_advancements[MSR_CHAR_BALISTIC_SKILL]=bs, \
     .char_advancements[MSR_CHAR_STRENGTH]=st,       \
@@ -13,7 +13,8 @@
     .char_advancements[MSR_CHAR_PERCEPTION]=per,    \
     .char_advancements[MSR_SEC_CHAR_ATTACKS]=att,   \
     .char_advancements[MSR_SEC_CHAR_MOVEMENT]=mov,  \
-    .char_advancements[MSR_SEC_CHAR_MAGIC]=mag      \
+    .char_advancements[MSR_SEC_CHAR_MAGIC]=mag,     \
+    .wounds = wnds
 
 #define SKILLS(_skills) .skills=_skills
 
@@ -29,7 +30,7 @@ static struct cr_career static_career_list[] = {
 
     CAREER(CRID_BODYGUARD, "Bodyguard" ),
         DESCR("Description of an Bodyguard"),
-        CHARACTERISTICS(10,0,5,5,5,0,0,0,1,3,0),
+        CHARACTERISTICS(10,0,5,5,5,0,0,0,1,3,0,3),
         SKILLS(bf(MSR_SKILLS_DODGE) | bf(MSR_SKILLS_HEAL) | bf(MSR_SKILLS_AWARENESS) ),
         TALENTS(TLT_QUICK_DRAW, TLT_SPEC_WPN_GRP_PARRYING, TLT_STREET_FIGHTING, TLT_STRIKE_TO_STUN, TLT_VERY_STRONG, TLT_VERY_RESILIENT),
         TRAPPINGS(IID_THROWING_KNIFE, IID_THROWING_KNIFE, IID_LEATHER_JACK),
@@ -41,7 +42,7 @@ static struct cr_career static_career_list[] = {
 
     CAREER(CRID_MERCENARY, "Mercenary" ),
         DESCR("Description of an Mercenary"),
-        CHARACTERISTICS(10,10,5,5,5,0,5,0,1,2,0),
+        CHARACTERISTICS(10,10,5,5,5,0,5,0,1,2,0,3),
         SKILLS(bf(MSR_SKILLS_DODGE) | bf(MSR_SKILLS_HEAL) | bf(MSR_SKILLS_AWARENESS) ),
         TALENTS(TLT_QUICK_DRAW, TLT_RAPID_RELOAD, TLT_STRIKE_MIGHTY_BLOW, TLT_SHARPSHOOTER, TLT_STRIKE_TO_STUN),
         TRAPPINGS(IID_NONE),

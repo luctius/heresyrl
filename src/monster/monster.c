@@ -644,26 +644,7 @@ int msr_calculate_characteristic(struct msr_monster *monster, enum msr_character
         }
     }
 
-    int adv = 0;
-    switch(chr) {
-        case MSR_CHAR_WEAPON_SKILL:
-        case MSR_CHAR_BALISTIC_SKILL:
-        case MSR_CHAR_STRENGTH:
-        case MSR_CHAR_TOUGHNESS:
-        case MSR_CHAR_AGILITY:
-        case MSR_CHAR_WILLPOWER:
-        case MSR_CHAR_INTELLIGENCE:
-        case MSR_CHAR_PERCEPTION:
-            adv = (monster->characteristic[chr].advancement * 5);
-            break;
-        case MSR_SEC_CHAR_MOVEMENT:
-        case MSR_SEC_CHAR_ATTACKS:
-        case MSR_SEC_CHAR_MAGIC:
-            adv = (monster->characteristic[chr].advancement * 1);
-            break;
-        default: assert(false && "unkown characteristic.");
-    }
-
+    int adv = monster->characteristic[chr].advancement;
     return monster->characteristic[chr].base_value + adv + monster->characteristic[chr].mod + mod;
 }
 
@@ -675,11 +656,21 @@ int msr_calculate_characteristic_bonus(struct msr_monster *monster, enum msr_cha
 }
 
 enum msr_skill_rate msr_has_skill(struct msr_monster *monster, enum msr_skills skill) {
+    if (msr_verify_monster(monster) == false) return MSR_SKILL_RATE_NONE;
+
     enum msr_skill_rate r = MSR_SKILL_RATE_NONE;
     if ((monster->skills[MSR_SKILL_RATE_BASIC]    & bf(skill) ) > 0) r = MSR_SKILL_RATE_BASIC;
     if ((monster->skills[MSR_SKILL_RATE_ADVANCED] & bf(skill) ) > 0) r = MSR_SKILL_RATE_ADVANCED;
     if ((monster->skills[MSR_SKILL_RATE_EXPERT]   & bf(skill) ) > 0) r = MSR_SKILL_RATE_EXPERT;
     return r;
+}
+
+bool msr_set_skill(struct msr_monster *monster, enum msr_skills skill, enum msr_skill_rate rate) {
+    if (msr_has_skill(monster, skill) >= rate) return false;
+
+    set_bf(monster->skills[rate], skill);
+
+    return true;
 }
 
 const char *msr_gender_string(struct msr_monster *monster) {
@@ -983,19 +974,40 @@ const char *msr_gender_name(struct msr_monster *monster, bool possesive) {
     }
 }
 
+const char *msr_char_names(enum msr_characteristic c) {
+    if (c >= MSR_CHAR_MAX) return NULL;
+    return msr_char_name[c];
+}
+
+const char *msr_char_descriptions(enum msr_characteristic c) {
+    if (c >= MSR_CHAR_MAX) return NULL;
+    return msr_char_description[c];
+}
+
 const char *msr_skill_names(enum msr_skills s) {
     if (s >= MSR_SKILLS_MAX) return NULL;
     return msr_skill_name[s];
 }
 
+const char *msr_skill_descriptions(enum msr_skills s) {
+    if (s >= MSR_SKILLS_MAX) return NULL;
+    return msr_skill_description[s];
+}
+
 const char *msr_skillrate_names(enum msr_skill_rate sr) {
-    if (sr >= MSR_SKILL_RATE_NONE) return NULL;
+    if (sr < 0) return NULL;
+    if (sr >= MSR_SKILL_RATE_MAX) return NULL;
     return msr_skillrate_name[sr];
 }
 
 const char *msr_talent_names(enum msr_talents t) {
     if (t >= TLT_MAX) return NULL;
     return msr_talent_name[t];
+}
+
+const char *msr_talent_descriptions(enum msr_talents t) {
+    if (t >= TLT_MAX) return NULL;
+    return msr_talent_description[t];
 }
 
 const char *msr_hitloc_name(struct msr_monster *monster, enum msr_hit_location mhl) {

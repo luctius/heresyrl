@@ -304,7 +304,7 @@ bool msr_has_talent(struct msr_monster *monster, enum msr_talents talent);
 bool msr_set_talent(struct msr_monster *monster, enum msr_talents talent);
 bool msr_clr_talent(struct msr_monster *monster, enum msr_talents talent);
 enum msr_skill_rate msr_has_skill(struct msr_monster *monster,  enum msr_skills skill);
-bool msr_set_skill(struct msr_monster *monster, enum msr_skills skill, enum msr_skill_rate);
+bool msr_set_skill(struct msr_monster *monster, enum msr_skills skill, enum msr_skill_rate rate);
 uint8_t msr_get_movement_rate(struct msr_monster *monster);
 
 /* check if the current weapon selection of this monster is correct. */
@@ -324,9 +324,13 @@ const char *msr_gender_string(struct msr_monster *monster);
 /* he / his -- her / hers, etc.*/
 const char *msr_gender_name(struct msr_monster *monster, bool possesive);
 
+const char *msr_char_names(enum msr_characteristic c);
+const char *msr_char_descriptions(enum msr_characteristic c);
 const char *msr_skill_names(enum msr_skills s);
+const char *msr_skill_descriptions(enum msr_skills s);
 const char *msr_skillrate_names(enum msr_skill_rate sr);
 const char *msr_talent_names(enum msr_talents t);
+const char *msr_talent_descriptions(enum msr_talents t);
 const char *msr_hitloc_name(struct msr_monster *monster, enum msr_hit_location mhl);
 
 #endif /*MONSTER_H_*/

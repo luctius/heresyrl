@@ -93,3 +93,89 @@ bool cr_generate_allies(struct cr_career *car, struct msr_monster *player, struc
     return true;
 }
 
+bool cr_can_upgrade_characteristic(struct cr_career *cr, struct msr_monster *player, enum msr_characteristic c) {
+    if (msr_verify_monster(player) == false) return false;
+    if (cr == NULL) return false;
+
+    if (player->characteristic[c].advancement >= cr->char_advancements[c]) return false;
+    return true;
+}
+
+bool cr_can_upgrade_wounds(struct cr_career *cr, struct msr_monster *player) {
+    if (msr_verify_monster(player) == false) return false;
+    if (cr == NULL) return false;
+
+    if (player->wounds_added >= cr->wounds) return false;
+    return true;
+}
+
+/* TODO: this only checks for untrained. we should find a way to do this for basic and advanced. */
+bool cr_can_upgrade_skill(struct cr_career *cr, struct msr_monster *player, enum msr_skills skill) {
+    if (skill == 0) return false;
+    if (msr_verify_monster(player) == false) return false;
+    if (cr == NULL) return false;
+    if (msr_has_skill(player, skill) > MSR_SKILL_RATE_NONE) return false;
+
+    if (test_bf(cr->skills, skill) == false) return false;
+    return true;
+}
+
+bool cr_can_upgrade_talent(struct cr_career *cr, struct msr_monster *player, enum msr_talents talent) {
+    if (talent == TLT_NONE) return false;
+    if (msr_verify_monster(player) == false) return false;
+    if (cr == NULL) return false;
+    if (msr_has_talent(player, talent) == true) return false;
+
+    for (int i = 0; i < CR_TALENTS_MAX; i++) {
+        if (cr->talents[i] == talent) return true;
+    }
+
+    return false;
+}
+
+bool cr_upgrade_characteristic(struct cr_career *cr, struct msr_monster *player, enum msr_characteristic c) {
+    if (cr_can_upgrade_characteristic(cr, player, c) == false) return false;
+
+    switch (c) {
+        case MSR_CHAR_WEAPON_SKILL:
+        case MSR_CHAR_BALISTIC_SKILL:
+        case MSR_CHAR_STRENGTH:
+        case MSR_CHAR_TOUGHNESS:
+        case MSR_CHAR_AGILITY:
+        case MSR_CHAR_INTELLIGENCE:
+        case MSR_CHAR_WILLPOWER:
+        case MSR_CHAR_PERCEPTION:
+            player->characteristic[c].advancement += 5;
+            break;
+        case MSR_SEC_CHAR_ATTACKS:
+        case MSR_SEC_CHAR_MOVEMENT:
+        case MSR_SEC_CHAR_MAGIC:
+            player->characteristic[c].advancement += 1;
+            break;
+        default: assert(false && "Unknown Characteristic");
+    }
+
+    return true;
+}
+
+bool cr_upgrade_wounds(struct cr_career *cr, struct msr_monster *player) {
+    if (cr_can_upgrade_wounds(cr, player) == false) return false;
+
+    player->cur_wounds += 1;
+    player->max_wounds += 1;
+    player->wounds_added += 1;
+    return true;
+}
+
+/* TODO: this only checks for untrained. we should find a way to do this for basic and advanced. */
+bool cr_upgrade_skill(struct cr_career *cr, struct msr_monster *player, enum msr_skills skill) {
+    if (cr_can_upgrade_skill(cr, player, skill) == false) return false;
+
+    return msr_set_skill(player, skill, MSR_SKILL_RATE_BASIC);
+}
+
+bool cr_upgrade_talent(struct cr_career *cr, struct msr_monster *player, enum msr_talents talent) {
+    if (cr_can_upgrade_talent(cr, player, talent) == false) return false;
+    return msr_set_talent(player, talent);
+}
+
