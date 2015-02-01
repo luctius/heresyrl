@@ -453,8 +453,7 @@ bool dm_generate_map(struct dm_map *map, enum dm_dungeon_type type, int level, u
     bool map_is_good = false;
     struct pf_context *pf_ctx = NULL;
 
-    while (map_is_good == false)
-    {
+    for (int i = 0; i < 10000 && (map_is_good == false); i++) {
         /*
            We flood the map and rescue nonflooded segments untill we can find 
            no more non-flooded tiles. This takes a long time though, 
@@ -471,6 +470,8 @@ bool dm_generate_map(struct dm_map *map, enum dm_dungeon_type type, int level, u
 
         }
     }
+
+    assert(map_is_good == true);
 
     pf_exit(pf_ctx);
 
