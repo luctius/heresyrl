@@ -232,18 +232,21 @@ bool dm_populate_map(struct dm_map *map, struct random *r, uint32_t monster_chan
     return true;
 }
 
-static bool dm_generate_map_simple(struct dm_map *map, struct random *r, enum dm_dungeon_type type, int level) {
+static bool dm_generate_map_simple(struct dm_map *map, struct random *r, enum dm_dungeon_type type, coord_t *ul, coord_t *dr) {
     if (dm_verify_map(map) == false) return false;
     FIX_UNUSED(r);
     FIX_UNUSED(type);
-    FIX_UNUSED(level);
+
+    int sz_x = dr->x - ul->x;
+    int sz_y = dr->y - ul->y;
 
     coord_t c;
-    for (c.x = 0; c.x < map->size.x; c.x++) {
-        for (c.y = 0; c.y < map->size.y; c.y++) {
-            if (c.y == 0 || c.y == map->size.y -1) dm_get_map_me(&c,map)->tile = ts_get_tile_specific(TILE_ID_BORDER_WALL);
-            else if (c.x == 0 || c.x == map->size.y -1) dm_get_map_me(&c,map)->tile = ts_get_tile_specific(TILE_ID_BORDER_WALL);
-            else dm_get_map_me(&c,map)->tile = ts_get_tile_type(TILE_TYPE_FLOOR);
+    for (c.x = 0; c.x < sz_x; c.x++) {
+        for (c.y = 0; c.y < sz_y; c.y++) {
+            coord_t abs = cd_create(c.x + ul->x, c.y +ul->y);
+            if (c.y == 0 || c.y == sz_y -1) dm_get_map_me(&abs,map)->tile = ts_get_tile_specific(TILE_ID_BORDER_WALL);
+            else if (c.x == 0 || c.x == sz_x -1) dm_get_map_me(&abs,map)->tile = ts_get_tile_specific(TILE_ID_BORDER_WALL);
+            else dm_get_map_me(&abs,map)->tile = ts_get_tile_type(TILE_TYPE_FLOOR);
         }
     }
     return true;
@@ -434,13 +437,15 @@ bool dm_generate_map(struct dm_map *map, enum dm_dungeon_type type, int level, u
 
     lg_debug("generating map with seed \'%lu\', type \'%d\' and threat_lvl \'%d\'", seed, type, level);
 
+    coord_t ul = { .x = 0, .y = 0,};
+    coord_t dr = { .x = map->size.x, .y = map->size.y, };
     struct random *r = random_init_genrand(seed);
     switch(type) {
         case DUNGEON_TYPE_CAVE:
-            cave_generate_map(map, r, type, level);
+            cave_generate_map(map, r, type, &ul, &dr);
             break;
         default:
-            dm_generate_map_simple(map, r, type, level);
+            dm_generate_map_simple(map, r, type, &ul, &dr);
             break;
     }
 
@@ -453,7 +458,8 @@ bool dm_generate_map(struct dm_map *map, enum dm_dungeon_type type, int level, u
     bool map_is_good = false;
     struct pf_context *pf_ctx = NULL;
 
-    for (int i = 0; i < 10000 && (map_is_good == false); i++) {
+    int i = 0;
+    for (i = 0; i < 10000 && (map_is_good == false); i++) {
         /*
            We flood the map and rescue nonflooded segments untill we can find 
            no more non-flooded tiles. This takes a long time though, 
@@ -472,6 +478,7 @@ bool dm_generate_map(struct dm_map *map, enum dm_dungeon_type type, int level, u
     }
 
     assert(map_is_good == true);
+    lg_debug("Map is completly reachable in %d tries", i);
 
     pf_exit(pf_ctx);
 

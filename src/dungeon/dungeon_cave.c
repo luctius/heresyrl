@@ -109,14 +109,13 @@ static void generation(void)
             grid[yi][xi] = grid2[yi][xi];
 } 
 
-bool cave_generate_map(struct dm_map *map, struct random *r, enum dm_dungeon_type type, int level) {
+bool cave_generate_map(struct dm_map *map, struct random *r, enum dm_dungeon_type type, coord_t *ul, coord_t *dr) {
     int ii, jj, yi, xi;
-    FIX_UNUSED(level);
 
     if (type != DUNGEON_TYPE_CAVE) return -1;
 
-    size_x     = map->size.x;
-    size_y     = map->size.y;
+    size_x     = dr->x - ul->x;
+    size_y     = dr->y - ul->y;
     fillprob   = 45;
 
     cave_random = r;
@@ -148,7 +147,7 @@ bool cave_generate_map(struct dm_map *map, struct random *r, enum dm_dungeon_typ
     {
         for(xi=0; xi<size_x; xi++)
         {
-            coord_t c = cd_create(xi,yi);
+            coord_t c = cd_create(xi + ul->x,yi + ul->y);
             if (grid[yi][xi] == TILE_ID_CONCRETE_WALL) {
                 if(random_int32(cave_random)%100 < 1) {
                     grid[yi][xi] = TILE_ID_CONCRETE_WALL_LIT;
