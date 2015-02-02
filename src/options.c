@@ -7,7 +7,7 @@
 #include <pwd.h>
 #include <string.h>
 
-#include <linux/limits.h>
+#include <limits.h>
 
 #include "config.h"
 #include "options.h"
