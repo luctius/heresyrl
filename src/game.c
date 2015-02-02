@@ -81,7 +81,7 @@ bool game_init_map(void) {
     if (gbl_game->current_map == NULL) {
         new_map = true;
         gbl_game->current_map = dm_alloc_map(x,y);
-        //dm_generate_map(gbl_game->current_map, DUNGEON_TYPE_SIMPLE, 1, random_int32(gbl_game->random) );
+        //dm_generate_map(gbl_game->current_map, DUNGEON_TYPE_SIMPLE, 1, random_int32(gbl_game->random), true );
         dm_generate_map(gbl_game->current_map, DUNGEON_TYPE_CAVE, 1, random_int32(gbl_game->random), true);
 
         System_msg("Press '?' to view the help screen.");
