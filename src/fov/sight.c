@@ -84,12 +84,12 @@ static bool rpsc_apply_player_sight(struct rpsc_fov_set *set, coord_t *point, co
     }
 
     int range = cd_pyth(point, origin);
-    if (range < msr_get_near_sight_range(monster)) {
+    if (rpsc_in_radius(set, origin, point, msr_get_near_sight_range(monster)) ) {
         /* if it is in our near sight, we can see everything.*/
         me->discovered = true;
         me->visible = true;
     }
-    else if (range < msr_get_medium_sight_range(monster)) {
+    if (rpsc_in_radius(set, origin, point, msr_get_medium_sight_range(monster)) ) {
         /* in our medium sight we can see the map features.*/
         me->discovered = true;
         mod = -20;
