@@ -10,6 +10,7 @@ struct opt_options {
     bool debug_show_map;
     bool debug_no_load;
     bool debug_no_save;
+    bool print_map_only;
 
     bool play_recording;
     int  play_delay;

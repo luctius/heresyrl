@@ -47,6 +47,8 @@ struct gengetopt_args_info
   const char *no_load_help; /**< @brief do not load a previous made character help description.  */
   int no_save_flag;	/**< @brief do not save a made character (default=off).  */
   const char *no_save_help; /**< @brief do not save a made character help description.  */
+  int print_map_only_flag;	/**< @brief only print the map and close (default=off).  */
+  const char *print_map_only_help; /**< @brief only print the map and close help description.  */
   int playback_flag;	/**< @brief play a savegame from start until current turn (default=off).  */
   const char *playback_help; /**< @brief play a savegame from start until current turn help description.  */
   int pb_delay_arg;	/**< @brief delay when playing a savegame, default is 1 second (default='1').  */
@@ -68,6 +70,7 @@ struct gengetopt_args_info
   unsigned int map_given ;	/**< @brief Whether map was given.  */
   unsigned int no_load_given ;	/**< @brief Whether no_load was given.  */
   unsigned int no_save_given ;	/**< @brief Whether no_save was given.  */
+  unsigned int print_map_only_given ;	/**< @brief Whether print_map_only was given.  */
   unsigned int playback_given ;	/**< @brief Whether playback was given.  */
   unsigned int pb_delay_given ;	/**< @brief Whether pb_delay was given.  */
   unsigned int pb_stop_given ;	/**< @brief Whether pb_stop was given.  */

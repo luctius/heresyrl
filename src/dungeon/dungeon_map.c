@@ -19,6 +19,7 @@
 #include "items/items.h"
 #include "items/items_static.h"
 #include "fov/sight.h"
+#include "options.h"
 
 extern inline struct dm_map_entity *dm_get_map_me(coord_t *c, struct dm_map *map);
 extern inline struct tl_tile *dm_get_map_tile(coord_t *c, struct dm_map *map);

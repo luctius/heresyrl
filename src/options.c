@@ -13,19 +13,20 @@
 #include "options.h"
 
 struct opt_options options = {
-    .debug          = false,
-    .debug_show_map = false,
-    .debug_no_load  = false,
-    .debug_no_save  = false,
+    .debug           = false,
+    .debug_show_map  = false,
+    .debug_no_load   = false,
+    .debug_no_save   = false,
+    .print_map_only  = false,
 
-    .play_recording = false,
-    .play_delay     = 1,
-    .play_stop      = 0,
+    .play_recording  = false,
+    .play_delay      = 1,
+    .play_stop       = 0,
 
     .refresh = true,
 
-    .log_file_name  = NULL,
-    .save_file_name = NULL,
+    .log_file_name   = NULL,
+    .save_file_name  = NULL,
 };
 
 static const int path_max = PATH_MAX -1;
@@ -40,16 +41,17 @@ void opt_parse_options(struct gengetopt_args_info *args_info) {
         homedir = pw->pw_dir;
     }
 
-    options.debug          = args_info->debug_flag;
-    options.debug_show_map = args_info->map_flag;
-    options.debug_no_load  = args_info->no_load_flag;
-    options.debug_no_save  = args_info->no_save_flag;
+    options.debug           = args_info->debug_flag;
+    options.debug_show_map  = args_info->map_flag;
+    options.debug_no_load   = args_info->no_load_flag;
+    options.debug_no_save   = args_info->no_save_flag;
+    options.print_map_only  = args_info->print_map_only_flag;
 
-    options.play_recording = args_info->playback_flag;
-    options.play_delay     = args_info->pb_delay_arg;
-    options.play_stop      = args_info->pb_stop_arg;
+    options.play_recording  = args_info->playback_flag;
+    options.play_delay      = args_info->pb_delay_arg;
+    options.play_stop       = args_info->pb_stop_arg;
     
-    if (options.play_delay == 0) options.refresh = false;
+    if (options.play_delay  == 0) options.refresh = false;
 
     if (args_info->log_file_given == false) {
         snprintf(log_file, path_max, "%s/.%s", homedir, PACKAGE_NAME);

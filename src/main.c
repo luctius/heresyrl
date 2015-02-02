@@ -80,6 +80,20 @@ int main(int argc, char *argv[]) {
         if (char_creation_window() ) valid_player = true;
     }
 
+    if (options.print_map_only) {
+        ui_destroy();
+        clear();
+        refresh();          //  Print it on to the real screen
+        endwin();           //  End curses mode
+
+        game_init_map();
+        dm_print_map(gbl_game->current_map);
+
+        game_exit();
+        lg_exit(gbl_log);
+        exit(EXIT_SUCCESS);
+    }
+
     if (valid_player) {
         game_init_map();
 

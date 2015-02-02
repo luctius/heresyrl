@@ -4,10 +4,11 @@ purpose "Roguelike based on the Warhammer Roleplay version 2 rules from Black In
  
 args "<command line options>"
  
-option "debug"      d "show debug output" flag off
-option "map"        m "show the complete map" flag off
-option "no_load"    l "do not load a previous made character" flag off
-option "no_save"    s "do not save a made character" flag off
+option "debug"          d "show debug output" flag off
+option "map"            m "show the complete map" flag off
+option "no_load"        l "do not load a previous made character" flag off
+option "no_save"        s "do not save a made character" flag off
+option "print_map_only" - "only print the map and close" flag off
 
 option "playback"   - "play a savegame from start until current turn" flag off
 option "pb_delay"   - "delay when playing a savegame, default is 1 second" default="1" int optional

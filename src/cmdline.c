@@ -40,6 +40,7 @@ const char *gengetopt_args_info_help[] = {
   "  -m, --map               show the complete map  (default=off)",
   "  -l, --no_load           do not load a previous made character  (default=off)",
   "  -s, --no_save           do not save a made character  (default=off)",
+  "      --print_map_only    only print the map and close  (default=off)",
   "      --playback          play a savegame from start until current turn\n                            (default=off)",
   "      --pb_delay=INT      delay when playing a savegame, default is 1 second\n                            (default=`1')",
   "      --pb_stop=INT       when playing a savegame, stop at after turn N\n                            (default=`0')",
@@ -76,6 +77,7 @@ void clear_given (struct gengetopt_args_info *args_info)
   args_info->map_given = 0 ;
   args_info->no_load_given = 0 ;
   args_info->no_save_given = 0 ;
+  args_info->print_map_only_given = 0 ;
   args_info->playback_given = 0 ;
   args_info->pb_delay_given = 0 ;
   args_info->pb_stop_given = 0 ;
@@ -91,6 +93,7 @@ void clear_args (struct gengetopt_args_info *args_info)
   args_info->map_flag = 0;
   args_info->no_load_flag = 0;
   args_info->no_save_flag = 0;
+  args_info->print_map_only_flag = 0;
   args_info->playback_flag = 0;
   args_info->pb_delay_arg = 1;
   args_info->pb_delay_orig = NULL;
@@ -114,11 +117,12 @@ void init_args_info(struct gengetopt_args_info *args_info)
   args_info->map_help = gengetopt_args_info_help[3] ;
   args_info->no_load_help = gengetopt_args_info_help[4] ;
   args_info->no_save_help = gengetopt_args_info_help[5] ;
-  args_info->playback_help = gengetopt_args_info_help[6] ;
-  args_info->pb_delay_help = gengetopt_args_info_help[7] ;
-  args_info->pb_stop_help = gengetopt_args_info_help[8] ;
-  args_info->log_file_help = gengetopt_args_info_help[9] ;
-  args_info->save_file_help = gengetopt_args_info_help[10] ;
+  args_info->print_map_only_help = gengetopt_args_info_help[6] ;
+  args_info->playback_help = gengetopt_args_info_help[7] ;
+  args_info->pb_delay_help = gengetopt_args_info_help[8] ;
+  args_info->pb_stop_help = gengetopt_args_info_help[9] ;
+  args_info->log_file_help = gengetopt_args_info_help[10] ;
+  args_info->save_file_help = gengetopt_args_info_help[11] ;
   
 }
 
@@ -250,6 +254,8 @@ cmdline_parser_dump(FILE *outfile, struct gengetopt_args_info *args_info)
     write_into_file(outfile, "no_load", 0, 0 );
   if (args_info->no_save_given)
     write_into_file(outfile, "no_save", 0, 0 );
+  if (args_info->print_map_only_given)
+    write_into_file(outfile, "print_map_only", 0, 0 );
   if (args_info->playback_given)
     write_into_file(outfile, "playback", 0, 0 );
   if (args_info->pb_delay_given)
@@ -520,6 +526,7 @@ cmdline_parser_internal (
         { "map",	0, NULL, 'm' },
         { "no_load",	0, NULL, 'l' },
         { "no_save",	0, NULL, 's' },
+        { "print_map_only",	0, NULL, 0 },
         { "playback",	0, NULL, 0 },
         { "pb_delay",	1, NULL, 0 },
         { "pb_stop",	1, NULL, 0 },
@@ -586,8 +593,20 @@ cmdline_parser_internal (
           break;
 
         case 0:	/* Long option with no short option */
+          /* only print the map and close.  */
+          if (strcmp (long_options[option_index].name, "print_map_only") == 0)
+          {
+          
+          
+            if (update_arg((void *)&(args_info->print_map_only_flag), 0, &(args_info->print_map_only_given),
+                &(local_args_info.print_map_only_given), optarg, 0, 0, ARG_FLAG,
+                check_ambiguity, override, 1, 0, "print_map_only", '-',
+                additional_error))
+              goto failure;
+          
+          }
           /* play a savegame from start until current turn.  */
-          if (strcmp (long_options[option_index].name, "playback") == 0)
+          else if (strcmp (long_options[option_index].name, "playback") == 0)
           {
           
           
