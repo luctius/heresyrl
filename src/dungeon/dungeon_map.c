@@ -362,6 +362,12 @@ unsigned int tunnel_callback(void *vmap, coord_t *coord) {
     return 1;
 }
 
+static const coord_t dm_coord_lo_table[] = {
+    {-1,-1}, {-1,0}, {-1,1}, 
+    { 0,-1},         { 0,1}, 
+    { 1,-1}, { 1,0}, { 1,1},
+};
+
 /*
    Given a path to tunnel, it will replace the original tile 
    pointer with the given one, thus tunneling a path throught walls.
@@ -374,6 +380,24 @@ static bool dm_tunnel(struct dm_map *map, coord_t plist[], int plsz, struct tl_t
     /* copy the given tile over the path. */
     for (int i = 0; i < plsz; i++) {
         dm_get_map_me(&plist[i], map)->tile = tl;
+        lg_debug("tunnel dig at (%d,%d)", plist[i].x, plist[i].y);
+
+        for (int j = 0; j < ARRAY_SZ(dm_coord_lo_table); j++) {
+            coord_t t;
+            t.x = dm_coord_lo_table[j].x + plist[i].x;
+            t.y = dm_coord_lo_table[j].y + plist[i].y;
+
+            if (cd_within_bound(&t, &map->size) == false) continue;
+
+            if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(&t, map),TILE_ATTR_BORDER) == true) continue;
+
+            if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(&t, map),TILE_ATTR_TRAVERSABLE) == true) {
+                continue;
+            }
+            
+            dm_get_map_me(&t, map)->tile = tl;
+            lg_debug("tunnel dig neighbour at (%d,%d)", t.x, t.y);
+        }
     }
     return true;
 }
