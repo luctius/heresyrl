@@ -938,8 +938,7 @@ void se_process_effects_during(struct se_type_struct *ces, struct msr_monster *m
             }
             break;
 
-        default: break;
-            effect_clr_flag(ces, SESF_ACTIVE); break;
+        default: effect_clr_flag(ces, SESF_ACTIVE); break;
     }
 
     ces->tick_energy = ces->tick_energy_max;
