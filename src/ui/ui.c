@@ -37,9 +37,9 @@ bool ui_create(int cols, int lines) {
         hdr_lines = lines;
         hdr_cols = cols;
 
-        if ( (lines < 25) || (cols < 60) ) {
+        if ( (lines < 24) || (cols < 60) ) {
             endwin();           /*  End curses mode       */
-            fprintf(stderr, "Terminal is too small, minimum is 60x25, this terminal is %dx%d.\n", cols, lines);
+            fprintf(stderr, "Terminal is too small, minimum is 60x24, this terminal is %dx%d.\n", cols, lines);
             exit(1);
         }
 
