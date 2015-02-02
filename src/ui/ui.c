@@ -1151,14 +1151,15 @@ Basic weapon traning SP     ...                  |
     ui_print_reset(&pad);
     ui_printf(&pad, cs_ATTR "Name:" cs_ATTR "          %-20s\n", mon->unique_name);
     ui_printf(&pad, cs_ATTR "Gender:" cs_ATTR "        %-20s\n", msr_gender_string(mon) );
+    ui_printf(&pad, cs_ATTR "Race:" cs_ATTR "          %-20s\n", mon->sd_name);
     ui_printf(&pad, cs_ATTR "Career:" cs_ATTR "        %-20s\n", plr->career->title);
 
     ui_printf(&pad, cs_ATTR "Wounds:" cs_ATTR "        %d/%d\n", mon->cur_wounds, mon->max_wounds);
     ui_printf(&pad, cs_ATTR "Fatique:" cs_ATTR "       %d\n", mon->fatique);
     ui_printf(&pad, cs_ATTR "XP:" cs_ATTR "            %d\n", plr->xp_current);
+    ui_printf(&pad, cs_ATTR "XP Spend:" cs_ATTR "      %d\n", plr->xp_spend);
 
-    ui_printf(&pad, cs_ATTR "Corruption:" cs_ATTR "    %d\n", mon->corruption_points);
-    ui_printf(&pad, cs_ATTR "Spend:" cs_ATTR "         %d\n", plr->xp_spend);
+    //ui_printf(&pad, cs_ATTR "Corruption:" cs_ATTR "    %d\n", mon->corruption_points);
 
     ui_printf(&pad, "\n");
     ui_printf(&pad, "\n");
