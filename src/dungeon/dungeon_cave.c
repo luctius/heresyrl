@@ -55,9 +55,9 @@ static void initmap(void)
             grid2[yi][xi] = TILE_ID_CONCRETE_WALL;
 
     for(yi=0; yi<size_y; yi++)
-        grid[yi][0] = grid[yi][size_x-1] = TILE_ID_BORDER_WALL;
+        grid[yi][0] = grid[yi][size_x-1] = TILE_ID_CONCRETE_WALL;
     for(xi=0; xi<size_x; xi++)
-        grid[0][xi] = grid[size_y-1][xi] = TILE_ID_BORDER_WALL;
+        grid[0][xi] = grid[size_y-1][xi] = TILE_ID_CONCRETE_WALL;
 }
 
 static void exitmap(void)

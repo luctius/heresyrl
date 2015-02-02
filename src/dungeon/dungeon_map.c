@@ -244,9 +244,7 @@ static bool dm_generate_map_simple(struct dm_map *map, struct random *r, enum dm
     for (c.x = 0; c.x < sz_x; c.x++) {
         for (c.y = 0; c.y < sz_y; c.y++) {
             coord_t abs = cd_create(c.x + ul->x, c.y +ul->y);
-            if (c.y == 0 || c.y == sz_y -1) dm_get_map_me(&abs,map)->tile = ts_get_tile_specific(TILE_ID_BORDER_WALL);
-            else if (c.x == 0 || c.x == sz_x -1) dm_get_map_me(&abs,map)->tile = ts_get_tile_specific(TILE_ID_BORDER_WALL);
-            else dm_get_map_me(&abs,map)->tile = ts_get_tile_type(TILE_TYPE_FLOOR);
+            dm_get_map_me(&abs,map)->tile = ts_get_tile_type(TILE_TYPE_FLOOR);
         }
     }
     return true;
@@ -461,8 +459,15 @@ bool dm_generate_map(struct dm_map *map, enum dm_dungeon_type type, int level, u
 
     lg_debug("generating map with seed \'%lu\', type \'%d\' and threat_lvl \'%d\'", seed, type, level);
 
-    coord_t ul = { .x = 0, .y = 0,};
-    coord_t dr = { .x = map->size.x, .y = map->size.y, };
+    /* Create an non-destructable border wall around the map */
+    coord_t c;
+    for (c.x = 0, c.y = 0; c.x < map->size.x; c.x++) dm_get_map_me(&c,map)->tile = ts_get_tile_specific(TILE_ID_BORDER_WALL);
+    for (c.y = 0, c.x = 0; c.y < map->size.y; c.y++) dm_get_map_me(&c,map)->tile = ts_get_tile_specific(TILE_ID_BORDER_WALL);
+    for (c.x = 0, c.y = map->size.y-1; c.x < map->size.x; c.x++) dm_get_map_me(&c,map)->tile = ts_get_tile_specific(TILE_ID_BORDER_WALL);
+    for (c.y = 0, c.x = map->size.x-1; c.y < map->size.y; c.y++) dm_get_map_me(&c,map)->tile = ts_get_tile_specific(TILE_ID_BORDER_WALL);
+
+    coord_t ul = { .x = 1, .y = 1,};
+    coord_t dr = { .x = map->size.x-1, .y = map->size.y-1, };
     struct random *r = random_init_genrand(seed);
     switch(type) {
         case DUNGEON_TYPE_CAVE:
@@ -483,7 +488,7 @@ bool dm_generate_map(struct dm_map *map, enum dm_dungeon_type type, int level, u
     struct pf_context *pf_ctx = NULL;
 
     int i = 0;
-    for (i = 0; i < 10000 && (map_is_good == false); i++) {
+    for (i = 0; i < 1000 && (map_is_good == false); i++) {
         /*
            We flood the map and rescue nonflooded segments untill we can find 
            no more non-flooded tiles. This takes a long time though, 
