@@ -31,6 +31,10 @@ PKG_CHECK_MODULES([lua], [lua],  [], [
         PKG_CHECK_MODULES([lua], [lua5.2], [],[]  )
     ] )
 ] )
+if test "x$lua_LIBS" = "x"; then
+    AC_MSG_ERROR([Lua not found!])
+fi
+
 AC_SEARCH_LIBS(initscr, ncurses, [], [AC_MSG_ERROR([Unable to find ncurses])], [])
 #AC_SEARCH_LIBS(new_panel, panel, [], [AC_MSG_ERROR([Unable to find ncurses panel])], [])
 #AC_SEARCH_LIBS(new_menu, menu,   [], [AC_MSG_ERROR([Unable to find ncurses menu])], [])
