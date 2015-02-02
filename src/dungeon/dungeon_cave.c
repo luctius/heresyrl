@@ -8,19 +8,19 @@
 #include "random.h"
 #include "coord.h"
 
-typedef struct {
+struct generation_params {
     int r1_cutoff, r2_cutoff;
     int reps;
-} generation_params; 
+}; 
  
 static int **grid;
 static int **grid2; 
  
 static unsigned int fillprob = 40;
 static int size_x = 64, size_y = 20;
-static generation_params *params;  
+static struct generation_params *params;  
  
-static generation_params *params_set;
+static struct generation_params *params_set;
 static int generations;
 
 static struct random *cave_random = NULL;
@@ -87,7 +87,7 @@ static void generation(void)
                 for(jj=-1; jj<=1; jj++)
                 {
                     if(grid[yi+ii][xi+jj] != TILE_ID_CONCRETE_FLOOR)
-                    adjcount_r1++;
+                        adjcount_r1++;
                 }
             for(ii=yi-2; ii<=yi+2; ii++)
                 for(jj=xi-2; jj<=xi+2; jj++)
@@ -120,11 +120,13 @@ bool cave_generate_map(struct dm_map *map, struct random *r, enum dm_dungeon_typ
 
     cave_random = r;
 
-    generations = 1;
-    params = params_set = (generation_params*) malloc( sizeof(generation_params) * generations );
+    generations = 3;
+    params = params_set = malloc( sizeof(struct generation_params) * generations );
+    assert(params != NULL);
 
-    uint8_t arg_array[] = {5, 1, 3}; /* Should be 3 * generations */
-    assert(ARRAY_SZ(arg_array) == generations * 3);
+    //uint8_t arg_array[] = {5, 1, 6, 4, 2, 3, 5, 1, 6}; /* Should be 3 * generations */
+    uint8_t arg_array[] = {5, 1, 6, 4, 1, 4, 6, 1, 6}; /* Should be 3 * generations */
+    assert(ARRAY_SZ(arg_array) >= generations * 3);
 
     for(ii=0; ii < (generations *3); ii+=3)
     {
@@ -157,7 +159,7 @@ bool cave_generate_map(struct dm_map *map, struct random *r, enum dm_dungeon_typ
             dm_get_map_me(&c,map)->tile = ts_get_tile_specific(grid[yi][xi]);
         }
     }
-    free(params);
+    free(params_set);
 
     exitmap();
     return 0;
