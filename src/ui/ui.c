@@ -1398,6 +1398,10 @@ void show_log(struct hrl_window *window, bool input) {
     else prefresh(pad.win, 0,0, pad.y, pad.x, pad.y + pad.lines -1, pad.x + pad.cols);
 
     delwin(pad.win);
+
+    wclear(window->win);
+    werase(window->win);
+    wrefresh(window->win);
 }
 
 #define SHOW_MAX_MSGS (20)
