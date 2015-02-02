@@ -400,6 +400,18 @@ static bool dm_tunnel(struct dm_map *map, coord_t plist[], int plsz, struct tl_t
     return true;
 }
 
+static bool dm_has_floors(struct dm_map *map) {
+    coord_t c;
+
+    for (c.x = 0; c.x < map->size.x; c.x++) {
+        for (c.y = 0; c.y < map->size.y; c.y++) {
+            if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(&c, map),TILE_ATTR_TRAVERSABLE) ) return true;
+        }
+    }
+
+    return false;
+}
+
 static bool dm_get_tunnel_path(struct dm_map *map, struct pf_context *pf_ctx) {
     if (dm_verify_map(map) == false) return false;
 
@@ -477,6 +489,7 @@ bool dm_generate_map(struct dm_map *map, enum dm_dungeon_type type, int level, u
             dm_generate_map_simple(map, r, type, &ul, &dr);
             break;
     }
+    assert(dm_has_floors(map) );
 
     dm_add_stairs(map, r);
     dm_clear_map(map);
