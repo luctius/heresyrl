@@ -117,14 +117,14 @@ bool cave_generate_map(struct dm_map *map, struct random *r, enum dm_dungeon_typ
 
     size_x     = map->size.x;
     size_y     = map->size.y;
-    fillprob   = 35;
+    fillprob   = 45;
 
     cave_random = r;
 
     generations = 1;
     params = params_set = (generation_params*) malloc( sizeof(generation_params) * generations );
 
-    uint8_t arg_array[] = {5, 1, 9}; /* Should be 3 * generations */
+    uint8_t arg_array[] = {5, 1, 3}; /* Should be 3 * generations */
     assert(ARRAY_SZ(arg_array) == generations * 3);
 
     for(ii=0; ii < (generations *3); ii+=3)

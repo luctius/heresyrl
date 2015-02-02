@@ -817,7 +817,7 @@ struct itm_item *fght_get_weapon(struct msr_monster *monster, enum item_weapon_t
     }
 
     if (hand == FGHT_CREATURE_HAND) {
-        if ( (monster->wpn_sel == MSR_WEAPON_SELECT_CREATURE1) ) {
+        if (monster->wpn_sel == MSR_WEAPON_SELECT_CREATURE1) {
             item = inv_get_item_from_location(monster->inventory, INV_LOC_CREATURE_WIELD1);
         }
     }

@@ -326,7 +326,7 @@ bool inv_wears_wearable_with_spcqlty(struct inv_inventory *inv, enum wearable_sp
         struct itm_item *i = ie->item;
         if (inv_item_worn(inv, i) ) {
             if (itm_is_type(i, ITEM_TYPE_WEARABLE) ) {
-                if (wpn_has_spc_quality(i, spcqlty) ) return true;
+                if (wbl_has_spc_quality(i, spcqlty) ) return true;
             }
         }
         ie = ie->entries.tqe_next;
