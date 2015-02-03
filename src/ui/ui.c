@@ -280,11 +280,11 @@ static void mapwin_examine(struct dm_map_entity *me) {
 
                     if (inv_loc_empty(me->monster->inventory, INV_LOC_MAINHAND_WIELD) == false) {
                         struct itm_item *witem = inv_get_item_from_location(me->monster->inventory, INV_LOC_MAINHAND_WIELD);
-                        ui_printf(char_win, "%s wields %s.\n", msr_gender_name(me->monster, false), witem->ld_name);
+                        if (witem != NULL) ui_printf(char_win, "%s wields %s.\n", msr_gender_name(me->monster, false), witem->ld_name);
                     }
                     if (inv_loc_empty(me->monster->inventory, INV_LOC_OFFHAND_WIELD) == false) {
                         struct itm_item *witem = inv_get_item_from_location(me->monster->inventory, INV_LOC_OFFHAND_WIELD);
-                        ui_printf(char_win, "%s wields %s in his off-hand.\n", msr_gender_name(me->monster, false), witem->ld_name);
+                        if (witem != NULL) ui_printf(char_win, "%s wields %s in his off-hand.\n", msr_gender_name(me->monster, false), witem->ld_name);
                     }
                 }
 
