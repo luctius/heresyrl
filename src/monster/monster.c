@@ -811,9 +811,16 @@ bool msr_weapon_next_selection(struct msr_monster *monster) {
         return false;
     }
 
+    bool first_round = true;
     do {
         monster->wpn_sel++;
         monster->wpn_sel %= MSR_WEAPON_SELECT_MAX;
+
+        /* Prevent unarmed from being selected when it is not neccesary */
+        if (monster->wpn_sel == MSR_WEAPON_SELECT_CREATURE1 && first_round) {
+            first_round = false;
+            continue;
+        };
     } while (msr_weapons_check(monster) == false);
     return true;
 }
