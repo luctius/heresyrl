@@ -28,6 +28,7 @@ enum career_ids cr_spawn(double roll, enum msr_race race) {
     for (int i = CRID_NONE; i < sz; i++) {
         if (static_career_list[i].available[race] == true) {
             sum += static_career_list[i].weight[race];
+            cumm_prob_arr[i] = 0.f;
         }
         else cumm_prob_arr[i] = DBL_MAX;
     }
@@ -52,6 +53,7 @@ struct cr_career *cr_get_career_by_id(enum career_ids template_id) {
     if (template_id < CRID_NONE) return NULL;
     if (template_id >= CRID_MAX) return NULL;
 
+    lg_debug("creating career tid: %d", template_id);
     return &static_career_list[template_id];
 }
 

@@ -100,6 +100,7 @@ int msr_spawn(double roll, int level, enum dm_dungeon_type dt) {
         }
 
         if (!valid) cumm_prob_arr[i] = DBL_MAX;
+        else cumm_prob_arr[i] = 0.f;
     }
 
     double cumm = 0;

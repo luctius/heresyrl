@@ -68,6 +68,7 @@ void plr_create(struct pl_player *plr, char *name, uint32_t template_id, enum ms
     plr->player = msr_create(template_id);
     struct msr_monster *player = plr->player;
     assert(player != NULL);
+    assert(player->race < MSR_RACE_MAX);
 
     player->unique_name = name;
     player->gender      = gender;
@@ -100,6 +101,7 @@ void plr_create(struct pl_player *plr, char *name, uint32_t template_id, enum ms
     }
 
     plr->career = cr_get_career_by_id(cr_spawn(random_float(gbl_game->random), player->race) );
+    lg_debug("player %s becomes an %s", name, plr->career->title);
     cr_give_trappings_to_player(plr->career, player);
 
     plr->player_map_pos = cd_create(0,0);
