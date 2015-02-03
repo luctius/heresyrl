@@ -1,5 +1,6 @@
 #include <unistd.h>
 #include <ncurses.h>
+#include <assert.h>
 
 #include "enums.h"
 #include "player.h"
@@ -66,6 +67,7 @@ void plr_create(struct pl_player *plr, char *name, uint32_t template_id, enum ms
 
     plr->player = msr_create(template_id);
     struct msr_monster *player = plr->player;
+    assert(player != NULL);
 
     player->unique_name = name;
     player->gender      = gender;

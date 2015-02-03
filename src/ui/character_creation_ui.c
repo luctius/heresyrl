@@ -148,6 +148,7 @@ bool char_creation_window(void) {
 
             /* create player */
             plr_create(plr, name, sel_idx +MID_DUMMY+1, MSR_GENDER_MALE);
+            player = plr->player;
             charwin_refresh();
             race_done = true;
         }
