@@ -23,9 +23,9 @@
 extern struct msr_monster static_monster_list[];
 
 struct spwn_monster_item items[] = {  
-    {.id=IID_HAND_WEAPON,    .min=1,.max=1,.wear=true},
-    {.id=IID_SHORT_BOW,    .min=1,.max=1,.wear=false},
-    {.id=IID_ARROW,    .min=30,.max=60,.wear=false},
+    {.id=IID_AXE,            .min=1,.max=1,.wear=true},
+    {.id=IID_SHORT_BOW,      .min=1,.max=1,.wear=false},
+    {.id=IID_ARROW,          .min=30,.max=60,.wear=false},
     {.id=IID_TORCH,          .min=1,.max=1,.wear=false},
     {.id=IID_FIRE_BOMB,      .min=1,.max=3,.wear=false},
     {.id=IID_STIMM_HEALTH,   .min=2,.max=4,.wear=false},
