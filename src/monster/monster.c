@@ -303,7 +303,7 @@ bool msr_remove_item(struct msr_monster *monster, struct itm_item *item) {
 
 int msr_get_near_sight_range(struct msr_monster *monster) {
     if (msr_verify_monster(monster) == false) return -1;
-    int sight_near = 5 + ( (msr_calculate_characteristic(monster, MSR_CHAR_PERCEPTION) * 0.5f) / 10) +1;
+    int sight_near = 5 + ( (msr_calculate_characteristic_bonus(monster, MSR_CHAR_PERCEPTION) * 1.f) ) +1;
     if (msr_has_talent(monster, TLT_NIGHT_VISION) ) {
         int nv_sight = 16 * RANGE_MULTIPLIER;
         if(sight_near < nv_sight) sight_near = nv_sight;
@@ -315,7 +315,7 @@ int msr_get_near_sight_range(struct msr_monster *monster) {
 
 int msr_get_medium_sight_range(struct msr_monster *monster) {
     if (msr_verify_monster(monster) == false) return -1;
-    int sight_medium = 5 + ( (msr_calculate_characteristic(monster, MSR_CHAR_PERCEPTION) * 1) / 10) +1;
+    int sight_medium = 7 + ( (msr_calculate_characteristic_bonus(monster, MSR_CHAR_PERCEPTION) * 1.5f) ) +1;
     if (msr_has_talent(monster, TLT_NIGHT_VISION) ) {
         int nv_sight = 16 * RANGE_MULTIPLIER;
         if(sight_medium < nv_sight) sight_medium = nv_sight;
@@ -327,7 +327,7 @@ int msr_get_medium_sight_range(struct msr_monster *monster) {
 
 int msr_get_far_sight_range(struct msr_monster *monster) {
     if (msr_verify_monster(monster) == false) return -1;
-    int sight_far = 5 + ( (msr_calculate_characteristic(monster, MSR_CHAR_PERCEPTION) * 2) / 10) +1;
+    int sight_far = 10 + ( (msr_calculate_characteristic_bonus(monster, MSR_CHAR_PERCEPTION) * 2.f) ) +1;
     if (msr_has_talent(monster, TLT_NIGHT_VISION) ) {
         int nv_sight = 16 * RANGE_MULTIPLIER;
         if(sight_far < nv_sight) sight_far = nv_sight;
