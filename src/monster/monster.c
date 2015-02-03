@@ -166,7 +166,6 @@ struct msr_monster *msr_create(enum msr_ids template_id) {
             free(m);
             assert(false && "Unkown Race");
             return NULL;
-            break;
     }
 
     creature_weapon(&m->monster);
@@ -969,9 +968,9 @@ const char *msr_gender_name(struct msr_monster *monster, bool possesive) {
     if (!dm_get_map_me(&monster->pos, gbl_game->current_map)->visible) gender = MSR_GENDER_IT;
 
     switch(gender) {
-        case MSR_GENDER_MALE:        return (possesive) ? cs_MONSTER "his" cs_MONSTER : cs_MONSTER "he"  cs_MONSTER; break;
-        case MSR_GENDER_FEMALE:      return (possesive) ? cs_MONSTER "her" cs_MONSTER : cs_MONSTER "she" cs_MONSTER; break;
-        case MSR_GENDER_IT: default: return (possesive) ? cs_MONSTER "its" cs_MONSTER : cs_MONSTER "it"  cs_MONSTER; break;
+        case MSR_GENDER_MALE:        return (possesive) ? cs_MONSTER "his" cs_MONSTER : cs_MONSTER "he"  cs_MONSTER;
+        case MSR_GENDER_FEMALE:      return (possesive) ? cs_MONSTER "her" cs_MONSTER : cs_MONSTER "she" cs_MONSTER;
+        case MSR_GENDER_IT: default: return (possesive) ? cs_MONSTER "its" cs_MONSTER : cs_MONSTER "it"  cs_MONSTER;
     }
 }
 

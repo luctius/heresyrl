@@ -381,7 +381,7 @@ static bool dm_tunnel(struct dm_map *map, coord_t plist[], int plsz, struct tl_t
         dm_get_map_me(&plist[i], map)->tile = tl;
         lg_debug("tunnel dig at (%d,%d)", plist[i].x, plist[i].y);
 
-        for (int j = 0; j < ARRAY_SZ(dm_coord_lo_table); j++) {
+        for (int j = 0; j < (int) ARRAY_SZ(dm_coord_lo_table); j++) {
             coord_t t;
             t.x = dm_coord_lo_table[j].x + plist[i].x;
             t.y = dm_coord_lo_table[j].y + plist[i].y;

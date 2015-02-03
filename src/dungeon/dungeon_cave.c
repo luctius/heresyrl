@@ -126,7 +126,7 @@ bool cave_generate_map(struct dm_map *map, struct random *r, enum dm_dungeon_typ
 
     //uint8_t arg_array[] = {5, 1, 6, 4, 2, 3, 5, 1, 6}; /* Should be 3 * generations */
     uint8_t arg_array[] = {5, 1, 6, 4, 1, 4, 6, 1, 6}; /* Should be 3 * generations */
-    assert(ARRAY_SZ(arg_array) >= generations * 3);
+    assert( (int) ARRAY_SZ(arg_array) >= generations * 3);
 
     for(ii=0; ii < (generations *3); ii+=3)
     {

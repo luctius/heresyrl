@@ -113,7 +113,7 @@ bool char_creation_window(void) {
         int sel_idx = -1;
         switch (k) {
             case INP_KEY_QUIT: 
-            case INP_KEY_ESCAPE: return false; break;
+            case INP_KEY_ESCAPE: return false; /*break;*/
             case INP_KEY_ALL: 
             case INP_KEY_APPLY: 
                 ui_printf_ext(map_win, map_win->lines -3, 1, "Choose which Race?");

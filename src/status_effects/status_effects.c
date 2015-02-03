@@ -682,7 +682,6 @@ void se_process_effects_first(struct se_type_struct *ces, struct msr_monster *mo
         case SETF_INSTANT_DEATH: {
             effect_clr_flag(ces, SESF_ACTIVE);
             msr_die(monster, gbl_game->current_map);
-            return;
         } break;
 
         default: 
@@ -821,7 +820,6 @@ void se_process_effects_last(struct se_type_struct *ces, struct msr_monster *mon
         case SETF_INSTANT_DEATH: {
             effect_clr_flag(ces, SESF_ACTIVE);
             msr_die(monster, gbl_game->current_map);
-            return;
         } break;
 
         default: 

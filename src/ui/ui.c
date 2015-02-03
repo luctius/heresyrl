@@ -1035,7 +1035,7 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
                 mapwin_display_map(map, &plr->player->pos);
 
                 return ma_do_use(plr->player, item);
-            } break;
+            } /*break;*/
             case INP_KEY_WEAR: {
                 ui_printf_ext(map_win, winsz, 1, "Wear which item?.");
                 wrefresh(map_win->win);
@@ -1054,7 +1054,7 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
                 else {
                     return ma_do_wear(plr->player, item);
                 }
-            } break;
+            } /*break;*/
             case INP_KEY_EXAMINE: {
                 ui_printf_ext(map_win, winsz, 1, "Examine which item?.");
                 wrefresh(map_win->win);
@@ -1082,7 +1082,7 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
                 free(invlist);
                 struct itm_item *items[1] = {item};
                 return ma_do_drop(plr->player, items, 1);
-            } break;
+            } /*break;*/
             default: break;
         }
 

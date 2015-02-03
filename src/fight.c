@@ -783,11 +783,10 @@ bool fght_shoot(struct random *r, struct msr_monster *monster, struct dm_map *ma
 
 const char *fght_weapon_hand_name(enum fght_hand hand) {
     switch (hand) {
-        case FGHT_MAIN_HAND: return "main"; break;
-        case FGHT_OFF_HAND: return "off"; break;
-        default: break;
+        case FGHT_MAIN_HAND: return "main";
+        case FGHT_OFF_HAND: return "off";
+        default: return "unknown";
     }
-    return "unknown";
 }
 
 /* 

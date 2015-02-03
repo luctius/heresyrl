@@ -66,7 +66,6 @@ const char *random_die_name(int die_sz) {
         case 100: return "D100";
         default: assert(false); return "";
     }
-    return "";
 }
 
 /* initializes r->mt[N] with a seed */

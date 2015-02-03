@@ -63,7 +63,7 @@ static bool pf_flood_map(struct pf_context *ctx, coord_t *point) {
 
                 me->state = PF_ENTITY_STATE_CLOSED;
 
-                for (int i = 0; i < ARRAY_SZ(pf_coord_lo_table); i++) {
+                for (int i = 0; i < (int) ARRAY_SZ(pf_coord_lo_table); i++) {
                     coord_t pos = { .x = x + pf_coord_lo_table[i].x, .y = y + pf_coord_lo_table[i].y, };
                     struct pf_map_entity *me_new = pf_get_index(&pos, map);
                     if (me_new->cost == PF_BLOCKED) continue;
@@ -335,7 +335,6 @@ bool pf_dijkstra_map(struct pf_context *ctx, coord_t *start) {
     pf_get_index(start, map)->cost = 1;
     pf_get_index(start, map)->distance = 0;
     pf_get_index(start, map)->state = PF_ENTITY_STATE_OPEN;
-    coord_t dummy = { .x = map->size.x +1, .y = map->size.y +1, };
 
     lg_debug("start at (%d,%d)", start->x,  start->y);
     return pf_flood_map(ctx, start);
