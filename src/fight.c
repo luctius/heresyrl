@@ -351,7 +351,7 @@ bool fght_do_weapon_dmg(struct random *r, struct msr_monster *monster, struct ms
     You(monster,                 "%s at %s's %s.", itm_you_use_desc(witem), msr_ldname(target), msr_hitloc_name(target, mhl) );
 
     if (target->is_player) Monster_tgt(monster, target, "%s at " cs_PLAYER "your" cs_PLAYER " %s.", itm_msr_use_desc(witem), msr_hitloc_name(target, mhl) );
-    Monster_tgt(monster, target, "%s at %s %s.", itm_msr_use_desc(witem), msr_ldname(target), msr_hitloc_name(target, mhl) );
+    else Monster_tgt(monster, target, "%s at %s %s.", itm_msr_use_desc(witem), msr_ldname(target), msr_hitloc_name(target, mhl) );
 
     fght_calc_dmg(r, monster, target, hits, witem, mhl);
 
@@ -544,14 +544,14 @@ bool fght_melee(struct random *r, struct msr_monster *monster, struct msr_monste
         /* Do the actual damage if we did score a hit. */
         if (hits > 0) {
             fght_do_weapon_dmg(r, monster, target, hits, hand);
+        }
 
-            /* Disable parry for this hand. */
-            if (hand == FGHT_MAIN_HAND) {
-                msr_disable_evasion(monster, MSR_EVASION_MAIN_HAND);
-            }
-            else if (hand == FGHT_OFF_HAND) {
-                msr_disable_evasion(monster, MSR_EVASION_OFF_HAND);
-            }
+        /* Disable parry for this hand. */
+        if (hand == FGHT_MAIN_HAND) {
+            msr_disable_evasion(monster, MSR_EVASION_MAIN_HAND);
+        }
+        else if (hand == FGHT_OFF_HAND) {
+            msr_disable_evasion(monster, MSR_EVASION_OFF_HAND);
         }
     }
 
