@@ -241,7 +241,6 @@ void mapwin_display_map(struct dm_map *map, coord_t *player) {
     if (player == NULL) return;
     if (map_win->type != HRL_WINDOW_TYPE_MAP) return;
 
-    lg_debug("update mapwin");
     mapwin_display_map_noref(map, player);
     if (options.refresh) wrefresh(map_win->win);
 

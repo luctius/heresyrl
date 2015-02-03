@@ -84,7 +84,6 @@ static bool ai_beast_loop(struct msr_monster *monster) {
         }
     }
 
-    lg_ai_debug(monster, "is done");
     if (has_action == false) {
         return ma_do_guard(monster);
     }
@@ -182,7 +181,6 @@ static bool ai_human_loop(struct msr_monster *monster) {
         }
     }
 
-    lg_ai_debug(monster, "is done");
     if (has_action == false) {
         return ma_do_guard(monster);
     }
