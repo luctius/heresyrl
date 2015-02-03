@@ -57,7 +57,7 @@ Gives the coordinates of 'a' traversable tile which has not been
 reached by dijkstra. Should only be called after pf_calculate_reachability.
 Return true when it finds such a tile, else false.
 */
-bool pf_get_non_flooded_tile(struct pf_context *ctx, coord_t *nft);
+bool pf_get_non_flooded_tile(struct pf_context *ctx, coord_t *target, coord_t *nft);
 
 /*
 Prereq: pf_dijkstra_map
