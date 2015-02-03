@@ -247,7 +247,7 @@ bool dw_use_item(struct msr_monster *monster, struct itm_item *item) {
             }
         }
 
-        if (food->convey_status_effect != NULL) se_add_status_effect(monster, food->convey_status_effect);
+        if (food->convey_status_effect != SEID_NONE) se_add_status_effect(monster, food->convey_status_effect);
 
         if (destroy) {
             if (inv_remove_item(monster->inventory, item) == true) {
