@@ -273,6 +273,7 @@ int msr_calculate_armour(struct msr_monster *monster, enum msr_hit_location hitl
 
 bool msr_can_use_evasion(struct msr_monster *monster, enum msr_evasions evasion);
 bool msr_use_evasion(struct msr_monster *monster, struct msr_monster *attacker, struct itm_item *atk_wpn, enum msr_evasions evasion, int to_hit_DoS, int mod);
+void msr_disable_evasion(struct msr_monster *monster, enum msr_evasions evasion);
 
 /* do damage to that hit location, including critical hits, and handle the first part of monster death. */
 bool msr_do_dmg(struct msr_monster *monster, int dmg, enum dmg_type type, enum msr_hit_location mhl);

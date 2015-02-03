@@ -422,8 +422,6 @@ int fght_ranged_roll(struct random *r, struct msr_monster *monster, struct msr_m
         int dos = (to_hit - roll) / 10;
         if (msr_can_use_evasion(monster, MSR_EVASION_DODGE) == true) {
             if (msr_use_evasion(target, monster, witem, MSR_EVASION_DODGE, dos, 0) == true) {
-                You(monster, "defly dodge out of the way.");
-                Monster(monster, "defly dodges out of the way.");
                 return 0;
             }
         }
@@ -473,8 +471,6 @@ int fght_melee_roll(struct random *r, struct msr_monster *monster, struct msr_mo
                 /* TODO: check if the target is aware of the attack (ie can see it coming). */
                 int to_hit_DoS = (to_hit - roll) / 10;
                 if (msr_use_evasion(target, monster, witem, i, to_hit_DoS, 0) == true) {
-                    You(monster, "defly evade the attack.");
-                    Monster(monster, "defly evades the attack.");
                     return 0;
                 }
                 break;
@@ -549,9 +545,12 @@ bool fght_melee(struct random *r, struct msr_monster *monster, struct msr_monste
         if (hits > 0) {
             fght_do_weapon_dmg(r, monster, target, hits, hand);
 
-            if (hand == FGHT_OFF_HAND) {
-                /* disable offhand parry for this turn. */
-                msr_can_use_evasion(monster, MSR_EVASION_OFF_HAND);
+            /* Disable parry for this hand. */
+            if (hand == FGHT_MAIN_HAND) {
+                msr_disable_evasion(monster, MSR_EVASION_MAIN_HAND);
+            }
+            else if (hand == FGHT_OFF_HAND) {
+                msr_disable_evasion(monster, MSR_EVASION_OFF_HAND);
             }
         }
     }
