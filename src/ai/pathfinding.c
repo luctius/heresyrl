@@ -86,51 +86,51 @@ static bool pf_flood_map(struct pf_context *ctx, coord_t *point) {
                         me_new->state = PF_ENTITY_STATE_OPEN;
                         //me_new->score = me_new->cost + (pyth(pos.x - end->x, pos.y - end->y) * 2);
                         has_open = true;
+
+                        /* Increase map boundries if possible */
+                        if (pos.x < up_left.x) {
+                            coord_t c = { .x = pos.x, .y = up_left.y, };
+                            if (cd_within_bound(&c, &ctx->map.size) ) {
+                                up_left.x = c.x;
+                            }
+                        }
+
+                        if (pos.y < up_left.y) {
+                            coord_t c = { .x = up_left.x, .y = pos.y, };
+                            if (cd_within_bound(&c, &ctx->map.size) ) {
+                                up_left.y = c.y;
+                            }
+                        }
+
+                        if (pos.x > down_right.x) {
+                            coord_t c = { .x = pos.x, .y = down_right.y, };
+                            if (cd_within_bound(&c, &ctx->map.size) ) {
+                                down_right.x = c.x;
+                            }
+                        }
+
+                        if (pos.y > down_right.y) {
+                            coord_t c = { .x = down_right.x, .y = pos.y, };
+                            if (cd_within_bound(&c, &ctx->map.size) ) {
+                                down_right.y = c.y;
+                            }
+                        }
                     }
                 }
-            }
-        }
-
-        /* Increase map boundries if possible */
-        {
-            coord_t c;
-
-            c.x = up_left.x - 1;
-            c.y = up_left.y;
-            if (cd_within_bound(&c, &ctx->map.size) ) {
-                up_left.x = c.x;
-            }
-
-            c.x = up_left.x;
-            c.y = up_left.y - 1;
-            if (cd_within_bound(&c, &ctx->map.size) ) {
-                up_left.y = c.y;
-            }
-            
-            c.x = down_right.x + 1;
-            c.y = down_right.y;
-            if (cd_within_bound(&c, &ctx->map.size) ) {
-                down_right.x = c.x;
-            }
-
-            c.x = down_right.x;
-            c.y = down_right.y + 1;
-            if (cd_within_bound(&c, &ctx->map.size) ) {
-                down_right.y = c.y;
             }
         }
     }
     return true;
 }
 
-static coord_t get_best_open_node(struct pf_map *map) {
+static coord_t get_best_open_node(struct pf_map *map, coord_t *ul, coord_t *dr) {
     coord_t cd_best = { .x= -1, .y= -1, };
     unsigned int score = PF_BLOCKED;
     unsigned int cost = PF_BLOCKED;
 
     coord_t point;
-    for (point.x = 0; point.x < map->size.x; point.x++) {
-        for (point.y = 0; point.y < map->size.y; point.y++) {
+    for (point.x = ul->x; point.x <= dr->x; point.x++) {
+        for (point.y = ul->y; point.y <= dr->y; point.y++) {
             struct pf_map_entity *me = pf_get_index(&point, map);
             if (me->state == PF_ENTITY_STATE_OPEN) {
                 if (me->score < score) {
@@ -151,15 +151,18 @@ static coord_t get_best_open_node(struct pf_map *map) {
     return cd_best;
 }
 
-static bool pf_astar_loop(struct pf_context *ctx, coord_t *end) {
+static bool pf_astar_loop(struct pf_context *ctx, coord_t *start, coord_t *end) {
     if (ctx == NULL) return false;
     if (end == NULL) return false;
 
     struct pf_map *map = &ctx->map;
 
+    coord_t up_left    = { .x = start->x, .y = start->y, };
+    coord_t down_right = { .x = start->x, .y = start->y, };
+
     while (true) {
         /* get best node*/
-        coord_t point = get_best_open_node(map);
+        coord_t point = get_best_open_node(map, &up_left, &down_right);
         struct pf_map_entity *me = pf_get_index(&point, map);
 
         if ( (point.x == -1) || (point.y == -1) ) {
@@ -183,10 +186,16 @@ static bool pf_astar_loop(struct pf_context *ctx, coord_t *end) {
 
             if (cd_within_bound(&pos, &map->size) == false) continue;
             struct pf_map_entity *me_new = pf_get_index(&pos, map);
-            
+            if (me_new->cost == PF_BLOCKED) continue;
+
             pos_cbk.x = pos.x +ctx->set.map_start.x;
             pos_cbk.y = pos.y +ctx->set.map_start.y;
             unsigned int cost = ctx->set.pf_traversable_callback(ctx->set.map, &pos_cbk);
+            if (cost == PF_BLOCKED) {
+                me_new->cost = PF_BLOCKED;
+                me_new->state = PF_ENTITY_STATE_CLOSED;
+                continue;
+            }
 
             /* If the new cost is better, OR it was in the free state, update it */
             if ( ( (me->cost +cost) < me_new->cost) || (me_new->state == PF_ENTITY_STATE_FREE) ) {
@@ -194,6 +203,35 @@ static bool pf_astar_loop(struct pf_context *ctx, coord_t *end) {
                 me_new->score = me_new->cost + (pyth(pos.x - end->x, pos.y - end->y) * 2);
                 me_new->distance = me->distance +1;
                 me_new->state = PF_ENTITY_STATE_OPEN;
+
+                /* Increase map boundries if possible */
+                if (pos.x < up_left.x) {
+                    coord_t c = { .x = pos.x, .y = up_left.y, };
+                    if (cd_within_bound(&c, &ctx->map.size) ) {
+                        up_left.x = c.x;
+                    }
+                }
+
+                if (pos.y < up_left.y) {
+                    coord_t c = { .x = up_left.x, .y = pos.y, };
+                    if (cd_within_bound(&c, &ctx->map.size) ) {
+                        up_left.y = c.y;
+                    }
+                }
+
+                if (pos.x > down_right.x) {
+                    coord_t c = { .x = pos.x, .y = down_right.y, };
+                    if (cd_within_bound(&c, &ctx->map.size) ) {
+                        down_right.x = c.x;
+                    }
+                }
+
+                if (pos.y > down_right.y) {
+                    coord_t c = { .x = down_right.x, .y = pos.y, };
+                    if (cd_within_bound(&c, &ctx->map.size) ) {
+                        down_right.y = c.y;
+                    }
+                }
             }
 
             //lg_debug("tested (%d,%d) -> [st: %d/ cst: %d/dst: %d/scr: %d]", pos.x, pos.y, me_new->state, me_new->cost, me_new->distance, me_new->score);
@@ -328,7 +366,7 @@ int pf_astar_map(struct pf_context *ctx, coord_t *start, coord_t *end) {
     lg_debug("end at (%d,%d)", end->x,  end->y);
 
     /* Do astar filling */
-    return pf_astar_loop(ctx, end);
+    return pf_astar_loop(ctx, start, end);
 }
 
 int pf_calculate_path(struct pf_context *ctx, coord_t *start, coord_t *end, coord_t **coord_lst) {
