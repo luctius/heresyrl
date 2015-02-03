@@ -14,6 +14,16 @@ static struct tl_tile tile_array[] = {
         .sd_name = "",
         .ld_name = "",
     },
+    [TILE_ID_TUNNEL_DUMMY] = {
+        .id = TILE_ID_TUNNEL_DUMMY,
+        .attributes = TILE_ATTR_TRAVERSABLE | TILE_ATTR_TRANSLUCENT,
+        .type = TILE_TYPE_FLOOR,
+        .icon = 'X',
+        .icon_attr = TERM_COLOUR_WHITE,
+        .movement_cost = 1,
+        .sd_name = "concrete dummy",
+        .ld_name = "a concrete dummy",
+    },
     [TILE_ID_BORDER_WALL] = {
         .id = TILE_ID_BORDER_WALL,
         .attributes = TILE_ATTR_BORDER,

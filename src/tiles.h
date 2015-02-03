@@ -23,6 +23,7 @@ enum tile_attributes {
 
 enum tile_ids {
     TILE_ID_NONE,
+    TILE_ID_TUNNEL_DUMMY,
     TILE_ID_BORDER_WALL,
     TILE_ID_CONCRETE_WALL,
     TILE_ID_CONCRETE_WALL_LIT,
