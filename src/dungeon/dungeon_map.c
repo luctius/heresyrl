@@ -387,12 +387,10 @@ static bool dm_tunnel(struct dm_map *map, coord_t plist[], int plsz, struct tl_t
             t.y = dm_coord_lo_table[j].y + plist[i].y;
 
             if (cd_within_bound(&t, &map->size) == false) continue;
-
-            if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(&t, map),TILE_ATTR_BORDER) == true) continue;
-
-            if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(&t, map),TILE_ATTR_TRAVERSABLE) == true) {
+            if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(&t, map),TILE_ATTR_BORDER) == true)
                 continue;
-            }
+            if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(&t, map),TILE_ATTR_TRAVERSABLE) == true)
+                continue;
             
             dm_get_map_me(&t, map)->tile = tl;
             lg_debug("tunnel dig neighbour at (%d,%d)", t.x, t.y);
@@ -446,7 +444,7 @@ static bool dm_get_tunnel_path(struct dm_map *map, struct pf_context *pf_ctx) {
                        i assume the map does only contain 
                        generic tiles...
                      */
-                    struct tl_tile *tl = dm_get_map_tile(&ftl, map);
+                    struct tl_tile *tl = ts_get_tile_specific(TILE_ID_CONCRETE_FLOOR); //dm_get_map_tile(&ftl, map);
 
                     if (dm_tunnel(map, plist, sz, tl) == true) {
                         retval = true;
