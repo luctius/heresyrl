@@ -40,7 +40,14 @@ enum item_ids {
 
     /* Melee */
     IID_KNIFE,
-    IID_HAND_WEAPON,
+    IID_AXE_POOR,
+    IID_PICK_POOR,
+    IID_HAMMER_POOR,
+    IID_SWORD_POOR,
+    IID_AXE,
+    IID_PICK,
+    IID_HAMMER,
+    IID_SWORD,
     IID_AXE_GOOD,
     IID_PICK_GOOD,
     IID_HAMMER_GOOD,

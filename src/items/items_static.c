@@ -139,10 +139,17 @@ static const char *itm_descs[] = {
 
     /* Melee */
     [IID_KNIFE]                 = "a basic knife",
+    [IID_AXE_POOR]              = "",
+    [IID_PICK_POOR]             = "",
+    [IID_HAMMER_POOR]           = "",
+    [IID_SWORD_POOR]            = "",
+    [IID_AXE]                   = "",
+    [IID_PICK]                  = "",
+    [IID_HAMMER]                = "",
+    [IID_SWORD]                 = "",
     [IID_SWORD_GOOD]            = "",
     [IID_AXE_GOOD]              = "",
     [IID_HAMMER_GOOD]           = "",
-    [IID_HAND_WEAPON]           = "",
     [IID_PICK_GOOD]             = "",
 
     /* Ranged */
@@ -194,12 +201,19 @@ static struct itm_item static_item_list[] = {
 
     /* Melee */
     /*    ID                 short name,   long name              (wgt,cst,dly)      xd10 +X, dmg type         pen, special qualities,         talent*/
-    ITEM_AVG(IID_KNIFE,      "knife",      "a knife",              15, 50, 0),MELEE_1H(1,-4,  DMG_TYPE_PIERCING,0,  bf(WPN_SPCQLTY_LIGHT),    TLT_NONE), CREATION(20,1), ITEM_END,
-    ITEM_AVG(IID_HAND_WEAPON,"hand weapon","a generic hand weapon",50, 10, 0),MELEE_1H(1, 0,  DMG_TYPE_PIERCING,0,  0,                        TLT_NONE), CREATION(20,1), ITEM_END,
-    ITEM_GOOD(IID_AXE_GOOD,  "axe",        "a military axe",       50,100, 0),MELEE_1H(1, 0,  DMG_TYPE_CUTTING, 0,  bf(WPN_SPCQLTY_IMPACT),   TLT_NONE), CREATION(20,1), ITEM_END,
-    ITEM_GOOD(IID_HAMMER_GOOD,"hammer",    "a military hammer",    50,100, 0),MELEE_1H(1, 0,  DMG_TYPE_BLUNT,   0,  bf(WPN_SPCQLTY_PUMMELING),TLT_NONE), CREATION(20,1), ITEM_END,
-    ITEM_GOOD(IID_PICK_GOOD,  "pick",      "a military pick",      50,100, 0),MELEE_1H(1, 0,  DMG_TYPE_PIERCING,1,  bf(WPN_SPCQLTY_SLOW),     TLT_NONE), CREATION(20,1), ITEM_END,
-    ITEM_GOOD(IID_SWORD_GOOD, "sword",     "a military sword",     50,100, 0),MELEE_1H(1, 0,  DMG_TYPE_CUTTING, 0,  bf(WPN_SPCQLTY_DEFENSIVE),TLT_NONE), CREATION(20,1), ITEM_END,
+    ITEM_AVG(IID_KNIFE,       "knife",     "a knife",              15, 50, 0),MELEE_1H(1,-4,  DMG_TYPE_PIERCING,0,  bf(WPN_SPCQLTY_LIGHT),    TLT_NONE), CREATION(20,1), ITEM_END,
+    ITEM_POOR(IID_AXE_POOR,   "axe",       "an shoddy axe",        50, 10, 0),MELEE_1H(1,-2,  DMG_TYPE_PIERCING,0,  0,                        TLT_NONE), CREATION(40,1), ITEM_END,
+    ITEM_POOR(IID_PICK_POOR,  "pick",      "an shoddy pick",       50, 10, 0),MELEE_1H(1,-2,  DMG_TYPE_PIERCING,0,  0,                        TLT_NONE), CREATION(40,1), ITEM_END,
+    ITEM_POOR(IID_HAMMER_POOR,"hammer",    "an shoddy hammer",     50, 10, 0),MELEE_1H(1,-2,  DMG_TYPE_PIERCING,0,  0,                        TLT_NONE), CREATION(40,1), ITEM_END,
+    ITEM_POOR(IID_SWORD_POOR, "sword",     "a shoddy sword",       50, 10, 0),MELEE_1H(1,-2,  DMG_TYPE_PIERCING,0,  0,                        TLT_NONE), CREATION(40,1), ITEM_END,
+    ITEM_AVG(IID_AXE,         "axe",       "an axe",               50, 10, 0),MELEE_1H(1, 0,  DMG_TYPE_PIERCING,0,  0,                        TLT_NONE), CREATION(20,1), ITEM_END,
+    ITEM_AVG(IID_PICK,        "pick",      "an pick",              50, 10, 0),MELEE_1H(1, 0,  DMG_TYPE_PIERCING,0,  0,                        TLT_NONE), CREATION(20,1), ITEM_END,
+    ITEM_AVG(IID_HAMMER,      "hammer",    "an hammer",            50, 10, 0),MELEE_1H(1, 0,  DMG_TYPE_PIERCING,0,  0,                        TLT_NONE), CREATION(20,1), ITEM_END,
+    ITEM_AVG(IID_SWORD,       "sword",     "a sword",              50, 10, 0),MELEE_1H(1, 0,  DMG_TYPE_PIERCING,0,  0,                        TLT_NONE), CREATION(20,1), ITEM_END,
+    ITEM_GOOD(IID_AXE_GOOD,   "axe",       "a military axe",       50,100, 0),MELEE_1H(1, 0,  DMG_TYPE_CUTTING, 0,  bf(WPN_SPCQLTY_IMPACT),   TLT_NONE), CREATION(10,2), ITEM_END,
+    ITEM_GOOD(IID_HAMMER_GOOD,"hammer",    "a military hammer",    50,100, 0),MELEE_1H(1, 0,  DMG_TYPE_BLUNT,   0,  bf(WPN_SPCQLTY_PUMMELING),TLT_NONE), CREATION(10,2), ITEM_END,
+    ITEM_GOOD(IID_PICK_GOOD,  "pick",      "a military pick",      50,100, 0),MELEE_1H(1, 0,  DMG_TYPE_PIERCING,1,  bf(WPN_SPCQLTY_SLOW),     TLT_NONE), CREATION(10,2), ITEM_END,
+    ITEM_GOOD(IID_SWORD_GOOD, "sword",     "a military sword",     50,100, 0),MELEE_1H(1, 0,  DMG_TYPE_CUTTING, 0,  bf(WPN_SPCQLTY_DEFENSIVE),TLT_NONE), CREATION(10,2), ITEM_END,
 
     /* Ranged */
     /*    ID                    short name       long name        (wgt,cst,dly)              dmg type       xd10 +x pen range  special qualities     talents*/
