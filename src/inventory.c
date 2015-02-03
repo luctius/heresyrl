@@ -4,8 +4,6 @@
 #include <sys/param.h>
 #include <string.h>
 
-#include <stdio.h>
-
 #include "inventory.h"
 #include "items/items.h"
 #include "items/items_static.h"
@@ -209,21 +207,14 @@ bool inv_support_location(struct inv_inventory *inv, bitfield32_t location) {
 }
 
 bool inv_move_item_to_location(struct inv_inventory *inv, struct itm_item *item, bitfield32_t location) {
-    fprintf(stderr, "a\n");
     if (inv_verify_inventory(inv) == false) return false;
-    fprintf(stderr, "b\n");
     if (itm_verify_item(item) == false) return false;
-    fprintf(stderr, "c\n");
     if (inv_has_item(inv, item) == false) return false;
-    fprintf(stderr, "d\n");
 
     for (int i = 0; inv_loc(i) < INV_LOC_MAX; i++) {
         if ( (location & inv_loc(i) ) > 0) {
-            fprintf(stderr, "e: %d\n", i);
             if (inv_support_location(inv, inv_loc(i) ) == false) return false;
-            fprintf(stderr, "f\n");
             if (inv_loc_empty(inv, inv_loc(i) ) == false) return false;
-            fprintf(stderr, "g\n");
         }
     }
 
@@ -231,13 +222,11 @@ bool inv_move_item_to_location(struct inv_inventory *inv, struct itm_item *item,
 
     while (ie != NULL) {
         if (ie->item == item) {
-            fprintf(stderr, "h\n");
             ie->location = location;
             return true;
         }
         ie = ie->entries.tqe_next;
     }
-    fprintf(stderr, "i\n");
     return false;
 }
 
