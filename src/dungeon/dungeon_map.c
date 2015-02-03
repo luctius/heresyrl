@@ -10,7 +10,6 @@
 #include "heresyrl_def.h"
 #include "dungeon_map.h"
 
-#include "dungeon_cave.h"
 #include "tiles.h"
 #include "random.h"
 #include "ai/ai_utils.h"
@@ -20,6 +19,10 @@
 #include "items/items_static.h"
 #include "fov/sight.h"
 #include "options.h"
+
+#include "dungeon_cave.h"
+#include "dungeon_room.h"
+#include "dungeon_plain.h"
 
 extern inline struct dm_map_entity *dm_get_map_me(coord_t *c, struct dm_map *map);
 extern inline struct tl_tile *dm_get_map_tile(coord_t *c, struct dm_map *map);
@@ -233,24 +236,6 @@ bool dm_populate_map(struct dm_map *map, struct random *r, uint32_t monster_chan
     return true;
 }
 
-static bool dm_generate_map_simple(struct dm_map *map, struct random *r, enum dm_dungeon_type type, coord_t *ul, coord_t *dr) {
-    if (dm_verify_map(map) == false) return false;
-    FIX_UNUSED(r);
-    FIX_UNUSED(type);
-
-    int sz_x = dr->x - ul->x;
-    int sz_y = dr->y - ul->y;
-
-    coord_t c;
-    for (c.x = 0; c.x < sz_x; c.x++) {
-        for (c.y = 0; c.y < sz_y; c.y++) {
-            coord_t abs = cd_create(c.x + ul->x, c.y +ul->y);
-            dm_get_map_me(&abs,map)->tile = ts_get_tile_type(TILE_TYPE_FLOOR);
-        }
-    }
-    return true;
-}
-
 /* 
    Here we add stairs, supports only 2 at a time, for now.
    randomly selects a tile, puts down the up stairs,
@@ -438,6 +423,23 @@ static bool dm_get_tunnel_path(struct dm_map *map, struct pf_context *pf_ctx, st
     return retval;
 }
 
+static void dm_add_lights(struct dm_map *map, struct random *r) {
+    for (int x = 1; x < map->size.x; x++) {
+        for (int y = 1; y < map->size.y; y++) {
+            coord_t point = { .x = x, .y = y, };
+
+            struct dm_map_entity *me = dm_get_map_me(&point, map);
+            if (me->tile->type == TILE_TYPE_WALL ) {
+                if(random_int32(r)%100 < 1) {
+                    me->tile = ts_get_tile_specific(TILE_ID_CONCRETE_WALL_LIT);
+                    lg_debug("light at (%d,%d)", x,y);
+                }
+            }
+        }
+    }
+
+}
+
 bool dm_generate_map(struct dm_map *map, enum dm_dungeon_type type, int level, unsigned long seed, bool populate) {
     if (dm_verify_map(map) == false) return false;
 
@@ -462,11 +464,13 @@ bool dm_generate_map(struct dm_map *map, enum dm_dungeon_type type, int level, u
             cave_generate_map(map, r, type, &ul, &dr);
             break;
         default:
-            dm_generate_map_simple(map, r, type, &ul, &dr);
+        case DUNGEON_TYPE_PLAIN:
+            dm_generate_map_plain(map, r, type, &ul, &dr);
             break;
     }
     assert(dm_has_floors(map) );
 
+    dm_add_lights(map, r);
     dm_add_stairs(map, r);
     dm_clear_map(map);
 

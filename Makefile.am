@@ -27,6 +27,8 @@ heresyrl_SOURCES =  \
                     src/turn_tick.c \
                     src/careers/careers.c \
                     src/dungeon/dungeon_cave.c \
+                    src/dungeon/dungeon_room.c \
+                    src/dungeon/dungeon_plain.c \
                     src/dungeon/dungeon_map.c \
                     src/dungeon/spawn.c \
                     src/ai/ai.c \
