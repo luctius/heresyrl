@@ -346,54 +346,55 @@ bool dm_clear_map_visibility(struct dm_map *map, coord_t *start, coord_t *end) {
     return true;
 }
 
-/*
-   This callback is used to create a path through rock and 
-   rescue a locked in section of the map.
-   Hence it will only return a PF_BLOCKED when it has 
-   reached the sides of the map.
- */
-unsigned int tunnel_callback(void *vmap, coord_t *coord) {
-    if (vmap == NULL) return PF_BLOCKED;
-    if (coord == NULL) return PF_BLOCKED;
-    struct dm_map *map = (struct dm_map *) vmap;
-
-    if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(coord, map),TILE_ATTR_BORDER) == true) return PF_BLOCKED;
-    return 1;
-}
-
-static const coord_t dm_coord_lo_table[] = {
-    {-1,-1}, {-1,0}, {-1,1}, 
-    { 0,-1},         { 0,1}, 
-    { 1,-1}, { 1,0}, { 1,1},
-};
-
-/*
-   Given a path to tunnel, it will replace the original tile 
-   pointer with the given one, thus tunneling a path throught walls.
- */
-static bool dm_tunnel(struct dm_map *map, coord_t plist[], int plsz, struct tl_tile *tl) {
-    if (plist == NULL) return false;
+static bool dm_tunnel(struct dm_map *map, struct random *r, coord_t *start, coord_t *end, struct tl_tile *tl) {
+    if (dm_verify_map(map) == false) return false;
+    if (cd_within_bound(start, &map->size) == false) return false;
+    if (cd_within_bound(end, &map->size) == false) return false;
     if (tl == NULL) return false;
-    if (plsz == 0) return false;
 
-    /* copy the given tile over the path. */
-    for (int i = 0; i < plsz; i++) {
-        dm_get_map_me(&plist[i], map)->tile = tl;
-        lg_debug("tunnel dig at (%d,%d)", plist[i].x, plist[i].y);
+    coord_t prev = { .x = start->x, .y = start->y, };
+    bool tunnel_done = false;
+    while (!tunnel_done) {
+        coord_t delta     = cd_delta(end, &prev);
+        coord_t delta_abs = cd_delta_abs(end, &prev);
+        
+        int xd = 0;
+        int yd = 0;
+        int xmod = (delta.x >= 0) ? 1: -1;
+        int ymod = (delta.y >= 0) ? 1: -1;
+        
+        int roll = random_int32(r) % 100;
+        if (roll < 50) {
+            if (delta_abs.x >= delta_abs.y) {
+                xd = 1 * xmod;
+            }
+            else if (delta_abs.x <= delta_abs.y) {
+                yd = 1 * ymod;
+            }
+        }
+        else {
+            roll = random_int32(r) % 4;
+            if (roll < 30) {
+                xd = 1 * xmod;
+            }
+            else if (roll < 60) {
+                yd = 1 * ymod;
+            }
+            else if (roll < 80) {
+                xd = 1 * -xmod;
+            }
+            else if (roll < 100) {
+                yd = 1 * -ymod;
+            }
+        }
 
-        for (int j = 0; j < (int) ARRAY_SZ(dm_coord_lo_table); j++) {
-            coord_t t;
-            t.x = dm_coord_lo_table[j].x + plist[i].x;
-            t.y = dm_coord_lo_table[j].y + plist[i].y;
+        coord_t next = { .x = prev.x +xd, .y = prev.y +yd, };
+        if (cd_within_bound(&next, &map->size) ) {
+            dm_get_map_me(&next, map)->tile = tl;
+            prev.x = next.x;
+            prev.y = next.y;
 
-            if (cd_within_bound(&t, &map->size) == false) continue;
-            if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(&t, map),TILE_ATTR_BORDER) == true)
-                continue;
-            if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(&t, map),TILE_ATTR_TRAVERSABLE) == true)
-                continue;
-            
-            dm_get_map_me(&t, map)->tile = tl;
-            lg_debug("tunnel dig neighbour at (%d,%d)", t.x, t.y);
+            if (cd_equal(&prev, end) ) tunnel_done = true;
         }
     }
     return true;
@@ -411,50 +412,26 @@ static bool dm_has_floors(struct dm_map *map) {
     return false;
 }
 
-static bool dm_get_tunnel_path(struct dm_map *map, struct pf_context *pf_ctx) {
+static bool dm_get_tunnel_path(struct dm_map *map, struct pf_context *pf_ctx, struct random *r) {
     if (dm_verify_map(map) == false) return false;
 
     bool retval = false;
 
-    /* get a coords from a place we did not reach with our flooding*/
+    /* get a coords from a place we did not reach with our flooding, nearest to the stairs*/
     coord_t nftl;
-    if (pf_get_non_flooded_tile(pf_ctx, &nftl) == true) {
+    if (pf_get_non_flooded_tile(pf_ctx, &map->stair_up, &nftl) == true) {
 
         /* get coords of a place we DID reach, so we can connect to that*/
         coord_t ftl;
         if (pf_get_closest_flooded_tile(pf_ctx, &nftl, &ftl) == true) {
 
-            /*save current, probably generic, callback*/
-            struct pf_settings *set = pf_get_settings(pf_ctx);
-            void *tcbk = set->pf_traversable_callback;
-
-            /*set our tunneling callback*/
-            set->pf_traversable_callback = tunnel_callback;
-
-            /*run the pathfinding algorithm*/
-            if (pf_astar_map(pf_ctx, &nftl, &ftl) == true) {
-                int sz = 0;
-
-                /*retreive the path */
-                coord_t *plist = NULL;
-                if ( (sz = pf_calculate_path (pf_ctx, &nftl, &ftl, &plist) ) > 0) {
-
-                    /* HACK:
-                       this is the tile we will copy.
-                       i assume the map does only contain 
-                       generic tiles...
-                     */
-                    struct tl_tile *tl = ts_get_tile_specific(TILE_ID_CONCRETE_FLOOR); //dm_get_map_tile(&ftl, map);
-
-                    if (dm_tunnel(map, plist, sz, tl) == true) {
-                        retval = true;
-                    }
-                    free(plist);
-                }
+            /* get the closest non-flooded tile to the flooded tile we just found. */
+            coord_t nftl2;
+            if (pf_get_non_flooded_tile(pf_ctx, &ftl, &nftl2) == true) {
+                /* Tunnel our way to there.. */
+                struct tl_tile *tl = ts_get_tile_specific(TILE_ID_CONCRETE_FLOOR);
+                if (dm_tunnel(map, r, &ftl, &nftl2, tl) ) return true;
             }
-
-            /* restore callback*/
-            set->pf_traversable_callback = tcbk;
         }
     }
 
@@ -512,7 +489,7 @@ bool dm_generate_map(struct dm_map *map, enum dm_dungeon_type type, int level, u
                 assert(pf_calculate_path(pf_ctx, &start, &end, NULL) > 1);
             }
             else {
-                dm_get_tunnel_path(map, pf_ctx);
+                dm_get_tunnel_path(map, pf_ctx, r);
             }
 
         }
