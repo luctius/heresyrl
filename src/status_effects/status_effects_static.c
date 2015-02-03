@@ -50,15 +50,16 @@ static struct status_effect static_status_effect_list[] = {
         SETTINGS(bf(SEF_REQ_CHEM_USE_CHECK) | bf(SEF_DETOXABLE), -20,   SEID_NONE,   20,          50),
     STATUS_EFFECT_END,
 
-    /* Stimms*/
-    STATUS_EFFECT(SEID_HEALTH_STIMM, "health stimm", "", "Your wounds begin to heal.", "%s's wounds begin to heal.", "You feel the healing wearing off.", NULL),
+    /* Draughts */
+    STATUS_EFFECT(SEID_MINOR_HEALING, "healing draught", "", "Your wounds begin to heal.", "%s's wounds begin to heal.", "You feel the healing wearing off.", NULL),
         EFFECTS_START
             /* Type         Effect        Flags   Strength     Difficulty   Interval   */
-            TICK_EFFECT(SETF_HEALTH_TICK, 0,   SE_STRENGTH_ONE, 0,           1),
+            TICK_EFFECT(SETF_HEALTH_TICK, 0,   SE_STRENGTH_ONE, 0,           2),
         EFFECTS_END,
-            /*Settings      Flags         Difficulty    Next                Minimum  -  Maximum Turns*/
-            SETTINGS( bf(SEF_REMOVE_CONTINUE), 0, SEID_WITHDRAWL_HEALTH_STIMM, 10,        10),
+            /*Settings      Flags                           Difficulty    Next                Minimum  -  Maximum Turns*/
+            SETTINGS(bf(SEF_NOT_UNIQUE) | bf(SEF_REMOVE_CONTINUE), 0, SEID_WITHDRAWL_HEALTH_STIMM, 2,        10),
     STATUS_EFFECT_END,
+
 
     STATUS_EFFECT(SEID_FATEHEALTH, "fatepoint_health", "", NULL, NULL, NULL, NULL),
         EFFECTS_START

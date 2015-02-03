@@ -23,6 +23,13 @@ enum status_effect_flags {
     SEF_REQ_TGH_CHECK,
     SEF_REQ_AG_CHECK,
     SEF_REQ_CHEM_USE_CHECK,
+    SEF_REQ_HEAL_CHECK,
+
+    /*
+       When a Beneficial effect requires an skill/char check, failing it will 
+       set the effect to inactive.
+     */
+    SEF_BENEFICIAL,
 
     /* Sets if this status_effect can be removed by a detox status_effect */
     SEF_DETOXABLE,
@@ -133,6 +140,13 @@ enum status_effect_setting_flags {
     SESF_REQ_TGH_CHECK,
     SESF_REQ_AG_CHECK,
     SESF_REQ_CHEM_USE_CHECK,
+    SESF_REQ_HEAL_CHECK,
+
+    /*
+       When a Beneficial effect requires an skill/char check, failing it will 
+       set the effect to inactive.
+     */
+    SESF_BENEFICIAL,
 
     /* Set the damage type of any damage done*/
     SESF_DMG_TYPE_ENERGY,

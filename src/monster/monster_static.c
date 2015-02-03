@@ -48,6 +48,11 @@
     .characteristic[MSR_SEC_CHAR_MAGIC]={ .base_value=0, }, \
     .talents = { t, TLT_NONE, }, .creature_traits = 0, .crtr_wpn=IID_HUMAN_UNARMED
 
+#define GREENSKIN( t...) .race=MSR_RACE_GREENSKIN, .size=MSR_SIZE_AVERAGE, \
+    .characteristic[MSR_SEC_CHAR_ATTACKS]={ .base_value=1, }, \
+    .characteristic[MSR_SEC_CHAR_MOVEMENT]={ .base_value=4, }, \
+    .characteristic[MSR_SEC_CHAR_MAGIC]={ .base_value=0, }, \
+    .talents = { t, TLT_NONE, }, .creature_traits = 0, .crtr_wpn=IID_HUMAN_UNARMED
 
 #define BEAST( t...) .race=MSR_RACE_BEAST, .size=MSR_SIZE_AVERAGE, \
     .talents = { t , TLT_NONE, }, .creature_traits = bf(CTRTRTS_BESTIAL) | bf(CTRTRTS_QUADRUPED), \
@@ -95,6 +100,24 @@ struct msr_monster static_monster_list[] = {
         DESCRIPTION("description of an human"),
     MONSTER_END,
     /*----------------------------------------------------------*/
+
+    MONSTER('g',"goblin","a goblin warrior",MSR_GENDER_MALE,-2)
+        GREENSKIN(TLT_NIGHT_VISION),
+        CHARACTERISTICS(25,30,30,30,25,25,30,30),
+        DEF_ITEM(0, ITEM_GROUP_1H_MELEE),
+        SKILLS(MSR_SKILLS_CONCEALMENT|MSR_SKILLS_SURVIVAL|MSR_SKILLS_AWARENESS|MSR_SKILLS_SCALE_SHEER_SURFACE|MSR_SKILLS_SET_TRAP|MSR_SKILLS_SILENT_MOVE,0,0),
+        DESCRIPTION("description of an goblin fighter"),
+        CREATION(30,1,bf(DUNGEON_TYPE_CAVE) | bf(DUNGEON_TYPE_PLAIN) ),
+    MONSTER_END,
+
+    MONSTER('g',"goblin","a goblin thrower",MSR_GENDER_MALE,-2)
+        GREENSKIN(TLT_NIGHT_VISION),
+        CHARACTERISTICS(25,30,30,30,25,25,30,30),
+        DEF_ITEM(0, ITEM_GROUP_RANGED),
+        SKILLS(MSR_SKILLS_CONCEALMENT|MSR_SKILLS_SURVIVAL|MSR_SKILLS_AWARENESS|MSR_SKILLS_SCALE_SHEER_SURFACE|MSR_SKILLS_SET_TRAP|MSR_SKILLS_SILENT_MOVE,0,0),
+        DESCRIPTION("description of an goblin thrower"),
+        CREATION(30,1,bf(DUNGEON_TYPE_CAVE) | bf(DUNGEON_TYPE_PLAIN) ),
+    MONSTER_END,
 
     MONSTER('h',"human","a human fighter",MSR_GENDER_MALE,1)
         HUMAN(TLT_NONE),

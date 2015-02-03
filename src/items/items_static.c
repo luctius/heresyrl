@@ -110,7 +110,7 @@
 #define AMMO(_ammo_type,cid) .icon='^', .stacked_quantity=1, .max_quantity=100, .dropable=true, \
             .item_type=ITEM_TYPE_AMMO, .specific.ammo={ .ammo_type=_ammo_type, .convey_status_effect=cid, }
 
-#define STIMM(_food_type,cid) .icon='?', .stacked_quantity=1, .max_quantity=100, .dropable=true, \
+#define DRAUGHT(_food_type,cid) .icon='?', .stacked_quantity=1, .max_quantity=100, .dropable=true, \
             .item_type=ITEM_TYPE_FOOD, .specific.food={ .food_type=_food_type, .nutrition=0, .nutrition_left=0, .convey_status_effect=cid, }
 
 static const char *itm_descs[] = {
@@ -166,7 +166,7 @@ static const char *itm_descs[] = {
     [IID_CREATURE_BITE_TRAINED]   = "",
     [IID_BODYPART_GRENADE]  = "used in status effects",
 
-    [IID_STIMM_HEALTH]     = "Health stimm injector",
+    [IID_DRAUGHT_HEALING_MINOR]  = "A healing Draught",
     [IID_STIMM_DEATH]      = "Death stimm injector *debug*",
 };
 
@@ -233,13 +233,13 @@ static struct itm_item static_item_list[] = {
     ITEM_NONE(IID_CREATURE_BITE_TRAINED,  "teeth",   "teeth",   0, 0, 0), CREATURE_MELEE(WEAPON_CATEGORY_2H_MELEE,1,  0, DMG_TYPE_CLAW,   0,  0), ITEM_END,
 
     /* Stimms */
-    /*    ID                  short name            long name                         quality           (wgt,cst,dly)      Food Type            status_effect*/
-    ITEM(IID_STIMM_HEALTH,  "health stimm", "an injector with a regenerative liquid", ITEM_QLTY_AVERAGE,   0, 1, 1), STIMM(FOOD_TYPE_INJECTION, SEID_HEALTH_STIMM), CREATION(10,1), ITEM_END,
+    /*    ID                                short name        long name            (wgt,cst,dly)      Food Type            status_effect*/
+    ITEM_POOR(IID_DRAUGHT_HEALING_MINOR,  "healing draught", "a minor healing draught", 0, 1, 1), DRAUGHT(FOOD_TYPE_LIQUID, SEID_MINOR_HEALING), CREATION(10,1), ITEM_END,
 
     /* status effect items */
     ITEM(IID_BODYPART_GRENADE,"","status effect",ITEM_QLTY_AVERAGE,5,10,1),THROWN_GRENADE(DMG_TYPE_SHRAPNEL,1,0,0,3,bf(WPN_SPCQLTY_BLAST_2),TLT_NONE,SEID_NONE),ITEM_END,
     /* debug items */
-    ITEM(IID_STIMM_DEATH,   "death debug",  "an injector with a deadly liquid", ITEM_QLTY_AVERAGE, 0, 1, 1), STIMM(FOOD_TYPE_INJECTION, SEID_DEATH_STIMM), ITEM_END,
+    ITEM(IID_STIMM_DEATH,   "death debug",  "an injector with a deadly liquid", ITEM_QLTY_AVERAGE, 0, 1, 1), DRAUGHT(FOOD_TYPE_LIQUID, SEID_DEATH_STIMM), ITEM_END,
 };
 
 static const char *item_quality_strings[] = {

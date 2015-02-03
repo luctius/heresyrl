@@ -60,7 +60,6 @@ enum item_weapon_type {
 enum item_food_type {
     FOOD_TYPE_SOLID,
     FOOD_TYPE_LIQUID,
-    FOOD_TYPE_INJECTION,
     FOOD_TYPE_MAX,
     FOOD_TYPE_RANDOM,
 };

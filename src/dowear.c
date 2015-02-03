@@ -227,8 +227,8 @@ bool dw_use_item(struct msr_monster *monster, struct itm_item *item) {
         struct item_food_specific *food = &item->specific.food;
 
         if (food->food_type == FOOD_TYPE_LIQUID) {
-            You(monster,     "drink from %s.", item->ld_name);
-            Monster(monster, "drinks from %s.", item->ld_name);
+            You(monster,     "quaff %s.", item->ld_name);
+            Monster(monster, "quaffs %s.", item->ld_name);
 
             food->nutrition_left -= 1;
             if (food->nutrition_left <= 0) {
@@ -246,17 +246,8 @@ bool dw_use_item(struct msr_monster *monster, struct itm_item *item) {
                 destroy = true;
             }
         }
-        else if (food->food_type == FOOD_TYPE_INJECTION) {
-            You(monster,     "inject %s.",  item->ld_name);
-            Monster(monster, "injects %s.", item->ld_name);
 
-            se_add_status_effect(monster, food->convey_status_effect);
-
-            item->stacked_quantity -= 1;
-            if (item->stacked_quantity <= 0) {
-                destroy = true;
-            }
-        }
+        if (food->convey_status_effect != NULL) se_add_status_effect(monster, food->convey_status_effect);
 
         if (destroy) {
             if (inv_remove_item(monster->inventory, item) == true) {

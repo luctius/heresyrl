@@ -10,7 +10,7 @@ enum se_ids {
     SEID_WITHDRAWL_HEALTH_STIMM,
 
     /* Stimms */
-    SEID_HEALTH_STIMM,
+    SEID_MINOR_HEALING,
     SEID_DEATH_STIMM,
 
     /* Weapons */

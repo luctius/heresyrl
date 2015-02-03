@@ -68,11 +68,13 @@ enum item_ids {
 
     /* Food */
     /* Stimms */
-    IID_STIMM_HEALTH,
-    IID_STIMM_DEATH,
+    IID_DRAUGHT_HEALING_MINOR,
 
     /* status effect items */
     IID_BODYPART_GRENADE,
+
+    /* Debug */
+    IID_STIMM_DEATH,
 
     /* Last Entry */
     IID_MAX,

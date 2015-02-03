@@ -156,6 +156,7 @@ struct msr_monster *msr_create(enum msr_ids template_id) {
         case MSR_RACE_ELF:
         case MSR_RACE_HALFLING:
         case MSR_RACE_HUMAN:
+        case MSR_RACE_GREENSKIN:
             m->monster.inventory = inv_init(inv_loc_human);
             break;
         case MSR_RACE_BEAST:
