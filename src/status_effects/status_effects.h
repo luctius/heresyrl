@@ -44,6 +44,11 @@ enum status_effect_flags {
      */
     SEF_REMOVE_CONTINUE,
 
+    /*  
+        This Ground-based effect will be removed from a creature after moving away from a tile.
+    */
+    SEF_REMOVE_ON_EXIT,
+
     /* If set and on the ground will make the tile opague. */
     SEF_BLOCKS_SIGHT,
 
@@ -94,7 +99,6 @@ enum status_effect_type_flags {
     SETF_DISABLE_RARM,
     SETF_DISABLE_EYE,
 
-    /*Warning, damage status_effects trigger critical hits, do not use in critical hit tables. */
     SETF_DAMAGE,
     SETF_DAMAGE_TICK,
 
@@ -111,7 +115,6 @@ enum status_effect_type_flags {
     SETF_PINNED,
     SETF_ON_FIRE,
     SETF_POISON,
-    SETF_PSYCHIC_ENHANCE,
     SETF_DETOX,
     SETF_INSTANT_DEATH,
     SETF_EXPLODE,
@@ -219,7 +222,7 @@ struct status_effect {
     int grnd_duration_energy_min;
     int grnd_duration_energy_max;
     int grnd_duration_energy;
-    struct dm_map_entity *me;
+    //struct dm_map_entity *me;
 
     int duration_energy_min;
     int duration_energy_max;
@@ -241,7 +244,7 @@ void se_init(void);
 struct status_effect *selst_get_next_status_effect(struct status_effect *prev);
 struct status_effect *selst_status_effect_by_uid(uint32_t status_effect_uid);
 void se_exit(void);
-void se_process_grnd(void);
+bool se_process_grnd(struct status_effect *se); /* Process temporary ground based effects */
 
 struct status_effect_list *se_list_init(void);
 void se_list_exit(struct status_effect_list *se_list);
@@ -266,6 +269,7 @@ bool se_add_to_list(struct msr_monster *monster, struct status_effect *con);
 
 bool se_add_status_effect(struct msr_monster *monster, uint32_t tid);
 bool se_remove_status_effect(struct status_effect_list *se_list, struct status_effect *c);
+bool se_remove_effects_by_tid(struct status_effect_list *se_list, uint32_t tid);
 
 bool se_tid_ground_permissible(enum se_ids tid);
 

@@ -302,6 +302,7 @@ bool itm_energy_action(struct itm_item *item, struct dm_map *map) {
 bool itm_change_energy(struct itm_item *item, int energy) {
     if (itm_verify_item(item) == false) return false;
     if (item->energy_action == false) return false;
+    if (item->permanent_energy == true) return false;
 
     item->energy += energy;
     return true;

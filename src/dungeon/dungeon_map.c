@@ -19,6 +19,7 @@
 #include "items/items_static.h"
 #include "fov/sight.h"
 #include "options.h"
+#include "turn_tick.h"
 
 #include "dungeon_cave.h"
 #include "dungeon_room.h"
@@ -506,6 +507,82 @@ bool dm_generate_map(struct dm_map *map, enum dm_dungeon_type type, int level, u
 
     if (populate) dm_populate_map(map, r, 100, 5, level);
     random_exit(r);
+
+    return true;
+}
+
+void dm_process_tiles(struct dm_map *map) {
+    if (dm_verify_map(map) == false) return;
+
+    coord_t c;
+    for (c.x = 0; c.x < map->size.x; c.x++) {
+        for (c.y = 0; c.y < map->size.y; c.y++) {
+            struct dm_map_entity *me = dm_get_map_me(&c,map);
+            //struct tl_tile *tl = me->tile;
+
+            /* Process Tile based effects. */
+
+            /* Process Temporary effects. */
+            if (me->status_effect != NULL) {
+                struct status_effect *se = me->status_effect;
+
+                if (se_process_grnd(me->status_effect) ) {
+                    me->status_effect = NULL;
+                }
+                else if ( (se->grnd_duration_energy % TT_ENERGY_TURN) == 0) {
+                    if (me->monster != NULL) {
+                        struct msr_monster *monster = me->monster;
+                        if (monster != NULL) {
+                            assert(se_add_status_effect(monster, se->template_id) );
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /* Process temporary ground-based effects. */
+}
+
+bool dm_tile_enter(struct dm_map *map, coord_t *point, struct msr_monster *monster) {
+    if (dm_verify_map(map) == false) return false;
+    if (msr_verify_monster(monster) == false) return false;
+
+    struct dm_map_entity *me = dm_get_map_me(point,map);
+    if (me->monster != NULL) return false;
+
+    struct tl_tile *tl = me->tile;
+    if (tl->status_effect_tid != SEID_NONE)  {
+        se_add_status_effect(monster, tl->status_effect_tid);
+    }
+
+    if (me->status_effect != NULL) {
+        if (se_verify_status_effect(me->status_effect) == false) return false;
+        se_add_status_effect(monster, me->status_effect->template_id);
+    }
+
+    return true;
+}
+
+bool dm_tile_exit(struct dm_map *map, coord_t *point, struct msr_monster *monster) {
+    if (dm_verify_map(map) == false) return false;
+    if (msr_verify_monster(monster) == false) return false;
+
+    struct dm_map_entity *me = dm_get_map_me(point,map);
+    assert(me->monster == monster);
+    me->monster = NULL;
+
+    struct tl_tile *tl = me->tile;
+    if (tl->status_effect_tid != SEID_NONE) {
+        se_remove_effects_by_tid(monster->status_effects, tl->status_effect_tid);
+    }
+
+    if (me->status_effect != NULL) {
+        if (se_verify_status_effect(me->status_effect) == false) return false;
+        if (se_has_flag(me->status_effect, SEF_REMOVE_ON_EXIT) ) {
+            se_remove_effects_by_tid(monster->status_effects, me->status_effect->template_id);
+        }
+    }
 
     return true;
 }

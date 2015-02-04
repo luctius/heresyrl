@@ -230,6 +230,7 @@ struct itm_item {
      */
     bool energy_action;
     int energy;
+    bool permanent_energy; /* True if it is a permanent effect, like a magic cloak*/
 
     /* 
        whether or not this item appears on the ground after a creature is dead. 

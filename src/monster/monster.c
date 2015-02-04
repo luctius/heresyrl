@@ -257,17 +257,16 @@ bool msr_move_monster(struct msr_monster *monster, struct dm_map *map, coord_t *
     if (cd_within_bound(pos, &map->size) == false) return false;
     if (cd_equal(&monster->pos, pos) == true ) return false;
 
-    struct dm_map_entity *me_current = dm_get_map_me(&monster->pos, map);
     struct dm_map_entity *me_future = dm_get_map_me(pos, map);
-
     if (TILE_HAS_ATTRIBUTE(me_future->tile, TILE_ATTR_TRAVERSABLE) ) {
         /*Speed of one for now*/
         if (cd_neighbour(&monster->pos, pos) == false) return false;
         /*coord_t mon_pos_new = cd_add(&monster->pos, pos);*/
 
+        assert(dm_tile_exit(map, &monster->pos, monster) );
+
         if (msr_insert_monster(monster, map, pos) == true) {
-            me_current->monster = NULL;
-            retval = true;
+            retval = dm_tile_enter(map, pos, monster);
         }
         /*
         else if (msr_move_monster(me_future->monster, map, &mon_pos_new) ) {
@@ -962,13 +961,6 @@ uint8_t msr_get_movement_rate(struct msr_monster *monster) {
     if (se_has_effect(monster->status_effects, SETF_DISABLE_LLEG) ) {
         max_speed -= 2;
         speed_mod -= speed / 2;
-    }
-
-    if (se_has_effect(monster->status_effects, SETF_INCREASE_MOVEMENT) ) {
-        speed_mod += se_status_effect_strength(monster->status_effects, SETF_INCREASE_MOVEMENT);
-    }
-    if (se_has_effect(monster->status_effects, SETF_DECREASE_MOVEMENT) ) {
-        speed_mod += se_status_effect_strength(monster->status_effects, SETF_DECREASE_MOVEMENT);
     }
 
     if (inv_wears_wearable_with_spcqlty(monster->inventory, WBL_SPCQLTY_PLATE) ) {

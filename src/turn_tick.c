@@ -4,6 +4,7 @@
 #include "items/items.h"
 #include "coord.h"
 #include "game.h"
+#include "dungeon/dungeon_map.h"
 
 #include "ui/ui.h"
 
@@ -84,8 +85,6 @@ void tt_process_status_effects(void) {
     struct msr_monster *monster = NULL;
     if (gbl_game->running == false) return;
 
-    se_process_grnd();
-
     while ( (monster = msrlst_get_next_monster(monster) ) != NULL) {
         if (monster->dead == false) {
             if (se_list_size(monster->status_effects) > 0 ) {
@@ -99,6 +98,8 @@ void tt_process(struct dm_map *map) {
     tt_process_monsters(map);
 
     tt_process_items(map);
+
+    dm_process_tiles(map);
 
     tt_process_status_effects();
 }

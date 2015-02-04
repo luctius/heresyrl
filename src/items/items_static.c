@@ -47,7 +47,7 @@
 #define FIXED_LIGHT(_tool_type,_energy,_light_luminem) \
             .icon='(', .stacked_quantity=1, .max_quantity=100, .item_type=ITEM_TYPE_TOOL, \
             .specific.tool={ .tool_type=_tool_type, .energy=_energy, .energy_left=_energy, \
-            .light_luminem=_light_luminem, .lit=false,}, .dropable=false
+            .light_luminem=_light_luminem, .lit=false,}, .permanent_energy=true, .dropable=false
 
 #define LIGHT(_tool_type,_energy,_light_luminem) \
             .icon='(', .stacked_quantity=1, .max_quantity=100, .item_type=ITEM_TYPE_TOOL, \
@@ -176,7 +176,7 @@ static struct itm_item static_item_list[] = {
 
     /* Lights */
     /*    ID              short name    long name    quality          weight,cost,delay             tool type         energy  luminem*/
-    ITEM(IID_FIXED_LIGHT, "torch",      "a torch",   ITEM_QLTY_AVERAGE, 1,     1,   1), FIXED_LIGHT(TOOL_TYPE_LIGHT,  65000,   10),  ITEM_END,
+    ITEM(IID_FIXED_LIGHT, "torch",      "a torch",   ITEM_QLTY_AVERAGE, 1,     1,   1), FIXED_LIGHT(TOOL_TYPE_LIGHT,      1,    10),  ITEM_END,
     ITEM(IID_TORCH,       "torch",      "a torch",   ITEM_QLTY_AVERAGE, 1,     1,   1),       LIGHT(TOOL_TYPE_LIGHT,   1000,    10), CREATION(1,1), ITEM_END,
 
     /* Wearables */

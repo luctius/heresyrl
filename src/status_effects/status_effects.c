@@ -146,32 +146,20 @@ void se_list_exit(struct status_effect_list *se_list) {
     free(se_list);
 }
 
-void se_process_grnd() {
-    if (status_effects_list_initialised == false) return;
-    struct status_effect *se = NULL;
+bool se_process_grnd(struct status_effect *se) {
+    if (se_verify_status_effect(se) == false) return false;
 
-    while ( (se = selst_get_next_status_effect(se) ) != NULL) {
-        if (se->permissible_on_ground) {
-            if (se->me != NULL) {
-                se->grnd_duration_energy -= TT_ENERGY_TICK;
-                if (se->grnd_duration_energy < 0) {
-                    se->me->status_effect = NULL;
-                    se->me = NULL;
+    if (se->permissible_on_ground == false || se->grnd_duration_energy < 0) {
+        struct se_entry *ce = container_of(se, struct se_entry, status_effect);
+        struct status_effect_list_entry *sele = container_of(ce, struct status_effect_list_entry, se);
 
-                    struct se_entry *ce = container_of(se, struct se_entry, status_effect);
-                    struct status_effect_list_entry *sele = container_of(ce, struct status_effect_list_entry, se);
-
-                    TAILQ_REMOVE(&status_effects_list_head, sele, entries);
-                    free(sele);
-                }
-                else if ( (se->grnd_duration_energy % TT_ENERGY_TURN) == 0) {
-                    if (se->me->monster != NULL) {
-                        assert(se_add_status_effect(se->me->monster, se->template_id) );
-                    }
-                }
-            }
-        }
+        TAILQ_REMOVE(&status_effects_list_head, sele, entries);
+        free(sele);
+        return false;
     }
+
+    se->grnd_duration_energy -= TT_ENERGY_TICK;
+    return true;
 }
 
 bool se_verify_list(struct status_effect_list *se_list) {
@@ -280,8 +268,8 @@ struct status_effect *se_create(enum se_ids tid) {
 struct status_effect *se_create_ground(enum se_ids tid, struct dm_map_entity *me) {
     struct status_effect *se = se_create(tid);
     assert(se != NULL);
+    assert(me->status_effect == NULL);
     assert(se->permissible_on_ground);
-    se->me = me;
 
     return se;
 }
@@ -360,6 +348,20 @@ bool se_remove_status_effect(struct status_effect_list *se_list, struct status_e
     }
 
     return false;
+}
+
+bool se_remove_effects_by_tid(struct status_effect_list *se_list, uint32_t tid) {
+    if (se_verify_list(se_list) == false) return false;
+
+    bool found = false;
+    struct status_effect *c = NULL;
+    while ( (c = se_list_get_next_status_effect(se_list, c) ) != NULL) {
+        if (c->template_id == tid) {
+            se_remove_status_effect(se_list, c);
+            found = true;
+        }
+    }
+    return found;
 }
 
 bool se_verify_status_effect(struct status_effect *se) {
@@ -561,7 +563,6 @@ void se_process_effects_first(struct se_type_struct *ces, struct msr_monster *mo
         case SETF_INHIBIT_FATE_POINT: break;
         case SETF_PINNED: break;
         case SETF_ON_FIRE: break;
-        case SETF_PSYCHIC_ENHANCE: break;
         case SETF_BLOODLOSS: break;
         case SETF_DETOX: break;
         case SETF_DECREASE_FATIQUE: break;
@@ -695,8 +696,6 @@ void se_process_effects_last(struct se_type_struct *ces, struct msr_monster *mon
 
     int mod = -1;
     switch(ces->effect) {
-        case SETF_DECREASE_MOVEMENT: break;
-        case SETF_INCREASE_MOVEMENT: break;
         case SETF_STUMBLE: break;
         case SETF_BLINDNESS: break;
         case SETF_DEAFNESS: break;
@@ -706,7 +705,6 @@ void se_process_effects_last(struct se_type_struct *ces, struct msr_monster *mon
         case SETF_INHIBIT_FATE_POINT: break;
         case SETF_PINNED: break;
         case SETF_ON_FIRE: break;
-        case SETF_PSYCHIC_ENHANCE: break;
         case SETF_DECREASE_FATIQUE: break;
         case SETF_INCREASE_FATIQUE: break;
         case SETF_INCREASE_ALL_SKILLS: break;
@@ -747,6 +745,11 @@ void se_process_effects_last(struct se_type_struct *ces, struct msr_monster *mon
             break;
         case SETF_SET_INT:
             monster->characteristic[MSR_CHAR_INTELLIGENCE].base_value = ces->strength;
+            break;
+
+        case SETF_DECREASE_MOVEMENT: mod = 1;
+        case SETF_INCREASE_MOVEMENT:
+            monster->characteristic[MSR_SEC_CHAR_MOVEMENT].mod += (ces->strength * mod) * ces->ticks_applied;
             break;
 
         case SETF_DECREASE_WS: mod = 1;
@@ -836,8 +839,6 @@ void se_process_effects_during(struct se_type_struct *ces, struct msr_monster *m
 
     int mod = 1;
     switch(ces->effect) {
-        case SETF_DECREASE_MOVEMENT: break;
-        case SETF_INCREASE_MOVEMENT: break;
         case SETF_STUMBLE: break;
         case SETF_BLINDNESS: break;
         case SETF_DEAFNESS: break;
@@ -847,7 +848,6 @@ void se_process_effects_during(struct se_type_struct *ces, struct msr_monster *m
         case SETF_INHIBIT_FATE_POINT: break;
         case SETF_PINNED: break;
         case SETF_ON_FIRE: break;
-        case SETF_PSYCHIC_ENHANCE: break;
         case SETF_EXPLODE: break;
         case SETF_INSTANT_DEATH: break;
         case SETF_SET_WS: break;
@@ -874,6 +874,11 @@ void se_process_effects_during(struct se_type_struct *ces, struct msr_monster *m
         case SETF_INCREASE_FATIQUE:
             monster->fatique += ces->strength * ( -1 * mod);
             monster->fatique_turn = gbl_game->turn;
+            break;
+
+        case SETF_DECREASE_MOVEMENT: mod = -1;
+        case SETF_INCREASE_MOVEMENT:
+            monster->characteristic[MSR_SEC_CHAR_MOVEMENT].mod += ces->strength * mod;
             break;
 
         case SETF_DECREASE_WS: mod = -1;

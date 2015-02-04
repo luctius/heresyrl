@@ -70,4 +70,8 @@ bool dm_tile_instance(struct dm_map *map, enum tile_types tt, int instance, coor
 bool dm_clear_map_visibility(struct dm_map *map, coord_t *start, coord_t *end);
 bool dm_clear_map(struct dm_map *map);
 
+void dm_process_tiles(struct dm_map *map);
+bool dm_tile_enter(struct dm_map *map, coord_t *point, struct msr_monster *monster);
+bool dm_tile_exit(struct dm_map *map, coord_t *point, struct msr_monster *monster);
+
 #endif /* DUNGEON_MAP_H */
