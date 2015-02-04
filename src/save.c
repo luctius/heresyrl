@@ -110,7 +110,7 @@ static bool sv_save_monsters(FILE *file, int indent) {
             fprintf(file,"talents={");
             int t_sz = 0;
             for (int i = 0; i < MSR_NR_TALENTS_MAX; i++) {
-                if (m->talents[i] == TLT_NONE) i = MSR_NR_TALENTS_MAX;
+                if (m->talents[i] == TLT_NONE) break;
 
                 fprintf(file,"%" PRIu8 ",", m->talents[i]);
                 t_sz++;
