@@ -1500,7 +1500,6 @@ void levelup_selection_window(void) {
     bool lvl_up_done = false;
     int ch = INP_KEY_NONE;
 
-    int attr_start = 0;
     int wnds_idx = -1;
     int skill_start = 0;
     int talent_start = 0;
