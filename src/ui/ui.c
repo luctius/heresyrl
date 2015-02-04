@@ -1590,7 +1590,6 @@ void levelup_selection_window(void) {
         ui_printf(window,"\n");
 
         idx = 0;
-        attr_start = 0;
         ui_printf(window, cs_ATTR "Characteristics:\n" cs_ATTR);
         for (int i = 0; i < MSR_CHAR_MAX; i++) {
             if (cr_can_upgrade_characteristic(career, player, i) )   {
