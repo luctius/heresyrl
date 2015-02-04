@@ -54,5 +54,6 @@ bool dm_generate_map_plain(struct dm_map *map, struct random *r, enum dm_dungeon
             cave_generate_map(map, r, type, &r_ul, &r_dr);
         }
     }
+    return true;
 }
 
