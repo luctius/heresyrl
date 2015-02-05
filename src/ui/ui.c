@@ -110,9 +110,6 @@ void update_screen(void) {
     if (gbl_game->running) {
         mapwin_display_map(gbl_game->current_map, &gbl_game->player_data.player->pos);
         charwin_refresh();
-
-        wrefresh(map_win->win);
-        wrefresh(char_win->win);
     }
 }
 
@@ -1403,6 +1400,8 @@ void show_log(struct hrl_window *window, bool input) {
     wclear(window->win);
     werase(window->win);
     wrefresh(window->win);
+
+    show_msg(msg_win);
 }
 
 #define SHOW_MAX_MSGS (20)
