@@ -59,8 +59,8 @@ struct log_entry {
 /*
 Warning: Stacking multiple of the same cs_XXX is not supported yet
 */
-#define CS_COLOUR_PRE "<"
-#define CS_COLOUR_POST ">"
+#define CS_COLOUR_PRE "<<<"
+#define CS_COLOUR_POST ">>>"
 #define cs_MONSTER  CS_COLOUR_PRE "monster" CS_COLOUR_POST 
 #define cs_PLAYER   CS_COLOUR_PRE "player" CS_COLOUR_POST 
 #define cs_ITEM     CS_COLOUR_PRE "item" CS_COLOUR_POST 
@@ -71,8 +71,10 @@ Warning: Stacking multiple of the same cs_XXX is not supported yet
 #define cs_SYSTEM   CS_COLOUR_PRE "system" CS_COLOUR_POST 
 #define cs_ATTR     CS_COLOUR_PRE "attr" CS_COLOUR_POST 
 #define cs_OLD      CS_COLOUR_PRE "old" CS_COLOUR_POST 
+#define cs_CLOSE    CS_COLOUR_PRE "" CS_COLOUR_POST 
 int clrstr_len(const char *txt);
 bool clrstr_is_colour(const char *txt);
+bool clrstr_is_close(const char *txt);
 int clrstr_to_attr(const char *txt);
 
 typedef void (*callback_event)(struct logging *log, struct log_entry *entry, void *priv);
@@ -87,21 +89,21 @@ int lg_size(struct logging *log);
 struct log_entry *lg_peek(struct logging *log, int idx);
 void lg_add_entry(struct logging *log_ctx, struct log_entry *le_given);
 
-#define msg(f, a...)        lg_printf_l(LG_DEBUG_LEVEL_GAME,          __FILE__, __LINE__, cs_SYSTEM f cs_SYSTEM, ##a)
+#define msg(f, a...)        lg_printf_l(LG_DEBUG_LEVEL_GAME,          __FILE__, __LINE__, cs_SYSTEM f cs_CLOSE, ##a)
 #define lg_print(f, a...)   lg_printf_l(LG_DEBUG_LEVEL_INFORMATIONAL, __FILE__, __LINE__, f, ##a)
 #define lg_debug(f, a...)   lg_printf_l(LG_DEBUG_LEVEL_DEBUG,         __FILE__, __LINE__, f, ##a)
-#define lg_warning(f, a...) lg_printf_l(LG_DEBUG_LEVEL_WARNING,       __FILE__, __LINE__, cs_WARNING f cs_WARNING, ##a)
-#define lg_error(f, a...)   lg_printf_l(LG_DEBUG_LEVEL_ERROR,         __FILE__, __LINE__, cs_CRITICAL f cs_CRITICAL, ##a)
+#define lg_warning(f, a...) lg_printf_l(LG_DEBUG_LEVEL_WARNING,       __FILE__, __LINE__, cs_WARNING f cs_CLOSE, ##a)
+#define lg_error(f, a...)   lg_printf_l(LG_DEBUG_LEVEL_ERROR,         __FILE__, __LINE__, cs_CRITICAL f cs_CLOSE, ##a)
 #define lg_ai_debug(msr, f, a...)lg_printf_l(LG_DEBUG_LEVEL_DEBUG,    __FILE__, __LINE__, "[uid %d, tid %d] " f,  monster->uid, monster->template_id, ##a)
 #define Info(f, a...)       lg_printf_l(LG_DEBUG_LEVEL_GAME_INFO,     __FILE__, __LINE__, f, ##a)
 
-#define GM_msg(f, a...)                 do                     { msg_internal(NULL,NULL,        __FILE__, __LINE__, cs_GM f cs_GM, ##a); } while (0)
-#define System_msg(f, a...)             do                     { msg_internal(NULL,NULL,        __FILE__, __LINE__, cs_SYSTEM f cs_SYSTEM, ##a); } while (0)
-#define Warning(f, a...)                do                     { msg_internal(NULL,NULL,        __FILE__, __LINE__, cs_CRITICAL "**" "Warning, " f "**" cs_CRITICAL, ##a); } while (0)
+#define GM_msg(f, a...)                 do                     { msg_internal(NULL,NULL,        __FILE__, __LINE__, cs_GM f cs_CLOSE, ##a); } while (0)
+#define System_msg(f, a...)             do                     { msg_internal(NULL,NULL,        __FILE__, __LINE__, cs_SYSTEM f cs_CLOSE, ##a); } while (0)
+#define Warning(f, a...)                do                     { msg_internal(NULL,NULL,        __FILE__, __LINE__, cs_CRITICAL "**" "Warning, " f "**" cs_CLOSE, ##a); } while (0)
 #define Event_msg(p1, f, a...)          do                     { msg_internal(p1,NULL,          __FILE__, __LINE__, f, ##a); } while (0)
 #define Event_tgt_msg(p1,p2, f, a...)   do                     { msg_internal(p1,p2,            __FILE__, __LINE__, f, ##a); } while (0)
-#define You(m, f, a...)                 do {if (m->is_player)  { msg_internal(&m->pos,NULL,     __FILE__, __LINE__, cs_PLAYER "You" cs_PLAYER " " f, ##a); } } while (0)
-#define Your(m, f, a...)                do {if (m->is_player)  { msg_internal(&m->pos,NULL,     __FILE__, __LINE__, cs_PLAYER "Your" cs_PLAYER " " f, ##a); } } while (0)
+#define You(m, f, a...)                 do {if (m->is_player)  { msg_internal(&m->pos,NULL,     __FILE__, __LINE__, cs_PLAYER "You" cs_CLOSE " " f, ##a); } } while (0)
+#define Your(m, f, a...)                do {if (m->is_player)  { msg_internal(&m->pos,NULL,     __FILE__, __LINE__, cs_PLAYER "Your" cs_CLOSE " " f, ##a); } } while (0)
 #define You_msg(m, f, a...)             do {if (m->is_player)  { msg_internal(&m->pos,NULL,     __FILE__, __LINE__, f, ##a); } } while (0)
 #define Monster(m, f, a...)             do {if (!m->is_player) { msg_internal(&m->pos,NULL,     __FILE__, __LINE__, "%s " f, msr_ldname(m), ##a); } } while (0)
 #define Monster_he(m, f, a...)          do {if (!m->is_player) { msg_internal(&m->pos,NULL,     __FILE__, __LINE__, "%s " f, msr_gender_name(m, false), ##a); } } while (0)

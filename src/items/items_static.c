@@ -26,7 +26,7 @@
 
 #define ITEM(item_id,_sd_name,_ld_name,item_quality,item_weight,item_cost,delay) \
             [item_id]={.uid=0, .template_id=item_id, .quality=item_quality, .age=0, \
-            .weight=item_weight, .cost=item_cost, .sd_name=cs_ITEM _sd_name cs_ITEM , .ld_name=cs_ITEM _ld_name cs_ITEM, \
+            .weight=item_weight, .cost=item_cost, .sd_name=cs_ITEM _sd_name cs_CLOSE , .ld_name=cs_ITEM _ld_name cs_CLOSE, \
             .icon_attr=TERM_COLOUR_SLATE, .use_delay=delay
 #define ITEM_END }
 

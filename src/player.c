@@ -169,7 +169,7 @@ static bool plr_action_loop(struct msr_monster *player) {
             se_add_status_effect(player, SEID_FATEHEALTH);
             se_remove_all_non_permanent(player);
 
-            GM_msg( cs_PLAYER "You" cs_PLAYER " would have died if fate did not intervene...");
+            GM_msg( cs_PLAYER "You" cs_CLOSE " would have died if fate did not intervene...");
 
             return true;
         }

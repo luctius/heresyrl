@@ -35,7 +35,7 @@ static inline uint16_t ui_strlen(char *txt) {
     int txt_len = max_txt_sz;
 
     for (int i = 0; i < max_txt_sz; i++) {
-        if (clrstr_is_colour(&txt[i]) ) {
+        if (clrstr_is_colour(&txt[i]) || clrstr_is_close(&txt[i]) ) {
             int l = clrstr_len(&txt[i]);
             txt_len -= l;
             i += l;
@@ -99,6 +99,15 @@ int ui_printf_ext(struct hrl_window *win, int y_start, int x_start, const char *
                 new_line = true;
                 line_sz = i;
                 break;
+            }
+            else if (clrstr_is_close(&buf[real_txt_idx]) ) {
+                attr_mod_ctr--;
+                assert(attr_mod_ctr >= 0);
+
+                assert(attr_mod_ctr < MAX_CLR_DEPTH);
+                real_txt_idx += clrstr_len(&buf[real_txt_idx]);
+                print_txt_idx++;
+                i-=1;
             }
             else if (clrstr_is_colour(&buf[real_txt_idx]) ) {
                 int cstr_len = clrstr_len(&buf[real_txt_idx]);

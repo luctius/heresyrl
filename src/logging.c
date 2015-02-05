@@ -292,7 +292,8 @@ void msg_internal(coord_t *origin, coord_t *target, const char* module, int line
 int clrstr_len(const char *txt) {
     if (strncmp(CS_COLOUR_PRE, txt, strlen(CS_COLOUR_PRE) ) != 0) return -1;
 
-    if (strncmp(cs_MONSTER,       txt, strlen(cs_MONSTER) )  == 0) return strlen(cs_MONSTER);
+    if (strncmp(cs_CLOSE,         txt, strlen(cs_CLOSE) )    == 0) return strlen(cs_CLOSE);
+    else if (strncmp(cs_MONSTER,  txt, strlen(cs_MONSTER) )  == 0) return strlen(cs_MONSTER);
     else if (strncmp(cs_PLAYER,   txt, strlen(cs_PLAYER) )   == 0) return strlen(cs_PLAYER);
     else if (strncmp(cs_ITEM  ,   txt, strlen(cs_ITEM) )     == 0) return strlen(cs_ITEM);
     else if (strncmp(cs_DAMAGE,   txt, strlen(cs_DAMAGE) )   == 0) return strlen(cs_DAMAGE);
@@ -308,6 +309,12 @@ int clrstr_len(const char *txt) {
 bool clrstr_is_colour(const char *txt) {
     if (strncmp(CS_COLOUR_PRE, txt, strlen(CS_COLOUR_PRE) ) != 0) return false;
     return (clrstr_to_attr(txt) != get_colour(TERM_COLOUR_L_WHITE) );
+}
+
+bool clrstr_is_close(const char *txt) {
+    if (strncmp(CS_COLOUR_PRE, txt, strlen(CS_COLOUR_PRE) ) != 0) return false;
+    if (strncmp(cs_CLOSE, txt, strlen(cs_CLOSE) )  == 0) return true;
+    return false;
 }
 
 int clrstr_to_attr(const char *s) {

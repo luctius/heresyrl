@@ -982,24 +982,24 @@ struct ai *msr_get_ai_ctx(struct msr_monster *monster) {
 }
 
 const char *msr_ldname(struct msr_monster *monster) {
-    if (msr_verify_monster(monster) == false) return cs_MONSTER "unknown" cs_MONSTER;
+    if (msr_verify_monster(monster) == false) return cs_MONSTER "unknown" cs_CLOSE;
 
-    if (monster->is_player) return cs_PLAYER "you" cs_PLAYER;
-    if (!dm_get_map_me(&monster->pos, gbl_game->current_map)->visible) return cs_MONSTER "something" cs_MONSTER;
+    if (monster->is_player) return cs_PLAYER "you" cs_CLOSE;
+    if (!dm_get_map_me(&monster->pos, gbl_game->current_map)->visible) return cs_MONSTER "something" cs_CLOSE;
     return monster->ld_name;
 }
 
 const char *msr_gender_name(struct msr_monster *monster, bool possesive) {
-    if (msr_verify_monster(monster) == false) return cs_MONSTER "unknown" cs_MONSTER;
+    if (msr_verify_monster(monster) == false) return cs_MONSTER "unknown" cs_CLOSE;
 
     enum msr_gender gender = monster->gender;
     if (monster->gender >= MSR_GENDER_MAX) gender = MSR_GENDER_IT;
     if (!dm_get_map_me(&monster->pos, gbl_game->current_map)->visible) gender = MSR_GENDER_IT;
 
     switch(gender) {
-        case MSR_GENDER_MALE:        return (possesive) ? cs_MONSTER "his" cs_MONSTER : cs_MONSTER "he"  cs_MONSTER;
-        case MSR_GENDER_FEMALE:      return (possesive) ? cs_MONSTER "her" cs_MONSTER : cs_MONSTER "she" cs_MONSTER;
-        case MSR_GENDER_IT: default: return (possesive) ? cs_MONSTER "its" cs_MONSTER : cs_MONSTER "it"  cs_MONSTER;
+        case MSR_GENDER_MALE:        return (possesive) ? cs_MONSTER "his" cs_CLOSE : cs_MONSTER "he"  cs_CLOSE;
+        case MSR_GENDER_FEMALE:      return (possesive) ? cs_MONSTER "her" cs_CLOSE : cs_MONSTER "she" cs_CLOSE;
+        case MSR_GENDER_IT: default: return (possesive) ? cs_MONSTER "its" cs_CLOSE : cs_MONSTER "it"  cs_CLOSE;
     }
 }
 

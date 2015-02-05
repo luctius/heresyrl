@@ -303,8 +303,8 @@ int fght_calc_dmg(struct random *r, struct msr_monster *monster, struct msr_mons
         total_damage += MAX((dmg + dmg_add) - (armour  + toughness), 0);
 
         if (monster != NULL) {
-            You(monster,                    "hit and do " cs_DAMAGE "%d" cs_DAMAGE " damage.", MAX((dmg + dmg_add) - (armour  + toughness), 0));
-            Monster_tgt_he(monster, target, "hits and does " cs_DAMAGE "%d" cs_DAMAGE " damage.", MAX((dmg + dmg_add) - (armour  + toughness), 0));
+            You(monster,                    "hit and do " cs_DAMAGE "%d" cs_CLOSE " damage.", MAX((dmg + dmg_add) - (armour  + toughness), 0));
+            Monster_tgt_he(monster, target, "hits and does " cs_DAMAGE "%d" cs_CLOSE " damage.", MAX((dmg + dmg_add) - (armour  + toughness), 0));
         }
         else {
             Event_msg(&target->pos, "It does %d to %s.", total_damage, msr_ldname(target) );
@@ -350,7 +350,7 @@ bool fght_do_weapon_dmg(struct random *r, struct msr_monster *monster, struct ms
 
     You(monster,                 "%s at %s's %s.", itm_you_use_desc(witem), msr_ldname(target), msr_hitloc_name(target, mhl) );
 
-    if (target->is_player) Monster_tgt(monster, target, "%s at " cs_PLAYER "your" cs_PLAYER " %s.", itm_msr_use_desc(witem), msr_hitloc_name(target, mhl) );
+    if (target->is_player) Monster_tgt(monster, target, "%s at " cs_PLAYER "your" cs_CLOSE " %s.", itm_msr_use_desc(witem), msr_hitloc_name(target, mhl) );
     else Monster_tgt(monster, target, "%s at %s %s.", itm_msr_use_desc(witem), msr_ldname(target), msr_hitloc_name(target, mhl) );
 
     fght_calc_dmg(r, monster, target, hits, witem, mhl);
