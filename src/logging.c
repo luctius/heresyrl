@@ -289,17 +289,38 @@ void msg_internal(coord_t *origin, coord_t *target, const char* module, int line
     gbl_log->log_last = le;
 }
 
+int clrstr_len(const char *txt) {
+    if (strncmp(CS_COLOUR_PRE, txt, strlen(CS_COLOUR_PRE) ) != 0) return -1;
+
+    if (strncmp(cs_MONSTER,       txt, strlen(cs_MONSTER) )  == 0) return strlen(cs_MONSTER);
+    else if (strncmp(cs_PLAYER,   txt, strlen(cs_PLAYER) )   == 0) return strlen(cs_PLAYER);
+    else if (strncmp(cs_ITEM  ,   txt, strlen(cs_ITEM) )     == 0) return strlen(cs_ITEM);
+    else if (strncmp(cs_DAMAGE,   txt, strlen(cs_DAMAGE) )   == 0) return strlen(cs_DAMAGE);
+    else if (strncmp(cs_WARNING,  txt, strlen(cs_WARNING) )  == 0) return strlen(cs_WARNING);
+    else if (strncmp(cs_CRITICAL, txt, strlen(cs_CRITICAL) ) == 0) return strlen(cs_CRITICAL);
+    else if (strncmp(cs_GM,       txt, strlen(cs_GM) )       == 0) return strlen(cs_GM);
+    else if (strncmp(cs_SYSTEM,   txt, strlen(cs_SYSTEM) )   == 0) return strlen(cs_SYSTEM);
+    else if (strncmp(cs_ATTR,     txt, strlen(cs_ATTR) )     == 0) return strlen(cs_ATTR);
+    else if (strncmp(cs_OLD,      txt, strlen(cs_OLD) )      == 0) return strlen(cs_OLD);
+    return -1;
+}
+
+bool clrstr_is_colour(const char *txt) {
+    if (strncmp(CS_COLOUR_PRE, txt, strlen(CS_COLOUR_PRE) ) != 0) return false;
+    return (clrstr_to_attr(txt) != get_colour(TERM_COLOUR_L_WHITE) );
+}
+
 int clrstr_to_attr(const char *s) {
-    if (strcmp(cs_MONSTER,       s) == 0) return get_colour(TERM_COLOUR_L_BLUE);
-    else if (strcmp(cs_PLAYER,   s) == 0) return get_colour(TERM_COLOUR_L_GREEN);
-    else if (strcmp(cs_ITEM  ,   s) == 0) return get_colour(TERM_COLOUR_VIOLET);
-    else if (strcmp(cs_DAMAGE,   s) == 0) return get_colour(TERM_COLOUR_L_VIOLET);
-    else if (strcmp(cs_WARNING,  s) == 0) return get_colour(TERM_COLOUR_L_YELLOW);
-    else if (strcmp(cs_CRITICAL, s) == 0) return get_colour(TERM_COLOUR_RED);
-    else if (strcmp(cs_GM,       s) == 0) return get_colour(TERM_COLOUR_L_PURPLE);
-    else if (strcmp(cs_SYSTEM,   s) == 0) return get_colour(TERM_COLOUR_WHITE);
-    else if (strcmp(cs_ATTR,     s) == 0) return get_colour(TERM_COLOUR_L_TEAL);
-    else if (strcmp(cs_OLD,     s) == 0) return get_colour(TERM_COLOUR_L_DARK);
+    if (strncmp(cs_MONSTER,       s, strlen(cs_MONSTER) )  == 0) return get_colour(TERM_COLOUR_L_BLUE);
+    else if (strncmp(cs_PLAYER,   s, strlen(cs_PLAYER) )   == 0) return get_colour(TERM_COLOUR_L_GREEN);
+    else if (strncmp(cs_ITEM  ,   s, strlen(cs_ITEM) )     == 0) return get_colour(TERM_COLOUR_VIOLET);
+    else if (strncmp(cs_DAMAGE,   s, strlen(cs_DAMAGE) )   == 0) return get_colour(TERM_COLOUR_L_VIOLET);
+    else if (strncmp(cs_WARNING,  s, strlen(cs_WARNING) )  == 0) return get_colour(TERM_COLOUR_L_YELLOW);
+    else if (strncmp(cs_CRITICAL, s, strlen(cs_CRITICAL) ) == 0) return get_colour(TERM_COLOUR_RED);
+    else if (strncmp(cs_GM,       s, strlen(cs_GM) )       == 0) return get_colour(TERM_COLOUR_L_PURPLE);
+    else if (strncmp(cs_SYSTEM,   s, strlen(cs_SYSTEM) )   == 0) return get_colour(TERM_COLOUR_WHITE);
+    else if (strncmp(cs_ATTR,     s, strlen(cs_ATTR) )     == 0) return get_colour(TERM_COLOUR_L_TEAL);
+    else if (strncmp(cs_OLD,      s, strlen(cs_OLD) )      == 0) return get_colour(TERM_COLOUR_L_DARK);
     
     return get_colour(TERM_COLOUR_L_WHITE);
 }
