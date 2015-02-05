@@ -117,6 +117,7 @@ int ui_printf_ext(struct hrl_window *win, int y_start, int x_start, const char *
                 assert(attr_mod_ctr < MAX_CLR_DEPTH);
                 real_txt_idx += cstr_len;
                 print_txt_idx++;
+                i-=1;
             }
             else {
                 if (has_colors() == TRUE) wattron(win->win, attr_mod[attr_mod_ctr]);
