@@ -220,7 +220,7 @@ static struct itm_item static_item_list[] = {
     ITEM_AVG(IID_SHORT_BOW,     "short bow",     "a short bow",     75, 7, 0.5),RANGED_2H(   DMG_TYPE_PIERCING,1, 3, 0,  8,     0,                   TLT_NONE),                         CREATION(10,1), ITEM_END,
     ITEM_AVG(IID_LONG_BOW,      "long bow",      "a long bow",      90,15, 0.5),RANGED_2H(   DMG_TYPE_PIERCING,1, 3, 1, 16,     0,                   TLT_SPEC_WPN_GRP_LONGBOW),         CREATION(10,1), ITEM_END,
     ITEM_AVG(IID_THROWING_KNIFE,"throwing knife","a throwing knife", 5, 5, 1),THROWN_WEAPON( DMG_TYPE_PIERCING,1,-3, 0,  5,     0,                   TLT_SPEC_WPN_GRP_THROWING),        CREATION(40,1), ITEM_END,
-    ITEM_AVG(IID_FIRE_BOMB,     "fire bomb",     "a fire bomb",      5,10, 1),THROWN_GRENADE(DMG_TYPE_SHRAPNEL,1, 0, 0,  3,bf(WPN_SPCQLTY_BLAST_3),  TLT_NONE, SEID_WEAPON_FLAME_AREA), CREATION(30,1), ITEM_END,
+    ITEM_AVG(IID_FIRE_BOMB,     "fire bomb",     "a fire bomb",      5,10, 1),THROWN_GRENADE(DMG_TYPE_SHRAPNEL,1,-4, 0,  3,bf(WPN_SPCQLTY_BLAST_1),  TLT_NONE, SEID_WEAPON_FLAME_AREA), CREATION(30,1), ITEM_END,
 
     /* Ammo */
     /*    ID                    short name       long name        (wgt,cst,dly)     ammo type       status effect id*/
@@ -267,6 +267,7 @@ static const char *wpn_spcqlty_name[] = {
     [WPN_SPCQLTY_FAST]	        = "Fast",
     [WPN_SPCQLTY_FLAME]	        = "Flame",
     [WPN_SPCQLTY_FLEXIBLE]      = "Flexible",
+    [WPN_SPCQLTY_GUNPOWDER]     = "Gunpowder",
     [WPN_SPCQLTY_IMPACT]        = "Impact",
     [WPN_SPCQLTY_INACCURATE]    = "Inaccurate",
     [WPN_SPCQLTY_JAMS]          = "Jams",
@@ -304,6 +305,7 @@ static const char *wpn_spcqlty_desc[] = {
     [WPN_SPCQLTY_FAST]	        = " -10% to parry or dodge against ",
     [WPN_SPCQLTY_FLAME]	        = " No BS Test, All in arc take Agility Test or take damage, 2nd Ag. test to avoid catch fire. ",
     [WPN_SPCQLTY_FLEXIBLE]	    = " Cannot be Parried. ",
+    [WPN_SPCQLTY_GUNPOWDER]     = " Gunpowder. ",
     [WPN_SPCQLTY_IMPACT]        = " Damage is rolled twice and the highest is picked. ",
     [WPN_SPCQLTY_INACCURATE]	= " No bonus with aim action ",
     [WPN_SPCQLTY_JAMS]          = " Can Jam on 95% ",

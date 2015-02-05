@@ -29,6 +29,7 @@ enum weapon_special_quality {
     WPN_SPCQLTY_FAST,        /* -10% to parry or dodge against */
     WPN_SPCQLTY_FLAME,       /* No BS Test, All in arc take Agility Test or take damage, 2nd Ag. test to avoid catch fire. */
     WPN_SPCQLTY_FLEXIBLE,    /* Cannot be Parried. */
+    WPN_SPCQLTY_GUNPOWDER,   /* Gunpowder weapons. */
     WPN_SPCQLTY_IMPACT,      /* 2x 1d10, pick highest */
     WPN_SPCQLTY_INACCURATE,  /* No bonus with aim action */
     WPN_SPCQLTY_JAMS,        /* Can Jam on 95% */
