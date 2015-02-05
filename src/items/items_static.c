@@ -84,12 +84,12 @@
 #define THROWN_WEAPON(_dmg_type,dmg_die,dmg_add,_penetration,_range,special,talent) .icon='|',.stacked_quantity=1, .max_quantity=100,\
             .item_type=ITEM_TYPE_WEAPON, .specific.weapon={.weapon_type=WEAPON_TYPE_THROWN, .weapon_category=WEAPON_CATEGORY_THROWN_WEAPON, \
             .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=_range, .penetration=_penetration, \
-            .special_quality=special, .upgrades=0, .wpn_talent=talent, .convey_status_effect=SEID_NONE, }, .dropable=true
+            .special_quality=special, .upgrades=0, .wpn_talent=talent, .convey_status_effect=SEID_NONE, }, throw_desc, .dropable=true
 
 #define THROWN_GRENADE(_dmg_type,dmg_die,dmg_add,_penetration,_range,special,talent, cid) .icon='|',.stacked_quantity=1, .max_quantity=100,\
             .item_type=ITEM_TYPE_WEAPON, .specific.weapon={.weapon_type=WEAPON_TYPE_THROWN, .weapon_category=WEAPON_CATEGORY_THROWN_GRENADE, \
             .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=_range, .penetration=_penetration, \
-            .special_quality=special, .upgrades=0, .wpn_talent=talent, .convey_status_effect=cid, }, .dropable=true
+            .special_quality=special, .upgrades=0, .wpn_talent=talent, .convey_status_effect=cid, }, throw_desc, .dropable=true
 
 #define RANGED_1H(_dmg_type,dmg_die,dmg_add,_penetration,_range,special,talent) \
             .icon='|', .stacked_quantity=0, .max_quantity=0, .item_type=ITEM_TYPE_WEAPON, .specific.weapon={ \
@@ -220,7 +220,7 @@ static struct itm_item static_item_list[] = {
     ITEM_AVG(IID_SHORT_BOW,     "short bow",     "a short bow",     75, 7, 0.5),RANGED_2H(   DMG_TYPE_PIERCING,1, 3, 0,  8,     0,                   TLT_NONE),                         CREATION(10,1), ITEM_END,
     ITEM_AVG(IID_LONG_BOW,      "long bow",      "a long bow",      90,15, 0.5),RANGED_2H(   DMG_TYPE_PIERCING,1, 3, 1, 16,     0,                   TLT_SPEC_WPN_GRP_LONGBOW),         CREATION(10,1), ITEM_END,
     ITEM_AVG(IID_THROWING_KNIFE,"throwing knife","a throwing knife", 5, 5, 1),THROWN_WEAPON( DMG_TYPE_PIERCING,1,-3, 0,  5,     0,                   TLT_SPEC_WPN_GRP_THROWING),        CREATION(40,1), ITEM_END,
-    ITEM_AVG(IID_FIRE_BOMB,     "fire bomb",     "a fire bomb",      5,10, 1),THROWN_GRENADE(DMG_TYPE_SHRAPNEL,1,-4, 0,  3,bf(WPN_SPCQLTY_BLAST_1),  TLT_NONE, SEID_WEAPON_FLAME_AREA), CREATION(30,1), ITEM_END,
+    ITEM_AVG(IID_FIRE_BOMB,     "fire bomb",     "a fire bomb",      5,10, 1),THROWN_GRENADE(DMG_TYPE_SHRAPNEL,1,-5, 0,  3,bf(WPN_SPCQLTY_BLAST_1),  TLT_NONE, SEID_WEAPON_FLAME_AREA), CREATION(30,1), ITEM_END,
 
     /* Ammo */
     /*    ID                    short name       long name        (wgt,cst,dly)     ammo type       status effect id*/
