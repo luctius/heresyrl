@@ -41,3 +41,4 @@ vision is not a circle
 ?could not wield a knife?
 switching weapons sometimes sets weapon select to unarmed.
 unarmed and offhand weapons do not offer a targetting window.
+msg_win disapears after some fullscreen windows,
