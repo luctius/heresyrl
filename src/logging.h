@@ -59,17 +59,21 @@ struct log_entry {
 /*
 Warning: Stacking multiple of the same cs_XXX is not supported yet
 */
-#define cs_MONSTER  "<monster>"
-#define cs_PLAYER   "<player>"
-#define cs_ITEM     "<item>"
-#define cs_DAMAGE   "<dmg>"
-#define cs_WARNING  "<warning>"
-#define cs_CRITICAL "<critical>"
-#define cs_GM       "<gm>"
-#define cs_SYSTEM   "<system>"
-#define cs_ATTR     "<attr>"
-#define cs_OLD      "<old>"
-int clrstr_to_attr(const char *);
+#define CS_COLOUR_PRE "<"
+#define CS_COLOUR_POST ">"
+#define cs_MONSTER  CS_COLOUR_PRE "monster" CS_COLOUR_POST 
+#define cs_PLAYER   CS_COLOUR_PRE "player" CS_COLOUR_POST 
+#define cs_ITEM     CS_COLOUR_PRE "item" CS_COLOUR_POST 
+#define cs_DAMAGE   CS_COLOUR_PRE "dmg" CS_COLOUR_POST 
+#define cs_WARNING  CS_COLOUR_PRE "warning" CS_COLOUR_POST 
+#define cs_CRITICAL CS_COLOUR_PRE "critical" CS_COLOUR_POST 
+#define cs_GM       CS_COLOUR_PRE "gm" CS_COLOUR_POST 
+#define cs_SYSTEM   CS_COLOUR_PRE "system" CS_COLOUR_POST 
+#define cs_ATTR     CS_COLOUR_PRE "attr" CS_COLOUR_POST 
+#define cs_OLD      CS_COLOUR_PRE "old" CS_COLOUR_POST 
+int clrstr_len(const char *txt);
+bool clrstr_is_colour(const char *txt);
+int clrstr_to_attr(const char *txt);
 
 typedef void (*callback_event)(struct logging *log, struct log_entry *entry, void *priv);
 

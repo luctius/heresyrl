@@ -30,6 +30,20 @@ void win_generate_colours(void) {
     }
 }
 
+static inline uint16_t ui_strlen(char *txt) {
+    int max_txt_sz = strlen(txt);
+    int txt_len = max_txt_sz;
+
+    for (int i = 0; i < max_txt_sz; i++) {
+        if (clrstr_is_colour(&txt[i]) ) {
+            int l = clrstr_len(&txt[i]);
+            txt_len -= l;
+            i += l;
+        }
+    }
+    return txt_len;
+}
+
 #define STRING_MAX 1024
 #define MAX_CLRSTR_LEN 20
 #define MAX_CLR_DEPTH 5
@@ -43,7 +57,8 @@ int ui_printf_ext(struct hrl_window *win, int y_start, int x_start, const char *
     va_start(args, format);
     vsnprintf(buf, STRING_MAX, format, args);
     va_end(args);
-    int txt_sz = strlen(buf);
+    int print_txt_sz = ui_strlen(buf);
+    int real_txt_sz = strlen(buf);
     
     int max_line_sz = win->cols -1;
 
@@ -51,26 +66,24 @@ int ui_printf_ext(struct hrl_window *win, int y_start, int x_start, const char *
         mvwaddch(win->win, win->text_y, win->text_x++, ' ');
     }
 
-    bool colour_parse = false;
-    char colour_buf[MAX_CLRSTR_LEN+1];
     int attr_mod[MAX_CLR_DEPTH];
     attr_mod[0] = get_colour(TERM_COLOUR_L_WHITE);
     int attr_mod_ctr = 0;
 
-    int try = 0;
-    int t = 0;
-    while (t < txt_sz) {
+    int print_txt_idx = 0;
+    int real_txt_idx = 0;
+    while (print_txt_idx < print_txt_sz) {
         bool new_line = false;
 
-        int line_sz = MIN(max_line_sz - win->text_x, txt_sz - t);
-        if ( (txt_sz - t) > line_sz) {
+        int line_sz = MIN(max_line_sz - win->text_x, print_txt_sz - print_txt_idx);
+        if ( (print_txt_sz - print_txt_idx) > line_sz) {
             new_line = true;
 
             int tmp_line_sz = line_sz;
             line_sz = 0;
 
             for (int i = tmp_line_sz; i > tmp_line_sz * 0.9; i--) {
-                if (buf[t + i] == ' ') {
+                if (buf[real_txt_idx + i] == ' ') {
                     line_sz = i;
                     break;
                 }
@@ -78,56 +91,52 @@ int ui_printf_ext(struct hrl_window *win, int y_start, int x_start, const char *
         }
 
         int x = 0;
-        int colour_ctr = 0;
         for (int i = 0; i < line_sz; i++) {
-            if (buf[t] == '\n') {
-                t++;
+            if (buf[real_txt_idx] == '\n') {
+                real_txt_idx++;
+                print_txt_idx++;
+
                 new_line = true;
                 line_sz = i;
                 break;
             }
-            else if (buf[t] == '<') {
-                colour_parse = true;
-                colour_buf[colour_ctr++] = buf[t];
-            }
-            else if (colour_parse) {
-                colour_buf[colour_ctr++] = buf[t];
+            else if (clrstr_is_colour(&buf[real_txt_idx]) ) {
+                int cstr_len = clrstr_len(&buf[real_txt_idx]);
 
-                if (buf[t] == '>') {
-                    colour_buf[colour_ctr] = '\0';
-                    colour_parse = false;
-                    int c = clrstr_to_attr(colour_buf);
-                    if (attr_mod[attr_mod_ctr] == c) {
-                        attr_mod_ctr--;
-                        assert(attr_mod_ctr >= 0);
-                        if (attr_mod_ctr < 0) attr_mod_ctr = 0;
-                    }
-                    else {
-                        attr_mod_ctr++;
-                        attr_mod[attr_mod_ctr]= c;
-                    }
-                    colour_ctr = 0;
+                int c = clrstr_to_attr(&buf[real_txt_idx]);
+
+                if (attr_mod[attr_mod_ctr] == c) {
+                    attr_mod_ctr--;
+                    assert(attr_mod_ctr >= 0);
                 }
-                assert(colour_ctr   < MAX_CLRSTR_LEN);
+                else {
+                    attr_mod_ctr++;
+                    attr_mod[attr_mod_ctr]= c;
+                }
+
                 assert(attr_mod_ctr < MAX_CLR_DEPTH);
+                real_txt_idx += cstr_len;
+                print_txt_idx++;
             }
             else {
                 if (has_colors() == TRUE) wattron(win->win, attr_mod[attr_mod_ctr]);
-                mvwaddch(win->win, win->text_y, win->text_x + x, buf[t]);
+                mvwaddch(win->win, win->text_y, win->text_x + x, buf[real_txt_idx]);
                 if (has_colors() == TRUE) wattroff(win->win, attr_mod[attr_mod_ctr]);
                 x++;
-            }
 
-            t++;
+                real_txt_idx++;
+                print_txt_idx++;
+            }
         }
         win->text_x += x;
 
         if (new_line) {
-            if (line_sz == 0 && try == 1) return win->text_y;
             win->text_y++;
             win->text_x = 0;
-            if (buf[t] == ' ') t++;
-            if (line_sz == 0) try++;
+            if (buf[real_txt_idx] == ' ') {
+                real_txt_idx++;
+                print_txt_idx++;
+            }
         }
     }
 

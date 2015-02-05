@@ -549,7 +549,7 @@ bool dm_tile_enter(struct dm_map *map, coord_t *point, struct msr_monster *monst
     if (msr_verify_monster(monster) == false) return false;
 
     struct dm_map_entity *me = dm_get_map_me(point,map);
-    if (me->monster != NULL) return false;
+    assert(me->monster == NULL || me->monster == monster);
 
     struct tl_tile *tl = me->tile;
     if (tl->status_effect_tid != SEID_NONE)  {
