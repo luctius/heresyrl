@@ -244,7 +244,7 @@ void mapwin_display_map(struct dm_map *map, coord_t *player) {
     mapwin_display_map_noref(map, player);
     if (options.refresh) wrefresh(map_win->win);
 
-    show_msg(msg_win);
+    //show_msg(msg_win);
 }
 
 static void mapwin_examine(struct dm_map_entity *me) {
@@ -1006,9 +1006,9 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
             invstart = 0;
             dislen = invwin_printlist(map_win, invlist, invsz, invstart, invstart +winsz);
         }
-        ui_printf_ext(map_win, winsz +1, 1, cs_ATTR "[q]" cs_CLOSE " exit,   " cs_CLOSE "[space]" cs_CLOSE " next page.");
-        ui_printf_ext(map_win, winsz +2, 1, cs_ATTR "[d]" cs_CLOSE " drop,   " cs_CLOSE "    [x]" cs_CLOSE " examine.");
-        ui_printf_ext(map_win, winsz +3, 1, cs_ATTR "[a]" cs_CLOSE " apply,  " cs_CLOSE "    [w]" cs_CLOSE " wield/wear/remove.");
+        ui_printf_ext(map_win, winsz +1, 1, cs_ATTR "[q]" cs_CLOSE " exit,   " cs_ATTR "[space]" cs_CLOSE " next page.");
+        ui_printf_ext(map_win, winsz +2, 1, cs_ATTR "[d]" cs_CLOSE " drop,   " cs_ATTR "    [x]" cs_CLOSE " examine.");
+        ui_printf_ext(map_win, winsz +3, 1, cs_ATTR "[a]" cs_CLOSE " apply,  " cs_ATTR "    [w]" cs_CLOSE " wield/wear/remove.");
         wrefresh(map_win->win);
         bool examine = false;
 
@@ -1463,6 +1463,7 @@ void show_msg(struct hrl_window *window) {
                             y = ui_printf(&pad, "%s%s (x%d)%s\n", old_str, tmp_entry->string, tmp_entry->repeat, old_str_end);
                         }
                         else y = ui_printf(&pad, "%s%s%s\n", old_str, tmp_entry->string, old_str_end);
+                        prefresh(pad.win, y - pad.lines + 1,0, pad.y, pad.x, pad.y + pad.lines, pad.x + pad.cols);
                     }
                 }
             }
