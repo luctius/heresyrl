@@ -69,7 +69,7 @@ int ui_printf_ext(struct hrl_window *win, int y_start, int x_start, const char *
     int attr_mod[MAX_CLR_DEPTH];
     attr_mod[0] = get_colour(TERM_COLOUR_L_WHITE);
     int attr_mod_ctr = 0;
-    if (has_colors() == TRUE) wattron(win->win, attr_mod[0]);
+    if (has_colors() == TRUE) wattrset(win->win, attr_mod[0]);
 
     int print_txt_idx = 0;
     int real_txt_idx = 0;
@@ -102,10 +102,10 @@ int ui_printf_ext(struct hrl_window *win, int y_start, int x_start, const char *
                 break;
             }
             else if (clrstr_is_close(&buf[real_txt_idx]) ) {
-                if (has_colors() == TRUE) wattroff(win->win, attr_mod[attr_mod_ctr]);
-
+                if (has_colors() == TRUE) wattrset(win->win, attr_mod[attr_mod_ctr]);
                 attr_mod_ctr--;
                 assert(attr_mod_ctr >= 0);
+                if (has_colors() == TRUE) wattrset(win->win, attr_mod[attr_mod_ctr]);
 
                 assert(attr_mod_ctr < MAX_CLR_DEPTH);
                 real_txt_idx += clrstr_len(&buf[real_txt_idx]);
@@ -117,16 +117,9 @@ int ui_printf_ext(struct hrl_window *win, int y_start, int x_start, const char *
 
                 int c = clrstr_to_attr(&buf[real_txt_idx]);
 
-                if (attr_mod[attr_mod_ctr] == c) {
-                    if (has_colors() == TRUE) wattroff(win->win, attr_mod[attr_mod_ctr]);
-                    attr_mod_ctr--;
-                    assert(attr_mod_ctr >= 0);
-                }
-                else {
-                    attr_mod_ctr++;
-                    attr_mod[attr_mod_ctr]= c;
-                    if (has_colors() == TRUE) wattron(win->win, attr_mod[attr_mod_ctr]);
-                }
+                attr_mod_ctr++;
+                attr_mod[attr_mod_ctr]= c;
+                if (has_colors() == TRUE) wattrset(win->win, attr_mod[attr_mod_ctr]);
 
                 assert(attr_mod_ctr < MAX_CLR_DEPTH);
                 real_txt_idx += cstr_len;
@@ -154,7 +147,7 @@ int ui_printf_ext(struct hrl_window *win, int y_start, int x_start, const char *
         }
     }
 
-    if (has_colors() == TRUE) wattroff(win->win, attr_mod[attr_mod_ctr]);
+    if (has_colors() == TRUE) wattrset(win->win, attr_mod[attr_mod_ctr]);
 
     return win->text_y;
 }
