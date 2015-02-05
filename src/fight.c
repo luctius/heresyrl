@@ -154,7 +154,9 @@ int fght_melee_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght_
 
     struct dm_map_entity *me = dm_get_map_me(tpos, gbl_game->current_map);
     struct msr_monster *target = me->monster;
-    if (msr_verify_monster(target) == false) return -1;
+    if (target != NULL) {
+        if (msr_verify_monster(target) == false) return -1;
+    }
 
     struct itm_item *witem = fght_get_working_weapon(monster, WEAPON_TYPE_MELEE, hand);
     if (witem == NULL) return -1;
@@ -218,7 +220,9 @@ int fght_melee_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght_
         CALC_TOHIT(msr_has_talent(monster, wpn->wpn_talent) == false, FGHT_MODIFIER_UNTRAINED_WEAPON, "you are untrained in this weapon")
 
         /* Conditions */
-        CALC_TOHIT(se_has_effect(target->status_effects, SETF_STUNNED), FGHT_MODIFIER_STATUS_EFFECT_STUNNED, "target is stunned")
+        if (target != NULL) {
+            CALC_TOHIT(se_has_effect(target->status_effects, SETF_STUNNED), FGHT_MODIFIER_STATUS_EFFECT_STUNNED, "target is stunned")
+        }
 
         /* Maximum modifier, keep these at the end! */
         if (to_hit_mod < -FGHT_MODIFIER_MAX) to_hit_mod = -FGHT_MODIFIER_MAX;
