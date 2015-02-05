@@ -252,6 +252,7 @@ static void mapwin_examine(struct dm_map_entity *me) {
     if (me == NULL) return;
     if (char_win->type != HRL_WINDOW_TYPE_CHARACTER) return;
 
+    wclear(char_win->win);
     werase(char_win->win);
     ui_print_reset(char_win);
 
@@ -389,12 +390,13 @@ void targetwin_examine(struct hrl_window *window, struct dm_map *map, struct msr
         } else {
             ui_printf(window, "Target %s.\n", msr_ldname(me->monster) );
 
-            if (me->monster->cur_wounds < 0) ui_printf(window, "%s is criticly wounded.\n", msr_gender_name(me->monster, false) );
-            else if (me->monster->cur_wounds != me->monster->max_wounds) ui_printf(window, "%s is wounded.\n", msr_gender_name(me->monster, false) );
+            if (me->monster->cur_wounds < 0) ui_printf(window, "\n%s is criticly wounded.\n", msr_gender_name(me->monster, false) );
+            else if (me->monster->cur_wounds != me->monster->max_wounds) ui_printf(window, "\n%s is wounded.\n", msr_gender_name(me->monster, false) );
         }
 
     }
     else ui_printf(window,"No Target.\n");
+    ui_printf(window,"\n");
 
     int tohit = 0;
     if (wpn_is_type(witem, WEAPON_TYPE_MELEE) && (cd_pyth(&player->pos, pos) == 1) ) {
@@ -406,7 +408,7 @@ void targetwin_examine(struct hrl_window *window, struct dm_map *map, struct msr
         ui_printf(window,"Ballistic Skill: %d\n\n", msr_calculate_characteristic(player, MSR_CHAR_BALISTIC_SKILL) );
     }
     else return;
-    ui_printf(window,"Total change of hitting: %d.\n", tohit);
+    ui_printf(window,"Total change of hitting: " cs_DAMAGE "%d" cs_CLOSE ".\n", tohit);
 
     int idx = 0;
     struct tohit_desc *thd = NULL;
@@ -416,8 +418,7 @@ void targetwin_examine(struct hrl_window *window, struct dm_map *map, struct msr
 
     ui_printf(window,"\n");
 
-    ui_print_reset(window);
-    ui_printf(window, "Calculated: %s.\n", witem->sd_name);
+    ui_printf(window, "Calculated: %s.\n", witem->ld_name);
     if (wpn_is_catergory(witem, WEAPON_CATEGORY_THROWN_GRENADE) ) {
         ui_printf(window,"Timer: %d.%d.\n", witem->energy / TT_ENERGY_TURN, witem->energy % TT_ENERGY_TURN);
     }

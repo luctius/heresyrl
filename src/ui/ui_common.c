@@ -78,12 +78,12 @@ int ui_printf_ext(struct hrl_window *win, int y_start, int x_start, const char *
 
         int line_sz = MIN(max_line_sz - win->text_x, print_txt_sz - print_txt_idx);
         if ( (print_txt_sz - print_txt_idx) > line_sz) {
-            new_line = true;
+            //new_line = true;
 
             int tmp_line_sz = line_sz;
             line_sz = 0;
 
-            for (int i = tmp_line_sz; i > tmp_line_sz * 0.9; i--) {
+            for (int i = tmp_line_sz; i > tmp_line_sz * 0.5; i--) {
                 if (buf[real_txt_idx + i] == ' ') {
                     line_sz = i;
                     break;
@@ -135,7 +135,7 @@ int ui_printf_ext(struct hrl_window *win, int y_start, int x_start, const char *
         }
         win->text_x += x;
 
-        if (new_line) {
+        if (new_line || (win->text_x > (0.7 * win->cols) ) ) {
             win->text_y++;
             win->text_x = 0;
             if (buf[real_txt_idx] == ' ') {
