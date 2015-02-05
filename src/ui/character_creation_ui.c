@@ -102,8 +102,8 @@ bool char_creation_window(void) {
                 ui_printf(map_win, "%c) %s\n", inp_key_translate_idx(valid_choice++), static_monster_list[i].sd_name);
             }
         }
-        ui_printf_ext(map_win, map_win->lines -2, 1, cs_ATTR "[a]" cs_CLOSE " acquire,  " cs_ATTR "[x]" cs_ATTR " examine");
-        ui_printf_ext(map_win, map_win->lines -1, 1, cs_ATTR "[q]" cs_ATTR " quit");
+        ui_printf_ext(map_win, map_win->lines -2, 1, cs_ATTR "[a]" cs_CLOSE " acquire,  " cs_ATTR "[x]" cs_CLOSE " examine");
+        ui_printf_ext(map_win, map_win->lines -1, 1, cs_ATTR "[q]" cs_CLOSE " quit");
 
         wrefresh(map_win->win);
         k = inp_get_input(gbl_game->input);
