@@ -206,8 +206,9 @@ static bool plr_action_loop(struct msr_monster *player) {
         getmaxyx(stdscr, lines, cols);
         ui_create(cols, lines);
 
-        mapwin_display_map(map, player_pos);
-        charwin_refresh();
+        update_screen();
+        //mapwin_display_map(map, player_pos);
+        //charwin_refresh();
 
         switch (ch = inp_get_input(gbl_game->input) ) { 
             case INP_KEY_PICKUP: {
