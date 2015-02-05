@@ -30,6 +30,19 @@ void win_generate_colours(void) {
     }
 }
 
+static inline uint16_t ui_idx_to_real_idx(char *txt, int pidx) {
+    for (int i = 0; i < strlen(txt); i++) {
+        if (clrstr_is_colour(&txt[i]) || clrstr_is_close(&txt[i]) ) {
+            int l = clrstr_len(&txt[i]);
+            i += l-1;
+        }
+        else pidx--;
+
+        if (pidx <= 0) return i+1;
+    }
+    return -1;
+}
+
 static inline uint16_t ui_strlen(char *txt) {
     int max_txt_sz = strlen(txt);
     int txt_len = max_txt_sz;
@@ -76,29 +89,28 @@ int ui_printf_ext(struct hrl_window *win, int y_start, int x_start, const char *
     while (print_txt_idx < print_txt_sz) {
         bool new_line = false;
 
-        int line_sz = MIN(max_line_sz - win->text_x, print_txt_sz - print_txt_idx);
-        if ( (print_txt_sz - print_txt_idx) > line_sz) {
+        int p_line_sz = MIN(max_line_sz - win->text_x, print_txt_sz - print_txt_idx);
+        int r_line_sz = ui_idx_to_real_idx(buf, p_line_sz);
+        if ( (print_txt_sz - print_txt_idx) > p_line_sz) {
             //new_line = true;
 
-            int tmp_line_sz = line_sz;
-            line_sz = 0;
+            int tmp_line_sz = r_line_sz;
+            r_line_sz = 0;
 
-            for (int i = tmp_line_sz; i > tmp_line_sz * 0.5; i--) {
+            for (int i = tmp_line_sz; i > 0; i--) {
                 if (buf[real_txt_idx + i] == ' ') {
-                    line_sz = i;
+                    r_line_sz = i;
                     break;
                 }
             }
         }
 
-        int x = 0;
-        for (int i = 0; i < line_sz; i++) {
+        for (int i = 0; i < r_line_sz; i++) {
             if (buf[real_txt_idx] == '\n') {
                 real_txt_idx++;
                 print_txt_idx++;
 
                 new_line = true;
-                line_sz = i;
                 break;
             }
             else if (clrstr_is_close(&buf[real_txt_idx]) ) {
@@ -108,8 +120,10 @@ int ui_printf_ext(struct hrl_window *win, int y_start, int x_start, const char *
                 if (has_colors() == TRUE) wattrset(win->win, attr_mod[attr_mod_ctr]);
 
                 assert(attr_mod_ctr < MAX_CLR_DEPTH);
-                real_txt_idx += clrstr_len(&buf[real_txt_idx]);
-                i-=1;
+
+                int l = clrstr_len(&buf[real_txt_idx]);
+                real_txt_idx += l;
+                i += (l-1);
             }
             else if (clrstr_is_colour(&buf[real_txt_idx]) ) {
                 int cstr_len = clrstr_len(&buf[real_txt_idx]);
@@ -122,18 +136,16 @@ int ui_printf_ext(struct hrl_window *win, int y_start, int x_start, const char *
 
                 assert(attr_mod_ctr < MAX_CLR_DEPTH);
                 real_txt_idx += cstr_len;
-                i-=1;
+                i += (cstr_len-1);
             }
             else {
-                mvwaddch(win->win, win->text_y, win->text_x + x, buf[real_txt_idx]);
+                mvwaddch(win->win, win->text_y, win->text_x++, buf[real_txt_idx]);
                 wrefresh(win->win);
-                x++;
 
                 real_txt_idx++;
                 print_txt_idx++;
             }
         }
-        win->text_x += x;
 
         if (new_line || (win->text_x > (0.7 * win->cols) ) ) {
             win->text_y++;
