@@ -231,51 +231,43 @@ void msr_clear_controller(struct msr_monster *monster) {
 }
 
 bool msr_insert_monster(struct msr_monster *monster, struct dm_map *map, coord_t *pos) {
-    bool retval = false;
     if (msr_verify_monster(monster) == false) return false;
     if (dm_verify_map(map) == false) return false;
     if (cd_within_bound(pos, &map->size) == false) return false;
 
     struct dm_map_entity *me_future = dm_get_map_me(pos, map);
-    if (TILE_HAS_ATTRIBUTE(me_future->tile, TILE_ATTR_TRAVERSABLE) ) {
-        if (me_future->monster == NULL) {
-            me_future->monster = monster;
-            monster->pos = *pos;
-            lg_ai_debug(monster, "inserting \'%s\'(%c) to (%d,%d)",
-                        monster->sd_name, monster->icon, monster->pos.x, monster->pos.y);
-            retval = true;
-        }
-    }
+    if (TILE_HAS_ATTRIBUTE(me_future->tile, TILE_ATTR_TRAVERSABLE) == false) return false;
+    if (me_future->monster != NULL) return false;
 
-    return retval;
+    me_future->monster = monster;
+    monster->pos = *pos;
+    lg_ai_debug(monster, "inserting \'%s\'(%c) to (%d,%d)",
+                monster->sd_name, monster->icon, monster->pos.x, monster->pos.y);
+
+    return true;
 }
 
 bool msr_move_monster(struct msr_monster *monster, struct dm_map *map, coord_t *pos) {
-    bool retval = false;
     if (msr_verify_monster(monster) == false) return false;
     if (dm_verify_map(map) == false) return false;
     if (cd_within_bound(pos, &map->size) == false) return false;
     if (cd_equal(&monster->pos, pos) == true ) return false;
 
     struct dm_map_entity *me_future = dm_get_map_me(pos, map);
-    if (TILE_HAS_ATTRIBUTE(me_future->tile, TILE_ATTR_TRAVERSABLE) ) {
-        /*Speed of one for now*/
-        if (cd_neighbour(&monster->pos, pos) == false) return false;
-        /*coord_t mon_pos_new = cd_add(&monster->pos, pos);*/
+    if (TILE_HAS_ATTRIBUTE(me_future->tile, TILE_ATTR_TRAVERSABLE) == false) return false;
+    if (me_future->monster != NULL) return false;
 
-        assert(dm_tile_exit(map, &monster->pos, monster) );
+    /*Speed of one for now*/
+    if (cd_neighbour(&monster->pos, pos) == false) return false;
 
-        if (msr_insert_monster(monster, map, pos) == true) {
-            retval = dm_tile_enter(map, pos, monster);
-        }
-        /*
-        else if (msr_move_monster(me_future->monster, map, &mon_pos_new) ) {
-            retval = msr_move_monster(monster, map, pos);
-        }
-        */
+    assert(dm_tile_exit(map, &monster->pos, monster) );
+    if (msr_insert_monster(monster, map, pos) == false) return false;
+
+    if (dm_tile_enter(map, pos, monster) == false) {
+        /* Roll back */
     }
 
-    return retval;
+    return true;
 }
 bool msr_give_item(struct msr_monster *monster, struct itm_item *item) {
     if (msr_verify_monster(monster) == false) return false;
