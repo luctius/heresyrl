@@ -58,7 +58,7 @@ void tt_process_monsters(struct dm_map *map) {
             monster->controller.interrupted = false;
 
             /* TODO, HACK: performance drain, improve this!! */
-            update_screen();
+            //update_screen();
         }
 
         if (gbl_game->running == false) return;
