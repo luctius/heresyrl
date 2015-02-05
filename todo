@@ -1,21 +1,13 @@
-item generation via groups (archery group, melee group, light armour group) to enemies.
-group ai and generation             -- TBD
+group ai and generation             -- add leader follow code
 add effects to tiles                -- nothing done yet.
-move towards wfrp2                  -- working on it
 doors                               -- nothing done yet.
-basic career and homeworld system   -- nothing done yet.
 use and remove fatique              -- nothing done yet.
 title screen                        -- nothing done yet
+vision                              -- Concealment, ai should look in a circle.
 sound system                        -- nothing done yet: (actions cost sound, enemies go to the biggest sound source, hounds bark, npcs shout)
-basic fighting system               -- initial system done: throwing, effects and criticals remain
-monster generation                  -- initial system done
-item generation                     -- initial system done
-status effect system                -- initial system done
-character screen                    -- initial screen done
-basic chargen                       -- initial screen done
-ai                                  -- initial system done: add autoeplore
-savegame replay                     -- initial system done: add pauze, play, step etc
-better ingame message system        -- initial system done
+basic fighting system               -- add criticals, throw non-weapon items
+ai                                  -- add autoeplore
+savegame replay                     -- add pauze, play, step etc
 magic system and winds of magic
 insanity system
 corruption system
@@ -29,11 +21,11 @@ charms, minor items which take the charm slot and provide minor benefit
 quack medicine, most of the times provides a benefit, and also something else.
 
 create dungeon objects (like barrels) and treat them as cover.
+chests with locks
 oil and fire which spreads
 status effects add temporary talent
-markdown readme ingame
+markdown readme ingame?
 move spawn decisions to map
-elves suffer -5 to tgh and str
 
 reminder
 rolling 1 on magic die causes will check or 1 insanity.
@@ -41,13 +33,11 @@ rolling 1 on magic die causes will check or 1 insanity.
 wfrp:
 Move (TURN/movement)
 Attack (TURN/attack)
-main hand parry 1/TURN, unless main hand is used for attack.
-off- hand parry 1/TURN, unless off hand is used for attack.
-dodge 1/TURN, unless dodge is not trained.
 
 BUGS:
 cannot throw tools anymore.
 vision is not a circle
-could not wield a shortbow after dropping it? (low ammo?)
+?could not wield a shortbow after dropping it? (low ammo?)
+?could not wield a knife?
 switching weapons sometimes sets weapon select to unarmed.
 unarmed and offhand weapons do not offer a targetting window.
