@@ -1018,6 +1018,16 @@ static void se_process_effect(struct msr_monster *monster, struct status_effect 
                     destroy = true;
                 }
             }
+            if (status_effect_has_flag(c, SEF_REQ_DODGE_CHECK) ) {
+                if ( (msr_characteristic_check(monster, MSR_CHAR_AGILITY, c->difficulty) ) >= 1) {
+                    if (!status_effect_has_flag(c, SEF_BENEFICIAL) ) {
+                        destroy = true;
+                    }
+                }
+                else if (status_effect_has_flag(c, SEF_BENEFICIAL) ) {
+                    destroy = true;
+                }
+            }
             if (status_effect_has_flag(c, SEF_REQ_CHEM_USE_CHECK) ) {
                 if ( (msr_skill_check(monster, MSR_SKILLS_CHEM_USE, c->difficulty) ) >= 1) {
                     if (!status_effect_has_flag(c, SEF_BENEFICIAL) ) {
@@ -1114,6 +1124,16 @@ static void se_process_effect(struct msr_monster *monster, struct status_effect 
         }
         if (effect_has_flag(ces, SESF_REQ_AG_CHECK) ) {
             if (msr_characteristic_check(monster, MSR_CHAR_AGILITY, ces->difficulty) >= 1) {
+                if (!effect_has_flag(ces, SESF_BENEFICIAL) ) {
+                    effect_clr_flag(ces, SESF_ACTIVE);
+                }
+            }
+            else if (effect_has_flag(ces, SESF_BENEFICIAL) ) {
+                effect_clr_flag(ces, SESF_ACTIVE);
+            }
+        }
+        if (effect_has_flag(ces, SESF_REQ_DODGE_CHECK) ) {
+            if (msr_skill_check(monster, MSR_SKILLS_DODGE, ces->difficulty) >= 1) {
                 if (!effect_has_flag(ces, SESF_BENEFICIAL) ) {
                     effect_clr_flag(ces, SESF_ACTIVE);
                 }

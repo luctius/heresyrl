@@ -22,6 +22,7 @@ enum status_effect_flags {
     SEF_REQ_WILL_CHECK,
     SEF_REQ_TGH_CHECK,
     SEF_REQ_AG_CHECK,
+    SEF_REQ_DODGE_CHECK,
     SEF_REQ_CHEM_USE_CHECK,
     SEF_REQ_HEAL_CHECK,
 
@@ -142,6 +143,7 @@ enum status_effect_setting_flags {
     SESF_REQ_WILL_CHECK,
     SESF_REQ_TGH_CHECK,
     SESF_REQ_AG_CHECK,
+    SESF_REQ_DODGE_CHECK,
     SESF_REQ_CHEM_USE_CHECK,
     SESF_REQ_HEAL_CHECK,
 
