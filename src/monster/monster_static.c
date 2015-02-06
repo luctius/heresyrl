@@ -102,6 +102,7 @@ struct msr_monster static_monster_list[] = {
     /*----------------------------------------------------------*/
 
     MONSTER('g',"goblin","a goblin warrior",MSR_GENDER_MALE,-2)
+        .icon_attr = TERM_COLOUR_GREEN,
         GREENSKIN(TLT_NIGHT_VISION),
         CHARACTERISTICS(25,30,30,30,25,25,30,30),
         DEF_ITEM(0, ITEM_GROUP_1H_MELEE),

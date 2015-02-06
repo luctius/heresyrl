@@ -800,7 +800,11 @@ void charwin_refresh() {
     int cnt = 0;
     struct msr_monster *target = NULL;
     while ( (target = aiu_get_nearest_enemy(player, cnt, gbl_game->current_map) ) != NULL) {
-        ui_printf(char_win, "%c: %s\n", target->icon, msr_ldname(target));
+        int y = ui_printf(char_win, " : %s\n", msr_ldname(target));
+        if (has_colors() == TRUE) wattron(char_win->win, target->icon_attr);
+        mvwaddch(char_win->win, y-1, 0, target->icon);
+        if (has_colors() == TRUE) wattroff(char_win->win, target->icon_attr);
+
         cnt++;
     }
 
