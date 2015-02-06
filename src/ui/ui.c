@@ -796,6 +796,14 @@ void charwin_refresh() {
         }
     }
     ui_printf(char_win, "\n");
+    
+    int cnt = 0;
+    struct msr_monster *target = NULL;
+    while ( (target = aiu_get_nearest_enemy(player, cnt, gbl_game->current_map) ) != NULL) {
+        ui_printf(char_win, "%c: %s\n", target->icon, msr_ldname(target));
+        cnt++;
+    }
+
 
     wrefresh(char_win->win);
 }
