@@ -91,6 +91,56 @@ enum msr_hit_location {
     MSR_HITLOC_NONE,
 };
 
+enum msr_status_effects {
+    MSR_SEF_NONE,
+
+    MSR_SEF_DECREASE_SKILL,
+    MSR_SEF_INCREASE_SKILL,
+
+    MSR_SEF_BLEEDING,
+    MSR_SEF_BLINDED,
+    MSR_SEF_BROKEN,
+    MSR_SEF_CONFUSED,
+    MSR_SEF_COWERING,
+    MSR_SEF_DAZED,
+    MSR_SEF_DAZZLED,
+    MSR_SEF_DEAD,
+    MSR_SEF_DEAFENED,
+    MSR_SEF_DISABLED_LLEG,
+    MSR_SEF_DISABLED_RLEG,
+    MSR_SEF_DISABLED_LARM,
+    MSR_SEF_DISABLED_RARM,
+    MSR_SEF_DISABLED_EYE,
+    MSR_SEF_ENTANGLED,
+    MSR_SEF_EXHAUSTED,
+    MSR_SEF_FLAT_FOOTED,
+    MSR_SEF_FRIGHTENED,
+    MSR_SEF_GRAPPLED,
+    MSR_SEF_HELPLESS,
+    MSR_SEF_INCORPOREAL,
+    MSR_SEF_INVISIBLE,
+    MSR_SEF_NAUSEATED,
+    MSR_SEF_PANICKED,
+    MSR_SEF_PARALYZED,
+    MSR_SEF_PETRIFIED,
+    MSR_SEF_PINNED,
+    MSR_SEF_PRONE,
+    MSR_SEF_SHAKEN,
+    MSR_SEF_SICKENED,
+    MSR_SEF_SINKING,
+    MSR_SEF_STABLE,
+    MSR_SEF_STAGGERED,
+    MSR_SEF_STUNNED,
+    MSR_SEF_UNCONSCIOUS,
+
+    MSR_SEF_MAX,
+};
+
+struct msr_status_effect {
+    uint32_t energy_left;
+    int param;
+}
+
 struct msr_char {
     uint8_t base_value;
     uint8_t advancement;
@@ -155,6 +205,8 @@ struct msr_monster {
 
     /* current number of corruption points, not used. */
     uint8_t corruption_points;
+
+    int status_effects_array[MSR_SEF_MAX];
 
     /* current level of fatique. */
     uint8_t fatique;
