@@ -7,7 +7,7 @@
 #include "coord.h"
 
 #define MAP_MIN_COLS 20
-#define MAP_MAX_COLS 100
+#define MAP_MAX_COLS 150
 #define MAP_COLS_FACTOR 0.90f
 
 #define MAP_MIN_LINES 22
@@ -15,7 +15,7 @@
 #define MAP_LINES_FACTOR 0.90f
 
 #define MSG_MIN_COLS 20
-#define MSG_MAX_COLS 100
+#define MSG_MAX_COLS 150
 #define MSG_COLS_FACTOR 0.90f
 
 #define MSG_MIN_LINES 2
