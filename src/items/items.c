@@ -111,10 +111,12 @@ static bool itm_is_in_group(struct itm_item *item, enum item_group ig) {
             if (wpn_is_type(item, WEAPON_TYPE_RANGED) ) {
                 if (wpn_has_spc_quality(item, WPN_SPCQLTY_GUNPOWDER) == true) return true;
             }
+            break;
         case ITEM_GROUP_RANGED:
             if (wpn_is_type(item, WEAPON_TYPE_RANGED) ) {
                 if (wpn_has_spc_quality(item, WPN_SPCQLTY_GUNPOWDER) == false) return true;
             }
+            break;
         case ITEM_GROUP_THROWING:
             return wpn_is_type(item, WEAPON_TYPE_THROWN);
         case ITEM_GROUP_SHIELD: break;
