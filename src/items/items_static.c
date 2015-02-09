@@ -220,7 +220,7 @@ static struct itm_item static_item_list[] = {
     ITEM_AVG(IID_SHORT_BOW,     "short bow",     "a short bow",     75, 7, 0.5),RANGED_2H(   DMG_TYPE_PIERCING,1, 3, 0,  8,     0,                   TLT_NONE),                         CREATION(10,1), ITEM_END,
     ITEM_AVG(IID_LONG_BOW,      "long bow",      "a long bow",      90,15, 0.5),RANGED_2H(   DMG_TYPE_PIERCING,1, 3, 1, 16,     0,                   TLT_SPEC_WPN_GRP_LONGBOW),         CREATION(10,1), ITEM_END,
     ITEM_AVG(IID_THROWING_KNIFE,"throwing knife","a throwing knife", 5, 5, 1),THROWN_WEAPON( DMG_TYPE_PIERCING,1,-3, 0,  5,     0,                   TLT_SPEC_WPN_GRP_THROWING),        CREATION(40,1), ITEM_END,
-    ITEM_AVG(IID_FIRE_BOMB,     "fire bomb",     "a fire bomb",      5,10, 1),THROWN_GRENADE(DMG_TYPE_SHRAPNEL,1,-5, 0,  3,bf(WPN_SPCQLTY_BLAST_1),  TLT_NONE, SEID_WEAPON_FLAME_AREA), CREATION(30,1), ITEM_END,
+    ITEM_AVG(IID_FIRE_BOMB,     "fire bomb",     "a fire bomb",      5,10, 1),THROWN_GRENADE(DMG_TYPE_SHRAPNEL,1,-5, 0,  3,bf(WPN_SPCQLTY_BLAST_1),  TLT_NONE, SEID_WEAPON_FLAME), CREATION(30,1), ITEM_END,
 
     /* Ammo */
     /*    ID                    short name       long name        (wgt,cst,dly)     ammo type       status effect id*/
@@ -237,7 +237,8 @@ static struct itm_item static_item_list[] = {
     ITEM_POOR(IID_DRAUGHT_HEALING_MINOR,  "healing draught", "a minor healing draught", 0, 1, 1), DRAUGHT(FOOD_TYPE_LIQUID, SEID_MINOR_HEALING), CREATION(10,1), ITEM_END,
 
     /* status effect items */
-    ITEM(IID_BODYPART_GRENADE,"","status effect",ITEM_QLTY_AVERAGE,5,10,1),THROWN_GRENADE(DMG_TYPE_SHRAPNEL,1,0,0,3,bf(WPN_SPCQLTY_BLAST_2),TLT_NONE,SEID_NONE),ITEM_END,
+    ITEM(IID_BODYPART_GRENADE,"critical","",ITEM_QLTY_AVERAGE,5,10,1),THROWN_GRENADE(DMG_TYPE_SHRAPNEL,1,0,0,3,bf(WPN_SPCQLTY_BLAST_2),TLT_NONE,SEID_NONE),ITEM_END,
+
     /* debug items */
     ITEM(IID_STIMM_DEATH,   "death debug",  "an injector with a deadly liquid", ITEM_QLTY_AVERAGE, 0, 1, 1), DRAUGHT(FOOD_TYPE_LIQUID, SEID_DEATH_STIMM), ITEM_END,
 };

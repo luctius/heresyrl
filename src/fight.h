@@ -84,7 +84,6 @@
         Attacking or dodging while in the mud or heavy rain
         Shooting at a target at Long Range (two times wpn range)
         Shooting a scrawny target
-        Making Lighning melee attack. //TODO
         Shooting at a target with a shield
     -20
         A called shot at a specific location
@@ -103,7 +102,6 @@
         Shooting at Extreme Range (three times wpn range)
         Shooting at a completely concealed target
         Shooting at a target in darkness
-        
  */
 
 enum fght_hand {

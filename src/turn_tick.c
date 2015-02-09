@@ -43,12 +43,11 @@ void tt_process_monsters(struct dm_map *map) {
         if (monster->controller.interrupted == true) do_action = true;
 
         /* A stunned monster can do nothing. */
-        if (se_has_effect(monster->status_effects, SETF_STUNNED) ) do_action = false;
+        if (se_has_effect(monster->status_effects, EF_STUNNED) ) {
+            do_action = false;
 
-        if (monster->fatique > 0) {
-            if (monster->fatique_turn > (MSR_FATIQUE_RECOVER_DELAY * TT_ENERGY_TURN) ) {
-                monster->fatique -= 1;
-            }
+            /* Player is a bit special and would like to see something... */
+            if (monster->is_player) update_screen();
         }
 
         if (do_action || monster->dead) {

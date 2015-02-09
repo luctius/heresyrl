@@ -49,12 +49,14 @@
     .talents = { t, TLT_NONE, }, .creature_traits = 0, .crtr_wpn=IID_HUMAN_UNARMED
 
 #define GREENSKIN( t...) .race=MSR_RACE_GREENSKIN, .size=MSR_SIZE_AVERAGE, \
+    .icon_attr = TERM_COLOUR_GREEN, \
     .characteristic[MSR_SEC_CHAR_ATTACKS]={ .base_value=1, }, \
     .characteristic[MSR_SEC_CHAR_MOVEMENT]={ .base_value=4, }, \
     .characteristic[MSR_SEC_CHAR_MAGIC]={ .base_value=0, }, \
     .talents = { t, TLT_NONE, }, .creature_traits = 0, .crtr_wpn=IID_HUMAN_UNARMED
 
 #define BEAST( t...) .race=MSR_RACE_BEAST, .size=MSR_SIZE_AVERAGE, \
+    .icon_attr = TERM_COLOUR_MUD, \
     .talents = { t , TLT_NONE, }, .creature_traits = bf(CTRTRTS_BESTIAL) | bf(CTRTRTS_QUADRUPED), \
     .crtr_wpn=IID_CREATURE_BITE_TRAINED, \
     .characteristic[MSR_SEC_CHAR_ATTACKS]={ .base_value=1, }, \
@@ -102,7 +104,6 @@ struct msr_monster static_monster_list[] = {
     /*----------------------------------------------------------*/
 
     MONSTER('g',"goblin","a goblin warrior",MSR_GENDER_MALE,-2)
-        .icon_attr = TERM_COLOUR_GREEN,
         GREENSKIN(TLT_NIGHT_VISION),
         CHARACTERISTICS(25,30,30,30,25,25,30,30),
         DEF_ITEM(0, ITEM_GROUP_1H_MELEE),
@@ -135,7 +136,7 @@ struct msr_monster static_monster_list[] = {
         DEF_ITEM(0, ITEM_GROUP_1H_MELEE),
         SKILLS(MSR_SKILLS_CHARM_ANIMAL|MSR_SKILLS_CONCEALMENT|MSR_SKILLS_AWARENESS|MSR_SKILLS_SCALE_SHEER_SURFACE|MSR_SKILLS_SET_TRAP|MSR_SKILLS_SILENT_MOVE,0,0),
         DESCRIPTION("description of a human fighter"),
-        CREATION(10,1,bf(DUNGEON_TYPE_CAVE) | bf(DUNGEON_TYPE_PLAIN) ),
+        CREATION(5,1,bf(DUNGEON_TYPE_CAVE) | bf(DUNGEON_TYPE_PLAIN) ),
     MONSTER_END,
 
     MONSTER('h',"human","a human archer",MSR_GENDER_MALE,1)
@@ -144,7 +145,7 @@ struct msr_monster static_monster_list[] = {
         DEF_ITEM(0, ITEM_GROUP_RANGED),
         SKILLS(MSR_SKILLS_CHARM_ANIMAL|MSR_SKILLS_CONCEALMENT|MSR_SKILLS_AWARENESS|MSR_SKILLS_SCALE_SHEER_SURFACE|MSR_SKILLS_SET_TRAP|MSR_SKILLS_SILENT_MOVE,0,0),
         DESCRIPTION("description of a human archer"),
-        CREATION(10,1,bf(DUNGEON_TYPE_CAVE) | bf(DUNGEON_TYPE_PLAIN) ),
+        CREATION(5,1,bf(DUNGEON_TYPE_CAVE) | bf(DUNGEON_TYPE_PLAIN) ),
     MONSTER_END,
 
     MONSTER('w',"wolf","a vicious wolf",MSR_GENDER_MALE,1)
@@ -152,7 +153,7 @@ struct msr_monster static_monster_list[] = {
         CHARACTERISTICS(30,0,30,30,40,14,25,30),
         SKILLS(MSR_SKILLS_AWARENESS|MSR_SKILLS_SILENT_MOVE, 0,0),
         DESCRIPTION("description of a viscious dog"),
-        CREATION(10,1,bf(DUNGEON_TYPE_CAVE) | bf(DUNGEON_TYPE_PLAIN) ),
+        CREATION(20,1,bf(DUNGEON_TYPE_CAVE) | bf(DUNGEON_TYPE_PLAIN) ),
      MONSTER_END,
 };
 

@@ -521,23 +521,6 @@ void dm_process_tiles(struct dm_map *map) {
             //struct tl_tile *tl = me->tile;
 
             /* Process Tile based effects. */
-
-            /* Process Temporary effects. */
-            if (me->status_effect != NULL) {
-                struct status_effect *se = me->status_effect;
-
-                if (se_process_grnd(me->status_effect) ) {
-                    me->status_effect = NULL;
-                }
-                else if ( (se->grnd_duration_energy % TT_ENERGY_TURN) == 0) {
-                    if (me->monster != NULL) {
-                        struct msr_monster *monster = me->monster;
-                        if (monster != NULL) {
-                            assert(se_add_status_effect(monster, se->template_id) );
-                        }
-                    }
-                }
-            }
         }
     }
 
@@ -553,12 +536,7 @@ bool dm_tile_enter(struct dm_map *map, coord_t *point, struct msr_monster *monst
 
     struct tl_tile *tl = me->tile;
     if (tl->status_effect_tid != SEID_NONE)  {
-        se_add_status_effect(monster, tl->status_effect_tid);
-    }
-
-    if (me->status_effect != NULL) {
-        if (se_verify_status_effect(me->status_effect) == false) return false;
-        se_add_status_effect(monster, me->status_effect->template_id);
+        se_add_status_effect(monster, tl->status_effect_tid, tl->sd_name);
     }
 
     return true;
@@ -575,13 +553,6 @@ bool dm_tile_exit(struct dm_map *map, coord_t *point, struct msr_monster *monste
     struct tl_tile *tl = me->tile;
     if (tl->status_effect_tid != SEID_NONE) {
         se_remove_effects_by_tid(monster->status_effects, tl->status_effect_tid);
-    }
-
-    if (me->status_effect != NULL) {
-        if (se_verify_status_effect(me->status_effect) == false) return false;
-        if (se_has_flag(me->status_effect, SEF_REMOVE_ON_EXIT) ) {
-            se_remove_effects_by_tid(monster->status_effects, me->status_effect->template_id);
-        }
     }
 
     return true;

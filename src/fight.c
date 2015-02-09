@@ -126,7 +126,7 @@ int fght_ranged_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght
 
         if (target != NULL) {
             /* Conditions */
-            CALC_TOHIT(se_has_effect(target->status_effects, SETF_STUNNED), FGHT_MODIFIER_STATUS_EFFECT_STUNNED, "target is stunned")
+            CALC_TOHIT(se_has_effect(target->status_effects, EF_STUNNED), FGHT_MODIFIER_STATUS_EFFECT_STUNNED, "target is stunned")
 
             struct itm_item *tgt_witem1 = inv_get_item_from_location(target->inventory, INV_LOC_MAINHAND_WIELD);
             struct itm_item *tgt_witem2 = inv_get_item_from_location(target->inventory, INV_LOC_OFFHAND_WIELD);
@@ -221,7 +221,7 @@ int fght_melee_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght_
 
         /* Conditions */
         if (target != NULL) {
-            CALC_TOHIT(se_has_effect(target->status_effects, SETF_STUNNED), FGHT_MODIFIER_STATUS_EFFECT_STUNNED, "target is stunned")
+            CALC_TOHIT(se_has_effect(target->status_effects, EF_STUNNED), FGHT_MODIFIER_STATUS_EFFECT_STUNNED, "target is stunned")
         }
 
         /* Maximum modifier, keep these at the end! */
@@ -322,7 +322,9 @@ int fght_calc_dmg(struct random *r, struct msr_monster *monster, struct msr_mons
 
     if ( (target->dead == false) && (total_damage > 0) ) {
         if (wpn->convey_status_effect != SEID_NONE) {
-            assert(se_add_status_effect(target, wpn->convey_status_effect) );
+            const char *origin  = witem->ld_name;
+            if (monster != NULL) origin = msr_ldname(monster);
+            assert(se_add_status_effect(target, wpn->convey_status_effect, origin) );
         }
     }
     return total_damage;
@@ -581,11 +583,8 @@ bool fght_explosion(struct random *r, struct itm_item *bomb, struct dm_map *map)
     int gridlist_sz = sgt_explosion(map, &c, radius, &gridlist);
     struct item_weapon_specific *wpn = &bomb->specific.weapon;
 
-    bool ground = false;
     if (wpn->convey_status_effect != SEID_NONE) {
-        if (se_tid_ground_permissible(wpn->convey_status_effect) ) {
-            ground = true;
-        }
+        /* TODO: explosion effect */
     }
 
     for (int i = 0; i < gridlist_sz; i++) {
@@ -594,12 +593,6 @@ bool fght_explosion(struct random *r, struct itm_item *bomb, struct dm_map *map)
         if (target != NULL) {
             enum msr_hit_location mhl = msr_get_hit_location(target, random_d100(r));
             fght_calc_dmg(r, NULL, target, 1, bomb, mhl);
-        }
-
-        if (ground) {
-            if (me->status_effect == NULL) {
-                me->status_effect = se_create_ground(wpn->convey_status_effect, me);
-            }
         }
     }
 
@@ -611,6 +604,8 @@ bool fght_explosion(struct random *r, struct itm_item *bomb, struct dm_map *map)
    We assume that the throwing weapon has been equiped 
    before use, ma_do_throw should do that for the player 
    with a slight cost.
+
+TODO: let us throw thigns which are not weapons.
  */
 bool fght_throw_weapon(struct random *r, struct msr_monster *monster, struct dm_map *map, coord_t *e, enum fght_hand hand) {
     if (msr_verify_monster(monster) == false) return false;
@@ -648,7 +643,12 @@ bool fght_throw_weapon(struct random *r, struct msr_monster *monster, struct dm_
         }
         else {
             /* if we miss, scatter the object */
-            end = sgt_scatter(map, r, e, random_xd5(r, 1) );
+
+            /* Never scatter more than the distance actually was.. */
+            int dis = random_xd5(r, 1);
+            if (cd_pyth(&monster->pos, e) < dis) dis = cd_pyth(&monster->pos, e);
+
+            end = sgt_scatter(map, r, e, dis);
             lg_debug("%s is scattered towards (%d,%d)", witem->ld_name, end.x, end.y);
 
             /* I first wanted to do the animation in one go, scatter them animate the whole path

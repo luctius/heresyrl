@@ -28,7 +28,6 @@ struct dm_map_entity {
     struct tl_tile *tile;
     struct msr_monster *monster;
     struct inv_inventory *inventory;
-    struct status_effect *status_effect;
     int test_var;
 
     uint32_t map_entity_post;

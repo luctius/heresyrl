@@ -186,13 +186,14 @@ static bool sv_save_status_effects(FILE *file, int indent) {
             int e_sz = 0;
             fprintf(file,"effects={");
             for (int i = 0; i < STATUS_EFFECT_MAX_NR_EFFECTS; i++) {
-                if (se->effects[i].effect == SETF_NONE) i = STATUS_EFFECT_MAX_NR_EFFECTS;
+                if (se->effects[i].effect == EF_NONE) i = STATUS_EFFECT_MAX_NR_EFFECTS;
                     fprintf(file,"{");
                         fprintf(file,"effect=%d,",               se->effects[i].effect);
                         fprintf(file,"effect_setting_flags=%d,", se->effects[i].effect_setting_flags);
-                        fprintf(file,"tick_energy_max=%d,",      se->effects[i].tick_energy_max);
+                        fprintf(file,"tick_interval_energy=%d,", se->effects[i].tick_interval_energy);
                         fprintf(file,"tick_energy=%d,",          se->effects[i].tick_energy);
                         fprintf(file,"ticks_applied=%d,",        se->effects[i].ticks_applied);
+                        fprintf(file,"param=%d,",                se->effects[i].param);
                     fprintf(file,"},");
                     e_sz++;
                 }

@@ -18,6 +18,9 @@
 #define MSR_NR_DEFAULT_WEAPONS_MAX 3
 #define MSR_FATIQUE_RECOVER_DELAY (100)
 
+#define MSR_WEAPON_DAMAGE_INSTA_DEATH (10)
+#define MSR_WOUNDS_MIN_INSTA_DEATH (-10)
+
 #define MSR_MOVEMENT_MIN 1
 #define MSR_MOVEMENT_MAX 9
 
@@ -92,11 +95,6 @@ enum msr_hit_location {
 };
 
 enum msr_status_effects {
-    MSR_SEF_NONE,
-
-    MSR_SEF_DECREASE_SKILL,
-    MSR_SEF_INCREASE_SKILL,
-
     MSR_SEF_BLEEDING,
     MSR_SEF_BLINDED,
     MSR_SEF_BROKEN,
@@ -139,7 +137,7 @@ enum msr_status_effects {
 struct msr_status_effect {
     uint32_t energy_left;
     int param;
-}
+};
 
 struct msr_char {
     uint8_t base_value;
@@ -207,10 +205,6 @@ struct msr_monster {
     uint8_t corruption_points;
 
     int status_effects_array[MSR_SEF_MAX];
-
-    /* current level of fatique. */
-    uint8_t fatique;
-    uint32_t fatique_turn;
 
     uint32_t evasion_last_used[MSR_EVASION_MAX];
 
@@ -317,6 +311,8 @@ int msr_calculate_characteristic(struct msr_monster *monster, enum msr_character
 
 /* get current characteristic bonus ( normally (characteristic / 10) ), including talents */
 int msr_calculate_characteristic_bonus(struct msr_monster *monster, enum msr_characteristic chr);
+
+int msr_calculate_fatique(struct msr_monster *monster);
 
 /* get the current worn armour on that location, or NULL */
 struct itm_item *msr_get_armour_from_hitloc(struct msr_monster *monster, enum msr_hit_location mhl);
