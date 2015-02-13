@@ -6,11 +6,15 @@
 #include "status_effects/status_effects_static.h"
 #include "monster/monster.h"
 
-#define STATUS_EFFECT_MAX_NR_EFFECTS 10
-#define STATUS_EFFECT_CRITICAL_MAX 10
+#define STATUS_EFFECT_MAX_NR_EFFECTS 7
+#define STATUS_EFFECT_CRITICAL_MAX 14
 #define STATUS_EFFECT_CRITICAL_RATIO  0.5f
+static_assert((STATUS_EFFECT_CRITICAL_MAX * STATUS_EFFECT_CRITICAL_RATIO) == STATUS_EFFECT_MAX_NR_EFFECTS, "Status Effect Maximums do not make sense.");
 
 enum status_effect_flags {
+    /* The status_effect is active and should be processed. */
+    SEF_ACTIVE,
+
     /* The status_effect will be permanent (if it passes the initial checks) */
     SEF_PERMANENT,
 
@@ -45,7 +49,6 @@ enum status_effect_effect_flags {
     EF_ALLY,                /* param == ally_faction */
     EF_BLEEDING,
     EF_BLINDED,
-    EF_BLOODLOSS,
     EF_BROKEN,
     EF_CONFUSED,
     EF_COWERING,
@@ -86,11 +89,11 @@ enum status_effect_effect_flags {
     EF_INSTANT_DEATH,
     EF_EXPLODE,
 
-    EF_TALENT,
-    EF_SKILL,
-    EF_TRAIT,
+    EF_TALENT,  /* param == TLT_... */
+    EF_SKILL,   /* param == MSR_SKILLS_... */
+    EF_TRAIT,   /* param == CTRTRTS_... */
 
-    EF_EVOLVES,
+    EF_EVOLVES  /* param == SEID_... , always happend at the end. */,
 
     EF_MAX,
 };
@@ -143,6 +146,11 @@ enum se_check_flags {
     EF_CHECK_MAX,
 };
 
+enum se_heal_flags {
+    EF_HEAL_ACTIVE,
+    EF_HEAL_MAGIC_ONLY,
+};
+
 struct se_type_struct {
     enum status_effect_effect_flags effect;
     bitfield32_t effect_setting_flags;
@@ -177,9 +185,14 @@ struct status_effect {
     const char *on_exit_msr;
 
     bitfield32_t setting_flags;
+
     bitfield32_t check_flags;
     int check_type;
     int8_t check_difficulty;
+
+    bitfield32_t heal_flags;
+    int8_t heal_difficulty;
+    enum se_ids heal_evolve_tid;
 
     struct se_type_struct effects[STATUS_EFFECT_MAX_NR_EFFECTS];
 
@@ -207,6 +220,7 @@ void se_remove_all_non_permanent(struct msr_monster *monster);
 bool se_verify_status_effect(struct status_effect *se);
 
 struct status_effect *se_get_status_effect_tid(struct status_effect_list *se_list, enum se_ids tid);
+bool se_has_non_healable_permanent_effect(struct status_effect_list *se_list, enum status_effect_effect_flags effect);
 bool se_has_flag(struct status_effect *se, enum status_effect_flags flag);
 bool se_has_effect(struct status_effect_list *se_list, enum status_effect_effect_flags effect);
 bool se_has_tid(struct status_effect_list *se_list, enum se_ids tid);

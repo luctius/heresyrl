@@ -11,7 +11,10 @@
 #define CHECK(_flags, _param, _diff) \
                 .check_flags= bf(EF_CHECK_ACTIVE) | _flags, .check_type=_param, .check_difficulty=_diff
 
-#define SETTINGS(_flags, _dmin, _dmax) .setting_flags=_flags, \
+#define HEALING(_flags, _diff, _evolve) \
+                .heal_flags=bf(EF_HEAL_ACTIVE) | _flags, .heal_difficulty=_diff, .heal_evolve_tid=_evolve
+
+#define SETTINGS(_flags, _dmin, _dmax) .setting_flags=bf(SEF_ACTIVE) | _flags, \
                     .duration_energy_min=(_dmin*TT_ENERGY_TURN), .duration_energy_max=(_dmax*TT_ENERGY_TURN)
 
 #define EFFECT(_effect, _flags, _dmg, _param) \
@@ -60,6 +63,8 @@ static const struct status_effect static_status_effect_list[] = {
         SETTINGS(       0,      1,          10),
         /*Check         Flags                                           Type                Difficulty */
         CHECK(bf(EF_CHECK_CHARACTERISTIC) | bf(EF_CHECK_EACH_INTERVAL), MSR_CHAR_AGILITY,   0),
+        /*Heal  flags   Difficulty      Succesfull heal evolve tid.*/
+        HEALING(0,      0,              SEID_NONE),
     STATUS_EFFECT_END,
 
 
@@ -72,77 +77,8 @@ static const struct status_effect static_status_effect_list[] = {
                I do not see a way to merge them without causing lots headackes. */
     /*-------------------------------------------------------------------------*/
 
-    /*Head*/
-    /* Chest */
-    /* Arms */
-    STATUS_EFFECT(SEID_BLUNT_RARM_1, "Bashed Fingers", "Your fingers are numbed and you take a -10% Weapon Skill Penaly for 2 rounds."),
-        MESSAGES("Your fingers just took a beating.", "%s fingers just took a beating.", NULL, NULL),
-        EFFECTS_START
-            /* Type  Effect             Flags   Strength    param */
-            EFFECT(EF_DECREASE_CHAR,      0,    10,         MSR_CHAR_WEAPON_SKILL),
-        EFFECTS_END,
-        /*Settings      Flags     Minimum  -  Maximum Turns*/
-        SETTINGS(       0,        2,          2),
-    STATUS_EFFECT_END,
+#include "status_effects_critical_blunt.h"
 
-    STATUS_EFFECT(SEID_BLUNT_RARM_2, "Bashed Elbow", "Your elbow is bashed and you have to make a Hard (-20%) Toughness test or drop what is in your hand."),
-        MESSAGES("Your elbow was bashed.", "%s elbow was bashed.", NULL, NULL),
-        EFFECTS_START
-            /* Type  Effect             Flags   Strength    param*/
-            EFFECT(EF_DISABLED_RARM,      0,     0,          -1),
-        EFFECTS_END,
-        /*Settings      Flags     Minimum  -  Maximum Turns*/
-        SETTINGS(       0,        2,          2),
-        CHECK(bf(EF_CHECK_CHARACTERISTIC), MSR_CHAR_TOUGHNESS,   -20),
-    STATUS_EFFECT_END,
-
-    STATUS_EFFECT(SEID_BLUNT_RARM_3, "Smashed Shoulder", "Your shoulder is bashed and receive -20% Weapon Skill and Ballistic Skill for 10 to 20 turns."),
-        MESSAGES("Your shoulder was bashed.", "%s shoulder was bashed.", NULL, NULL),
-        EFFECTS_START
-            /* Type  Effect             Flags                       Strength    Param*/
-            EFFECT(EF_DISABLED_RARM,      0,                         0,         -1),
-            EFFECT(EF_DECREASE_CHAR,     MSR_CHAR_WEAPON_SKILL,     20,         -1),
-            EFFECT(EF_DECREASE_CHAR,     MSR_CHAR_BALISTIC_SKILL,   20,         -1),
-        EFFECTS_END,
-        /*Settings      Flags     Minimum  -  Maximum Turns*/
-        SETTINGS(       0,        10,          20),
-    STATUS_EFFECT_END,
-
-    STATUS_EFFECT(SEID_BLUNT_RARM_4, "Fractured Wrist", "Your wrist is fractured and hangs loose. In addition to losing the function in your hand, you are stunned for 2 turns."),
-        MESSAGES("Your wrist was fractured.", "%s wrist was fractured.", NULL, NULL),
-        EFFECTS_START
-            /* Type  Effect             Flags    Strength    Param   Interval    Max,   Msgs*/
-            EFFECT(EF_DISABLED_RARM,      0,     0,          -1),
-            TICK_EFFECT(EF_STUNNED,       0,     0,          -1,     2,          1,     "You recover.","%s recovers."),
-        EFFECTS_END,
-        /*Settings      Flags     Minimum  -  Maximum Turns*/
-        SETTINGS(       0,        20,          40),
-    STATUS_EFFECT_END,
-
-    STATUS_EFFECT(SEID_BLUNT_RARM_5, "Fractured Collarbone", "You lose the function in that arm until healed by a professional. In addition you are stunned and fall to the ground in excrusating pain."),
-        MESSAGES("Your collarbone fractured.", "%s collarbone was fractured.", NULL, NULL),
-        EFFECTS_START
-            /* Type  Effect             Flags  Strength    Param   Interval    Max,  Msgs*/
-            EFFECT(EF_DISABLED_RARM,    0,     0,          -1),
-            EFFECT(EF_PRONE,            0,     0,          -1),
-            TICK_EFFECT(EF_STUNNED,     0,     0,          -1,     4,          1,    "You recover.","%s recovers."),
-        EFFECTS_END,
-        /*Settings      Flags                   Minimum  -  Maximum Turns*/
-        SETTINGS(       bf(SEF_PERMANENT),        1,          1),
-    STATUS_EFFECT_END,
-
-    STATUS_EFFECT(SEID_BLUNT_RARM_6, "Fractured Collarbone", "You lose the function in that arm until healed by a professional. In addition you are stunned and fall to the ground in excrusating pain."),
-        MESSAGES("Your collarbone fractured.", "%s collarbone was fractured.", NULL, NULL),
-        EFFECTS_START
-            /* Type  Effect             Flags  Strength    Param    Interval    Max  Msgs*/
-            EFFECT(EF_DISABLED_RARM,    0,     0,          -1),
-            TICK_EFFECT(EF_BLOODLOSS,   0,     0,          -1,      4,          1,   "You recover.","%s recovers."),
-        EFFECTS_END,
-        /*Settings      Flags                   Minimum  -  Maximum Turns*/
-        SETTINGS(       bf(SEF_PERMANENT),        1,          1),
-    STATUS_EFFECT_END,
-
-    /* Legs */
 
     /*-------------------------------------------------------------------------*/
 
@@ -150,7 +86,7 @@ static const struct status_effect static_status_effect_list[] = {
     STATUS_EFFECT(SEID_FATEHEALTH, "fatepoint_health", ""),
         EFFECTS_START
             /* Type         Effect      Flags   Strength            Param   Interval   Max, Msgs*/
-            TICK_EFFECT(EF_HEALTH,      0,      EF_STRENGTH_4D10,   0,      1,         0    NULL, NULL),
+            TICK_EFFECT(EF_HEALTH,      0,      EF_STRENGTH_4D10,   0,      1,         0,   NULL, NULL),
         EFFECTS_END,
         /*Settings      Flags     Minimum  -  Maximum Turns*/
         SETTINGS(       0,        2,          2),

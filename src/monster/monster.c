@@ -608,10 +608,9 @@ bool msr_do_dmg(struct msr_monster *monster, int dmg, enum dmg_type dmg_type, en
                 se_add_critical_hit(monster, monster->cur_wounds, mhl, dmg_type);
             }
 
-            if (monster->cur_wounds < MSR_WOUNDS_MIN_INSTA_DEATH && monster->dead == false) {
+            if (monster->cur_wounds < STATUS_EFFECT_CRITICAL_MAX && monster->dead == false) {
                 return msr_die(monster, gbl_game->current_map);
             }
-
 
             if (critic == false) {
                 //You(monster, "are criticly wounded.");

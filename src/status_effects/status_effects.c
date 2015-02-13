@@ -25,7 +25,6 @@ static inline bool effect_has_flag(struct se_type_struct *ces, enum status_effec
     return test_bf(ces->effect_setting_flags, flag);
 }
 
-
 static inline bool check_effect_set_flag(struct status_effect *c, enum se_check_flags flag) {
     return set_bf(c->check_flags, flag);
 }
@@ -35,6 +34,16 @@ static inline bool check_effect_clr_flag(struct status_effect *c, enum se_check_
 static inline bool check_effect_has_flag(struct status_effect *c, enum se_check_flags flag) {
     return test_bf(c->check_flags, flag);
 }
+static inline bool effect_heal_set_flag(struct status_effect *c, enum se_heal_flags flag) {
+    return set_bf(c->heal_flags, flag);
+}
+static inline bool effect_heal_clr_flag(struct status_effect *c, enum se_heal_flags flag) {
+    return clr_bf(c->heal_flags, flag);
+}
+static inline bool effect_heal_has_flag(struct status_effect *c, enum se_heal_flags flag) {
+    return test_bf(c->heal_flags, flag);
+}
+
 
 static inline bool status_effect_set_flag(struct status_effect *c, enum status_effect_flags flag) {
     return set_bf(c->setting_flags, flag);
@@ -360,6 +369,24 @@ bool se_has_tid(struct status_effect_list *se_list, enum se_ids tid) {
     return false;
 }
 
+bool se_has_non_healable_permanent_effect(struct status_effect_list *se_list, enum status_effect_effect_flags effect) {
+    if (se_verify_list(se_list) == false) return false;
+
+    struct status_effect *c = NULL;
+    while ( (c = se_list_get_next_status_effect(se_list, c) ) != NULL) {
+        for (unsigned int i = 0; i < ARRAY_SZ(c->effects); i++) {
+            if (c->effects[i].effect == effect) {
+                if (status_effect_has_flag(c, SEF_PERMANENT) ) {
+                    if (effect_heal_has_flag(c, EF_HEAL_ACTIVE) == false) {
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+    return false;
+}
+
 struct status_effect *se_get_status_effect_tid(struct status_effect_list *se_list, enum se_ids tid) {
     if (se_verify_list(se_list) == false) return NULL;
 
@@ -441,26 +468,26 @@ static const enum se_ids dmg_type_to_id_lot[MSR_HITLOC_MAX][DMG_TYPE_MAX] = {
         [DMG_TYPE_UNARMED]  = SEID_NONE,
     },
     [MSR_HITLOC_LEFT_ARM] = { 
-        [DMG_TYPE_ARROW]    = SEID_NONE,
-        [DMG_TYPE_BLUNT]    = SEID_NONE,
-        [DMG_TYPE_BULLET]   = SEID_NONE,
-        [DMG_TYPE_CLAW]     = SEID_NONE,
-        [DMG_TYPE_CUTTING]  = SEID_NONE,
+        [DMG_TYPE_ARROW]    = SEID_BLUNT_LARM_1,
+        [DMG_TYPE_BLUNT]    = SEID_BLUNT_LARM_1,
+        [DMG_TYPE_BULLET]   = SEID_BLUNT_LARM_1,
+        [DMG_TYPE_CLAW]     = SEID_BLUNT_LARM_1,
+        [DMG_TYPE_CUTTING]  = SEID_BLUNT_LARM_1,
         [DMG_TYPE_ENERGY]   = SEID_NONE,
-        [DMG_TYPE_PIERCING] = SEID_NONE,
-        [DMG_TYPE_SHRAPNEL] = SEID_NONE,
-        [DMG_TYPE_UNARMED]  = SEID_NONE,
+        [DMG_TYPE_PIERCING] = SEID_BLUNT_LARM_1,
+        [DMG_TYPE_SHRAPNEL] = SEID_BLUNT_LARM_1,
+        [DMG_TYPE_UNARMED]  = SEID_BLUNT_LARM_1,
     },
     [MSR_HITLOC_RIGHT_ARM] = { 
-        [DMG_TYPE_ARROW]    = SEID_NONE,
-        [DMG_TYPE_BLUNT]    = SEID_NONE,
-        [DMG_TYPE_BULLET]   = SEID_NONE,
-        [DMG_TYPE_CLAW]     = SEID_NONE,
-        [DMG_TYPE_CUTTING]  = SEID_NONE,
+        [DMG_TYPE_ARROW]    = SEID_BLUNT_RARM_1,
+        [DMG_TYPE_BLUNT]    = SEID_BLUNT_RARM_1,
+        [DMG_TYPE_BULLET]   = SEID_BLUNT_RARM_1,
+        [DMG_TYPE_CLAW]     = SEID_BLUNT_RARM_1,
+        [DMG_TYPE_CUTTING]  = SEID_BLUNT_RARM_1,
         [DMG_TYPE_ENERGY]   = SEID_NONE,
-        [DMG_TYPE_PIERCING] = SEID_NONE,
-        [DMG_TYPE_SHRAPNEL] = SEID_NONE,
-        [DMG_TYPE_UNARMED]  = SEID_NONE,
+        [DMG_TYPE_PIERCING] = SEID_BLUNT_RARM_1,
+        [DMG_TYPE_SHRAPNEL] = SEID_BLUNT_RARM_1,
+        [DMG_TYPE_UNARMED]  = SEID_BLUNT_RARM_1,
     },
     [MSR_HITLOC_BODY] = { 
         [DMG_TYPE_ARROW]    = SEID_NONE,
@@ -495,15 +522,24 @@ bool se_add_critical_hit(struct msr_monster *monster, int dmg, enum msr_hit_loca
     enum se_ids tid = dmg_type_to_id_lot[mhl][type];
     if (tid == SEID_NONE) return false;
 
-    /* Clear existing effects on the track, before adding a new (worse) one. */
-    for (int i = tid; i < tid+STATUS_EFFECT_CRITICAL_MAX; i++) {
-        se_remove_effects_by_tid(monster->status_effects, i);
+    if (dmg > (STATUS_EFFECT_CRITICAL_MAX) ) dmg = (STATUS_EFFECT_CRITICAL_MAX);
+    int crit_effect = tid +(dmg * STATUS_EFFECT_CRITICAL_RATIO);
+
+    switch(mhl) {
+        case MSR_HITLOC_LEFT_LEG: 
+            if (se_has_non_healable_permanent_effect(monster->status_effects, EF_DISABLED_LLEG) ) return false;
+        case MSR_HITLOC_RIGHT_LEG:
+            if (se_has_non_healable_permanent_effect(monster->status_effects, EF_DISABLED_RLEG) ) return false;
+        case MSR_HITLOC_LEFT_ARM:
+            if (se_has_non_healable_permanent_effect(monster->status_effects, EF_DISABLED_LARM) ) return false;
+        case MSR_HITLOC_RIGHT_ARM:
+            if (se_has_non_healable_permanent_effect(monster->status_effects, EF_DISABLED_RARM) ) return false;
+        case MSR_HITLOC_BODY: break;
+        case MSR_HITLOC_HEAD: break;
     }
 
-    if (dmg > (STATUS_EFFECT_CRITICAL_MAX) ) dmg = (STATUS_EFFECT_CRITICAL_MAX);
-
     /* TODO: update this when more critical hits become available */
-    return se_add_status_effect(monster, tid +(dmg * STATUS_EFFECT_CRITICAL_RATIO), "critical");
+    return se_add_status_effect(monster, crit_effect, "critical");
 }
 
 void se_process_effects_first(struct se_type_struct *ces, struct msr_monster *monster, struct status_effect *c) {
@@ -517,7 +553,6 @@ void se_process_effects_first(struct se_type_struct *ces, struct msr_monster *mo
         case EF_ALLY: break;
         case EF_BLEEDING: break;
         case EF_BLINDED: break;
-        case EF_BLOODLOSS: break;
         case EF_BROKEN: break;
         case EF_CONFUSED: break;
         case EF_COWERING: break;
@@ -654,7 +689,6 @@ void se_process_effects_last(struct se_type_struct *ces, struct msr_monster *mon
         case EF_ALLY: break;
         case EF_BLEEDING: break;
         case EF_BLINDED: break;
-        case EF_BLOODLOSS: break;
         case EF_BROKEN: break;
         case EF_CONFUSED: break;
         case EF_COWERING: break;
@@ -701,9 +735,11 @@ void se_process_effects_last(struct se_type_struct *ces, struct msr_monster *mon
         case EF_EVOLVES: se_add_status_effect(monster, ces->param, c->name); break;
 
         case EF_TALENT:
+            /* if the monster already had the talent, the effect is set to be inactive and this doesn't apply. */
             msr_clr_talent(monster, ces->param);
             break;
         case EF_TRAIT: 
+            /* if the monster already had the trait, the effect is set to be inactive and this doesn't apply. */
             msr_set_creature_trait(monster, ces->param);
             break;
 
@@ -739,6 +775,7 @@ void se_process_effects_last(struct se_type_struct *ces, struct msr_monster *mon
         default: effect_clr_flag(ces, EF_SETT_ACTIVE); break;
     }
 
+    ces->ticks_applied = 0;
     ces->tick_energy = 0;
     effect_clr_flag(ces, EF_SETT_ACTIVE);
 }
@@ -760,8 +797,6 @@ void se_process_effects_during(struct se_type_struct *ces, struct msr_monster *m
         case EF_ALLY: break;
         case EF_BLEEDING: break;
         case EF_BLINDED: break;
-        case EF_BLOODLOSS:
-            msr_do_dmg(monster, ces->strength, DMG_TYPE_ENERGY, MSR_HITLOC_NONE); break
         case EF_BROKEN: break;
         case EF_CONFUSED: break;
         case EF_COWERING: break;
@@ -861,38 +896,102 @@ static void se_process_effect(struct msr_monster *monster, struct status_effect 
     if (monster->dead) return;
 
 
-    bool destroy    = false;
     bool first_time = false;
     bool last_time  = true;
 
     struct status_effect *c_prev = NULL;
-    /* Check if this status_effect is new, or maybe even for the last time. */
-    if (c->duration_energy == c->duration_energy_max) first_time = true;
-    if ( (status_effect_has_flag(c, SEF_PERMANENT) == true) ) last_time = false;
-    else if (c->duration_energy > 0) last_time = false;
 
-    {   /* Pre checks */
-        if (first_time) {
-            lg_debug("Condition %p(%s) is processed for the first time.", c, c->name);
+    if (status_effect_has_flag(c, SEF_ACTIVE) ) {
+        /* Check if this status_effect is new, or maybe even for the last time. */
+        if (c->duration_energy == c->duration_energy_max) first_time = true;
+        if ( (status_effect_has_flag(c, SEF_PERMANENT) == true) ) last_time = false;
+        else if (c->duration_energy > 0) last_time = false;
 
-            int inactive = 0;
-            for (unsigned int i = 0; i < (ARRAY_SZ(c->effects) ); i++) {
-                struct se_type_struct *ces = &c->effects[i];
-                if (ces->effect != EF_NONE) {
-                    if (effect_has_flag(ces, EF_SETT_ACTIVE) == false) {
-                        inactive++;
+        {   /* Pre checks */
+            if (first_time) {
+                lg_debug("Condition %p(%s) is processed for the first time.", c, c->name);
+
+                int inactive = 0;
+                for (unsigned int i = 0; i < (ARRAY_SZ(c->effects) ); i++) {
+                    struct se_type_struct *ces = &c->effects[i];
+                    if (ces->effect != EF_NONE) {
+                        if (effect_has_flag(ces, EF_SETT_ACTIVE) == false) {
+                            inactive++;
+                        }
                     }
                 }
+                if (inactive == ARRAY_SZ(c->effects) ) status_effect_clr_flag(c, SEF_ACTIVE);
+
+                if (c->template_id == SEID_NONE) status_effect_clr_flag(c, SEF_ACTIVE);
+
+                /* Handle Checks */
+                if (check_effect_has_flag(c, EF_CHECK_ACTIVE) ) {
+                    bool made_check = false;
+
+                    if (check_effect_has_flag(c, EF_CHECK_EACH_INTERVAL) == false ) {
+                        if (check_effect_has_flag(c, EF_CHECK_CHARACTERISTIC) ) {
+                            if ( (msr_characteristic_check(monster, c->check_type, c->check_difficulty) ) >= 1) {
+                                made_check = true;
+                            }
+                        }
+                        else if (check_effect_has_flag(c, EF_CHECK_SKILL) ) {
+                            if ( (msr_skill_check(monster, c->check_type, c->check_difficulty) ) >= 1) {
+                                made_check = true;
+                            }
+                        }
+
+                        if (check_effect_has_flag(c, EF_CHECK_BENEFICIAL) ) {
+                            if (made_check == false) status_effect_clr_flag(c, SEF_ACTIVE);
+                        }
+                        else if (made_check == true) status_effect_clr_flag(c, SEF_ACTIVE);
+                    }
+                }
+
+                if (status_effect_has_flag(c, SEF_ACTIVE) ) {
+                    if (status_effect_has_flag(c, SEF_INVISIBLE) == false) {
+                        lg_debug("Condition %p(%s) is to be applyed.", c, c->name);
+                        if (c->on_first_plr != NULL) You_msg(monster, c->on_first_plr);
+                        if (c->on_first_msr != NULL) Monster_msg(monster, c->on_first_msr, msr_ldname(monster) );
+                    }
+                }
+                else {
+                    first_time = false;
+                }
             }
-            if (inactive == ARRAY_SZ(c->effects) ) destroy = true;
+            else if (last_time) {
+                lg_debug("Condition %p(%s) ends.", c, c->name);
 
-            if (c->template_id == SEID_NONE) destroy = true;
+                if (status_effect_has_flag(c, SEF_INVISIBLE) == false) {
+                    if (c->on_exit_plr != NULL) You_msg(monster, c->on_exit_plr);
+                    if (c->on_exit_msr != NULL) Monster_msg(monster, c->on_exit_msr, msr_ldname(monster) );
+                }
+                status_effect_clr_flag(c, SEF_ACTIVE);
+            }
+        }
 
-            /* Handle Checks */
-            if (check_effect_has_flag(c, EF_CHECK_ACTIVE) ) {
-                bool made_check = false;
+        for (unsigned int i = 0; i < (ARRAY_SZ(c->effects) ); i++) {
+            struct se_type_struct *ces = &c->effects[i];
+            if (effect_has_flag(ces, EF_SETT_ACTIVE) == false) continue;
 
-                if (check_effect_has_flag(c, EF_CHECK_EACH_INTERVAL) == false ) {
+            if (effect_has_flag(ces, EF_SETT_TICK) && (ces->tick_energy > 0) ) {
+                ces->tick_energy -= TT_ENERGY_TICK;
+                if (!first_time && !last_time) continue;
+            }
+
+            if (first_time) {
+                se_process_effects_first(ces, monster, c);
+                se_process_effects_during(ces, monster, c);
+            }
+            else if (last_time) {
+                se_process_effects_during(ces, monster, c);
+                /* se_process_effects_last(ces, monster, c); */
+            }
+            else if (effect_has_flag(ces, EF_SETT_TICK) && (ces->tick_energy <= 0) ) {
+
+                /* Handle Checks */
+                if (check_effect_has_flag(c, EF_CHECK_ACTIVE) && check_effect_has_flag(c, EF_CHECK_EACH_INTERVAL) ) {
+                    bool made_check = false;
+
                     if (check_effect_has_flag(c, EF_CHECK_CHARACTERISTIC) ) {
                         if ( (msr_characteristic_check(monster, c->check_type, c->check_difficulty) ) >= 1) {
                             made_check = true;
@@ -905,79 +1004,17 @@ static void se_process_effect(struct msr_monster *monster, struct status_effect 
                     }
 
                     if (check_effect_has_flag(c, EF_CHECK_BENEFICIAL) ) {
-                        if (made_check == false) destroy = true;
+                        if (made_check == false) status_effect_clr_flag(c, SEF_ACTIVE);
                     }
-                    else if (made_check == true) destroy = true;
+                    else if (made_check == true) status_effect_clr_flag(c, SEF_ACTIVE);
                 }
-            }
 
-            if (destroy == false) {
-                if (status_effect_has_flag(c, SEF_INVISIBLE) == false) {
-                    lg_debug("Condition %p(%s) is to be applyed.", c, c->name);
-                    if (c->on_first_plr != NULL) You_msg(monster, c->on_first_plr);
-                    if (c->on_first_msr != NULL) Monster_msg(monster, c->on_first_msr, msr_ldname(monster) );
-                }
+                if (status_effect_has_flag(c, SEF_ACTIVE) ) se_process_effects_during(ces, monster, c);
             }
-            else {
-                first_time = false;
-            }
-        }
-        else if (last_time) {
-            lg_debug("Condition %p(%s) ends.", c, c->name);
-
-            if (status_effect_has_flag(c, SEF_INVISIBLE) == false) {
-                if (c->on_exit_plr != NULL) You_msg(monster, c->on_exit_plr);
-                if (c->on_exit_msr != NULL) Monster_msg(monster, c->on_exit_msr, msr_ldname(monster) );
-            }
-            destroy = true;
         }
     }
 
-    for (unsigned int i = 0; i < (ARRAY_SZ(c->effects) ); i++) {
-        struct se_type_struct *ces = &c->effects[i];
-        if (effect_has_flag(ces, EF_SETT_ACTIVE) == false) continue;
-
-        if (effect_has_flag(ces, EF_SETT_TICK) && (ces->tick_energy > 0) ) {
-            ces->tick_energy -= TT_ENERGY_TICK;
-            if (!first_time && !last_time) continue;
-        }
-
-        if (first_time) {
-            se_process_effects_first(ces, monster, c);
-            se_process_effects_during(ces, monster, c);
-        }
-        else if (last_time) {
-            se_process_effects_during(ces, monster, c);
-            se_process_effects_last(ces, monster, c);
-        }
-        else if (effect_has_flag(ces, EF_SETT_TICK) && (ces->tick_energy <= 0) ) {
-
-            /* Handle Checks */
-            if (check_effect_has_flag(c, EF_CHECK_ACTIVE) && check_effect_has_flag(c, EF_CHECK_EACH_INTERVAL) ) {
-                bool made_check = false;
-
-                if (check_effect_has_flag(c, EF_CHECK_CHARACTERISTIC) ) {
-                    if ( (msr_characteristic_check(monster, c->check_type, c->check_difficulty) ) >= 1) {
-                        made_check = true;
-                    }
-                }
-                else if (check_effect_has_flag(c, EF_CHECK_SKILL) ) {
-                    if ( (msr_skill_check(monster, c->check_type, c->check_difficulty) ) >= 1) {
-                        made_check = true;
-                    }
-                }
-
-                if (check_effect_has_flag(c, EF_CHECK_BENEFICIAL) ) {
-                    if (made_check == false) destroy = true;
-                }
-                else if (made_check == true) destroy = true;
-            }
-
-            if (destroy == false) se_process_effects_during(ces, monster, c);
-        }
-    }
-
-    if (destroy) {
+    if (status_effect_has_flag(c, SEF_ACTIVE) == false) {
         lg_debug("Condition %p(%s) is to be destroyed.", c, c->name);
         se_remove_status_effect(se_list, c);
         c = c_prev;
@@ -1008,6 +1045,16 @@ void se_remove_all_non_permanent(struct msr_monster *monster) {
 
     while ( (c = se_list_get_next_status_effect(se_list, c) ) != NULL) {
         if ( (status_effect_has_flag(c, SEF_PERMANENT) == false) ) {
+
+            if ( (status_effect_has_flag(c, SEF_ACTIVE) ) ) {
+                /* Cleanup effects */
+                for (int i = 0; i < ( (int) ARRAY_SZ(c->effects) ); i++) {
+                    struct se_type_struct *ces = &c->effects[i];
+
+                    if (effect_has_flag(ces, EF_SETT_ACTIVE) ) se_process_effects_last(ces, monster, c);
+                }
+            }
+
             se_remove_status_effect(se_list, c);
         }
     }

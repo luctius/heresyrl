@@ -21,8 +21,8 @@ enum weapon_special_quality {
     WPN_SPCQLTY_BALANCED,    /* Ignore the -20% Dual Wield Penalty */
     WPN_SPCQLTY_BLAST_1,     /* All within the weapon's blast radius in squares is hit */
     WPN_SPCQLTY_BLAST_2,     /* All within the weapon's blast radius in squares is hit */
-    WPN_SPCQLTY_BLAST_3,
-    WPN_SPCQLTY_BLAST_4,
+    WPN_SPCQLTY_BLAST_3,     /* All within the weapon's blast radius in squares is hit */
+    WPN_SPCQLTY_BLAST_4,     /* All within the weapon's blast radius in squares is hit */
     WPN_SPCQLTY_CREATURE,    /* Non dropable creature weapon. */
     WPN_SPCQLTY_DEFENSIVE,   /* +10 Parry, -10 WS to attack */
     WPN_SPCQLTY_EXPERIMENTAL,/* Unstable, 96-98, jam, 99-00 -> explodes.  */
