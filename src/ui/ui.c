@@ -10,7 +10,6 @@
 
 #include "options.h"
 
-#include "tiles.h"
 #include "fight.h"
 #include "logging.h"
 #include "player.h"
@@ -24,6 +23,7 @@
 #include "monster/monster_action.h"
 #include "items/items.h"
 #include "careers/careers.h"
+#include "dungeon/tiles.h"
 #include "dungeon/dungeon_map.h"
 
 void show_msg(struct hrl_window *window);

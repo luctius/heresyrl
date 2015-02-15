@@ -11,10 +11,10 @@
 #include "coord.h"
 #include "input.h"
 #include "player.h"
-#include "tiles.h"
 #include "random.h"
 #include "monster/monster.h"
 #include "items/items.h"
+#include "dungeon/tiles.h"
 #include "dungeon/dungeon_map.h"
 #include "careers/careers.h"
 

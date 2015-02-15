@@ -4,16 +4,17 @@
 
 #include "fight.h"
 #include "heresyrl_def.h"
-#include "tiles.h"
 #include "inventory.h"
 #include "random.h"
 #include "game.h"
 #include "turn_tick.h"
 #include "fov/sight.h"
 #include "ui/animate.h"
+#include "dungeon/tiles.h"
 #include "dungeon/dungeon_map.h"
 #include "monster/monster.h"
 #include "items/items.h"
+#include "status_effects/status_effects.h"
 
 #define MAX_TO_HIT_MODS (30)
 static int tohit_desc_ctr = 0;

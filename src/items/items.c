@@ -6,9 +6,9 @@
 #include "items.h"
 #include "items_static.h"
 #include "random.h"
-#include "tiles.h"
 #include "inventory.h"
 #include "fight.h"
+#include "dungeon/tiles.h"
 #include "dungeon/dungeon_map.h"
 #include "monster/monster.h"
 

@@ -11,7 +11,6 @@ heresyrl_SOURCES =  \
                     src/cmdline.c \
                     src/main.c \
                     src/logging.c \
-                    src/tiles.c \
                     src/random.c \
                     src/heresyrl_priv.c \
                     src/game.c \
@@ -26,6 +25,7 @@ heresyrl_SOURCES =  \
                     src/options.c \
                     src/turn_tick.c \
                     src/careers/careers.c \
+                    src/dungeon/tiles.c \
                     src/dungeon/dungeon_cave.c \
                     src/dungeon/dungeon_room.c \
                     src/dungeon/dungeon_plain.c \

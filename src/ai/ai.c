@@ -5,12 +5,12 @@
 #include "ai.h"
 #include "ai_utils.h"
 #include "pathfinding.h"
-#include "tiles.h"
 #include "game.h"
 
 #include "monster/monster.h"
 #include "monster/monster_action.h"
 #include "items/items.h"
+#include "dungeon/tiles.h"
 #include "dungeon/dungeon_map.h"
 
 

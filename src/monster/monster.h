@@ -136,11 +136,6 @@ enum msr_status_effects {
     MSR_SEF_MAX,
 };
 
-struct msr_status_effect {
-    uint32_t energy_left;
-    int param;
-}
-
 struct msr_char {
     uint8_t base_value;
     uint8_t advancement;

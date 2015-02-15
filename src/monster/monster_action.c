@@ -8,13 +8,13 @@
 #include "monster_action.h"
 #include "monster.h"
 #include "items/items.h"
-#include "tiles.h"
 #include "inventory.h"
 #include "coord.h"
 #include "game.h"
 #include "dowear.h"
 #include "turn_tick.h"
 #include "ui/ui.h"
+#include "dungeon/tiles.h"
 #include "dungeon/dungeon_map.h"
 
 bool ma_do_move(struct msr_monster *monster, coord_t *pos) {

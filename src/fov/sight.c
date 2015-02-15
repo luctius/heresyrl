@@ -4,10 +4,10 @@
 
 #include "sight.h"
 #include "rpsc_fov.h"
-#include "tiles.h"
 #include "game.h"
 #include "random.h"
 #include "items/items.h"
+#include "dungeon/tiles.h"
 #include "dungeon/dungeon_map.h"
 #include "monster/monster.h"
 #include "status_effects/status_effects.h"

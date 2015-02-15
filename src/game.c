@@ -4,10 +4,10 @@
 
 #include "input.h"
 #include "player.h"
-#include "tiles.h"
 #include "save.h"
 #include "load.h"
 #include "random.h"
+#include "dungeon/tiles.h"
 #include "dungeon/dungeon_map.h"
 #include "dungeon/spawn.h"
 #include "items/items.h"

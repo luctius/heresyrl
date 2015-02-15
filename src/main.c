@@ -14,7 +14,6 @@
 #include "logging.h"
 #include "game.h"
 #include "coord.h"
-#include "tiles.h"
 #include "inventory.h"
 #include "input.h"
 #include "turn_tick.h"

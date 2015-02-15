@@ -11,11 +11,11 @@
 #include "status_effects/status_effects.h"
 #include "game.h"
 #include "random.h"
-#include "tiles.h"
 #include "turn_tick.h"
 #include "inventory.h"
 #include "items/items.h"
 #include "items/items_static.h"
+#include "dungeon/tiles.h"
 #include "dungeon/dungeon_map.h"
 #include "dowear.h"
 

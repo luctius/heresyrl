@@ -6,7 +6,6 @@
 #include "careers.h"
 #include "careers_static.h"
 #include "random.h"
-#include "tiles.h"
 #include "inventory.h"
 #include "fight.h"
 #include "dungeon/dungeon_map.h"
