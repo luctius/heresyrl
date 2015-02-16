@@ -544,6 +544,7 @@ enum msr_hit_location msr_get_hit_location(struct msr_monster *monster, int hit_
         case MSR_RACE_HALFLING:
         case MSR_RACE_GREENSKIN:
         case MSR_RACE_HUMAN:
+            return MSR_HITLOC_LEFT_ARM;
             hitloc_tbl = human_hitloc_lotable;
             hitloc_tbl_sz = ARRAY_SZ(human_hitloc_lotable);
             break;
@@ -608,7 +609,8 @@ bool msr_do_dmg(struct msr_monster *monster, int dmg, enum dmg_type dmg_type, en
                 se_add_critical_hit(monster, monster->cur_wounds, mhl, dmg_type);
             }
 
-            if (monster->cur_wounds < STATUS_EFFECT_CRITICAL_MAX && monster->dead == false) {
+            if (monster->cur_wounds < -STATUS_EFFECT_CRITICAL_MAX && monster->dead == false) {
+                lg_ai_debug(monster, "Paranoia Death (%d, max %d).", monster->cur_wounds, -STATUS_EFFECT_CRITICAL_MAX);
                 return msr_die(monster, gbl_game->current_map);
             }
 

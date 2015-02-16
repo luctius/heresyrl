@@ -523,7 +523,7 @@ bool se_add_critical_hit(struct msr_monster *monster, int dmg, enum msr_hit_loca
     if (tid == SEID_NONE) return false;
 
     if (dmg > (STATUS_EFFECT_CRITICAL_MAX) ) dmg = (STATUS_EFFECT_CRITICAL_MAX);
-    int crit_effect = tid +(dmg * STATUS_EFFECT_CRITICAL_RATIO);
+    int crit_effect = tid +( abs(dmg) * STATUS_EFFECT_CRITICAL_RATIO);
 
     switch(mhl) {
         case MSR_HITLOC_LEFT_LEG: 
@@ -537,6 +537,8 @@ bool se_add_critical_hit(struct msr_monster *monster, int dmg, enum msr_hit_loca
         case MSR_HITLOC_BODY: break;
         case MSR_HITLOC_HEAD: break;
     }
+
+    lg_ai_debug(monster, "Adding Critical Hit: %s (tid:%d)", static_status_effect_list[crit_effect].name, crit_effect);
 
     /* TODO: update this when more critical hits become available */
     return se_add_status_effect(monster, crit_effect, "critical");
@@ -632,20 +634,22 @@ void se_process_effects_first(struct se_type_struct *ces, struct msr_monster *mo
                 }
 
                 struct itm_item *item = inv_get_item_from_location(monster->inventory, location);
-                if (item == inv_get_item_from_location(monster->inventory, o_location) ) {
-                    /* 2 handed item */
-                    if (inv_move_item_to_location(monster->inventory, item, INV_LOC_NONE) ) {
-                        You(monster, "are unable to wield %s.", item->ld_name);
-                        Monster(monster, "is unable to wield %s.", item->ld_name, msr_gender_name(monster, true));
+                if (item != NULL) {
+                    if (item == inv_get_item_from_location(monster->inventory, o_location) ) {
+                        /* 2 handed item */
+                        if (inv_move_item_to_location(monster->inventory, item, INV_LOC_NONE) ) {
+                            You(monster, "are unable to wield %s.", item->ld_name);
+                            Monster(monster, "is unable to wield %s.", item->ld_name, msr_gender_name(monster, true));
+                        }
                     }
-                }
-                else {
-                    /* one handed item, lets drop it. */
-                    if (msr_remove_item(monster, item) == true) {
-                        itm_insert_item(item, gbl_game->current_map, &monster->pos);
+                    else {
+                        /* one handed item, lets drop it. */
+                        if (msr_remove_item(monster, item) == true) {
+                            itm_insert_item(item, gbl_game->current_map, &monster->pos);
 
-                        You(monster, "let go of %s.", item->ld_name);
-                        Monster(monster, "droppes %s from %s hand.", item->ld_name, msr_gender_name(monster, true));
+                            You(monster, "let go of %s.", item->ld_name);
+                            Monster(monster, "droppes %s from %s hand.", item->ld_name, msr_gender_name(monster, true));
+                        }
                     }
                 }
                 inv_disable_location(monster->inventory, location);

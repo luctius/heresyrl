@@ -23,6 +23,7 @@ STATUS_EFFECT(SEID_BLUNT_LARM_1, "Bashed Fingers", "Your fingers are numbed and 
     EFFECTS_START
         /* Type  Effect             Flags   Strength    param */
         EFFECT(EF_DECREASE_CHAR,      0,    10,         MSR_CHAR_WEAPON_SKILL),
+        EFFECT(EF_DECREASE_CHAR,      0,    10,         MSR_CHAR_BALISTIC_SKILL),
     EFFECTS_END,
     /*Settings      Flags     Minimum  -  Maximum Turns*/
     SETTINGS(       0,        2,          2),
@@ -78,6 +79,7 @@ STATUS_EFFECT(SEID_BLUNT_RARM_1, "Bashed Fingers", "Your fingers are numbed and 
     EFFECTS_START
         /* Type  Effect             Flags   Strength    param */
         EFFECT(EF_DECREASE_CHAR,      0,    10,         MSR_CHAR_WEAPON_SKILL),
+        EFFECT(EF_DECREASE_CHAR,      0,    10,         MSR_CHAR_BALISTIC_SKILL),
     EFFECTS_END,
     /*Settings      Flags     Minimum  -  Maximum Turns*/
     SETTINGS(       0,        2,          2),
@@ -104,6 +106,8 @@ STATUS_EFFECT(SEID_BLUNT_RARM_3, "Smashed Shoulder", "Your shoulder is bashed an
     EFFECTS_END,
     /*Settings      Flags     Minimum  -  Maximum Turns*/
     SETTINGS(       0,        10,          20),
+    /*Heal  flags   Difficulty      Succesfull heal evolve tid.*/
+    HEALING(0,      -10,              SEID_BLUNT_ARM_3_HEALED),
 STATUS_EFFECT_END,
 
 STATUS_EFFECT(SEID_BLUNT_RARM_4, "Fractured Collarbone", "You lose the function in that arm until healed by a professional. In addition you are stunned and fall to the ground in excrusating pain."),
@@ -132,6 +136,14 @@ STATUS_EFFECT_END,
    Legs 
 ------------------------------------------------------------------------------
 */
+
+
+
+
+
+
+
+
 
 /* 
    Healed 
