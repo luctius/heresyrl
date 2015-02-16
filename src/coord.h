@@ -15,6 +15,9 @@ typedef struct coord {
     short y;
 } coord_t;
 
+extern const coord_t *coord_nhlo_table;
+extern const uint8_t coord_nhlo_table_sz;
+
 inline coord_t cd_create(short x, short y) {
     coord_t c = { .x = x, .y = y,};
     return c;

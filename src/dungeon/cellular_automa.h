@@ -1,0 +1,5 @@
+#ifndef CELLULAR_AUTOMA_H
+#define CELLULAR_AUTOMA_H
+
+
+#endif /* CELLULAR_AUTOMA_H */

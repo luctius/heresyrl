@@ -1,5 +1,12 @@
 #include "coord.h"
 
+const coord_t coord_nhlo_table[] = {
+    {-1,-1}, {-1,0}, {-1,1}, 
+    { 0,-1},         { 0,1}, 
+    { 1,-1}, { 1,0}, { 1,1},
+};
+const uint8_t coord_nhlo_table_sz = ARRAY_SZ(coord_nhlo_table);
+
 extern inline coord_t cd_create(short x, short y);
 extern inline coord_t cd_add(const coord_t *a, const coord_t *b);
 extern inline bool cd_equal(const coord_t *a, const coord_t *b);
