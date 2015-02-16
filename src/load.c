@@ -394,7 +394,7 @@ static bool load_status_effect_list(lua_State *L) {
                     lua_intexpr(L, &t, "game.status_effects[%d].effects.sz", j+1);
                     int effects_sz = t;
                     for (int e = 0; e < effects_sz; e++) {
-                        c->effects[e].effect = SETF_NONE;
+                        c->effects[e].effect = EF_NONE;
                         c->effects[e].effect_setting_flags = 0;
 
                         if (e < effects_sz) {
@@ -402,12 +402,14 @@ static bool load_status_effect_list(lua_State *L) {
                                                     c->effects[e].effect = t;
                             lua_intexpr(L, &t, "game.status_effects[%d].effects[%d].effect_setting_flags", j+1, e+1); 
                                                     c->effects[e].effect_setting_flags = t;
-                            lua_intexpr(L, &t, "game.status_effects[%d].effects[%d].tick_energy_max", j+1, e+1);
-                                                    c->effects[e].tick_energy_max = t;
+                            lua_intexpr(L, &t, "game.status_effects[%d].effects[%d].tick_interval_energy", j+1, e+1);
+                                                    c->effects[e].tick_interval_energy = t;
                             lua_intexpr(L, &t, "game.status_effects[%d].effects[%d].tick_energy", j+1, e+1);
                                                     c->effects[e].tick_energy = t;
                             lua_intexpr(L, &t, "game.status_effects[%d].effects[%d].ticks_applied", j+1, e+1);
                                                     c->effects[e].ticks_applied = t;
+                            lua_intexpr(L, &t, "game.status_effects[%d].effects[%d].param", j+1, e+1);
+                                                    c->effects[e].param = t;
                         }
                     }
                 }

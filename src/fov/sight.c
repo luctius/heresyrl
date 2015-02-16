@@ -49,12 +49,6 @@ static bool rpsc_check_translucent_los(struct rpsc_fov_set *set, coord_t *point,
     if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(point,map), TILE_ATTR_TRANSLUCENT) == false) {
         translucent = false;
     }
-    else if (dm_get_map_me(point, map)->status_effect != NULL) {
-        struct status_effect *se = dm_get_map_me(point, map)->status_effect;
-        if (se_verify_status_effect(se) ) {
-            translucent = !se_has_flag(se, SEF_BLOCKS_SIGHT);
-        }
-    }
 
     return translucent;
 }

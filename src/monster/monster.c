@@ -302,7 +302,7 @@ int msr_get_near_sight_range(struct msr_monster *monster) {
         if(sight_near < nv_sight) sight_near = nv_sight;
     }
 
-    if (se_has_effect(monster->status_effects, SETF_BLINDNESS) ) sight_near = 0;
+    if (se_has_effect(monster->status_effects, EF_BLINDED) ) sight_near = 0;
     return sight_near;
 }
 
@@ -314,7 +314,7 @@ int msr_get_medium_sight_range(struct msr_monster *monster) {
         if(sight_medium < nv_sight) sight_medium = nv_sight;
     }
 
-    if (se_has_effect(monster->status_effects, SETF_BLINDNESS) ) sight_medium = 0;
+    if (se_has_effect(monster->status_effects, EF_BLINDED) ) sight_medium = 0;
     return  sight_medium;
 }
 
@@ -326,7 +326,7 @@ int msr_get_far_sight_range(struct msr_monster *monster) {
         if(sight_far < nv_sight) sight_far = nv_sight;
     }
 
-    if (se_has_effect(monster->status_effects, SETF_BLINDNESS) ) sight_far = 0;
+    if (se_has_effect(monster->status_effects, EF_BLINDED) ) sight_far = 0;
     return sight_far;
 }
 
@@ -514,17 +514,55 @@ bool msr_use_evasion(struct msr_monster *monster, struct msr_monster *attacker, 
     return false;
 }
 
+static const int human_hitloc_lotable[] = {
+    [MSR_HITLOC_HEAD]       = 0,
+    [MSR_HITLOC_RIGHT_ARM]  = 10,
+    [MSR_HITLOC_LEFT_ARM]   = 20,
+    [MSR_HITLOC_BODY]       = 30,
+    [MSR_HITLOC_RIGHT_LEG]  = 70,
+    [MSR_HITLOC_LEFT_LEG]   = 85,
+};
+
+static const int beast_hitloc_lotable[] = {
+    [MSR_HITLOC_HEAD]       = 0,
+    [MSR_HITLOC_BODY]       = 10,
+    [MSR_HITLOC_RIGHT_LEG]  = 50,
+    [MSR_HITLOC_LEFT_LEG]   = 75,
+};
+
 enum msr_hit_location msr_get_hit_location(struct msr_monster *monster, int hit_roll) {
     if (msr_verify_monster(monster) == false) return MSR_HITLOC_NONE;
     if (hit_roll > 99) hit_roll %= 100;
 
-    /* Human hitloc */
-    if (hit_roll >= 85) return MSR_HITLOC_LEFT_LEG;
-    if (hit_roll >= 70) return MSR_HITLOC_RIGHT_LEG;
-    if (hit_roll >= 30) return MSR_HITLOC_BODY;
-    if (hit_roll >= 20) return MSR_HITLOC_LEFT_ARM;
-    if (hit_roll >= 10) return MSR_HITLOC_RIGHT_ARM;
-    return MSR_HITLOC_HEAD;
+    enum msr_hit_location mhl = MSR_HITLOC_NONE;
+    int hitloc_tbl_sz = 0;
+    const int *hitloc_tbl = NULL;
+
+    switch (monster->race) {
+        case MSR_RACE_DWARF:
+        case MSR_RACE_ELF:
+        case MSR_RACE_HALFLING:
+        case MSR_RACE_GREENSKIN:
+        case MSR_RACE_HUMAN:
+            return MSR_HITLOC_LEFT_ARM;
+            hitloc_tbl = human_hitloc_lotable;
+            hitloc_tbl_sz = ARRAY_SZ(human_hitloc_lotable);
+            break;
+        case MSR_RACE_DOMESTIC:
+        case MSR_RACE_BEAST:
+            hitloc_tbl = beast_hitloc_lotable;
+            hitloc_tbl_sz = ARRAY_SZ(beast_hitloc_lotable);
+            break;
+        default: assert(false && "Unkown Race"); break;
+    }
+
+    if (hitloc_tbl != NULL) {
+        for (int i = 0; i < hitloc_tbl_sz; i++) {
+            if (hit_roll >= hitloc_tbl[i]) mhl = hitloc_tbl[i];
+        }
+    }
+    
+    return mhl;
 }
 
 bool msr_die(struct msr_monster *monster, struct dm_map *map) {
@@ -551,30 +589,34 @@ bool msr_do_dmg(struct msr_monster *monster, int dmg, enum dmg_type dmg_type, en
     if (msr_verify_monster(monster) == false) return false;
     if (monster->dead) return false;
     bool critic = false;
-    int wounds_above_zero = 0;
 
+     /* temp var so we can notify the player when the monster is critical wounded for the first time.*/
     if (monster->cur_wounds < 0) critic = true;
-    else wounds_above_zero = monster->cur_wounds;
 
     if (dmg > 0) {
         monster->cur_wounds -= dmg;
 
         if (monster->cur_wounds < 0) {
-            if (critic == false) {
-                You(monster, "are criticly wounded.");
-                Monster(monster, "is criticly wounded.");
+            if (monster->unique_name == NULL) {
+                if (dmg > MSR_WEAPON_DAMAGE_INSTA_DEATH) {
+                    return msr_die(monster, gbl_game->current_map);
+                }
             }
 
-            if ( (dmg - wounds_above_zero) > 10) {
-                msr_die(monster, gbl_game->current_map);
-            }
             /* do critical hits! */
-            else if (mhl != MSR_HITLOC_NONE) {
-                se_add_critical_hit(monster, dmg - wounds_above_zero, mhl, dmg_type);
-                monster->insanity_points++;
+            if (mhl != MSR_HITLOC_NONE) {
+                /* Add critical hit */
+                se_add_critical_hit(monster, monster->cur_wounds, mhl, dmg_type);
             }
-            else if (monster->cur_wounds < -30) {
-                msr_die(monster, gbl_game->current_map);
+
+            if (monster->cur_wounds < -STATUS_EFFECT_CRITICAL_MAX && monster->dead == false) {
+                lg_ai_debug(monster, "Paranoia Death (%d, max %d).", monster->cur_wounds, -STATUS_EFFECT_CRITICAL_MAX);
+                return msr_die(monster, gbl_game->current_map);
+            }
+
+            if (critic == false) {
+                //You(monster, "are criticly wounded.");
+                Monster(monster, "is criticly wounded.");
             }
         }
         return true;
@@ -588,15 +630,13 @@ int msr_characteristic_check(struct msr_monster *monster, enum msr_characteristi
     assert(charac >= 0);
     lg_print("You characteristic is (%d)", charac);
 
-    lg_print("Check modifier is: %d (%d)", mod, charac + mod);
-
     int con_mod = 0;
-    if (monster->fatique > 0) {
-        con_mod -= (monster->fatique * 10);
-    }
+    con_mod += se_status_effect_strength(monster->status_effects, EF_INCREASE_FATIQUE, -1);
+    con_mod -= se_status_effect_strength(monster->status_effects, EF_DECREASE_FATIQUE, -1);
+    if (con_mod < 0) con_mod = 0;
 
-    charac += mod;
-    lg_print("Conditions modifier is: %d (%d)", con_mod, charac);
+    charac += mod + (con_mod * -10);
+    lg_print("Check modifier is: %d (%d)", mod, charac + con_mod);
 
     int roll = (int) (random_int32(gbl_game->random)%100);
     int result = (charac - roll);
@@ -608,25 +648,18 @@ int msr_characteristic_check(struct msr_monster *monster, enum msr_characteristi
 int msr_skill_check(struct msr_monster *monster, enum msr_skills skill, int mod) {
     if (msr_verify_monster(monster) == false) return false;
 
-    int con_mod = 0;
     int charac = msr_calculate_characteristic(monster, msr_skill_charac[skill]);
     assert(charac >= 0);
     lg_print("You characteristic is (%d)", charac);
 
     lg_print("Check modifier is: %d (%d)", mod, charac + mod);
 
-    if (se_has_effect(monster->status_effects, SETF_INCREASE_ALL_SKILLS) ) {
-        con_mod += se_status_effect_strength(monster->status_effects, SETF_INCREASE_ALL_SKILLS);
-    }
-    if (se_has_effect(monster->status_effects, SETF_DECREASE_ALL_SKILLS) ) {
-        con_mod += se_status_effect_strength(monster->status_effects, SETF_DECREASE_ALL_SKILLS);
-    }
+    int con_mod = 0;
+    con_mod += se_status_effect_strength(monster->status_effects, EF_INCREASE_FATIQUE, -1);
+    con_mod -= se_status_effect_strength(monster->status_effects, EF_DECREASE_FATIQUE, -1);
+    if (con_mod < 0) con_mod = 0;
 
-    if (monster->fatique > 0) {
-        con_mod -= (monster->fatique * 10);
-    }
-
-    mod += con_mod;
+    mod += (con_mod * -10);
     charac += mod;
     lg_print("Conditions modifier is: %d (%d)", con_mod, charac);
 
@@ -675,6 +708,14 @@ int msr_calculate_characteristic_bonus(struct msr_monster *monster, enum msr_cha
     if (chr >= MSR_CHAR_MAX)            return -1;
 
     return ( msr_calculate_characteristic(monster, chr) / 10);
+}
+
+int msr_calculate_fatique(struct msr_monster *monster) {
+    if (msr_verify_monster(monster) == false) return -1;
+    
+    /* TODO: implement fatique */
+
+    return 0;
 }
 
 enum msr_skill_rate msr_has_skill(struct msr_monster *monster, enum msr_skills skill) {
@@ -942,16 +983,16 @@ uint8_t msr_get_movement_rate(struct msr_monster *monster) {
     int min_speed = MSR_MOVEMENT_MIN;
     int max_speed = MSR_MOVEMENT_MAX;
 
-    if ( (se_has_effect(monster->status_effects, SETF_DISABLE_RLEG) == true) &&
-         (se_has_effect(monster->status_effects, SETF_DISABLE_LLEG) == true) ) {
+    if ( (se_has_effect(monster->status_effects, EF_DISABLED_RLEG) == true) &&
+         (se_has_effect(monster->status_effects, EF_DISABLED_LLEG) == true) ) {
         return 0;
     }
 
-    if (se_has_effect(monster->status_effects, SETF_DISABLE_RLEG) ) {
+    if (se_has_effect(monster->status_effects, EF_DISABLED_RLEG) ) {
         max_speed -= 2;
         speed_mod -= speed / 2;
     }
-    if (se_has_effect(monster->status_effects, SETF_DISABLE_LLEG) ) {
+    if (se_has_effect(monster->status_effects, EF_DISABLED_LLEG) ) {
         max_speed -= 2;
         speed_mod -= speed / 2;
     }

@@ -169,16 +169,6 @@ static void mapwin_display_map_noref(struct dm_map *map, coord_t *player) {
                         }
                     }
                 }
-                /* Else see status effects lingering on the ground */
-                if (modified == false) {
-                    if ( (me->visible == true) || (map_see) ) {
-                        if (me->status_effect != NULL) {
-                            icon = me->status_effect->icon;
-                            attr_mod = me->status_effect->icon_attr;
-                            modified = true;
-                        }
-                    }
-                }
                 /* Else see items */
                 if (modified == false) {
                     if ( (me->visible == true) || (map_see) ) {
@@ -258,10 +248,6 @@ static void mapwin_examine(struct dm_map_entity *me) {
         ui_printf(char_win, "\n");
 
         if (me->visible) {
-            if (me->status_effect != NULL) {
-                ui_printf(char_win, "%s\n", me->status_effect->grnd_description);
-            }
-
             if (me->monster != NULL) {
 
                 if (me->monster->is_player == true) {
@@ -724,13 +710,11 @@ void charwin_refresh() {
     ui_printf(char_win, "\n");
 
     ui_printf(char_win, cs_ATTR "Wounds" cs_CLOSE "    [%2d/%2d]\n", player->cur_wounds, player->max_wounds);
-    ui_printf(char_win, cs_ATTR "Armour" cs_CLOSE);  ui_printf(char_win, " [%d][%d][%d][%d][%d][%d]\n", 
+    ui_printf(char_win, cs_ATTR "Armour" cs_CLOSE " [%d][%d][%d][%d]\n", 
                                             msr_calculate_armour(player, MSR_HITLOC_HEAD),
                                             msr_calculate_armour(player, MSR_HITLOC_BODY),
-                                            msr_calculate_armour(player, MSR_HITLOC_LEFT_ARM),
-                                            msr_calculate_armour(player, MSR_HITLOC_RIGHT_ARM),
-                                            msr_calculate_armour(player, MSR_HITLOC_LEFT_LEG),
-                                            msr_calculate_armour(player, MSR_HITLOC_RIGHT_LEG) );
+                                            msr_calculate_armour(player, MSR_HITLOC_LEFT_ARM), /* Left and Right should be the same*/
+                                            msr_calculate_armour(player, MSR_HITLOC_LEFT_LEG) );
     ui_printf(char_win, "\n");
 
     struct itm_item *item;
@@ -1160,7 +1144,6 @@ Basic weapon traning SP     ...                  |
     ui_printf(&pad, cs_ATTR "Career:"   cs_CLOSE "        %-20s\n", plr->career->title);
 
     ui_printf(&pad, cs_ATTR "Wounds:"   cs_CLOSE "        %d/%d\n", mon->cur_wounds, mon->max_wounds);
-    ui_printf(&pad, cs_ATTR "Fatique:"  cs_CLOSE "       %d\n", mon->fatique);
     ui_printf(&pad, cs_ATTR "XP:"       cs_CLOSE "            %d\n", plr->xp_current);
     ui_printf(&pad, cs_ATTR "XP Spend:" cs_CLOSE "      %d\n", plr->xp_spend);
 

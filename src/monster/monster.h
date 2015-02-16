@@ -18,6 +18,8 @@
 #define MSR_NR_DEFAULT_WEAPONS_MAX 3
 #define MSR_FATIQUE_RECOVER_DELAY (100)
 
+#define MSR_WEAPON_DAMAGE_INSTA_DEATH (10)
+
 #define MSR_MOVEMENT_MIN 1
 #define MSR_MOVEMENT_MAX 9
 
@@ -91,51 +93,6 @@ enum msr_hit_location {
     MSR_HITLOC_NONE,
 };
 
-enum msr_status_effects {
-    MSR_SEF_NONE,
-
-    MSR_SEF_DECREASE_SKILL,
-    MSR_SEF_INCREASE_SKILL,
-
-    MSR_SEF_BLEEDING,
-    MSR_SEF_BLINDED,
-    MSR_SEF_BROKEN,
-    MSR_SEF_CONFUSED,
-    MSR_SEF_COWERING,
-    MSR_SEF_DAZED,
-    MSR_SEF_DAZZLED,
-    MSR_SEF_DEAD,
-    MSR_SEF_DEAFENED,
-    MSR_SEF_DISABLED_LLEG,
-    MSR_SEF_DISABLED_RLEG,
-    MSR_SEF_DISABLED_LARM,
-    MSR_SEF_DISABLED_RARM,
-    MSR_SEF_DISABLED_EYE,
-    MSR_SEF_ENTANGLED,
-    MSR_SEF_EXHAUSTED,
-    MSR_SEF_FLAT_FOOTED,
-    MSR_SEF_FRIGHTENED,
-    MSR_SEF_GRAPPLED,
-    MSR_SEF_HELPLESS,
-    MSR_SEF_INCORPOREAL,
-    MSR_SEF_INVISIBLE,
-    MSR_SEF_NAUSEATED,
-    MSR_SEF_PANICKED,
-    MSR_SEF_PARALYZED,
-    MSR_SEF_PETRIFIED,
-    MSR_SEF_PINNED,
-    MSR_SEF_PRONE,
-    MSR_SEF_SHAKEN,
-    MSR_SEF_SICKENED,
-    MSR_SEF_SINKING,
-    MSR_SEF_STABLE,
-    MSR_SEF_STAGGERED,
-    MSR_SEF_STUNNED,
-    MSR_SEF_UNCONSCIOUS,
-
-    MSR_SEF_MAX,
-};
-
 struct msr_char {
     uint8_t base_value;
     uint8_t advancement;
@@ -201,12 +158,7 @@ struct msr_monster {
     /* current number of corruption points, not used. */
     uint8_t corruption_points;
 
-    int status_effects_array[MSR_SEF_MAX];
-
-    /* current level of fatique. */
-    uint8_t fatique;
-    uint32_t fatique_turn;
-
+    /* array wth the turn the particular evasion method was last used. */
     uint32_t evasion_last_used[MSR_EVASION_MAX];
 
     /* true if the monster is dead and to be cleaned up. */
@@ -227,7 +179,8 @@ struct msr_monster {
     /* special creature traits. */
     bitfield64_t creature_traits;
 
-    /* base characteris score, +advancement. every advancement is 5 extra points. */
+    /* base characteric score, +advancement. every advancement worth 5 points for 
+           basic characteristics and 1 point for secondary characteristics. */
     struct msr_char characteristic[MSR_CHAR_MAX];
 
     /* ai or player callback structure */
@@ -312,6 +265,8 @@ int msr_calculate_characteristic(struct msr_monster *monster, enum msr_character
 
 /* get current characteristic bonus ( normally (characteristic / 10) ), including talents */
 int msr_calculate_characteristic_bonus(struct msr_monster *monster, enum msr_characteristic chr);
+
+int msr_calculate_fatique(struct msr_monster *monster);
 
 /* get the current worn armour on that location, or NULL */
 struct itm_item *msr_get_armour_from_hitloc(struct msr_monster *monster, enum msr_hit_location mhl);
