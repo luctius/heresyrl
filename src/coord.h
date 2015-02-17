@@ -15,7 +15,7 @@ typedef struct coord {
     short y;
 } coord_t;
 
-extern const coord_t *coord_nhlo_table;
+extern const coord_t coord_nhlo_table[];
 extern const uint8_t coord_nhlo_table_sz;
 
 inline coord_t cd_create(short x, short y) {
@@ -24,7 +24,7 @@ inline coord_t cd_create(short x, short y) {
 }
 
 inline coord_t cd_add(const coord_t *a, const coord_t *b) {
-    coord_t c = { .x = a->x + b->x, .y = a->y + a->y,};
+    coord_t c = { .x = a->x + b->x, .y = a->y + b->y,};
     return c;
 }
 

@@ -31,6 +31,7 @@ heresyrl_SOURCES =  \
                     src/dungeon/dungeon_plain.c \
                     src/dungeon/dungeon_map.c \
                     src/dungeon/spawn.c \
+                    src/dungeon/cellular_automata.c \
                     src/ai/ai.c \
                     src/ai/ai_utils.c \
                     src/ai/pathfinding.c \
