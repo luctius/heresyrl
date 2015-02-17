@@ -119,7 +119,7 @@ struct status_effect *selst_get_next_status_effect(struct status_effect *prev) {
     return &sele->entries.tqe_next->se.status_effect;
 }
 
-struct status_effect *selst_status_effect_by_uid(int status_effect_uid) {
+struct status_effect *selst_status_effect_by_uid(uint32_t status_effect_uid) {
     if (status_effects_list_initialised == false) return false;
     struct status_effect_list_entry *sele = status_effects_list_head.tqh_first;
 

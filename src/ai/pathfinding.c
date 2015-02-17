@@ -63,8 +63,8 @@ static bool pf_flood_map(struct pf_context *ctx, coord_t *point) {
 
                 me->state = PF_ENTITY_STATE_CLOSED;
 
-                for (int i = 0; i < (int) ARRAY_SZ(pf_coord_lo_table); i++) {
-                    coord_t pos = { .x = x + pf_coord_lo_table[i].x, .y = y + pf_coord_lo_table[i].y, };
+                for (int i = 0; i < (int) coord_nhlo_table_sz; i++) {
+                    coord_t pos = { .x = x + coord_nhlo_table[i].x, .y = y + coord_nhlo_table[i].y, };
                     struct pf_map_entity *me_new = pf_get_index(&pos, map);
                     if (me_new->cost == PF_BLOCKED) continue;
 
@@ -180,9 +180,9 @@ static bool pf_astar_loop(struct pf_context *ctx, coord_t *start, coord_t *end) 
 
         /* calculate around current point */
         coord_t pos, pos_cbk;
-        for (unsigned int i = 0; i < ARRAY_SZ(pf_coord_lo_table); i++) {
-            pos.x = pf_coord_lo_table[i].x + point.x;
-            pos.y = pf_coord_lo_table[i].y + point.y;
+        for (int i = 0; i < coord_nhlo_table_sz; i++) {
+            pos.x = coord_nhlo_table[i].x + point.x;
+            pos.y = coord_nhlo_table[i].y + point.y;
 
             if (cd_within_bound(&pos, &map->size) == false) continue;
             struct pf_map_entity *me_new = pf_get_index(&pos, map);
@@ -263,9 +263,9 @@ static bool pf_backtrace(struct pf_map *map, coord_t *end, coord_t coord_lst[], 
 
         unsigned int best = PF_BLOCKED;
         coord_t pos, best_pos;
-        for (unsigned int j = 0; j < ARRAY_SZ(pf_coord_lo_table); j++) {
-            pos.x = pf_coord_lo_table[j].x + point.x;
-            pos.y = pf_coord_lo_table[j].y + point.y;
+        for (int j = 0; j < coord_nhlo_table_sz; j++) {
+            pos.x = coord_nhlo_table[j].x + point.x;
+            pos.y = coord_nhlo_table[j].y + point.y;
             me = pf_get_index(&pos, map);
             if (me->state != PF_ENTITY_STATE_FREE) {
                 bool found_best = false;

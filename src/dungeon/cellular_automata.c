@@ -13,7 +13,7 @@ static inline uint8_t *get_cell(coord_t *p, struct ca_map *map) {
     return &map->map[(p->x * map->size.y) + p->y];
 }
 
-bool ca_round(struct ca_map *map, uint8_t birth_sum, uint8_t surv_sum, int radius) {
+bool ca_generation(struct ca_map *map, uint8_t birth_sum, uint8_t surv_sum, int radius) {
     /* 
        We do a two pass over the grid.
        The first pass check if a cell should life or 
@@ -54,6 +54,8 @@ bool ca_round(struct ca_map *map, uint8_t birth_sum, uint8_t surv_sum, int radiu
             }
         }
     }
+
+    return true;
 }
 
 

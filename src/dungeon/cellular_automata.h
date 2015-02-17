@@ -21,7 +21,7 @@ enum cellular_automata ca_get_coord(struct ca_map *map, coord_t *point);
 /* Get the sum of all the cell in the radius around point, *excluding* point itself. */
 int ca_get_coord_sum(struct ca_map *map, coord_t *point, int radius);
 
-bool ca_round(struct ca_map *map, uint8_t birth_sum, uint8_t surv_sum, int radius);
+bool ca_generation(struct ca_map *map, uint8_t birth_sum, uint8_t surv_sum, int radius);
 
 /* debugging */
 void ca_print_map(struct ca_map *map);
