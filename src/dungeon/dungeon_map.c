@@ -24,6 +24,7 @@
 #include "dungeon_cave.h"
 #include "dungeon_room.h"
 #include "dungeon_plain.h"
+#include "cellular_automata.h"
 
 extern inline struct dm_map_entity *dm_get_map_me(coord_t *c, struct dm_map *map);
 extern inline struct tl_tile *dm_get_map_tile(coord_t *c, struct dm_map *map);
@@ -429,6 +430,17 @@ static void dm_add_lights(struct dm_map *map, struct random *r) {
         for (int y = 1; y < map->size.y; y++) {
             coord_t point = { .x = x, .y = y, };
 
+            int num = 0;
+            coord_t test = { .x = point.x, .y = point.y, };
+            for (int i = 0; i < coord_nhlo_table_sz; i++) {
+                if (cd_within_bound(&test, &map->size) == false) continue;
+
+                if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(&test, map), TILE_ATTR_TRANSPARENT) == false) {
+                    num++;
+                }
+            }
+
+
             struct dm_map_entity *me = dm_get_map_me(&point, map);
             if (me->tile->type == TILE_TYPE_WALL ) {
                 if(random_int32(r)%100 < 1) {
@@ -441,6 +453,76 @@ static void dm_add_lights(struct dm_map *map, struct random *r) {
 
 }
 
+enum dm_feature_type {
+    DM_FT_POOL,
+};
+
+bool dm_generate_feature(struct dm_map *map, struct random *r, coord_t *point, int min_radius, int max_radius, enum dm_feature_type ft) {
+    coord_t ft_sz = { .x = max_radius, .y = max_radius, };
+    coord_t ul = { .x = point->x - max_radius, .y = point->y - max_radius, };
+    coord_t dr = { .x = point->x + max_radius, .y = point->y + max_radius, };
+
+    struct ca_map *camap = ca_init(&ft_sz);
+
+    /* Insert Obstacles and Alive Members */
+    coord_t c;
+    for (c.x = 0; c.x < max_radius; c.x++) {
+        for (c.y = 0; c.y < max_radius; c.y++) {
+            coord_t p = cd_add(&c, &ul);
+
+            if (cd_within_bound(&p, &map->size) == false) {
+                ca_set_coord(camap, &c, CA_OBSTACLE);
+            }
+            else if (dm_get_map_tile(&p, map)->type != TILE_TYPE_FLOOR) {
+                ca_set_coord(camap, &c, CA_OBSTACLE);
+            }
+            else if (random_d100(r) < 70) {
+                ca_set_coord(camap, &c, CA_ALIVE);
+            }
+        }
+    }
+
+    /* Generate the Feature */
+    for (int i = 0; i < 3; i++) {
+        ca_generation(camap, 4, 4, 1);
+    }
+
+    /* Check Size */
+    int max_sum = 0;
+    for (c.x = 0; c.x < max_radius; c.x++) {
+        for (c.y = 0; c.y < max_radius; c.y++) {
+            int tmp = 0;
+            tmp = ca_get_coord_sum(camap, &c, 3);
+            if (tmp > max_sum) max_sum = tmp;
+        }
+    }
+    if (max_sum < min_radius) {
+        ca_free(camap);
+        return false;
+    }
+
+    /* Insert into Map */
+    for (c.x = 0; c.x < max_radius; c.x++) {
+        for (c.y = 0; c.y < max_radius; c.y++) {
+            if (ca_get_coord(camap, &c) != CA_ALIVE) continue;
+
+            coord_t p = cd_add(&c, &ul);
+
+            if (cd_within_bound(&p, &map->size) == false) continue;
+            struct dm_map_entity *me = dm_get_map_me(&p, map);
+
+            int sum = ca_get_coord_sum(camap, &c, 2);
+            if (ca_get_coord_sum(camap, &c, 1) < 6) me->tile = ts_get_tile_specific(TILE_ID_MUD);
+            else if (sum <= 19) me->tile = ts_get_tile_specific(TILE_ID_UNDEEP_WATER);
+            else /*if (sum > 20)*/ me->tile = ts_get_tile_specific(TILE_ID_DEEP_WATER);
+        }
+    }
+
+
+    ca_free(camap);
+    return true;
+}
+
 bool dm_generate_map(struct dm_map *map, enum dm_dungeon_type type, int level, unsigned long seed, bool populate) {
     if (dm_verify_map(map) == false) return false;
 
@@ -450,31 +532,52 @@ bool dm_generate_map(struct dm_map *map, enum dm_dungeon_type type, int level, u
 
     lg_debug("generating map with seed \'%lu\', type \'%d\' and threat_lvl \'%d\'", seed, type, level);
 
-    /* Create an non-destructable border wall around the map */
     coord_t c;
-    for (c.x = 0, c.y = 0; c.x < map->size.x; c.x++) dm_get_map_me(&c,map)->tile = ts_get_tile_specific(TILE_ID_BORDER_WALL);
-    for (c.y = 0, c.x = 0; c.y < map->size.y; c.y++) dm_get_map_me(&c,map)->tile = ts_get_tile_specific(TILE_ID_BORDER_WALL);
-    for (c.x = 0, c.y = map->size.y-1; c.x < map->size.x; c.x++) dm_get_map_me(&c,map)->tile = ts_get_tile_specific(TILE_ID_BORDER_WALL);
-    for (c.y = 0, c.x = map->size.x-1; c.y < map->size.y; c.y++) dm_get_map_me(&c,map)->tile = ts_get_tile_specific(TILE_ID_BORDER_WALL);
+    /* Create an non-destructable border wall around the 4 sides of the map */
+    for (c.x = 0; c.x < map->size.x; c.x++) {
+        for (c.y = 0; c.y < map->size.y; c.y++) {
+            if ( (c.x == 0) ||
+                 (c.y == 0) ||
+                 (c.x == map->size.x-1) ||
+                 (c.y == map->size.y-1) ) {
+                dm_get_map_me(&c,map)->tile = ts_get_tile_specific(TILE_ID_BORDER_WALL);
+            }
+            else {
+                dm_get_map_me(&c,map)->tile = ts_get_tile_specific(TILE_ID_CONCRETE_WALL);
+            }
+        }
+    }
 
-    coord_t ul = { .x = 1, .y = 1,};
+    /* save upper left and down right. */
+    coord_t ul = { .x = 2, .y = 2,};
     coord_t dr = { .x = map->size.x-1, .y = map->size.y-1, };
+
+    /* init random*/
     struct random *r = random_init_genrand(seed);
+
+    /* fill the map with room accoring to the specified algorithm */
     switch(type) {
         case DUNGEON_TYPE_CAVE:
+            lg_debug("map_type is cave");
             cave_generate_map(map, r, type, &ul, &dr);
             break;
         default:
         case DUNGEON_TYPE_PLAIN:
+            lg_debug("map_type is plain");
             dm_generate_map_plain(map, r, type, &ul, &dr);
             break;
     }
     assert(dm_has_floors(map) );
 
-    dm_add_lights(map, r);
+    /* add the stairs to the map */
     dm_add_stairs(map, r);
+
+    /* set map cells to their defaults. */
     dm_clear_map(map);
 
+    /* From here we will make sure the map is completely accesible. */
+
+    /* the start and end of the final check will be the up and down stairs. */
     coord_t start = { .x = map->stair_up.x, .y = map->stair_up.y};
     coord_t end = { .x = map->stair_down.x, .y = map->stair_down.y};
 
@@ -488,24 +591,46 @@ bool dm_generate_map(struct dm_map *map, enum dm_dungeon_type type, int level, u
            no more non-flooded tiles. This takes a long time though, 
            and can probably be optimised.
          */
+
+        /* We generate a new flood map */
         if (aiu_generate_dijkstra(&pf_ctx, map, &start, 0) ) {
+
+            /* check if there is no non-obstacle which has not been used in the map */
             if (pf_calculate_reachability(pf_ctx) == true) {
                 map_is_good = true;
+
+                /* Paranoia: check if there is a path from start to end */
                 assert(pf_calculate_path(pf_ctx, &start, &end, NULL) > 1);
             }
             else {
+                /* if we do have regions which have not been recued, create a tunnel to them */
                 dm_get_tunnel_path(map, pf_ctx, r);
             }
 
         }
     }
 
+    /* Fill the map with lights */
+    dm_add_lights(map, r);
+
+    for (i = 0; i < 10; i++) {
+        int x = random_int32(r) % map->size.x;
+        int y = random_int32(r) % map->size.y;
+        coord_t point = { .x = x, .y = y, };
+
+        dm_generate_feature(map, r, &point, 15, 15, DM_FT_POOL);
+    }
+
     assert(map_is_good == true);
     lg_debug("Map is completly reachable in %d tries", i);
 
+    /* cleanup pathfinding */
     pf_exit(pf_ctx);
 
+    /* fill the map with items and monsters */
     if (populate) dm_populate_map(map, r, 100, 5, level);
+
+    /*cleanup random*/
     random_exit(r);
 
     return true;

@@ -186,7 +186,7 @@ static void mapwin_display_map_noref(struct dm_map *map, coord_t *player) {
                 if (modified == false) {
                     if (me->visible == true) {
                         if (me->light_level > 0) {
-                            { //if (TILE_HAS_ATTRIBUTE(tile, TILE_ATTR_TRAVERSABLE) ){
+                            if (tile->type == TILE_TYPE_FLOOR) {
                                 attr_mod = get_colour(TERM_COLOUR_YELLOW);
                                 modified = true;
                             }

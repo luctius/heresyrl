@@ -1,8 +1,10 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <string.h>
 
 #include "cellular_automata.h"
+#include "logging.h"
 
 struct ca_map {
     uint8_t *map;
@@ -50,7 +52,7 @@ bool ca_generation(struct ca_map *map, uint8_t birth_sum, uint8_t surv_sum, int 
                 else if ( (*cell & CA_MASK) == CA_DEAD) {
                     *cell = CA_ALIVE;
                 }
-                else assert(false);
+                else if ( (*cell & CA_MASK) != CA_OBSTACLE) assert(false);
             }
         }
     }
@@ -70,6 +72,7 @@ struct ca_map *ca_init(coord_t *size) {
         return NULL;
     }
 
+    memset(map->map, CA_DEAD, map->size.x * map->size.y * sizeof(uint8_t) );
     return map;
 }
 
@@ -100,8 +103,8 @@ int ca_get_coord_sum(struct ca_map *map, coord_t *point, int radius) {
     int sum = 0;
 
     coord_t p;
-    for (p.y = -radius; p.y < radius; p.y++) {
-        for (p.x = -radius; p.x < radius; p.x++) {
+    for (p.y = -radius; p.y <= radius; p.y++) {
+        for (p.x = -radius; p.x <= radius; p.x++) {
             if (p.x == 0 && p.y == 0) continue;
 
             coord_t test_p = cd_add(point, &p);
@@ -119,8 +122,9 @@ void ca_print_map(struct ca_map *map) {
     coord_t c;
     for (c.y = 0; c.y < map->size.y; c.y++) {
         for (c.x = 0; c.x < map->size.x; c.x++) {
-            if (ca_get_coord(map, &c)       == CA_ALIVE ) putchar('.');
-            else if (ca_get_coord(map, &c)  == CA_DEAD )  putchar('X');
+            if (ca_get_coord(map, &c)       == CA_ALIVE )   putchar('.');
+            else if (ca_get_coord(map, &c)  == CA_DEAD )    putchar(' ');
+            else if (ca_get_coord(map, &c)  == CA_OBSTACLE) putchar('#');
             else putchar('?');
         }
         putchar('\n');

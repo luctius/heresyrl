@@ -544,7 +544,6 @@ enum msr_hit_location msr_get_hit_location(struct msr_monster *monster, int hit_
         case MSR_RACE_HALFLING:
         case MSR_RACE_GREENSKIN:
         case MSR_RACE_HUMAN:
-            return MSR_HITLOC_LEFT_ARM;
             hitloc_tbl = human_hitloc_lotable;
             hitloc_tbl_sz = ARRAY_SZ(human_hitloc_lotable);
             break;

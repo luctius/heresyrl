@@ -46,7 +46,7 @@ static bool rpsc_check_translucent_los(struct rpsc_fov_set *set, coord_t *point,
     if (cd_within_bound(point, &map->size) == false) return false;
 
     /* if it is translucent, return true, else return false. */
-    if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(point,map), TILE_ATTR_TRANSLUCENT) == false) {
+    if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(point,map), TILE_ATTR_TRANSPARENT) == false) {
         translucent = false;
     }
 
@@ -121,7 +121,7 @@ static bool rpsc_apply_light_source(struct rpsc_fov_set *set, coord_t *point, co
     if ( (item->specific.tool.light_luminem - cd_pyth(point, origin) ) <= 0) return false;
 
     /* Only light walls who are the origin of the light. */
-    if ( (cd_equal(point, origin) == false) && ( (dm_get_map_tile(point,map)->attributes & TILE_ATTR_TRANSLUCENT) == 0) ) return false;
+    if ( (cd_equal(point, origin) == false) && ( (dm_get_map_tile(point,map)->attributes & TILE_ATTR_TRANSPARENT) == 0) ) return false;
 
     dm_get_map_me(point,map)->light_level = item->specific.tool.light_luminem - cd_pyth(point, origin);
     return true;

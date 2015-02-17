@@ -4,11 +4,12 @@
 #include "coord.h"
 
 enum cellular_automata {
-    CA_DEAD  = 0,
-    CA_ALIVE = 1,
-    CA_MASK  = 0x1,
+    CA_DEAD     = 0,
+    CA_ALIVE    = 1,
+    CA_OBSTACLE = 2,
 
-    CA_TOGGLE = 0x80,
+    CA_MASK     = 0x3,
+    CA_TOGGLE   = 0x80,
 };
 
 struct ca_map;

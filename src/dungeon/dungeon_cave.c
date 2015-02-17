@@ -10,7 +10,7 @@
 #include "coord.h"
 
 static enum cellular_automata randpick(struct random *r, int fillprob) {
-    if( (int) (random_int32(r)%100) < fillprob) {
+    if(random_d100(r) < fillprob) {
         return CA_ALIVE;
     }
     return CA_DEAD;
@@ -33,12 +33,12 @@ bool cave_generate_map(struct dm_map *map, struct random *r, enum dm_dungeon_typ
 
     /* Fill the map with large caves */
     for (int  i = 0; i < 4; i++) {
-        ca_generation(cmap, 8, 7, 2);
+        ca_generation(cmap, 16, 8, 2);
     }
 
     /* Do a few passes to make them less smooth */
     for (int  i = 0; i < 2; i++) {
-        ca_generation(cmap, 4, 3, 1);
+        ca_generation(cmap, 5, 3, 1);
     }
 
     /* translate the ca_map to the real map */

@@ -44,3 +44,4 @@ unarmed and offhand weapons do not offer a targetting window.
 msg_win disapears after some fullscreen windows,
 Throwing weapons tohit calculations are off.
 Torches should be held when activated, and their fuel use is bugged.
+archers do not shoot anymore

@@ -10,7 +10,7 @@
 
 enum tile_attributes {
     TILE_ATTR_TRAVERSABLE    = (1<<0),
-    TILE_ATTR_TRANSLUCENT    = (1<<1),
+    TILE_ATTR_TRANSPARENT    = (1<<1),
     TILE_ATTR_DOOR_CLOSED    = (1<<2),
     TILE_ATTR_DOOR_OPEN      = (1<<3),
     TILE_ATTR_STAIRS_UP      = (1<<4),
@@ -32,6 +32,9 @@ enum tile_ids {
     TILE_ID_WOODEN_CLOSED_DOOR,
     TILE_ID_CONCRETE_STAIRS_UP,
     TILE_ID_CONCRETE_STAIRS_DOWN,
+    TILE_ID_UNDEEP_WATER,
+    TILE_ID_DEEP_WATER,
+    TILE_ID_MUD,
     TILE_ID_MAX,
 };
 
@@ -43,6 +46,7 @@ enum tile_types {
     TILE_TYPE_DOOR_OPEN,
     TILE_TYPE_STAIRS_UP,
     TILE_TYPE_STAIRS_DOWN,
+    TILE_TYPE_LIQUID,
     TILE_TYPE_MAX,
 };
 
