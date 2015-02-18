@@ -25,6 +25,7 @@
 #include "dungeon_room.h"
 #include "dungeon_plain.h"
 #include "cellular_automata.h"
+#include "dungeon_dla.h"
 
 extern inline struct dm_map_entity *dm_get_map_me(coord_t *c, struct dm_map *map);
 extern inline struct tl_tile *dm_get_map_tile(coord_t *c, struct dm_map *map);
@@ -550,7 +551,7 @@ bool dm_generate_map(struct dm_map *map, enum dm_dungeon_type type, int level, u
 
     /* save upper left and down right. */
     coord_t ul = { .x = 2, .y = 2,};
-    coord_t dr = { .x = map->size.x-1, .y = map->size.y-1, };
+    coord_t dr = { .x = map->size.x-2, .y = map->size.y-2, };
 
     /* init random*/
     struct random *r = random_init_genrand(seed);
