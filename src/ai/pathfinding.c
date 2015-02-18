@@ -65,11 +65,18 @@ static bool pf_flood_map(struct pf_context *ctx, coord_t *point) {
 
                 for (int i = 0; i < (int) coord_nhlo_table_sz; i++) {
                     coord_t pos = { .x = x + coord_nhlo_table[i].x, .y = y + coord_nhlo_table[i].y, };
+                    if (cd_within_bound(&pos, &map->size) == false) continue;
+
                     struct pf_map_entity *me_new = pf_get_index(&pos, map);
                     if (me_new->cost == PF_BLOCKED) continue;
 
                     /* Translate the coordinates from our perspective to the users perspective.  */
-                    coord_t pos_cbk = { .x = pos.x +ctx->set.map_start.x, .y = pos.y +ctx->set.map_start.y, };
+                    coord_t pos_cbk = cd_add(&pos, &ctx->set.map_start);
+
+                    if (pos_cbk.x < 0 || pos_cbk.y < 0) {
+                        int i = pos_cbk.x;
+                        i++;
+                    }
                     /* Call the user provided callback function */
                     unsigned int cost = ctx->set.pf_traversable_callback(ctx->set.map, &pos_cbk);
 
