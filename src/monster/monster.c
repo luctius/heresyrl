@@ -68,7 +68,7 @@ struct msr_monster *msrlst_get_next_monster(struct msr_monster *prev) {
 }
 
 static uint32_t msrlst_next_id(void) {
-    if (monster_list_initialised == false) return false;
+    if (monster_list_initialised == false) msrlst_monster_list_init();
     struct msr_monster_list_entry *me = monster_list_head.tqh_first;
     uint32_t uid = 1;
 
@@ -84,6 +84,7 @@ int msr_spawn(double roll, int level, enum dm_dungeon_type dt) {
     double prob_arr[sz];
     double cumm_prob_arr[sz];
     double sum = 0;
+    bool found_dt = false;
 
     int idx = MID_NONE;
 
@@ -93,8 +94,9 @@ int msr_spawn(double roll, int level, enum dm_dungeon_type dt) {
         if (level <= static_monster_list[i].level) {
 
             if (test_bf(static_monster_list[i].dungeon_locale, dt) ||
-                 test_bf(static_monster_list[i].dungeon_locale, DUNGEON_TYPE_ALL) ){
+                 test_bf(static_monster_list[i].dungeon_locale, DUNGEON_TYPE_ALL) ) {
                 valid = true;
+                found_dt = true;
                 sum += static_monster_list[i].weight;
             }
         }
@@ -102,6 +104,8 @@ int msr_spawn(double roll, int level, enum dm_dungeon_type dt) {
         if (!valid) cumm_prob_arr[i] = DBL_MAX;
         else cumm_prob_arr[i] = 0.f;
     }
+
+    assert(found_dt && "Dungeon Type not used in monster list!");
 
     double cumm = 0;
     for (int i = MID_NONE+1; i < sz; i++) {
@@ -125,9 +129,8 @@ void msr_give_items(struct msr_monster *m, int level, struct random *r);
 static void creature_weapon(struct msr_monster *monster);
 
 struct msr_monster *msr_create(enum msr_ids template_id) {
-    if (monster_list_initialised == false) msrlst_monster_list_init();
-    if (template_id >= (int) ARRAY_SZ(static_monster_list)) return NULL;
-    if (template_id == MID_NONE) return NULL;
+    if (template_id >= (int) ARRAY_SZ(static_monster_list)) { assert(false && "template_id bigger than list"); return NULL; };
+    if (template_id == MID_NONE)                            { assert(false && "template_id invalid"); return NULL; };
     struct msr_monster *template_monster = &static_monster_list[template_id];
 
     struct msr_monster_list_entry *m = calloc(1,sizeof(struct msr_monster_list_entry) );

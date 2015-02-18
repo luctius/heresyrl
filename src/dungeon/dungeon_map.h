@@ -10,6 +10,7 @@
 enum dm_dungeon_type {
     DUNGEON_TYPE_NONE,
     DUNGEON_TYPE_PLAIN,
+    DUNGEON_TYPE_TUNNEL,
     DUNGEON_TYPE_CAVE,
     DUNGEON_TYPE_ALL,
 };

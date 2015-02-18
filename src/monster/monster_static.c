@@ -153,7 +153,7 @@ struct msr_monster static_monster_list[] = {
         CHARACTERISTICS(30,0,30,30,40,14,25,30),
         SKILLS(MSR_SKILLS_AWARENESS|MSR_SKILLS_SILENT_MOVE, 0,0),
         DESCRIPTION("description of a viscious dog"),
-        CREATION(20,1,bf(DUNGEON_TYPE_CAVE) | bf(DUNGEON_TYPE_PLAIN) ),
+        CREATION(20,1,bf(DUNGEON_TYPE_ALL) ),
      MONSTER_END,
 };
 

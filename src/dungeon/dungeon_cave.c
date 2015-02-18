@@ -48,11 +48,10 @@ bool cave_generate_map(struct dm_map *map, struct random *r, enum dm_dungeon_typ
 
             /* check if the cell is alive or dead */
             enum tile_ids tid;
-            if (ca_get_coord(cmap, &c) == CA_ALIVE) tid = TILE_ID_CONCRETE_FLOOR;
-            else tid = TILE_ID_CONCRETE_WALL;
-
-            /* fill the tile with the specified type */
-            dm_get_map_me(&c,map)->tile = ts_get_tile_specific(tid);
+            if (ca_get_coord(cmap, &c) == CA_ALIVE) {
+                /* fill the tile with the specified type */
+                dm_get_map_me(&c,map)->tile = ts_get_tile_specific(TILE_ID_CONCRETE_FLOOR);
+            }
         }
     }
 

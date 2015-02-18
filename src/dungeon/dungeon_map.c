@@ -566,6 +566,10 @@ bool dm_generate_map(struct dm_map *map, enum dm_dungeon_type type, int level, u
             lg_debug("map_type is plain");
             dm_generate_map_plain(map, r, type, &ul, &dr);
             break;
+        case DUNGEON_TYPE_TUNNEL:
+            lg_debug("map_type is tunnel");
+            dm_generate_map_dla(map, r, type, &ul, &dr);
+            break;
     }
     assert(dm_has_floors(map) );
 

@@ -82,14 +82,16 @@ bool game_init_map(void) {
         new_map = true;
         gbl_game->current_map = dm_alloc_map(x,y);
 
+        int rand = random_d100(gbl_game->random);
+        if (rand < 60) {
             dm_generate_map(gbl_game->current_map, DUNGEON_TYPE_CAVE, 1, random_int32(gbl_game->random), true);
-            /*
-        if (random_d100(gbl_game->random) > 60) {
-            dm_generate_map(gbl_game->current_map, DUNGEON_TYPE_CAVE, 1, random_int32(gbl_game->random), true);
+        }
+        else if (rand < 80) {
+            dm_generate_map(gbl_game->current_map, DUNGEON_TYPE_TUNNEL, 1, random_int32(gbl_game->random), true );
         }
         else {
             dm_generate_map(gbl_game->current_map, DUNGEON_TYPE_PLAIN, 1, random_int32(gbl_game->random), true );
-        }*/
+        }
 
         System_msg("Press '?' to view the help screen.");
     }
