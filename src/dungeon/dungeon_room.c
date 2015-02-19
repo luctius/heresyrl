@@ -8,6 +8,17 @@
 #include "random.h"
 #include "coord.h"
 
+static coord_t room_size[] = {
+    {4, 5},
+    {5, 4},
+    {5, 5},
+    {5, 3},
+    {3, 5},
+    {6, 6},
+    {7, 8},
+    {6, 8},
+    {8, 8},
+};
 
 bool dm_generate_map_room(struct dm_map *map, struct random *r, enum dm_dungeon_type type, coord_t *ul, coord_t *dr) {
     if (dm_verify_map(map) == false) return false;
@@ -17,11 +28,23 @@ bool dm_generate_map_room(struct dm_map *map, struct random *r, enum dm_dungeon_
     int sz_x = dr->x - ul->x;
     int sz_y = dr->y - ul->y;
 
+    coord_t r_ul = { .x = ul->x, .y = ul->y, };
+    coord_t r_dr = { .x = 0, .y = 0, };
+
+    int rand = random_int32(r) % ARRAY_SZ(room_size);
+    int r_szx = room_size[rand].x;
+    int r_szy = room_size[rand].y;
+
+    if ( (r_ul.x + r_szx) >= sz_x-1) r_szx = sz_x - r_ul.x - 4;
+    if ( (r_ul.y + r_szy) >= sz_y-1) r_szy = sz_y - r_ul.y - 4;
+    
+    r_dr.x = r_ul.x + r_szx;
+    r_dr.y = r_ul.y + r_szy;
+
     coord_t c;
-    for (c.x = 1; c.x < sz_x-1; c.x++) {
-        for (c.y = 1; c.y < sz_y-1; c.y++) {
-            coord_t abs = cd_create(c.x + ul->x, c.y +ul->y);
-            dm_get_map_me(&abs,map)->tile = ts_get_tile_specific(TILE_ID_CONCRETE_FLOOR);
+    for (c.x = r_ul.x; c.x < r_dr.x; c.x++) {
+        for (c.y = r_ul.y; c.y < r_dr.y; c.y++) {
+            dm_get_map_me(&c,map)->tile = ts_get_tile_specific(TILE_ID_CONCRETE_FLOOR);
         }
     }
     return true;

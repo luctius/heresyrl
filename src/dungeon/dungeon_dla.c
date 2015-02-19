@@ -16,7 +16,7 @@ bool dm_generate_map_dla(struct dm_map *map, struct random *r, enum dm_dungeon_t
     struct dla_map *dlamap = dla_init(&size);
 
     /* Generate the map */
-    dla_generate(dlamap, r, 15, DLA_ORTHOGONAL);
+    dla_generate(dlamap, r, 25, DLA_ORTHOGONAL);
 
     /* translate the dla_map to the real map */
     coord_t p;

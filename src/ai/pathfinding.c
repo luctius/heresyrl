@@ -5,19 +5,6 @@
 #include "pathfinding.h"
 #include "heresyrl_def.h"
 
-enum pf_entity_state {
-    PF_ENTITY_STATE_FREE    = 0,
-    PF_ENTITY_STATE_OPEN    = 1,
-    PF_ENTITY_STATE_CLOSED  = 2,
-};
-
-struct pf_map_entity {
-    int distance;
-    unsigned int cost;
-    unsigned int score;
-    enum pf_entity_state state;
-};
-
 struct pf_map {
     coord_t size;
     struct pf_map_entity *map;
@@ -84,6 +71,7 @@ static bool pf_flood_map(struct pf_context *ctx, coord_t *point) {
                     if (cost == PF_BLOCKED) {
                         me_new->cost = PF_BLOCKED;
                         me_new->state = PF_ENTITY_STATE_CLOSED;
+                        me_new->distance = PF_BLOCKED;
                         continue;
                     }
 
@@ -91,7 +79,7 @@ static bool pf_flood_map(struct pf_context *ctx, coord_t *point) {
                         me_new->cost = me->cost + cost;
                         me_new->distance = me->distance +1;
                         me_new->state = PF_ENTITY_STATE_OPEN;
-                        //me_new->score = me_new->cost + (pyth(pos.x - end->x, pos.y - end->y) * 2);
+                        me_new->score = me_new->cost + (pyth(pos.x - point->x, pos.y - point->y) * 2);
                         has_open = true;
 
                         /* Increase map boundries if possible */
@@ -337,7 +325,6 @@ bool pf_dijkstra_map(struct pf_context *ctx, coord_t *start) {
     map->size.y = ctx->set.map_end.y - ctx->set.map_start.y;
     map->map = calloc(map->size.x * map->size.y, sizeof(struct pf_map_entity) );
     if (map->map == NULL) return false;
-    ctx->maximum_distance = pyth(map->size.x, map->size.y) * 2;
 
     pf_get_index(start, map)->cost = 1;
     pf_get_index(start, map)->distance = 0;
@@ -360,8 +347,6 @@ int pf_astar_map(struct pf_context *ctx, coord_t *start, coord_t *end) {
     map->size.y = ctx->set.map_end.y - ctx->set.map_start.y;
     map->map = calloc(map->size.x * map->size.y, sizeof(struct pf_map_entity) );
     if (map->map == NULL) return false;
-
-    ctx->maximum_distance = pyth(map->size.x, map->size.y);
 
     pf_get_index(start, map)->cost = 1;
     pf_get_index(start, map)->distance = 0;
@@ -505,5 +490,16 @@ bool pf_get_closest_flooded_tile(struct pf_context *ctx, coord_t *target, coord_
     }
 
     return false;
+}
+
+struct pf_map_entity *pf_get_me(struct pf_context *ctx, coord_t *point) {
+    if (ctx == NULL) return NULL;
+    if (ctx->set.pf_traversable_callback == NULL) return NULL;
+    if ( (ctx->set.map_end.x == 0) && (ctx->set.map_end.y == 0) ) return NULL;
+
+    coord_t pf_point = { .x = point->x - ctx->set.map_start.x, .y = point->y - ctx->set.map_start.y, };
+    if (cd_within_bound(&pf_point, &ctx->map.size) == false) return NULL;
+    
+    return pf_get_index(&pf_point, &ctx->map);
 }
 

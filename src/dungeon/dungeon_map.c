@@ -361,7 +361,7 @@ static bool dm_tunnel(struct dm_map *map, struct random *r, coord_t *start, coor
             }
         }
         else {
-            roll = random_int32(r) % 4;
+            roll = random_int32(r) % 100;
             if (roll < 30) {
                 xd = 1 * xmod;
             }
@@ -378,7 +378,9 @@ static bool dm_tunnel(struct dm_map *map, struct random *r, coord_t *start, coor
 
         coord_t next = { .x = prev.x +xd, .y = prev.y +yd, };
         if (cd_within_bound(&next, &map->size) ) {
-            dm_get_map_me(&next, map)->tile = tl;
+            if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(&next, map), TILE_ATTR_TRAVERSABLE) == false) {
+                dm_get_map_me(&next, map)->tile = tl;
+            }
             prev.x = next.x;
             prev.y = next.y;
 
@@ -403,8 +405,6 @@ static bool dm_has_floors(struct dm_map *map) {
 static bool dm_get_tunnel_path(struct dm_map *map, struct pf_context *pf_ctx, struct random *r) {
     if (dm_verify_map(map) == false) return false;
 
-    bool retval = false;
-
     /* get a coords from a place we did not reach with our flooding, nearest to the stairs*/
     coord_t nftl;
     if (pf_get_non_flooded_tile(pf_ctx, &map->stair_up, &nftl) == true) {
@@ -423,7 +423,51 @@ static bool dm_get_tunnel_path(struct dm_map *map, struct pf_context *pf_ctx, st
         }
     }
 
-    return retval;
+    return false;
+}
+
+static void dm_add_loops(struct dm_map *map, struct pf_context *pf_ctx, struct random *r) {
+    if (dm_verify_map(map) == false) return;
+
+    bool tunneled = true;
+    for (int i = 0; i < 20 && tunneled == true; i++) {
+        tunneled = false;
+
+        if (aiu_generate_dijkstra(&pf_ctx, map, &map->stair_down, 0) ) {
+
+            for (int x = 1; x < map->size.x && tunneled == false; x+=5) {
+                for (int y = 1; y < map->size.y && tunneled == false; y+=5) {
+                    coord_t point;
+                    
+                    coord_t best;
+                    coord_t worst;
+                    int best_distance = INT_MAX;
+                    int worst_distance = 0;
+                    for (point.x = x - 5; point.x < x + 5; point.x++) {
+                        for (point.y = y - 5; point.y < y + 5; point.y++) {
+                            struct pf_map_entity *me = pf_get_me(pf_ctx, &point);
+                            if ( (me != NULL) && (me->cost < PF_BLOCKED)  && me->state != PF_ENTITY_STATE_FREE) {
+                                if (me->distance < best_distance)  {
+                                    best_distance = me->distance;
+                                    best = point;
+                                }
+                                if (me->distance > worst_distance) {
+                                    worst_distance = me->distance;
+                                    worst = point;
+                                }
+                            }
+                        }
+                    }
+
+                    if ( (worst_distance - best_distance) > 30) {
+                        struct tl_tile *tl = ts_get_tile_specific(TILE_ID_CONCRETE_FLOOR);
+                        dm_tunnel(map, r, &best, &worst, tl);
+                        tunneled = true;
+                    }
+                }
+            }
+        }
+    }
 }
 
 static void dm_add_lights(struct dm_map *map, struct random *r) {
@@ -614,6 +658,8 @@ bool dm_generate_map(struct dm_map *map, enum dm_dungeon_type type, int level, u
 
         }
     }
+
+    dm_add_loops(map, pf_ctx, r);
 
     /* Fill the map with lights */
     dm_add_lights(map, r);

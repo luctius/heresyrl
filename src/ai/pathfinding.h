@@ -9,6 +9,19 @@
 
 #define PF_BLOCKED (INT_MAX / 2)
 
+enum pf_entity_state {
+    PF_ENTITY_STATE_FREE    = 0,
+    PF_ENTITY_STATE_OPEN    = 1,
+    PF_ENTITY_STATE_CLOSED  = 2,
+};
+
+struct pf_map_entity {
+    int distance;
+    unsigned int cost;
+    unsigned int score;
+    enum pf_entity_state state;
+};
+
 struct pf_settings {
     coord_t map_start;
     coord_t map_end;
@@ -91,5 +104,10 @@ returns the length of the path
 */
 int pf_calculate_path(struct pf_context *ctx, coord_t *start, coord_t *end, coord_t **coord_lst);
 
+/*
+Prereq: pf_dijkstra_map OR pf_astar_map
+Retreive the information of a map grid.
+*/
+struct pf_map_entity *pf_get_me(struct pf_context *ctx, coord_t *point);
 
 #endif /* PATHFINDING_H */

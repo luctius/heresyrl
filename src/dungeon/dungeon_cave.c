@@ -38,7 +38,8 @@ bool cave_generate_map(struct dm_map *map, struct random *r, enum dm_dungeon_typ
 
     /* Do a few passes to make them less smooth */
     for (int  i = 0; i < 2; i++) {
-        ca_generation(cmap, 5, 3, 1);
+        int ri = (random_int32(r) % 4) +2;
+        ca_generation(cmap, 5, ri, 1);
     }
 
     /* translate the ca_map to the real map */
