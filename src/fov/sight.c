@@ -184,7 +184,7 @@ bool sgt_calculate_light_source(struct dm_map *map, struct itm_item *item) {
         .permissiveness = RPSC_FOV_PERMISSIVE_NORMAL,
         .area = RPSC_AREA_OCTAGON,
         .visible_on_equal = true,
-        .not_visible_blocks_vision = true,
+        .not_visible_blocks_vision = false,
         .map = map,
         .size = map->size,
         .is_transparent = rpsc_check_transparent_los,
@@ -209,12 +209,14 @@ bool sgt_calculate_player_sight(struct dm_map *map, struct msr_monster *monster)
     if (dm_verify_map(map) == false) return false;
     if (msr_verify_monster(monster) == false) return false;
 
+    lg_debug("processing player fov");
+
     struct rpsc_fov_set set = {
         .source = monster,
         .permissiveness = RPSC_FOV_PERMISSIVE_NORMAL,
         .area = RPSC_AREA_OCTAGON,
         .visible_on_equal = true,
-        .not_visible_blocks_vision = true,
+        .not_visible_blocks_vision = false,
         .map = map,
         .size = map->size,
         .is_transparent = rpsc_check_transparent_los,
@@ -260,7 +262,7 @@ int sgt_explosion(struct dm_map *map, coord_t *pos, int radius, coord_t *grid_li
         .permissiveness = RPSC_FOV_PERMISSIVE_NORMAL,
         .area = RPSC_AREA_OCTAGON,
         .visible_on_equal = true,
-        .not_visible_blocks_vision = true,
+        .not_visible_blocks_vision = false,
         .map = map,
         .size = map->size,
         .is_transparent = rpsc_check_transparent_los,
@@ -316,7 +318,7 @@ int sgt_los_path(struct dm_map *map, coord_t *s, coord_t *e, coord_t *path_lst[]
         .permissiveness = RPSC_FOV_PERMISSIVE_NORMAL,
         .area = RPSC_AREA_OCTAGON,
         .visible_on_equal = true,
-        .not_visible_blocks_vision = true,
+        .not_visible_blocks_vision = false,
         .map = map,
         .size = map->size,
         .is_transparent = rpsc_check_transparent_lof,

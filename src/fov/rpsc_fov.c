@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <assert.h>
 
-//#define RPSC_DEBUG
+#define RPSC_DEBUG
 
 #include "rpsc_fov.h"
 
@@ -138,7 +138,7 @@ static inline struct angle_set offset_to_angle_set(int row, int cell) {
     angle_t max_range = ANGLE_RANGE;
 
     /* range per cell */
-    angle_t range = (max_range / (row +1) );
+    angle_t range = (max_range / (row+1) );
 
     /* starting angle */
     set.near = range * cell;
@@ -170,7 +170,7 @@ static inline int angle_set_to_cell(struct angle_set *set, int row_new) {
 }
 
 /* check if a given angle set falls within the blocked set, given certain parameters */
-inline static bool angle_is_blocked(struct rpsc_fov_set *set, struct angle_set *test_set, struct angle_set *blocked_set) {
+inline static bool angle_is_blocked(struct rpsc_fov_set *set, struct angle_set *test_set, struct angle_set *blocked_set, bool transparent) {
 
     /* if it falls completely outside the blocked set, our job is done */
     if (test_set->far < blocked_set->near) return false;
@@ -209,8 +209,12 @@ inline static bool angle_is_blocked(struct rpsc_fov_set *set, struct angle_set *
         return (near_blocked || center_blocked || far_blocked);
     }
 
+    if (transparent) return center_blocked;
+
+    if ( (test_set->near   >= blocked_set->near) && (test_set->near   <= blocked_set->far) ) near_blocked = true;
+    if ( (test_set->far    >= blocked_set->near) && (test_set->far    <= blocked_set->far) ) far_blocked = true;
     /* blocked when any two angles are blocked */
-    return (near_blocked && center_blocked) || (center_blocked && far_blocked);
+    return (near_blocked && far_blocked);
 }
 
 /* check if (row,cell) is within radius with the given settings */
@@ -360,6 +364,7 @@ static void rpsc_fov_octant(struct rpsc_fov_set *set, coord_t *src, int radius, 
             /* check if the point is on the map */
             if (cd_within_bound(&point, &set->size) ) {
                 bool blocked = false;
+                bool transparent = set->is_transparent(set, &point, src);
 
                 /* calculated the angles of this cell */
                 struct angle_set as = offset_to_angle_set(row, cell);
@@ -373,7 +378,7 @@ static void rpsc_fov_octant(struct rpsc_fov_set *set, coord_t *src, int radius, 
                     lg_debug("test (%" PRIuFAST16 ",%" PRIuFAST16 ",%" PRIuFAST16 ") vs [%d] (%" PRIuFAST16 ",%" PRIuFAST16 ",%" PRIuFAST16 ")", as.near, as.center, as.far, i, blocked_list[i].near, blocked_list[i].center, blocked_list[i].far);
 
                     /* check if <as> if blocked or outside the view area. */
-                    if (angle_is_blocked(set, &as, &blocked_list[i]) || 
+                    if (angle_is_blocked(set, &as, &blocked_list[i], transparent) || 
                        in_radius(set, row, cell, radius) == false) {
 
                         lg_debug("blocked by [%d]", i);
@@ -397,7 +402,7 @@ static void rpsc_fov_octant(struct rpsc_fov_set *set, coord_t *src, int radius, 
                     if (set->apply != NULL) set->apply(set, &point, src);
 
                     /* check if it will block others */
-                    if (set->is_transparent(set, &point, src) == false) {
+                    if (transparent == false) {
                         /* it does, adding it to the blocklist */
                         blocked_list[obstacles_total + obstacles_this_row] = as;
                         obstacles_this_row++;
@@ -568,13 +573,14 @@ bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst) {
 
             /* the angles for this cell. */
             struct angle_set as = offset_to_angle_set(row, cell);
+            bool transparent = set->is_transparent(set, &point, src);
 
             /* loop through the obstacles and check if this cell if being blocked. */
             for (int i = 0; i < obstacles_total; i++) {
                 lg_debug("test (%" PRIuFAST16 ",%" PRIuFAST16 ",%" PRIuFAST16 ") vs [%d] (%" PRIuFAST16 ",%" PRIuFAST16 ",%" PRIuFAST16 ")", as.near, as.center, as.far, i, blocked_list[i].near, blocked_list[i].center, blocked_list[i].far);
 
                 /* check if the angles of this cell border a blocked cell or if it is outside the view area. */
-                if (angle_is_blocked(set, &as, &blocked_list[i]) ) {
+                if (angle_is_blocked(set, &as, &blocked_list[i], transparent) ) {
 
                     lg_debug("blocked by [%d]", i);
 
@@ -603,7 +609,7 @@ bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst) {
 
                    Thus we do not do block the target square.
                  */
-                if ( (set->is_transparent(set, &point, src) == false) && (destination == false) ) {
+                if ( (transparent == false) && (destination == false) ) {
                     /* add it to the obstacle list. */
                     blocked_list[obstacles_total + obstacles_this_row] = as;
                     obstacles_this_row++;
