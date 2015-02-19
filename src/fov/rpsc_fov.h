@@ -5,12 +5,6 @@
 
 #include "coord.h"
 
-enum rpsc_fov_permisiveness {
-    RPSC_FOV_PERMISSIVE_STRICT,
-    RPSC_FOV_PERMISSIVE_NORMAL,
-    RPSC_FOV_PERMISSIVE_RELAXED,
-};
-
 enum rpsc_area {
     RPSC_AREA_SQUARE,
     RPSC_AREA_OCTAGON,

@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <assert.h>
 
-#define RPSC_DEBUG
+//#define RPSC_DEBUG
 
 #include "rpsc_fov.h"
 
@@ -332,12 +332,13 @@ static void rpsc_fov_octant(struct rpsc_fov_set *set, coord_t *src, int radius, 
 
                     /* check if <as> if blocked or outside the view area. */
                     if (angle_is_blocked(set, &as, &blocked_list[i], transparent) || 
-                       in_radius(set, row, cell, radius) == false) {
+                        in_radius(set, row, cell, radius) == false) {
 
                         lg_debug("blocked by [%d]", i);
                         blocked_list[obstacles_total + obstacles_this_row] = as;
                         obstacles_this_row++;
                         lg_debug("becomes obstacle [%d]", obstacles_this_row + obstacles_total -1);
+
 
                         /* this cell is check and found blocking */
                         blocked = true;
