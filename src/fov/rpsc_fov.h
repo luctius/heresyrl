@@ -41,7 +41,7 @@ struct rpsc_fov_set {
     bool not_visible_blocks_vision;
 
     /* callback, should return true if the tile does not block vision, false if it does. */
-    bool (*is_translucent)(struct rpsc_fov_set *set, coord_t *point, coord_t *origin);
+    bool (*is_transparent)(struct rpsc_fov_set *set, coord_t *point, coord_t *origin);
 
     /* callback, applies the line of sight. */
     bool (*apply)(struct rpsc_fov_set *set, coord_t *point, coord_t *origin);

@@ -13,7 +13,7 @@
 #include "status_effects/status_effects.h"
 
 /* checks if this is a walkable path, without a monster.  */
-static bool rpsc_check_translucent_lof(struct rpsc_fov_set *set, coord_t *point, coord_t *origin) {
+static bool rpsc_check_transparent_lof(struct rpsc_fov_set *set, coord_t *point, coord_t *origin) {
     struct dm_map *map = set->map;
 
     FIX_UNUSED(origin);
@@ -34,9 +34,9 @@ static bool rpsc_check_translucent_lof(struct rpsc_fov_set *set, coord_t *point,
 }
 
 /* check if there is a line of sight path on this point */
-static bool rpsc_check_translucent_los(struct rpsc_fov_set *set, coord_t *point, coord_t *origin) {
+static bool rpsc_check_transparent_los(struct rpsc_fov_set *set, coord_t *point, coord_t *origin) {
     struct dm_map *map = set->map;
-    bool translucent = true;
+    bool transparent = true;
 
     FIX_UNUSED(origin);
 
@@ -45,12 +45,12 @@ static bool rpsc_check_translucent_los(struct rpsc_fov_set *set, coord_t *point,
     /* check if this point is within the map boundries. */
     if (cd_within_bound(point, &map->size) == false) return false;
 
-    /* if it is translucent, return true, else return false. */
+    /* if it is transparent, return true, else return false. */
     if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(point,map), TILE_ATTR_TRANSPARENT) == false) {
-        translucent = false;
+        transparent = false;
     }
 
-    return translucent;
+    return transparent;
 }
 
 static bool rpsc_apply_player_sight(struct rpsc_fov_set *set, coord_t *point, coord_t *origin) {
@@ -187,7 +187,7 @@ bool sgt_calculate_light_source(struct dm_map *map, struct itm_item *item) {
         .not_visible_blocks_vision = true,
         .map = map,
         .size = map->size,
-        .is_translucent = rpsc_check_translucent_los,
+        .is_transparent = rpsc_check_transparent_los,
         .apply = rpsc_apply_light_source,
     };
 
@@ -217,7 +217,7 @@ bool sgt_calculate_player_sight(struct dm_map *map, struct msr_monster *monster)
         .not_visible_blocks_vision = true,
         .map = map,
         .size = map->size,
-        .is_translucent = rpsc_check_translucent_los,
+        .is_transparent = rpsc_check_transparent_los,
         .apply = rpsc_apply_player_sight,
     };
 
@@ -263,7 +263,7 @@ int sgt_explosion(struct dm_map *map, coord_t *pos, int radius, coord_t *grid_li
         .not_visible_blocks_vision = true,
         .map = map,
         .size = map->size,
-        .is_translucent = rpsc_check_translucent_los,
+        .is_transparent = rpsc_check_transparent_los,
         .apply = rpsc_apply_explosion,
     };
 
@@ -319,7 +319,7 @@ int sgt_los_path(struct dm_map *map, coord_t *s, coord_t *e, coord_t *path_lst[]
         .not_visible_blocks_vision = true,
         .map = map,
         .size = map->size,
-        .is_translucent = rpsc_check_translucent_lof,
+        .is_transparent = rpsc_check_transparent_lof,
         .apply = rpsc_apply_projectile_path,
     };
 
@@ -427,7 +427,7 @@ bool sgt_has_los(struct dm_map *map, coord_t *s, coord_t *e, int radius) {
         .area = RPSC_AREA_OCTAGON,
         .map = map,
         .size = map->size,
-        .is_translucent = rpsc_check_translucent_los,
+        .is_transparent = rpsc_check_transparent_los,
         .apply = NULL,
     };
 
@@ -444,7 +444,7 @@ bool sgt_has_lof(struct dm_map *map, coord_t *s, coord_t *e, int radius) {
         .area = RPSC_AREA_OCTAGON,
         .map = map,
         .size = map->size,
-        .is_translucent = rpsc_check_translucent_lof,
+        .is_transparent = rpsc_check_transparent_lof,
         .apply = NULL,
     };
 
