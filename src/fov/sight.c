@@ -307,6 +307,7 @@ int sgt_los_path(struct dm_map *map, coord_t *s, coord_t *e, coord_t *path_lst[]
     struct rpsc_fov_set set = {
         .source = &pp,
         .area = RPSC_AREA_OCTAGON,
+        .map = map,
         .size = map->size,
         .is_transparent = rpsc_check_transparent_lof,
         .apply = rpsc_apply_projectile_path,
