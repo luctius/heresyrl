@@ -60,10 +60,6 @@ static bool pf_flood_map(struct pf_context *ctx, coord_t *point) {
                     /* Translate the coordinates from our perspective to the users perspective.  */
                     coord_t pos_cbk = cd_add(&pos, &ctx->set.map_start);
 
-                    if (pos_cbk.x < 0 || pos_cbk.y < 0) {
-                        int i = pos_cbk.x;
-                        i++;
-                    }
                     /* Call the user provided callback function */
                     unsigned int cost = ctx->set.pf_traversable_callback(ctx->set.map, &pos_cbk);
 
