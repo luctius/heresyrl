@@ -60,20 +60,14 @@ bool dm_generate_map_plain(struct dm_map *map, struct random *r, enum dm_dungeon
 
         if (obstructed == false) {
             int rand = random_d100(r);
-            if (rand > 50) {
+            if (rand > 10) {
                 dm_generate_map_room(map, r, type, &r_ul, &r_dr);
-            }
-            else if (random_d100(r) > 25) {
-                dm_generate_map_dla(map, r, type, &r_ul, &r_dr);
             }
             else {
                 cave_generate_map(map, r, type, &r_ul, &r_dr);
             }
 
             dug = tiles_used(map, ul, dr);
-            printf("%d%% | %d\n", (dug * 100) / dug_target, i);
-
-            dm_print_map(map);
         }
     };
     return true;

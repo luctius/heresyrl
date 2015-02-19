@@ -182,7 +182,7 @@ bool sgt_calculate_light_source(struct dm_map *map, struct itm_item *item) {
     struct rpsc_fov_set set = {
         .source = item,
         .permissiveness = RPSC_FOV_PERMISSIVE_NORMAL,
-        .area = RPSC_AREA_CIRCLE,
+        .area = RPSC_AREA_OCTAGON,
         .visible_on_equal = true,
         .not_visible_blocks_vision = true,
         .map = map,
@@ -212,7 +212,7 @@ bool sgt_calculate_player_sight(struct dm_map *map, struct msr_monster *monster)
     struct rpsc_fov_set set = {
         .source = monster,
         .permissiveness = RPSC_FOV_PERMISSIVE_NORMAL,
-        .area = RPSC_AREA_CIRCLE,
+        .area = RPSC_AREA_OCTAGON,
         .visible_on_equal = true,
         .not_visible_blocks_vision = true,
         .map = map,
@@ -258,7 +258,7 @@ int sgt_explosion(struct dm_map *map, coord_t *pos, int radius, coord_t *grid_li
     struct rpsc_fov_set set = {
         .source = &ex,
         .permissiveness = RPSC_FOV_PERMISSIVE_NORMAL,
-        .area = RPSC_AREA_CIRCLE,
+        .area = RPSC_AREA_OCTAGON,
         .visible_on_equal = true,
         .not_visible_blocks_vision = true,
         .map = map,
@@ -314,7 +314,7 @@ int sgt_los_path(struct dm_map *map, coord_t *s, coord_t *e, coord_t *path_lst[]
     struct rpsc_fov_set set = {
         .source = &pp,
         .permissiveness = RPSC_FOV_PERMISSIVE_NORMAL,
-        .area = RPSC_AREA_CIRCLE,
+        .area = RPSC_AREA_OCTAGON,
         .visible_on_equal = true,
         .not_visible_blocks_vision = true,
         .map = map,
@@ -424,7 +424,7 @@ bool sgt_has_los(struct dm_map *map, coord_t *s, coord_t *e, int radius) {
     struct rpsc_fov_set set = {
         .source = s,
         .permissiveness = RPSC_FOV_PERMISSIVE_NORMAL,
-        .area = RPSC_AREA_CIRCLE,
+        .area = RPSC_AREA_OCTAGON,
         .map = map,
         .size = map->size,
         .is_translucent = rpsc_check_translucent_los,
@@ -441,7 +441,7 @@ bool sgt_has_lof(struct dm_map *map, coord_t *s, coord_t *e, int radius) {
     struct rpsc_fov_set set = {
         .source = s,
         .permissiveness = RPSC_FOV_PERMISSIVE_NORMAL,
-        .area = RPSC_AREA_CIRCLE,
+        .area = RPSC_AREA_OCTAGON,
         .map = map,
         .size = map->size,
         .is_translucent = rpsc_check_translucent_lof,

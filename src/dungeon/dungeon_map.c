@@ -459,7 +459,7 @@ static void dm_add_loops(struct dm_map *map, struct pf_context *pf_ctx, struct r
                         }
                     }
 
-                    if ( (worst_distance - best_distance) > 30) {
+                    if ( (worst_distance - best_distance) > 20) {
                         struct tl_tile *tl = ts_get_tile_specific(TILE_ID_CONCRETE_FLOOR);
                         dm_tunnel(map, r, &best, &worst, tl);
                         tunneled = true;
