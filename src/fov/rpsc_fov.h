@@ -28,17 +28,8 @@ struct rpsc_fov_set {
     /* size in the x and y direction */
     coord_t size;
 
-    /* permission settings */
-    enum rpsc_fov_permisiveness permissiveness;
-
     /* fov area */
     enum rpsc_area area;
-
-    /* true if a square is visible even when an angle of it is equal to a blocking tile. */
-    bool visible_on_equal;
-
-    /* when a tile is not visible it will block further tiles. */
-    bool not_visible_blocks_vision;
 
     /* callback, should return true if the tile does not block vision, false if it does. */
     bool (*is_transparent)(struct rpsc_fov_set *set, coord_t *point, coord_t *origin);
