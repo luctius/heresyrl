@@ -47,6 +47,7 @@ enum status_effect_effect_flags {
     EF_HEALTH,
 
     EF_ALLY,                /* param == ally_faction */
+    EF_ENEMY,               /* param == ally_faction */
     EF_BLEEDING,
     EF_BLINDED,
     EF_BROKEN,

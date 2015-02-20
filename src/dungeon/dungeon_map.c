@@ -689,16 +689,7 @@ bool dm_generate_map(struct dm_map *map, enum dm_dungeon_type type, int level, u
 
 void dm_process_tiles(struct dm_map *map) {
     if (dm_verify_map(map) == false) return;
-
-    coord_t c;
-    for (c.x = 0; c.x < map->size.x; c.x++) {
-        for (c.y = 0; c.y < map->size.y; c.y++) {
-            struct dm_map_entity *me = dm_get_map_me(&c,map);
-            //struct tl_tile *tl = me->tile;
-
-            /* Process Tile based effects. */
-        }
-    }
+    return; /*Remove this if this function is ever implemented! */
 
     /* Process temporary ground-based effects. */
 }
