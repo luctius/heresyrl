@@ -7,6 +7,7 @@
 
 #define TILE_HAS_ATTRIBUTE(tile, attr) ((tile->attributes & attr) > 0)
 #define TILE_MOVEMENT_MAX (UINT8_MAX)
+#define TILE_COST_DIV (10)
 
 enum tile_attributes {
     TILE_ATTR_TRAVERSABLE    = (1<<0),

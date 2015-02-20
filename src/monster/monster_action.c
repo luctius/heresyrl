@@ -35,7 +35,7 @@ bool ma_do_move(struct msr_monster *monster, coord_t *pos) {
             You(monster, "see %s. ", item->ld_name);
         }
 
-        msr_change_energy(monster, -(MSR_ACTION_MOVE / speed) );
+        msr_change_energy(monster, -( ( (me->tile->movement_cost * MSR_ACTION_MOVE) / TILE_COST_DIV) / speed) );
         monster->controller.interruptable = false;
         monster->controller.interrupted = false;
         return true;
