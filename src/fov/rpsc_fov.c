@@ -184,9 +184,8 @@ inline static bool angle_is_blocked(struct rpsc_fov_set *set, struct angle_set *
     if (test_set->far < blocked_set->near) return false;
     if (test_set->near > blocked_set->far) return false;
 
-    //if ( (transparent) && (test_set->center > blocked_set->near) && (test_set->center < blocked_set->far) ) return true;
-    //else 
-    if ( (test_set->near >= blocked_set->near) && (test_set->far <= blocked_set->far) ) return true;
+    if ( (transparent) && (test_set->center > blocked_set->near) && (test_set->center < blocked_set->far) ) return true;
+    else if ( (test_set->near >= blocked_set->near) && (test_set->far <= blocked_set->far) ) return true;
     return false;
 }
 
