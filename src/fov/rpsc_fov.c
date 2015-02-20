@@ -54,6 +54,10 @@
       a cell into quadrants and calculate per quadrant if it is blocking. Then we
       can set the strictness to the number of quadrants which should be blocked 
       before a cell is really blocked.
+
+      edit:
+      nice article about fov: 
+      http://webcache.googleusercontent.com/search?q=cache:VnCoG9ca6JgJ:www.adammil.net/blog/v125_Roguelike_Vision_Algorithms.html+&cd=3&hl=en&ct=clnk&gl=nl
 */
 
 /* IDs of all octants */
