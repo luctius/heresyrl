@@ -2,10 +2,8 @@ language: c
 compiler:
     - gcc
     - clang
-
 before_install:
     - sudo apt-get update
-
 install:
     - sudo apt-get install autoconf
     - sudo apt-get install automake
@@ -16,13 +14,21 @@ install:
     - sudo apt-get install dh-autoreconf
     - sudo apt-get install gengetopt
     - sudo apt-get install liblua5.1-0-dev
-    - sudo apt-get install libncurses5-dev 
-
-# Change this to your needs
+    - sudo apt-get install libncurses5-dev
 script:
     - dpkg-buildpackage ; EC=$?; if [ ${EC} -ne 0 ] && [ ${EC} -ne 1 ]; then false; else true; fi
     - git clean -xdf
     - autoreconf -vfim
-    - ./configure && make 
+    - "./configure && make"
     - make distcheck
     - make dist-binary
+
+deploy:
+    provider: releases
+    api_key:
+        secure: QBPVxUTvcHBH17Fu/WJlCa+CIoR+peB45PTdWyZIBn/VfEtLlemOeCppGBdv4S5WX2C0cygKnvUwfO4J9yXnpTBJ3L2uM9asRaDXzTZ59x1VJGhbyxfZTLtjNtrEheqV+S3dhuYrpE1xbtnyKLoYx8clgnXqGW7tXIMbU7SqwxY=
+    file: 
+          - "heresyrl-0.1.0-x86_64-linux-gnu.tar.gz"
+          - "heresyrl_0.1.0-1_amd64.deb"
+    on:
+    repo: luctius/heresyrl
