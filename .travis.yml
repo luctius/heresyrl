@@ -6,6 +6,12 @@ compiler:
 install:
     - sudo apt-get install autoconf
     - sudo apt-get install automake
+    - sudo apt-get install build_essential
+    - sudo apt-get install debhelper
+    - sudo apt-get install dpkg-dev
+    - sudo apt-get install autotools-dev
+    - sudo apt-get install dh-autoreconf
+    - sudo apt-get install gengetopt
     - sudo apt-get install liblua5.1-0-dev
     - sudo apt-get install libncurses5-dev 
 
@@ -15,3 +21,4 @@ script:
     - ./configure && make 
     - make distcheck
     - make dist-binary
+    - dpkg-buildpackage
