@@ -33,13 +33,13 @@ config.h.in
 
 # http://www.gnu.org/software/autoconf
 
-autom4te.cache
-aclocal.m4
-compile
-configure
-depcomp
-install-sh
-missing
+#autom4te.cache
+#aclocal.m4
+#compile
+#configure
+#depcomp
+#install-sh
+#missing
 stamp-h1
 Makefile
 *.status
@@ -52,10 +52,10 @@ perf.data.old
 
 *.log
 
-build/
-m4/
-.dirstamp
-perf.data
+#build/
+#m4/
+#.dirstamp
+#perf.data
 
 # Editor files
 .*.swp
