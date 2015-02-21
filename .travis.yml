@@ -10,4 +10,8 @@ install:
     - sudo apt-get install libncurses5-dev 
 
 # Change this to your needs
-script: autoreconf -vfim ; ./configure && make
+script:
+    - autoreconf -vfim
+    - ./configure && make 
+    - make distcheck
+    - make dist-binary
