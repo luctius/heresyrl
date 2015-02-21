@@ -21,4 +21,4 @@ script:
     - ./configure && make 
     - make distcheck
     - make dist-binary
-    - dpkg-buildpackage
+    - dpkg-buildpackage -ptrue
