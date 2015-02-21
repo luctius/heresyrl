@@ -22,12 +22,12 @@ script:
     - make distcheck
     - make dist-binary
 
-deploy:
-    provider: releases
-    api_key:
-        secure: QBPVxUTvcHBH17Fu/WJlCa+CIoR+peB45PTdWyZIBn/VfEtLlemOeCppGBdv4S5WX2C0cygKnvUwfO4J9yXnpTBJ3L2uM9asRaDXzTZ59x1VJGhbyxfZTLtjNtrEheqV+S3dhuYrpE1xbtnyKLoYx8clgnXqGW7tXIMbU7SqwxY=
-    file: 
-          - "heresyrl-0.1.0-x86_64-linux-gnu.tar.gz"
-          - "heresyrl_0.1.0-1_amd64.deb"
-    on:
-        tags: true
+#deploy:
+#    provider: releases
+#    api_key:
+#        secure: QBPVxUTvcHBH17Fu/WJlCa+CIoR+peB45PTdWyZIBn/VfEtLlemOeCppGBdv4S5WX2C0cygKnvUwfO4J9yXnpTBJ3L2uM9asRaDXzTZ59x1VJGhbyxfZTLtjNtrEheqV+S3dhuYrpE1xbtnyKLoYx8clgnXqGW7tXIMbU7SqwxY=
+#    file: 
+#          - "heresyrl-0.1.0-x86_64-linux-gnu.tar.gz"
+#          - "heresyrl_0.1.0-1_amd64.deb"
+#    on:
+#        tags: true
