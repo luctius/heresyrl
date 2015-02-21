@@ -29,7 +29,11 @@ typedef uint_least32_t bitfield32_t;
 
 #define RANGE_MULTIPLIER (0.50f)
 
+#ifdef __GNUC__
 #define static_assert(pred, msg) _Static_assert( (pred), msg);
+#else
+#define static_assert(pred, msg)
+#endif
 
 struct gm_game;
 struct tl_tile;
