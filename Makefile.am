@@ -107,3 +107,13 @@ src/cmdline.c src/cmdline.h: heresyrl.ggo
 clean-local:
 	-rm -f src/cmdline.c
 	-rm -f src/cmdline.h
+
+heresyrl_tmpdir=/tmp/heresyrl-dist/
+heresyrl_release=$(PACKAGE)-$(VERSION)-$(shell gcc -dumpmachine)
+dist-binary:
+	rm heresyrl_release.tar.gz || :
+	mkdir -p $(heresyrl_tmpdir)/$(heresyrl_release)
+	cp $(bin_PROGRAMS) $(heresyrl_tmpdir)/$(heresyrl_release)
+	tar -C $(heresyrl_tmpdir) -cvf $(heresyrl_release).tar $(heresyrl_release)/$(bin_PROGRAMS)
+	gzip $(heresyrl_release).tar
+	rm -rf $(heresyrl_tmpdir)
