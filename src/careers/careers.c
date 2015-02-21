@@ -13,7 +13,7 @@
 #include "items/items.h"
 #include "fov/sight.h"
 
-#include "careers_static.c"
+#include "careers_static_def.h"
 
 enum career_ids cr_spawn(double roll, enum msr_race race) {
     int sz = ARRAY_SZ(static_career_list);

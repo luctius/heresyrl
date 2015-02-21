@@ -22,7 +22,7 @@
 static TAILQ_HEAD(monster_list, msr_monster_list_entry) monster_list_head;
 static bool monster_list_initialised = false;
 
-#include "monster_static.c"
+#include "monster_static_def.h"
 
 struct msr_monster_list_entry {
     struct msr_monster monster;

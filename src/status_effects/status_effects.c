@@ -73,7 +73,7 @@ struct status_effect_list_entry {
 static TAILQ_HEAD(status_effects_list, status_effect_list_entry) status_effects_list_head;
 static bool status_effects_list_initialised = false;
 
-#include "status_effects_static.c"
+#include "status_effects_static_def.h"
 
 /* Garanteed to be random, rolled it myself ;)  */
 #define STATUS_EFFECT_PRE_CHECK (68731)

@@ -20,7 +20,7 @@ struct itm_item_list_entry {
 static TAILQ_HEAD(items_list, itm_item_list_entry) items_list_head;
 static bool items_list_initialised = false;
 
-#include "items_static.c"
+#include "items_static_def.h"
 
 #define ITEM_PRE_CHECK (11867)
 #define ITEM_POST_CHECK (8708)
