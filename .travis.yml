@@ -21,4 +21,4 @@ script:
     - ./configure && make 
     - make distcheck
     - make dist-binary
-    - dpkg-buildpackage -ptrue
+    - dpkg-buildpackage ; EC=$?; if [ ${EC} -ne 0 ] && [ ${EC} -ne 1 ]; then false; else true; fi
