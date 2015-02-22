@@ -191,19 +191,19 @@ static struct itm_item static_item_list[] = {
     ITEM_AVG(IID_LEATHER_JERKIN,       "leather jerkin",             "a leather jerkin",                  40, 6,2), ARMOUR(2,INV_LOC_BODY,                                       bf(WBL_SPCQLTY_LEATHER) ), CREATION(6,1), ITEM_END,
     ITEM_AVG(IID_LEATHER_JACK,         "light leather jack",         "a light leather jack",              50,12,4), ARMOUR(2,INV_LOC_ARMS|INV_LOC_BODY,                          bf(WBL_SPCQLTY_LEATHER) ), CREATION(5,1), ITEM_END,
     ITEM_AVG(IID_LEATHER_LEGGINS,      "leather leggings",           "a pair of leather leggings",        20,10,3), ARMOUR(2,INV_LOC_LEGS,                                       bf(WBL_SPCQLTY_LEATHER) ), CREATION(6,1), ITEM_END,
-    ITEM_AVG(IID_LEATHER_FULL,         "full leather armour",        "a full leather armour",             80,25,4), ARMOUR(2,INV_LOC_HEAD|INV_LOC_ARMS|INV_LOC_BODY|INV_LOC_LEGS,bf(WBL_SPCQLTY_LEATHER) ), CREATION(4,1), ITEM_END,
+    ITEM_AVG(IID_LEATHER_FULL,         "full leather armour",        "a full leather armour",             80,25,4), ARMOUR(3,INV_LOC_HEAD|INV_LOC_ARMS|INV_LOC_BODY|INV_LOC_LEGS,bf(WBL_SPCQLTY_LEATHER) ), CREATION(4,1), ITEM_END,
     ITEM_AVG(IID_STDD_LEATHER_SKULLCAP,"studded leather helmet",     "a studded leather helmet",          10, 3,2), ARMOUR(4,INV_LOC_HEAD,                                       bf(WBL_SPCQLTY_LEATHER) ), CREATION(6,1), ITEM_END,
     ITEM_AVG(IID_STDD_LEATHER_JERKIN,  "studded leather jerkin",     "a studded leather jerkin",          40, 6,2), ARMOUR(4,INV_LOC_BODY,                                       bf(WBL_SPCQLTY_LEATHER) ), CREATION(5,1), ITEM_END,
     ITEM_AVG(IID_STDD_LEATHER_JACK,    "light studded leather jack", "a light studded leather jack",      50,12,4), ARMOUR(4,INV_LOC_ARMS|INV_LOC_BODY,                          bf(WBL_SPCQLTY_LEATHER) ), CREATION(6,1), ITEM_END,
     ITEM_AVG(IID_STDD_LEATHER_LEGGINS, "studded leather leggings",   "a pair of studded leather leggings",20,10,3), ARMOUR(4,INV_LOC_LEGS,                                       bf(WBL_SPCQLTY_LEATHER) ), CREATION(6,1), ITEM_END,
-    ITEM_AVG(IID_STDD_LEATHER_FULL,    "full studded leather armour","a full studded leather armour",     80,25,4), ARMOUR(4,INV_LOC_HEAD|INV_LOC_ARMS|INV_LOC_BODY|INV_LOC_LEGS,bf(WBL_SPCQLTY_LEATHER) ), CREATION(4,1), ITEM_END,
+    ITEM_AVG(IID_STDD_LEATHER_FULL,    "full studded leather armour","a full studded leather armour",     80,25,4), ARMOUR(5,INV_LOC_HEAD|INV_LOC_ARMS|INV_LOC_BODY|INV_LOC_LEGS,bf(WBL_SPCQLTY_LEATHER) ), CREATION(4,1), ITEM_END,
     ITEM_AVG(IID_MAIL_COIF,            "mail coif",                  "a mail coif",                       10, 3,2), ARMOUR(6,INV_LOC_HEAD,                                       bf(WBL_SPCQLTY_MAIL) ), CREATION(6,1), ITEM_END,
     ITEM_AVG(IID_MAIL_SHIRT,           "mail shirt",                 "a mail shirt",                      40, 6,2), ARMOUR(6,INV_LOC_BODY,                                       bf(WBL_SPCQLTY_MAIL) ), CREATION(6,1), ITEM_END,
     ITEM_AVG(IID_MAIL_SLEEVED_SHIRT,   "sleeved mail shirt",         "a sleeved mail shirt",              50,12,4), ARMOUR(6,INV_LOC_ARMS|INV_LOC_BODY,                          bf(WBL_SPCQLTY_MAIL) ), CREATION(5,1), ITEM_END,
     ITEM_AVG(IID_MAIL_COAT,            "mail coat",                  "a mail coat",                       40, 6,2), ARMOUR(6,INV_LOC_BODY|INV_LOC_LEGS,                          bf(WBL_SPCQLTY_MAIL) ), CREATION(6,1), ITEM_END,
     ITEM_AVG(IID_MAIL_SLEEVED_COAT,    "sleeved mail coat",          "a sleeved mail coat",               50,12,4), ARMOUR(6,INV_LOC_ARMS|INV_LOC_BODY|INV_LOC_LEGS,             bf(WBL_SPCQLTY_MAIL) ), CREATION(5,1), ITEM_END,
     ITEM_AVG(IID_MAIL_LEGGINS,         "mail leggings",              "a pair of mail leggings",           20,10,3), ARMOUR(6,INV_LOC_LEGS,                                       bf(WBL_SPCQLTY_MAIL) ), CREATION(6,1), ITEM_END,
-    ITEM_AVG(IID_MAIL_FULL,            "full mail armour",           "a full mail armour",                80,25,4), ARMOUR(6,INV_LOC_HEAD|INV_LOC_ARMS|INV_LOC_BODY|INV_LOC_LEGS,bf(WBL_SPCQLTY_MAIL) ), CREATION(4,1), ITEM_END,
+    ITEM_AVG(IID_MAIL_FULL,            "full mail armour",           "a full mail armour",                80,25,4), ARMOUR(7,INV_LOC_HEAD|INV_LOC_ARMS|INV_LOC_BODY|INV_LOC_LEGS,bf(WBL_SPCQLTY_MAIL) ), CREATION(4,1), ITEM_END,
 
     /* Melee */
     /*    ID                 short name,   long name              (wgt,cst,dly)      xd10 +X, dmg type         pen, special qualities,         talent*/
