@@ -47,6 +47,7 @@ struct pl_player;
 struct input;
 struct status_effect_list;
 struct status_effect;
+struct ground_effect;
 struct cr_career;
 
 enum tile_types;
@@ -54,6 +55,9 @@ enum dm_dungeon_type;
 enum msr_gender;
 enum msr_race;
 enum msr_weapon_selection;
+enum msr_hit_location;
+enum dmg_type;
+enum item_group;
 enum item_weapon_type;
 enum wpn_rof_setting;
 

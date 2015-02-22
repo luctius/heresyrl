@@ -194,6 +194,12 @@ bool dw_use_item(struct msr_monster *monster, struct itm_item *item) {
     if (itm_verify_item(item) == false) return false;
     if (inv_has_item(monster->inventory, item) == false) return false;
 
+    /* do status checks on monster*/
+    if (se_has_effect(monster, EF_SWIMMING) ) {
+        You(monster, "cannot change your equipment while swimming.");
+        return false;
+    }
+
     if (item->item_type == ITEM_TYPE_TOOL && item->specific.tool.tool_type == TOOL_TYPE_LIGHT) {
         if (item->specific.tool.lit == false) {
             if (item->specific.tool.energy == 0) {
@@ -266,6 +272,12 @@ bool dw_can_wear_item(struct msr_monster *monster, struct itm_item *item) {
     if (inv_item_worn(monster->inventory, item) == true) return false;
     bool retval = false;
 
+    /* do status checks on monster*/
+    if (se_has_effect(monster, EF_SWIMMING) ) {
+        You(monster, "cannot change your equipment while swimming.");
+        return false;
+    }
+
     switch(item->item_type) {
         case ITEM_TYPE_FOOD: retval = false; break;
         case ITEM_TYPE_AMMO: retval = false; break;
@@ -286,6 +298,12 @@ bool dw_can_remove_item(struct msr_monster *monster, struct itm_item *item) {
     if (itm_verify_item(item) == false) return false;
     if (inv_has_item(monster->inventory, item) == false) return false;
     if (inv_item_worn(monster->inventory, item) == false) return false;
+
+    /* do status checks on monster*/
+    if (se_has_effect(monster, EF_SWIMMING) ) {
+        You(monster, "cannot change your equipment while swimming.");
+        return false;
+    }
 
     /* TODO add remove checks here*/
 

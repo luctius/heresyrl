@@ -33,15 +33,10 @@ enum status_effect_effect_flags {
 
     EF_SET_CHAR,            /* param == enum msr_characteristic */
 
-    EF_DECREASE_FATIQUE,
-    EF_DECREASE_CHAR,       /* param == enum msr_characteristic */
-    EF_DECREASE_SKILL,      /* param == enum msr_skills */
-    EF_DECREASE_MAX_WOUNDS,
-
-    EF_INCREASE_FATIQUE,
-    EF_INCREASE_CHAR,       /* param == enum msr_characteristic */
-    EF_INCREASE_SKILL,      /* param == enum msr_skills */
-    EF_INCREASE_MAX_WOUNDS,
+    EF_MODIFY_FATIQUE,
+    EF_MODIFY_CHAR,       /* param == enum msr_characteristic */
+    EF_MODIFY_SKILL,      /* param == enum msr_skills */
+    EF_MODIFY_MAX_WOUNDS,
 
     EF_DAMAGE,
     EF_HEALTH,
@@ -80,7 +75,7 @@ enum status_effect_effect_flags {
     EF_PRONE,
     EF_SHAKEN,
     EF_SICKENED,
-    EF_SINKING,
+    EF_SWIMMING,
     EF_STABLE,
     EF_STAGGERED,
     EF_STUNNED,
@@ -223,16 +218,17 @@ bool se_verify_status_effect(struct status_effect *se);
 struct status_effect *se_get_status_effect_tid(struct status_effect_list *se_list, enum se_ids tid);
 bool se_has_non_healable_permanent_effect(struct status_effect_list *se_list, enum status_effect_effect_flags effect);
 bool se_has_flag(struct status_effect *se, enum status_effect_flags flag);
-bool se_has_effect(struct status_effect_list *se_list, enum status_effect_effect_flags effect);
+bool se_has_effect(struct msr_monster *monster, enum status_effect_effect_flags effect);
 bool se_has_tid(struct status_effect_list *se_list, enum se_ids tid);
 int se_status_effect_strength(struct status_effect_list *se_list, enum status_effect_effect_flags effect, int param); /* set param to -1 for any. */
+bool se_add_energy(struct status_effect *se, int32_t energy);
 
 struct status_effect *se_create(enum se_ids tid); /* Do NOT use directly unless you know what you are doing. */
 bool se_add_to_list(struct msr_monster *monster, struct status_effect *con);
 
 bool se_add_status_effect(struct msr_monster *monster, uint32_t tid, const char *origin);
-bool se_remove_status_effect(struct status_effect_list *se_list, struct status_effect *c);
-bool se_remove_effects_by_tid(struct status_effect_list *se_list, uint32_t tid);
+bool se_remove_status_effect(struct msr_monster *monster, struct status_effect *con);
+bool se_remove_effects_by_tid(struct msr_monster *monster, uint32_t tid);
 
 bool se_add_critical_hit(struct msr_monster *monster, int critical_dmg, enum msr_hit_location mhl, enum dmg_type type);
 

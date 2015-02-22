@@ -81,6 +81,45 @@ static const struct status_effect static_status_effect_list[] = {
 
 
     /*-------------------------------------------------------------------------*/
+    /* Environment */
+    STATUS_EFFECT(SEID_SWIMMING, "Swimming", ""),
+        EFFECTS_START
+            /* Type     Effect      Flags   Strength   Param */
+            EFFECT(EF_SWIMMING,     0,      0,         0),
+            EFFECT(EF_MODIFY_CHAR,  0,      -30,       MSR_CHAR_WEAPON_SKILL),
+            EFFECT(EF_MODIFY_CHAR,  0,      -30,       MSR_CHAR_AGILITY),
+            EFFECT(EF_MODIFY_SKILL, 0,      -30,       MSR_SKILLS_DODGE),
+            EFFECT(EF_MODIFY_SKILL, 0,      -30,       MSR_SKILLS_SILENT_MOVE),
+        EFFECTS_END,
+            /*Settings      Flags */
+            SETTINGS(bf(SEF_UNIQUE) | bf(SEF_PERMANENT),      0,          0),
+    STATUS_EFFECT_END,
+
+    STATUS_EFFECT(SEID_WADE, "Wading", ""),
+        EFFECTS_START
+            /* Type    Effect       Flags    Strength    Param */
+            EFFECT(EF_MODIFY_CHAR,  0,        -20,       MSR_CHAR_WEAPON_SKILL),
+            EFFECT(EF_MODIFY_CHAR,  0,        -20,       MSR_CHAR_AGILITY),
+            EFFECT(EF_MODIFY_SKILL, 0,        -20,       MSR_SKILLS_DODGE),
+            EFFECT(EF_MODIFY_SKILL, 0,        -20,       MSR_SKILLS_SILENT_MOVE),
+        EFFECTS_END,
+            /*Settings      Flags */
+            SETTINGS(bf(SEF_UNIQUE) | bf(SEF_PERMANENT),      0,          0),
+    STATUS_EFFECT_END,
+
+    STATUS_EFFECT(SEID_MUD, "Mud", ""),
+        EFFECTS_START
+            /* Type    Effect       Flags    Strength    Param */
+            EFFECT(EF_MODIFY_CHAR,  0,        -10,       MSR_CHAR_WEAPON_SKILL),
+            EFFECT(EF_MODIFY_CHAR,  0,        -10,       MSR_CHAR_AGILITY),
+            EFFECT(EF_MODIFY_SKILL, 0,        -10,       MSR_SKILLS_DODGE),
+            EFFECT(EF_MODIFY_SKILL, 0,        -10,       MSR_SKILLS_SILENT_MOVE),
+        EFFECTS_END,
+            /*Settings      Flags */
+            SETTINGS(bf(SEF_UNIQUE) | bf(SEF_PERMANENT),      0,          0),
+    STATUS_EFFECT_END,
+
+    /*-------------------------------------------------------------------------*/
 
     /* Healing after a fatepoint */
     STATUS_EFFECT(SEID_FATEHEALTH, "fatepoint_health", ""),

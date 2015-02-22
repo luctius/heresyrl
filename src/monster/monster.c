@@ -261,13 +261,15 @@ bool msr_move_monster(struct msr_monster *monster, struct dm_map *map, coord_t *
     if (TILE_HAS_ATTRIBUTE(me_future->tile, TILE_ATTR_TRAVERSABLE) == false) return false;
     if (me_future->monster != NULL) return false;
 
+    coord_t prev_pos = monster->pos;
+
     /*Speed of one for now*/
     if (cd_neighbour(&monster->pos, pos) == false) return false;
 
-    assert(dm_tile_exit(map, &monster->pos, monster) );
+    assert(dm_tile_exit(map, &monster->pos, monster, pos) );
     if (msr_insert_monster(monster, map, pos) == false) return false;
 
-    if (dm_tile_enter(map, pos, monster) == false) {
+    if (dm_tile_enter(map, pos, monster, &prev_pos) == false) {
         /* Roll back */
     }
 
@@ -305,7 +307,7 @@ int msr_get_near_sight_range(struct msr_monster *monster) {
         if(sight_near < nv_sight) sight_near = nv_sight;
     }
 
-    if (se_has_effect(monster->status_effects, EF_BLINDED) ) sight_near = 0;
+    if (se_has_effect(monster, EF_BLINDED) ) sight_near = 0;
     return sight_near;
 }
 
@@ -317,7 +319,7 @@ int msr_get_medium_sight_range(struct msr_monster *monster) {
         if(sight_medium < nv_sight) sight_medium = nv_sight;
     }
 
-    if (se_has_effect(monster->status_effects, EF_BLINDED) ) sight_medium = 0;
+    if (se_has_effect(monster, EF_BLINDED) ) sight_medium = 0;
     return  sight_medium;
 }
 
@@ -329,7 +331,7 @@ int msr_get_far_sight_range(struct msr_monster *monster) {
         if(sight_far < nv_sight) sight_far = nv_sight;
     }
 
-    if (se_has_effect(monster->status_effects, EF_BLINDED) ) sight_far = 0;
+    if (se_has_effect(monster, EF_BLINDED) ) sight_far = 0;
     return sight_far;
 }
 
@@ -418,6 +420,11 @@ int msr_calculate_armour(struct msr_monster *monster, enum msr_hit_location mhl)
 bool msr_can_use_evasion(struct msr_monster *monster, enum msr_evasions evasion) {
     if (msr_verify_monster(monster) == false) return false;
     if ( (monster->evasion_last_used[evasion] + TT_ENERGY_TURN ) >= gbl_game->turn) return false;
+
+    /* do status checks on monster*/
+    if (se_has_effect(monster, EF_SWIMMING) ) return false;
+    if (se_has_effect(monster, EF_STUNNED) ) return false;
+    if (se_has_effect(monster, EF_BLINDED) ) return false;
 
     struct inv_inventory *inv = monster->inventory;
     if (inv_verify_inventory(monster->inventory) == false) return false;
@@ -633,8 +640,7 @@ int msr_characteristic_check(struct msr_monster *monster, enum msr_characteristi
     lg_print("You characteristic is (%d)", charac);
 
     int con_mod = 0;
-    con_mod += se_status_effect_strength(monster->status_effects, EF_INCREASE_FATIQUE, -1);
-    con_mod -= se_status_effect_strength(monster->status_effects, EF_DECREASE_FATIQUE, -1);
+    con_mod += se_status_effect_strength(monster->status_effects, EF_MODIFY_FATIQUE, -1);
     if (con_mod < 0) con_mod = 0;
 
     charac += mod + (con_mod * -10);
@@ -657,8 +663,7 @@ int msr_skill_check(struct msr_monster *monster, enum msr_skills skill, int mod)
     lg_print("Check modifier is: %d (%d)", mod, charac + mod);
 
     int con_mod = 0;
-    con_mod += se_status_effect_strength(monster->status_effects, EF_INCREASE_FATIQUE, -1);
-    con_mod -= se_status_effect_strength(monster->status_effects, EF_DECREASE_FATIQUE, -1);
+    con_mod += se_status_effect_strength(monster->status_effects, EF_MODIFY_FATIQUE, -1);
     if (con_mod < 0) con_mod = 0;
 
     mod += (con_mod * -10);
@@ -702,7 +707,9 @@ int msr_calculate_characteristic(struct msr_monster *monster, enum msr_character
     }
 
     int adv = monster->characteristic[chr].advancement;
-    return monster->characteristic[chr].base_value + adv + monster->characteristic[chr].mod + mod;
+    int retchr = monster->characteristic[chr].base_value + adv + monster->characteristic[chr].mod + mod;
+    if (retchr < 10) retchr = 10;
+    return retchr;
 }
 
 int msr_calculate_characteristic_bonus(struct msr_monster *monster, enum msr_characteristic chr) {
@@ -985,16 +992,16 @@ uint8_t msr_get_movement_rate(struct msr_monster *monster) {
     int min_speed = MSR_MOVEMENT_MIN;
     int max_speed = MSR_MOVEMENT_MAX;
 
-    if ( (se_has_effect(monster->status_effects, EF_DISABLED_RLEG) == true) &&
-         (se_has_effect(monster->status_effects, EF_DISABLED_LLEG) == true) ) {
+    if ( (se_has_effect(monster, EF_DISABLED_RLEG) == true) &&
+         (se_has_effect(monster, EF_DISABLED_LLEG) == true) ) {
         return 0;
     }
 
-    if (se_has_effect(monster->status_effects, EF_DISABLED_RLEG) ) {
+    if (se_has_effect(monster, EF_DISABLED_RLEG) ) {
         max_speed -= 2;
         speed_mod -= speed / 2;
     }
-    if (se_has_effect(monster->status_effects, EF_DISABLED_LLEG) ) {
+    if (se_has_effect(monster, EF_DISABLED_LLEG) ) {
         max_speed -= 2;
         speed_mod -= speed / 2;
     }

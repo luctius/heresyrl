@@ -10,6 +10,7 @@
 #include "enums.h"
 #include "inventory.h"
 #include "status_effects/status_effects_static.h"
+#include "status_effects/ground_effects.h"
 #include "items_static.h"
 
 enum item_types {
@@ -140,6 +141,7 @@ struct item_weapon_specific {
     bitfield64_t wpn_talent;  /* talent required for this weapon to operate.*/
     bool jammed;
     enum se_ids convey_status_effect;
+    enum ge_ids convey_ground_effect;
 };
 
 struct item_wearable_specific {

@@ -691,25 +691,33 @@ void dm_process_tiles(struct dm_map *map) {
     if (dm_verify_map(map) == false) return;
     return; /*Remove this if this function is ever implemented! */
 
-    /* Process temporary ground-based effects. */
+    /* Process tiles with additional effects. */
 }
 
-bool dm_tile_enter(struct dm_map *map, coord_t *point, struct msr_monster *monster) {
+/* TODO: Think about ground based (status) effects and their livetime. */
+bool dm_tile_enter(struct dm_map *map, coord_t *point, struct msr_monster *monster, coord_t *prev) {
     if (dm_verify_map(map) == false) return false;
     if (msr_verify_monster(monster) == false) return false;
 
     struct dm_map_entity *me = dm_get_map_me(point,map);
     assert(me->monster == NULL || me->monster == monster);
 
-    struct tl_tile *tl = me->tile;
-    if (tl->status_effect_tid != SEID_NONE)  {
-        se_add_status_effect(monster, tl->status_effect_tid, tl->sd_name);
+    struct tl_tile *prev_tile = dm_get_map_tile(prev, map);
+    if (prev_tile != me->tile) {
+        if (me->tile->plr_enter_str != NULL) You(monster,     "%s", me->tile->plr_enter_str);
+        if (me->tile->msr_enter_str != NULL) Monster(monster, "%s", me->tile->msr_enter_str);
     }
+
+    if (me->effect != NULL) {
+        se_add_status_effect(monster, me->effect->tid, me->effect->sd_name);
+    }
+
+    ts_enter(me->tile, monster);
 
     return true;
 }
 
-bool dm_tile_exit(struct dm_map *map, coord_t *point, struct msr_monster *monster) {
+bool dm_tile_exit(struct dm_map *map, coord_t *point, struct msr_monster *monster, coord_t *next) {
     if (dm_verify_map(map) == false) return false;
     if (msr_verify_monster(monster) == false) return false;
 
@@ -717,10 +725,19 @@ bool dm_tile_exit(struct dm_map *map, coord_t *point, struct msr_monster *monste
     assert(me->monster == monster);
     me->monster = NULL;
 
-    struct tl_tile *tl = me->tile;
-    if (tl->status_effect_tid != SEID_NONE) {
-        se_remove_effects_by_tid(monster->status_effects, tl->status_effect_tid);
+    struct tl_tile *next_tile = dm_get_map_tile(next, map);
+    if (next_tile != me->tile) {
+        if (me->tile->plr_exit_str != NULL) You(monster,     "%s", me->tile->plr_exit_str);
+        if (me->tile->msr_exit_str != NULL) Monster(monster, "%s", me->tile->msr_exit_str);
     }
+
+    if (me->effect != NULL) {
+        if (me->effect->flags & GR_EFFECTS_REMOVE_ON_EXIT > 0) {
+            se_remove_effects_by_tid(monster, me->effect->tid);
+        }
+    }
+
+    ts_exit(me->tile, monster);
 
     return true;
 }

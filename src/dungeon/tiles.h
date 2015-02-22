@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 #include "status_effects/status_effects.h"
+#include "monster/monster.h"
 
 #define TILE_HAS_ATTRIBUTE(tile, attr) ((tile->attributes & attr) > 0)
 #define TILE_MOVEMENT_MAX (UINT8_MAX)
@@ -18,7 +19,8 @@ enum tile_attributes {
     TILE_ATTR_STAIRS_DOWN    = (1<<5),
     TILE_ATTR_HAZARDOUS      = (1<<6),
     TILE_ATTR_BORDER         = (1<<7),
-    TILE_ATTR_LIGHT_SOURCE   = (1<<8),
+    TILE_ATTR_WALL           = (1<<8),
+    TILE_ATTR_LIGHT_SOURCE   = (1<<9),
     TILE_ATTR_MAX,
 };
 
@@ -31,8 +33,8 @@ enum tile_ids {
     TILE_ID_CONCRETE_FLOOR,
     TILE_ID_WOODEN_OPEN_DOOR,
     TILE_ID_WOODEN_CLOSED_DOOR,
-    TILE_ID_CONCRETE_STAIRS_UP,
-    TILE_ID_CONCRETE_STAIRS_DOWN,
+    TILE_ID_STAIRS_UP,
+    TILE_ID_STAIRS_DOWN,
     TILE_ID_UNDEEP_WATER,
     TILE_ID_DEEP_WATER,
     TILE_ID_MUD,
@@ -61,13 +63,20 @@ struct tl_tile {
     int icon_attr;
 
     uint8_t movement_cost;
-    enum se_ids status_effect_tid;
 
     const char *sd_name;
     const char *ld_name;
+    const char *plr_enter_str;
+    const char *msr_enter_str;
+    const char *plr_exit_str;
+    const char *msr_exit_str;
 };
 
 struct tl_tile *ts_get_tile_specific(enum tile_ids ti);
 struct tl_tile *ts_get_tile_type(enum tile_types tt);
+
+void ts_enter(struct tl_tile *tile, struct msr_monster *monster);
+void ts_exit(struct tl_tile *tile, struct msr_monster *monster);
+void ts_turn_tick(struct tl_tile *tile, struct msr_monster *monster);
 
 #endif /*TILES_H_*/

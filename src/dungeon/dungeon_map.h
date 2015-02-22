@@ -29,6 +29,7 @@ struct dm_map_entity {
     struct tl_tile *tile;
     struct msr_monster *monster;
     struct inv_inventory *inventory;
+    struct ground_effect *effect;
     int test_var;
 
     uint32_t map_entity_post;
@@ -71,7 +72,7 @@ bool dm_clear_map_visibility(struct dm_map *map, coord_t *start, coord_t *end);
 bool dm_clear_map(struct dm_map *map);
 
 void dm_process_tiles(struct dm_map *map);
-bool dm_tile_enter(struct dm_map *map, coord_t *point, struct msr_monster *monster);
-bool dm_tile_exit(struct dm_map *map, coord_t *point, struct msr_monster *monster);
+bool dm_tile_enter(struct dm_map *map, coord_t *point, struct msr_monster *monster, coord_t *prev);
+bool dm_tile_exit(struct dm_map *map, coord_t *point, struct msr_monster *monster, coord_t *next);
 
 #endif /* DUNGEON_MAP_H */

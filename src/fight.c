@@ -15,6 +15,7 @@
 #include "monster/monster.h"
 #include "items/items.h"
 #include "status_effects/status_effects.h"
+#include "status_effects/ground_effects.h"
 
 #define MAX_TO_HIT_MODS (30)
 static int tohit_desc_ctr = 0;
@@ -127,7 +128,7 @@ int fght_ranged_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght
 
         if (target != NULL) {
             /* Conditions */
-            CALC_TOHIT(se_has_effect(target->status_effects, EF_STUNNED), FGHT_MODIFIER_STATUS_EFFECT_STUNNED, "target is stunned")
+            CALC_TOHIT(se_has_effect(target, EF_STUNNED), FGHT_MODIFIER_STATUS_EFFECT_STUNNED, "target is stunned")
 
             struct itm_item *tgt_witem1 = inv_get_item_from_location(target->inventory, INV_LOC_MAINHAND_WIELD);
             struct itm_item *tgt_witem2 = inv_get_item_from_location(target->inventory, INV_LOC_OFFHAND_WIELD);
@@ -222,7 +223,7 @@ int fght_melee_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght_
 
         /* Conditions */
         if (target != NULL) {
-            CALC_TOHIT(se_has_effect(target->status_effects, EF_STUNNED), FGHT_MODIFIER_STATUS_EFFECT_STUNNED, "target is stunned")
+            CALC_TOHIT(se_has_effect(target, EF_STUNNED), FGHT_MODIFIER_STATUS_EFFECT_STUNNED, "target is stunned")
         }
 
         /* Maximum modifier, keep these at the end! */
@@ -584,16 +585,19 @@ bool fght_explosion(struct random *r, struct itm_item *bomb, struct dm_map *map)
     int gridlist_sz = sgt_explosion(map, &c, radius, &gridlist);
     struct item_weapon_specific *wpn = &bomb->specific.weapon;
 
-    if (wpn->convey_status_effect != SEID_NONE) {
-        /* TODO: explosion effect */
-    }
-
     for (int i = 0; i < gridlist_sz; i++) {
         struct dm_map_entity *me = dm_get_map_me(&gridlist[i], map);
         struct msr_monster *target = me->monster;
         if (target != NULL) {
             enum msr_hit_location mhl = msr_get_hit_location(target, random_d100(r));
             fght_calc_dmg(r, NULL, target, 1, bomb, mhl);
+
+            if (wpn->convey_status_effect != SEID_NONE) {
+                assert(se_add_status_effect(target, wpn->convey_status_effect, bomb->sd_name) );
+            }
+        }
+        if (wpn->convey_ground_effect != GEID_NONE) {
+            ge_create(wpn->convey_ground_effect, me);
         }
     }
 
@@ -606,7 +610,7 @@ bool fght_explosion(struct random *r, struct itm_item *bomb, struct dm_map *map)
    before use, ma_do_throw should do that for the player 
    with a slight cost.
 
-TODO: let us throw thigns which are not weapons.
+TODO: let us throw things which are not weapons.
  */
 bool fght_throw_weapon(struct random *r, struct msr_monster *monster, struct dm_map *map, coord_t *e, enum fght_hand hand) {
     if (msr_verify_monster(monster) == false) return false;

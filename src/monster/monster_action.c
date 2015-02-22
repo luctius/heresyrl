@@ -177,6 +177,12 @@ bool ma_do_melee(struct msr_monster *monster, coord_t *target_pos) {
     if (target == NULL) return false;
     if (msr_verify_monster(target) == false) return false;
 
+    /* do status checks on monster*/
+    if (se_has_effect(monster, EF_SWIMMING) ) {
+        You(monster, "cannot fight while swimming.");
+        return false;
+    }
+
     int cost = MSR_ACTION_MELEE / msr_calculate_characteristic(monster, MSR_SEC_CHAR_ATTACKS); 
 
     if (fght_melee(gbl_game->random, monster, target) == false) {
@@ -200,6 +206,12 @@ bool ma_do_throw(struct msr_monster *monster, coord_t *pos, struct itm_item *ite
     bool change = false;
     bool thrown = false;
     bitfield32_t locs;
+
+    /* do status checks on monster*/
+    if (se_has_effect(monster, EF_SWIMMING) ) {
+        You(monster, "cannot throw things while swimming.");
+        return false;
+    }
 
     /* Check in which hand the item is, or, if it is not, 
        exchange the main hand weapon temporarily with this item*/
@@ -270,11 +282,16 @@ bool ma_do_fire(struct msr_monster *monster, coord_t *pos) {
     if (pos == NULL) return false;
     int cost = MSR_ACTION_FIRE / msr_calculate_characteristic(monster, MSR_SEC_CHAR_ATTACKS); 
 
+    /* do status checks on monster*/
+    if (se_has_effect(monster, EF_SWIMMING) ) {
+        You(monster, "cannot shoot things while swimming.");
+        return false;
+    }
+
     if ( (fght_shoot(gbl_game->random, monster, gbl_game->current_map, pos, FGHT_MAIN_HAND) == false) &&
          (fght_shoot(gbl_game->random, monster, gbl_game->current_map, pos, FGHT_OFF_HAND) == false) ) {
         return false;
     }
-
 
     msr_change_energy(monster, -(cost) );
     monster->controller.interruptable = false;
@@ -331,6 +348,12 @@ bool ma_do_reload_carried(struct msr_monster *monster, struct itm_item *ammo_ite
     uint32_t cost = 0;
     int hand_lst[] = {FGHT_MAIN_HAND, FGHT_OFF_HAND,};
 
+    /* do status checks on monster*/
+    if (se_has_effect(monster, EF_SWIMMING) ) {
+        You(monster, "cannot reload while swimming.");
+        return false;
+    }
+
     int reload_cost = MSR_ACTION_RELOAD;
     if (msr_has_talent(monster, TLT_RAPID_RELOAD) ) {
         reload_cost = MSR_ACTION_RELOAD / 2;
@@ -384,6 +407,12 @@ static bool unload(struct msr_monster *monster, struct itm_item *weapon_item) {
     if (wpn_is_type(weapon_item, WEAPON_TYPE_RANGED) == false) return false;
     struct item_weapon_specific *wpn = &weapon_item->specific.weapon;
     if (wpn->magazine_left == 0) return false;
+
+    /* do status checks on monster*/
+    if (se_has_effect(monster, EF_SWIMMING) ) {
+        You(monster, "cannot unload while swimming.");
+        return false;
+    }
 
     struct itm_item *ammo_item = itm_create(wpn->ammo_used_template_id);
     if (itm_verify_item(ammo_item) == false) return false;

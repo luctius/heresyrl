@@ -95,7 +95,7 @@ struct msr_monster static_monster_list[] = {
         DESCRIPTION("description of an halfling"),
     MONSTER_END,
 
-    [MID_BASIC_HUMAN]=MONSTER('h',"human","a human",MSR_GENDER_MALE,0)
+    [MID_BASIC_HUMAN]=MONSTER('H',"human","a human",MSR_GENDER_MALE,0)
         HUMAN(TLT_NONE),
         CHARACTERISTICS(20,20,20,20,20,20,20,20),
         SKILLS(0,0,0), .fate_points=0,  .is_player=true,
@@ -103,7 +103,7 @@ struct msr_monster static_monster_list[] = {
     MONSTER_END,
     /*----------------------------------------------------------*/
 
-    MONSTER('g',"goblin","a goblin warrior",MSR_GENDER_MALE,-2)
+    MONSTER('g',"goblin","a goblin warrior",MSR_GENDER_MALE,1)
         GREENSKIN(TLT_NIGHT_VISION),
         CHARACTERISTICS(25,30,30,30,25,25,30,30),
         DEF_ITEM(0, ITEM_GROUP_1H_MELEE),
@@ -112,7 +112,7 @@ struct msr_monster static_monster_list[] = {
         CREATION(30,1,bf(DUNGEON_TYPE_CAVE) | bf(DUNGEON_TYPE_PLAIN) ),
     MONSTER_END,
 
-    MONSTER('g',"goblin","a goblin archer",MSR_GENDER_MALE,-2)
+    MONSTER('g',"goblin","a goblin archer",MSR_GENDER_MALE,1)
         GREENSKIN(TLT_NIGHT_VISION),
         CHARACTERISTICS(25,30,30,30,25,25,30,30),
         DEF_ITEM(0, ITEM_GROUP_RANGED),
@@ -121,7 +121,7 @@ struct msr_monster static_monster_list[] = {
         CREATION(30,1,bf(DUNGEON_TYPE_CAVE) | bf(DUNGEON_TYPE_PLAIN) ),
     MONSTER_END,
 
-    MONSTER('g',"goblin","a goblin thrower",MSR_GENDER_MALE,-2)
+    MONSTER('g',"goblin","a goblin thrower",MSR_GENDER_MALE,1)
         GREENSKIN(TLT_NIGHT_VISION),
         CHARACTERISTICS(25,30,30,30,25,25,30,30),
         DEF_ITEM(0, ITEM_GROUP_THROWING),
@@ -130,7 +130,7 @@ struct msr_monster static_monster_list[] = {
         CREATION(30,1,bf(DUNGEON_TYPE_CAVE) | bf(DUNGEON_TYPE_PLAIN) ),
     MONSTER_END,
 
-    MONSTER('h',"human","a human fighter",MSR_GENDER_MALE,1)
+    MONSTER('H',"human","a human fighter",MSR_GENDER_MALE,1)
         HUMAN(TLT_NONE),
         CHARACTERISTICS(29,42,30,31,35,30,28,30),
         DEF_ITEM(0, ITEM_GROUP_1H_MELEE),
@@ -139,7 +139,7 @@ struct msr_monster static_monster_list[] = {
         CREATION(5,1,bf(DUNGEON_TYPE_CAVE) | bf(DUNGEON_TYPE_PLAIN) ),
     MONSTER_END,
 
-    MONSTER('h',"human","a human archer",MSR_GENDER_MALE,1)
+    MONSTER('H',"human","a human archer",MSR_GENDER_MALE,1)
         HUMAN(TLT_NONE),
         CHARACTERISTICS(29,42,30,31,35,30,28,30),
         DEF_ITEM(0, ITEM_GROUP_RANGED),

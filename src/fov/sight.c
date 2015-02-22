@@ -10,7 +10,7 @@
 #include "dungeon/tiles.h"
 #include "dungeon/dungeon_map.h"
 #include "monster/monster.h"
-#include "status_effects/status_effects.h"
+#include "status_effects/ground_effects.h"
 
 /* checks if this is a walkable path, without a monster.  */
 static bool rpsc_check_transparent_lof(struct rpsc_fov_set *set, coord_t *point, coord_t *origin) {
@@ -36,7 +36,6 @@ static bool rpsc_check_transparent_lof(struct rpsc_fov_set *set, coord_t *point,
 /* check if there is a line of sight path on this point */
 static bool rpsc_check_transparent_los(struct rpsc_fov_set *set, coord_t *point, coord_t *origin) {
     struct dm_map *map = set->map;
-    bool transparent = true;
 
     FIX_UNUSED(origin);
 
@@ -47,10 +46,17 @@ static bool rpsc_check_transparent_los(struct rpsc_fov_set *set, coord_t *point,
 
     /* if it is transparent, return true, else return false. */
     if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(point,map), TILE_ATTR_TRANSPARENT) == false) {
-        transparent = false;
+        return false;
     }
 
-    return transparent;
+    /* if there is an ground based effect which block sight (like mist), return false */
+    if (dm_get_map_me(point, map)->effect != NULL) {
+        if (dm_get_map_me(point, map)->effect->flags & GR_EFFECTS_OPAQUE > 0) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 static bool rpsc_apply_player_sight(struct rpsc_fov_set *set, coord_t *point, coord_t *origin) {

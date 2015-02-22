@@ -45,17 +45,17 @@
             .spawn_weight=wght, .spawn_level=lvl
 
 #define FIXED_LIGHT(_tool_type,_energy,_light_luminem) \
-            .icon='(', .stacked_quantity=1, .max_quantity=100, .item_type=ITEM_TYPE_TOOL, \
+            .icon='/', .stacked_quantity=1, .max_quantity=100, .item_type=ITEM_TYPE_TOOL, \
             .specific.tool={ .tool_type=_tool_type, .energy=_energy, .energy_left=_energy, \
             .light_luminem=_light_luminem, .lit=false,}, .permanent_energy=true, .dropable=false
 
 #define LIGHT(_tool_type,_energy,_light_luminem) \
-            .icon='(', .stacked_quantity=1, .max_quantity=100, .item_type=ITEM_TYPE_TOOL, \
+            .icon='/', .stacked_quantity=1, .max_quantity=100, .item_type=ITEM_TYPE_TOOL, \
             .specific.tool={ .tool_type=_tool_type, .energy=_energy, .energy_left=_energy, \
             .light_luminem=_light_luminem, .lit=false,}, .dropable=true
 
 #define ARMOUR(_damage_reduction,_locations,_special_quality) \
-            .icon=']', .stacked_quantity=0, .max_quantity=0, .item_type=ITEM_TYPE_WEARABLE, \
+            .icon='[', .stacked_quantity=0, .max_quantity=0, .item_type=ITEM_TYPE_WEARABLE, \
             .specific.wearable={ .wearable_type=WEARABLE_TYPE_ARMOUR, .locations=_locations, \
             .special_quality=_special_quality, .damage_reduction=_damage_reduction,}, .dropable=true
 
@@ -71,28 +71,28 @@
             .penetration=_penetration, .special_quality=bf(WPN_SPCQLTY_CREATURE) | special, .wpn_talent=TLT_NONE, .convey_status_effect=SEID_NONE, }, \
             creature_desc 
 
-#define MELEE_1H(dmg_die,dmg_add,_dmg_type,_penetration,special,talent) .icon='|',.stacked_quantity=0, .max_quantity=0,\
+#define MELEE_1H(dmg_die,dmg_add,_dmg_type,_penetration,special,talent) .icon=')',.stacked_quantity=0, .max_quantity=0,\
             .item_type=ITEM_TYPE_WEAPON, .specific.weapon={.weapon_type=WEAPON_TYPE_MELEE, .weapon_category=WEAPON_CATEGORY_1H_MELEE, \
             .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=0, .penetration=_penetration, \
             .special_quality=special, .upgrades=0, .wpn_talent=talent, .convey_status_effect=SEID_NONE, }, .dropable=true, melee_desc
 
-#define MELEE_2H(dmg_die,dmg_add,_dmg_type,_penetration,special,talent) .icon='|',.stacked_quantity=0, .max_quantity=0,\
+#define MELEE_2H(dmg_die,dmg_add,_dmg_type,_penetration,special,talent) .icon=')',.stacked_quantity=0, .max_quantity=0,\
             .item_type=ITEM_TYPE_WEAPON, .specific.weapon={.weapon_type=WEAPON_TYPE_MELEE, .weapon_category=WEAPON_CATEGORY_2H_MELEE, \
             .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=0, .penetration=_penetration, \
             .special_quality=special, .upgrades=0, .wpn_talent=talent, .convey_status_effect=SEID_NONE, }, .dropable=true, melee_desc
 
-#define THROWN_WEAPON(_dmg_type,dmg_die,dmg_add,_penetration,_range,special,talent) .icon='|',.stacked_quantity=1, .max_quantity=100,\
+#define THROWN_WEAPON(_dmg_type,dmg_die,dmg_add,_penetration,_range,special,talent) .icon='}',.stacked_quantity=1, .max_quantity=100,\
             .item_type=ITEM_TYPE_WEAPON, .specific.weapon={.weapon_type=WEAPON_TYPE_THROWN, .weapon_category=WEAPON_CATEGORY_THROWN_WEAPON, \
             .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=_range, .penetration=_penetration, \
             .special_quality=special, .upgrades=0, .wpn_talent=talent, .convey_status_effect=SEID_NONE, }, throw_desc, .dropable=true
 
-#define THROWN_GRENADE(_dmg_type,dmg_die,dmg_add,_penetration,_range,special,talent, cid) .icon='|',.stacked_quantity=1, .max_quantity=100,\
+#define THROWN_GRENADE(_dmg_type,dmg_die,dmg_add,_penetration,_range,special,talent, cid) .icon='}',.stacked_quantity=1, .max_quantity=100,\
             .item_type=ITEM_TYPE_WEAPON, .specific.weapon={.weapon_type=WEAPON_TYPE_THROWN, .weapon_category=WEAPON_CATEGORY_THROWN_GRENADE, \
             .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=_range, .penetration=_penetration, \
             .special_quality=special, .upgrades=0, .wpn_talent=talent, .convey_status_effect=cid, }, throw_desc, .dropable=true
 
 #define RANGED_1H(_dmg_type,dmg_die,dmg_add,_penetration,_range,special,talent) \
-            .icon='|', .stacked_quantity=0, .max_quantity=0, .item_type=ITEM_TYPE_WEAPON, .specific.weapon={ \
+            .icon='}', .stacked_quantity=0, .max_quantity=0, .item_type=ITEM_TYPE_WEAPON, .specific.weapon={ \
             .weapon_category=WEAPON_CATEGORY_1H_RANGED, .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=_range, \
             .rof[WEAPON_ROF_SETTING_SINGLE]=1, .rof[WEAPON_ROF_SETTING_SEMI]=0, .rof[WEAPON_ROF_SETTING_AUTO]=0, \
             .rof_set=WEAPON_ROF_SETTING_SINGLE, .magazine_sz=1, .magazine_left=1, .penetration=_penetration, \
@@ -100,17 +100,17 @@
             .wpn_talent=talent, .jammed=false, .convey_status_effect=SEID_NONE, }, .dropable=true, ranged_desc
 
 #define RANGED_2H(_dmg_type,dmg_die,dmg_add,_penetration,_range,special,talent) \
-            .icon='|', .stacked_quantity=0, .max_quantity=0, .item_type=ITEM_TYPE_WEAPON, .specific.weapon={ \
+            .icon='}', .stacked_quantity=0, .max_quantity=0, .item_type=ITEM_TYPE_WEAPON, .specific.weapon={ \
             .weapon_category=WEAPON_CATEGORY_2H_RANGED, .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=_range, \
             .rof[WEAPON_ROF_SETTING_SINGLE]=1, .rof[WEAPON_ROF_SETTING_SEMI]=0, .rof[WEAPON_ROF_SETTING_AUTO]=0, \
             .rof_set=WEAPON_ROF_SETTING_SINGLE, .magazine_sz=1, .magazine_left=1, .penetration=_penetration, \
             .ammo_type=AMMO_TYPE_ARROW, .ammo_used_template_id=IID_ARROW, .special_quality=special, .upgrades=0, \
             .wpn_talent=talent, .jammed=false, .convey_status_effect=SEID_NONE, }, .dropable=true, ranged_desc
 
-#define AMMO(_ammo_type,cid) .icon='^', .stacked_quantity=1, .max_quantity=100, .dropable=true, \
+#define AMMO(_ammo_type,cid) .icon='\'', .stacked_quantity=1, .max_quantity=100, .dropable=true, \
             .item_type=ITEM_TYPE_AMMO, .specific.ammo={ .ammo_type=_ammo_type, .convey_status_effect=cid, }
 
-#define DRAUGHT(_food_type,cid) .icon='?', .stacked_quantity=1, .max_quantity=100, .dropable=true, \
+#define DRAUGHT(_food_type,cid) .icon='!', .stacked_quantity=1, .max_quantity=100, .dropable=true, \
             .item_type=ITEM_TYPE_FOOD, .specific.food={ .food_type=_food_type, .nutrition=0, .nutrition_left=0, .convey_status_effect=cid, }
 
 static const char *itm_descs[] = {

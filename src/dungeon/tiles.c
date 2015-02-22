@@ -84,8 +84,8 @@ static struct tl_tile tile_array[] = {
         .sd_name = "wooden door",
         .ld_name = "a wooden door",
     },
-    [TILE_ID_CONCRETE_STAIRS_UP] = {
-        .id = TILE_ID_CONCRETE_STAIRS_UP,
+    [TILE_ID_STAIRS_UP] = {
+        .id = TILE_ID_STAIRS_UP,
         .attributes = TILE_ATTR_TRAVERSABLE | TILE_ATTR_TRANSPARENT | TILE_ATTR_STAIRS_UP,
         .type = TILE_TYPE_STAIRS_UP,
         .icon = '<',
@@ -94,8 +94,8 @@ static struct tl_tile tile_array[] = {
         .sd_name = "concrete stairs",
         .ld_name = "concrete stairs, going up",
     },
-    [TILE_ID_CONCRETE_STAIRS_DOWN] = {
-        .id = TILE_ID_CONCRETE_STAIRS_DOWN,
+    [TILE_ID_STAIRS_DOWN] = {
+        .id = TILE_ID_STAIRS_DOWN,
         .attributes = TILE_ATTR_TRAVERSABLE | TILE_ATTR_TRANSPARENT | TILE_ATTR_STAIRS_DOWN,
         .type = TILE_TYPE_STAIRS_DOWN,
         .icon = '>',
@@ -113,6 +113,10 @@ static struct tl_tile tile_array[] = {
         .movement_cost = 20,
         .sd_name = "undeep water",
         .ld_name = "undeep water",
+        .plr_enter_str = "start to wade into undeep water.",
+        .msr_enter_str = "starts to wade into undeep water.",
+        .plr_exit_str = "step out of the water.",
+        .msr_exit_str = "steps out of the water.",
     },
     [TILE_ID_DEEP_WATER] = {
         .id = TILE_ID_DEEP_WATER,
@@ -123,6 +127,10 @@ static struct tl_tile tile_array[] = {
         .movement_cost = 30,
         .sd_name = "deep water",
         .ld_name = "deep water",
+        .plr_enter_str = "start swimming.",
+        .msr_enter_str = "starts swimming.",
+        .plr_exit_str = "stop swimming.",
+        .msr_exit_str = "stops swimming.",
     },
     [TILE_ID_MUD] = {
         .id = TILE_ID_MUD,
@@ -133,6 +141,10 @@ static struct tl_tile tile_array[] = {
         .movement_cost = 15,
         .sd_name = "mud",
         .ld_name = "a muddy area",
+        .plr_enter_str = "step into the mud.",
+        .msr_enter_str = "steps into the mud.",
+        .plr_exit_str = "step out of the mud.",
+        .msr_exit_str = "steps out of the mud.",
     },
 };
 
@@ -160,5 +172,74 @@ struct tl_tile *ts_get_tile_type(enum tile_types tt) {
         if (tile_array[i].type == tt) return &tile_array[i];
     }
     return &tile_array[0];
+}
+
+void ts_enter(struct tl_tile *tile, struct msr_monster *monster) {
+    switch (tile->id) {
+        case TILE_ID_NONE: break;
+        case TILE_ID_MAX: break;
+        case TILE_ID_TUNNEL_DUMMY: break;
+        case TILE_ID_BORDER_WALL: break;
+        case TILE_ID_CONCRETE_WALL: break;
+        case TILE_ID_CONCRETE_WALL_LIT: break;
+        case TILE_ID_CONCRETE_FLOOR: break;
+        case TILE_ID_WOODEN_OPEN_DOOR: break;
+        case TILE_ID_WOODEN_CLOSED_DOOR: break;
+        case TILE_ID_STAIRS_UP: break;
+        case TILE_ID_STAIRS_DOWN: break;
+        case TILE_ID_UNDEEP_WATER:
+            se_add_status_effect(monster, SEID_WADE, tile->sd_name);
+            break;
+        case TILE_ID_DEEP_WATER:
+            se_add_status_effect(monster, SEID_SWIMMING, tile->sd_name);
+            break;
+        case TILE_ID_MUD:
+            se_add_status_effect(monster, SEID_MUD, tile->sd_name);
+            break;
+    }
+}
+
+void ts_exit(struct tl_tile *tile, struct msr_monster *monster) {
+    switch (tile->id) {
+        case TILE_ID_NONE: break;
+        case TILE_ID_MAX: break;
+        case TILE_ID_TUNNEL_DUMMY: break;
+        case TILE_ID_BORDER_WALL: break;
+        case TILE_ID_CONCRETE_WALL: break;
+        case TILE_ID_CONCRETE_WALL_LIT: break;
+        case TILE_ID_CONCRETE_FLOOR: break;
+        case TILE_ID_WOODEN_OPEN_DOOR: break;
+        case TILE_ID_WOODEN_CLOSED_DOOR: break;
+        case TILE_ID_STAIRS_UP: break;
+        case TILE_ID_STAIRS_DOWN: break;
+        case TILE_ID_UNDEEP_WATER:
+            se_remove_effects_by_tid(monster, SEID_WADE);
+            break;
+        case TILE_ID_DEEP_WATER:
+            se_remove_effects_by_tid(monster, SEID_SWIMMING);
+            break;
+        case TILE_ID_MUD:
+            se_remove_effects_by_tid(monster, SEID_MUD);
+            break;
+    }
+}
+
+void ts_turn_tick(struct tl_tile *tile, struct msr_monster *monster) {
+    switch (tile->id) {
+        case TILE_ID_NONE: break;
+        case TILE_ID_MAX: break;
+        case TILE_ID_TUNNEL_DUMMY: break;
+        case TILE_ID_BORDER_WALL: break;
+        case TILE_ID_CONCRETE_WALL: break;
+        case TILE_ID_CONCRETE_WALL_LIT: break;
+        case TILE_ID_CONCRETE_FLOOR: break;
+        case TILE_ID_WOODEN_OPEN_DOOR: break;
+        case TILE_ID_WOODEN_CLOSED_DOOR: break;
+        case TILE_ID_STAIRS_UP: break;
+        case TILE_ID_STAIRS_DOWN: break;
+        case TILE_ID_UNDEEP_WATER: break;
+        case TILE_ID_DEEP_WATER: break;
+        case TILE_ID_MUD: break;
+    }
 }
 

@@ -28,6 +28,9 @@ heresyrl_SOURCES =  \
 				src/logging.h	\
 				src/inventory.h	\
 				src/turn_tick.h	\
+                src/status_effects/ground_effects.h \
+                src/status_effects/ground_effects_static.h \
+                src/status_effects/ground_effects_static_def.h \
 				src/status_effects/status_effects.h	\
 				src/status_effects/ground_effects.h	\
 				src/status_effects/status_effects_critical_blunt.h	\
@@ -89,6 +92,7 @@ heresyrl_SOURCES =  \
 				src/monster/monster_action.c \
 				src/monster/monster.c \
 				src/status_effects/status_effects.c \
+                src/status_effects/ground_effects.c \
 				src/fov/sight.c \
 				src/fov/rpsc_fov.c \
 				src/items/items.c \

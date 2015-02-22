@@ -310,7 +310,10 @@ bool se_add_status_effect(struct msr_monster *monster, uint32_t tid, const char 
     return se_add_to_list(monster, c);
 }
 
-bool se_remove_status_effect(struct status_effect_list *se_list, struct status_effect *con) {
+void se_process_effects_last(struct se_type_struct *ces, struct msr_monster *monster, struct status_effect *c);
+
+bool se_remove_status_effect(struct msr_monster *monster, struct status_effect *con) {
+    struct status_effect_list *se_list = monster->status_effects;
     if (se_verify_list(se_list) == false) return false;
 
     struct status_effect *cc = NULL;
@@ -318,6 +321,13 @@ bool se_remove_status_effect(struct status_effect_list *se_list, struct status_e
         if (cc == con) {
             struct se_entry *ce = container_of(cc, struct se_entry, status_effect);
             struct status_effect_list_entry *sele = container_of(ce, struct status_effect_list_entry, se);
+
+            for (unsigned int i = 0; i < (ARRAY_SZ(con->effects) ); i++) {
+                struct se_type_struct *ces = &con->effects[i];
+                if (effect_has_flag(ces, EF_SETT_ACTIVE) == false) continue;
+
+                se_process_effects_last(ces, monster, con);
+            }
 
             LIST_REMOVE(ce, entries);
             TAILQ_REMOVE(&status_effects_list_head, sele, entries);
@@ -330,14 +340,15 @@ bool se_remove_status_effect(struct status_effect_list *se_list, struct status_e
     return false;
 }
 
-bool se_remove_effects_by_tid(struct status_effect_list *se_list, uint32_t tid) {
+bool se_remove_effects_by_tid(struct msr_monster *monster, uint32_t tid) {
+    struct status_effect_list *se_list = monster->status_effects;
     if (se_verify_list(se_list) == false) return false;
 
     bool found = false;
     struct status_effect *c = NULL;
     while ( (c = se_list_get_next_status_effect(se_list, c) ) != NULL) {
         if (c->template_id == tid) {
-            se_remove_status_effect(se_list, c);
+            se_remove_status_effect(monster, c);
             found = true;
         }
     }
@@ -387,6 +398,13 @@ bool se_has_non_healable_permanent_effect(struct status_effect_list *se_list, en
     return false;
 }
 
+bool se_add_energy(struct status_effect *se, int32_t energy) {
+    if (se_verify_status_effect(se) == false) return false;
+
+    se->duration_energy += energy;
+    return true;
+}
+
 struct status_effect *se_get_status_effect_tid(struct status_effect_list *se_list, enum se_ids tid) {
     if (se_verify_list(se_list) == false) return NULL;
 
@@ -417,8 +435,8 @@ bool se_has_effect_skip(struct status_effect_list *se_list, enum status_effect_e
     return false;
 }
 
-bool se_has_effect(struct status_effect_list *se_list, enum status_effect_effect_flags effect) {
-    return se_has_effect_skip(se_list, effect, NULL);
+bool se_has_effect(struct msr_monster *monster, enum status_effect_effect_flags effect) {
+    return se_has_effect_skip(monster->status_effects, effect, NULL);
 }
 
 int se_status_effect_strength(struct status_effect_list *se_list, enum status_effect_effect_flags effect, int param) {
@@ -585,7 +603,7 @@ void se_process_effects_first(struct se_type_struct *ces, struct msr_monster *mo
         case EF_PRONE: break;
         case EF_SHAKEN: break;
         case EF_SICKENED: break;
-        case EF_SINKING: break;
+        case EF_SWIMMING: break;
         case EF_STABLE: break;
         case EF_STAGGERED: break;
         case EF_STUNNED: break;
@@ -594,14 +612,10 @@ void se_process_effects_first(struct se_type_struct *ces, struct msr_monster *mo
         case EF_SKILL: break;
         case EF_EVOLVES: break;
 
-        case EF_DECREASE_FATIQUE: break;
-        case EF_INCREASE_FATIQUE: break;
-        case EF_DECREASE_MAX_WOUNDS: break;
-        case EF_INCREASE_MAX_WOUNDS: break;
-        case EF_DECREASE_CHAR: break;
-        case EF_INCREASE_CHAR: break;
-        case EF_DECREASE_SKILL: break;
-        case EF_INCREASE_SKILL: break;
+        case EF_MODIFY_FATIQUE: break;
+        case EF_MODIFY_MAX_WOUNDS: break;
+        case EF_MODIFY_CHAR: break;
+        case EF_MODIFY_SKILL: break;
 
         case EF_TALENT:
             if (msr_has_talent(monster, ces->param) ) {
@@ -685,7 +699,6 @@ void se_process_effects_last(struct se_type_struct *ces, struct msr_monster *mon
     if (msr_verify_monster(monster) == false) return;
     if (se_verify_status_effect(c) == false) return;
 
-    int mod = -1;
     switch(ces->effect) {
         case EF_NONE: break;
         case EF_MAX: break;
@@ -721,7 +734,7 @@ void se_process_effects_last(struct se_type_struct *ces, struct msr_monster *mon
         case EF_PRONE: break;
         case EF_SHAKEN: break;
         case EF_SICKENED: break;
-        case EF_SINKING: break;
+        case EF_SWIMMING: break;
         case EF_STABLE: break;
         case EF_STAGGERED: break;
         case EF_STUNNED: break;
@@ -729,12 +742,10 @@ void se_process_effects_last(struct se_type_struct *ces, struct msr_monster *mon
         case EF_UNCONSCIOUS: break;
         case EF_SKILL: break;
 
-        case EF_DECREASE_FATIQUE: break;
-        case EF_INCREASE_FATIQUE: break;
+        case EF_MODIFY_FATIQUE: break;
         case EF_DAMAGE: break;
         case EF_HEALTH: break;
-        case EF_DECREASE_SKILL: break;
-        case EF_INCREASE_SKILL: break;
+        case EF_MODIFY_SKILL: break;
 
         case EF_EVOLVES: se_add_status_effect(monster, ces->param, c->name); break;
 
@@ -751,14 +762,12 @@ void se_process_effects_last(struct se_type_struct *ces, struct msr_monster *mon
             monster->characteristic[ces->param].base_value = ces->strength;
             break;
 
-        case EF_DECREASE_CHAR: mod = 1;
-        case EF_INCREASE_CHAR:
-            monster->characteristic[ces->param].mod += (ces->strength * mod) * ces->ticks_applied;
+        case EF_MODIFY_CHAR:
+            monster->characteristic[ces->param].mod += (ces->strength * -1) * ces->ticks_applied;
             break;
 
-        case EF_DECREASE_MAX_WOUNDS: mod = 1;
-        case EF_INCREASE_MAX_WOUNDS:
-            monster->max_wounds += (ces->strength * mod) * ces->ticks_applied;
+        case EF_MODIFY_MAX_WOUNDS:
+            monster->max_wounds += (ces->strength * -1) * ces->ticks_applied;
             monster->cur_wounds = (monster->cur_wounds < monster->max_wounds) ? 
                                     monster->cur_wounds : monster->max_wounds;
             break;
@@ -793,7 +802,6 @@ void se_process_effects_during(struct se_type_struct *ces, struct msr_monster *m
         if (ces->on_tick_msr != NULL) Monster_msg(monster,  ces->on_tick_msr, msr_ldname(monster) );
     }
 
-    int mod = 1;
     switch(ces->effect) {
         case EF_NONE: break;
         case EF_MAX: break;
@@ -831,7 +839,7 @@ void se_process_effects_during(struct se_type_struct *ces, struct msr_monster *m
         case EF_PRONE: break;
         case EF_SHAKEN: break;
         case EF_SICKENED: break;
-        case EF_SINKING: break;
+        case EF_SWIMMING: break;
         case EF_STABLE: break;
         case EF_STAGGERED: break;
         case EF_STUNNED: break;
@@ -843,17 +851,14 @@ void se_process_effects_during(struct se_type_struct *ces, struct msr_monster *m
         case EF_EXPLODE: break;
         case EF_INSTANT_DEATH: break;
         case EF_SET_CHAR: break;
-        case EF_DECREASE_SKILL: break;
-        case EF_INCREASE_SKILL: break;
+        case EF_MODIFY_SKILL: break;
         case EF_TALENT: break;
         case EF_TRAIT: break;
 
-        case EF_DECREASE_FATIQUE: break;
-        case EF_INCREASE_FATIQUE: break;
+        case EF_MODIFY_FATIQUE: break;
 
-        case EF_DECREASE_CHAR: mod = -1;
-        case EF_INCREASE_CHAR:
-            monster->characteristic[ces->param].mod += ces->strength * mod;
+        case EF_MODIFY_CHAR:
+            monster->characteristic[ces->param].mod += ces->strength;
             break;
 
         case EF_DAMAGE: {
@@ -869,9 +874,8 @@ void se_process_effects_during(struct se_type_struct *ces, struct msr_monster *m
                                     monster->cur_wounds : monster->max_wounds;
             break;
 
-        case EF_DECREASE_MAX_WOUNDS: mod = -1;
-        case EF_INCREASE_MAX_WOUNDS:
-            monster->max_wounds += ces->strength * mod;
+        case EF_MODIFY_MAX_WOUNDS:
+            monster->max_wounds += ces->strength;
             monster->cur_wounds = (monster->cur_wounds < monster->max_wounds) ? 
                                     monster->cur_wounds : monster->max_wounds;
             break;
@@ -1020,7 +1024,7 @@ static void se_process_effect(struct msr_monster *monster, struct status_effect 
 
     if (status_effect_has_flag(c, SEF_ACTIVE) == false) {
         lg_debug("Condition %p(%s) is to be destroyed.", c, c->name);
-        se_remove_status_effect(se_list, c);
+        se_remove_status_effect(monster, c);
         c = c_prev;
     }
     else if (c->duration_energy > 0) {
@@ -1059,7 +1063,7 @@ void se_remove_all_non_permanent(struct msr_monster *monster) {
                 }
             }
 
-            se_remove_status_effect(se_list, c);
+            se_remove_status_effect(monster, c);
         }
     }
 }

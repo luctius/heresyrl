@@ -1,6 +1,7 @@
 #include "turn_tick.h"
 #include "monster/monster.h"
 #include "status_effects/status_effects.h"
+#include "status_effects/ground_effects.h"
 #include "items/items.h"
 #include "coord.h"
 #include "game.h"
@@ -43,7 +44,7 @@ void tt_process_monsters(struct dm_map *map) {
         if (monster->controller.interrupted == true) do_action = true;
 
         /* A stunned monster can do nothing. */
-        if (se_has_effect(monster->status_effects, EF_STUNNED) ) {
+        if (se_has_effect(monster, EF_STUNNED) ) {
             do_action = false;
 
             /* Player is a bit special and would like to see something... */
@@ -98,6 +99,7 @@ void tt_process(struct dm_map *map) {
 
     tt_process_items(map);
 
+    ge_process(map);
     dm_process_tiles(map);
 
     tt_process_status_effects();

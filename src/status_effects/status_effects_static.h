@@ -29,6 +29,11 @@ enum se_ids {
     SEID_BLUNT_ARM_3_HEALED,
     SEID_BLUNT_ARM_4_HEALED,
 
+    /* Environment */
+    SEID_SWIMMING,
+    SEID_WADE,
+    SEID_MUD,
+
     /*Death*/
     SEID_FATEHEALTH,
     SEID_DEATH_STIMM,

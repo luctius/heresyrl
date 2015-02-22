@@ -45,3 +45,18 @@ msg_win disapears after some fullscreen windows,
 Throwing weapons tohit calculations are off.
 Torches should be held when activated, and their fuel use is bugged.
 archers do not shoot anymore
+
+glyphs:
+% is for food
+) is for weapons
+[ is for armor
+} is for evokables
+" is for amulets
+= is for rings
+| is for staves and wands?
+! is for potions
+? is for scrolls
++ is for books
+^ is for traps
+' is for ammunition
+$ is for money
