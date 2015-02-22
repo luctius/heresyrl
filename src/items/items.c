@@ -127,7 +127,7 @@ static bool itm_is_in_group(struct itm_item *item, enum item_group ig) {
     return false;
 }
 
-int itm_spawn(double roll, int level, enum item_group ig) {
+int itm_spawn(double roll, int level, enum item_group ig, struct msr_monster *monster) {
     int sz = ARRAY_SZ(static_item_list);
     double prob_arr[sz];
     double cumm_prob_arr[sz];
@@ -138,16 +138,26 @@ int itm_spawn(double roll, int level, enum item_group ig) {
 
     cumm_prob_arr[0] = DBL_MAX;
     for (int i = IID_NONE; i < sz; i++) {
-        if ( (level >= static_item_list[i].spawn_level) &&
-             (itm_is_in_group(&static_item_list[i], ig) ) ) {
+        bool use = false;
+        if (level >= static_item_list[i].spawn_level) {
+            if (itm_is_in_group(&static_item_list[i], ig) ) {
+                use = true;
+                if (monster != NULL) {
+                    use = false;
+                    if (static_item_list[i].item_type == ITEM_TYPE_WEAPON) {
+                        if (msr_has_talent(monster, static_item_list[i].specific.weapon.wpn_talent) == true) {
+                            use = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (use) {
             sum += static_item_list[i].spawn_weight;
             cumm_prob_arr[i] = 0.f;
         }
         else cumm_prob_arr[i] = DBL_MAX;
-    }
-
-    if (sum == 0) {
-        printf("bla");
     }
 
     double cumm = 0.f;
@@ -156,10 +166,6 @@ int itm_spawn(double roll, int level, enum item_group ig) {
         prob_arr[i] = static_item_list[i].spawn_weight / sum;
         cumm += prob_arr[i];
         cumm_prob_arr[i] = cumm;
-    }
-
-    if (cumm == 0) {
-        printf("bla");
     }
 
     for (int i = sz-1; i > IID_NONE; i--) {

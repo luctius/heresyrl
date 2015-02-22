@@ -277,7 +277,7 @@ struct itm_item *itmlst_get_next_item(struct itm_item *prev);
 struct itm_item *itmlst_item_by_uid(uint32_t uid);
 
 /* retrieves a item template id based on parameters */
-int itm_spawn(double roll, int level, enum item_group ig);
+int itm_spawn(double roll, int level, enum item_group ig, struct msr_monster *monster);
 
 /* create an item instance of this template id*/
 struct itm_item *itm_create(int template_id);

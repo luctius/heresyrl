@@ -199,7 +199,7 @@ bool dm_populate_map(struct dm_map *map, struct random *r, uint32_t monster_chan
                     if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(&cp,map), TILE_ATTR_TRAVERSABLE) == true) {
                         if (dm_get_map_me(&cp,map)->monster == NULL) {
                             struct msr_monster *monster = msr_create(idx);
-                            msr_give_items(monster, level, r);
+                            msr_populate_inventory(monster, level, r);
 
                             msr_insert_monster(monster, map, &c);
                             ai_monster_init(monster, leader);
@@ -216,7 +216,7 @@ bool dm_populate_map(struct dm_map *map, struct random *r, uint32_t monster_chan
                 if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(&c,map), TILE_ATTR_TRAVERSABLE) == true) {
                     idx = msr_spawn(random_float(r), level, map->type);
                     struct msr_monster *monster = msr_create(idx);
-                    msr_give_items(monster, level, r);
+                    msr_populate_inventory(monster, level, r);
 
                     msr_insert_monster(monster, map, &c);
                     ai_monster_init(monster, 0);
@@ -227,7 +227,7 @@ bool dm_populate_map(struct dm_map *map, struct random *r, uint32_t monster_chan
                     int item_level = level;
                     if (random_float(r) > 0.95) item_level += 1;
                     if (random_float(r) > 0.99) item_level += 1;
-                    idx = itm_spawn(random_float(r), item_level, ITEM_GROUP_ANY);
+                    idx = itm_spawn(random_float(r), item_level, ITEM_GROUP_ANY, NULL);
                     struct itm_item *item = itm_create(idx);
 
                     itm_insert_item(item, map, &c);

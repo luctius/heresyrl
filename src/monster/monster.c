@@ -125,7 +125,6 @@ int msr_spawn(double roll, int level, enum dm_dungeon_type dt) {
 
 #define MONSTER_PRE_CHECK (10477)
 #define MONSTER_POST_CHECK (10706)
-void msr_give_items(struct msr_monster *m, int level, struct random *r);
 static void creature_weapon(struct msr_monster *monster);
 
 struct msr_monster *msr_create(enum msr_ids template_id) {
@@ -174,7 +173,6 @@ struct msr_monster *msr_create(enum msr_ids template_id) {
     }
 
     creature_weapon(&m->monster);
-    //msr_give_items(&m->monster, m->monster.level, gbl_game->random);
 
     lg_debug("creating monster[%d, %s, %c]", m->monster.uid, m->monster.ld_name, m->monster.icon);
 
@@ -897,7 +895,7 @@ static void creature_weapon(struct msr_monster *monster) {
     assert(inv_loc_empty(monster->inventory, INV_LOC_CREATURE_WIELD1) == false);
 }
 
-void msr_give_items(struct msr_monster *monster, int level, struct random *r) {
+void msr_populate_inventory(struct msr_monster *monster, int level, struct random *r) {
     if (msr_verify_monster(monster) == false) return;
     struct itm_item *item = NULL;
     
@@ -906,18 +904,11 @@ void msr_give_items(struct msr_monster *monster, int level, struct random *r) {
 
     for (int i = 0; i < MSR_NR_DEFAULT_WEAPONS_MAX; i++) {
         if (monster->def_items[i] != ITEM_GROUP_NONE) {
-            item = itm_create(itm_spawn(random_float(r), mlevel, monster->def_items[i]) );
+            item = itm_create(itm_spawn(random_float(r), mlevel, monster->def_items[i], monster) );
             if (itm_verify_item(item) == true) {
                 if (inv_add_item(monster->inventory, item) == true) {
                     if (dw_can_wear_item(monster, item) ) {
                         assert(dw_wear_item(monster, item) == true);
-                    }
-
-                    if (itm_is_type(item, ITEM_TYPE_WEAPON) ) {
-                        struct item_weapon_specific *wpn = &item->specific.weapon;
-                        if (msr_has_talent(monster, wpn->wpn_talent) == false) {
-                            msr_set_talent(monster, wpn->wpn_talent);
-                        }
                     }
 
                     if (wpn_uses_ammo(item) ) {

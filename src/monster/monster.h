@@ -221,7 +221,7 @@ struct msr_monster *msrlst_get_next_monster(struct msr_monster *prev);
 int msr_spawn(double roll, int level, enum dm_dungeon_type dt);
 
 /* Equipes the monster with weapons according to its profile. */
-void msr_give_items(struct msr_monster *monster, int level, struct random *r);
+void msr_populate_inventory(struct msr_monster *monster, int level, struct random *r);
 
 /* create a instance of this monster template. */
 struct msr_monster *msr_create(enum msr_ids template_id);
