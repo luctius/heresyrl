@@ -141,6 +141,17 @@ static bool ai_human_loop(struct msr_monster *monster) {
         }
     }
 
+    if (aiu_next_thrown_weapon(monster, 0) != NULL) {
+        struct msr_monster *enemy = NULL;
+        struct itm_item *item = aiu_next_thrown_weapon(monster, 0);
+
+        if ( (enemy = aiu_get_nearest_enemy(monster, 0, map) ) != NULL) {
+            if (cd_pyth(&monster->pos, &enemy->pos) > 2) {
+                lg_debug("[uid: %d, tid: %d] sees an enemy (throw)", monster->uid, monster->template_id);
+                has_action = ma_do_throw(monster, &enemy->pos, item);
+            }
+        }
+    }
 
     if (msr_weapon_type_check(monster, WEAPON_TYPE_MELEE) ) {
         struct msr_monster *enemy = NULL;
@@ -218,9 +229,14 @@ static void init_bestial_ai(struct msr_monster *monster) {
 
 void ai_monster_init(struct msr_monster *monster, uint32_t leader_uid) {
     switch(monster->race) {
+        case MSR_RACE_DWARF:
+        case MSR_RACE_ELF:
+        case MSR_RACE_HALFLING:
+        case MSR_RACE_GREENSKIN:
         case MSR_RACE_HUMAN: init_human_ai(monster); break;
 
         default:
+        case MSR_RACE_DOMESTIC:
         case MSR_RACE_BEAST: init_bestial_ai(monster); break;
     }
 

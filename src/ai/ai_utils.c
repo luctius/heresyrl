@@ -179,3 +179,16 @@ bool aiu_generate_astar(struct pf_context **pf_ctx, struct dm_map *map, coord_t 
     return false;
 }
 
+struct itm_item *aiu_next_thrown_weapon(struct msr_monster *monster, int idx) {
+    struct itm_item *item = NULL;
+    while ( (item = inv_get_next_item(monster->inventory, item) ) != NULL) {
+        if (wpn_is_type(item, WEAPON_TYPE_THROWN) ) {
+            if (idx == 0) {
+                break;
+            }
+            idx--;
+        }
+    }
+    return item;
+}
+

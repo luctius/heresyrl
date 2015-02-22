@@ -527,19 +527,6 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dm_map *map, coord_t *
     return false;
 }
 
-struct itm_item *find_throw_weapon(struct msr_monster *player, int idx) {
-    struct itm_item *item = NULL;
-    while ( (item = inv_get_next_item(player->inventory, item) ) != NULL) {
-        if (wpn_is_type(item, WEAPON_TYPE_THROWN) ) {
-            if (idx == 0) {
-                break;
-            }
-            idx--;
-        }
-    }
-    return item;
-}
-
 bool mapwin_overlay_throw_cursor(struct gm_game *g, struct dm_map *map, coord_t *p_pos) {
     int ch = '0';
     bool fire_mode = true;
@@ -551,7 +538,7 @@ bool mapwin_overlay_throw_cursor(struct gm_game *g, struct dm_map *map, coord_t 
 
     struct pl_player *plr = &g->player_data;
     if (plr == NULL) return false;
-    if (find_throw_weapon(plr->player, 0) == NULL) {
+    if (aiu_next_thrown_weapon(plr->player, 0) == NULL) {
         You(plr->player, "do not have a throwing weapon.");
         return false;
     }
@@ -572,7 +559,7 @@ bool mapwin_overlay_throw_cursor(struct gm_game *g, struct dm_map *map, coord_t 
     int path_len = 0;
 
     int weapon_idx = 0;
-    struct itm_item *item = find_throw_weapon(plr->player, weapon_idx);
+    struct itm_item *item = aiu_next_thrown_weapon(plr->player, weapon_idx);
     item->energy = TT_ENERGY_TURN;
 
     do {
@@ -606,14 +593,14 @@ bool mapwin_overlay_throw_cursor(struct gm_game *g, struct dm_map *map, coord_t 
             case INP_KEY_WEAPON_SETTING: 
                 if (weapon_idx > 0) {
                     weapon_idx -= 0;
-                    item = find_throw_weapon(plr->player, weapon_idx);
+                    item = aiu_next_thrown_weapon(plr->player, weapon_idx);
                     item->energy = TT_ENERGY_TURN;
                 }
                 break;
             case INP_KEY_WEAPON_SELECT: 
-                if (find_throw_weapon(plr->player, weapon_idx+1) != NULL) {
+                if (aiu_next_thrown_weapon(plr->player, weapon_idx+1) != NULL) {
                     weapon_idx += 1;
-                    item = find_throw_weapon(plr->player, weapon_idx);
+                    item = aiu_next_thrown_weapon(plr->player, weapon_idx);
                     item->energy = TT_ENERGY_TURN;
                 }
                 break;

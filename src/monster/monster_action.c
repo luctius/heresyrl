@@ -226,14 +226,16 @@ bool ma_do_throw(struct msr_monster *monster, coord_t *pos, struct itm_item *ite
             /*item is not in any hand, we will switch it with the main hand weapon */
             change = true;
 
-            /* save item locations */
-            locs = inv_get_item_locations(monster->inventory, item_bkp);
+            if (item_bkp != NULL) {
+                /* save item locations */
+                locs = inv_get_item_locations(monster->inventory, item_bkp);
 
-            /* save weapon selection */
-            wsel = monster->wpn_sel;
+                /* save weapon selection */
+                wsel = monster->wpn_sel;
 
-            /* move current weapon to inventory */
-            inv_move_item_to_location(monster->inventory, item_bkp, INV_LOC_INVENTORY);
+                /* move current weapon to inventory */
+                inv_move_item_to_location(monster->inventory, item_bkp, INV_LOC_INVENTORY);
+            }
 
             /* move thrown weapon to main hand*/
             inv_move_item_to_location(monster->inventory, item, INV_LOC_MAINHAND_WIELD);
@@ -246,7 +248,7 @@ bool ma_do_throw(struct msr_monster *monster, coord_t *pos, struct itm_item *ite
     /* do the action*/
     thrown = fght_throw_weapon(gbl_game->random, monster, gbl_game->current_map, pos, hand);
 
-    if (change) {
+    if (change && item_bkp != NULL) {
         /* check if the item still exists (mainly if there is anythin left in the stack. )*/
         if (hand == FGHT_MAIN_HAND) {
             if (inv_loc_empty(monster->inventory, INV_LOC_MAINHAND_WIELD) != true) {
