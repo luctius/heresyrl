@@ -34,15 +34,14 @@ Move (TURN/movement)
 Attack (TURN/attack)
 
 BUGS:
-cannot throw tools anymore.
-?could not wield a shortbow after dropping it? (low ammo?)
+?could not wield a shortbow after dropping it (low ammo?)?
 ?could not wield a knife?
+?archers do not shoot anymore?
 switching weapons sometimes sets weapon select to unarmed.
 unarmed and offhand weapons do not offer a targetting window.
 msg_win disapears after some fullscreen windows,
 Throwing weapons tohit calculations are off.
 Torches should be held when activated, and their fuel use is bugged.
-archers do not shoot anymore
 
 glyphs:
 % is for food
@@ -51,7 +50,7 @@ glyphs:
 } is for evokables
 " is for amulets
 = is for rings
-| is for staves and wands?
+| is for staves and wands
 ! is for potions
 ? is for scrolls
 + is for books
