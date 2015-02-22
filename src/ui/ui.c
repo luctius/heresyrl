@@ -1707,6 +1707,7 @@ void show_help(struct hrl_window *window, bool input) {
     ui_printf(&pad, "            " cs_ATTR "[']']:" cs_CLOSE " Change weapon select.\n");
     ui_printf(&pad, "            " cs_ATTR "[,/g]:" cs_CLOSE " Pickup.\n");
     ui_printf(&pad, "            " cs_ATTR "[./5]:" cs_CLOSE " Wait.\n");
+    ui_printf(&pad, "              " cs_ATTR "[/]:" cs_CLOSE " Run into a direction.\n");
     ui_printf(&pad, "\n");
     ui_printf(&pad, "Inventory Controls:\n");
     ui_printf(&pad, "            " cs_ATTR "[d/D]:" cs_CLOSE " Drop.\n");

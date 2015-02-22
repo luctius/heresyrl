@@ -167,6 +167,8 @@ struct msr_monster {
     /* current energy of this monster */
     int energy;
 
+    int idle_counter;
+
     /* array of bitfield of all the monster's talents */
     uint8_t talents[MSR_NR_TALENTS_MAX];
 

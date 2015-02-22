@@ -248,6 +248,8 @@ bool msr_insert_monster(struct msr_monster *monster, struct dm_map *map, coord_t
     lg_ai_debug(monster, "inserting \'%s\'(%c) to (%d,%d)",
                 monster->sd_name, monster->icon, monster->pos.x, monster->pos.y);
 
+    monster->idle_counter = 0;
+
     return true;
 }
 
@@ -377,9 +379,15 @@ int msr_get_energy(struct msr_monster *monster) {
 
 bool msr_change_energy(struct msr_monster *monster, int energy) {
     if (msr_verify_monster(monster) == false) return false;
+
+    monster->idle_counter += (-1 * energy) / TT_ENERGY_TICK;
+    //lg_ai_debug(monster, "idl counter: %d", monster->idle_counter);
+    if (msr_get_energy(monster) >= TT_ENERGY_FULL) return false;
+
     monster->energy += energy;
     if (monster->energy < 0) monster->energy = 0;
     //lg_ai_debug(monster, "energy: %d", monster->energy);
+
     return true;
 }
 

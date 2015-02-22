@@ -38,7 +38,7 @@ void tt_process_monsters(struct dm_map *map) {
 
         bool do_action = false;
 
-        if (msr_get_energy(monster) < TT_ENERGY_FULL) msr_change_energy(monster, TT_ENERGY_TICK);
+        msr_change_energy(monster, TT_ENERGY_TICK);
 
         if (msr_get_energy(monster) >= TT_ENERGY_FULL) do_action = true;
         if (monster->controller.interrupted == true) do_action = true;

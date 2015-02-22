@@ -101,6 +101,15 @@ static unsigned int aiu_traversable_callback(void *vmap, coord_t *coord) {
     }
     if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(coord, map),TILE_ATTR_BORDER) == true) cost = PF_BLOCKED;
 
+    struct dm_map_entity *me = dm_get_map_me(coord, map);
+    if (me->monster != NULL) {
+        cost += me->monster->idle_counter;
+    }
+
+    if (me->effect != NULL) {
+        cost += 100;
+    }
+
     return cost;
 }
 
