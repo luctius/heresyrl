@@ -35,6 +35,7 @@ enum inp_keys {
     INP_KEY_DROP,
     INP_KEY_APPLY,
     INP_KEY_THROW,
+    INP_KEY_THROW_ITEM,
     INP_KEY_WEAR,
     INP_KEY_STAIRS_DOWN,
     INP_KEY_STAIRS_UP,

@@ -1,5 +1,6 @@
 #include <sys/param.h>
 #include <assert.h>
+#include <string.h>
 
 
 #include "fight.h"
@@ -603,6 +604,76 @@ bool fght_explosion(struct random *r, struct itm_item *bomb, struct dm_map *map)
 
     ui_animate_explosion(map, gridlist, gridlist_sz);
     return true;
+}
+
+bool fght_throw_item(struct random *r, struct msr_monster *monster, struct dm_map *map, coord_t *e, struct itm_item *item) {
+    if (msr_verify_monster(monster) == false) return false;
+    if (dm_verify_map(map) == false) return false;
+    if (cd_within_bound(e, &map->size) == false) return false;
+    if (sgt_has_los(map, &monster->pos, e, 1000) == false) return false;
+    coord_t end = *e;
+
+    lg_debug("Throwing item to (%d,%d)", e->x, e->y);
+
+    if (inv_has_item(monster->inventory, item) == true) {
+        /* Generate a path our projectile will take. Start at 
+           the shooter position, and continue the same path 
+           untill an obstacle is found.*/
+        coord_t *path;
+        int path_len = sgt_los_path(map, &monster->pos, &end, &path, false);
+        ui_animate_projectile(map, path, path_len);
+
+        /* if the path was succesfully created, free it here */
+        if (path_len > 0) free(path);
+
+        /* check of we can hit the target */
+        //int hits = fght_thrown_roll(r, monster, e, witem, hand);
+        int hits = msr_characteristic_check(monster, MSR_CHAR_BALISTIC_SKILL, -20);
+        if (hits <= 0) {
+            /* scatter the object */
+            /* Never scatter more than the distance actually was.. */
+            int dis = random_xd5(r, 1);
+            if (cd_pyth(&monster->pos, e) < dis) dis = cd_pyth(&monster->pos, e);
+
+            end = sgt_scatter(map, r, e, dis);
+            lg_debug("%s is scattered towards (%d,%d)", item->ld_name, end.x, end.y);
+
+            /* I first wanted to do the animation in one go, scatter them animate the whole path
+               But it is very possible that the scattered target is out of LoS of the origin.  */
+            path = NULL;
+            path_len = sgt_los_path(map, e, &end, &path, false);
+            ui_animate_projectile(map, path, path_len);
+        }
+
+        /* if the path was succesfully created, free it here */
+        if (path_len > 0) free(path);
+
+        /* create a copy of the item to place it on the map. */
+        struct itm_item *item_copy = itm_create(item->template_id);
+        if (item_copy != NULL) {
+            memcpy(item_copy, item, sizeof(struct itm_item) );
+
+            /* copy any changes from the item to its copy */
+            item_copy->energy = item->energy;
+            /* set the number of items in the stack to 1*/
+            item_copy->stacked_quantity = 1;
+
+            /* decrease that number from the item in the monsters hand */
+            item->stacked_quantity -= 1;
+            if (item->stacked_quantity == 0) {
+                /* remove the item from monsters inventory if that was the last one */
+                if (msr_remove_item(monster, item) ) itm_destroy(item);
+                lg_debug("No more copied in inventory, destroying last one.");
+            }
+
+            /* and place it on the target/scatter position */
+            itm_insert_item(item_copy, gbl_game->current_map, &end);
+        }
+
+        return true;
+    }
+    
+    return false;
 }
 
 /*

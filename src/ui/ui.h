@@ -13,6 +13,7 @@ void mapwin_display_map(struct dm_map *map, coord_t *player);
 void mapwin_overlay_examine_cursor(struct dm_map *map, coord_t *p_pos);
 bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dm_map *map, coord_t *p_pos);
 bool mapwin_overlay_throw_cursor(struct gm_game *g, struct dm_map *map, coord_t *p_pos);
+bool mapwin_overlay_throw_item_cursor(struct gm_game *g, struct dm_map *map, coord_t *p_pos);
 
 void msgwin_log_callback(struct logging *log, struct log_entry *entry, void *priv);
 void msgwin_log_refresh(struct logging *log, struct log_entry *le);

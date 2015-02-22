@@ -365,6 +365,7 @@ void targetwin_examine(struct hrl_window *window, struct dm_map *map, struct msr
     if (itm_verify_item(witem) == false) return;
     if (window->type != HRL_WINDOW_TYPE_CHARACTER) return;
     struct dm_map_entity *me = dm_get_map_me(pos, map);
+    bool item_is_weapon = true;
 
     if (me->in_sight == false) {
         charwin_refresh();
@@ -396,21 +397,26 @@ void targetwin_examine(struct hrl_window *window, struct dm_map *map, struct msr
     if (wpn_is_type(witem, WEAPON_TYPE_MELEE) && (cd_pyth(&player->pos, pos) == 1) ) {
         tohit = fght_melee_calc_tohit(player, pos, FGHT_MAIN_HAND);
         ui_printf(window,"Weapon Skill: %d\n\n", msr_calculate_characteristic(player, MSR_CHAR_WEAPON_SKILL) );
+        item_is_weapon = true;
     }
     else if (wpn_is_type(witem, WEAPON_TYPE_RANGED) || wpn_is_type(witem, WEAPON_TYPE_THROWN) ) {
         tohit = fght_ranged_calc_tohit(player, pos, FGHT_MAIN_HAND);
         ui_printf(window,"Ballistic Skill: %d\n\n", msr_calculate_characteristic(player, MSR_CHAR_BALISTIC_SKILL) );
+        item_is_weapon = true;
     }
-    else return;
-    ui_printf(window,"Total change of hitting: " cs_DAMAGE "%d" cs_CLOSE ".\n", tohit);
+    else item_is_weapon = false;
 
-    int idx = 0;
-    struct tohit_desc *thd = NULL;
-    while ( (thd = fght_get_tohit_mod_description(idx++) ) != NULL) {
-        ui_printf(window,"%c %s (%d).\n", (thd->modifier > 0) ? '+' : '-', thd->description, thd->modifier);
+    if (item_is_weapon) {
+        ui_printf(window,"Total change of hitting: " cs_DAMAGE "%d" cs_CLOSE ".\n", tohit);
+
+        int idx = 0;
+        struct tohit_desc *thd = NULL;
+        while ( (thd = fght_get_tohit_mod_description(idx++) ) != NULL) {
+            ui_printf(window,"%c %s (%d).\n", (thd->modifier > 0) ? '+' : '-', thd->description, thd->modifier);
+        }
+
+        ui_printf(window,"\n");
     }
-
-    ui_printf(window,"\n");
 
     ui_printf(window, "Calculated: %s.\n", witem->ld_name);
     if (wpn_is_catergory(witem, WEAPON_CATEGORY_THROWN_GRENADE) ) {
@@ -527,6 +533,89 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dm_map *map, coord_t *
     return false;
 }
 
+bool mapwin_overlay_throw_item_cursor(struct gm_game *g, struct dm_map *map, coord_t *p_pos) {
+    int ch = '0';
+    bool fire_mode = true;
+    if (map_win == NULL) return false;
+    if (g == NULL) return false;
+    if (dm_verify_map(map) == false) return false;
+    if (p_pos == NULL) return false;
+    if (map_win->type != HRL_WINDOW_TYPE_MAP) return false;
+
+    struct pl_player *plr = &g->player_data;
+    if (plr == NULL) return false;
+    coord_t e_pos = *p_pos;
+
+    int scr_x = get_viewport(last_ppos.x, map_win->cols, map->size.x);
+    int scr_y = get_viewport(last_ppos.y, map_win->lines, map->size.y);
+
+    coord_t *path;
+    int path_len = 0;
+
+    int item_idx = 0;
+    struct itm_item *item = aiu_next_unused_item(plr->player, item_idx);
+    item->energy = TT_ENERGY_TURN;
+
+    do {
+        mapwin_display_map_noref(map, &plr->player->pos);
+
+        switch (ch) {
+            case INP_KEY_UP_LEFT:    e_pos.y--; e_pos.x--; break;
+            case INP_KEY_UP:         e_pos.y--; break;
+            case INP_KEY_UP_RIGHT:   e_pos.y--; e_pos.x++; break;
+            case INP_KEY_RIGHT:      e_pos.x++; break;
+            case INP_KEY_DOWN_RIGHT: e_pos.y++; e_pos.x++; break;
+            case INP_KEY_DOWN:       e_pos.y++; break;
+            case INP_KEY_DOWN_LEFT:  e_pos.y++; e_pos.x--; break;
+            case INP_KEY_LEFT:       e_pos.x--; break;
+            case INP_KEY_WEAPON_SETTING: 
+                if (item_idx > 0) {
+                    item_idx -= 0;
+                    item = aiu_next_unused_item(plr->player, item_idx);
+                }
+                break;
+            case INP_KEY_WEAPON_SELECT: 
+                if (aiu_next_unused_item(plr->player, item_idx+1) != NULL) {
+                    item_idx += 1;
+                    item = aiu_next_unused_item(plr->player, item_idx);
+                }
+                break;
+            case INP_KEY_YES:
+            case INP_KEY_THROW_ITEM:
+            case INP_KEY_THROW: {
+                if (ma_do_throw(plr->player, &e_pos, item) == true) {
+                    mapwin_display_map(map, p_pos);
+                    return true;
+                }
+                else Your(plr->player, "unable to throw that.");
+                fire_mode=false;
+            }
+            break;
+            default: break;
+        }
+        if (fire_mode == false) break;
+
+        if (e_pos.y < 0) e_pos.y = 0;
+        if (e_pos.y >= map->size.y) e_pos.y = map->size.y -1;
+        if (e_pos.x < 0) e_pos.x = 0;
+        if (e_pos.x >= map->size.x) e_pos.x = map->size.x -1;
+
+        path_len = sgt_los_path(gbl_game->current_map, p_pos, &e_pos, &path, false);
+        for (int i = 1; i < path_len; i++) {
+            mvwaddch(map_win->win, path[i].y - scr_y, path[i].x - scr_x, '*' | get_colour(TERM_COLOUR_RED) );
+        }
+        if (path_len > 0) free(path);
+
+        mvwaddch(map_win->win, e_pos.y - scr_y, e_pos.x - scr_x, '*' | get_colour(TERM_COLOUR_RED) );
+        wrefresh(map_win->win);
+
+        targetwin_examine(char_win, gbl_game->current_map, plr->player, &e_pos, item);
+    }
+    while((ch = inp_get_input(gbl_game->input)) != INP_KEY_ESCAPE && fire_mode);
+
+    return false;
+}
+
 bool mapwin_overlay_throw_cursor(struct gm_game *g, struct dm_map *map, coord_t *p_pos) {
     int ch = '0';
     bool fire_mode = true;
@@ -604,6 +693,7 @@ bool mapwin_overlay_throw_cursor(struct gm_game *g, struct dm_map *map, coord_t 
                     item->energy = TT_ENERGY_TURN;
                 }
                 break;
+            /*
             case INP_KEY_MINUS:
                     item->energy -= TT_ENERGY_TURN;
                     if (item->energy <= 0) item->energy = TT_ENERGY_TICK;
@@ -613,7 +703,9 @@ bool mapwin_overlay_throw_cursor(struct gm_game *g, struct dm_map *map, coord_t 
                     if (item->energy >= (TT_ENERGY_TURN * 10) ) item->energy = TT_ENERGY_TURN * 10;
                     if ((item->energy % TT_ENERGY_TURN) > 0) item->energy = (item->energy / TT_ENERGY_TURN) * TT_ENERGY_TURN;
                 break;
+            */
             case INP_KEY_YES:
+            case INP_KEY_THROW_ITEM:
             case INP_KEY_THROW: {
                 if (ma_do_throw(plr->player, &e_pos, item) == true) {
                     mapwin_display_map(map, p_pos);

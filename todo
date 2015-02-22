@@ -1,20 +1,16 @@
-group ai and generation             -- add leader follow code
-add effects to tiles                -- nothing done yet.
+group ai and generation             -- add leader follow code, add autoexplore
 doors                               -- nothing done yet.
 use and remove fatique              -- nothing done yet.
 title screen                        -- nothing done yet
 vision                              -- Concealment, ai should look in a circle.
 sound system                        -- nothing done yet: (actions cost sound, enemies go to the biggest sound source, hounds bark, npcs shout)
 basic fighting system               -- add criticals, throw non-weapon items
-ai                                  -- add autoeplore
 savegame replay                     -- add pauze, play, step etc
 magic system and winds of magic
 insanity system
 corruption system
 
 --create a 10 turn tick function for spawns.--
-add idle counter to monsters and add that to the cost for moving to that tile.
-
 
 
 ideas:
@@ -39,7 +35,6 @@ Attack (TURN/attack)
 
 BUGS:
 cannot throw tools anymore.
-vision is not a circle
 ?could not wield a shortbow after dropping it? (low ammo?)
 ?could not wield a knife?
 switching weapons sometimes sets weapon select to unarmed.

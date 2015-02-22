@@ -288,6 +288,8 @@ static bool plr_action_loop(struct msr_monster *player) {
                 mapwin_overlay_examine_cursor(gbl_game->current_map, player_pos); break;
             case INP_KEY_FIRE:
                 has_action = mapwin_overlay_fire_cursor(gbl_game, gbl_game->current_map, player_pos); break;
+            case INP_KEY_THROW_ITEM:
+                has_action = mapwin_overlay_throw_item_cursor(gbl_game, gbl_game->current_map, player_pos); break;
             case INP_KEY_THROW:
                 has_action = mapwin_overlay_throw_cursor(gbl_game, gbl_game->current_map, player_pos); break;
             case INP_KEY_STAIRS_DOWN:

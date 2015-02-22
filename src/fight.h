@@ -123,6 +123,7 @@ bool fght_shoot(struct random *r, struct msr_monster *monster, struct dm_map *ma
 bool fght_melee(struct random *r, struct msr_monster *monster, struct msr_monster *target);
 bool fght_explosion(struct random *r, struct itm_item *bomb, struct dm_map *map);
 bool fght_throw_weapon(struct random *r, struct msr_monster *monster, struct dm_map *map, coord_t *e, enum fght_hand hand);
+bool fght_throw_item(struct random *r, struct msr_monster *monster, struct dm_map *map, coord_t *e, struct itm_item *item);
 
 struct itm_item *fght_get_weapon(struct msr_monster *monster, enum item_weapon_type type, enum fght_hand hand);
 struct itm_item *fght_get_working_weapon(struct msr_monster *monster, enum item_weapon_type type, enum fght_hand hand); /* checks on emptiness and jammedness */

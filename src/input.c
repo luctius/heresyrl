@@ -164,7 +164,7 @@ enum inp_keys inp_get_input(struct inp_input *i) {
             case 'f':       k = INP_KEY_FIRE; break;
             case 'D':
             case 'd':       k = INP_KEY_DROP; break;
-            case 'T':
+            case 'T':       k = INP_KEY_THROW_ITEM; break;
             case 't':       k = INP_KEY_THROW; break;
             case 'W':
             case 'w':       k = INP_KEY_WEAR; break;

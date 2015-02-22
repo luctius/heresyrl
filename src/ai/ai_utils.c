@@ -192,3 +192,16 @@ struct itm_item *aiu_next_thrown_weapon(struct msr_monster *monster, int idx) {
     return item;
 }
 
+struct itm_item *aiu_next_unused_item(struct msr_monster *monster, int idx) {
+    struct itm_item *item = NULL;
+    while ( (item = inv_get_next_item(monster->inventory, item) ) != NULL) {
+        if (inv_item_worn(monster->inventory, item) == false) {
+            if (idx == 0) {
+                break;
+            }
+            idx--;
+        }
+    }
+    return item;
+}
+

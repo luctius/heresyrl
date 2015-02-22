@@ -197,7 +197,6 @@ bool ma_do_melee(struct msr_monster *monster, coord_t *target_pos) {
 bool ma_do_throw(struct msr_monster *monster, coord_t *pos, struct itm_item *item) {
     if (msr_verify_monster(monster) == false) return false;
     if (itm_verify_item(item) == false) return false;
-    if (wpn_is_type(item, WEAPON_TYPE_THROWN) == false)  return false; /*only allow thrown weapons for now*/
     if (pos == NULL) return false;
     struct itm_item *item_bkp = NULL;
     enum msr_weapon_selection wsel = monster->wpn_sel;
@@ -212,6 +211,13 @@ bool ma_do_throw(struct msr_monster *monster, coord_t *pos, struct itm_item *ite
         You(monster, "cannot throw things while swimming.");
         return false;
     }
+
+    if (itm_is_type(item, ITEM_TYPE_WEAPON) == false) {
+        fght_throw_item(gbl_game->random, monster, gbl_game->current_map, pos, item);
+        return true;
+    }
+
+    if (wpn_is_type(item, WEAPON_TYPE_THROWN) == false)  return false; /*only allow thrown weapons for now*/
 
     /* Check in which hand the item is, or, if it is not, 
        exchange the main hand weapon temporarily with this item*/
