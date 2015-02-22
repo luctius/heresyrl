@@ -137,6 +137,16 @@ struct pf_context *plr_map(struct pl_player *plr, struct dm_map *map) {
     return plr->player_map;
 }
 
+static bool player_running = false;
+static coord_t player_running_dir;
+static bool interrupt_running(struct msr_monster *player, struct dm_map *map, coord_t *pos, coord_t *dir) {
+    coord_t next = cd_add(pos, dir);
+    if (dm_get_map_tile(pos, map)->id != dm_get_map_tile(&next, map)->id) return true;
+
+    if (aiu_get_nearest_enemy(player, 0, map) != NULL) return true;
+    return false;
+}
+
 static bool low_wounds_warning = false;
 static bool critical_wounds_warning = false;
 static bool plr_action_loop(struct msr_monster *player) {
@@ -196,6 +206,16 @@ static bool plr_action_loop(struct msr_monster *player) {
     }
     else if ( ( (player->cur_wounds * 100) / player->max_wounds) > 50) {
         low_wounds_warning = false;
+    }
+
+    if (player_running == true) {
+        if (interrupt_running(player, map, &pos, &player_running_dir) == false) {
+            pos = cd_add(&pos, &player_running_dir);
+            if (ma_do_move(player, &pos) == true) {
+                has_action = true;
+            }
+        }
+        else player_running = false;
     }
 
     lg_debug("plr_action_loop");
@@ -310,6 +330,28 @@ static bool plr_action_loop(struct msr_monster *player) {
             case INP_KEY_DOWN:       pos.y++; break;
             case INP_KEY_DOWN_LEFT:  pos.y++; pos.x--; break;
             case INP_KEY_LEFT:       pos.x--; break;
+
+            case INP_KEY_RUN: {
+                    has_action = true;
+                    player_running_dir = cd_create(0,0);
+                    System_msg("Run into which direction?");
+                    switch (ch = inp_get_input(gbl_game->input) ) { 
+                        case INP_KEY_UP_LEFT:    player_running_dir = cd_create(-1,-1); break;
+                        case INP_KEY_UP:         player_running_dir = cd_create( 0,-1); break;
+                        case INP_KEY_UP_RIGHT:   player_running_dir = cd_create( 1,-1); break;
+                        case INP_KEY_RIGHT:      player_running_dir = cd_create( 1, 0); break;
+                        case INP_KEY_DOWN_RIGHT: player_running_dir = cd_create( 1, 1); break;
+                        case INP_KEY_DOWN:       player_running_dir = cd_create( 0, 1); break;
+                        case INP_KEY_DOWN_LEFT:  player_running_dir = cd_create(-1, 1); break;
+                        case INP_KEY_LEFT:       player_running_dir = cd_create(-1, 0); break;
+                        default: has_action = false; System_msg("Abort"); break;
+                    }
+
+                    if (has_action == true) {
+                        player_running = true;
+                        pos = player_running_dir;
+                    }
+                } break;
             
             default:
                 break;

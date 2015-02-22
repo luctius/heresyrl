@@ -15,6 +15,9 @@ enum inp_keys {
     INP_KEY_DOWN_RIGHT,
     INP_KEY_DOWN,
     INP_KEY_DOWN_LEFT,
+
+    INP_KEY_RUN,
+
     INP_KEY_LEFT,
     INP_KEY_WAIT,
     INP_KEY_ESCAPE,

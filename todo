@@ -13,6 +13,7 @@ insanity system
 corruption system
 
 --create a 10 turn tick function for spawns.--
+add idle counter to monsters and add that to the cost for moving to that tile.
 
 
 
