@@ -24,6 +24,10 @@
 
 static void sigfunc(int s) {
     FIX_UNUSED(s);
+}
+
+static void sigfunc_quit(int s) {
+    FIX_UNUSED(s);
 
     if (options.play_recording == true) {
         gbl_game->running = false;
@@ -102,10 +106,12 @@ int main(int argc, char *argv[]) {
         /*initialise signal handler*/
         struct sigaction setmask;
         sigemptyset( &setmask.sa_mask );
-        setmask.sa_handler = sigfunc;
+        setmask.sa_handler = sigfunc_quit;
         setmask.sa_flags   = 0;
         sigaction( SIGHUP,  &setmask, (struct sigaction *) NULL );      /* Hangup */
         sigaction( SIGINT,  &setmask, (struct sigaction *) NULL );      /* Interrupt (Ctrl-C) */
+        setmask.sa_handler = sigfunc;
+        sigaction( SIGQUIT, &setmask, (struct sigaction *) NULL );      /* Quit (Ctrl-\) */
 
         while(gbl_game->running == true) {
             tt_process(gbl_game->current_map);
