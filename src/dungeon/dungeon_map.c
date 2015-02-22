@@ -557,9 +557,11 @@ bool dm_generate_feature(struct dm_map *map, struct random *r, coord_t *point, i
             struct dm_map_entity *me = dm_get_map_me(&p, map);
 
             int sum = ca_get_coord_sum(camap, &c, 2);
-            if (ca_get_coord_sum(camap, &c, 1) < 6) me->tile = ts_get_tile_specific(TILE_ID_MUD);
-            else if (sum <= 19) me->tile = ts_get_tile_specific(TILE_ID_UNDEEP_WATER);
-            else /*if (sum > 20)*/ me->tile = ts_get_tile_specific(TILE_ID_DEEP_WATER);
+            if (ft == DM_FT_POOL) {
+                if (ca_get_coord_sum(camap, &c, 1) < 6) me->tile = ts_get_tile_specific(TILE_ID_MUD);
+                else if (sum <= 19) me->tile = ts_get_tile_specific(TILE_ID_UNDEEP_WATER);
+                else /*if (sum > 20)*/ me->tile = ts_get_tile_specific(TILE_ID_DEEP_WATER);
+            }
         }
     }
 
@@ -669,7 +671,7 @@ bool dm_generate_map(struct dm_map *map, enum dm_dungeon_type type, int level, u
         int y = random_int32(r) % map->size.y;
         coord_t point = { .x = x, .y = y, };
 
-        dm_generate_feature(map, r, &point, 15, 15, DM_FT_POOL);
+        if (dm_generate_feature(map, r, &point, 15, 15, DM_FT_POOL) ) continue;
     }
 
     assert(map_is_good == true);
@@ -689,9 +691,16 @@ bool dm_generate_map(struct dm_map *map, enum dm_dungeon_type type, int level, u
 
 void dm_process_tiles(struct dm_map *map) {
     if (dm_verify_map(map) == false) return;
-    return; /*Remove this if this function is ever implemented! */
 
     /* Process tiles with additional effects. */
+    coord_t c;
+    for (c.x = 0; c.x < map->size.x; c.x++) {
+        for (c.y = 0; c.y < map->size.y; c.y++) {
+            struct dm_map_entity *me = dm_get_map_me(&c, map);
+            if (me->monster != NULL) ts_turn_tick_monster(me->tile, me->monster);
+            ts_turn_tick(me->tile, &c, map);
+        }
+    }
 }
 
 /* TODO: Think about ground based (status) effects and their livetime. */
@@ -709,7 +718,7 @@ bool dm_tile_enter(struct dm_map *map, coord_t *point, struct msr_monster *monst
     }
 
     if (me->effect != NULL) {
-        se_add_status_effect(monster, me->effect->tid, me->effect->sd_name);
+        se_add_status_effect(monster, me->effect->se_id, me->effect->sd_name);
     }
 
     ts_enter(me->tile, monster);

@@ -50,6 +50,32 @@ static const struct status_effect static_status_effect_list[] = {
             SETTINGS(       0,      2,          10),
     STATUS_EFFECT_END,
 
+    STATUS_EFFECT(SEID_MAD_CAP_AFTER, "mad cap mushroom after effect", ""),
+        MESSAGES("You are exhausted from the mushrooms trip.", "%s looks exhausted.", "You feel the after effects slipping away.", NULL),
+        EFFECTS_START
+            /* Type     Effect      Flags   Strength    Param*/
+            EFFECT(EF_MODIFY_CHAR,  0,         -10,      MSR_CHAR_TOUGHNESS),
+            EFFECT(EF_MODIFY_CHAR,  0,         -10,      MSR_CHAR_STRENGTH),
+            EFFECT(EF_DAMAGE,       0,           2,      0),
+        EFFECTS_END,
+            /*Settings      Flags   Minimum  -  Maximum Turns*/
+            SETTINGS(       0,      2,          5),
+    STATUS_EFFECT_END,
+
+    STATUS_EFFECT(SEID_MAD_CAP, "mad cap mushroom rage", ""),
+        MESSAGES("You slip into a mad and destructive rage.", "%s slips into a mad and destructive rage.", "The rage starts to wear off.", NULL),
+        EFFECTS_START
+            /* Type     Effect      Flags   Strength    Param*/
+            EFFECT(EF_MODIFY_CHAR,  0,         10,      MSR_CHAR_TOUGHNESS),
+            EFFECT(EF_MODIFY_CHAR,  0,         10,      MSR_CHAR_STRENGTH),
+            EFFECT(EF_MODIFY_SKILL, 0,        -50,      MSR_SKILLS_DODGE),
+            EFFECT(EF_MODIFY_SKILL, 0,        -50,      MSR_SKILLS_PARRY),
+            EFFECT(EF_EVOLVES,      0,          0,      SEID_MAD_CAP_AFTER),
+        EFFECTS_END,
+            /*Settings      Flags   Minimum  -  Maximum Turns*/
+            SETTINGS(       0,      2,          10),
+    STATUS_EFFECT_END,
+
     /* Weapon Effects */
     STATUS_EFFECT(SEID_WEAPON_FLAME, "flames", "flames are engulving you"),
         MESSAGES("You catch fire.", "%s has catched fire.", "You manage to put out the flames.", "%s stomps out the flames."),
@@ -60,7 +86,7 @@ static const struct status_effect static_status_effect_list[] = {
             TICK_EFFECT(EF_DAMAGE, bf(EF_SETT_DMG_TYPE_ENERGY),     EF_STRENGTH_1D10,     0,    1,          0,      NULL, NULL),
         EFFECTS_END,
         /*Settings  Flags       Minimum  -  Maximum Turns*/
-        SETTINGS(       0,      1,          10),
+        SETTINGS(       0,      2,          10),
         /*Check         Flags                                           Type                Difficulty */
         CHECK(bf(EF_CHECK_CHARACTERISTIC) | bf(EF_CHECK_EACH_INTERVAL), MSR_CHAR_AGILITY,   0),
         /*Heal  flags   Difficulty      Succesfull heal evolve tid.*/
@@ -117,6 +143,20 @@ static const struct status_effect static_status_effect_list[] = {
         EFFECTS_END,
             /*Settings      Flags */
             SETTINGS(bf(SEF_UNIQUE) | bf(SEF_PERMANENT),      0,          0),
+    STATUS_EFFECT_END,
+
+    STATUS_EFFECT(SEID_MAD_CAP_CLOUD, "mad cap cloud", ""),
+        MESSAGES("You slip into a mad and destructive rage.", "%s slips into a mad and destructive rage.", "The rage starts to wear off.", NULL),
+        EFFECTS_START
+            /* Type     Effect      Flags   Strength    Param*/
+            EFFECT(EF_MODIFY_CHAR,  0,         10,      MSR_CHAR_TOUGHNESS),
+            EFFECT(EF_MODIFY_CHAR,  0,         10,      MSR_CHAR_STRENGTH),
+            EFFECT(EF_MODIFY_SKILL, 0,        -50,      MSR_SKILLS_DODGE),
+            EFFECT(EF_MODIFY_SKILL, 0,        -50,      MSR_SKILLS_PARRY),
+            EFFECT(EF_EVOLVES,      0,          0,      SEID_MAD_CAP_AFTER),
+        EFFECTS_END,
+            /*Settings      Flags       Minimum  -  Maximum Turns*/
+            SETTINGS(bf(SEF_UNIQUE),      3,          3),
     STATUS_EFFECT_END,
 
     /*-------------------------------------------------------------------------*/

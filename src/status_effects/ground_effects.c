@@ -3,6 +3,7 @@
 #include <sys/queue.h>
 
 #include "ground_effects.h"
+#include "dungeon/tiles.h"
 #include "turn_tick.h"
 #include "logging.h"
 #include "random.h"
@@ -76,6 +77,7 @@ bool ge_create(uint32_t tid, struct dm_map_entity *me) {
     if (tid == GEID_NONE) return false;
     if (tid >= GEID_MAX) return false;
     if (tid >= (int) ARRAY_SZ(static_ground_effect_list) ) return false;
+    if (TILE_HAS_ATTRIBUTE(me->tile, TILE_ATTR_TRAVERSABLE) == false) return false;
 
     const struct ground_effect *ge_template = &static_ground_effect_list[tid];
 
@@ -88,6 +90,7 @@ bool ge_create(uint32_t tid, struct dm_map_entity *me) {
     ge->ground_effect_pre = GROUND_EFFECT_PRE_CHECK;
     ge->ground_effect_post = GROUND_EFFECT_POST_CHECK;
     ge->uid = gelst_next_id();
+    ge->icon_attr = get_colour(ge->icon_attr);
 
     int range = (ge->max_energy - ge->min_energy);
     ge->current_energy = ge->min_energy;
@@ -97,20 +100,25 @@ bool ge_create(uint32_t tid, struct dm_map_entity *me) {
     ge->max_energy = ge->current_energy;
 
     me->effect = ge;
+    ge->me = me;
 
     return true;
 }
 
 bool ge_destroy(struct dm_map_entity *me) {
     if (ground_effects_list_initialised == false) return false;
-    struct ground_effect_list_entry *sele = ground_effects_list_head.tqh_first;
+    struct ground_effect_list_entry *gele = ground_effects_list_head.tqh_first;
 
-    while (sele != NULL) {
-        if (me->effect == &sele->ground_effect) {
-            TAILQ_REMOVE(&ground_effects_list_head, sele, entries);
+    while (gele != NULL) {
+        struct ground_effect *ge = &gele->ground_effect;
+        if (me->effect == ge) {
+            lg_debug("Destroying ge: %p(%s) duration: %d, max: %d", ge, ge->sd_name, ge->current_energy, ge->max_energy);
+            TAILQ_REMOVE(&ground_effects_list_head, gele, entries);
             me->effect = NULL;
+            free(gele);
             return true;
         }
+        gele = gele->entries.tqe_next;
     }
 
     return false;
@@ -124,10 +132,17 @@ void ge_process(struct dm_map *map) {
         struct ground_effect *ge = &sele->ground_effect;
         ge->current_energy -= MIN(TT_ENERGY_TICK, ge->current_energy);
 
+        /* TODO: check if any monster here is affected by the se_id */
+        if (ge->me->monster != NULL) {
+            if (ge->flags & GR_EFFECTS_REMOVE_ON_EXIT > 0) {
+                se_remove_effects_by_tid(ge->me->monster, ge->tid);
+            }
+        }
         if (ge->current_energy <= 0) {
             ge_destroy(ge->me);
         }
-        /* TODO: check if any monster here is affected by the se_id */
+
+        sele = sele->entries.tqe_next;
     }
 }
 

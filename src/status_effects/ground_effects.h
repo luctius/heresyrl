@@ -40,6 +40,9 @@ struct ground_effect {
     uint32_t ground_effect_post;
 };
 
+void ge_init(void);
+void ge_exit(void);
+
 bool ge_create(enum ge_ids template_id, struct dm_map_entity *me);
 bool ge_destroy(struct dm_map_entity *me);
 void ge_process(struct dm_map *map);

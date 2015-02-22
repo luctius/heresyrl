@@ -285,6 +285,7 @@ bool se_add_status_effect(struct msr_monster *monster, uint32_t tid, const char 
     if (se_has_tid(se_list, tid) ) {
         c = se_get_status_effect_tid(se_list, tid);
         if (c != NULL) {
+            lg_debug("Monster already has an instance of status_effect: %s", c->name);
 
             /* If the condition is unique */
             if (status_effect_has_flag(c, SEF_UNIQUE) == true) {
@@ -989,10 +990,6 @@ static void se_process_effect(struct msr_monster *monster, struct status_effect 
             if (first_time) {
                 se_process_effects_first(ces, monster, c);
                 se_process_effects_during(ces, monster, c);
-            }
-            else if (last_time) {
-                se_process_effects_during(ces, monster, c);
-                /* se_process_effects_last(ces, monster, c); */
             }
             else if (effect_has_flag(ces, EF_SETT_TICK) && (ces->tick_energy <= 0) ) {
 

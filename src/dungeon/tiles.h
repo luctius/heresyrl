@@ -38,6 +38,7 @@ enum tile_ids {
     TILE_ID_UNDEEP_WATER,
     TILE_ID_DEEP_WATER,
     TILE_ID_MUD,
+    TILE_ID_MAD_CAP_FUNGUS,
     TILE_ID_MAX,
 };
 
@@ -77,6 +78,7 @@ struct tl_tile *ts_get_tile_type(enum tile_types tt);
 
 void ts_enter(struct tl_tile *tile, struct msr_monster *monster);
 void ts_exit(struct tl_tile *tile, struct msr_monster *monster);
-void ts_turn_tick(struct tl_tile *tile, struct msr_monster *monster);
+void ts_turn_tick_monster(struct tl_tile *tile, struct msr_monster *monster);
+void ts_turn_tick(struct tl_tile *tile, coord_t *pos, struct dm_map *map);
 
 #endif /*TILES_H_*/

@@ -110,8 +110,11 @@
 #define AMMO(_ammo_type,cid) .icon='\'', .stacked_quantity=1, .max_quantity=100, .dropable=true, \
             .item_type=ITEM_TYPE_AMMO, .specific.ammo={ .ammo_type=_ammo_type, .convey_status_effect=cid, }
 
-#define DRAUGHT(_food_type,cid) .icon='!', .stacked_quantity=1, .max_quantity=100, .dropable=true, \
-            .item_type=ITEM_TYPE_FOOD, .specific.food={ .food_type=_food_type, .nutrition=0, .nutrition_left=0, .convey_status_effect=cid, }
+#define DRAUGHT(cid) .icon='!', .stacked_quantity=1, .max_quantity=100, .dropable=true, \
+            .item_type=ITEM_TYPE_FOOD, .specific.food={ .food_type=FOOD_TYPE_LIQUID, .nutrition=0, .nutrition_left=0, .convey_status_effect=cid, }
+
+#define MUSHROOM(cid) .icon='&', .stacked_quantity=1, .max_quantity=100, .dropable=true, \
+            .item_type=ITEM_TYPE_FOOD, .specific.food={ .food_type=FOOD_TYPE_SOLID, .nutrition=0, .nutrition_left=0, .convey_status_effect=cid, }
 
 static const char *itm_descs[] = {
     [IID_NONE]              = "none",
@@ -161,12 +164,15 @@ static const char *itm_descs[] = {
     /* Ammo */
     [IID_ARROW]                 = "",
 
+    [IID_DRAUGHT_HEALING_MINOR]  = "A healing Draught",
+
+    [IID_MUSHROOM_MAD_CAP] = "A mad cap mushroom",
+
+    /* Debug and internal items */
     [IID_HUMAN_UNARMED]           = "",
     [IID_CREATURE_BITE_UNTRAINED] = "",
     [IID_CREATURE_BITE_TRAINED]   = "",
     [IID_BODYPART_GRENADE]  = "used in status effects",
-
-    [IID_DRAUGHT_HEALING_MINOR]  = "A healing Draught",
     [IID_STIMM_DEATH]      = "Death stimm injector *debug*",
 };
 
@@ -232,15 +238,19 @@ static struct itm_item static_item_list[] = {
     ITEM_NONE(IID_CREATURE_BITE_UNTRAINED,"teeth",   "teeth",   0, 0, 0), CREATURE_MELEE(WEAPON_CATEGORY_2H_MELEE,1, -4, DMG_TYPE_CLAW,   0,  bf(WPN_SPCQLTY_UNARMED) ), ITEM_END,
     ITEM_NONE(IID_CREATURE_BITE_TRAINED,  "teeth",   "teeth",   0, 0, 0), CREATURE_MELEE(WEAPON_CATEGORY_2H_MELEE,1,  0, DMG_TYPE_CLAW,   0,  0), ITEM_END,
 
-    /* Stimms */
-    /*    ID                                short name        long name            (wgt,cst,dly)      Food Type            status_effect*/
-    ITEM_POOR(IID_DRAUGHT_HEALING_MINOR,  "healing draught", "a minor healing draught", 0, 1, 1), DRAUGHT(FOOD_TYPE_LIQUID, SEID_MINOR_HEALING), CREATION(10,1), ITEM_END,
+    /* Potions */
+    /*    ID                                short name        long name              (wgt,cst,dly)            status_effect*/
+    ITEM_POOR(IID_DRAUGHT_HEALING_MINOR,  "healing draught", "a minor healing draught", 0, 1, 1), DRAUGHT(SEID_MINOR_HEALING), CREATION(10,1), ITEM_END,
+
+    /* Mushrooms */
+    /*    ID                                short name        long name       (wgt,cst,dly)           status_effect*/
+    ITEM_AVG(IID_MUSHROOM_MAD_CAP,  "mad cap mushroom", "a black cap mushroom", 0, 1, 1), MUSHROOM(SEID_MAD_CAP), ITEM_END,
 
     /* status effect items */
     ITEM(IID_BODYPART_GRENADE,"critical","",ITEM_QLTY_AVERAGE,5,10,1),THROWN_GRENADE(DMG_TYPE_SHRAPNEL,1,0,0,3,bf(WPN_SPCQLTY_BLAST_2),TLT_NONE,SEID_NONE),ITEM_END,
 
     /* debug items */
-    ITEM(IID_STIMM_DEATH,   "death debug",  "an injector with a deadly liquid", ITEM_QLTY_AVERAGE, 0, 1, 1), DRAUGHT(FOOD_TYPE_LIQUID, SEID_DEATH_STIMM), ITEM_END,
+    ITEM(IID_STIMM_DEATH,   "death debug",  "an injector with a deadly liquid", ITEM_QLTY_AVERAGE, 0, 1, 1), DRAUGHT(SEID_DEATH_STIMM), ITEM_END,
 };
 
 static const char *item_quality_strings[] = {

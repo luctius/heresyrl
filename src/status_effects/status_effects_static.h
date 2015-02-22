@@ -9,6 +9,10 @@ enum se_ids {
     /* Draughts */
     SEID_MINOR_HEALING,
 
+    /* Mushrooms */
+    SEID_MAD_CAP_AFTER,
+    SEID_MAD_CAP,
+
     /* Weapons */
     SEID_WEAPON_FLAME,
 
@@ -33,6 +37,7 @@ enum se_ids {
     SEID_SWIMMING,
     SEID_WADE,
     SEID_MUD,
+    SEID_MAD_CAP_CLOUD,
 
     /*Death*/
     SEID_FATEHEALTH,

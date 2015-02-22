@@ -67,8 +67,11 @@ enum item_ids {
     IID_ARROW,
 
     /* Food */
-    /* Stimms */
+    /* Potions */
     IID_DRAUGHT_HEALING_MINOR,
+
+    /* Mushrooms */
+    IID_MUSHROOM_MAD_CAP,
 
     /* status effect items */
     IID_BODYPART_GRENADE,

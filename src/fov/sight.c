@@ -51,7 +51,7 @@ static bool rpsc_check_transparent_los(struct rpsc_fov_set *set, coord_t *point,
 
     /* if there is an ground based effect which block sight (like mist), return false */
     if (dm_get_map_me(point, map)->effect != NULL) {
-        if (dm_get_map_me(point, map)->effect->flags & GR_EFFECTS_OPAQUE > 0) {
+        if (test_bf(dm_get_map_me(point, map)->effect->flags, GR_EFFECTS_OPAQUE ) ) {
             return false;
         }
     }

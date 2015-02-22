@@ -35,6 +35,7 @@ void game_init(struct pl_player *plr, unsigned long initial_seed) {
             itmlst_items_list_init();
             tt_init();
             se_init();
+            ge_init();
 
             gbl_game->input = inp_init();
         }
@@ -162,6 +163,7 @@ bool game_exit() {
     /* order is important due to freeing of items*/
     msrlst_monster_list_exit();
     itmlst_items_list_exit();
+    ge_exit();
     se_exit();
     tt_exit();
 

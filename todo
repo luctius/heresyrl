@@ -12,6 +12,8 @@ magic system and winds of magic
 insanity system
 corruption system
 
+--create a 10 turn tick function for spawns.--
+
 
 
 ideas:
@@ -60,3 +62,4 @@ glyphs:
 ^ is for traps
 ' is for ammunition
 $ is for money
+& is for mushrooms

@@ -99,8 +99,8 @@ void tt_process(struct dm_map *map) {
 
     tt_process_items(map);
 
-    ge_process(map);
     dm_process_tiles(map);
+    ge_process(map);
 
     tt_process_status_effects();
 }

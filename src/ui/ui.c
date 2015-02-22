@@ -169,6 +169,7 @@ static void mapwin_display_map_noref(struct dm_map *map, coord_t *player) {
                         }
                     }
                 }
+                /* Then see ground effects */
                 if (modified == false) {
                     if ( (me->visible == true) || (map_see) ) {
                         if (me->effect != NULL) {
@@ -178,6 +179,7 @@ static void mapwin_display_map_noref(struct dm_map *map, coord_t *player) {
                         }
                     }
                 }
+
                 /* Else see items */
                 if (modified == false) {
                     if ( (me->visible == true) || (map_see) ) {

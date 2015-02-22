@@ -479,7 +479,7 @@ bool msr_use_evasion(struct msr_monster *monster, struct msr_monster *attacker, 
                 if (wpn_has_spc_quality(witem, WPN_SPCQLTY_UNBALANCED) ) return false;
                 if (wpn_has_spc_quality(witem, WPN_SPCQLTY_DEFENSIVE) ) mod += 10;
                 if (wpn_has_spc_quality(witem, WPN_SPCQLTY_UNWIELDY) ) mod -= 10;
-                roll = msr_characteristic_check(monster, MSR_CHAR_WEAPON_SKILL, mod);
+                roll = msr_skill_check(monster, MSR_SKILLS_PARRY, mod);
                 Info("Using main-hand, unable to parry with it for one turn.");
             }
             break; }
@@ -489,7 +489,7 @@ bool msr_use_evasion(struct msr_monster *monster, struct msr_monster *attacker, 
                 if (wpn_has_spc_quality(witem, WPN_SPCQLTY_UNBALANCED) ) return false;
                 if (wpn_has_spc_quality(witem, WPN_SPCQLTY_DEFENSIVE) ) mod += 10;
                 if (wpn_has_spc_quality(witem, WPN_SPCQLTY_UNWIELDY) ) mod -= 10;
-                roll = msr_characteristic_check(monster, MSR_CHAR_WEAPON_SKILL, mod);
+                roll = msr_skill_check(monster, MSR_SKILLS_PARRY, mod);
                 Info("Using off-hand, unable to parry or attack with it for one turn.");
             }
             break; }

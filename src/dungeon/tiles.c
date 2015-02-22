@@ -2,6 +2,8 @@
 
 #include "tiles.h"
 #include "heresyrl_def.h"
+#include "random.h"
+#include "coord.h"
 
 static struct tl_tile tile_array[] = {
     [TILE_ID_NONE] = {
@@ -146,6 +148,17 @@ static struct tl_tile tile_array[] = {
         .plr_exit_str = "step out of the mud.",
         .msr_exit_str = "steps out of the mud.",
     },
+
+    [TILE_ID_MAD_CAP_FUNGUS] = {
+        .id = TILE_ID_MAD_CAP_FUNGUS,
+        .attributes = TILE_ATTR_TRAVERSABLE | TILE_ATTR_TRANSPARENT,
+        .type = TILE_TYPE_FLOOR,
+        .icon = '.',
+        .icon_attr = TERM_COLOUR_GREEN,
+        .movement_cost = 10,
+        .sd_name = "mushrooms",
+        .ld_name = "a growth of mushroom",
+    },
 };
 
 static bool processed = false;
@@ -176,17 +189,7 @@ struct tl_tile *ts_get_tile_type(enum tile_types tt) {
 
 void ts_enter(struct tl_tile *tile, struct msr_monster *monster) {
     switch (tile->id) {
-        case TILE_ID_NONE: break;
-        case TILE_ID_MAX: break;
-        case TILE_ID_TUNNEL_DUMMY: break;
-        case TILE_ID_BORDER_WALL: break;
-        case TILE_ID_CONCRETE_WALL: break;
-        case TILE_ID_CONCRETE_WALL_LIT: break;
-        case TILE_ID_CONCRETE_FLOOR: break;
-        case TILE_ID_WOODEN_OPEN_DOOR: break;
-        case TILE_ID_WOODEN_CLOSED_DOOR: break;
-        case TILE_ID_STAIRS_UP: break;
-        case TILE_ID_STAIRS_DOWN: break;
+        default: break;
         case TILE_ID_UNDEEP_WATER:
             se_add_status_effect(monster, SEID_WADE, tile->sd_name);
             break;
@@ -201,17 +204,7 @@ void ts_enter(struct tl_tile *tile, struct msr_monster *monster) {
 
 void ts_exit(struct tl_tile *tile, struct msr_monster *monster) {
     switch (tile->id) {
-        case TILE_ID_NONE: break;
-        case TILE_ID_MAX: break;
-        case TILE_ID_TUNNEL_DUMMY: break;
-        case TILE_ID_BORDER_WALL: break;
-        case TILE_ID_CONCRETE_WALL: break;
-        case TILE_ID_CONCRETE_WALL_LIT: break;
-        case TILE_ID_CONCRETE_FLOOR: break;
-        case TILE_ID_WOODEN_OPEN_DOOR: break;
-        case TILE_ID_WOODEN_CLOSED_DOOR: break;
-        case TILE_ID_STAIRS_UP: break;
-        case TILE_ID_STAIRS_DOWN: break;
+        default: break;
         case TILE_ID_UNDEEP_WATER:
             se_remove_effects_by_tid(monster, SEID_WADE);
             break;
@@ -224,22 +217,36 @@ void ts_exit(struct tl_tile *tile, struct msr_monster *monster) {
     }
 }
 
-void ts_turn_tick(struct tl_tile *tile, struct msr_monster *monster) {
+void ts_turn_tick_monster(struct tl_tile *tile, struct msr_monster *monster) {
     switch (tile->id) {
-        case TILE_ID_NONE: break;
-        case TILE_ID_MAX: break;
-        case TILE_ID_TUNNEL_DUMMY: break;
-        case TILE_ID_BORDER_WALL: break;
-        case TILE_ID_CONCRETE_WALL: break;
-        case TILE_ID_CONCRETE_WALL_LIT: break;
-        case TILE_ID_CONCRETE_FLOOR: break;
-        case TILE_ID_WOODEN_OPEN_DOOR: break;
-        case TILE_ID_WOODEN_CLOSED_DOOR: break;
-        case TILE_ID_STAIRS_UP: break;
-        case TILE_ID_STAIRS_DOWN: break;
-        case TILE_ID_UNDEEP_WATER: break;
-        case TILE_ID_DEEP_WATER: break;
-        case TILE_ID_MUD: break;
+        default: break;
+    }
+}
+
+void ts_turn_tick(struct tl_tile *tile, coord_t *pos, struct dm_map *map) {
+    switch (tile->id) {
+        case TILE_ID_MAD_CAP_FUNGUS:  {
+            int r = random_xd10(gbl_game->random, 1);
+            coord_t p = { .x = 0, .y = 0, };
+            if (r == 1) {
+                p = *pos;
+            }
+            else if (r == 2) {
+                int pos_mod = random_int32(gbl_game->random) % coord_nhlo_table_sz;
+                p = cd_add(&coord_nhlo_table[pos_mod], pos);
+            }
+
+            if (p.x != 0 && p.y != 0) {
+                struct dm_map_entity *me = dm_get_map_me(&p, map);
+                ge_create(GEID_MAD_CAP_CLOUD, me);
+                if (inv_inventory_size(me->inventory) == 0) {
+                    if (random_d100(gbl_game->random) == 1) {
+                        struct itm_item *item = itm_create(IID_MUSHROOM_MAD_CAP);
+                        assert(itm_insert_item(item, map, &p) );
+                    }
+                }
+            }
+        } break;
     }
 }
 
