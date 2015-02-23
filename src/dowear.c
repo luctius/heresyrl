@@ -24,14 +24,17 @@ static bool wield_melee_weapon(struct msr_monster *monster, struct itm_item *ite
             return false;
         }
         location = INV_LOC_MAINHAND_WIELD | INV_LOC_OFFHAND_WIELD;
+        monster->wpn_sel = MSR_WEAPON_SELECT_BOTH_HAND;
     } else {
         if ( (inv_loc_empty(inv, INV_LOC_MAINHAND_WIELD) == true) &&
                 (inv_support_location(inv, INV_LOC_MAINHAND_WIELD) == true) ) {
             location = INV_LOC_MAINHAND_WIELD;
+            monster->wpn_sel = MSR_WEAPON_SELECT_MAIN_HAND;
         }
         else if ( (inv_loc_empty(inv, INV_LOC_OFFHAND_WIELD) == true) &&
                 (inv_support_location(inv, INV_LOC_OFFHAND_WIELD) == true) ) {
             location = INV_LOC_OFFHAND_WIELD;
+            monster->wpn_sel = MSR_WEAPON_SELECT_OFF_HAND;
         }
         else {
             You(monster, "have no hands free.");
@@ -40,6 +43,7 @@ static bool wield_melee_weapon(struct msr_monster *monster, struct itm_item *ite
     }
 
     assert(inv_move_item_to_location(inv, item, location) == true);
+    assert(msr_weapons_check(monster) );
     return true;
 }
 
