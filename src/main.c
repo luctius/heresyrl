@@ -58,6 +58,8 @@ int main(int argc, char *argv[]) {
     if (start_color() == ERR) exit(EXIT_FAILURE);
     refresh(); //  Print it on to the real screen
 
+    ESCDELAY = 1;
+
     int cols, lines;
     getmaxyx(stdscr, lines, cols);
     ui_create(cols, lines);
