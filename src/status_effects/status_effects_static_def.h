@@ -44,7 +44,7 @@ static const struct status_effect static_status_effect_list[] = {
         MESSAGES("Your wounds begin to heal.", "%s's wounds begin to heal.", "You feel the healing wearing off.", NULL),
         EFFECTS_START
             /* Type         Effect      Flags   Strength    Param   Interval    Max Msgs */
-            TICK_EFFECT(EF_HEALTH,      0,      0,          0,      2,          0,  NULL, NULL),
+            TICK_EFFECT(EF_HEALTH,      0,      1,          0,      2,          0,  NULL, NULL),
         EFFECTS_END,
             /*Settings      Flags   Minimum  -  Maximum Turns*/
             SETTINGS(       0,      2,          10),

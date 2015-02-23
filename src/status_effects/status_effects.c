@@ -1016,6 +1016,12 @@ static void se_process_effect(struct msr_monster *monster, struct status_effect 
         }
     }
 
+    if (c->duration_energy > 0) {
+        c->duration_energy -= MIN(TT_ENERGY_TICK, c->duration_energy);
+    }
+
+    if (c->duration_energy <= 0) status_effect_clr_flag(c, SEF_ACTIVE);
+
     if (status_effect_has_flag(c, SEF_ACTIVE) == false) {
         lg_debug("Condition %p(%s) is to be destroyed.", c, c->name);
 
@@ -1026,9 +1032,6 @@ static void se_process_effect(struct msr_monster *monster, struct status_effect 
 
         se_remove_status_effect(monster, c);
         c = c_prev;
-    }
-    else if (c->duration_energy > 0) {
-        c->duration_energy -= MIN(TT_ENERGY_TICK, c->duration_energy);
     }
 
     c_prev = c;
