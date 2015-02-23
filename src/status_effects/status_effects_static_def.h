@@ -161,6 +161,16 @@ static const struct status_effect static_status_effect_list[] = {
 
     /*-------------------------------------------------------------------------*/
 
+    STATUS_EFFECT(SEID_ENCUMBERED, "Encumbered", ""),
+        MESSAGES("You are encumbered.", NULL, "Your load seems manageble now.", NULL),
+        EFFECTS_START
+            /* Type    Effect           Flags   Strength     Param  Interval,   Max, Msgs */
+            TICK_EFFECT(EF_ENCUMBERED,  0,      0,           0,     0.01,       0,   NULL, NULL),
+        EFFECTS_END,
+        /*Settings      Flags                           Minimum  -  Maximum Turns*/
+        SETTINGS(bf(SEF_PERMANENT) | bf(SEF_UNIQUE),        1,          1),
+    STATUS_EFFECT_END,
+
     /* Healing after a fatepoint */
     STATUS_EFFECT(SEID_FATEHEALTH, "fatepoint_health", ""),
         EFFECTS_START

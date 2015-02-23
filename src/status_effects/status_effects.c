@@ -283,7 +283,7 @@ bool se_add_status_effect(struct msr_monster *monster, uint32_t tid, const char 
 
     /* Check if the status effect does allready exist in this list. */
     if (se_has_tid(se_list, tid) ) {
-        c = se_get_status_effect_tid(se_list, tid);
+        c = se_get_status_effect_tid(monster, tid);
         if (c != NULL) {
             lg_debug("Monster already has an instance of status_effect: %s", c->name);
 
@@ -381,7 +381,8 @@ bool se_has_tid(struct status_effect_list *se_list, enum se_ids tid) {
     return false;
 }
 
-bool se_has_non_healable_permanent_effect(struct status_effect_list *se_list, enum status_effect_effect_flags effect) {
+bool se_has_non_healable_permanent_effect(struct msr_monster *monster, enum status_effect_effect_flags effect) {
+    struct status_effect_list *se_list = monster->status_effects;
     if (se_verify_list(se_list) == false) return false;
 
     struct status_effect *c = NULL;
@@ -406,7 +407,8 @@ bool se_add_energy(struct status_effect *se, int32_t energy) {
     return true;
 }
 
-struct status_effect *se_get_status_effect_tid(struct status_effect_list *se_list, enum se_ids tid) {
+struct status_effect *se_get_status_effect_tid(struct msr_monster *monster, enum se_ids tid) {
+    struct status_effect_list *se_list = monster->status_effects;
     if (se_verify_list(se_list) == false) return NULL;
 
     struct status_effect *c = NULL;
@@ -419,7 +421,8 @@ struct status_effect *se_get_status_effect_tid(struct status_effect_list *se_lis
 }
 
 /* Check if there is another status_effect with the same effect besides the one given */
-bool se_has_effect_skip(struct status_effect_list *se_list, enum status_effect_effect_flags effect, struct status_effect *status_effect) {
+bool se_has_effect_skip(struct msr_monster *monster, enum status_effect_effect_flags effect, struct status_effect *status_effect) {
+    struct status_effect_list *se_list = monster->status_effects;
     if (se_verify_list(se_list) == false) return false;
 
     struct status_effect *c = NULL;
@@ -437,10 +440,11 @@ bool se_has_effect_skip(struct status_effect_list *se_list, enum status_effect_e
 }
 
 bool se_has_effect(struct msr_monster *monster, enum status_effect_effect_flags effect) {
-    return se_has_effect_skip(monster->status_effects, effect, NULL);
+    return se_has_effect_skip(monster, effect, NULL);
 }
 
-int se_status_effect_strength(struct status_effect_list *se_list, enum status_effect_effect_flags effect, int param) {
+int se_status_effect_strength(struct msr_monster *monster, enum status_effect_effect_flags effect, int param) {
+    struct status_effect_list *se_list = monster->status_effects;
     if (se_verify_list(se_list) == false) return -1;
     struct status_effect *c = NULL;
 
@@ -448,7 +452,7 @@ int se_status_effect_strength(struct status_effect_list *se_list, enum status_ef
     while ( (c = se_list_get_next_status_effect(se_list, c) ) != NULL) {
         for (unsigned int i = 0; i < ARRAY_SZ(c->effects); i++) {
             if (c->effects[i].effect == effect) {
-                if (param != -1 && c->effects[i].param == param) {
+                if (param == -1 || c->effects[i].param == param) {
                     strength += c->effects[i].strength;
                 }
             }
@@ -546,13 +550,13 @@ bool se_add_critical_hit(struct msr_monster *monster, int dmg, enum msr_hit_loca
 
     switch(mhl) {
         case MSR_HITLOC_LEFT_LEG: 
-            if (se_has_non_healable_permanent_effect(monster->status_effects, EF_DISABLED_LLEG) ) return false;
+            if (se_has_non_healable_permanent_effect(monster, EF_DISABLED_LLEG) ) return false;
         case MSR_HITLOC_RIGHT_LEG:
-            if (se_has_non_healable_permanent_effect(monster->status_effects, EF_DISABLED_RLEG) ) return false;
+            if (se_has_non_healable_permanent_effect(monster, EF_DISABLED_RLEG) ) return false;
         case MSR_HITLOC_LEFT_ARM:
-            if (se_has_non_healable_permanent_effect(monster->status_effects, EF_DISABLED_LARM) ) return false;
+            if (se_has_non_healable_permanent_effect(monster, EF_DISABLED_LARM) ) return false;
         case MSR_HITLOC_RIGHT_ARM:
-            if (se_has_non_healable_permanent_effect(monster->status_effects, EF_DISABLED_RARM) ) return false;
+            if (se_has_non_healable_permanent_effect(monster, EF_DISABLED_RARM) ) return false;
         case MSR_HITLOC_BODY: break;
         case MSR_HITLOC_HEAD: break;
     }
@@ -585,6 +589,7 @@ void se_process_effects_first(struct se_type_struct *ces, struct msr_monster *mo
         case EF_DISABLED_LLEG: break;
         case EF_DISABLED_RLEG: break;
         case EF_DISABLED_EYE: break;
+        case EF_ENCUMBERED: break;
         case EF_ENTANGLED: break;
         case EF_EXHAUSTED: break;
         case EF_FLAT_FOOTED: break;
@@ -717,6 +722,7 @@ void se_process_effects_last(struct se_type_struct *ces, struct msr_monster *mon
         case EF_DISABLED_LLEG: break;
         case EF_DISABLED_RLEG: break;
         case EF_DISABLED_EYE: break;
+        case EF_ENCUMBERED: break;
         case EF_ENTANGLED: break;
         case EF_EXHAUSTED: break;
         case EF_FLAT_FOOTED: break;
@@ -775,7 +781,7 @@ void se_process_effects_last(struct se_type_struct *ces, struct msr_monster *mon
 
         case EF_DISABLED_RARM:
         case EF_DISABLED_LARM:
-            if (se_has_effect_skip(monster->status_effects, ces->effect, c) == false) {
+            if (se_has_effect_skip(monster, ces->effect, c) == false) {
                 inv_enable_location(monster->inventory, ces->effect == EF_DISABLED_RARM ? INV_LOC_MAINHAND_WIELD : INV_LOC_OFFHAND_WIELD);
             }
             break;
@@ -822,6 +828,13 @@ void se_process_effects_during(struct se_type_struct *ces, struct msr_monster *m
         case EF_DISABLED_LARM: break;
         case EF_DISABLED_RARM: break;
         case EF_DISABLED_EYE: break;
+        case EF_ENCUMBERED: {
+                int overweight = msr_calculate_carrying_capacity(monster) - inv_get_weight(monster->inventory);
+                if (overweight >= 0) { effect_clr_flag(ces, EF_SETT_ACTIVE); break; }
+                else ces->strength = (overweight * -1) / 50;
+                lg_debug("encumbered strength: %d", ces->strength);
+            } break;
+
         case EF_ENTANGLED: break;
         case EF_EXHAUSTED: break;
         case EF_FLAT_FOOTED: break;
@@ -904,32 +917,25 @@ static void se_process_effect(struct msr_monster *monster, struct status_effect 
      */
     if (monster->dead) return;
 
-
     bool first_time = false;
-    bool last_time  = true;
-
     struct status_effect *c_prev = NULL;
+
+    int inactive = 0;
+    for (unsigned int i = 0; i < (ARRAY_SZ(c->effects) ); i++) {
+        struct se_type_struct *ces = &c->effects[i];
+        if (effect_has_flag(ces, EF_SETT_ACTIVE) == false) {
+            inactive++;
+        }
+    }
+    if (inactive == ARRAY_SZ(c->effects) ) status_effect_clr_flag(c, SEF_ACTIVE);
 
     if (status_effect_has_flag(c, SEF_ACTIVE) ) {
         /* Check if this status_effect is new, or maybe even for the last time. */
         if (c->duration_energy == c->duration_energy_max) first_time = true;
-        if ( (status_effect_has_flag(c, SEF_PERMANENT) == true) ) last_time = false;
-        else if (c->duration_energy > 0) last_time = false;
 
         {   /* Pre checks */
             if (first_time) {
                 lg_debug("Condition %p(%s) is processed for the first time.", c, c->name);
-
-                int inactive = 0;
-                for (unsigned int i = 0; i < (ARRAY_SZ(c->effects) ); i++) {
-                    struct se_type_struct *ces = &c->effects[i];
-                    if (ces->effect != EF_NONE) {
-                        if (effect_has_flag(ces, EF_SETT_ACTIVE) == false) {
-                            inactive++;
-                        }
-                    }
-                }
-                if (inactive == ARRAY_SZ(c->effects) ) status_effect_clr_flag(c, SEF_ACTIVE);
 
                 if (c->template_id == SEID_NONE) status_effect_clr_flag(c, SEF_ACTIVE);
 
@@ -967,15 +973,6 @@ static void se_process_effect(struct msr_monster *monster, struct status_effect 
                     first_time = false;
                 }
             }
-            else if (last_time) {
-                lg_debug("Condition %p(%s) ends.", c, c->name);
-
-                if (status_effect_has_flag(c, SEF_INVISIBLE) == false) {
-                    if (c->on_exit_plr != NULL) You_msg(monster, c->on_exit_plr);
-                    if (c->on_exit_msr != NULL) Monster_msg(monster, c->on_exit_msr, msr_ldname(monster) );
-                }
-                status_effect_clr_flag(c, SEF_ACTIVE);
-            }
         }
 
         for (unsigned int i = 0; i < (ARRAY_SZ(c->effects) ); i++) {
@@ -984,7 +981,7 @@ static void se_process_effect(struct msr_monster *monster, struct status_effect 
 
             if (effect_has_flag(ces, EF_SETT_TICK) && (ces->tick_energy > 0) ) {
                 ces->tick_energy -= TT_ENERGY_TICK;
-                if (!first_time && !last_time) continue;
+                if (!first_time) continue;
             }
 
             if (first_time) {
@@ -1021,6 +1018,12 @@ static void se_process_effect(struct msr_monster *monster, struct status_effect 
 
     if (status_effect_has_flag(c, SEF_ACTIVE) == false) {
         lg_debug("Condition %p(%s) is to be destroyed.", c, c->name);
+
+        if (status_effect_has_flag(c, SEF_INVISIBLE) == false) {
+            if (c->on_exit_plr != NULL) You_msg(monster, c->on_exit_plr);
+            if (c->on_exit_msr != NULL) Monster_msg(monster, c->on_exit_msr, msr_ldname(monster) );
+        }
+
         se_remove_status_effect(monster, c);
         c = c_prev;
     }
@@ -1056,7 +1059,7 @@ void se_remove_all_non_permanent(struct msr_monster *monster) {
                 for (int i = 0; i < ( (int) ARRAY_SZ(c->effects) ); i++) {
                     struct se_type_struct *ces = &c->effects[i];
 
-                    if (effect_has_flag(ces, EF_SETT_ACTIVE) ) se_process_effects_last(ces, monster, c);
+                    se_process_effects_last(ces, monster, c);
                 }
             }
 

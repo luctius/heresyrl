@@ -39,6 +39,9 @@ enum se_ids {
     SEID_MUD,
     SEID_MAD_CAP_CLOUD,
 
+    /* System */
+    SEID_ENCUMBERED,
+
     /*Death*/
     SEID_FATEHEALTH,
     SEID_DEATH_STIMM,

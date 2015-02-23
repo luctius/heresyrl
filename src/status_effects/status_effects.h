@@ -57,6 +57,7 @@ enum status_effect_effect_flags {
     EF_DISABLED_LARM,
     EF_DISABLED_RARM,
     EF_DISABLED_EYE,
+    EF_ENCUMBERED,
     EF_ENTANGLED,
     EF_EXHAUSTED,
     EF_FLAT_FOOTED,
@@ -215,12 +216,12 @@ void se_remove_all_non_permanent(struct msr_monster *monster);
 
 bool se_verify_status_effect(struct status_effect *se);
 
-struct status_effect *se_get_status_effect_tid(struct status_effect_list *se_list, enum se_ids tid);
-bool se_has_non_healable_permanent_effect(struct status_effect_list *se_list, enum status_effect_effect_flags effect);
+struct status_effect *se_get_status_effect_tid(struct msr_monster *monster, enum se_ids tid);
+bool se_has_non_healable_permanent_effect(struct msr_monster *monster, enum status_effect_effect_flags effect);
 bool se_has_flag(struct status_effect *se, enum status_effect_flags flag);
 bool se_has_effect(struct msr_monster *monster, enum status_effect_effect_flags effect);
 bool se_has_tid(struct status_effect_list *se_list, enum se_ids tid);
-int se_status_effect_strength(struct status_effect_list *se_list, enum status_effect_effect_flags effect, int param); /* set param to -1 for any. */
+int se_status_effect_strength(struct msr_monster *monster, enum status_effect_effect_flags effect, int param); /* set param to -1 for any. */
 bool se_add_energy(struct status_effect *se, int32_t energy);
 
 struct status_effect *se_create(enum se_ids tid); /* Do NOT use directly unless you know what you are doing. */
