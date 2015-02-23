@@ -1269,6 +1269,8 @@ Basic weapon traning SP     ...                  |
         ui_printf(&pad, "   " cs_ATTR "Int" cs_CLOSE "   %-2d\n", msr_calculate_characteristic(mon, MSR_CHAR_INTELLIGENCE) );
     ui_printf(&pad,           cs_ATTR "Per" cs_CLOSE "  %-2d", msr_calculate_characteristic(mon, MSR_CHAR_PERCEPTION) );
         ui_printf(&pad, "   " cs_ATTR "Wil" cs_CLOSE "   %-2d\n", msr_calculate_characteristic(mon, MSR_CHAR_WILLPOWER) );
+    ui_printf(&pad,           cs_ATTR "Mov" cs_CLOSE "  %-2d", msr_calculate_characteristic(mon, MSR_SEC_CHAR_MOVEMENT) );
+        ui_printf(&pad, "   " cs_ATTR "Att" cs_CLOSE "   %-2d\n", msr_calculate_characteristic(mon, MSR_SEC_CHAR_ATTACKS) );
 
     ui_printf(&pad, "\n");
     ui_printf(&pad, "\n");
