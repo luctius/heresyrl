@@ -358,7 +358,7 @@ void mapwin_overlay_examine_cursor(struct dm_map *map, coord_t *p_pos) {
     wrefresh(map_win->win);
 }
 
-void targetwin_examine(struct hrl_window *window, struct dm_map *map, struct msr_monster *player, coord_t *pos, struct itm_item *witem) {
+void targetwin_examine(struct hrl_window *window, struct dm_map *map, struct msr_monster *player, coord_t *pos, struct itm_item *witem, enum item_weapon_type wtype) {
     if (window == NULL) return;
     if (witem == NULL) return;
     if (msr_verify_monster(player) == false) return;
@@ -394,17 +394,17 @@ void targetwin_examine(struct hrl_window *window, struct dm_map *map, struct msr
     ui_printf(window,"\n");
 
     int tohit = 0;
-    if (wpn_is_type(witem, WEAPON_TYPE_MELEE) && (cd_pyth(&player->pos, pos) == 1) ) {
+    if (wtype == WEAPON_TYPE_MELEE && (cd_pyth(&player->pos, pos) == 1) ) {
         tohit = fght_melee_calc_tohit(player, pos, witem, FGHT_MAIN_HAND);
         ui_printf(window,"Weapon Skill: %d\n\n", msr_calculate_characteristic(player, MSR_CHAR_WEAPON_SKILL) );
         item_is_weapon = true;
     }
-    else if (wpn_is_type(witem, WEAPON_TYPE_RANGED) ) {
+    else if (wtype == WEAPON_TYPE_RANGED) {
         tohit = fght_ranged_calc_tohit(player, pos, witem, FGHT_MAIN_HAND, false);
         ui_printf(window,"Ballistic Skill: %d\n\n", msr_calculate_characteristic(player, MSR_CHAR_BALISTIC_SKILL) );
         item_is_weapon = true;
     }
-    else if (wpn_is_type(witem, WEAPON_TYPE_THROWN) ) {
+    else if (wtype == WEAPON_TYPE_THROWN) {
         tohit = fght_ranged_calc_tohit(player, pos, witem, FGHT_MAIN_HAND, true);
         ui_printf(window,"Ballistic Skill: %d\n\n", msr_calculate_characteristic(player, MSR_CHAR_BALISTIC_SKILL) );
         item_is_weapon = true;
@@ -529,9 +529,12 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dm_map *map, coord_t *
 
         struct itm_item *witem = fght_get_working_weapon(plr->player, WEAPON_TYPE_RANGED, FGHT_MAIN_HAND);
         if (witem == NULL) witem = fght_get_working_weapon(plr->player, WEAPON_TYPE_RANGED, FGHT_OFF_HAND);
-        if (witem == NULL) witem = fght_get_working_weapon(plr->player, WEAPON_TYPE_MELEE, FGHT_MAIN_HAND);
-        if (witem == NULL) witem = fght_get_working_weapon(plr->player, WEAPON_TYPE_MELEE, FGHT_OFF_HAND);
-        targetwin_examine(char_win, gbl_game->current_map, plr->player, &e_pos, witem);
+        if (witem != NULL) targetwin_examine(char_win, gbl_game->current_map, plr->player, &e_pos, witem, WEAPON_TYPE_RANGED);
+        else {
+            if (witem == NULL) witem = fght_get_working_weapon(plr->player, WEAPON_TYPE_MELEE, FGHT_MAIN_HAND);
+            if (witem == NULL) witem = fght_get_working_weapon(plr->player, WEAPON_TYPE_MELEE, FGHT_OFF_HAND);
+            if (witem != NULL) targetwin_examine(char_win, gbl_game->current_map, plr->player, &e_pos, witem, WEAPON_TYPE_MELEE);
+        }
     }
     while((ch = inp_get_input(gbl_game->input)) != INP_KEY_ESCAPE && fire_mode);
 
@@ -614,7 +617,7 @@ bool mapwin_overlay_throw_item_cursor(struct gm_game *g, struct dm_map *map, coo
         mvwaddch(map_win->win, e_pos.y - scr_y, e_pos.x - scr_x, '*' | get_colour(TERM_COLOUR_RED) );
         wrefresh(map_win->win);
 
-        targetwin_examine(char_win, gbl_game->current_map, plr->player, &e_pos, item);
+        targetwin_examine(char_win, gbl_game->current_map, plr->player, &e_pos, item, WEAPON_TYPE_THROWN);
     }
     while((ch = inp_get_input(gbl_game->input)) != INP_KEY_ESCAPE && fire_mode);
 
@@ -738,7 +741,7 @@ bool mapwin_overlay_throw_cursor(struct gm_game *g, struct dm_map *map, coord_t 
         mvwaddch(map_win->win, e_pos.y - scr_y, e_pos.x - scr_x, '*' | get_colour(TERM_COLOUR_RED) );
         wrefresh(map_win->win);
 
-        targetwin_examine(char_win, gbl_game->current_map, plr->player, &e_pos, item);
+        targetwin_examine(char_win, gbl_game->current_map, plr->player, &e_pos, item, WEAPON_TYPE_THROWN);
     }
     while((ch = inp_get_input(gbl_game->input)) != INP_KEY_ESCAPE && fire_mode);
 

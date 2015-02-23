@@ -74,18 +74,17 @@ int fght_ranged_calc_tohit(struct msr_monster *monster, coord_t *tpos, struct it
         /* Shooting Distances */
         int distance = cd_pyth(&monster->pos, tpos);
         int dis_in_meters = cd_pyth(&monster->pos, tpos) * FGHT_RANGE_MULTIPLIER;
-        int weapon_range = 10;
+        int weapon_range = 1;
 
         CALC_TOHIT(itm_is_type(witem, ITEM_TYPE_WEAPON) == false || wpn_is_type(witem, WEAPON_TYPE_MELEE), FGHT_MODIFIER_IMPROVISED_WEAPON, "this is an improvised weapon")
-        else if (itm_is_type(witem, ITEM_TYPE_WEAPON) && (wpn_is_type(witem, WEAPON_TYPE_RANGED) && wpn_is_type(witem, WEAPON_TYPE_THROWN)) ) {
+        else if (itm_is_type(witem, ITEM_TYPE_WEAPON) && ( (wpn_is_type(witem, WEAPON_TYPE_RANGED) || wpn_is_type(witem, WEAPON_TYPE_THROWN) ) ) ) {
             struct item_weapon_specific *wpn = &witem->specific.weapon;
 
             CALC_TOHIT(throwing && wpn_is_type(witem, WEAPON_TYPE_RANGED), FGHT_MODIFIER_IMPROVISED_WEAPON, "this is an improvised weapon")
             else CALC_TOHIT(msr_has_talent(monster, wpn->wpn_talent) == false, FGHT_MODIFIER_UNTRAINED_WEAPON, "you are untrained in this weapon") /* Weapon talent of used weapon */
 
-            weapon_range = wpn->range;
-            /* Thrown weapon range is calculated by a range number times their strength bonus */
-            if (wpn->weapon_type == WEAPON_TYPE_THROWN) weapon_range *= msr_calculate_characteristic_bonus(monster, MSR_CHAR_STRENGTH);
+            if (throwing && wpn_is_type(witem, WEAPON_TYPE_THROWN) ) weapon_range = wpn->range;
+            else if (throwing == false && wpn_is_type(witem, WEAPON_TYPE_RANGED) ) weapon_range = wpn->range;
 
             /* Quality modifiers */
             CALC_TOHIT(itm_has_quality(witem, ITEM_QLTY_BEST), FGHT_MODIFIER_QLTY_TO_HIT_BEST, "your weapon is of best quality")
@@ -101,6 +100,9 @@ int fght_ranged_calc_tohit(struct msr_monster *monster, coord_t *tpos, struct it
                 */
             }
         }
+
+        /* Thrown weapon range is calculated by a range number times their strength bonus */
+        if (throwing) weapon_range *= msr_calculate_characteristic_bonus(monster, MSR_CHAR_STRENGTH);
 
         lg_debug("distance: %d, wpn_range: %d", distance, weapon_range);
 
