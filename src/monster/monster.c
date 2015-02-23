@@ -738,7 +738,7 @@ int msr_calculate_carrying_capacity(struct msr_monster *monster) {
 
     int str = msr_calculate_characteristic(monster, MSR_CHAR_STRENGTH);
     int tgh = msr_calculate_characteristic(monster, MSR_CHAR_TOUGHNESS);
-    return ( (str + tgh) * 10) /2;
+    return ( (str + tgh) * 10);
 }
 
 enum msr_skill_rate msr_has_skill(struct msr_monster *monster, enum msr_skills skill) {
