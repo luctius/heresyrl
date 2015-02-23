@@ -71,18 +71,28 @@ static uint32_t gelst_next_id(void) {
     return uid;
 }
 
-bool ge_create(uint32_t tid, struct dm_map_entity *me) {
-    if (ground_effects_list_initialised == false) return false;
-    if (me->effect != NULL) return false;
-    if (tid == GEID_NONE) return false;
-    if (tid >= GEID_MAX) return false;
-    if (tid >= (int) ARRAY_SZ(static_ground_effect_list) ) return false;
-    if (TILE_HAS_ATTRIBUTE(me->tile, TILE_ATTR_TRAVERSABLE) == false) return false;
+struct ground_effect *gelst_get_next(struct ground_effect *prev) {
+    if (prev == NULL) {
+        if (ground_effects_list_head.tqh_first != NULL) return &ground_effects_list_head.tqh_first->ground_effect;
+        return NULL;
+    }
+    struct ground_effect_list_entry *gele = container_of(prev, struct ground_effect_list_entry, ground_effect);
+    if (gele == NULL) return NULL;
+    return &gele->entries.tqe_next->ground_effect;
+}
+
+struct ground_effect *ge_create(uint32_t tid, struct dm_map_entity *me) {
+    if (ground_effects_list_initialised == false) return NULL;
+    if (me->effect != NULL) return NULL;
+    if (tid == GEID_NONE) return NULL;
+    if (tid >= GEID_MAX) return NULL;
+    if (tid >= (int) ARRAY_SZ(static_ground_effect_list) ) return NULL;
+    if (TILE_HAS_ATTRIBUTE(me->tile, TILE_ATTR_TRAVERSABLE) == false) return NULL;
 
     const struct ground_effect *ge_template = &static_ground_effect_list[tid];
 
     struct ground_effect_list_entry *gele = malloc(sizeof(struct ground_effect_list_entry) );
-    if (gele == NULL) return false;
+    if (gele == NULL) return NULL;
 
     memcpy(&gele->ground_effect, ge_template, sizeof(struct ground_effect) );
     TAILQ_INSERT_TAIL(&ground_effects_list_head, gele, entries);
@@ -102,7 +112,7 @@ bool ge_create(uint32_t tid, struct dm_map_entity *me) {
     me->effect = ge;
     ge->me = me;
 
-    return true;
+    return ge;
 }
 
 bool ge_destroy(struct dm_map_entity *me) {

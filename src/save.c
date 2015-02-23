@@ -17,6 +17,7 @@
 #include "dungeon/tiles.h"
 #include "dungeon/dungeon_map.h"
 #include "careers/careers.h"
+#include "status_effects/ground_effects.h"
 
 static bool sv_save_log(FILE *file, int indent, struct logging *lctx) {
     if (file == NULL) return false;
@@ -106,6 +107,14 @@ static bool sv_save_monsters(FILE *file, int indent) {
             fprintf(file,"pos={x=%d,y=%d,},", m->pos.x,m->pos.y);
             fprintf(file,"creature_traits=%"PRIu64",",m->creature_traits);
             if (m->unique_name != NULL) fprintf(file, "unique_name=\"%s\",",m->unique_name);
+
+            fprintf(file,"idle_counter=%d,", m->idle_counter);
+
+            fprintf(file,"evasion={");
+            for (int i = 0; i < MSR_EVASION_MAX; i++) {
+                fprintf(file,"%" PRIu32 ",", m->evasion_last_used[i]);
+            }
+            fprintf(file,"sz=%d,},", MSR_EVASION_MAX);
 
             fprintf(file,"talents={");
             int t_sz = 0;
@@ -204,6 +213,30 @@ static bool sv_save_status_effects(FILE *file, int indent) {
 
         fprintf(file, "%*s" "sz=%d,\n",  indent, "", sz);
     } indent -= 2; fprintf(file, "%*s" "},\n", indent, "");
+
+    sz = 0;
+    fprintf(file, "%*s" "ground_effects={\n", indent, ""); { indent += 2;
+        struct ground_effect *ge = NULL;
+        while ( (ge = gelst_get_next(ge) ) != NULL) {
+            //if (ge->me->discovered == true) 
+            {
+                fprintf(file, "%*s" "{uid=%d,",  indent, "", ge->uid);
+                fprintf(file, "tid=%d,",                     ge->tid);
+
+                fprintf(file,"min_energy=%d,",      ge->min_energy);
+                fprintf(file,"max_energy=%d,",      ge->max_energy);
+                fprintf(file,"current_energy=%d,",  ge->current_energy);
+                fprintf(file,"se_id=%d,",           ge->se_id);
+                fprintf(file,"pos={x=%d,y=%d,},",   ge->me->pos.x,ge->me->pos.y);
+
+                fprintf(file, "},\n");
+                sz++;
+            }
+        }
+
+        fprintf(file, "%*s" "sz=%d,\n",  indent, "", sz);
+    } indent -= 2; fprintf(file, "%*s" "},\n", indent, "");
+
     fflush(file);
     return true;
 }

@@ -18,6 +18,7 @@
 #include "inventory.h"
 #include "monster/monster.h"
 #include "status_effects/status_effects.h"
+#include "status_effects/ground_effects.h"
 #include "items/items.h"
 #include "dungeon/tiles.h"
 #include "dungeon/dungeon_map.h"
@@ -378,7 +379,6 @@ static bool load_items_list(lua_State *L) {
 static bool load_status_effect_list(lua_State *L) {
     uint64_t t;
     if (L == NULL) return false;
-    if (lua_intexpr(L, &t, "game.status_effects.sz") == 0) return false;
 
     if (lua_intexpr(L, &t, "game.status_effects.sz") >= 1) {
         int status_effect_sz = t;
@@ -417,6 +417,28 @@ static bool load_status_effect_list(lua_State *L) {
         }
     }
 
+    if (lua_intexpr(L, &t, "game.ground_effects.sz") >= 1) {
+        int ground_effect_sz = t;
+        for (int j = 0; j < ground_effect_sz; j++) {
+            if (lua_intexpr(L, &t, "game.ground_effects[%d].tid", j+1) == 1) {
+                enum ge_ids tid = t;
+                coord_t c;
+                lua_intexpr(L, &t, "game.ground_effects[%d].pos.x", j+1); c.x = t;
+                lua_intexpr(L, &t, "game.ground_effects[%d].pos.y", j+1); c.y = t;
+
+                struct dm_map_entity *me = dm_get_map_me(&c, gbl_game->current_map);
+                struct ground_effect *ge = ge_create(tid, me);
+                if (ge != NULL) {
+                    lua_intexpr(L, &t, "game.ground_effects[%d].uid", j+1);             ge->uid = t;
+                    lua_intexpr(L, &t, "game.ground_effects[%d].min_energy", j+1);      ge->min_energy = t;
+                    lua_intexpr(L, &t, "game.ground_effects[%d].max_energy", j+1);      ge->max_energy = t;
+                    lua_intexpr(L, &t, "game.ground_effects[%d].current_energy", j+1);  ge->current_energy = t;
+                    lua_intexpr(L, &t, "game.ground_effects[%d].se_id", j+1);           ge->current_energy = t;
+                }
+            }
+        }
+    }
+
     return true;
 }
 
@@ -446,6 +468,7 @@ static bool load_monsters(lua_State *L, struct dm_map *map, struct gm_game *g) {
         lua_intexpr(L, &t, "game.monsters[%d].insanity_points", i+1); monster->insanity_points = t;
         lua_intexpr(L, &t, "game.monsters[%d].corruption_points", i+1); monster->corruption_points = t;
 
+        lua_intexpr(L, &t, "game.monsters[%d].idle_counter", i+1); monster->idle_counter = t;
         lua_intexpr(L, &t, "game.monsters[%d].ai_leader", i+1); leader_uid = t;
 
         lua_intexpr(L, &t, "game.monsters[%d].creature_traits", i+1); monster->creature_traits = t;
@@ -458,6 +481,16 @@ static bool load_monsters(lua_State *L, struct dm_map *map, struct gm_game *g) {
             monster->unique_name = strdup(name_ptr);
             lg_debug("monster[%d] name is %s", monster->uid, monster->unique_name);
         }
+
+        if (lua_intexpr(L, &t, "game.monsters[%d].evasion.sz", i+1) == 1) {
+            int evasion_sz = t;
+            for (int j = 0; j < MSR_EVASION_MAX; j++) {
+                if (lua_intexpr(L, &t, "game.monsters[%d].evasion[%d]", i+1, j+1) == 1) {
+                    monster->evasion_last_used[j] = t;
+                }
+            }
+        }
+
 
         if (lua_intexpr(L, &t, "game.monsters[%d].skills.sz", i+1) == 1) {
             int skills_sz = t;
@@ -607,8 +640,8 @@ bool ld_read_save_file(const char *path, struct gm_game *g) {
         if (options.play_recording == false) {
             if (load_player(L, &g->player_data) == false) return false;
             if (load_items_list(L) == false) return false;
-            if (load_status_effect_list(L) == false) return false;
             if (load_map(L, &g->current_map, 1) == false) return false;
+            if (load_status_effect_list(L) == false) return false;
             if (load_monsters(L, g->current_map, g) == false) return false;
         }
         lua_close(L);
