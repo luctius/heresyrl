@@ -270,6 +270,8 @@ int msr_calculate_characteristic_bonus(struct msr_monster *monster, enum msr_cha
 
 int msr_calculate_fatique(struct msr_monster *monster);
 
+int msr_calculate_carrying_capacity(struct msr_monster *monster);
+
 /* get the current worn armour on that location, or NULL */
 struct itm_item *msr_get_armour_from_hitloc(struct msr_monster *monster, enum msr_hit_location mhl);
 

@@ -230,7 +230,7 @@ static struct itm_item static_item_list[] = {
 
     /* Ammo */
     /*    ID                    short name       long name        (wgt,cst,dly)     ammo type       status effect id*/
-    ITEM_AVG(IID_ARROW,         "arrows",        "arrows",          10, 1, 1), AMMO(AMMO_TYPE_ARROW,SEID_NONE), CREATION(10,1), ITEM_END,
+    ITEM_AVG(IID_ARROW,         "arrows",        "arrows",           1, 1, 1), AMMO(AMMO_TYPE_ARROW,SEID_NONE), CREATION(10,1), ITEM_END,
 
     /* Creature Attacks */
     /*    ID                            hort name long name  (wgt,cst,dly)            CATEGORY               xd10  +X  dmg type     upgrades   special qualities*/

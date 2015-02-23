@@ -268,6 +268,22 @@ bitfield32_t inv_get_item_locations(struct inv_inventory *inv, struct itm_item *
     return INV_LOC_NONE;
 }
 
+int inv_get_weight(struct inv_inventory *inv) {
+    if (inv_verify_inventory(inv) == false) return INV_LOC_NONE;
+
+    int weight = 0;
+    struct inv_entry *ie = inv->head.tqh_first;
+    while (ie != NULL) {
+        if (ie->item->stacked_quantity > 1) {
+            weight += (ie->item->weight * ie->item->stacked_quantity);
+        }
+        else weight += ie->item->weight;
+        ie = ie->entries.tqe_next;
+    }
+
+    return weight;
+}
+
 /* return true if this item is in another location than INV_LOC_INVENTORY */
 bool inv_item_worn(struct inv_inventory *inv, struct itm_item *item) {
     if (inv_verify_inventory(inv) == false) return false;

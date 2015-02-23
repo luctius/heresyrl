@@ -733,6 +733,14 @@ int msr_calculate_fatique(struct msr_monster *monster) {
     return 0;
 }
 
+int msr_calculate_carrying_capacity(struct msr_monster *monster) {
+    if (msr_verify_monster(monster) == false) return -1;
+
+    int str = msr_calculate_characteristic(monster, MSR_CHAR_STRENGTH);
+    int tgh = msr_calculate_characteristic(monster, MSR_CHAR_TOUGHNESS);
+    return ( (str + tgh) * 10) /2;
+}
+
 enum msr_skill_rate msr_has_skill(struct msr_monster *monster, enum msr_skills skill) {
     if (msr_verify_monster(monster) == false) return MSR_SKILL_RATE_NONE;
 

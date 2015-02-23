@@ -4,6 +4,8 @@
 #include "heresyrl_def.h"
 #include "enums.h"
 
+#define INV_WEIGHT_MODIFIER (.14f)
+
 struct inv_inventory;
 
 /*
@@ -65,6 +67,8 @@ bool inv_loc_empty(struct inv_inventory *inv, bitfield32_t location);
 
 /* given an item, give the locations it is worn.*/
 bitfield32_t inv_get_item_locations(struct inv_inventory *inv, struct itm_item *item);
+
+int inv_get_weight(struct inv_inventory *inv);
 
 /* true if the item is in another location than inventory.
    worn items include wielded items, but not vice versa. */

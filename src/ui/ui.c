@@ -904,8 +904,10 @@ struct inv_show_item {
 static int invwin_printlist(struct hrl_window *window, struct inv_show_item list[], int list_sz, int start, int end) {
     int max = MIN(list_sz, end);
 
+    /*
     werase(window->win);
     ui_print_reset(window);
+    */
 
     if (list_sz == 0) {
         ui_printf_ext(window, 1, 1, "Your inventory is empty");
@@ -917,10 +919,16 @@ static int invwin_printlist(struct hrl_window *window, struct inv_show_item list
 
     for (int i = 0; i < max; i++) {
         struct itm_item *item = list[i+start].item;
-        ui_printf(window, "%c)  %c%s", inp_key_translate_idx(i), list[i+start].location[0], item->sd_name);
-        if (item->quality != ITEM_QLTY_AVERAGE) ui_printf(window, ", %s quality", itm_quality_string(item) );
-        if (item->stacked_quantity > 1) ui_printf(window, " x%d", item->stacked_quantity);
-        ui_printf(window, "\n");
+        int y = ui_printf(window, "%c)  %c%s", inp_key_translate_idx(i), list[i+start].location[0], item->sd_name);
+        if (item->quality != ITEM_QLTY_AVERAGE) ui_printf(window, "(%s)", itm_quality_string(item) );
+
+        int weight = item->weight;
+        if (item->stacked_quantity > 1) {
+            weight *= item->stacked_quantity;
+            ui_printf(window, "(x%d)", item->stacked_quantity);
+        }
+
+        ui_printf_ext(window, y, 40, " (%4.1f kg)\n", (weight * INV_WEIGHT_MODIFIER) );
     }
 
     return max;
@@ -1090,10 +1098,14 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
         struct inv_show_item *invlist = calloc(invsz, sizeof(struct inv_show_item) );
         inv_create_list(plr->player->inventory, invlist, invsz);
 
+        werase(map_win->win);
         ui_print_reset(map_win);
 
-        mapwin_display_map_noref(map, &plr->player->pos);
-        touchwin(map_win->win);
+        /*mapwin_display_map_noref(map, &plr->player->pos);
+        touchwin(map_win->win);*/
+
+        ui_printf(map_win, "Inventory:            [Total Weight: %4.0f/%4.0f kg]\n", (inv_get_weight(plr->player->inventory) * INV_WEIGHT_MODIFIER), (msr_calculate_carrying_capacity(plr->player) * INV_WEIGHT_MODIFIER) );
+
         if ( (dislen = invwin_printlist(map_win, invlist, invsz, invstart, invstart +winsz) ) == -1) {
             invstart = 0;
             dislen = invwin_printlist(map_win, invlist, invsz, invstart, invstart +winsz);
