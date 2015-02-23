@@ -1,5 +1,5 @@
 package "heresyrl"
-version "0.1.0"
+version "development"
 purpose "Roguelike based on the Warhammer Roleplay version 2 rules from Black Industries."
  
 args "<command line options>"

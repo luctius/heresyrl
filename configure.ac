@@ -1,4 +1,4 @@
-AC_INIT(heresyrl, 0.1.0)
+AC_INIT(heresyrl, development)
 AC_CONFIG_SRCDIR([src/main.c])
 AM_INIT_AUTOMAKE
 
@@ -20,7 +20,7 @@ AC_PROG_MKDIR_P
 
 AC_DEFINE([_GNU_SOURCE], 1, [Use GNU extensions])
 
-AC_DEFINE([CMDLINE_PARSER_VERSION], "0.1.0" " (" GIT_VERSION ") <" __DATE__ " " __TIME__">", [extended version])
+AC_DEFINE([CMDLINE_PARSER_VERSION], VERSION " (" GIT_VERSION ") <" __DATE__ " " __TIME__">", [extended version])
 
 # Checks for libraries.
 # FIXME: Replace `main' with a function in `-lm':
