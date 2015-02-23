@@ -378,12 +378,16 @@ int msr_get_energy(struct msr_monster *monster) {
 bool msr_change_energy(struct msr_monster *monster, int energy) {
     if (msr_verify_monster(monster) == false) return false;
 
+    if (msr_calculate_carrying_capacity(monster) < inv_get_weight(monster->inventory) ) {
+        se_add_status_effect(monster, SEID_ENCUMBERED, NULL);
+    }
+
     monster->idle_counter += (-1 * energy) / TT_ENERGY_TICK;
-    //lg_ai_debug(monster, "idl counter: %d", monster->idle_counter);
-    if (msr_get_energy(monster) >= TT_ENERGY_FULL) return false;
+    //lg_ai_debug(monster, "idle counter: %d", monster->idle_counter);
 
     monster->energy += energy;
     if (monster->energy < 0) monster->energy = 0;
+    if (monster->energy > TT_ENERGY_FULL) monster->energy = TT_ENERGY_FULL;
     //lg_ai_debug(monster, "energy: %d", monster->energy);
 
     return true;
@@ -646,7 +650,7 @@ int msr_characteristic_check(struct msr_monster *monster, enum msr_characteristi
     lg_print("You characteristic is (%d)", charac);
 
     int con_mod = 0;
-    con_mod += se_status_effect_strength(monster->status_effects, EF_MODIFY_FATIQUE, -1);
+    con_mod += se_status_effect_strength(monster, EF_MODIFY_FATIQUE, -1);
     if (con_mod < 0) con_mod = 0;
 
     charac += mod + (con_mod * -10);
@@ -669,7 +673,7 @@ int msr_skill_check(struct msr_monster *monster, enum msr_skills skill, int mod)
     lg_print("Check modifier is: %d (%d)", mod, charac + mod);
 
     int con_mod = 0;
-    con_mod += se_status_effect_strength(monster->status_effects, EF_MODIFY_FATIQUE, -1);
+    con_mod += se_status_effect_strength(monster, EF_MODIFY_FATIQUE, -1);
     if (con_mod < 0) con_mod = 0;
 
     mod += (con_mod * -10);
@@ -714,7 +718,7 @@ int msr_calculate_characteristic(struct msr_monster *monster, enum msr_character
 
     int adv = monster->characteristic[chr].advancement;
     int retchr = monster->characteristic[chr].base_value + adv + monster->characteristic[chr].mod + mod;
-    if (retchr < 10) retchr = 10;
+    if (retchr < 0) retchr = 0;
     return retchr;
 }
 
@@ -737,8 +741,9 @@ int msr_calculate_carrying_capacity(struct msr_monster *monster) {
     if (msr_verify_monster(monster) == false) return -1;
 
     int str = msr_calculate_characteristic(monster, MSR_CHAR_STRENGTH);
-    int tgh = msr_calculate_characteristic(monster, MSR_CHAR_TOUGHNESS);
-    return ( (str + tgh) * 10);
+    int modifier = 10;
+    if (monster->race == MSR_RACE_DWARF) modifier = 20;
+    return (str * modifier);
 }
 
 enum msr_skill_rate msr_has_skill(struct msr_monster *monster, enum msr_skills skill) {
@@ -994,7 +999,7 @@ bool msr_clr_talent(struct msr_monster *monster, enum msr_talents talent) {
 
 uint8_t msr_get_movement_rate(struct msr_monster *monster) {
     if (msr_verify_monster(monster) == false) return false;
-    int speed = (msr_calculate_characteristic_bonus(monster, MSR_SEC_CHAR_MOVEMENT) );
+    int speed = (msr_calculate_characteristic(monster, MSR_SEC_CHAR_MOVEMENT) );
     int speed_mod = 0;
     int min_speed = MSR_MOVEMENT_MIN;
     int max_speed = MSR_MOVEMENT_MAX;
@@ -1021,9 +1026,12 @@ uint8_t msr_get_movement_rate(struct msr_monster *monster) {
     }
 
     speed += speed_mod;
-    if (speed > max_speed) speed = max_speed;
     if (speed < min_speed) speed = min_speed;
+    speed -= se_status_effect_strength(monster, EF_ENCUMBERED, -1);
+    if (speed > max_speed) speed = max_speed;
+    if (speed < 0) speed = 0;
 
+    lg_ai_debug(monster, "speed is (%d)", speed);
     return speed;
 }
 
