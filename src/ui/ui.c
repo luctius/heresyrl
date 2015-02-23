@@ -395,12 +395,17 @@ void targetwin_examine(struct hrl_window *window, struct dm_map *map, struct msr
 
     int tohit = 0;
     if (wpn_is_type(witem, WEAPON_TYPE_MELEE) && (cd_pyth(&player->pos, pos) == 1) ) {
-        tohit = fght_melee_calc_tohit(player, pos, FGHT_MAIN_HAND);
+        tohit = fght_melee_calc_tohit(player, pos, witem, FGHT_MAIN_HAND);
         ui_printf(window,"Weapon Skill: %d\n\n", msr_calculate_characteristic(player, MSR_CHAR_WEAPON_SKILL) );
         item_is_weapon = true;
     }
-    else if (wpn_is_type(witem, WEAPON_TYPE_RANGED) || wpn_is_type(witem, WEAPON_TYPE_THROWN) ) {
-        tohit = fght_ranged_calc_tohit(player, pos, FGHT_MAIN_HAND);
+    else if (wpn_is_type(witem, WEAPON_TYPE_RANGED) ) {
+        tohit = fght_ranged_calc_tohit(player, pos, witem, FGHT_MAIN_HAND, false);
+        ui_printf(window,"Ballistic Skill: %d\n\n", msr_calculate_characteristic(player, MSR_CHAR_BALISTIC_SKILL) );
+        item_is_weapon = true;
+    }
+    else if (wpn_is_type(witem, WEAPON_TYPE_THROWN) ) {
+        tohit = fght_ranged_calc_tohit(player, pos, witem, FGHT_MAIN_HAND, true);
         ui_printf(window,"Ballistic Skill: %d\n\n", msr_calculate_characteristic(player, MSR_CHAR_BALISTIC_SKILL) );
         item_is_weapon = true;
     }

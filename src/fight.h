@@ -35,6 +35,7 @@
 #define FGHT_MODIFIER_OFF_HAND_DUAL_WIELD_AMBIDEXTROUS (10)
 #define FGHT_MODIFIER_DUAL_WIELD_TWO_WEAPON_FIGHTING   (10)
 #define FGHT_MODIFIER_DUAL_WIELD_WEAPON_LIGHT          (10)
+#define FGHT_MODIFIER_IMPROVISED_WEAPON (-20)
 #define FGHT_MODIFIER_UNTRAINED_WEAPON (-20)
 
 /* quality */
@@ -116,14 +117,13 @@ struct tohit_desc {
 };
 
 struct tohit_desc *fght_get_tohit_mod_description(int idx);
-int fght_ranged_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght_hand hand);
-int fght_melee_calc_tohit(struct msr_monster *monster, coord_t *tpos, enum fght_hand hand);
+int fght_ranged_calc_tohit(struct msr_monster *monster, coord_t *tpos, struct itm_item *witem, enum fght_hand hand, bool throwing);
+int fght_melee_calc_tohit(struct msr_monster *monster, coord_t *tpos, struct itm_item *item, enum fght_hand hand);
 
 bool fght_shoot(struct random *r, struct msr_monster *monster, struct dm_map *map, coord_t *e, enum fght_hand hand);
 bool fght_melee(struct random *r, struct msr_monster *monster, struct msr_monster *target);
 bool fght_explosion(struct random *r, struct itm_item *bomb, struct dm_map *map);
-bool fght_throw_weapon(struct random *r, struct msr_monster *monster, struct dm_map *map, coord_t *e, enum fght_hand hand);
-bool fght_throw_item(struct random *r, struct msr_monster *monster, struct dm_map *map, coord_t *e, struct itm_item *item);
+bool fght_throw_item(struct random *r, struct msr_monster *monster, struct dm_map *map, coord_t *e, struct itm_item *witem, enum fght_hand hand);
 
 struct itm_item *fght_get_weapon(struct msr_monster *monster, enum item_weapon_type type, enum fght_hand hand);
 struct itm_item *fght_get_working_weapon(struct msr_monster *monster, enum item_weapon_type type, enum fght_hand hand); /* checks on emptiness and jammedness */

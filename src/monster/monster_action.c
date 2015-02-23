@@ -212,69 +212,8 @@ bool ma_do_throw(struct msr_monster *monster, coord_t *pos, struct itm_item *ite
         return false;
     }
 
-    if (itm_is_type(item, ITEM_TYPE_WEAPON) == false) {
-        fght_throw_item(gbl_game->random, monster, gbl_game->current_map, pos, item);
-        return true;
-    }
-
-    if (wpn_is_type(item, WEAPON_TYPE_THROWN) == false)  return false; /*only allow thrown weapons for now*/
-
-    /* Check in which hand the item is, or, if it is not, 
-       exchange the main hand weapon temporarily with this item*/
-    item_bkp = inv_get_item_from_location(monster->inventory, INV_LOC_MAINHAND_WIELD);
-    if (item_bkp != item) {
-
-        /* check off hand*/
-        if (inv_get_item_from_location(monster->inventory, INV_LOC_OFFHAND_WIELD) == item) {
-            hand = FGHT_OFF_HAND;
-        }
-        else {
-            /*item is not in any hand, we will switch it with the main hand weapon */
-            change = true;
-
-            if (item_bkp != NULL) {
-                /* save item locations */
-                locs = inv_get_item_locations(monster->inventory, item_bkp);
-
-                /* save weapon selection */
-                wsel = monster->wpn_sel;
-
-                /* move current weapon to inventory */
-                inv_move_item_to_location(monster->inventory, item_bkp, INV_LOC_INVENTORY);
-            }
-
-            /* move thrown weapon to main hand*/
-            inv_move_item_to_location(monster->inventory, item, INV_LOC_MAINHAND_WIELD);
-
-            /* set new weapon selection */
-            monster->wpn_sel = MSR_WEAPON_SELECT_MAIN_HAND;
-        }
-    }
-
     /* do the action*/
-    thrown = fght_throw_weapon(gbl_game->random, monster, gbl_game->current_map, pos, hand);
-
-    if (change && item_bkp != NULL) {
-        /* check if the item still exists (mainly if there is anythin left in the stack. )*/
-        if (hand == FGHT_MAIN_HAND) {
-            if (inv_loc_empty(monster->inventory, INV_LOC_MAINHAND_WIELD) != true) {
-                /* return weapon back to inventory */
-                inv_move_item_to_location(monster->inventory, item, INV_LOC_INVENTORY);
-            }
-        }
-        else if (hand == FGHT_OFF_HAND) {
-            if (inv_loc_empty(monster->inventory, INV_LOC_OFFHAND_WIELD) != true) {
-                /* return weapon back to inventory */
-                inv_move_item_to_location(monster->inventory, item, INV_LOC_INVENTORY);
-            }
-        }
-
-        /* move the backup weapon back to its location*/
-        inv_move_item_to_location(monster->inventory, item_bkp, locs);
-
-        /* restore weapon selection*/
-        monster->wpn_sel = wsel;
-    }
+    thrown = fght_throw_item(gbl_game->random, monster, gbl_game->current_map, pos, item, INV_LOC_MAINHAND_WIELD);
 
     /* if the action failed, return failure */
     if (thrown == false) return false;
