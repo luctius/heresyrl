@@ -1341,7 +1341,7 @@ Basic weapon traning SP     ...                  |
 
     struct status_effect *c = NULL;
     while ( (c = se_list_get_next_status_effect(mon->status_effects, c) ) != NULL) {
-        ui_printf(&pad, "%s %s\n", c->name, c->description);
+        ui_printf(&pad, "%s\n", c->name);
     }
     ui_printf(&pad, "\n");
 
