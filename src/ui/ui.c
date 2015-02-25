@@ -1382,6 +1382,8 @@ Basic weapon traning SP     ...                  |
     wclear(window->win);
     werase(window->win);
     wrefresh(window->win);
+
+    show_msg(msg_win);
 }
 
 void show_log(struct hrl_window *window, bool input) {
@@ -1851,6 +1853,8 @@ void show_help(struct hrl_window *window, bool input) {
     wclear(window->win);
     werase(window->win);
     wrefresh(window->win);
+
+    show_msg(msg_win);
 }
 
 void help_window(void) {
