@@ -714,7 +714,7 @@ bool dm_tile_enter(struct dm_map *map, coord_t *point, struct msr_monster *monst
     struct tl_tile *prev_tile = dm_get_map_tile(prev, map);
     if (prev_tile != me->tile) {
         if (me->tile->plr_enter_str != NULL) You(monster,     "%s", me->tile->plr_enter_str);
-        if (me->tile->msr_enter_str != NULL) Monster(monster, "%s", me->tile->msr_enter_str);
+        //if (me->tile->msr_enter_str != NULL) Monster(monster, "%s", me->tile->msr_enter_str);
     }
 
     if (me->effect != NULL) {
@@ -736,8 +736,8 @@ bool dm_tile_exit(struct dm_map *map, coord_t *point, struct msr_monster *monste
 
     struct tl_tile *next_tile = dm_get_map_tile(next, map);
     if (next_tile != me->tile) {
-        if (me->tile->plr_exit_str != NULL) You(monster,     "%s", me->tile->plr_exit_str);
-        if (me->tile->msr_exit_str != NULL) Monster(monster, "%s", me->tile->msr_exit_str);
+        if (me->tile->plr_exit_str != NULL && next_tile->plr_enter_str == NULL) You(monster,     "%s", me->tile->plr_exit_str);
+        //if (me->tile->msr_exit_str != NULL) Monster(monster, "%s", me->tile->msr_exit_str);
     }
 
     if (me->effect != NULL) {
