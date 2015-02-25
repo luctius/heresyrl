@@ -1,5 +1,4 @@
 Major Ideas:
-Overhaul Colour system.
 Improve Vision and lighting code, add stealth gameplay.
 Quack medicine, most of the times provides a benefit, and also something else.
 Critical damage should be tracked seperatly, and only normal damage can be 
@@ -8,6 +7,7 @@ Dungeon generation with doors and better loops.
 Add leader follow ai code, and improve ai in general.
 Add more critical hits to have a full system again.
 Use non-melee items in melee.
+Provide TERM_COLOUR <-> colour msg attr translation.
 Title Screen and Death screen.
 [C]ombine as an inventory command OR [A]lternate Use.
 Blood spatter and blood trail when a wounded monster moves.
