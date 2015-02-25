@@ -579,7 +579,7 @@ bool fght_explosion(struct random *r, struct itm_item *bomb, struct dm_map *map)
             fght_calc_dmg(r, NULL, target, 1, bomb, mhl);
 
             if (wpn->convey_status_effect != SEID_NONE) {
-                assert(se_add_status_effect(target, wpn->convey_status_effect, bomb->sd_name) );
+                se_add_status_effect(target, wpn->convey_status_effect, bomb->sd_name);
             }
         }
         if (wpn->convey_ground_effect != GEID_NONE) {
