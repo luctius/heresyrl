@@ -193,7 +193,6 @@ struct itm_item *itm_create(int template_id) {
     TAILQ_INSERT_TAIL(&items_list_head, i, entries);
     i->item.item_pre    = ITEM_PRE_CHECK;
     i->item.item_post   = ITEM_POST_CHECK;
-    i->item.icon_attr   = get_colour(i->item.icon_attr);
     i->item.uid         = itmlst_next_id();
     i->item.owner_type  = ITEM_OWNER_NONE;
     i->item.description = itm_descs[template_id];

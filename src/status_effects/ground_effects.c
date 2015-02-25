@@ -100,7 +100,6 @@ struct ground_effect *ge_create(uint32_t tid, struct dm_map_entity *me) {
     ge->ground_effect_pre = GROUND_EFFECT_PRE_CHECK;
     ge->ground_effect_post = GROUND_EFFECT_POST_CHECK;
     ge->uid = gelst_next_id();
-    ge->icon_attr = get_colour(ge->icon_attr);
 
     int range = (ge->max_energy - ge->min_energy);
     ge->current_energy = ge->min_energy;

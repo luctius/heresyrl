@@ -147,7 +147,7 @@ static void mapwin_display_map_noref(struct dm_map *map, coord_t *player) {
             struct tl_tile *tile = me->tile;
 
             if ( (me->visible == true) || (me->discovered == true) || (map_see == true) ) {
-                int attr_mod = get_colour(TERM_COLOUR_L_DARK);
+                int attr_mod = TERM_COLOUR_L_DARK;
                 char icon = tile->icon;
                 bool modified = false;
 
@@ -198,7 +198,7 @@ static void mapwin_display_map_noref(struct dm_map *map, coord_t *player) {
                     if (me->visible == true) {
                         if (me->light_level > 0) {
                             if (tile->type == TILE_TYPE_FLOOR) {
-                                attr_mod = get_colour(TERM_COLOUR_YELLOW);
+                                attr_mod = TERM_COLOUR_YELLOW;
                                 modified = true;
                             }
                         }
@@ -216,18 +216,18 @@ static void mapwin_display_map_noref(struct dm_map *map, coord_t *player) {
                 /* test colours */
                 {
                     if (me->test_var == 2) {
-                        attr_mod = get_colour(TERM_COLOUR_BLUE);
+                        attr_mod = TERM_COLOUR_BLUE;
                         modified = true;
                     }
                     if (me->test_var == 1) {
-                        attr_mod = get_colour(TERM_COLOUR_RED);
+                        attr_mod = TERM_COLOUR_RED;
                         modified = true;
                     }
                 }
 
-                if (has_colors() == TRUE) wattron(map_win->win, attr_mod);
+                if (has_colors() == TRUE) wattron(map_win->win, get_colour(attr_mod) );
                 mvwaddch(map_win->win, yi, xi, icon);
-                if (has_colors() == TRUE) wattroff(map_win->win, attr_mod);
+                if (has_colors() == TRUE) wattroff(map_win->win, get_colour(attr_mod) );
             }
         }
     }
@@ -774,10 +774,7 @@ void charwin_refresh() {
     ui_print_reset(char_win);
 
     if (options.play_recording) {
-        int attr_mod = get_colour(TERM_COLOUR_RED);
-        if (has_colors() == TRUE) wattron(char_win->win, attr_mod);
         ui_printf_ext(char_win, 1,1, cs_ATTR "playback x%d" cs_CLOSE "\n", options.play_delay);
-        if (has_colors() == TRUE) wattroff(char_win->win, attr_mod);
         starty += 2;
     }
 
@@ -883,9 +880,9 @@ void charwin_refresh() {
     struct msr_monster *target = NULL;
     while ( (target = aiu_get_nearest_enemy(player, cnt, gbl_game->current_map) ) != NULL) {
         int y = ui_printf(char_win, " : %s\n", msr_ldname(target));
-        if (has_colors() == TRUE) wattron(char_win->win, target->icon_attr);
+        if (has_colors() == TRUE) wattron(char_win->win, get_colour(target->icon_attr) );
         mvwaddch(char_win->win, y-1, 0, target->icon);
-        if (has_colors() == TRUE) wattroff(char_win->win, target->icon_attr);
+        if (has_colors() == TRUE) wattroff(char_win->win, get_colour(target->icon_attr) );
 
         cnt++;
     }

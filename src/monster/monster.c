@@ -140,7 +140,6 @@ struct msr_monster *msr_create(enum msr_ids template_id) {
     m->monster.controller.controller_cb = NULL;
     m->monster.pos = cd_create(0,0);
     m->monster.uid = msrlst_next_id();
-    if (m->monster.icon_attr != 0) m->monster.icon_attr = get_colour(m->monster.icon_attr);
     m->monster.template_id = template_id;
     m->monster.energy = TT_ENERGY_FULL;
     m->monster.faction = 1;

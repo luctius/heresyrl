@@ -121,7 +121,7 @@ bool plr_init(struct pl_player *plr) {
         msr_assign_controller(plr->player, &mc);
 
         plr->player->icon = '@';
-        plr->player->icon_attr = get_colour(TERM_COLOUR_WHITE);
+        plr->player->icon_attr = TERM_COLOUR_WHITE;
         plr->player->faction = 0;
         return true;
     }

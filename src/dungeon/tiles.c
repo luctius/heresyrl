@@ -161,26 +161,13 @@ static struct tl_tile tile_array[] = {
     },
 };
 
-static bool processed = false;
-static void process_tiles(void) {
-    if (processed) return;
-
-    for (unsigned int i = 0; i < ARRAY_SZ(tile_array); i++) {
-        tile_array[i].icon_attr = get_colour(tile_array[i].icon_attr);
-    }
-
-    processed = true;
-}
-
 struct tl_tile *ts_get_tile_specific(enum tile_ids ti) {
     assert(ti < TILE_ID_MAX);
 
-    process_tiles();
     return &tile_array[ti];
 }
 
 struct tl_tile *ts_get_tile_type(enum tile_types tt) {
-    process_tiles();
     for (unsigned int i = 0; i < ARRAY_SZ(tile_array); i++) {
         if (tile_array[i].type == tt) return &tile_array[i];
     }
