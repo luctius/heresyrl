@@ -1,71 +1,50 @@
-group ai and generation             -- add leader follow code, add autoexplore
-doors                               -- nothing done yet.
-use and remove fatique              -- nothing done yet.
-title screen                        -- nothing done yet
-vision                              -- Concealment, ai should look in a circle.
-sound system                        -- nothing done yet: (actions cost sound, enemies go to the biggest sound source, hounds bark, npcs shout)
-basic fighting system               -- add criticals, throw non-weapon items
-savegame replay                     -- add pauze, play, step etc
-magic system and winds of magic
-insanity system
-corruption system
-
---create a 10 turn tick function for spawns.--
---Fix colour system--
-
-
-ideas:
-Episodic maps; large map, after the quest some downtime to heal 
-non-critical wounds, buy stuff and go to next mission.
-charms, minor items which take the charm slot and provide minor benefit
-quack medicine, most of the times provides a benefit, and also something else.
-foretell the players doom.
+Major Ideas:
+Overhaul Colour system.
+Improve Vision and lighting code, add stealth gameplay.
+Quack medicine, most of the times provides a benefit, and also something else.
+Critical damage should be tracked seperatly, and only normal damage can be 
+    healed through non magical means.
+Dungeon generation with doors and better loops.
+Add leader follow ai code, and improve ai in general.
+Add more critical hits to have a full system again.
+Use non-melee items in melee.
+Title Screen and Death screen.
 [C]ombine as an inventory command OR [A]lternate Use.
 Blood spatter and blood trail when a wounded monster moves.
-Critical damage should be tracked seperatly, and only normal damage can be 
-healed through non magical means.
+Charms, minor items which take the charm slot and provide minor benefit
+Episodic maps; large map, after the quest some downtime to heal 
+    non-critical wounds, buy stuff and go to next mission.
+Create dungeon objects (like barrels) and treat them as cover
+Have campfires and monsters around them.
+Foretell the players doom.
+Overhaul replay code to add pause, rewind, slowdowns etc.
+Magic system and winds of magic
+Insanity system
+Corruption system
 
+Minor
+Create a XX turn tick function for new monster spawns and mushroom generation etc.
+Chests with locks
+Oil and fire which spreads
+Status effects add temporary talent
+Markdown readme ingame?
+Move spawn decisions to map
 
-create dungeon objects (like barrels) and treat them as cover.
-chests with locks
-oil and fire which spreads
-status effects add temporary talent
-markdown readme ingame?
-move spawn decisions to map
-
-reminder
-rolling 1 on magic die causes will check or 1 insanity.
-
-wfrp:
-Move (TURN/movement)
-Attack (TURN/attack)
+Reminder
+Rolling 1 on magic die causes will check or 1 insanity.
 
 BUGS:
-?could not wield a shortbow after dropping it (low ammo?)?
-?could not wield a knife?
-?archers do not shoot anymore?
-switching weapons sometimes sets weapon select to unarmed.
-unarmed and offhand weapons do not offer a targetting window.
-msg_win disapears after some fullscreen windows,
-Throwing weapons tohit calculations are off.
-Torches should be held when activated, and their fuel use is bugged.
 Explosion touches twice?
+Torches should be held when activated, and their fuel use is bugged.
+Create general arrays for the item use_desc, which should also be used for tools, food and wearables and for improvised weapons.
+Throwing weapons tohit calculations are off.
+Archers do not shoot anymore? -- fixed?
+Switching weapons sometimes sets weapon select to unarmed. -- fixed?
+Unarmed and offhand weapons do not offer a targetting window.
+Could not wield a shortbow after dropping it (low ammo?)?
+Could not wield a knife?
 
-glyphs:
-% is for food
-) is for weapons
-[ is for armor
-} is for evokables
-" is for amulets
-= is for rings
-| is for staves and wands
-! is for potions
-? is for scrolls
-+ is for books
-^ is for traps
-' is for ammunition
-$ is for money
-& is for mushrooms
+Links:
 
 AI:
 http://www.roguebasin.com/index.php?title=A_Better_Monster_AI

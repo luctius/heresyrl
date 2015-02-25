@@ -2,8 +2,26 @@
    This file is included in items.c.
    This is purely my sanity that it is seperate.
    TODO create a nice solution.
- */
 
+   
+Glyphs:
+% is for food
+) is for weapons
+[ is for armor
+} is for evokables
+" is for amulets
+= is for rings
+| is for staves and wands
+! is for potions
+? is for scrolls
++ is for books
+^ is for traps
+' is for ammunition
+$ is for money
+& is for mushrooms
+*/
+
+/* TODO: create general arrays for this, which should also be used for tools, food and wearables and for improvised weapons. */
 #define ranged_desc \
     .you_use_desc = {"shoot",  "take aim",  "fire", NULL, }, \
     .msr_use_desc = {"shoots", "takes aim", "fires", NULL, }
