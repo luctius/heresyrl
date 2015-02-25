@@ -36,7 +36,7 @@ static struct cr_career static_career_list[] = {
         TRAPPINGS(IID_THROWING_KNIFE, IID_THROWING_KNIFE, IID_LEATHER_JACK),
         ALLIES(MID_NONE),
         EXITS(CRID_MERCENARY),
-        .weight    = { [MSR_RACE_DWARF]=3,    [MSR_RACE_ELF]=0,    [MSR_RACE_HALFLING]=0,    [MSR_RACE_HUMAN]=200, },
+        .weight    = { [MSR_RACE_DWARF]=3,    [MSR_RACE_ELF]=0,    [MSR_RACE_HALFLING]=0,    [MSR_RACE_HUMAN]=2, },
         .available = { [MSR_RACE_DWARF]=true, [MSR_RACE_ELF]=true, [MSR_RACE_HALFLING]=true, [MSR_RACE_HUMAN]=true, },
     CAREER_END,
 
@@ -45,7 +45,7 @@ static struct cr_career static_career_list[] = {
         CHARACTERISTICS(10,10,5,5,5,0,5,0,1,2,0,3),
         SKILLS(bf(MSR_SKILLS_DODGE) | bf(MSR_SKILLS_HEAL) | bf(MSR_SKILLS_AWARENESS) ),
         TALENTS(TLT_QUICK_DRAW, TLT_RAPID_RELOAD, TLT_STRIKE_MIGHTY_BLOW, TLT_SHARPSHOOTER, TLT_STRIKE_TO_STUN),
-        TRAPPINGS(IID_NONE),
+        TRAPPINGS(IID_SHORT_BOW, IID_ARROW, IID_NONE),
         ALLIES(MID_NONE),
         EXITS(CRID_BODYGUARD),
         .weight    = { [MSR_RACE_DWARF]=3,    [MSR_RACE_ELF]=0,    [MSR_RACE_HALFLING]=0,    [MSR_RACE_HUMAN]=2, },

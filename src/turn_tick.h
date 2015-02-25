@@ -7,7 +7,7 @@
 #include "heresyrl_def.h"
 
 enum tt_energy {
-    TT_ENERGY_TICK = 10,
+    TT_ENERGY_TICK = 1,
     TT_ENERGY_TURN = 80,
     TT_ENERGY_FULL = 800,
 };

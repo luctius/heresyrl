@@ -512,7 +512,7 @@ bool msr_use_evasion(struct msr_monster *monster, struct msr_monster *attacker, 
             return false;
     }
 
-    msr_disable_evasion(monster, evasion);
+    //msr_disable_evasion(monster, evasion);
 
     if (roll >= to_hit_DoS) {
         switch(evasion) {

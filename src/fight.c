@@ -673,7 +673,7 @@ bool fght_throw_item(struct random *r, struct msr_monster *monster, struct dm_ma
                to a defualt value. This does mean that you cannot just throw 
                a grenade and expect it not to explode, but that is a use 
                case I doubt many will use.  */
-            if (witem_copy->energy <= 0)  witem_copy->energy = TT_ENERGY_TICK;
+            if (witem_copy->energy <= 0)  witem_copy->energy = TT_ENERGY_TURN;
             witem_copy->energy_action = true;
 
             lg_debug("Setting the fuse to %d.", witem_copy->energy);
