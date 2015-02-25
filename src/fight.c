@@ -93,11 +93,9 @@ int fght_ranged_calc_tohit(struct msr_monster *monster, coord_t *tpos, struct it
 
             /* weapon settings */
             if (wpn->weapon_type == WEAPON_TYPE_RANGED) {
-                /*
                 CALC_TOHIT(wpn->rof_set == WEAPON_ROF_SETTING_SINGLE, FGHT_RANGED_MODIFIER_ROF_SINGLE, "using single shot")
                 else CALC_TOHIT(wpn->rof_set == WEAPON_ROF_SETTING_SEMI, FGHT_RANGED_MODIFIER_ROF_SEMI, "using semi automatic")
                 else CALC_TOHIT(wpn->rof_set == WEAPON_ROF_SETTING_AUTO, FGHT_RANGED_MODIFIER_ROF_AUTO, "using full automatic")
-                */
             }
         }
 
@@ -176,7 +174,6 @@ int fght_melee_calc_tohit(struct msr_monster *monster, coord_t *tpos, struct itm
             CALC_TOHIT( (hand == FGHT_OFF_HAND) && msr_has_talent(monster, TLT_AMBIDEXTROUS), FGHT_MODIFIER_OFF_HAND_DUAL_WIELD,  "you are ambidextrous")
         }
 
-        //if (monster->wpn_sel == MSR_WEAPON_SELECT_DUAL_HAND) {
         if ( (inv_loc_empty(monster->inventory, INV_LOC_MAINHAND_WIELD) == false) &&
              (inv_loc_empty(monster->inventory, INV_LOC_OFFHAND_WIELD) == false) ) {
             CALC_TOHIT(hand == FGHT_MAIN_HAND, FGHT_MODIFIER_MAIN_HAND_DUAL_WIELD, "you are dual wielding, this is your main hand")
@@ -271,11 +268,17 @@ int fght_calc_dmg(struct random *r, struct msr_monster *monster, struct msr_mons
     int dmg_die_sz = 10;
     if (wpn->nr_dmg_die == 0) dmg_die_sz = 5;
     for (int h = 0; h < hits; h++) {
-        int dmg = random_xd10(r, wpn->nr_dmg_die);
-        if (wpn_has_spc_quality(witem, WPN_SPCQLTY_IMPACT) ) {
-            int dmg2 = random_xd10(r, wpn->nr_dmg_die);
-            if (dmg2 > dmg) dmg = dmg2;
+        int dmg = 0;
+        int die_dmg;
+        do {
+            die_dmg = random_xd10(r, wpn->nr_dmg_die);
+            if (wpn_has_spc_quality(witem, WPN_SPCQLTY_IMPACT) ) {
+                int dmg2 = random_xd10(r, wpn->nr_dmg_die);
+                if (dmg2 > die_dmg) die_dmg = dmg2;
+            }
+            dmg += die_dmg;
         }
+        while (die_dmg == 10 && monster->is_player); /* Ulrics Fury!  */
 
         int dmg_add = wpn->dmg_addition;
         int penetration = wpn->penetration;
