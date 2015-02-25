@@ -151,6 +151,42 @@ static void mapwin_display_map_noref(struct dm_map *map, coord_t *player) {
                 char icon = tile->icon;
                 bool modified = false;
 
+                /* Otherwise visible traversable tiles */
+                if (me->visible == true) {
+                    attr_mod = tile->icon_attr;
+                }
+                if (me->visible == true) {
+                    if (tile->type == TILE_TYPE_FLOOR) {
+                        if (me->light_level > 0) {
+                            attr_mod = TERM_COLOUR_YELLOW;
+                        }
+                    }
+                }
+                /* Else see items */
+                if ( (me->visible == true) || (map_see) ) {
+                    if (TILE_HAS_ATTRIBUTE(tile, TILE_ATTR_TRAVERSABLE) == true) {
+                        if (inv_inventory_size(me->inventory) > 0) {
+                            struct itm_item *i = inv_get_next_item(me->inventory, NULL);
+                            icon = i->icon;
+                            attr_mod = i->icon_attr;
+                        }
+                    }
+                }
+                /* Then see ground effects */
+                if ( (me->visible == true) || (map_see) ) {
+                    if (me->effect != NULL) {
+                        icon = me->effect->icon;
+                        attr_mod = me->effect->icon_attr;
+                    }
+                }
+                /* First see monster */
+                if ( (me->visible == true) || (map_see) ) {
+                    if (me->monster != NULL) {
+                        icon = me->monster->icon;
+                        attr_mod = me->monster->icon_attr;
+                    }
+                }
+
                 if (me->icon_override != -1) icon = me->icon_override;
                 if (me->icon_attr_override != -1) {
                     if (me->visible == true) {
@@ -159,59 +195,6 @@ static void mapwin_display_map_noref(struct dm_map *map, coord_t *player) {
                     }
                 }
                 
-                /* First see monster */
-                if (modified == false) {
-                    if ( (me->visible == true) || (map_see) ) {
-                        if (me->monster != NULL) {
-                            icon = me->monster->icon;
-                            attr_mod = me->monster->icon_attr;
-                            modified = true;
-                        }
-                    }
-                }
-                /* Then see ground effects */
-                if (modified == false) {
-                    if ( (me->visible == true) || (map_see) ) {
-                        if (me->effect != NULL) {
-                            icon = me->effect->icon;
-                            attr_mod = me->effect->icon_attr;
-                            modified = true;
-                        }
-                    }
-                }
-
-                /* Else see items */
-                if (modified == false) {
-                    if ( (me->visible == true) || (map_see) ) {
-                        if (TILE_HAS_ATTRIBUTE(tile, TILE_ATTR_TRAVERSABLE) == true) {
-                            if (inv_inventory_size(me->inventory) > 0) {
-                                struct itm_item *i = inv_get_next_item(me->inventory, NULL);
-                                icon = i->icon;
-                                attr_mod = i->icon_attr;
-                                modified = true;
-                            }
-                        }
-                    }
-                }
-
-                if (modified == false) {
-                    if (me->visible == true) {
-                        if (me->light_level > 0) {
-                            if (tile->type == TILE_TYPE_FLOOR) {
-                                attr_mod = TERM_COLOUR_YELLOW;
-                                modified = true;
-                            }
-                        }
-                    }
-                }
-
-                /* Otherwise visible traversable tiles */
-                if (modified == false) {
-                    if (me->visible == true) {
-                        attr_mod = tile->icon_attr;
-                        modified = true;
-                    }
-                }
 
                 /* test colours */
                 {
