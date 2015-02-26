@@ -34,6 +34,8 @@ extern "C" {
 #define CMDLINE_PARSER_VERSION "development"
 #endif
 
+enum enum_race { race__NULL = -1, race_arg_dwarf = 0, race_arg_elf, race_arg_halfling, race_arg_human };
+
 /** @brief Where the command line options are stored */
 struct gengetopt_args_info
 {
@@ -63,6 +65,12 @@ struct gengetopt_args_info
   char * save_file_arg;	/**< @brief save file name (default='/tmp/heresyrl.save').  */
   char * save_file_orig;	/**< @brief save file name original value given at command line.  */
   const char *save_file_help; /**< @brief save file name help description.  */
+  char * name_arg;	/**< @brief name of character (default='').  */
+  char * name_orig;	/**< @brief name of character original value given at command line.  */
+  const char *name_help; /**< @brief name of character help description.  */
+  enum enum_race race_arg;	/**< @brief race of character.  */
+  char * race_orig;	/**< @brief race of character original value given at command line.  */
+  const char *race_help; /**< @brief race of character help description.  */
   
   unsigned int help_given ;	/**< @brief Whether help was given.  */
   unsigned int version_given ;	/**< @brief Whether version was given.  */
@@ -76,6 +84,8 @@ struct gengetopt_args_info
   unsigned int pb_stop_given ;	/**< @brief Whether pb_stop was given.  */
   unsigned int log_file_given ;	/**< @brief Whether log_file was given.  */
   unsigned int save_file_given ;	/**< @brief Whether save_file was given.  */
+  unsigned int name_given ;	/**< @brief Whether name was given.  */
+  unsigned int race_given ;	/**< @brief Whether race was given.  */
 
 } ;
 
@@ -199,6 +209,8 @@ void cmdline_parser_free (struct gengetopt_args_info *args_info);
  */
 int cmdline_parser_required (struct gengetopt_args_info *args_info,
   const char *prog_name);
+
+extern const char *cmdline_parser_race_values[];  /**< @brief Possible values for race. */
 
 
 #ifdef __cplusplus

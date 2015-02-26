@@ -58,6 +58,11 @@ bool char_creation_window(void) {
     enum inp_keys k;
     bool name_done = false;
 
+    if (options.char_name != NULL) {
+        strcpy(name_buffer, options.char_name);
+        name_done = true;
+    }
+
     while (name_done == false) {
         wrefresh(map_win->win);
 
@@ -93,6 +98,28 @@ bool char_creation_window(void) {
     werase(map_win->win);
 
     bool race_done = false;
+
+    if ( (options.char_race >= 0) && (options.char_race < (int) MSR_RACE_MAX) ) {
+        /* copy name*/
+        char *name = player->unique_name;
+        player->unique_name = NULL;
+
+        int sel_idx = -1;
+        for (unsigned int i = 0; i < MID_MAX; i++) {
+            if (static_monster_list[i].is_player == true) {
+                if (static_monster_list[i].race == options.char_race) {
+                    sel_idx = i;
+                }
+            }
+        }
+
+        /* create player */
+        plr_create(plr, name, options.char_race +MID_DUMMY+1, MSR_GENDER_MALE);
+        player = plr->player;
+        charwin_refresh();
+        race_done = true;
+    }
+
     while (race_done == false) {
         ui_print_reset(map_win);
 
