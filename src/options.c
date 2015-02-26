@@ -27,6 +27,9 @@ struct opt_options options = {
 
     .log_file_name   = NULL,
     .save_file_name  = NULL,
+
+    .char_name      = NULL,
+    .char_race      = MSR_RACE_MAX,
 };
 
 static const int path_max = PATH_MAX -1;
@@ -71,6 +74,19 @@ void opt_parse_options(struct gengetopt_args_info *args_info) {
             snprintf(save_file, path_max, "%s/.%s/%s.save", homedir, PACKAGE_NAME, PACKAGE_NAME);
             options.save_file_name = save_file;
         }
+    }
+
+    if (args_info->name_given == true) {
+        options.char_name = strdup(args_info->name_arg);
+    }
+    if (args_info->race_given == true) {
+        switch(args_info->race_arg) {
+            case race__NULL:        options.char_race = MSR_RACE_MAX;
+            case race_arg_dwarf:    options.char_race = MSR_RACE_DWARF;
+            case race_arg_elf:      options.char_race = MSR_RACE_ELF;
+            case race_arg_halfling: options.char_race = MSR_RACE_HALFLING;
+            case race_arg_human:    options.char_race = MSR_RACE_HUMAN;
+        };
     }
 
     if (options.log_file_name == NULL) options.log_file_name = args_info->log_file_arg;

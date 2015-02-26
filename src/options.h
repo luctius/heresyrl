@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 
+#include "monster/monster.h"
 #include "cmdline.h"
 
 struct opt_options {
@@ -19,6 +20,9 @@ struct opt_options {
 
     char *log_file_name;
     char *save_file_name;
+
+    char *char_name;
+    enum msr_race char_race;
 };
 
 extern struct opt_options options;

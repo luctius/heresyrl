@@ -108,9 +108,9 @@ src/cmdline.c src/cmdline.h: heresyrl.ggo
 	$(SED) -i "s:usr_prefix:${prefix}:g" $<
 	$(GENGETOPT) --output-dir=src/ < $<
 
-clean-local:
-	-rm -f src/cmdline.c
-	-rm -f src/cmdline.h
+#clean-local:
+#-rm -f src/cmdline.c
+#-rm -f src/cmdline.h
 
 heresyrl_tmpdir=/tmp/heresyrl-dist/
 heresyrl_release=$(PACKAGE)-$(VERSION)-$(shell gcc -dumpmachine)
