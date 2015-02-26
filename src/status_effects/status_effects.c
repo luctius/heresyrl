@@ -235,12 +235,20 @@ struct status_effect *se_create(enum se_ids tid) {
 
     cc->uid = selst_next_id();
 
-    int range = (cc->duration_energy_max - cc->duration_energy_min);
-    cc->duration_energy = cc->duration_energy_min;
-    if (range > 0) cc->duration_energy += (random_int32(gbl_game->random) % range);
-    if (cc->duration_energy == 0) cc->duration_energy = 1;
+    if (status_effect_has_flag(cc, SEF_PERMANENT) ) {
+        cc->duration_energy_max = TT_ENERGY_TURN;   
+        cc->duration_energy_min = TT_ENERGY_TURN;   
+        cc->duration_energy     = TT_ENERGY_TURN;   
+    }
+    else {
+        int range = (cc->duration_energy_max - cc->duration_energy_min);
+        cc->duration_energy = cc->duration_energy_min;
+        if (range > 0) cc->duration_energy += (random_int32(gbl_game->random) % range);
+        if (cc->duration_energy == 0) cc->duration_energy = 1;
+        cc->duration_energy_max = cc->duration_energy;
+    }
+
     lg_debug("Creating se: %p(%s) duration: %d, max: %d", cc, cc->name, cc->duration_energy, cc->duration_energy_max);
-    cc->duration_energy_max = cc->duration_energy;
 
     for (unsigned int i = 0; i < ARRAY_SZ(cc->effects); i++ ) {
         struct se_type_struct *ces = &cc->effects[i];
