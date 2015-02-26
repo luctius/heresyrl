@@ -340,8 +340,10 @@ static bool dm_tunnel(struct dm_map *map, struct random *r, coord_t *start, coor
     if (cd_within_bound(end, &map->size) == false) return false;
     if (tl == NULL) return false;
 
-    coord_t prev = { .x = start->x, .y = start->y, };
+    bool first = true;
     bool tunnel_done = false;
+    coord_t prev = { .x = start->x, .y = start->y, };
+
     while (!tunnel_done) {
         coord_t delta     = cd_delta(end, &prev);
         coord_t delta_abs = cd_delta_abs(end, &prev);
@@ -350,9 +352,12 @@ static bool dm_tunnel(struct dm_map *map, struct random *r, coord_t *start, coor
         int yd = 0;
         int xmod = (delta.x >= 0) ? 1: -1;
         int ymod = (delta.y >= 0) ? 1: -1;
+
+        bool last = false;
+        if (cd_equal(&prev, end) || cd_neighbour(&prev, end) ) last == true;
         
         int roll = random_int32(r) % 100;
-        if (roll < 50) {
+        if (first || last || roll < 50) {
             if (delta_abs.x >= delta_abs.y) {
                 xd = 1 * xmod;
             }
@@ -386,6 +391,7 @@ static bool dm_tunnel(struct dm_map *map, struct random *r, coord_t *start, coor
 
             if (cd_equal(&prev, end) ) tunnel_done = true;
         }
+        first = false;
     }
     return true;
 }
