@@ -40,27 +40,20 @@ static void pf_list_add_sort(coord_t *c, struct pf_map_entity *pfe) {
     e->pos = *c;
     e->pfme = pfe;
 
-    bool inserted = false;
-
     struct pf_entry *np = pf_list_head.tqh_first;
-    if (pfe->score < np->pfme->score) {
+    if (np == NULL || pfe->score < np->pfme->score) {
         TAILQ_INSERT_HEAD(&pf_list_head, e, entries);
-        inserted = true;
+        return;
     }
 
-    if (inserted == false) {
-        for (np = pf_list_head.tqh_first; np != NULL; np = np->entries.tqe_next) {
-            if (pfe->score < np->pfme->score) {
-                TAILQ_INSERT_AFTER(&pf_list_head, np, e, entries);
-                inserted = true;
-            }
+    for (np = pf_list_head.tqh_first; np != NULL; np = np->entries.tqe_next) {
+        if (pfe->score < np->pfme->score) {
+            TAILQ_INSERT_AFTER(&pf_list_head, np, e, entries);
+            return;
         }
     }
 
-    if (inserted == false) {
-        TAILQ_INSERT_TAIL(&pf_list_head, e, entries);
-        inserted = true;
-    }
+    TAILQ_INSERT_TAIL(&pf_list_head, e, entries);
 }
 
 static void pf_list_remove(struct pf_entry *e) {
@@ -170,9 +163,9 @@ static bool pf_astar_loop(struct pf_context *ctx, coord_t *start, coord_t *end) 
 
     pf_list_add_sort(start, pf_get_index(start, map));
 
-    while (true) {
+    struct pf_entry *entry;
+    while ( (entry = pf_list_next(NULL) ) != NULL) {
         /* get best node*/
-        struct pf_entry *entry = pf_list_next(NULL);
         coord_t point = entry->pos;
         struct pf_map_entity *me = entry->pfme;
 
