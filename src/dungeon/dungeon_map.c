@@ -357,7 +357,7 @@ static bool dm_tunnel(struct dm_map *map, struct random *r, coord_t *start, coor
         if (cd_equal(&prev, end) || cd_neighbour(&prev, end) ) last == true;
         
         int roll = random_int32(r) % 100;
-        if (first || last || roll < 50) {
+        if (first || last || roll < 80) {
             if (delta_abs.x >= delta_abs.y) {
                 xd = 1 * xmod;
             }
