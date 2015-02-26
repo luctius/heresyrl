@@ -30,6 +30,7 @@ void game_init(struct pl_player *plr, unsigned long initial_seed) {
         if (gbl_game != NULL) {
             gbl_game->initial_seed = initial_seed;
             gbl_game->turn = 0;
+            gbl_game->plr_last_turn = 0;
 
             msrlst_monster_list_init();
             itmlst_items_list_init();

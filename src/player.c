@@ -155,6 +155,9 @@ static bool plr_action_loop(struct msr_monster *player) {
     int ch;
     bool has_action = false;
 
+
+    gbl_game->plr_last_turn = gbl_game->turn;
+
     coord_t zero = cd_create(0,0);
     dm_clear_map_visibility(map, &zero, &map->size);
     sgt_calculate_all_light_sources(map);

@@ -82,6 +82,7 @@ struct gm_game {
     struct dm_map *current_map;
     struct pl_player player_data;
     int64_t turn;
+    int64_t plr_last_turn;
     bool running;
 };
 

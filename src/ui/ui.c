@@ -1432,7 +1432,7 @@ void show_log(struct hrl_window *window, bool input) {
                     old = true;
                 }
 
-                if ( (tmp_entry->turn +(TT_ENERGY_TURN+TT_ENERGY_TICK) ) < gbl_game->turn) {
+                if (tmp_entry->turn < gbl_game->plr_last_turn) {
                     old = true;
                 }
 
@@ -1535,7 +1535,7 @@ void show_msg(struct hrl_window *window) {
                 if (tmp_entry != NULL) {
                     if (tmp_entry->level <= LG_DEBUG_LEVEL_GAME) {
                         print = true;
-                        if ( (tmp_entry->turn +(TT_ENERGY_TURN+TT_ENERGY_TICK) ) < gbl_game->turn) {
+                        if (tmp_entry->turn < gbl_game->plr_last_turn) {
                             old = true;
                         }
                     }
