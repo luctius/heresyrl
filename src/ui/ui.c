@@ -121,6 +121,8 @@ static void mapwin_display_map_noref(struct dm_map *map, coord_t *player) {
     if (player == NULL) return;
     if (map_win->type != HRL_WINDOW_TYPE_MAP) return;
 
+    struct msr_monster *plr = dm_get_map_me(player, map)->monster;
+
     int x_max = (map_win->cols < map->size.x) ? map_win->cols : map->size.x;
     int y_max = (map_win->lines < map->size.y) ? map_win->lines : map->size.y;
     werase(map_win->win);
@@ -180,10 +182,12 @@ static void mapwin_display_map_noref(struct dm_map *map, coord_t *player) {
                     }
                 }
                 /* First see monster */
-                if ( (me->visible == true) || (map_see) ) {
+                if ( (me->in_sight == true) || (map_see) ) {
                     if (me->monster != NULL) {
-                        icon = me->monster->icon;
-                        attr_mod = me->monster->icon_attr;
+                        if (sgt_can_see(map, plr, me->monster) ) {
+                            icon = me->monster->icon;
+                            attr_mod = me->monster->icon_attr;
+                        }
                     }
                 }
 

@@ -106,6 +106,14 @@ struct monster_controller {
     bool (*controller_cb)(struct msr_monster *monster); /* ai/player callback. */
 };
 
+struct monster_skill_rolls {
+    int8_t awareness;
+    int8_t stealth;
+};
+
+struct monster_wounds {
+};
+
 struct msr_monster {
     uint32_t monster_pre;
 
@@ -197,6 +205,8 @@ struct msr_monster {
     /* status_effects effecting this monster. */
     struct status_effect_list *status_effects;
 
+    struct monster_skill_rolls rolls;
+
     /* Monster creation. */
     int weight;
     int level;
@@ -267,6 +277,8 @@ int msr_calculate_characteristic(struct msr_monster *monster, enum msr_character
 
 /* get current characteristic bonus ( normally (characteristic / 10) ), including talents */
 int msr_calculate_characteristic_bonus(struct msr_monster *monster, enum msr_characteristic chr);
+
+int msr_calculate_skill(struct msr_monster *monster, enum msr_skills skill);
 
 int msr_calculate_fatique(struct msr_monster *monster);
 

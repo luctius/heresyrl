@@ -662,21 +662,19 @@ int msr_characteristic_check(struct msr_monster *monster, enum msr_characteristi
     return DoS;
 }
 
-int msr_skill_check(struct msr_monster *monster, enum msr_skills skill, int mod) {
+int msr_calculate_skill(struct msr_monster *monster, enum msr_skills skill) {
     if (msr_verify_monster(monster) == false) return false;
 
     int charac = msr_calculate_characteristic(monster, msr_skill_charac[skill]);
     assert(charac >= 0);
     lg_print("You characteristic is (%d)", charac);
 
-    lg_print("Check modifier is: %d (%d)", mod, charac + mod);
-
     int con_mod = 0;
     con_mod += se_status_effect_strength(monster, EF_MODIFY_FATIQUE, -1);
     if (con_mod < 0) con_mod = 0;
 
-    mod += (con_mod * -10);
-    charac += mod;
+    charac += (con_mod * -10);
+    charac += se_status_effect_strength(monster, EF_MODIFY_SKILL, skill);
     lg_print("Conditions modifier is: %d (%d)", con_mod, charac);
 
     enum msr_skill_rate r = msr_has_skill(monster, skill);
@@ -684,14 +682,25 @@ int msr_skill_check(struct msr_monster *monster, enum msr_skills skill, int mod)
         case MSR_SKILL_RATE_EXPERT:     charac += 20; lg_print("You are an expert (%d)", charac); break;
         case MSR_SKILL_RATE_ADVANCED:   charac += 10; lg_print("You are advanced (%d)", charac); break;
         case MSR_SKILL_RATE_BASIC:      lg_print("You have the skill (%d)", charac); break;
-        case MSR_SKILL_RATE_NONE:       charac /= 2; lg_print("You do not have this skill (%d)", charac); break;
+        case MSR_SKILL_RATE_NONE:       charac -= 10; lg_print("You do not have this skill (%d)", charac); break;
         default: assert(false); break;
     }
 
+    if (charac < 0) charac = 0;
+    return charac;
+}
+
+int msr_skill_check(struct msr_monster *monster, enum msr_skills skill, int mod) {
+    if (msr_verify_monster(monster) == false) return false;
+
+
+    int skills = msr_calculate_skill(monster, skill) + mod;
+    lg_print("Check is: %d (%d)", skills, mod);
+
     int roll = (random_int32(gbl_game->random)%100);
-    int result = charac - roll;
-    int DoS = result /10;
-    if (roll < charac) DoS += 1;
+    int result = skills - roll;
+    int DoS = result / 10;
+    if (roll < skills) DoS += 1;
 
     lg_print("roll %d, result %d, DoS %d", roll, result, DoS);
 
