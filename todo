@@ -1,5 +1,6 @@
 Major Ideas:
 Improve Vision and lighting code, add stealth gameplay.
+Add status effect symbols to charwin, show negative and positive modifications of characteristics
 Quack medicine, most of the times provides a benefit, and also something else.
 Critical damage should be tracked seperatly, and only normal damage can be 
     healed through non magical means.
