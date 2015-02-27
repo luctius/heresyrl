@@ -89,8 +89,7 @@ bool char_creation_window(void) {
         ui_printf(map_win, "%s %s", enter_name_string, name_buffer);
     }
 
-    player->unique_name = malloc( (name_buffer_idx +5) * sizeof(char) );
-    memcpy(player->unique_name, name_buffer, name_buffer_idx+1);
+    player->unique_name = strdup(name_buffer);
     charwin_refresh();
 
 

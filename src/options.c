@@ -78,6 +78,7 @@ void opt_parse_options(struct gengetopt_args_info *args_info) {
 
     if (args_info->name_given == true) {
         options.char_name = strdup(args_info->name_arg);
+        options.debug_no_load = true;
     }
     if (args_info->race_given == true) {
         switch(args_info->race_arg) {
@@ -87,6 +88,7 @@ void opt_parse_options(struct gengetopt_args_info *args_info) {
             case race_arg_halfling: options.char_race = MSR_RACE_HALFLING;
             case race_arg_human:    options.char_race = MSR_RACE_HUMAN;
         };
+        options.debug_no_load = true;
     }
 
     if (options.log_file_name == NULL) options.log_file_name = args_info->log_file_arg;
