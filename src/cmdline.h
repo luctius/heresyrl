@@ -53,9 +53,9 @@ struct gengetopt_args_info
   const char *print_map_only_help; /**< @brief only print the map and close help description.  */
   int playback_flag;	/**< @brief play a savegame from start until current turn (default=off).  */
   const char *playback_help; /**< @brief play a savegame from start until current turn help description.  */
-  int pb_delay_arg;	/**< @brief delay when playing a savegame, default is 1 second (default='1').  */
-  char * pb_delay_orig;	/**< @brief delay when playing a savegame, default is 1 second original value given at command line.  */
-  const char *pb_delay_help; /**< @brief delay when playing a savegame, default is 1 second help description.  */
+  int pb_delay_arg;	/**< @brief delay when playing a savegame in miliseconds, default is 1 second (default='100').  */
+  char * pb_delay_orig;	/**< @brief delay when playing a savegame in miliseconds, default is 1 second original value given at command line.  */
+  const char *pb_delay_help; /**< @brief delay when playing a savegame in miliseconds, default is 1 second help description.  */
   int pb_stop_arg;	/**< @brief when playing a savegame, stop at after turn N (default='0').  */
   char * pb_stop_orig;	/**< @brief when playing a savegame, stop at after turn N original value given at command line.  */
   const char *pb_stop_help; /**< @brief when playing a savegame, stop at after turn N help description.  */

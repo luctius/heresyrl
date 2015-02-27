@@ -42,7 +42,7 @@ const char *gengetopt_args_info_help[] = {
   "  -s, --no_save           do not save a made character  (default=off)",
   "      --print_map_only    only print the map and close  (default=off)",
   "      --playback          play a savegame from start until current turn\n                            (default=off)",
-  "      --pb_delay=INT      delay when playing a savegame, default is 1 second\n                            (default=`1')",
+  "      --pb_delay=INT      delay when playing a savegame in miliseconds, default\n                            is 1 second  (default=`100')",
   "      --pb_stop=INT       when playing a savegame, stop at after turn N\n                            (default=`0')",
   "      --log_file=STRING   log file name  (default=`/tmp/heresyrl.log')",
   "      --save_file=STRING  save file name  (default=`/tmp/heresyrl.save')",
@@ -102,7 +102,7 @@ void clear_args (struct gengetopt_args_info *args_info)
   args_info->no_save_flag = 0;
   args_info->print_map_only_flag = 0;
   args_info->playback_flag = 0;
-  args_info->pb_delay_arg = 1;
+  args_info->pb_delay_arg = 100;
   args_info->pb_delay_orig = NULL;
   args_info->pb_stop_arg = 0;
   args_info->pb_stop_orig = NULL;
@@ -694,14 +694,14 @@ cmdline_parser_internal (
               goto failure;
           
           }
-          /* delay when playing a savegame, default is 1 second.  */
+          /* delay when playing a savegame in miliseconds, default is 1 second.  */
           else if (strcmp (long_options[option_index].name, "pb_delay") == 0)
           {
           
           
             if (update_arg( (void *)&(args_info->pb_delay_arg), 
                  &(args_info->pb_delay_orig), &(args_info->pb_delay_given),
-                &(local_args_info.pb_delay_given), optarg, 0, "1", ARG_INT,
+                &(local_args_info.pb_delay_given), optarg, 0, "100", ARG_INT,
                 check_ambiguity, override, 0, 0,
                 "pb_delay", '-',
                 additional_error))
