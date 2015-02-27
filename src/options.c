@@ -37,7 +37,7 @@ struct opt_options options = {
     .print_map_only  = false,
 
     .play_recording  = false,
-    .play_delay      = 1,
+    .play_delay      = 100,
     .play_stop       = 0,
 
     .refresh = true,

@@ -66,7 +66,7 @@ bool inp_log_has_keys(struct inp_input *i) {
 
     if ( (i->keylog_ridx < i->keylog_widx) && 
          (i->keylog_widx < i->keylog_sz) ) {
-        if (options.play_recording == true) usleep(options.play_delay * 100000);
+        if (options.play_recording == true) usleep(options.play_delay * 1000);
         return true;
     }
 
