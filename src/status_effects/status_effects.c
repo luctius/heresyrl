@@ -981,9 +981,15 @@ static void se_process_effect(struct msr_monster *monster, struct status_effect 
                         }
 
                         if (check_effect_has_flag(c, EF_CHECK_BENEFICIAL) ) {
-                            if (made_check == false) status_effect_clr_flag(c, SEF_ACTIVE);
+                            if (made_check == false) {
+                                status_effect_clr_flag(c, SEF_ACTIVE);
+                                status_effect_set_flag(c, SEF_INVISIBLE);
+                            }
                         }
-                        else if (made_check == true) status_effect_clr_flag(c, SEF_ACTIVE);
+                        else if (made_check == true) {
+                            status_effect_clr_flag(c, SEF_ACTIVE);
+                            status_effect_set_flag(c, SEF_INVISIBLE);
+                        }
                     }
                 }
 
