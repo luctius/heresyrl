@@ -46,8 +46,8 @@ const struct ground_effect static_ground_effect_list[] = {
         .icon = '~',
         .icon_attr = TERM_COLOUR_GREEN,
 
-        .min_energy = TT_ENERGY_TURN * 3,
-        .max_energy = TT_ENERGY_TURN * 5,
+        .min_energy = TT_ENERGY_TURN * 2,
+        .max_energy = TT_ENERGY_TURN * 3,
         .se_id = SEID_MAD_CAP_CLOUD,
     },
 };
