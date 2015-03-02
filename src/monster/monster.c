@@ -18,6 +18,7 @@
 #include "dungeon/tiles.h"
 #include "dungeon/dungeon_map.h"
 #include "dowear.h"
+#include "fov/sight.h"
 
 static TAILQ_HEAD(monster_list, msr_monster_list_entry) monster_list_head;
 static bool monster_list_initialised = false;
@@ -142,7 +143,7 @@ struct msr_monster *msr_create(enum msr_ids template_id) {
     m->monster.uid = msrlst_next_id();
     m->monster.template_id = template_id;
     m->monster.energy = TT_ENERGY_FULL;
-    m->monster.faction = 1;
+    m->monster.faction = MSR_FACTION_MONSTERS;
     m->monster.inventory = NULL;
     m->monster.status_effects = se_list_init();
     if (m->monster.description == NULL) {
@@ -172,6 +173,7 @@ struct msr_monster *msr_create(enum msr_ids template_id) {
     }
 
     creature_weapon(&m->monster);
+    m->monster.stealth.stealth_mode = false;
 
     lg_debug("creating monster[%d, %s, %c]", m->monster.uid, m->monster.ld_name, m->monster.icon);
 
@@ -300,7 +302,7 @@ bool msr_remove_item(struct msr_monster *monster, struct itm_item *item) {
 
 int msr_get_near_sight_range(struct msr_monster *monster) {
     if (msr_verify_monster(monster) == false) return -1;
-    int sight_near = 5 + ( (msr_calculate_characteristic_bonus(monster, MSR_CHAR_PERCEPTION) * 1.f) ) +1;
+    int sight_near = ( (msr_calculate_characteristic_bonus(monster, MSR_CHAR_PERCEPTION) * 1.0f) ) +1;
     if (msr_has_talent(monster, TLT_NIGHT_VISION) ) {
         int nv_sight = 16 * RANGE_MULTIPLIER;
         if(sight_near < nv_sight) sight_near = nv_sight;
@@ -312,7 +314,7 @@ int msr_get_near_sight_range(struct msr_monster *monster) {
 
 int msr_get_medium_sight_range(struct msr_monster *monster) {
     if (msr_verify_monster(monster) == false) return -1;
-    int sight_medium = 7 + ( (msr_calculate_characteristic_bonus(monster, MSR_CHAR_PERCEPTION) * 1.5f) ) +1;
+    int sight_medium = ( (msr_calculate_characteristic_bonus(monster, MSR_CHAR_PERCEPTION) * 2.0f) ) +1;
     if (msr_has_talent(monster, TLT_NIGHT_VISION) ) {
         int nv_sight = 16 * RANGE_MULTIPLIER;
         if(sight_medium < nv_sight) sight_medium = nv_sight;
@@ -324,7 +326,7 @@ int msr_get_medium_sight_range(struct msr_monster *monster) {
 
 int msr_get_far_sight_range(struct msr_monster *monster) {
     if (msr_verify_monster(monster) == false) return -1;
-    int sight_far = 10 + ( (msr_calculate_characteristic_bonus(monster, MSR_CHAR_PERCEPTION) * 2.f) ) +1;
+    int sight_far = ( (msr_calculate_characteristic_bonus(monster, MSR_CHAR_PERCEPTION) * 5.0f) ) +1;
     if (msr_has_talent(monster, TLT_NIGHT_VISION) ) {
         int nv_sight = 16 * RANGE_MULTIPLIER;
         if(sight_far < nv_sight) sight_far = nv_sight;
@@ -613,6 +615,7 @@ bool msr_do_dmg(struct msr_monster *monster, int dmg, enum dmg_type dmg_type, en
 
     if (dmg > 0) {
         monster->cur_wounds -= dmg;
+        monster->stealth.last_defended = gbl_game->turn;
 
         if (monster->cur_wounds < 0) {
             if (monster->unique_name == NULL) {
@@ -646,14 +649,14 @@ int msr_characteristic_check(struct msr_monster *monster, enum msr_characteristi
     if (msr_verify_monster(monster) == false) return false;
     int charac = msr_calculate_characteristic(monster, chr);
     assert(charac >= 0);
-    lg_print("You characteristic is (%d)", charac);
+    lg_ai_debug(monster, "Characteristic is (%d)", charac);
 
     int con_mod = 0;
     con_mod += se_status_effect_strength(monster, EF_MODIFY_FATIQUE, -1);
     if (con_mod < 0) con_mod = 0;
 
     charac += mod + (con_mod * -10);
-    lg_print("Check modifier is: %d (%d)", mod, charac + con_mod);
+    lg_ai_debug(monster, "Check modifier is: %d (%d)", mod, charac + con_mod);
 
     int roll = (int) (random_int32(gbl_game->random)%100);
     int result = (charac - roll);
@@ -667,7 +670,7 @@ int msr_calculate_skill(struct msr_monster *monster, enum msr_skills skill) {
 
     int charac = msr_calculate_characteristic(monster, msr_skill_charac[skill]);
     assert(charac >= 0);
-    lg_print("You characteristic is (%d)", charac);
+    lg_ai_debug(monster, "Characteristic is (%d)", charac);
 
     int con_mod = 0;
     con_mod += se_status_effect_strength(monster, EF_MODIFY_FATIQUE, -1);
@@ -675,7 +678,7 @@ int msr_calculate_skill(struct msr_monster *monster, enum msr_skills skill) {
 
     charac += (con_mod * -10);
     charac += se_status_effect_strength(monster, EF_MODIFY_SKILL, skill);
-    lg_print("Conditions modifier is: %d (%d)", con_mod, charac);
+    lg_ai_debug(monster, "Conditions modifier is: %d (%d)", con_mod, charac);
 
     enum msr_skill_rate r = msr_has_skill(monster, skill);
     switch(r) {

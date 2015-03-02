@@ -11,6 +11,7 @@
 #include "dungeon/dungeon_map.h"
 #include "monster/monster.h"
 #include "status_effects/ground_effects.h"
+#include "fight.h"
 
 /* checks if this is a walkable path, without a monster.  */
 static bool rpsc_check_transparent_lof(struct rpsc_fov_set *set, coord_t *point, coord_t *origin) {
@@ -49,6 +50,9 @@ static bool rpsc_check_transparent_los(struct rpsc_fov_set *set, coord_t *point,
         return false;
     }
 
+    /* If there is darkness here */
+    if (dm_get_map_me(point, map)->light_level < 0) return false;
+
     /* if there is an ground based effect which block sight (like mist), return false */
     if (dm_get_map_me(point, map)->effect != NULL) {
         if (test_bf(dm_get_map_me(point, map)->effect->flags, GR_EFFECTS_OPAQUE ) ) {
@@ -72,8 +76,7 @@ static bool rpsc_apply_player_sight(struct rpsc_fov_set *set, coord_t *point, co
 
     /* get map entity*/
     struct dm_map_entity *me = dm_get_map_me(point,map);
-    /* awareness check difficulty starts at zero */
-    int mod = 0;
+
     /*every map point touched here is in sight.*/
     me->in_sight = true;
 
@@ -83,6 +86,7 @@ static bool rpsc_apply_player_sight(struct rpsc_fov_set *set, coord_t *point, co
         me->discovered = true;
     }
 
+    int radius = 0;
     if (rpsc_in_radius(set, origin, point, msr_get_near_sight_range(monster)) ) {
         /* if it is in our near sight, we can see everything.*/
         me->discovered = true;
@@ -91,32 +95,26 @@ static bool rpsc_apply_player_sight(struct rpsc_fov_set *set, coord_t *point, co
     if (rpsc_in_radius(set, origin, point, msr_get_medium_sight_range(monster)) ) {
         /* in our medium sight we can see the map features.*/
         me->discovered = true;
-        mod = -20;
+        radius = 2;
     }
     else {
-        /* in our far sight without light, we have a chance of seeing movemnt (monsters).*/
-        mod = -30;
+        /* in our far sight without light, we have a chance of seeing movement (monsters).*/
+        radius = 4;
     }
 
-#if false
     /* check if we can see a monster in the dark */
     if (me->visible == false && me->monster != NULL) {
-        lg_print("Awareness check on (%d,%d)", point->x, point->y);
-        int DoS = 0;
-        /*do an awareness check*/
-        if ( (DoS = msr_skill_check(monster, MSR_SKILLS_AWARENESS, mod) ) >= 0) {
-            /* the scatter radius decreases depending on the number of successes in our roll*/
-            int radius = 4 - DoS;
-
+        if (fght_can_see(map, monster, me->monster) ) {
             if (radius > 0 && radius <= 4) {
                 /* if the roll was a success, scatter the blip. */
                 coord_t sp = sgt_scatter(map, gbl_game->random, point, radius);
                 dm_get_map_me(&sp, map)->icon_override = '?';
+                dm_get_map_me(&sp, map)->icon_attr_override = TERM_COLOUR_WHITE;
             }
+
         }
     }
-#endif
-    
+
     return true;
 }
 
@@ -127,12 +125,22 @@ static bool rpsc_apply_light_source(struct rpsc_fov_set *set, coord_t *point, co
     if (dm_verify_map(map) == false) return false;
     if (cd_within_bound(point, &map->size) == false) return false;
     if (itm_verify_item(item) == false) return false;
-    if ( (item->specific.tool.light_luminem - cd_pyth(point, origin) ) <= 0) return false;
 
-    /* Only light walls who are the origin of the light. */
-    if ( (cd_equal(point, origin) == false) && ( (dm_get_map_tile(point,map)->attributes & TILE_ATTR_TRANSPARENT) == 0) ) return false;
+    struct dm_map_entity *me = dm_get_map_me(point,map);
+    int luminem = item->specific.tool.light_luminem;
 
-    dm_get_map_me(point,map)->light_level = item->specific.tool.light_luminem - cd_pyth(point, origin);
+    if (luminem > 0) {
+        if ( (luminem - cd_pyth(point, origin) ) <= 0) return false;
+        if (sgt_in_radius(map, origin, point, luminem) == false) return false;
+        me->light_level += item->specific.tool.light_luminem - cd_pyth(point, origin);
+    }
+    /* For darkning */
+    else if (luminem < 0) {
+        if ( (luminem - cd_pyth(point, origin) ) >= 0) return false;
+        if (sgt_in_radius(map, origin, point, -luminem) == false) return false;
+        me->light_level += item->specific.tool.light_luminem + cd_pyth(point, origin);
+    }
+
     return true;
 }
 
@@ -449,61 +457,18 @@ bool sgt_has_lof(struct dm_map *map, coord_t *s, coord_t *e, int radius) {
     return rpsc_los(&set, s, e);
 }
 
-bool sgt_can_see(struct dm_map *map, struct msr_monster *monster, struct msr_monster *tgt) {
+bool sgt_in_radius(struct dm_map *map, coord_t *s, coord_t *e, int radius) {
     if (dm_verify_map(map) == false) return false;
-    if (msr_verify_monster(monster) == false) return false;
-    if (msr_verify_monster(tgt) == false) return false;
-    if (monster == tgt) return true;
 
     struct rpsc_fov_set set = {
-        .source = &monster->pos,
+        .source = s,
         .area = RPSC_AREA_OCTAGON,
         .map = map,
         .size = map->size,
+        .is_transparent = rpsc_check_transparent_lof,
         .apply = NULL,
     };
 
-    struct dm_map_entity *me = dm_get_map_me(&tgt->pos, map);
-    int near    = msr_get_near_sight_range(monster);
-    int medium  = msr_get_medium_sight_range(monster);
-    int far     = msr_get_far_sight_range(monster);
-
-    if ( (monster->is_player) && (me->in_sight == false) ) return false;
-    else if ( (monster->is_player == false) && (sgt_has_los(map, &monster->pos, &tgt->pos, far) ) ) return false;
-
-    int awareness_mod   = 5;
-    int stealth_mod     = 0;
-
-    if (rpsc_in_radius(&set, &monster->pos, &tgt->pos, far) )    awareness_mod =  -2;
-    if (rpsc_in_radius(&set, &monster->pos, &tgt->pos, medium) ) awareness_mod =  -1;
-    if (rpsc_in_radius(&set, &monster->pos, &tgt->pos, near) )   awareness_mod =  5;
-
-    awareness_mod -= cd_pyth(&monster->pos, &tgt->pos);
-    if (me->light_level > 5) awareness_mod += 5;
-    if (me->light_level > 0) awareness_mod += 5;
-    if (me->light_level < 5) stealth_mod -= 5;
-
-    int tgt_cc = msr_calculate_carrying_capacity(tgt);
-    int tgt_invweight = inv_get_weight(tgt->inventory);
-
-    if (tgt_invweight > ( (tgt_cc * 70) / 100) ) stealth_mod -= 5;
-    if (tgt_invweight > tgt_cc)                  stealth_mod -= 5;
-
-    for (int i = 0; i < coord_nhlo_table_sz; i++) {
-        coord_t c = cd_add(&tgt->pos, &coord_nhlo_table[i]);
-        if (cd_within_bound(&c, &map->size) == true) {
-            struct dm_map_entity *cme = dm_get_map_me(&c, map);
-            if (TILE_HAS_ATTRIBUTE(cme->tile, TILE_ATTR_TRANSPARENT) ||
-                ( (cme->effect != NULL) && (cme->effect->flags & GR_EFFECTS_OPAQUE == 0) ) ) {
-                stealth_mod -= 1;
-            }
-        }
-    }
-
-    int awareness = monster->rolls.awareness + awareness_mod;
-    int stealth   = tgt->rolls.stealth + stealth_mod;
-
-    lg_ai_debug(monster, "can see: %s (%d(%d) vs %d(%d) )", msr_ldname(tgt), awareness, monster->rolls.awareness, stealth, tgt->rolls.stealth);
-    return (awareness > stealth);
+    return rpsc_in_radius(&set, s, e, radius);
 }
 
