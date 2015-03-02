@@ -5,6 +5,7 @@ enum career_ids {
     CRID_NONE,
     CRID_BODYGUARD,
     CRID_MERCENARY,
+    CRID_FIELDWARDEN,
     CRID_MAX,
 };
 
