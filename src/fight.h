@@ -30,6 +30,7 @@
 
 /* melee specific */
 #define FGHT_MODIFIER_MELEE_UNARMED  (-20)
+#define FGHT_MODIFIER_MELEE_TGT_NO_MELEE  (10)
 
 /* ranged specific */
 #define FGHT_RANGED_JAM (95)

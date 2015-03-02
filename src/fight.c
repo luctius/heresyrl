@@ -121,13 +121,30 @@ int fght_ranged_calc_tohit(struct msr_monster *monster, coord_t *tpos, struct it
 
         lg_debug("distance: %d, wpn_range: %d", distance, weapon_range);
 
+        {
             /* normally you would not be able to fire with a normal weapon and get this penaly with a pistol, but that is too harsh since you cannot disengage. */
             /* TODO add check for other enemies in melee. */
-            CALC_TOHIT( (distance == FGHT_MELEE_RANGE), FGHT_RANGED_MODIFIER_MELEE, "you are in melee combat")
+            CALC_TOHIT( (distance == FGHT_MELEE_RANGE), FGHT_RANGED_MODIFIER_MELEE, "you are in melee range")
             else CALC_TOHIT(dis_in_meters >= (weapon_range * 3), FGHT_RANGED_MODIFIER_EXTREME_RANGE, "target is at extreme range")
             else CALC_TOHIT(dis_in_meters >= (weapon_range * 2), FGHT_RANGED_MODIFIER_LONG_RANGE, "target is at long range")
             else CALC_TOHIT(distance <= FGHT_POINT_BLANK_RANGE, FGHT_RANGED_MODIFIER_POINT_BLACK, "target is at point-blank range")
             else CALC_TOHIT(dis_in_meters <= (weapon_range * 0.5), FGHT_RANGED_MODIFIER_SHORT_RANGE, "target is at short range")
+
+            bool in_melee = false;
+            for (int i = 0; i < coord_nhlo_table_sz && in_melee == false; i++) {
+                coord_t pos = cd_add(&monster->pos, &coord_nhlo_table[i]);
+                struct dm_map_entity *me = dm_get_map_me(&pos, gbl_game->current_map);
+                if (me->monster != NULL && me->monster->faction != monster->faction)  {
+                    struct itm_item *ti = fght_get_working_weapon(target, WEAPON_TYPE_MELEE, FGHT_MAIN_HAND);
+                    if (ti == NULL) ti = fght_get_working_weapon(target, WEAPON_TYPE_MELEE, FGHT_OFF_HAND);
+                    if (ti != NULL) {
+                        CALC_TOHIT(true, FGHT_RANGED_MODIFIER_MELEE, "you are in melee combat")
+                        in_melee = true;
+                    }
+                }
+            }
+        }
+
 
         { /* Lighting modifiers */
             int far_range = msr_get_far_sight_range(monster);
@@ -212,6 +229,10 @@ int fght_melee_calc_tohit(struct msr_monster *monster, coord_t *tpos, struct itm
             else CALC_TOHIT(target->size == MSR_SIZE_SCRAWNY, FGHT_MODIFIER_SIZE_SCRAWNY, "target is of scrawny size")
             else CALC_TOHIT(target->size == MSR_SIZE_PUNY, FGHT_MODIFIER_SIZE_PUNY, "target is of puny size")
             else CALC_TOHIT(target->size == MSR_SIZE_MINISCULE, FGHT_MODIFIER_SIZE_MINISCULE, "target is of miniscule size")
+
+            struct itm_item *ti = fght_get_working_weapon(target, WEAPON_TYPE_MELEE, FGHT_MAIN_HAND);
+            if (ti == NULL) ti = fght_get_working_weapon(target, WEAPON_TYPE_MELEE, FGHT_OFF_HAND);
+            CALC_TOHIT(ti == NULL, FGHT_MODIFIER_MELEE_TGT_NO_MELEE, "target does not wield a melee weapon")
         }
 
         { /* Lighting modifiers */
