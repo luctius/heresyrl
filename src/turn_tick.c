@@ -23,6 +23,7 @@
 #include "coord.h"
 #include "game.h"
 #include "dungeon/dungeon_map.h"
+#include "random.h"
 
 #include "ui/ui.h"
 
@@ -41,6 +42,16 @@ bool tt_interrupt_event(uint32_t monster_uid) {
 void tt_process_monsters(struct dm_map *map) {
     struct msr_monster *monster = NULL;
 
+    if (gbl_game->turn % TT_ENERGY_TURN == 0) {
+        while ( (monster = msrlst_get_next_monster(monster) ) != NULL) {
+            if (monster->dead == false) {
+                monster->stealth.awareness = random_d100(gbl_game->random);
+                monster->stealth.stealth   = random_d100(gbl_game->random);
+            }
+        }
+    }
+
+    monster = NULL;
     while ( (monster = msrlst_get_next_monster(monster) ) != NULL) {
         if (monster->dead) {
             /* Clean-up monsters which can be cleaned up. */

@@ -138,6 +138,8 @@ static void mapwin_display_map_noref(struct dm_map *map, coord_t *player) {
     if (player == NULL) return;
     if (map_win->type != HRL_WINDOW_TYPE_MAP) return;
 
+    struct msr_monster *plr = dm_get_map_me(player, map)->monster;
+
     int x_max = (map_win->cols < map->size.x) ? map_win->cols : map->size.x;
     int y_max = (map_win->lines < map->size.y) ? map_win->lines : map->size.y;
     werase(map_win->win);
@@ -163,10 +165,9 @@ static void mapwin_display_map_noref(struct dm_map *map, coord_t *player) {
             struct dm_map_entity *me = dm_get_map_me(&map_c, map);
             struct tl_tile *tile = me->tile;
 
-            if ( (me->visible == true) || (me->discovered == true) || (map_see == true) ) {
+            if ( (me->visible == true) || (me->discovered == true) || (map_see == true) || me->icon_override != -1) {
                 int attr_mod = TERM_COLOUR_L_DARK;
                 char icon = tile->icon;
-                bool modified = false;
 
                 /* Otherwise visible traversable tiles */
                 if (me->visible == true) {
@@ -174,8 +175,11 @@ static void mapwin_display_map_noref(struct dm_map *map, coord_t *player) {
                 }
                 if (me->visible == true) {
                     if (tile->type == TILE_TYPE_FLOOR) {
-                        if (me->light_level > 0) {
+                        if (me->light_level >= 4) {
                             attr_mod = TERM_COLOUR_YELLOW;
+                        }
+                        else if (me->light_level > 0) {
+                            attr_mod = TERM_COLOUR_L_YELLOW;
                         }
                     }
                 }
@@ -197,18 +201,19 @@ static void mapwin_display_map_noref(struct dm_map *map, coord_t *player) {
                     }
                 }
                 /* First see monster */
-                if ( (me->visible == true) || (map_see) ) {
+                if ( (me->in_sight == true) || (map_see) ) {
                     if (me->monster != NULL) {
-                        icon = me->monster->icon;
-                        attr_mod = me->monster->icon_attr;
+                        if (fght_can_see(map, plr, me->monster) ) {
+                            icon = me->monster->icon;
+                            attr_mod = me->monster->icon_attr;
+                        }
                     }
                 }
 
-                if (me->icon_override != -1) icon = me->icon_override;
-                if (me->icon_attr_override != -1) {
-                    if (me->visible == true) {
+                if (me->icon_override != -1) {
+                    icon = me->icon_override;
+                    if (me->icon_attr_override != -1) {
                         attr_mod = me->icon_attr_override;
-                        modified = true;
                     }
                 }
                 
@@ -217,11 +222,9 @@ static void mapwin_display_map_noref(struct dm_map *map, coord_t *player) {
                 {
                     if (me->test_var == 2) {
                         attr_mod = TERM_COLOUR_BLUE;
-                        modified = true;
                     }
                     if (me->test_var == 1) {
                         attr_mod = TERM_COLOUR_RED;
-                        modified = true;
                     }
                 }
 

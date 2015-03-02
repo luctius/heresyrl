@@ -28,6 +28,7 @@
 #include "dungeon/dungeon_map.h"
 #include "monster/monster.h"
 #include "status_effects/ground_effects.h"
+#include "fight.h"
 
 /* checks if this is a walkable path, without a monster.  */
 static bool rpsc_check_transparent_lof(struct rpsc_fov_set *set, coord_t *point, coord_t *origin) {
@@ -66,6 +67,9 @@ static bool rpsc_check_transparent_los(struct rpsc_fov_set *set, coord_t *point,
         return false;
     }
 
+    /* If there is darkness here */
+    if (dm_get_map_me(point, map)->light_level < 0) return false;
+
     /* if there is an ground based effect which block sight (like mist), return false */
     if (dm_get_map_me(point, map)->effect != NULL) {
         if (test_bf(dm_get_map_me(point, map)->effect->flags, GR_EFFECTS_OPAQUE ) ) {
@@ -89,8 +93,7 @@ static bool rpsc_apply_player_sight(struct rpsc_fov_set *set, coord_t *point, co
 
     /* get map entity*/
     struct dm_map_entity *me = dm_get_map_me(point,map);
-    /* awareness check difficulty starts at zero */
-    int mod = 0;
+
     /*every map point touched here is in sight.*/
     me->in_sight = true;
 
@@ -100,6 +103,7 @@ static bool rpsc_apply_player_sight(struct rpsc_fov_set *set, coord_t *point, co
         me->discovered = true;
     }
 
+    int radius = 0;
     if (rpsc_in_radius(set, origin, point, msr_get_near_sight_range(monster)) ) {
         /* if it is in our near sight, we can see everything.*/
         me->discovered = true;
@@ -108,29 +112,26 @@ static bool rpsc_apply_player_sight(struct rpsc_fov_set *set, coord_t *point, co
     if (rpsc_in_radius(set, origin, point, msr_get_medium_sight_range(monster)) ) {
         /* in our medium sight we can see the map features.*/
         me->discovered = true;
-        mod = -20;
+        radius = 2;
     }
     else {
-        /* in our far sight without light, we have a chance of seeing movemnt (monsters).*/
-        mod = -30;
+        /* in our far sight without light, we have a chance of seeing movement (monsters).*/
+        radius = 4;
     }
 
     /* check if we can see a monster in the dark */
     if (me->visible == false && me->monster != NULL) {
-        lg_print("Awareness check on (%d,%d)", point->x, point->y);
-        int DoS = 0;
-        /*do an awareness check*/
-        if ( (DoS = msr_skill_check(monster, MSR_SKILLS_AWARENESS, mod) ) >= 0) {
-            /* the scatter radius decreases depending on the number of successes in our roll*/
-            int radius = 4 - DoS;
-
+        if (fght_can_see(map, monster, me->monster) ) {
             if (radius > 0 && radius <= 4) {
                 /* if the roll was a success, scatter the blip. */
                 coord_t sp = sgt_scatter(map, gbl_game->random, point, radius);
                 dm_get_map_me(&sp, map)->icon_override = '?';
+                dm_get_map_me(&sp, map)->icon_attr_override = TERM_COLOUR_WHITE;
             }
+
         }
     }
+
     return true;
 }
 
@@ -141,12 +142,22 @@ static bool rpsc_apply_light_source(struct rpsc_fov_set *set, coord_t *point, co
     if (dm_verify_map(map) == false) return false;
     if (cd_within_bound(point, &map->size) == false) return false;
     if (itm_verify_item(item) == false) return false;
-    if ( (item->specific.tool.light_luminem - cd_pyth(point, origin) ) <= 0) return false;
 
-    /* Only light walls who are the origin of the light. */
-    if ( (cd_equal(point, origin) == false) && ( (dm_get_map_tile(point,map)->attributes & TILE_ATTR_TRANSPARENT) == 0) ) return false;
+    struct dm_map_entity *me = dm_get_map_me(point,map);
+    int luminem = item->specific.tool.light_luminem;
 
-    dm_get_map_me(point,map)->light_level = item->specific.tool.light_luminem - cd_pyth(point, origin);
+    if (luminem > 0) {
+        if ( (luminem - cd_pyth(point, origin) ) <= 0) return false;
+        if (sgt_in_radius(map, origin, point, luminem) == false) return false;
+        me->light_level += item->specific.tool.light_luminem - cd_pyth(point, origin);
+    }
+    /* For darkning */
+    else if (luminem < 0) {
+        if ( (luminem - cd_pyth(point, origin) ) >= 0) return false;
+        if (sgt_in_radius(map, origin, point, -luminem) == false) return false;
+        me->light_level += item->specific.tool.light_luminem + cd_pyth(point, origin);
+    }
+
     return true;
 }
 
@@ -461,5 +472,20 @@ bool sgt_has_lof(struct dm_map *map, coord_t *s, coord_t *e, int radius) {
 
     if (rpsc_in_radius(&set, s, e, radius) == false) return false;
     return rpsc_los(&set, s, e);
+}
+
+bool sgt_in_radius(struct dm_map *map, coord_t *s, coord_t *e, int radius) {
+    if (dm_verify_map(map) == false) return false;
+
+    struct rpsc_fov_set set = {
+        .source = s,
+        .area = RPSC_AREA_OCTAGON,
+        .map = map,
+        .size = map->size,
+        .is_transparent = rpsc_check_transparent_lof,
+        .apply = NULL,
+    };
+
+    return rpsc_in_radius(&set, s, e, radius);
 }
 

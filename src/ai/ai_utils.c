@@ -25,6 +25,7 @@
 #include "items/items.h"
 #include "dungeon/tiles.h"
 #include "dungeon/dungeon_map.h"
+#include "fight.h"
 
 #include "game.h"
 
@@ -51,14 +52,7 @@ static struct msr_monster *aiu_get_enemy_near(struct msr_monster *monster, struc
         if (cd_equal(&target->pos, &monster->pos) ) continue; /* ignore current position*/
         if (cd_pyth(&target->pos, &monster->pos) > far_radius) continue; /* ignore out of maximum radius */
 
-        /* if the target tile is not lit, ignore it if it is further than near_sight_range*/
-        if (dm_get_map_me(&target->pos, map)->light_level == 0) {
-            if (cd_pyth(&target->pos, &monster->pos) >= msr_get_near_sight_range(monster) ) continue;
-        }
-
-        if (sgt_has_los(map, &monster->pos, &target->pos, msr_get_far_sight_range(monster) ) == true) {
-            return target;
-        }
+        if (fght_can_see(map, monster, target) ) return target;
     }
     return NULL;
 }

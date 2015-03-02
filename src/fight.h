@@ -142,6 +142,8 @@ bool fght_melee(struct random *r, struct msr_monster *monster, struct msr_monste
 bool fght_explosion(struct random *r, struct itm_item *bomb, struct dm_map *map);
 bool fght_throw_item(struct random *r, struct msr_monster *monster, struct dm_map *map, coord_t *e, struct itm_item *witem, enum fght_hand hand);
 
+bool fght_can_see(struct dm_map *map, struct msr_monster *monster, struct msr_monster *tgt);
+
 struct itm_item *fght_get_weapon(struct msr_monster *monster, enum item_weapon_type type, enum fght_hand hand);
 struct itm_item *fght_get_working_weapon(struct msr_monster *monster, enum item_weapon_type type, enum fght_hand hand); /* checks on emptiness and jammedness */
 const char *fght_weapon_hand_name(enum fght_hand hand);

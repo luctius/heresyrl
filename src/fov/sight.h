@@ -65,4 +65,6 @@ bool sgt_has_los(struct dm_map *map, coord_t *s, coord_t *e, int radius);
 /* true if point e is visible and there are no obstructions from point s. */
 bool sgt_has_lof(struct dm_map *map, coord_t *s, coord_t *e, int radius);
 
+bool sgt_in_radius(struct dm_map *map, coord_t *s, coord_t *e, int radius);
+
 #endif /*SIGHT_H_*/

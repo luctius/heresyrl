@@ -73,7 +73,7 @@ static const struct status_effect static_status_effect_list[] = {
             /* Type     Effect      Flags   Strength    Param*/
             EFFECT(EF_MODIFY_CHAR,  0,         -10,      MSR_CHAR_TOUGHNESS),
             EFFECT(EF_MODIFY_CHAR,  0,         -10,      MSR_CHAR_STRENGTH),
-            EFFECT(EF_DAMAGE,       0,           2,      0),
+            //EFFECT(EF_DAMAGE,       0,           2,      0),
         EFFECTS_END,
             /*Settings      Flags   Minimum  -  Maximum Turns*/
             SETTINGS(       0,      2,          5),
@@ -132,7 +132,7 @@ static const struct status_effect static_status_effect_list[] = {
             EFFECT(EF_MODIFY_CHAR,  0,      -30,       MSR_CHAR_WEAPON_SKILL),
             EFFECT(EF_MODIFY_CHAR,  0,      -30,       MSR_CHAR_AGILITY),
             EFFECT(EF_MODIFY_SKILL, 0,      -30,       MSR_SKILLS_DODGE),
-            EFFECT(EF_MODIFY_SKILL, 0,      -30,       MSR_SKILLS_SILENT_MOVE),
+            EFFECT(EF_MODIFY_SKILL, 0,      -30,       MSR_SKILLS_STEALTH),
         EFFECTS_END,
             /*Settings      Flags */
             SETTINGS(bf(SEF_UNIQUE) | bf(SEF_PERMANENT),      0,          0),
@@ -144,7 +144,7 @@ static const struct status_effect static_status_effect_list[] = {
             EFFECT(EF_MODIFY_CHAR,  0,        -20,       MSR_CHAR_WEAPON_SKILL),
             EFFECT(EF_MODIFY_CHAR,  0,        -20,       MSR_CHAR_AGILITY),
             EFFECT(EF_MODIFY_SKILL, 0,        -20,       MSR_SKILLS_DODGE),
-            EFFECT(EF_MODIFY_SKILL, 0,        -20,       MSR_SKILLS_SILENT_MOVE),
+            EFFECT(EF_MODIFY_SKILL, 0,        -20,       MSR_SKILLS_STEALTH),
         EFFECTS_END,
             /*Settings      Flags */
             SETTINGS(bf(SEF_UNIQUE) | bf(SEF_PERMANENT),      0,          0),
@@ -156,7 +156,7 @@ static const struct status_effect static_status_effect_list[] = {
             EFFECT(EF_MODIFY_CHAR,  0,        -10,       MSR_CHAR_WEAPON_SKILL),
             EFFECT(EF_MODIFY_CHAR,  0,        -10,       MSR_CHAR_AGILITY),
             EFFECT(EF_MODIFY_SKILL, 0,        -10,       MSR_SKILLS_DODGE),
-            EFFECT(EF_MODIFY_SKILL, 0,        -10,       MSR_SKILLS_SILENT_MOVE),
+            EFFECT(EF_MODIFY_SKILL, 0,        -10,       MSR_SKILLS_STEALTH),
         EFFECTS_END,
             /*Settings      Flags */
             SETTINGS(bf(SEF_UNIQUE) | bf(SEF_PERMANENT),      0,          0),

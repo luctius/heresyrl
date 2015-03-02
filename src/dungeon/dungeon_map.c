@@ -510,9 +510,9 @@ static void dm_add_lights(struct dm_map *map, struct random *r) {
 
 
             struct dm_map_entity *me = dm_get_map_me(&point, map);
-            if (me->tile->type == TILE_TYPE_WALL ) {
+            if (me->tile->type == TILE_TYPE_FLOOR ) {
                 if(random_int32(r)%100 < 1) {
-                    me->tile = ts_get_tile_specific(TILE_ID_CONCRETE_WALL_LIT);
+                    me->tile = ts_get_tile_specific(TILE_ID_BRASSIER);
                     lg_debug("light at (%d,%d)", x,y);
                 }
             }
@@ -646,6 +646,9 @@ bool dm_generate_map(struct dm_map *map, enum dm_dungeon_type type, int level, u
     /* add the stairs to the map */
     dm_add_stairs(map, r);
 
+    /* Fill the map with lights */
+    dm_add_lights(map, r);
+
     /* set map cells to their defaults. */
     dm_clear_map(map);
 
@@ -685,9 +688,6 @@ bool dm_generate_map(struct dm_map *map, enum dm_dungeon_type type, int level, u
     }
 
     dm_add_loops(map, pf_ctx, r);
-
-    /* Fill the map with lights */
-    dm_add_lights(map, r);
 
     for (i = 0; i < 10; i++) {
         int x = random_int32(r) % map->size.x;

@@ -47,7 +47,7 @@ static struct cr_career static_career_list[] = {
 
     CAREER(CRID_BODYGUARD, "Bodyguard" ),
         DESCR("Description of an Bodyguard"),
-        CHARACTERISTICS(10,0,5,5,5,0,0,0,1,3,0,3),
+        CHARACTERISTICS(10,0,5,5,5,0,0,0,1,0,0,3),
         SKILLS(bf(MSR_SKILLS_DODGE) | bf(MSR_SKILLS_HEAL) | bf(MSR_SKILLS_AWARENESS) ),
         TALENTS(TLT_QUICK_DRAW, TLT_SPEC_WPN_GRP_PARRYING, TLT_STREET_FIGHTING, TLT_STRIKE_TO_STUN, TLT_VERY_STRONG, TLT_VERY_RESILIENT),
         TRAPPINGS(IID_THROWING_KNIFE, IID_THROWING_KNIFE, IID_LEATHER_JACK),
@@ -59,7 +59,7 @@ static struct cr_career static_career_list[] = {
 
     CAREER(CRID_MERCENARY, "Mercenary" ),
         DESCR("Description of an Mercenary"),
-        CHARACTERISTICS(10,10,5,5,5,0,5,0,1,2,0,3),
+        CHARACTERISTICS(10,10,5,5,5,0,5,0,1,0,0,3),
         SKILLS(bf(MSR_SKILLS_DODGE) | bf(MSR_SKILLS_HEAL) | bf(MSR_SKILLS_AWARENESS) ),
         TALENTS(TLT_QUICK_DRAW, TLT_RAPID_RELOAD, TLT_STRIKE_MIGHTY_BLOW, TLT_SHARPSHOOTER, TLT_STRIKE_TO_STUN),
         TRAPPINGS(IID_SHORT_BOW, IID_ARROW, IID_NONE),
@@ -67,6 +67,18 @@ static struct cr_career static_career_list[] = {
         EXITS(CRID_BODYGUARD),
         .weight    = { [MSR_RACE_DWARF]=3,    [MSR_RACE_ELF]=0,    [MSR_RACE_HALFLING]=0,    [MSR_RACE_HUMAN]=2, },
         .available = { [MSR_RACE_DWARF]=true, [MSR_RACE_ELF]=true, [MSR_RACE_HALFLING]=true, [MSR_RACE_HUMAN]=true, },
+    CAREER_END,
+
+    CAREER(CRID_FIELDWARDEN, "Fieldwarden" ),
+        DESCR("Description of an Fieldwarden"),
+        CHARACTERISTICS(5,10,0,5,10,0,10,0,0,0,0,2),
+        SKILLS(bf(MSR_SKILLS_STEALTH) | bf(MSR_SKILLS_FOLLOW_TRAIL) | bf(MSR_SKILLS_AWARENESS) | bf(MSR_SKILLS_SURVIVAL) ),
+        TALENTS(TLT_FLEET_FOOTED, TLT_SAVVY, TLT_MIGHTY_SHOT, TLT_RAPID_RELOAD, TLT_ROVER, TLT_SPEC_WPN_GRP_THROWING, TLT_QUICK_DRAW),
+        TRAPPINGS(IID_SHORT_BOW, IID_ARROW, IID_NONE),
+        ALLIES(MID_NONE),
+        EXITS(CRID_MERCENARY),
+        .weight    = { [MSR_RACE_DWARF]=0,     [MSR_RACE_ELF]=0,     [MSR_RACE_HALFLING]=5,    [MSR_RACE_HUMAN]=0, },
+        .available = { [MSR_RACE_DWARF]=false, [MSR_RACE_ELF]=false, [MSR_RACE_HALFLING]=true, [MSR_RACE_HUMAN]=false, },
     CAREER_END,
 
     CAREER(CRID_MAX, ""),

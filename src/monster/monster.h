@@ -110,6 +110,12 @@ enum msr_hit_location {
     MSR_HITLOC_NONE,
 };
 
+enum msr_factions {
+    MSR_FACTION_PLAYER,
+    MSR_FACTION_MONSTERS,
+    MSR_FACTION_MAX,
+};
+
 struct msr_char {
     uint8_t base_value;
     uint8_t advancement;
@@ -121,6 +127,19 @@ struct monster_controller {
     bool interrupted;    /* this monster *is* interrupted. */
     struct ai ai; /* private struct for this monster */
     bool (*controller_cb)(struct msr_monster *monster); /* ai/player callback. */
+};
+
+struct monster_stealth {
+    int8_t awareness;
+    int8_t stealth;
+    bool stealth_mode;
+
+    uint32_t last_seen;
+    uint32_t last_attacked;
+    uint32_t last_defended;
+};
+
+struct monster_wounds {
 };
 
 struct msr_monster {
@@ -151,7 +170,7 @@ struct msr_monster {
     const char *description;
 
     /* faction this monster belongs to. should probably be a bitfield. */
-    int faction;
+    bitfield8_t faction;
     bitfield32_t dungeon_locale;
 
     enum msr_race race;
@@ -213,6 +232,8 @@ struct msr_monster {
 
     /* status_effects effecting this monster. */
     struct status_effect_list *status_effects;
+
+    struct monster_stealth stealth;
 
     /* Monster creation. */
     int weight;
@@ -284,6 +305,8 @@ int msr_calculate_characteristic(struct msr_monster *monster, enum msr_character
 
 /* get current characteristic bonus ( normally (characteristic / 10) ), including talents */
 int msr_calculate_characteristic_bonus(struct msr_monster *monster, enum msr_characteristic chr);
+
+int msr_calculate_skill(struct msr_monster *monster, enum msr_skills skill);
 
 int msr_calculate_fatique(struct msr_monster *monster);
 

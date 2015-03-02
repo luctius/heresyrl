@@ -31,12 +31,15 @@ Status effects add temporary talent
 Markdown readme ingame?
 Move spawn decisions to map
 Beastmen who charge ahead for 4 tiles or so and can't stop.
+'? - something should be identified with enough DoS.'
 
 Reminder
 Rolling 1 on magic die causes will check or 1 insanity.
 
 BUGS:
-Explosion touches twice?
+The four cardinal directions of the FOV are touched twice.
+Encumbrance reports every turn or so.
+Explosion touches twice? (FOV bug?)
 Torches should be held when activated, and their fuel use is bugged.
 Create general arrays for the item use_desc, which should also be used for tools, food and wearables and for improvised weapons.
 Throwing weapons tohit calculations are off.
@@ -45,6 +48,14 @@ Switching weapons sometimes sets weapon select to unarmed. -- fixed?
 Unarmed and offhand weapons do not offer a targetting window.
 Could not wield a shortbow after dropping it (low ammo?)?
 Could not wield a knife?
+Announce seen monsters (and only once or so)
+Apply penalty for stealth on both attack and being attacked.
+
+Combat:
+Check if an archer is in melee combat by checking for enemies with melee weapons around him.
+A melee attacker attacking someone not holding a melee weapon should get a bonus.
+A melee attacker attacking someone in the light should get a bonus?
+BS or WS should be used to counter evasion.
 
 Links:
 

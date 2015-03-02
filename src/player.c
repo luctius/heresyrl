@@ -139,7 +139,7 @@ bool plr_init(struct pl_player *plr) {
 
         plr->player->icon = '@';
         plr->player->icon_attr = TERM_COLOUR_WHITE;
-        plr->player->faction = 0;
+        plr->player->faction = MSR_FACTION_PLAYER;
         return true;
     }
     return false;

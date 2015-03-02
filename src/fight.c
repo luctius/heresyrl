@@ -422,6 +422,8 @@ int fght_ranged_roll(struct random *r, struct msr_monster *monster, struct msr_m
     Monster_tgt(monster, target, "%s at %s.", itm_msr_use_desc(witem), msr_ldname(target) );
     */
 
+    monster->stealth.last_attacked = gbl_game->turn;
+
     /* Do jamming test */
     if (roll >= jammed_threshold) {
         int reltest = -1;
@@ -486,6 +488,8 @@ int fght_melee_roll(struct random *r, struct msr_monster *monster, struct msr_mo
 
     /* TODO add Melee attack options */
 
+    monster->stealth.last_attacked = gbl_game->turn;
+
     int to_hit = fght_melee_calc_tohit(monster, &target->pos, witem, hand);
     int roll = random_d100(r);
     if (to_hit <= 0) {
@@ -520,6 +524,8 @@ int fght_thrown_roll(struct random *r, struct msr_monster *monster, coord_t *pos
 
     bool print = false;
     struct msr_monster *target = dm_get_map_me(pos, gbl_game->current_map)->monster;
+
+    monster->stealth.last_attacked = gbl_game->turn;
 
     int to_hit = fght_ranged_calc_tohit(monster, pos, witem, hand, true);
     int roll = random_d100(r);
@@ -795,6 +801,81 @@ const char *fght_weapon_hand_name(enum fght_hand hand) {
         default: return "unknown";
     }
 }
+
+bool fght_can_see(struct dm_map *map, struct msr_monster *monster, struct msr_monster *tgt) {
+    if (dm_verify_map(map) == false) return false;
+    if (msr_verify_monster(monster) == false) return false;
+    if (msr_verify_monster(tgt) == false) return false;
+    if (monster == tgt) return true;
+
+    struct dm_map_entity *me = dm_get_map_me(&tgt->pos, map);
+    int near    = msr_get_near_sight_range(monster);
+    int medium  = msr_get_medium_sight_range(monster);
+    int far     = msr_get_far_sight_range(monster);
+
+    if ( (monster->is_player) && (me->in_sight == false) ) return false;
+    else if ( (monster->is_player == false) && (sgt_has_los(map, &monster->pos, &tgt->pos, far) == false) ) return false;
+
+    lg_ai_debug(monster, "testing visual to %s", msr_ldname(tgt));
+
+    if (monster->faction == tgt->faction) return true;
+    if (tgt->stealth.last_seen >= gbl_game->turn - (2 * TT_ENERGY_TURN) ) {
+        tgt->stealth.last_seen = gbl_game->turn;
+        return true;
+    }
+
+    int awareness_mod   = 0;
+    int stealth_mod     = 0;
+
+    if (sgt_in_radius(map, &monster->pos, &tgt->pos, far) )    awareness_mod =  -2;
+    if (sgt_in_radius(map, &monster->pos, &tgt->pos, medium) ) awareness_mod =  -1;
+    if (sgt_in_radius(map, &monster->pos, &tgt->pos, near) )   awareness_mod =  10;
+
+    awareness_mod -= cd_pyth(&monster->pos, &tgt->pos);
+    if (me->light_level >= 4) awareness_mod += 5;
+    if (me->light_level >  0) awareness_mod += 5;
+    if (me->light_level <  0) stealth_mod   += 5;
+
+    int tgt_cc = msr_calculate_carrying_capacity(tgt);
+    int tgt_invweight = inv_get_weight(tgt->inventory);
+
+    if (tgt_invweight > ( (tgt_cc * 70) / 100) ) stealth_mod -= 2;
+    stealth_mod -= 5 * (tgt_invweight / tgt_cc);
+
+    for (int i = 0; i < coord_nhlo_table_sz; i++) {
+        coord_t c = cd_add(&tgt->pos, &coord_nhlo_table[i]);
+        if (cd_within_bound(&c, &map->size) == true) {
+            struct dm_map_entity *cme = dm_get_map_me(&c, map);
+            if (TILE_HAS_ATTRIBUTE(cme->tile, TILE_ATTR_TRANSPARENT) ||
+                ( (cme->effect != NULL) && (cme->effect->flags & GR_EFFECTS_OPAQUE == 0) ) ) {
+                stealth_mod -= 1;
+            }
+        }
+    }
+
+    if (tgt->stealth.last_attacked >= gbl_game->turn - (1 * TT_ENERGY_TURN) ) {
+        stealth_mod -= 10;
+    }
+    if (tgt->stealth.last_defended >= gbl_game->turn - (1 * TT_ENERGY_TURN) ) {
+        stealth_mod -= 10;
+    }
+
+    int awareness = msr_calculate_skill(monster, MSR_SKILLS_AWARENESS) + awareness_mod;
+    int stealth   = msr_calculate_skill(tgt, MSR_SKILLS_STEALTH)       + stealth_mod;
+    int awareness_DoS = (awareness - tgt->stealth.awareness) / 10;
+    int stealth_DoS   = (stealth   - tgt->stealth.stealth)   / 10;
+
+    lg_ai_debug(monster, "can see: %s (%d(%d) vs %d(%d) )", msr_ldname(tgt), awareness, monster->stealth.awareness, stealth, tgt->stealth.stealth);
+    if (awareness > stealth) {
+        tgt->stealth.last_seen = gbl_game->turn;
+        You(monster, "notice %s", msr_ldname(tgt) );
+        Monster(monster, "notices %s", msr_ldname(tgt) );
+        return true;
+    }
+
+    return false;
+}
+
 
 /* 
    Given a monster, a type of weapon and a hand, 
