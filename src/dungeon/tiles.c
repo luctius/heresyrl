@@ -46,15 +46,15 @@ static struct tl_tile tile_array[] = {
         .sd_name = "concrete wall",
         .ld_name = "a concrete wall",
     },
-    [TILE_ID_CONCRETE_WALL_LIT] = {
-        .id = TILE_ID_CONCRETE_WALL_LIT,
-        .attributes =  TILE_ATTR_LIGHT_SOURCE,
+    [TILE_ID_BRASSIER] = {
+        .id = TILE_ID_BRASSIER,
+        .attributes =  TILE_ATTR_LIGHT_SOURCE | TILE_ATTR_TRANSPARENT,
         .type = TILE_TYPE_WALL,
-        .icon = '#',
-        .icon_attr = TERM_COLOUR_UMBER,
+        .icon = 'Y',
+        .icon_attr = TERM_COLOUR_YELLOW,
         .movement_cost = 30,
-        .sd_name = "lit concrete wall",
-        .ld_name = "a concrete wall with a fixed light",
+        .sd_name = "brassier",
+        .ld_name = "a lit brassier",
     },
     [TILE_ID_CONCRETE_FLOOR] = {
         .id = TILE_ID_CONCRETE_FLOOR,
