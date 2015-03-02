@@ -56,7 +56,7 @@ static const struct status_effect static_status_effect_list[] = {
             /* Type     Effect      Flags   Strength    Param*/
             EFFECT(EF_MODIFY_CHAR,  0,         -10,      MSR_CHAR_TOUGHNESS),
             EFFECT(EF_MODIFY_CHAR,  0,         -10,      MSR_CHAR_STRENGTH),
-            EFFECT(EF_DAMAGE,       0,           2,      0),
+            //EFFECT(EF_DAMAGE,       0,           2,      0),
         EFFECTS_END,
             /*Settings      Flags   Minimum  -  Maximum Turns*/
             SETTINGS(       0,      2,          5),
