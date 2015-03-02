@@ -1,20 +1,19 @@
 Major Ideas:
-Improve Vision and lighting code, add stealth gameplay.
 Add status effect symbols to charwin, show negative and positive modifications of characteristics
 Quack medicine, most of the times provides a benefit, and also something else.
 Critical damage should be tracked seperatly, and only normal damage can be 
     healed through non magical means.
-Dungeon generation with doors and better loops.
 Add leader follow ai code, and improve ai in general.
 Add more critical hits to have a full system again.
 Use non-melee items in melee.
+Dungeon generation with doors and better loops.
 Provide TERM_COLOUR <-> colour msg attr translation.
 Title Screen and Death screen.
 [C]ombine as an inventory command OR [A]lternate Use.
-Blood spatter and blood trail when a wounded monster moves.
-Charms, minor items which take the charm slot and provide minor benefit
 Episodic maps; large map, after the quest some downtime to heal 
     non-critical wounds, buy stuff and go to next mission.
+Blood spatter and blood trail when a wounded monster moves.
+Charms, minor items which take the charm slot and provide minor benefit
 Create dungeon objects (like barrels) and treat them as cover
 Have campfires and monsters around them.
 Foretell the players doom.
@@ -22,6 +21,7 @@ Overhaul replay code to add pause, rewind, slowdowns etc.
 Magic system and winds of magic
 Insanity system
 Corruption system
+Improve Vision and lighting code, add stealth gameplay. -- More testing and balancing is required.
 
 Minor
 Create a XX turn tick function for new monster spawns and mushroom generation etc.
@@ -42,6 +42,7 @@ X -- Encumbrance reports every turn or so.
 ? -- Explosion touches twice? (FOV bug?)
 X -- Torches should be held when activated, and their fuel use is bugged.
 X -- Create general arrays for the item use_desc, which should also be used for tools, food and wearables and for improvised weapons.
+X -- Create Player notice response in monsters.
 X -- Throwing weapons tohit calculations are off.
 X -- Archers do not shoot anymore? -- fixed?
 X -- Switching weapons sometimes sets weapon select to unarmed. -- fixed?
