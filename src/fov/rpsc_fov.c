@@ -109,8 +109,8 @@ struct rpsc_octant_quad octant_lo_table[OCTANT_MAX] = {
     [OCTANT_SSW] = { .x = -1, .y =  1, .flip = false, .desc = "south south west", },
     [OCTANT_SSE] = { .x =  1, .y =  1, .flip = false, .desc = "south south east", },
     [OCTANT_SEE] = { .x =  1, .y =  1, .flip = true,  .desc = "south east east",  },
-    [OCTANT_NNE] = { .x =  1, .y = -1, .flip = false, .desc = "north north east", },
     [OCTANT_NEE] = { .x =  1, .y = -1, .flip = true,  .desc = "north east east",  },
+    [OCTANT_NNE] = { .x =  1, .y = -1, .flip = false, .desc = "north north east", },
 };
 
 /*  instead of using floating point, we use a 16bit integer (and more when available) */
@@ -297,6 +297,10 @@ static int scrub_blocked_list(struct angle_set *list, int list_sz) {
 /* for every cell within this octant, check if we can see it. */
 static void rpsc_fov_octant(struct rpsc_fov_set *set, coord_t *src, int radius, enum rpsc_octant octant, angle_t min_angle, angle_t max_angle) {
 
+    /* If the octant is odd, apply cell 0 -> row_max-2, otherwise apply cell 1->row_max-1.
+       to avoid applying the cardinal directions twice. */
+    bool shift = ( (octant % 2) == 0 ) ? true : false;
+
     /* list of blocking cells. We should ideally only need <radius> nr of items, but since we 
        are combining them only after a row, we need some leeway. */
     struct angle_set blocked_list[radius *2];
@@ -325,8 +329,9 @@ static void rpsc_fov_octant(struct rpsc_fov_set *set, coord_t *src, int radius, 
     for (int row = 1; row <= radius; row++) {
         /* number of obstacles found this row, these will start to block cells from the next row. */
         int obstacles_this_row = 0;
+
         /* number of cells in this row */
-        int row_max = row+1;
+        int row_max = row + 1;
 
         /* for every cell in this row */
         for (int cell = 0; cell < row_max; cell++) {
@@ -369,7 +374,14 @@ static void rpsc_fov_octant(struct rpsc_fov_set *set, coord_t *src, int radius, 
                 /* the cell is visible, now check if it will block others. */
                 if (blocked == false) {
                     /* inform the user. */
-                    if (set->apply != NULL) set->apply(set, &point, src);
+                    if (set->apply != NULL) {
+                        bool apply = true;
+
+                        if ( (shift == false) && (cell == row_max-1) ) apply = false;
+                        else if ( (shift == true) && (cell == 0) )     apply = false;
+
+                        if (apply) set->apply(set, &point, src);
+                    }
 
                     /* check if it will block others */
                     if (transparent == false) {
