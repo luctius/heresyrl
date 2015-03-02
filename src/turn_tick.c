@@ -28,8 +28,8 @@ void tt_process_monsters(struct dm_map *map) {
     if (gbl_game->turn % TT_ENERGY_TURN == 0) {
         while ( (monster = msrlst_get_next_monster(monster) ) != NULL) {
             if (monster->dead == false) {
-                monster->rolls.awareness = msr_calculate_skill(monster, MSR_SKILLS_AWARENESS) + random_xd10(gbl_game->random, 1);
-                monster->rolls.stealth   = msr_calculate_skill(monster, MSR_SKILLS_STEALTH)   + random_xd10(gbl_game->random, 1);
+                monster->stealth.awareness = random_d100(gbl_game->random);
+                monster->stealth.stealth   = random_d100(gbl_game->random);
             }
         }
     }
