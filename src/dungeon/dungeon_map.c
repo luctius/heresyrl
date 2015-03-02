@@ -206,7 +206,7 @@ bool dm_populate_map(struct dm_map *map, struct random *r, uint32_t monster_chan
             c = cd_create(xi,yi);
             if (cd_pyth(&map->stair_up, &c) <= nogo_radius) continue; /* no npc's too close to the start */
 
-            if ( (random_int32(r) % 10000) <= (monster_chance/100)+1 ) {
+            if ( (random_int32(r) % 10000) <= (monster_chance/20)+1 ) {
                 uint32_t leader = 0;
                 int msr_cnt = random_int32(r) % 20;
                 for (int i = 0; i < msr_cnt; i++) {
@@ -704,7 +704,7 @@ bool dm_generate_map(struct dm_map *map, enum dm_dungeon_type type, int level, u
     pf_exit(pf_ctx);
 
     /* fill the map with items and monsters */
-    if (populate) dm_populate_map(map, r, 100, 5, level);
+    if (populate) dm_populate_map(map, r, 150, 5, level);
 
     /*cleanup random*/
     random_exit(r);

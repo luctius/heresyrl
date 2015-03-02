@@ -242,9 +242,11 @@ void ts_turn_tick(struct tl_tile *tile, coord_t *pos, struct dm_map *map) {
 
             if (p.x != 0 && p.y != 0) {
                 struct dm_map_entity *me = dm_get_map_me(&p, map);
-                ge_create(GEID_MAD_CAP_CLOUD, me);
+                if ( (random_int32(gbl_game->random)  % 1000) == 30) {
+                    ge_create(GEID_MAD_CAP_CLOUD, me);
+                }
                 if (inv_inventory_size(me->inventory) == 0) {
-                    if (random_d100(gbl_game->random) == 1) {
+                    if ( (random_int32(gbl_game->random)  % 1000) == 2) {
                         struct itm_item *item = itm_create(IID_MUSHROOM_MAD_CAP);
                         assert(itm_insert_item(item, map, &p) );
                     }
