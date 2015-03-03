@@ -886,7 +886,7 @@ bool fght_can_see(struct dm_map *map, struct msr_monster *monster, struct msr_mo
     int awareness_DoS = (awareness - tgt->stealth.awareness) / 10;
     int stealth_DoS   = (stealth   - tgt->stealth.stealth)   / 10;
 
-    lg_ai_debug(monster, "can see: %s (%d(%d) vs %d(%d) )", msr_ldname(tgt), awareness, monster->stealth.awareness, stealth, tgt->stealth.stealth);
+    lg_ai_debug(monster, "test see: (%d(%d) vs %s %d(%d) )", msr_ldname(tgt), awareness, monster->stealth.awareness, stealth, tgt->stealth.stealth);
     if (awareness > stealth) {
         tgt->stealth.last_seen = gbl_game->turn;
         You(monster, "notice %s", msr_ldname(tgt) );
