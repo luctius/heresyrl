@@ -99,8 +99,8 @@ void plr_create(struct pl_player *plr, char *name, uint32_t template_id, enum ms
     player->characteristic[MSR_CHAR_INTELLIGENCE].base_value   += random_xd10(gbl_game->random, 2);
     player->characteristic[MSR_CHAR_WILLPOWER].base_value      += random_xd10(gbl_game->random, 2);
     player->characteristic[MSR_CHAR_PERCEPTION].base_value     += random_xd10(gbl_game->random, 2);
-    player->max_wounds    = gen_starting_wnds(player->race, random_xd10(gbl_game->random, 1) );
-    player->cur_wounds    = player->max_wounds;
+    player->wounds.max    = gen_starting_wnds(player->race, random_xd10(gbl_game->random, 1) );
+    player->wounds.curr    = player->wounds.max;
     player->fate_points   = gen_starting_fp(player->race, random_xd10(gbl_game->random, 1) );
 
     /* give humans and halflings a random talent */
@@ -211,20 +211,20 @@ static bool plr_action_loop(struct msr_monster *player) {
         return true;
     }
 
-    if ( ( (player->cur_wounds * 100) / player->max_wounds) < 10) {
+    if ( ( (player->wounds.curr * 100) / player->wounds.max) < 10) {
         if (critical_wounds_warning == false) {
             Warning("hitpoints critical.");
             critical_wounds_warning = true;
         }
     }
-    else if ( ( (player->cur_wounds * 100) / player->max_wounds) < 50) {
+    else if ( ( (player->wounds.curr * 100) / player->wounds.max) < 50) {
         if (low_wounds_warning == false) {
             Warning("low hitpoints.");
             low_wounds_warning = true;
         }
         critical_wounds_warning = false;
     }
-    else if ( ( (player->cur_wounds * 100) / player->max_wounds) > 50) {
+    else if ( ( (player->wounds.curr * 100) / player->wounds.max) > 50) {
         low_wounds_warning = false;
     }
 

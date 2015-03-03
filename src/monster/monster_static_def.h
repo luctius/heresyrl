@@ -18,7 +18,7 @@
 #define MONSTER(_icon,_sd_name,_ld_name,_gender,maxwounds) \
         {.uid=0, .icon=_icon, .sd_name=cs_MONSTER _sd_name cs_CLOSE, \
         .ld_name=cs_MONSTER _ld_name cs_CLOSE, \
-        .gender=_gender, .cur_wounds=maxwounds, .max_wounds=maxwounds,
+        .gender=_gender, .wounds.curr=maxwounds, .wounds.max=maxwounds,
 #define MONSTER_END }
 
 #define CREATION(wght, lvl, l) \

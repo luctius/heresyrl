@@ -628,13 +628,13 @@ bool msr_do_dmg(struct msr_monster *monster, int dmg, enum dmg_type dmg_type, en
     bool critic = false;
 
      /* temp var so we can notify the player when the monster is critical wounded for the first time.*/
-    if (monster->cur_wounds < 0) critic = true;
+    if (monster->wounds.curr < 0) critic = true;
 
     if (dmg > 0) {
-        monster->cur_wounds -= dmg;
+        monster->wounds.curr -= dmg;
         monster->stealth.last_defended = gbl_game->turn;
 
-        if (monster->cur_wounds < 0) {
+        if (monster->wounds.curr < 0) {
             if (monster->unique_name == NULL) {
                 if (dmg > MSR_WEAPON_DAMAGE_INSTA_DEATH) {
                     return msr_die(monster, gbl_game->current_map);
@@ -644,11 +644,11 @@ bool msr_do_dmg(struct msr_monster *monster, int dmg, enum dmg_type dmg_type, en
             /* do critical hits! */
             if (mhl != MSR_HITLOC_NONE) {
                 /* Add critical hit */
-                se_add_critical_hit(monster, monster->cur_wounds, mhl, dmg_type);
+                se_add_critical_hit(monster, monster->wounds.curr, mhl, dmg_type);
             }
 
-            if (monster->cur_wounds < -STATUS_EFFECT_CRITICAL_MAX && monster->dead == false) {
-                lg_ai_debug(monster, "Paranoia Death (%d, max %d).", monster->cur_wounds, -STATUS_EFFECT_CRITICAL_MAX);
+            if (monster->wounds.curr < -STATUS_EFFECT_CRITICAL_MAX && monster->dead == false) {
+                lg_ai_debug(monster, "Paranoia Death (%d, max %d).", monster->wounds.curr, -STATUS_EFFECT_CRITICAL_MAX);
                 return msr_die(monster, gbl_game->current_map);
             }
 

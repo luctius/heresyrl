@@ -112,9 +112,6 @@ static bool sv_save_monsters(FILE *file, int indent) {
             fprintf(file,"race=%d,", m->race);
             fprintf(file,"size=%d,", m->size);
             fprintf(file,"gender=%d,", m->gender);
-            fprintf(file,"cur_wounds=%d,", m->cur_wounds);
-            fprintf(file,"max_wounds=%d,", m->max_wounds);
-            fprintf(file,"wounds_added=%d,", m->wounds_added);
             fprintf(file,"fate_points=%d,", m->fate_points);
             fprintf(file,"insanity_points=%d,", m->insanity_points);
             fprintf(file,"corruption_points=%d,", m->corruption_points);
@@ -124,6 +121,8 @@ static bool sv_save_monsters(FILE *file, int indent) {
             fprintf(file,"pos={x=%d,y=%d,},", m->pos.x,m->pos.y);
             fprintf(file,"creature_traits=%"PRIu64",",m->creature_traits);
             if (m->unique_name != NULL) fprintf(file, "unique_name=\"%s\",",m->unique_name);
+
+            fprintf(file,"wounds={curr=%d,max=%d,added=%d,},", m->wounds.curr, m->wounds.max, m->wounds.added);
 
             fprintf(file,"idle_counter=%d,", m->idle_counter);
 

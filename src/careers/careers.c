@@ -123,7 +123,7 @@ bool cr_can_upgrade_wounds(struct cr_career *cr, struct msr_monster *player) {
     if (msr_verify_monster(player) == false) return false;
     if (cr == NULL) return false;
 
-    if (player->wounds_added >= cr->wounds) return false;
+    if (player->wounds.added >= cr->wounds) return false;
     return true;
 }
 
@@ -179,9 +179,9 @@ bool cr_upgrade_characteristic(struct cr_career *cr, struct msr_monster *player,
 bool cr_upgrade_wounds(struct cr_career *cr, struct msr_monster *player) {
     if (cr_can_upgrade_wounds(cr, player) == false) return false;
 
-    player->cur_wounds += 1;
-    player->max_wounds += 1;
-    player->wounds_added += 1;
+    player->wounds.curr += 1;
+    player->wounds.max += 1;
+    player->wounds.added += 1;
     return true;
 }
 

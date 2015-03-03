@@ -361,7 +361,7 @@ int fght_calc_dmg(struct random *r, struct msr_monster *monster, struct msr_mons
 
         msr_do_dmg(target, total_damage, wpn->dmg_type, mhl);
 
-        Info("Doing %d%s+%d damage => %d, %d wnds left.", wpn->nr_dmg_die, random_die_name(dmg_die_sz), dmg_add, dmg, target->cur_wounds);
+        Info("Doing %d%s+%d damage => %d, %d wnds left.", wpn->nr_dmg_die, random_die_name(dmg_die_sz), dmg_add, dmg, target->wounds.curr);
         if (target->dead) h = hits;
     }
 

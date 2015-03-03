@@ -140,6 +140,15 @@ struct monster_stealth {
 };
 
 struct monster_wounds {
+    /* current number of wounds, more is better */
+    int8_t curr;
+
+    /* maxmimum number of wounds, more is better */
+    int8_t max;
+
+    /* number of wounds added due to career advancements. */
+    int8_t added;
+
 };
 
 struct msr_monster {
@@ -173,17 +182,10 @@ struct msr_monster {
     bitfield8_t faction;
     bitfield32_t dungeon_locale;
 
+    struct monster_wounds wounds;
+
     enum msr_race race;
     enum msr_size size;
-
-    /* current number of wounds, more is better */
-    int8_t cur_wounds;
-
-    /* maxmimum number of wounds, more is better */
-    int8_t max_wounds;
-
-    /* number of wounds added due to career advancements. */
-    int8_t wounds_added;
 
     /* current number of fate points, not used. */
     uint8_t fate_points;

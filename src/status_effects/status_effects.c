@@ -799,9 +799,9 @@ void se_process_effects_last(struct se_type_struct *ces, struct msr_monster *mon
             break;
 
         case EF_MODIFY_MAX_WOUNDS:
-            monster->max_wounds += (ces->strength * -1) * ces->ticks_applied;
-            monster->cur_wounds = (monster->cur_wounds < monster->max_wounds) ? 
-                                    monster->cur_wounds : monster->max_wounds;
+            monster->wounds.max += (ces->strength * -1) * ces->ticks_applied;
+            monster->wounds.curr = (monster->wounds.curr < monster->wounds.max) ? 
+                                    monster->wounds.curr : monster->wounds.max;
             break;
 
         case EF_DISABLED_RARM:
@@ -908,15 +908,15 @@ void se_process_effects_during(struct se_type_struct *ces, struct msr_monster *m
             } break;
 
         case EF_HEALTH:
-            monster->cur_wounds += ces->strength;
-            monster->cur_wounds = (monster->cur_wounds < monster->max_wounds) ? 
-                                    monster->cur_wounds : monster->max_wounds;
+            monster->wounds.curr += ces->strength;
+            monster->wounds.curr = (monster->wounds.curr < monster->wounds.max) ? 
+                                    monster->wounds.curr : monster->wounds.max;
             break;
 
         case EF_MODIFY_MAX_WOUNDS:
-            monster->max_wounds += ces->strength;
-            monster->cur_wounds = (monster->cur_wounds < monster->max_wounds) ? 
-                                    monster->cur_wounds : monster->max_wounds;
+            monster->wounds.max += ces->strength;
+            monster->wounds.curr = (monster->wounds.curr < monster->wounds.max) ? 
+                                    monster->wounds.curr : monster->wounds.max;
             break;
 
         default: effect_clr_flag(ces, EF_SETT_ACTIVE); break;

@@ -267,13 +267,13 @@ static void mapwin_examine(struct dm_map_entity *me) {
                 if (me->monster->is_player == true) {
                     ui_printf(char_win, cs_PLAYER "You" cs_CLOSE " see yourself.\n");
 
-                    if (me->monster->cur_wounds < 0) ui_printf(char_win, cs_PLAYER "You" cs_CLOSE " are criticly wounded.\n");
-                    else if (me->monster->cur_wounds != me->monster->max_wounds) ui_printf(char_win, cs_PLAYER "You" cs_CLOSE " are wounded.\n");
+                    if (me->monster->wounds.curr < 0) ui_printf(char_win, cs_PLAYER "You" cs_CLOSE " are criticly wounded.\n");
+                    else if (me->monster->wounds.curr != me->monster->wounds.max) ui_printf(char_win, cs_PLAYER "You" cs_CLOSE " are wounded.\n");
                 } else {
                     ui_printf(char_win, cs_PLAYER "You" cs_CLOSE " see %s.\n", me->monster->ld_name);
 
-                    if (me->monster->cur_wounds < 0) ui_printf(char_win, "%s is criticly wounded.\n", msr_gender_name(me->monster, false) );
-                    else if (me->monster->cur_wounds != me->monster->max_wounds) ui_printf(char_win, "%s is wounded.\n", msr_gender_name(me->monster, false) );
+                    if (me->monster->wounds.curr < 0) ui_printf(char_win, "%s is criticly wounded.\n", msr_gender_name(me->monster, false) );
+                    else if (me->monster->wounds.curr != me->monster->wounds.max) ui_printf(char_win, "%s is wounded.\n", msr_gender_name(me->monster, false) );
 
 
                     if (inv_loc_empty(me->monster->inventory, INV_LOC_MAINHAND_WIELD) == false) {
@@ -383,13 +383,13 @@ void targetwin_examine(struct hrl_window *window, struct dm_map *map, struct msr
         if (me->monster->is_player == true) {
             ui_printf(window, "Target: " cs_PLAYER "you" cs_CLOSE ".\n");
 
-            if (me->monster->cur_wounds < 0) ui_printf(window, "You are criticly wounded.\n");
-            else if (me->monster->cur_wounds != me->monster->max_wounds) ui_printf(window, "You are wounded.\n");
+            if (me->monster->wounds.curr < 0) ui_printf(window, "You are criticly wounded.\n");
+            else if (me->monster->wounds.curr != me->monster->wounds.max) ui_printf(window, "You are wounded.\n");
         } else {
             ui_printf(window, "Target %s.\n", msr_ldname(me->monster) );
 
-            if (me->monster->cur_wounds < 0) ui_printf(window, "\n%s is criticly wounded.\n", msr_gender_name(me->monster, false) );
-            else if (me->monster->cur_wounds != me->monster->max_wounds) ui_printf(window, "\n%s is wounded.\n", msr_gender_name(me->monster, false) );
+            if (me->monster->wounds.curr < 0) ui_printf(window, "\n%s is criticly wounded.\n", msr_gender_name(me->monster, false) );
+            else if (me->monster->wounds.curr != me->monster->wounds.max) ui_printf(window, "\n%s is wounded.\n", msr_gender_name(me->monster, false) );
         }
 
     }
@@ -807,7 +807,7 @@ void charwin_refresh() {
 
     ui_printf(char_win, "\n");
 
-    ui_printf(char_win, cs_ATTR "Wounds" cs_CLOSE "    [%2d/%2d]\n", player->cur_wounds, player->max_wounds);
+    ui_printf(char_win, cs_ATTR "Wounds" cs_CLOSE "    [%2d/%2d]\n", player->wounds.curr, player->wounds.max);
     ui_printf(char_win, cs_ATTR "Armour" cs_CLOSE " [%d][%d][%d][%d]\n", 
                                             msr_calculate_armour(player, MSR_HITLOC_HEAD),
                                             msr_calculate_armour(player, MSR_HITLOC_BODY),
@@ -1253,7 +1253,7 @@ Basic weapon traning SP     ...                  |
     ui_printf(&pad, cs_ATTR "Race:"     cs_CLOSE "          %-20s\n", mon->sd_name);
     ui_printf(&pad, cs_ATTR "Career:"   cs_CLOSE "        %-20s\n", plr->career->title);
 
-    ui_printf(&pad, cs_ATTR "Wounds:"   cs_CLOSE "        %d/%d\n", mon->cur_wounds, mon->max_wounds);
+    ui_printf(&pad, cs_ATTR "Wounds:"   cs_CLOSE "        %d/%d\n", mon->wounds.curr, mon->wounds.max);
     ui_printf(&pad, cs_ATTR "XP:"       cs_CLOSE "            %d\n", plr->xp_current);
     ui_printf(&pad, cs_ATTR "XP Spend:" cs_CLOSE "      %d\n", plr->xp_spend);
 
