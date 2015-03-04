@@ -215,6 +215,12 @@ struct itm_item *itm_create(int template_id) {
     i->item.description = itm_descs[template_id];
     assert(i->item.description != NULL);
 
+    switch(i->item.item_type) {
+        case ITEM_TYPE_FOOD:
+            i->item.specific.food.nutrition_left = i->item.specific.food.nutrition * i->item.quality; break;
+            break;
+    }
+
     return &i->item;
 }
 

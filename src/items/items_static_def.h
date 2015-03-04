@@ -146,7 +146,7 @@ $ is for money
             .item_type=ITEM_TYPE_AMMO, .specific.ammo={ .ammo_type=_ammo_type, .convey_status_effect=cid, }
 
 #define DRAUGHT(cid) .icon='!', .stacked_quantity=1, .max_quantity=100, .dropable=true, \
-            .item_type=ITEM_TYPE_FOOD, .specific.food={ .food_type=FOOD_TYPE_LIQUID, .nutrition=0, .nutrition_left=0, .convey_status_effect=cid, }
+            .item_type=ITEM_TYPE_FOOD, .specific.food={ .food_type=FOOD_TYPE_LIQUID, .nutrition=2, .nutrition_left=2, .convey_status_effect=cid, }
 
 #define MUSHROOM(cid) .icon='&', .stacked_quantity=1, .max_quantity=100, .dropable=true, \
             .item_type=ITEM_TYPE_FOOD, .specific.food={ .food_type=FOOD_TYPE_SOLID, .nutrition=0, .nutrition_left=0, .convey_status_effect=cid, }
