@@ -790,20 +790,22 @@ void charwin_refresh() {
     ui_printf(char_win, cs_ATTR "Turn"   cs_CLOSE "      %d.%d\n", gbl_game->turn / TT_ENERGY_TURN, gbl_game->turn % TT_ENERGY_TURN);
     ui_printf(char_win, "\n");
 
-    int ws, bs, str, tgh, agi, intel, per, wil/*, fel*/;
-    ws = msr_calculate_characteristic(player, MSR_CHAR_WEAPON_SKILL);
-    bs = msr_calculate_characteristic(player, MSR_CHAR_BALISTIC_SKILL);
-    str = msr_calculate_characteristic(player, MSR_CHAR_STRENGTH);
-    tgh = msr_calculate_characteristic(player, MSR_CHAR_TOUGHNESS);
-    agi = msr_calculate_characteristic(player, MSR_CHAR_AGILITY);
-    intel = msr_calculate_characteristic(player, MSR_CHAR_INTELLIGENCE);
-    per = msr_calculate_characteristic(player, MSR_CHAR_PERCEPTION);
-    wil = msr_calculate_characteristic(player, MSR_CHAR_WILLPOWER);
+    int ws = msr_calculate_characteristic(player, MSR_CHAR_WEAPON_SKILL);
+    int bs = msr_calculate_characteristic(player, MSR_CHAR_BALISTIC_SKILL);
+    int str = msr_calculate_characteristic(player, MSR_CHAR_STRENGTH);
+    int tgh = msr_calculate_characteristic(player, MSR_CHAR_TOUGHNESS);
+    int agi = msr_calculate_characteristic(player, MSR_CHAR_AGILITY);
+    int intel = msr_calculate_characteristic(player, MSR_CHAR_INTELLIGENCE);
+    int per = msr_calculate_characteristic(player, MSR_CHAR_PERCEPTION);
+    int wil = msr_calculate_characteristic(player, MSR_CHAR_WILLPOWER);
+    int mov = msr_calculate_characteristic(player, MSR_SEC_CHAR_MOVEMENT);
+    int att = msr_calculate_characteristic(player, MSR_SEC_CHAR_ATTACKS);
 
-    ui_printf(char_win, cs_ATTR "WS"  cs_CLOSE "   %d  " cs_ATTR "BS"  cs_CLOSE  "  %d\n", ws,  bs);
-    ui_printf(char_win, cs_ATTR "Str" cs_CLOSE  "  %d  " cs_ATTR "Tgh" cs_CLOSE  "  %d\n", str, tgh);
-    ui_printf(char_win, cs_ATTR "Agi" cs_CLOSE  "  %d  " cs_ATTR "Int" cs_CLOSE  "  %d\n", agi, intel);
-    ui_printf(char_win, cs_ATTR "Per" cs_CLOSE  "  %d  " cs_ATTR "Wil" cs_CLOSE  "  %d\n", per, wil);
+    ui_printf(char_win, cs_ATTR "WS"  cs_CLOSE "   %3d  " cs_ATTR "BS"  cs_CLOSE "   %3d\n", ws,  bs);
+    ui_printf(char_win, cs_ATTR "Str" cs_CLOSE  "  %3d  " cs_ATTR "Tgh" cs_CLOSE  "  %3d\n", str, tgh);
+    ui_printf(char_win, cs_ATTR "Agi" cs_CLOSE  "  %3d  " cs_ATTR "Int" cs_CLOSE  "  %3d\n", agi, intel);
+    ui_printf(char_win, cs_ATTR "Per" cs_CLOSE  "  %3d  " cs_ATTR "Wil" cs_CLOSE  "  %3d\n", per, wil);
+    ui_printf(char_win, cs_ATTR "Mov" cs_CLOSE  "  %3d  " cs_ATTR "Att" cs_CLOSE  "  %3d\n", mov, att);
 
     ui_printf(char_win, "\n");
 
