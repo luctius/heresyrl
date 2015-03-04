@@ -134,6 +134,7 @@ struct monster_stealth {
     int8_t stealth;
     bool stealth_mode;
 
+    uint32_t seen_plr;
     uint32_t last_seen;
     uint32_t last_attacked;
     uint32_t last_defended;

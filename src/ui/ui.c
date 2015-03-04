@@ -175,7 +175,7 @@ static void mapwin_display_map_noref(struct dm_map *map, coord_t *player) {
                 }
                 if (me->visible == true) {
                     if (tile->type == TILE_TYPE_FLOOR) {
-                        if (me->light_level >= 4) {
+                        if (me->light_level >= 5) {
                             attr_mod = TERM_COLOUR_YELLOW;
                         }
                         else if (me->light_level > 0) {

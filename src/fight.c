@@ -359,7 +359,11 @@ int fght_calc_dmg(struct random *r, struct msr_monster *monster, struct msr_mons
             Event_msg(&target->pos, "It does %d to %s.", total_damage, msr_ldname(target) );
         }
 
-        msr_do_dmg(target, total_damage, wpn->dmg_type, mhl);
+        if (msr_do_dmg(target, total_damage, wpn->dmg_type, mhl) == true) {
+            if (monster->is_player) {
+                target->stealth.seen_plr = gbl_game->turn;
+            }
+        }
 
         Info("Doing %d%s+%d damage => %d, %d wnds left.", wpn->nr_dmg_die, random_die_name(dmg_die_sz), dmg_add, dmg, target->wounds.curr);
         if (target->dead) h = hits;
@@ -473,9 +477,11 @@ int fght_ranged_roll(struct random *r, struct msr_monster *monster, struct msr_m
     Info("Ranged to-hit: roll %d, target: %d", roll, to_hit);
     if (roll < to_hit) {
         int dos = (to_hit - roll) / 10;
-        if (msr_can_use_evasion(monster, MSR_EVASION_DODGE) == true) {
-            if (msr_use_evasion(target, monster, witem, MSR_EVASION_DODGE, dos, 0) == true) {
-                return 0;
+        if (fght_can_see(gbl_game->current_map, target, monster) ) {
+            if (msr_can_use_evasion(monster, MSR_EVASION_DODGE) == true) {
+                if (msr_use_evasion(target, monster, witem, MSR_EVASION_DODGE, dos, 0) == true) {
+                    return 0;
+                }
             }
         }
 
@@ -521,14 +527,15 @@ int fght_melee_roll(struct random *r, struct msr_monster *monster, struct msr_mo
 
     Info("Melee to-hit: roll %d, target: %d", roll, to_hit);
     if (roll < to_hit) {
-        for (int i = 0; i < MSR_EVASION_MAX; i++) {
-            if (msr_can_use_evasion(target, i) == true) {
-                /* TODO: check if the target is aware of the attack (ie can see it coming). */
-                int to_hit_DoS = (to_hit - roll) / 10;
-                if (msr_use_evasion(target, monster, witem, i, to_hit_DoS, 0) == true) {
-                    return 0;
+        if (fght_can_see(gbl_game->current_map, target, monster) ) {
+            for (int i = 0; i < MSR_EVASION_MAX; i++) {
+                if (msr_can_use_evasion(target, i) == true) {
+                    int to_hit_DoS = (to_hit - roll) / 10;
+                    if (msr_use_evasion(target, monster, witem, i, to_hit_DoS, 0) == true) {
+                        return 0;
+                    }
+                    break;
                 }
-                break;
             }
         }
         return 1;
@@ -834,16 +841,27 @@ bool fght_can_see(struct dm_map *map, struct msr_monster *monster, struct msr_mo
     int medium  = msr_get_medium_sight_range(monster);
     int far     = msr_get_far_sight_range(monster);
 
-    if ( (monster->is_player) && (me->in_sight == false) ) return false;
-    else if ( (monster->is_player == false) && (sgt_has_los(map, &monster->pos, &tgt->pos, far) == false) ) return false;
+    if (monster->is_player) {
+        if (me->in_sight == false) return false;
+        if (tgt->stealth.last_seen >= gbl_game->turn - (2 * TT_ENERGY_TURN) ) {
+            tgt->stealth.last_seen = gbl_game->turn;
+            return true;
+        }
+    }
+    else {
+        if (sgt_has_los(map, &monster->pos, &tgt->pos, far) == false) return false;
+        if (tgt->is_player) {
+            if (monster->stealth.seen_plr >= gbl_game->turn - (2 * TT_ENERGY_TURN) ) {
+                monster->stealth.seen_plr = gbl_game->turn;
+                lg_ai_debug(monster, "sees %s automaticly", msr_ldname(tgt));
+                return true;
+            }
+        }
+    }
 
     lg_ai_debug(monster, "testing visual to %s", msr_ldname(tgt));
 
     if (monster->faction == tgt->faction) return true;
-    if (tgt->stealth.last_seen >= gbl_game->turn - (2 * TT_ENERGY_TURN) ) {
-        tgt->stealth.last_seen = gbl_game->turn;
-        return true;
-    }
 
     int awareness_mod   = 0;
     int stealth_mod     = 0;
@@ -853,8 +871,8 @@ bool fght_can_see(struct dm_map *map, struct msr_monster *monster, struct msr_mo
     if (sgt_in_radius(map, &monster->pos, &tgt->pos, near) )   awareness_mod =  10;
 
     awareness_mod -= cd_pyth(&monster->pos, &tgt->pos);
-    if (me->light_level >= 4) awareness_mod += 5;
-    if (me->light_level >  0) awareness_mod += 5;
+    if (me->light_level >= 5) awareness_mod += 10;
+    if (me->light_level >  0) awareness_mod += 10;
     if (me->light_level <  0) stealth_mod   += 5;
 
     int tgt_cc = msr_calculate_carrying_capacity(tgt);
@@ -888,7 +906,13 @@ bool fght_can_see(struct dm_map *map, struct msr_monster *monster, struct msr_mo
 
     lg_ai_debug(monster, "test see: (%d(%d) vs %s %d(%d) )", awareness, monster->stealth.awareness, msr_ldname(tgt), stealth, tgt->stealth.stealth);
     if (awareness > stealth) {
-        tgt->stealth.last_seen = gbl_game->turn;
+        if (monster->is_player) {
+            tgt->stealth.last_seen = gbl_game->turn;
+        }
+        else if (tgt->is_player) {
+            monster->stealth.seen_plr = gbl_game->turn;
+        }
+
         You(monster, "notice %s", msr_ldname(tgt) );
         Monster(monster, "notices %s", msr_ldname(tgt) );
         return true;
