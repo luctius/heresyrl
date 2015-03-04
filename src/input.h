@@ -32,6 +32,7 @@ enum inp_keys {
     INP_KEY_DOWN_RIGHT,
     INP_KEY_DOWN,
     INP_KEY_DOWN_LEFT,
+    INP_KEY_DIR_COMB,
 
     INP_KEY_RUN,
 

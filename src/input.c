@@ -147,77 +147,103 @@ enum inp_keys inp_get_input_text(struct inp_input *i) {
     return inp_get_from_log(i);
 }
 
+static enum inp_keys inp_translate_key(int ch) {
+    enum inp_keys k = INP_KEY_NONE;
+    switch (ch) {
+        case 'y': case 55:  case KEY_HOME:  k = INP_KEY_UP_LEFT; break;
+        case 'k': case 56:  case KEY_UP:    k = INP_KEY_UP; break;
+        case 'u': case 57:  case KEY_NPAGE: k = INP_KEY_UP_RIGHT; break;
+        case 'l': case 54:  case KEY_RIGHT: k = INP_KEY_RIGHT; break;
+        case 'n': case 51:  case KEY_PPAGE: k = INP_KEY_DOWN_RIGHT; break;
+        case 'j': case 50:  case KEY_DOWN:  k = INP_KEY_DOWN; break; 
+        case 'b': case 49:  case KEY_END:   k = INP_KEY_DOWN_LEFT; break;
+        case 'h': case 52:  case KEY_LEFT:  k = INP_KEY_LEFT; break;
+        case 124: k = INP_KEY_DIR_COMB; break; /* TODO find differnt key for this */
+        case '.': case 53:                  k = INP_KEY_WAIT; break;
+
+        case '/':       k = INP_KEY_RUN; break;
+
+        case 'q':
+        case 'Q':
+        case 27:        k = INP_KEY_ESCAPE; break;
+
+        case '@':       k = INP_KEY_CHARACTER; break;
+        case 'L':       k = INP_KEY_LOG; break;
+        case 'I':
+        case 'i':       k = INP_KEY_INVENTORY; break;
+        case 'X':
+        case 'x':       k = INP_KEY_EXAMINE; break;
+        case 'F':
+        case 'f':       k = INP_KEY_FIRE; break;
+        case 'D':
+        case 'd':       k = INP_KEY_DROP; break;
+        case 'T':       k = INP_KEY_THROW_ITEM; break;
+        case 't':       k = INP_KEY_THROW; break;
+        case 'W':
+        case 'w':       k = INP_KEY_WEAR; break;
+        case 'a':       k = INP_KEY_APPLY; break;
+        case 'r':       k = INP_KEY_RELOAD; break;
+        case 'R':       k = INP_KEY_UNLOAD; break;
+        case '[':       k = INP_KEY_WEAPON_SETTING; break;
+        case ']':       k = INP_KEY_WEAPON_SELECT; break;
+        case '\\':      k = INP_KEY_AMMO_SELECT; break;
+        case '+':       
+        case '=':       k = INP_KEY_PLUS; break;
+        case '_':       
+        case '-':       k = INP_KEY_MINUS; break;
+
+        case ' ':
+        case '\n':
+        case 'O':
+        case 'o':       k = INP_KEY_YES; break;
+        case 'C':
+        case 'c':       k = INP_KEY_NO; break;
+        case 'A':       k = INP_KEY_ALL; break;
+
+        case ',':
+        case 'g':       k = INP_KEY_PICKUP; break;
+
+        case '?':       k = INP_KEY_HELP; break;
+
+        case '>':       k = INP_KEY_STAIRS_DOWN; break;
+        case '<':       k = INP_KEY_STAIRS_UP; break;
+        case 24:        k = INP_KEY_QUIT; break;
+        case 9:         k = INP_KEY_TAB; break;
+                
+        default:
+            lg_debug("key pressed: %d.", ch);
+            break;
+    }
+    return k;
+}
+
 enum inp_keys inp_get_input(struct inp_input *i) {
     if (i == NULL) return -1;
     if (inp_verify(i) == false) return -1;
     enum inp_keys k = INP_KEY_NONE;
 
     if (inp_log_has_keys(i) == false) {
-        int ch = getch();
-        switch (ch) {
-            case 'y': case 55:  case KEY_HOME:  k = INP_KEY_UP_LEFT; break;
-            case 'k': case 56:  case KEY_UP:    k = INP_KEY_UP; break;
-            case 'u': case 57:  case KEY_NPAGE: k = INP_KEY_UP_RIGHT; break;
-            case 'l': case 54:  case KEY_RIGHT: k = INP_KEY_RIGHT; break;
-            case 'n': case 51:  case KEY_PPAGE: k = INP_KEY_DOWN_RIGHT; break;
-            case 'j': case 50:  case KEY_DOWN:  k = INP_KEY_DOWN; break; 
-            case 'b': case 49:  case KEY_END:   k = INP_KEY_DOWN_LEFT; break;
-            case 'h': case 52:  case KEY_LEFT:  k = INP_KEY_LEFT; break;
-            case '.': case 53:                  k = INP_KEY_WAIT; break;
+        k = inp_translate_key(getch() );
 
-            case '/':       k = INP_KEY_RUN; break;
+        if (k == INP_KEY_DIR_COMB) {
+            k = INP_KEY_NONE;
 
-            case 'q':
-            case 'Q':
-            case 27:        k = INP_KEY_ESCAPE; break;
-
-            case '@':       k = INP_KEY_CHARACTER; break;
-            case 'L':       k = INP_KEY_LOG; break;
-            case 'I':
-            case 'i':       k = INP_KEY_INVENTORY; break;
-            case 'X':
-            case 'x':       k = INP_KEY_EXAMINE; break;
-            case 'F':
-            case 'f':       k = INP_KEY_FIRE; break;
-            case 'D':
-            case 'd':       k = INP_KEY_DROP; break;
-            case 'T':       k = INP_KEY_THROW_ITEM; break;
-            case 't':       k = INP_KEY_THROW; break;
-            case 'W':
-            case 'w':       k = INP_KEY_WEAR; break;
-            case 'a':       k = INP_KEY_APPLY; break;
-            case 'r':       k = INP_KEY_RELOAD; break;
-            case 'R':       k = INP_KEY_UNLOAD; break;
-            case '[':       k = INP_KEY_WEAPON_SETTING; break;
-            case ']':       k = INP_KEY_WEAPON_SELECT; break;
-            case '\\':      k = INP_KEY_AMMO_SELECT; break;
-            case '+':       
-            case '=':       k = INP_KEY_PLUS; break;
-            case '_':       
-            case '-':       k = INP_KEY_MINUS; break;
-
-            case ' ':
-            case '\n':
-            case 'O':
-            case 'o':       k = INP_KEY_YES; break;
-            case 'C':
-            case 'c':       k = INP_KEY_NO; break;
-            case 'A':       k = INP_KEY_ALL; break;
-
-            case ',':
-            case 'g':       k = INP_KEY_PICKUP; break;
-
-            case '?':       k = INP_KEY_HELP; break;
-
-            case '>':       k = INP_KEY_STAIRS_DOWN; break;
-            case '<':       k = INP_KEY_STAIRS_UP; break;
-            case 24:        k = INP_KEY_QUIT; break;
-            case 9:         k = INP_KEY_TAB; break;
-                    
-            default:
-                lg_debug("key pressed: %d.", ch);
-                break;
+            int k1 = inp_translate_key(getch());
+            if (k1 == INP_KEY_LEFT || k1 == INP_KEY_RIGHT || k1 == INP_KEY_UP || k1 == INP_KEY_DOWN) {
+                int k2 = inp_translate_key(getch());
+                if (k2 == INP_KEY_LEFT || k2 == INP_KEY_RIGHT || k2 == INP_KEY_UP || k2 == INP_KEY_DOWN) {
+                    if      (k1 == INP_KEY_UP    && k2 == INP_KEY_LEFT)  k = INP_KEY_UP_LEFT;
+                    else if (k1 == INP_KEY_LEFT  && k2 == INP_KEY_UP)    k = INP_KEY_UP_LEFT;
+                    else if (k1 == INP_KEY_UP    && k2 == INP_KEY_RIGHT) k = INP_KEY_UP_RIGHT;
+                    else if (k1 == INP_KEY_RIGHT && k2 == INP_KEY_UP)    k = INP_KEY_UP_RIGHT;
+                    else if (k1 == INP_KEY_DOWN  && k2 == INP_KEY_LEFT)  k = INP_KEY_DOWN_LEFT;
+                    else if (k1 == INP_KEY_LEFT  && k2 == INP_KEY_DOWN)  k = INP_KEY_DOWN_LEFT;
+                    else if (k1 == INP_KEY_DOWN  && k2 == INP_KEY_RIGHT) k = INP_KEY_DOWN_RIGHT;
+                    else if (k1 == INP_KEY_RIGHT && k2 == INP_KEY_DOWN)  k = INP_KEY_DOWN_RIGHT;
+                }
+            }
         }
+
         if (k != INP_KEY_QUIT) inp_add_to_log(i, k);
     }
 
