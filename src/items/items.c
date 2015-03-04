@@ -308,7 +308,7 @@ bool itm_energy_action(struct itm_item *item, struct dm_map *map) {
     switch(item->item_type) {
         case ITEM_TYPE_TOOL:
             if (tool_is_type(item, TOOL_TYPE_LIGHT) ) {
-                item->specific.tool.energy_left = 0;
+                item->specific.tool.energy = 0;
                 item->specific.tool.lit = false;
                 msg("A %s switches off as it runs out of juice.", item->sd_name);
             }
@@ -366,7 +366,6 @@ bool itm_stack_compatible(struct itm_item *item1, struct itm_item *item2) {
     switch(item1->item_type) {
         case ITEM_TYPE_TOOL:
             if (item1->specific.tool.tool_type != item2->specific.tool.tool_type) return false;
-            if (item1->specific.tool.energy_left != item2->specific.tool.energy_left) return false;
             if (item1->specific.tool.energy != item2->specific.tool.energy) return false;
             break;
         case ITEM_TYPE_WEAPON:

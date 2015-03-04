@@ -286,7 +286,7 @@ static bool sv_save_items(FILE *file, int indent) {
                         } break;
                     case ITEM_TYPE_TOOL: {
                             struct item_tool_specific *tool = &item->specific.tool;
-                            fprintf(file, "tool={lit=%d,energy_left=%d},", tool->lit, tool->energy_left);
+                            fprintf(file, "tool={lit=%d,energy=%d},", tool->lit, tool->energy);
                         } break;
                     case ITEM_TYPE_AMMO: { } break;
                     default: break;

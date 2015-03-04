@@ -1066,7 +1066,7 @@ void invwin_examine(struct hrl_window *window, struct itm_item *item) {
         case ITEM_TYPE_TOOL: {
             struct item_tool_specific *tool = &item->specific.tool;
             if (tool->energy > 0) {
-                int energy_pc = (tool->energy_left * 100) / tool->energy;
+                int energy_pc = (tool->energy * 100) / tool->energy;
                 ui_printf(char_win, "Energy left %d\%\n", energy_pc);
             }
 

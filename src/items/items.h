@@ -171,7 +171,6 @@ struct item_wearable_specific {
 struct item_tool_specific {
     enum item_tool_type tool_type;
     int energy;
-    int energy_left;
     int light_luminem;
     bool lit;
 };

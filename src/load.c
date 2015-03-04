@@ -383,7 +383,7 @@ static bool load_items_list(lua_State *L) {
             case ITEM_TYPE_TOOL: {
                     struct item_tool_specific *tool = &item->specific.tool;
                     lua_intexpr(L, &t, "game.items[%d].tool.lit", i+1); tool->lit = t;
-                    lua_intexpr(L, &t, "game.items[%d].tool.energy_left", i+1); tool->energy_left = t;
+                    lua_intexpr(L, &t, "game.items[%d].tool.energy", i+1); tool->energy = t;
                 } break;
             case ITEM_TYPE_AMMO: {
                 } break;

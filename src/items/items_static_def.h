@@ -81,12 +81,12 @@ $ is for money
 
 #define FIXED_LIGHT(_tool_type,_energy,_light_luminem) \
             .icon='/', .stacked_quantity=1, .max_quantity=100, .item_type=ITEM_TYPE_TOOL, \
-            .specific.tool={ .tool_type=_tool_type, .energy=_energy, .energy_left=_energy, \
+            .specific.tool={ .tool_type=_tool_type, .energy=_energy, \
             .light_luminem=_light_luminem, .lit=false,}, .permanent_energy=true, .dropable=false
 
 #define LIGHT(_tool_type,_energy,_light_luminem) \
             .icon='/', .stacked_quantity=1, .max_quantity=100, .item_type=ITEM_TYPE_TOOL, \
-            .specific.tool={ .tool_type=_tool_type, .energy=_energy, .energy_left=_energy, \
+            .specific.tool={ .tool_type=_tool_type, .energy=_energy, \
             .light_luminem=_light_luminem, .lit=false,}, .dropable=true
 
 #define ARMOUR(_damage_reduction,_locations,_special_quality) \
