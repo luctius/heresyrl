@@ -1,4 +1,6 @@
 Major Ideas:
+Episodic maps; large map, after the quest some downtime to heal 
+   non-critical wounds, buy stuff and go to next mission.
 Quack medicine, most of the times provides a benefit, and also something else.
 Critical damage should be tracked seperatly, and only normal damage can be 
     healed through non magical means.
@@ -10,8 +12,6 @@ Dungeon generation with doors and better loops.
 Provide TERM_COLOUR <-> colour msg attr translation.
 Title Screen and Death screen. <-- New Title
 [C]ombine as an inventory command OR [A]lternate Use.
-Episodic maps; large map, after the quest some downtime to heal 
-    non-critical wounds, buy stuff and go to next mission.
 Write a layer between the dungeon_map and the display map.,
     for hallucination effects etc.
 
