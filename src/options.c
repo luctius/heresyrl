@@ -99,11 +99,12 @@ void opt_parse_options(struct gengetopt_args_info *args_info) {
     }
     if (args_info->race_given == true) {
         switch(args_info->race_arg) {
-            case race__NULL:        options.char_race = MSR_RACE_MAX;
-            case race_arg_dwarf:    options.char_race = MSR_RACE_DWARF;
-            case race_arg_elf:      options.char_race = MSR_RACE_ELF;
-            case race_arg_halfling: options.char_race = MSR_RACE_HALFLING;
-            case race_arg_human:    options.char_race = MSR_RACE_HUMAN;
+            case race__NULL:        options.char_race = MSR_RACE_MAX;       break;
+            case race_arg_dwarf:    options.char_race = MSR_RACE_DWARF;     break;
+            case race_arg_elf:      options.char_race = MSR_RACE_ELF;       break;
+            case race_arg_halfling: options.char_race = MSR_RACE_HALFLING;  break;
+            case race_arg_human:    options.char_race = MSR_RACE_HUMAN;     break;
+            default: assert(false); break;
         };
         options.debug_no_load = true;
     }

@@ -48,7 +48,7 @@ void win_generate_colours(void) {
 }
 
 static inline uint16_t ui_idx_to_real_idx(char *txt, int pidx) {
-    for (int i = 0; i < strlen(txt); i++) {
+    for (int i = 0; i < (int) strlen(txt); i++) {
         if (clrstr_is_colour(&txt[i]) || clrstr_is_close(&txt[i]) ) {
             int l = clrstr_len(&txt[i]);
             i += l-1;

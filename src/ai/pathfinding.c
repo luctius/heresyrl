@@ -31,11 +31,11 @@ struct pf_entry {
 
 static TAILQ_HEAD(pf_list, pf_entry) pf_list_head;
 
-static void pf_list_init() {
+static void pf_list_init(void) {
     TAILQ_INIT(&pf_list_head);
 }
 
-static void pf_list_exit() {
+static void pf_list_exit(void) {
     struct pf_entry *e = NULL;
     while (pf_list_head.tqh_first != NULL) {
         e = pf_list_head.tqh_first;
