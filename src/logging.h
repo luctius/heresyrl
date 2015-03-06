@@ -76,8 +76,8 @@ struct log_entry {
 /*
 Warning: Stacking multiple of the same cs_XXX is not supported yet
 */
-#define CS_COLOUR_PRE "{{"
-#define CS_COLOUR_POST "}}"
+#define CS_COLOUR_PRE "<<<"
+#define CS_COLOUR_POST ">>>"
 #define cs_MONSTER  CS_COLOUR_PRE "monster" CS_COLOUR_POST 
 #define cs_PLAYER   CS_COLOUR_PRE "player" CS_COLOUR_POST 
 #define cs_ITEM     CS_COLOUR_PRE "item" CS_COLOUR_POST 
@@ -88,7 +88,7 @@ Warning: Stacking multiple of the same cs_XXX is not supported yet
 #define cs_SYSTEM   CS_COLOUR_PRE "system" CS_COLOUR_POST 
 #define cs_ATTR     CS_COLOUR_PRE "attr" CS_COLOUR_POST 
 #define cs_OLD      CS_COLOUR_PRE "old" CS_COLOUR_POST 
-#define cs_CLOSE    CS_COLOUR_PRE "/" CS_COLOUR_POST 
+#define cs_CLOSE    CS_COLOUR_PRE "" CS_COLOUR_POST 
 int clrstr_len(const char *txt);
 bool clrstr_is_colour(const char *txt);
 bool clrstr_is_close(const char *txt);
