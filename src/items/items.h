@@ -182,7 +182,7 @@ struct item_food_specific {
     enum se_ids convey_status_effect;
 
     uint8_t side_effect_chance;
-    bool side_effect_identified
+    bool side_effect_identified;
     enum se_ids side_effect;
 };
 
