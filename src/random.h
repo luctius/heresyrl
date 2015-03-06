@@ -31,6 +31,7 @@ int random_xd5(struct random *r, int nr_die);
 int random_xd10(struct random *r, int nr_die);
 int random_d100(struct random *r);
 
+/* TODO: implement http://stackoverflow.com/questions/288739/generate-random-numbers-uniformly-over-an-entire-range/288869#288869 */
 unsigned long random_int32(struct random *r);
 double random_float(struct random *r);
 
