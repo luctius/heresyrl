@@ -180,6 +180,9 @@ struct item_food_specific {
     int nutrition;
     int nutrition_left;
     enum se_ids convey_status_effect;
+    bool has_side_effect;
+    uint8_t side_effect_chance;
+    enum se_ids side_effect;
 };
 
 struct item_ammo_specific {
