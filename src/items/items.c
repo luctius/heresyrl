@@ -219,6 +219,7 @@ struct itm_item *itm_create(int template_id) {
         case ITEM_TYPE_FOOD:
             i->item.specific.food.nutrition_left = i->item.specific.food.nutrition * i->item.quality; break;
             break;
+        default: break;
     }
 
     return &i->item;

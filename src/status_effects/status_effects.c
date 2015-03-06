@@ -584,6 +584,7 @@ bool se_add_critical_hit(struct msr_monster *monster, int dmg, enum msr_hit_loca
             if (se_has_non_healable_permanent_effect(monster, EF_DISABLED_RARM) ) return false;
         case MSR_HITLOC_BODY: break;
         case MSR_HITLOC_HEAD: break;
+        default: break;
     }
 
     lg_ai_debug(monster, "Adding Critical Hit: %s (tid:%d)", static_status_effect_list[crit_effect].name, crit_effect);

@@ -550,7 +550,6 @@ int fght_thrown_roll(struct random *r, struct msr_monster *monster, coord_t *pos
     if (msr_verify_monster(monster) == false) return -1;
     if (itm_verify_item(witem) == false) return -1;
 
-    bool print = false;
     struct msr_monster *target = dm_get_map_me(pos, gbl_game->current_map)->monster;
 
     monster->stealth.last_attacked = gbl_game->turn;
@@ -886,7 +885,7 @@ bool fght_can_see(struct dm_map *map, struct msr_monster *monster, struct msr_mo
         if (cd_within_bound(&c, &map->size) == true) {
             struct dm_map_entity *cme = dm_get_map_me(&c, map);
             if (TILE_HAS_ATTRIBUTE(cme->tile, TILE_ATTR_TRANSPARENT) ||
-                ( (cme->effect != NULL) && (cme->effect->flags & GR_EFFECTS_OPAQUE == 0) ) ) {
+                ( (cme->effect != NULL) && ( (cme->effect->flags & GR_EFFECTS_OPAQUE) == 0) ) ) {
                 stealth_mod -= 1;
             }
         }
@@ -905,7 +904,7 @@ bool fght_can_see(struct dm_map *map, struct msr_monster *monster, struct msr_mo
     int stealth_DoS   = (stealth   - tgt->stealth.stealth)   / 10;
 
     lg_ai_debug(monster, "test see: (%d(%d) vs %s %d(%d) )", awareness, monster->stealth.awareness, msr_ldname(tgt), stealth, tgt->stealth.stealth);
-    if (awareness > stealth) {
+    if (awareness_DoS > stealth_DoS) {
         if (monster->is_player) {
             tgt->stealth.last_seen = gbl_game->turn;
         }

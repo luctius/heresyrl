@@ -215,13 +215,8 @@ bool ma_do_throw(struct msr_monster *monster, coord_t *pos, struct itm_item *ite
     if (msr_verify_monster(monster) == false) return false;
     if (itm_verify_item(item) == false) return false;
     if (pos == NULL) return false;
-    struct itm_item *item_bkp = NULL;
-    enum msr_weapon_selection wsel = monster->wpn_sel;
-    enum fght_hand hand = FGHT_MAIN_HAND;
     int cost = MSR_ACTION_THROW / msr_calculate_characteristic(monster, MSR_SEC_CHAR_ATTACKS); 
-    bool change = false;
     bool thrown = false;
-    bitfield32_t locs;
 
     /* do status checks on monster*/
     if (se_has_effect(monster, EF_SWIMMING) ) {

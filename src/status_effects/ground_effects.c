@@ -160,7 +160,7 @@ void ge_process(struct dm_map *map) {
 
         /* TODO: check if any monster here is affected by the se_id */
         if (ge->me->monster != NULL) {
-            if (ge->flags & GR_EFFECTS_REMOVE_ON_EXIT > 0) {
+            if ( (ge->flags & GR_EFFECTS_REMOVE_ON_EXIT ) > 0) {
                 se_remove_effects_by_tid(ge->me->monster, ge->tid);
             }
         }

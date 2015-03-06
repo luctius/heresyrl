@@ -371,7 +371,7 @@ static bool dm_tunnel(struct dm_map *map, struct random *r, coord_t *start, coor
         int ymod = (delta.y >= 0) ? 1: -1;
 
         bool last = false;
-        if (cd_equal(&prev, end) || cd_neighbour(&prev, end) ) last == true;
+        if (cd_equal(&prev, end) || cd_neighbour(&prev, end) ) last = true;
         
         int roll = random_int32(r) % 100;
         if (first || last || roll < 80) {
@@ -528,7 +528,7 @@ enum dm_feature_type {
 bool dm_generate_feature(struct dm_map *map, struct random *r, coord_t *point, int min_radius, int max_radius, enum dm_feature_type ft) {
     coord_t ft_sz = { .x = max_radius, .y = max_radius, };
     coord_t ul = { .x = point->x - max_radius, .y = point->y - max_radius, };
-    coord_t dr = { .x = point->x + max_radius, .y = point->y + max_radius, };
+    //coord_t dr = { .x = point->x + max_radius, .y = point->y + max_radius, };
 
     struct ca_map *camap = ca_init(&ft_sz);
 
@@ -764,7 +764,7 @@ bool dm_tile_exit(struct dm_map *map, coord_t *point, struct msr_monster *monste
     }
 
     if (me->effect != NULL) {
-        if (me->effect->flags & GR_EFFECTS_REMOVE_ON_EXIT > 0) {
+        if ( (me->effect->flags & GR_EFFECTS_REMOVE_ON_EXIT) > 0) {
             se_remove_effects_by_tid(monster, me->effect->tid);
         }
     }

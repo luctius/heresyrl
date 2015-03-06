@@ -229,6 +229,7 @@ void ts_turn_tick_monster(struct tl_tile *tile, struct msr_monster *monster) {
 
 void ts_turn_tick(struct tl_tile *tile, coord_t *pos, struct dm_map *map) {
     switch (tile->id) {
+        default: break;
         case TILE_ID_MAD_CAP_FUNGUS:  {
             int r = random_xd10(gbl_game->random, 1);
             coord_t p = { .x = 0, .y = 0, };

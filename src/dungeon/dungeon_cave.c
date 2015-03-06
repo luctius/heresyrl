@@ -65,7 +65,6 @@ bool cave_generate_map(struct dm_map *map, struct random *r, enum dm_dungeon_typ
             coord_t c = cd_add(ul, &p);
 
             /* check if the cell is alive or dead */
-            enum tile_ids tid;
             if (ca_get_coord(cmap, &p) == CA_ALIVE) {
                 /* fill the tile with the specified type */
                 if(random_int32(r)%100 < 1) {
