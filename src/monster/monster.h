@@ -129,29 +129,6 @@ struct monster_controller {
     bool (*controller_cb)(struct msr_monster *monster); /* ai/player callback. */
 };
 
-struct monster_stealth {
-    int8_t awareness;
-    int8_t stealth;
-    bool stealth_mode;
-
-    uint32_t seen_plr;
-    uint32_t last_seen;
-    uint32_t last_attacked;
-    uint32_t last_defended;
-};
-
-struct monster_wounds {
-    /* current number of wounds, more is better */
-    int8_t curr;
-
-    /* maxmimum number of wounds, more is better */
-    int8_t max;
-
-    /* number of wounds added due to career advancements. */
-    int8_t added;
-
-};
-
 struct msr_monster {
     uint32_t monster_pre;
 
@@ -183,7 +160,16 @@ struct msr_monster {
     bitfield8_t faction;
     bitfield32_t dungeon_locale;
 
-    struct monster_wounds wounds;
+    struct {
+        /* current number of wounds, more is better */
+        int8_t curr;
+
+        /* maxmimum number of wounds, more is better */
+        int8_t max;
+
+        /* number of wounds added due to career advancements. */
+        int8_t added;
+    } wounds;
 
     enum msr_race race;
     enum msr_size size;
@@ -236,7 +222,17 @@ struct msr_monster {
     /* status_effects effecting this monster. */
     struct status_effect_list *status_effects;
 
-    struct monster_stealth stealth;
+    struct {
+        int8_t awareness;
+        int8_t stealth;
+        bool stealth_mode;
+
+        uint32_t seen_plr;
+        uint32_t last_seen;
+        uint32_t last_attacked;
+        uint32_t last_defended;
+    } stealth;
+
 
     /* Monster creation. */
     int weight;
