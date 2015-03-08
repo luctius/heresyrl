@@ -86,6 +86,7 @@ heresyrl_SOURCES =  \
 				src/dungeon/spawn.c \
 				src/dungeon/cellular_automata.c \
 				src/dungeon/diffusion_limited_aggregation.c \
+                src/quests/quests.c \
 				src/ai/ai.c \
 				src/ai/ai_utils.c \
 				src/ai/pathfinding.c \
