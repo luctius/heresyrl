@@ -49,6 +49,9 @@ heresyrl_SOURCES =  \
 				src/dungeon/tiles.h	\
 				src/dungeon/dungeon_cave.h	\
 				src/dungeon/dungeon_room.h	\
+                src/quests/quests.h \
+                src/quests/quests_static_def.h \
+                src/quests/quests_static.h \
 				src/careers/careers.h	\
 				src/careers/careers_static.h	\
                 src/careers/careers_static_def.h    \
