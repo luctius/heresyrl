@@ -2,9 +2,7 @@
 #include "quests.h"
 #include "quests_static.h"
 
-#include "dungeon/dungeon_map.h"
 #include "items/items.h"
-#include "monster/monster.h"
 
 #include "quests_static_def.h"
 

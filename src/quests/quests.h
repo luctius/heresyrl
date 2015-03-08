@@ -2,6 +2,8 @@
 #define QUESTS_H
 
 #include "heresyrl_def.h"
+#include "monster/monster.h"
+#include "dungeon/dungeon_map.h"
 
 enum quest_types {
     QST_TYPE_NONE,
@@ -20,6 +22,17 @@ struct quest {
     int xp_reward;
     int gp_reward;
 
+    struct {
+        enum dm_dungeon_type type;
+        int weight;
+    } dungeon[5];
+
+    struct {
+        enum msr_race race;
+        int weight;
+    } enemies[5];
+
+    /* used by the code */
     int state;
     uint32_t params[10];
 };
