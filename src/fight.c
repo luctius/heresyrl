@@ -569,7 +569,7 @@ int fght_thrown_roll(struct random *r, struct msr_monster *monster, coord_t *pos
 
     You_msg(monster,                "miss.");
     Monster_tgt_he(monster, target, "misses.");
-    return -1;
+    return ( (to_hit - roll) / 10) +1;
 }
 
 static enum fght_hand wpn_hand_list[] = { FGHT_MAIN_HAND, FGHT_OFF_HAND, FGHT_CREATURE_HAND, };
@@ -685,9 +685,11 @@ bool fght_throw_item(struct random *r, struct msr_monster *monster, struct dm_ma
     else {
         /* if we miss, scatter the object */
 
-        /* Never scatter more than the distance actually was.. */
         int dis = random_xd5(r, 1);
-        if (cd_pyth(&monster->pos, e) < dis) dis = cd_pyth(&monster->pos, e);
+        /* Maximum scatter is DoF. */
+        if (dis > (hits * -1) ) dis = hits * -1;
+        /* Maximum scatter is equal to the distance. */
+        if (dis > cd_pyth(&monster->pos, e) ) dis = cd_pyth(&monster->pos, e);
 
         end = sgt_scatter(map, r, e, dis);
         lg_debug("%s is scattered towards (%d,%d)", witem->ld_name, end.x, end.y);
