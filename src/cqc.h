@@ -19,10 +19,12 @@
 #ifndef CQC_H
 #define CQC_H
 
+#include <stdint.h>
+
 struct cqc {
-    int head;
-    int tail;
-    int size;
+    uint64_t head;
+    uint64_t tail;
+    uint64_t size;
 };
 
 /* round to the power of two */
@@ -45,11 +47,13 @@ struct cqc {
 #endif /* CQC_USE_MODULO */
 
 /* Number of Items in the buffer. */
-#define cqc_cnt(cqc)        ( ((cqc).head-(cqc).tail) & ((cqc).size) )
+#define cqc_cnt(cqc)            ( ((cqc).head-(cqc).tail) & ((cqc).size) )
 /* Retreive item, returns an used index and updates bookkeeping. */
-#define cqc_put(cqc)        ( ((cqc).head++)          & ((cqc).size) )
+#define cqc_put(cqc)            ( ((cqc).head++)          & ((cqc).size) )
+#define cqc_put_cnt(cqc, cnt)   ( ((cqc).head+=cnt)       & ((cqc).size) )
 /* Retreive item, returns an used index and updates bookkeeping. */
-#define cqc_get(cqc)        ( ((cqc).tail++)          & ((cqc).size) )
+#define cqc_get(cqc)            ( ((cqc).tail++)          & ((cqc).size) )
+#define cqc_get_cnt(cqc, cnt)   ( ((cqc).tail+=cnt)       & ((cqc).size) )
 /* Retreive item idx, does not touch bookkeeping. */
 #define cqc_peek(cqc, idx)  ( ((cqc).tail+idx)        & ((cqc).size) )
 /* Space left in the buffer. */
