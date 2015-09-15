@@ -48,8 +48,10 @@ typedef uint_least8_t  bitfield8_t;
 
 #define RANGE_MULTIPLIER (0.50f)
 
+#define BUILD_BUG_ON_FALSE(e) (sizeof(struct { int:-!!((e) == false); }))
+
 #ifdef __clang__
-#define static_assert(pred, msg)
+#define static_assert(pred, msg) BUILD_BUG_ON_FALSE(pred)
 #else
 #define static_assert(pred, msg) _Static_assert( (pred), msg);
 #endif
