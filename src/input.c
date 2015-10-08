@@ -128,7 +128,9 @@ enum inp_keys inp_get_input_idx(struct inp_input *i) {
     }
 
     assert(inp_log_has_keys(i) );
-    return inp_get_from_log(i);
+    k = inp_get_from_log(i);
+    lg_debug("key %d", k);
+    return k;
 }
 
 enum inp_keys inp_get_input_text(struct inp_input *i) {
@@ -144,7 +146,9 @@ enum inp_keys inp_get_input_text(struct inp_input *i) {
     }
 
     assert(inp_log_has_keys(i) );
-    return inp_get_from_log(i);
+    k = inp_get_from_log(i);
+    lg_debug("key text %d", k);
+    return k;
 }
 
 static enum inp_keys inp_translate_key(int ch) {
@@ -223,6 +227,10 @@ enum inp_keys inp_get_input(struct inp_input *i) {
     enum inp_keys k = INP_KEY_NONE;
 
     if (inp_log_has_keys(i) == false) {
+        if (options.test_auto) { 
+            return INP_KEY_QUIT;
+        }
+
         k = inp_translate_key(getch() );
 
         if (k == INP_KEY_DIR_COMB) {
@@ -249,7 +257,9 @@ enum inp_keys inp_get_input(struct inp_input *i) {
 
     if (k != INP_KEY_QUIT) {
         assert(inp_log_has_keys(i) );
-        return inp_get_from_log(i);
+        k = inp_get_from_log(i);
+        lg_debug("key text %d", k);
+        return k;
     }
 
     return k;

@@ -328,10 +328,6 @@ static bool load_input(lua_State *L, struct gm_game *g) {
     g->input->keylog_widx = sz;
     g->input->keylog_ridx = sz;
     if (options.play_recording) g->input->keylog_ridx = 0;
-    if (options.test_auto) { 
-        inp_add_to_log(g->input, INP_KEY_QUIT);
-        g->input->keylog_widx += 1;
-    }
 
     lg_debug("keylog size: %d", sz);
 
