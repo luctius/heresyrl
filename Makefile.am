@@ -108,9 +108,11 @@ heresyrl_SOURCES =  \
 heresyrl_CFLAGS = $(lua_CFLAGS)  -DGIT_VERSION=\"$(GIT_VERSION)\"
 heresyrl_LDADD = $(INTI_LIBS) -lm $(lua_LIBS)
 
+if GENGETOPT
 src/cmdline.c src/cmdline.h: heresyrl.ggo
 	$(SED) -i"" "s:usr_prefix:${prefix}:g" $<
 	$(GENGETOPT) --output-dir=src/ < $<
+endif
 
 #clean-local:
 #-rm -f src/cmdline.c

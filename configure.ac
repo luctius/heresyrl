@@ -40,7 +40,10 @@ AC_SEARCH_LIBS(initscr, ncursesw, [], [AC_MSG_ERROR([Unable to find ncursesw])],
 #AC_SEARCH_LIBS(new_panel, panel, [], [AC_MSG_ERROR([Unable to find ncurses panel])], [])
 #AC_SEARCH_LIBS(new_menu, menu,   [], [AC_MSG_ERROR([Unable to find ncurses menu])], [])
 #AC_SEARCH_LIBS(new_form, form,   [], [AC_MSG_ERROR([Unable to find ncurses form])], [])
-AC_PATH_PROGS(GENGETOPT, gengetopt)
+
+AC_PATH_PROGS([GENGETOPT], [gengetopt])
+AM_CONDITIONAL([GENGETOPT], [test x$GENGETOPT != x])
+AC_ARG_VAR([GENGETOPT], [application to generate the commandline arguments code])
 
 # Checks for header files.
 AC_CHECK_HEADERS([float.h inttypes.h limits.h stddef.h stdint.h stdlib.h string.h sys/param.h unistd.h])
