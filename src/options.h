@@ -30,6 +30,8 @@ struct opt_options {
     bool debug_no_save;
     bool print_map_only;
 
+    bool test_auto;
+
     bool play_recording;
     int  play_delay;
     int  play_stop;

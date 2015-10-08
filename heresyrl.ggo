@@ -3,12 +3,8 @@ version "development"
 purpose "Roguelike based on the Warhammer Roleplay version 2 rules from Black Industries."
  
 args "<command line options>"
- 
-option "debug"          d "show debug output" flag off
-option "map"            m "show the complete map" flag off
-option "no_load"        l "do not load a previous made character" flag off
-option "no_save"        s "do not save a made character" flag off
-option "print_map_only" - "only print the map and close" flag off
+
+section "Basic Options"
 
 option "playback"   - "play a savegame from start until current turn" flag off
 option "pb_delay"   - "delay when playing a savegame in miliseconds, default is 1 second" default="100" int optional
@@ -20,4 +16,13 @@ option "save_file"  - "save file name" default="/tmp/heresyrl.save" string optio
 option "name"       - "name of character" default="" string optional
 option "race"       - "race of character" values="dwarf","elf","halfling","human" enum optional
 
-#option "matrix_file" - "matrix file name" string default="usr_prefix/share/heresyrl/matrix" optional
+section "Testing Options"
+option "debug"          d "show debug output" flag off
+option "map"            m "show the complete map" flag off
+option "test_auto"      - "same as playback, but quite when done and show nothing" flag off
+
+option "no_load"        l "do not load a previous made character" flag off
+option "no_save"        s "do not save a made character" flag off
+
+option "print_map_only" - "only print the map and close" flag off
+

@@ -36,11 +36,7 @@ const char *gengetopt_args_info_description = "";
 const char *gengetopt_args_info_help[] = {
   "  -h, --help              Print help and exit",
   "  -V, --version           Print version and exit",
-  "  -d, --debug             show debug output  (default=off)",
-  "  -m, --map               show the complete map  (default=off)",
-  "  -l, --no_load           do not load a previous made character  (default=off)",
-  "  -s, --no_save           do not save a made character  (default=off)",
-  "      --print_map_only    only print the map and close  (default=off)",
+  "\nBasic Options:",
   "      --playback          play a savegame from start until current turn\n                            (default=off)",
   "      --pb_delay=INT      delay when playing a savegame in miliseconds, default\n                            is 1 second  (default=`100')",
   "      --pb_stop=INT       when playing a savegame, stop at after turn N\n                            (default=`0')",
@@ -48,6 +44,13 @@ const char *gengetopt_args_info_help[] = {
   "      --save_file=STRING  save file name  (default=`/tmp/heresyrl.save')",
   "      --name=STRING       name of character  (default=`')",
   "      --race=ENUM         race of character  (possible values=\"dwarf\",\n                            \"elf\", \"halfling\", \"human\")",
+  "\nTesting Options:",
+  "  -d, --debug             show debug output  (default=off)",
+  "  -m, --map               show the complete map  (default=off)",
+  "      --test_auto         same as playback, but quite when done and show\n                            nothing  (default=off)",
+  "  -l, --no_load           do not load a previous made character  (default=off)",
+  "  -s, --no_save           do not save a made character  (default=off)",
+  "      --print_map_only    only print the map and close  (default=off)",
     0
 };
 
@@ -78,11 +81,6 @@ void clear_given (struct gengetopt_args_info *args_info)
 {
   args_info->help_given = 0 ;
   args_info->version_given = 0 ;
-  args_info->debug_given = 0 ;
-  args_info->map_given = 0 ;
-  args_info->no_load_given = 0 ;
-  args_info->no_save_given = 0 ;
-  args_info->print_map_only_given = 0 ;
   args_info->playback_given = 0 ;
   args_info->pb_delay_given = 0 ;
   args_info->pb_stop_given = 0 ;
@@ -90,17 +88,18 @@ void clear_given (struct gengetopt_args_info *args_info)
   args_info->save_file_given = 0 ;
   args_info->name_given = 0 ;
   args_info->race_given = 0 ;
+  args_info->debug_given = 0 ;
+  args_info->map_given = 0 ;
+  args_info->test_auto_given = 0 ;
+  args_info->no_load_given = 0 ;
+  args_info->no_save_given = 0 ;
+  args_info->print_map_only_given = 0 ;
 }
 
 static
 void clear_args (struct gengetopt_args_info *args_info)
 {
   FIX_UNUSED (args_info);
-  args_info->debug_flag = 0;
-  args_info->map_flag = 0;
-  args_info->no_load_flag = 0;
-  args_info->no_save_flag = 0;
-  args_info->print_map_only_flag = 0;
   args_info->playback_flag = 0;
   args_info->pb_delay_arg = 100;
   args_info->pb_delay_orig = NULL;
@@ -114,6 +113,12 @@ void clear_args (struct gengetopt_args_info *args_info)
   args_info->name_orig = NULL;
   args_info->race_arg = race__NULL;
   args_info->race_orig = NULL;
+  args_info->debug_flag = 0;
+  args_info->map_flag = 0;
+  args_info->test_auto_flag = 0;
+  args_info->no_load_flag = 0;
+  args_info->no_save_flag = 0;
+  args_info->print_map_only_flag = 0;
   
 }
 
@@ -124,18 +129,19 @@ void init_args_info(struct gengetopt_args_info *args_info)
 
   args_info->help_help = gengetopt_args_info_help[0] ;
   args_info->version_help = gengetopt_args_info_help[1] ;
-  args_info->debug_help = gengetopt_args_info_help[2] ;
-  args_info->map_help = gengetopt_args_info_help[3] ;
-  args_info->no_load_help = gengetopt_args_info_help[4] ;
-  args_info->no_save_help = gengetopt_args_info_help[5] ;
-  args_info->print_map_only_help = gengetopt_args_info_help[6] ;
-  args_info->playback_help = gengetopt_args_info_help[7] ;
-  args_info->pb_delay_help = gengetopt_args_info_help[8] ;
-  args_info->pb_stop_help = gengetopt_args_info_help[9] ;
-  args_info->log_file_help = gengetopt_args_info_help[10] ;
-  args_info->save_file_help = gengetopt_args_info_help[11] ;
-  args_info->name_help = gengetopt_args_info_help[12] ;
-  args_info->race_help = gengetopt_args_info_help[13] ;
+  args_info->playback_help = gengetopt_args_info_help[3] ;
+  args_info->pb_delay_help = gengetopt_args_info_help[4] ;
+  args_info->pb_stop_help = gengetopt_args_info_help[5] ;
+  args_info->log_file_help = gengetopt_args_info_help[6] ;
+  args_info->save_file_help = gengetopt_args_info_help[7] ;
+  args_info->name_help = gengetopt_args_info_help[8] ;
+  args_info->race_help = gengetopt_args_info_help[9] ;
+  args_info->debug_help = gengetopt_args_info_help[11] ;
+  args_info->map_help = gengetopt_args_info_help[12] ;
+  args_info->test_auto_help = gengetopt_args_info_help[13] ;
+  args_info->no_load_help = gengetopt_args_info_help[14] ;
+  args_info->no_save_help = gengetopt_args_info_help[15] ;
+  args_info->print_map_only_help = gengetopt_args_info_help[16] ;
   
 }
 
@@ -303,16 +309,6 @@ cmdline_parser_dump(FILE *outfile, struct gengetopt_args_info *args_info)
     write_into_file(outfile, "help", 0, 0 );
   if (args_info->version_given)
     write_into_file(outfile, "version", 0, 0 );
-  if (args_info->debug_given)
-    write_into_file(outfile, "debug", 0, 0 );
-  if (args_info->map_given)
-    write_into_file(outfile, "map", 0, 0 );
-  if (args_info->no_load_given)
-    write_into_file(outfile, "no_load", 0, 0 );
-  if (args_info->no_save_given)
-    write_into_file(outfile, "no_save", 0, 0 );
-  if (args_info->print_map_only_given)
-    write_into_file(outfile, "print_map_only", 0, 0 );
   if (args_info->playback_given)
     write_into_file(outfile, "playback", 0, 0 );
   if (args_info->pb_delay_given)
@@ -327,6 +323,18 @@ cmdline_parser_dump(FILE *outfile, struct gengetopt_args_info *args_info)
     write_into_file(outfile, "name", args_info->name_orig, 0);
   if (args_info->race_given)
     write_into_file(outfile, "race", args_info->race_orig, cmdline_parser_race_values);
+  if (args_info->debug_given)
+    write_into_file(outfile, "debug", 0, 0 );
+  if (args_info->map_given)
+    write_into_file(outfile, "map", 0, 0 );
+  if (args_info->test_auto_given)
+    write_into_file(outfile, "test_auto", 0, 0 );
+  if (args_info->no_load_given)
+    write_into_file(outfile, "no_load", 0, 0 );
+  if (args_info->no_save_given)
+    write_into_file(outfile, "no_save", 0, 0 );
+  if (args_info->print_map_only_given)
+    write_into_file(outfile, "print_map_only", 0, 0 );
   
 
   i = EXIT_SUCCESS;
@@ -597,11 +605,6 @@ cmdline_parser_internal (
       static struct option long_options[] = {
         { "help",	0, NULL, 'h' },
         { "version",	0, NULL, 'V' },
-        { "debug",	0, NULL, 'd' },
-        { "map",	0, NULL, 'm' },
-        { "no_load",	0, NULL, 'l' },
-        { "no_save",	0, NULL, 's' },
-        { "print_map_only",	0, NULL, 0 },
         { "playback",	0, NULL, 0 },
         { "pb_delay",	1, NULL, 0 },
         { "pb_stop",	1, NULL, 0 },
@@ -609,6 +612,12 @@ cmdline_parser_internal (
         { "save_file",	1, NULL, 0 },
         { "name",	1, NULL, 0 },
         { "race",	1, NULL, 0 },
+        { "debug",	0, NULL, 'd' },
+        { "map",	0, NULL, 'm' },
+        { "test_auto",	0, NULL, 0 },
+        { "no_load",	0, NULL, 'l' },
+        { "no_save",	0, NULL, 's' },
+        { "print_map_only",	0, NULL, 0 },
         { 0,  0, 0, 0 }
       };
 
@@ -670,20 +679,8 @@ cmdline_parser_internal (
           break;
 
         case 0:	/* Long option with no short option */
-          /* only print the map and close.  */
-          if (strcmp (long_options[option_index].name, "print_map_only") == 0)
-          {
-          
-          
-            if (update_arg((void *)&(args_info->print_map_only_flag), 0, &(args_info->print_map_only_given),
-                &(local_args_info.print_map_only_given), optarg, 0, 0, ARG_FLAG,
-                check_ambiguity, override, 1, 0, "print_map_only", '-',
-                additional_error))
-              goto failure;
-          
-          }
           /* play a savegame from start until current turn.  */
-          else if (strcmp (long_options[option_index].name, "playback") == 0)
+          if (strcmp (long_options[option_index].name, "playback") == 0)
           {
           
           
@@ -774,6 +771,30 @@ cmdline_parser_internal (
                 &(local_args_info.race_given), optarg, cmdline_parser_race_values, 0, ARG_ENUM,
                 check_ambiguity, override, 0, 0,
                 "race", '-',
+                additional_error))
+              goto failure;
+          
+          }
+          /* same as playback, but quite when done and show nothing.  */
+          else if (strcmp (long_options[option_index].name, "test_auto") == 0)
+          {
+          
+          
+            if (update_arg((void *)&(args_info->test_auto_flag), 0, &(args_info->test_auto_given),
+                &(local_args_info.test_auto_given), optarg, 0, 0, ARG_FLAG,
+                check_ambiguity, override, 1, 0, "test_auto", '-',
+                additional_error))
+              goto failure;
+          
+          }
+          /* only print the map and close.  */
+          else if (strcmp (long_options[option_index].name, "print_map_only") == 0)
+          {
+          
+          
+            if (update_arg((void *)&(args_info->print_map_only_flag), 0, &(args_info->print_map_only_given),
+                &(local_args_info.print_map_only_given), optarg, 0, 0, ARG_FLAG,
+                check_ambiguity, override, 1, 0, "print_map_only", '-',
                 additional_error))
               goto failure;
           

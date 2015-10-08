@@ -41,16 +41,6 @@ struct gengetopt_args_info
 {
   const char *help_help; /**< @brief Print help and exit help description.  */
   const char *version_help; /**< @brief Print version and exit help description.  */
-  int debug_flag;	/**< @brief show debug output (default=off).  */
-  const char *debug_help; /**< @brief show debug output help description.  */
-  int map_flag;	/**< @brief show the complete map (default=off).  */
-  const char *map_help; /**< @brief show the complete map help description.  */
-  int no_load_flag;	/**< @brief do not load a previous made character (default=off).  */
-  const char *no_load_help; /**< @brief do not load a previous made character help description.  */
-  int no_save_flag;	/**< @brief do not save a made character (default=off).  */
-  const char *no_save_help; /**< @brief do not save a made character help description.  */
-  int print_map_only_flag;	/**< @brief only print the map and close (default=off).  */
-  const char *print_map_only_help; /**< @brief only print the map and close help description.  */
   int playback_flag;	/**< @brief play a savegame from start until current turn (default=off).  */
   const char *playback_help; /**< @brief play a savegame from start until current turn help description.  */
   int pb_delay_arg;	/**< @brief delay when playing a savegame in miliseconds, default is 1 second (default='100').  */
@@ -71,14 +61,21 @@ struct gengetopt_args_info
   enum enum_race race_arg;	/**< @brief race of character.  */
   char * race_orig;	/**< @brief race of character original value given at command line.  */
   const char *race_help; /**< @brief race of character help description.  */
+  int debug_flag;	/**< @brief show debug output (default=off).  */
+  const char *debug_help; /**< @brief show debug output help description.  */
+  int map_flag;	/**< @brief show the complete map (default=off).  */
+  const char *map_help; /**< @brief show the complete map help description.  */
+  int test_auto_flag;	/**< @brief same as playback, but quite when done and show nothing (default=off).  */
+  const char *test_auto_help; /**< @brief same as playback, but quite when done and show nothing help description.  */
+  int no_load_flag;	/**< @brief do not load a previous made character (default=off).  */
+  const char *no_load_help; /**< @brief do not load a previous made character help description.  */
+  int no_save_flag;	/**< @brief do not save a made character (default=off).  */
+  const char *no_save_help; /**< @brief do not save a made character help description.  */
+  int print_map_only_flag;	/**< @brief only print the map and close (default=off).  */
+  const char *print_map_only_help; /**< @brief only print the map and close help description.  */
   
   unsigned int help_given ;	/**< @brief Whether help was given.  */
   unsigned int version_given ;	/**< @brief Whether version was given.  */
-  unsigned int debug_given ;	/**< @brief Whether debug was given.  */
-  unsigned int map_given ;	/**< @brief Whether map was given.  */
-  unsigned int no_load_given ;	/**< @brief Whether no_load was given.  */
-  unsigned int no_save_given ;	/**< @brief Whether no_save was given.  */
-  unsigned int print_map_only_given ;	/**< @brief Whether print_map_only was given.  */
   unsigned int playback_given ;	/**< @brief Whether playback was given.  */
   unsigned int pb_delay_given ;	/**< @brief Whether pb_delay was given.  */
   unsigned int pb_stop_given ;	/**< @brief Whether pb_stop was given.  */
@@ -86,6 +83,12 @@ struct gengetopt_args_info
   unsigned int save_file_given ;	/**< @brief Whether save_file was given.  */
   unsigned int name_given ;	/**< @brief Whether name was given.  */
   unsigned int race_given ;	/**< @brief Whether race was given.  */
+  unsigned int debug_given ;	/**< @brief Whether debug was given.  */
+  unsigned int map_given ;	/**< @brief Whether map was given.  */
+  unsigned int test_auto_given ;	/**< @brief Whether test_auto was given.  */
+  unsigned int no_load_given ;	/**< @brief Whether no_load was given.  */
+  unsigned int no_save_given ;	/**< @brief Whether no_save was given.  */
+  unsigned int print_map_only_given ;	/**< @brief Whether print_map_only was given.  */
 
 } ;
 
