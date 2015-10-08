@@ -21,10 +21,12 @@
 
 #include <stdint.h>
 
+typedef int64_t cqcunit_t;
+
 struct cqc {
-    uint64_t head;
-    uint64_t tail;
-    uint64_t size;
+    cqcunit_t head;
+    cqcunit_t tail;
+    cqcunit_t size;
 };
 
 /* round to the power of two */
@@ -34,17 +36,18 @@ struct cqc {
 #ifdef CQC_USE_MODULO
 
     /* Init Circular buffer. In the case of Module, given size is the size of the buffer. */
-    #define cqc_init(cqc, sz) do { (cqc).size = sz; (cqc).tail = 0; (cqc).head = 0; } while (0)
+    #define cqc_init(cqc, sz) do { (cqc).size = sz-1; (cqc).tail = 0; (cqc).head = 0; } while (0)
     /* Size given with init. */
     #define cqc_qsz(cqc)        ( (cqc).size )
 
 #elif !defined(CQC_USE_MODULO)
 
     /* Init Circular buffer. In the case of AND, given size is the nearest power of 2 of the given size. cqc_qsz should be used to initialise the buffer. */
-    #define cqc_init(cqc, sz) do { uint32_t sz2 = (sz); cqc_rnd_to_pwr2(sz2); (cqc).size = sz2-1; (cqc).tail = 0; (cqc).head = 0; } while (0)
+    #define cqc_init(cqc, sz) do { cqcunit_t sz2 = (sz); cqc_rnd_to_pwr2(sz2); (cqc).size = sz2-1; (cqc).tail = 0; (cqc).head = 0; } while (0)
     /* Size calculated in init. */
-    #define cqc_qsz(cqc)        ( (cqc).size+1 )
 #endif /* CQC_USE_MODULO */
+
+#define cqc_qsz(cqc)        ( (cqc).size+1 )
 
 /* Number of Items in the buffer. */
 #define cqc_cnt(cqc)            ( ((cqc).head-(cqc).tail) & ((cqc).size) )
@@ -59,8 +62,8 @@ struct cqc {
 /* Space left in the buffer. */
 #define cqc_space(cqc)      ( ((cqc).size)            - (cqc_cnt(cqc)) )
 
-#define cqc_cnt_to_end(cqc)     ({int end = (cqc.size) - (cqc.tail); int n = ((cqc.head) + end) & ((cqc.size)-1); n < end ? n : end;})
-#define cqc_space_to_end(cqc)   ({int end = (cqc.size) - 1 - (cqc.head); int n = (end + (cqc.tail)) & ((cqc.size)-1); n <= end ? n : end+1;})
+#define cqc_cnt_to_end(cqc)     ({cqcunit_t cqcend = (cqc.size) - (cqc.tail); cqcunit_t cqcn = ((cqc.head) + cqcend) & ((cqc.size)-1); cqcn < cqcend ? cqcn : cqcend;})
+#define cqc_space_to_end(cqc)   ({cqcunit_t cqcend = (cqc.size) - 1 - (cqc.head); cqcunit_t cqcn = (cqcend + (cqc.tail)) & ((cqc.size)-1); cqcn <= cqcend ? cqcn : cqcend+1;})
 
 
 #endif /*CQC_H*/
