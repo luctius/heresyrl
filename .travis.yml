@@ -21,9 +21,9 @@ script:
     - make distcheck
     - make dist-binary
 
-matrix:
-    allow_failures:
-        - os: osx
+#matrix:
+#    allow_failures:
+#        - os: osx
 
 #deploy:
 #    provider: releases
