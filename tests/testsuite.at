@@ -1,0 +1,6 @@
+AT_INIT  
+AT_BANNER([Regression tests.])  
+AT_SETUP([heresyrl --help])  
+AT_KEYWORDS([minimal])  
+AT_CHECK([../../heresyrl --help], [], [ignore], [ignore])  
+AT_CLEANUP

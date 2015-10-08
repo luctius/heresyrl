@@ -1,5 +1,5 @@
-AC_INIT(heresyrl, development)
-AC_CONFIG_SRCDIR([src/main.c])
+AC_INIT(heresyrl, development, luctius@gmail.com, heresyrl)
+AC_CONFIG_SRCDIR([src])
 AM_INIT_AUTOMAKE
 
 AC_CONFIG_HEADERS([config.h])
@@ -70,6 +70,10 @@ AC_FUNC_MALLOC
 AC_FUNC_REALLOC
 AC_CHECK_TYPES([ptrdiff_t])
 AC_CHECK_FUNCS([memmove memset mkdir strdup strtol])
+
+
+AC_CONFIG_TESTDIR(tests)
+AC_CONFIG_FILES(tests/atlocal)
 
 AC_CONFIG_FILES([Makefile
                  heresyrl.ggo])
