@@ -134,6 +134,28 @@ bool game_init_map(void) {
 
 bool game_new_tick(void) {
     if (gbl_game == NULL) return false;
+
+    if (options.debug_no_save == false) {
+        FILE *f = fopen(options.save_file_name, "w");
+        fclose(f);
+    }
+
+    struct pl_player *plr = &gbl_game->player_data;
+    if (options.debug == true) {
+        if (plr != NULL) {
+            if (plr->player != NULL) {
+                if (options.debug_no_save == false) {
+                    if (plr->player->dead == false) {
+                        if (sv_save_game(options.save_file_name, gbl_game) == true) {
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+
     gbl_game->turn += TT_ENERGY_TICK;
 
     if (options.play_recording) {
