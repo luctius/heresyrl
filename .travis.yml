@@ -10,9 +10,9 @@ before_install:
     - if [ $TRAVIS_OS_NAME == osx ]; then brew update; fi
 install:
     - if [ $TRAVIS_OS_NAME == linux ]; then sudo apt-get install autoconf automake build-essential debhelper dpkg-dev autotools-dev dh-autoreconf liblua5.1-0-dev libncurses5-dev; fi
-    - if [ $TRAVIS_OS_NAME == osx ]; then brew  tap homebrew/dupes && brew install lua ncurses && brew doctor && brew link ncurses fi
+    - if [ $TRAVIS_OS_NAME == osx ]; then brew install lua homebrew/dupes/ncurses ; brew doctor ; brew link ncurses; fi
 script:
-    - if [ $TRAVIS_OS_NAME == linux ]; then dpkg-buildpackage ; EC=$?; if [ ${EC} -ne 0 ] && [ ${EC} -ne 1 ]; then false; else true; fi ; fi;
+    - if [ $TRAVIS_OS_NAME == linux ]; then dpkg-buildpackage ; EC=$?; if [ ${EC} -ne 0 ] && [ ${EC} -ne 1 ]; then false; else true; fi ; fi
     - git clean -xdf
     - autoreconf -vfim
     - "./configure && make"
