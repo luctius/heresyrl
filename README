@@ -25,14 +25,18 @@ Dependencies:
 * Autotools
 * A C compiler (gcc or clang)
 
-For A debian based Distribution (Debian, Ubuntu, Mint ...):
+For a debian based Distribution (Debian, Ubuntu, Mint ...):
 * 'sudo apt-get install autoconf automake build-essential autotools-dev liblua5.1-0-dev libncurses5-dev'
+* 'autoreconf -fim && ./configure'
+* 'make'
+* './heresyrl'
 
-run:  
-'autoreconf -fim'  
-'./configure'  
-'make'  
-'./heresyrl'  
+
+For OSX the following should work:
+* 'brew install lua homebrew/dupes/ncurses ; brew doctor ; brew link ncurses --force'
+* 'autoreconf -fim &&  LDFLAGS="-L/usr/local/opt/ncurses/lib" CPPFLAGS="-I/usr/local/opt/ncurses/include" ./configure'
+* 'make'
+* './heresyrl'
 
 
 Debug
