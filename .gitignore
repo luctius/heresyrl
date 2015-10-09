@@ -53,6 +53,8 @@ ltmain.sh
 .deps
 perf.data.old
 
+INSTALL
+
 *.log
 
 #build/
