@@ -26,7 +26,7 @@
 #define STATUS_EFFECT_MAX_NR_EFFECTS    5
 #define STATUS_EFFECT_CRITICAL_MAX      10
 #define STATUS_EFFECT_CRITICAL_RATIO    0.5f
-static_assert((STATUS_EFFECT_CRITICAL_MAX * STATUS_EFFECT_CRITICAL_RATIO) == STATUS_EFFECT_MAX_NR_EFFECTS, "Status Effect Maximums do not make sense.");
+hrl_static_assert((STATUS_EFFECT_CRITICAL_MAX * STATUS_EFFECT_CRITICAL_RATIO) == STATUS_EFFECT_MAX_NR_EFFECTS, "Status Effect Maximums do not make sense.");
 
 enum status_effect_flags {
     /* The status_effect is active and should be processed. */

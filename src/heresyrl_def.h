@@ -49,9 +49,9 @@ typedef uint_least8_t  bitfield8_t;
 #define RANGE_MULTIPLIER (0.50f)
 
 #ifdef __gcc__
-#define static_assert(pred, msg) _Static_assert( (pred), msg);
+#define hrl_static_assert(pred, msg) _Static_assert( (pred), msg);
 #else
-#define static_assert(p,m)
+#define hrl_static_assert(p,m)
 #endif
 
 struct gm_game;
