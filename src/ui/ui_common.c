@@ -93,7 +93,7 @@ int ui_printf_ext(struct hrl_window *win, int y_start, int x_start, const char *
     int max_line_sz = win->cols -1;
 
     if (win->text_x != 0) {
-        mvwaddch(win->win, win->text_y, win->text_x++, ' ');
+        if (options.refresh) mvwaddch(win->win, win->text_y, win->text_x++, ' ');
     }
 
     int attr_mod[MAX_CLR_DEPTH];
@@ -156,8 +156,10 @@ int ui_printf_ext(struct hrl_window *win, int y_start, int x_start, const char *
                 i += (cstr_len-1);
             }
             else {
-                mvwaddch(win->win, win->text_y, win->text_x++, buf[real_txt_idx]);
-                wrefresh(win->win);
+                if (options.refresh) {
+                    mvwaddch(win->win, win->text_y, win->text_x++, buf[real_txt_idx]);
+                    wrefresh(win->win);
+                }
 
                 real_txt_idx++;
                 print_txt_idx++;
@@ -184,7 +186,7 @@ struct hrl_window *win_create(int height, int width, int starty, int startx, enu
 
     if (retval != NULL) {
         clear();
-        refresh();
+        if (options.refresh) refresh();
 
         retval->text_x = 0;
         retval->text_y = 0;
@@ -195,7 +197,9 @@ struct hrl_window *win_create(int height, int width, int starty, int startx, enu
         retval->x = startx;
         retval->type = type;
         retval->win = newwin(retval->lines, retval->cols, starty, startx);
-        wrefresh(retval->win);
+        if (options.refresh) { 
+            wrefresh(retval->win);
+        }
     }
 
     return retval;
@@ -203,7 +207,9 @@ struct hrl_window *win_create(int height, int width, int starty, int startx, enu
 
 void win_destroy(struct hrl_window *window) {
     if (window != NULL) {
-        wrefresh(window->win);
+        if (options.refresh) { 
+            wrefresh(window->win);
+        }
         delwin(window->win);
         free(window);
     }

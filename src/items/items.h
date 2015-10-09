@@ -384,7 +384,7 @@ const char *wpn_spec_quality_description(enum weapon_special_quality spq);
 const char *wbl_spec_quality_name(enum wearable_special_quality spq);
 const char *wbl_spec_quality_description(enum wearable_special_quality spq);
 
-void itm_dbg_check_all();
+void itm_dbg_check_all(void);
 
 #endif /*ITEMS_H_*/
 

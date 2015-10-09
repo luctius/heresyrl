@@ -431,7 +431,7 @@ void targetwin_examine(struct hrl_window *window, struct dm_map *map, struct msr
         ui_printf(window,"Timer: %d.%d.\n", witem->energy / TT_ENERGY_TURN, witem->energy % TT_ENERGY_TURN);
     }
 
-    wrefresh(window->win);
+    if (options.refresh) wrefresh(window->win);
 }
 
 bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dm_map *map, coord_t *p_pos) {
@@ -528,7 +528,7 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dm_map *map, coord_t *
         if (path_len > 0) free(path);
 
         mvwaddch(map_win->win, e_pos.y - scr_y, e_pos.x - scr_x, '*' | get_colour(TERM_COLOUR_RED) );
-        wrefresh(map_win->win);
+        if (options.refresh) wrefresh(map_win->win);
 
         struct itm_item *witem = fght_get_working_weapon(plr->player, WEAPON_TYPE_RANGED, FGHT_MAIN_HAND);
         if (witem == NULL) witem = fght_get_working_weapon(plr->player, WEAPON_TYPE_RANGED, FGHT_OFF_HAND);
@@ -618,7 +618,7 @@ bool mapwin_overlay_throw_item_cursor(struct gm_game *g, struct dm_map *map, coo
         if (path_len > 0) free(path);
 
         mvwaddch(map_win->win, e_pos.y - scr_y, e_pos.x - scr_x, '*' | get_colour(TERM_COLOUR_RED) );
-        wrefresh(map_win->win);
+        if (options.refresh) wrefresh(map_win->win);
 
         targetwin_examine(char_win, gbl_game->current_map, plr->player, &e_pos, item, WEAPON_TYPE_THROWN);
     }
@@ -742,7 +742,7 @@ bool mapwin_overlay_throw_cursor(struct gm_game *g, struct dm_map *map, coord_t 
         if (path_len > 0) free(path);
 
         mvwaddch(map_win->win, e_pos.y - scr_y, e_pos.x - scr_x, '*' | get_colour(TERM_COLOUR_RED) );
-        wrefresh(map_win->win);
+        if (options.refresh) wrefresh(map_win->win);
 
         targetwin_examine(char_win, gbl_game->current_map, plr->player, &e_pos, item, WEAPON_TYPE_THROWN);
     }
@@ -893,7 +893,7 @@ void charwin_refresh() {
     }
 
 
-    wrefresh(char_win->win);
+    if (options.refresh) wrefresh(char_win->win);
 }
 
 /* Beware of dragons here..... */
@@ -1080,7 +1080,7 @@ void invwin_examine(struct hrl_window *window, struct itm_item *item) {
         case ITEM_TYPE_FOOD: break;
         default: break;
     }
-    wrefresh(char_win->win);
+    if (options.refresh) wrefresh(char_win->win);
 }
 
 bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
@@ -1115,7 +1115,7 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
         ui_printf_ext(map_win, winsz +1, 1, cs_ATTR "[q]" cs_CLOSE " exit,   " cs_ATTR "[space]" cs_CLOSE " next page.");
         ui_printf_ext(map_win, winsz +2, 1, cs_ATTR "[d]" cs_CLOSE " drop,   " cs_ATTR "    [x]" cs_CLOSE " examine.");
         ui_printf_ext(map_win, winsz +3, 1, cs_ATTR "[a]" cs_CLOSE " apply,  " cs_ATTR "    [w]" cs_CLOSE " wield/wear/remove.");
-        wrefresh(map_win->win);
+        if (options.refresh) wrefresh(map_win->win);
         bool examine = false;
 
         /* TODO clean this shit up */
@@ -1125,7 +1125,7 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
             case INP_KEY_ALL:
             case INP_KEY_APPLY: {
                 ui_printf_ext(map_win, winsz, 1, "Use which item?.");
-                wrefresh(map_win->win);
+                if (options.refresh) wrefresh(map_win->win);
 
                 int item_idx = inp_get_input_idx(gbl_game->input);
                 if (item_idx < 0) break;
@@ -1138,7 +1138,7 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
             } /*break;*/
             case INP_KEY_WEAR: {
                 ui_printf_ext(map_win, winsz, 1, "Wear which item?.");
-                wrefresh(map_win->win);
+                if (options.refresh) wrefresh(map_win->win);
 
                 int item_idx = inp_get_input_idx(gbl_game->input);
                 if (item_idx < 0) break;
@@ -1156,7 +1156,7 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
             } /*break;*/
             case INP_KEY_EXAMINE: {
                 ui_printf_ext(map_win, winsz, 1, "Examine which item?.");
-                wrefresh(map_win->win);
+                if (options.refresh) wrefresh(map_win->win);
 
                 int item_idx = inp_get_input_idx(gbl_game->input);
                 if (item_idx < 0) break;
@@ -1169,7 +1169,7 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
             } break;
             case INP_KEY_DROP: {
                 ui_printf_ext(map_win, winsz, 1, "Drop which item?.");
-                wrefresh(map_win->win);
+                if (options.refresh) wrefresh(map_win->win);
 
                 invsz = inv_inventory_size(plr->player->inventory);
                 int item_idx = inp_get_input_idx(gbl_game->input);
@@ -1185,7 +1185,7 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
 
         wmove(map_win->win, winsz, 0);
         wclrtoeol(map_win->win);
-        wrefresh(map_win->win);
+        if (options.refresh) wrefresh(map_win->win);
 
         if (examine == false) charwin_refresh();
         free(invlist);
@@ -1210,8 +1210,10 @@ void character_window(void) {
     pad.win = newpad(pad.lines, pad.cols);
     assert(pad.win != NULL);
 
-    wclear(window->win);
-    werase(window->win);
+    if (options.refresh) { 
+        wclear(window->win);
+        werase(window->win);
+    }
 
     touchwin(pad.win);
     werase(pad.win);
@@ -1356,7 +1358,7 @@ Basic weapon traning SP     ...                  |
         ui_print_reset(window);
         ui_printf_ext(window, window->lines -3, 1, cs_ATTR " [q]" cs_CLOSE " exit. " );
         ui_printf_ext(window, window->lines -2, 1, cs_ATTR "[up]" cs_CLOSE " up,  "  cs_ATTR "  [down]" cs_CLOSE " down.");
-        wrefresh(window->win);
+        if (options.refresh) wrefresh(window->win);
         prefresh(pad.win, line,0,pad.y,pad.x, pad.y + pad.lines -5, pad.x + pad.cols);
 
         switch (inp_get_input(gbl_game->input) ) {
@@ -1380,7 +1382,9 @@ Basic weapon traning SP     ...                  |
     delwin(pad.win);
     wclear(window->win);
     werase(window->win);
-    wrefresh(window->win);
+    if (options.refresh) { 
+        wrefresh(window->win);
+    }
 
     show_msg(msg_win);
 }
@@ -1480,7 +1484,7 @@ void show_log(struct hrl_window *window, bool input) {
             ui_print_reset(window);
             ui_printf_ext(window, window->lines -3, 1, cs_ATTR " [q]" cs_CLOSE " exit.");
             ui_printf_ext(window, window->lines -2, 1, cs_ATTR "[up]" cs_CLOSE " up,  " cs_ATTR "[down]" cs_CLOSE " down.");
-            wrefresh(window->win);
+            if (options.refresh) wrefresh(window->win);
             prefresh(pad.win, line,0,pad.y,pad.x, pad.y + pad.lines -5, pad.x + pad.cols);
 
             switch (inp_get_input(gbl_game->input) ) {
@@ -1507,7 +1511,9 @@ void show_log(struct hrl_window *window, bool input) {
 
     wclear(window->win);
     werase(window->win);
-    wrefresh(window->win);
+    if (options.refresh) { 
+        wrefresh(window->win);
+    }
 
     show_msg(msg_win);
 }
@@ -1517,6 +1523,8 @@ void show_msg(struct hrl_window *window) {
     int y = 0;
     int log_sz = lg_size(gbl_log);
     struct log_entry *tmp_entry = NULL;
+
+    //if (options.refresh == false) return;
 
     struct hrl_window pad;
     memmove(&pad, window, sizeof(struct hrl_window) );
@@ -1587,6 +1595,8 @@ void log_window(void) {
 }
 
 void charwin_examine(const char *type, const char *name, const char *description) {
+    //if (options.refresh == false) return;
+
     werase(char_win->win);
     ui_print_reset(char_win);
     
@@ -1600,6 +1610,8 @@ void charwin_examine(const char *type, const char *name, const char *description
 }
 
 void levelup_selection_window(void) {
+    //if (options.refresh == false) return;
+
     struct hrl_window *window = map_win;
 
     struct cr_career *career = gbl_game->player_data.career;
@@ -1622,7 +1634,7 @@ void levelup_selection_window(void) {
         switch (ch) {
             case INP_KEY_EXAMINE: {
                     ui_printf_ext(map_win, map_win->lines - 4, 1, "Examine which selection?");
-                    wrefresh(window->win);
+                    if (options.refresh) wrefresh(window->win);
 
                     int tidx = inp_get_input_idx(gbl_game->input);
 
@@ -1657,7 +1669,7 @@ void levelup_selection_window(void) {
                     }
 
                     ui_printf_ext(map_win, map_win->lines - 4, 1, "Upgrade which selection?");
-                    wrefresh(window->win);
+                    if (options.refresh) wrefresh(window->win);
 
                     int tidx = inp_get_input_idx(gbl_game->input);
 
@@ -1743,7 +1755,7 @@ void levelup_selection_window(void) {
 
         ui_printf_ext(map_win, map_win->lines - 3, 1, cs_ATTR "[q]" cs_CLOSE " exit,    " cs_ATTR "  [?]" cs_CLOSE " help.");
         ui_printf_ext(map_win, map_win->lines - 2, 1, cs_ATTR "[a]" cs_CLOSE " acquire, " cs_ATTR "  [x]" cs_CLOSE " examine.");
-        wrefresh(window->win);
+        if (options.refresh) wrefresh(window->win);
 
     } while((lvl_up_done == false) && (ch = inp_get_input(gbl_game->input) ) != INP_KEY_ESCAPE);
 }
@@ -1824,7 +1836,7 @@ void show_help(struct hrl_window *window, bool input) {
         while(watch == true) {
             ui_printf_ext(window, window->lines -3, 1, cs_ATTR " [q]" cs_CLOSE " exit.");
             ui_printf_ext(window, window->lines -2, 1, cs_ATTR "[up]" cs_CLOSE " up,  " cs_ATTR "[down]" cs_CLOSE " down.");
-            wrefresh(window->win);
+            if (options.refresh) wrefresh(window->win);
             prefresh(pad.win, line,0,pad.y,pad.x, pad.y + pad.lines -5, pad.x + pad.cols);
 
             switch (inp_get_input(gbl_game->input) ) {
@@ -1851,7 +1863,9 @@ void show_help(struct hrl_window *window, bool input) {
 
     wclear(window->win);
     werase(window->win);
-    wrefresh(window->win);
+    if (options.refresh) {
+        wrefresh(window->win);
+    }
 
     show_msg(msg_win);
 }

@@ -23,7 +23,7 @@
 #include "quests_static_def.h"
 
 struct quest *qst_spawn(int level) {
-
+    return NULL;
 }
 
 void qst_process_quest_start(struct quest *quest, struct dm_map *map) {

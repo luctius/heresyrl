@@ -307,7 +307,7 @@ bool itm_has_quality(struct itm_item *item, enum item_quality q) {
 
 bool itm_energy_action(struct itm_item *item, struct dm_map *map) {
     if (itm_verify_item(item) == false) return false;
-    if (item->energy > 0) return false;
+    if (item->energy > 0) return true;
 
     /*
        this should be given it's own place, but for now lets hack it.
@@ -325,13 +325,14 @@ bool itm_energy_action(struct itm_item *item, struct dm_map *map) {
                     coord_t pos = itm_get_pos(item);
                     if (itm_remove_item(item, map, &pos) ) {
                         itm_destroy(item);
+                        return false;
                     }
                 }
             }
         case ITEM_TYPE_WEARABLE:
         case ITEM_TYPE_AMMO:
         case ITEM_TYPE_FOOD:
-        default: return false;
+        default: break;
     }
 
     return true;
@@ -540,7 +541,7 @@ const char *wbl_spec_quality_description(enum wearable_special_quality spq) {
     return wbl_spcqlty_desc[spq];
 }
 
-void itm_dbg_check_all() {
+void itm_dbg_check_all(void) {
     struct itm_item *item = itmlst_get_next_item(NULL);
     while ( (item = itmlst_get_next_item(item) ) != NULL) {
         itm_verify_item(item);

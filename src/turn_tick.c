@@ -95,17 +95,21 @@ void tt_process_monsters(struct dm_map *map) {
 
 void tt_process_items(struct dm_map *map) {
     struct itm_item *item = NULL;
+    struct itm_item *item_prev = NULL;
     if (gbl_game->running == false) return;
 
-    while ( (item = itmlst_get_next_item(item) ) != NULL) {
+    while ( (item = itmlst_get_next_item(item_prev) ) != NULL) {
         if (item->energy_action == true) {
             itm_change_energy(item, -TT_ENERGY_TICK);
 
             if (itm_get_energy(item) < 0) {
                 item->energy_action = false;
-                itm_energy_action(item, map);
+                if (itm_energy_action(item, map) == false) {
+                    item = item_prev;
+                }
             }
         }
+        item_prev = item;
     }
 }
 

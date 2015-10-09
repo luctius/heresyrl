@@ -70,8 +70,6 @@ void opt_parse_options(struct gengetopt_args_info *args_info) {
     options.play_delay      = args_info->pb_delay_arg;
     options.play_stop       = args_info->pb_stop_arg;
     
-    if (options.play_delay  == 0) options.refresh = false;
-
     if (args_info->log_file_given == false) {
         char *log_file = malloc(PATH_MAX * sizeof(char) );
         snprintf(log_file, path_max, "%s/.%s", homedir, PACKAGE_NAME);
@@ -120,8 +118,11 @@ void opt_parse_options(struct gengetopt_args_info *args_info) {
 
     if (options.test_auto) {
         options.play_recording = true;
-        options.play_delay     = 0;
+        if (args_info->pb_delay_given == false) options.play_delay = 0;
     }
+
+    if (options.play_delay  == 0) options.refresh = false;
+
 }
 
 void opt_exit(void) {

@@ -20,6 +20,7 @@
 #include "heresyrl_def.h"
 #include "animate.h"
 #include "ui_common.h"
+#include "options.h"
 #include "dungeon/dungeon_map.h"
 
 void ui_animate_explosion(struct dm_map *map, coord_t path[], int path_len) {
@@ -38,8 +39,10 @@ void ui_animate_explosion(struct dm_map *map, coord_t path[], int path_len) {
         }
     }
 
-    wrefresh(map_win->win);
-    usleep(50000);
+    if (options.refresh) {
+        wrefresh(map_win->win);
+        usleep(50000);
+    }
 
     for (int i = 0; i < path_len; i++) {
         if (dm_get_map_me(&path[i],map)->visible == true) {
@@ -47,8 +50,10 @@ void ui_animate_explosion(struct dm_map *map, coord_t path[], int path_len) {
         }
     }
 
-    wrefresh(map_win->win);
-    usleep(50000);
+    if (options.refresh) {
+        wrefresh(map_win->win);
+        usleep(50000);
+    }
 
     for (int i = 0; i < path_len; i++) {
         if (dm_get_map_me(&path[i],map)->visible == true) {
@@ -68,9 +73,9 @@ void ui_animate_projectile(struct dm_map *map, coord_t path[], int path_len) {
         if (dm_get_map_me(&path[i],map)->visible == true) {
             chtype oldch = mvwinch(map_win->win, path[i].y - scr_y, path[i].x - scr_x);
             mvwaddch(map_win->win, path[i].y - scr_y, path[i].x - scr_x, '*' | get_colour(TERM_COLOUR_RED) );
-            wrefresh(map_win->win);
+            if (options.refresh) wrefresh(map_win->win);
             mvwaddch(map_win->win, path[i].y - scr_y, path[i].x - scr_x, oldch);
-            usleep(20000);
+            if (options.refresh) usleep(20000);
         }
     }
 }
