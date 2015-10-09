@@ -380,4 +380,6 @@ const char *msr_talent_names(enum msr_talents t);
 const char *msr_talent_descriptions(enum msr_talents t);
 const char *msr_hitloc_name(struct msr_monster *monster, enum msr_hit_location mhl);
 
+void msr_dbg_check_all(void);
+
 #endif /*MONSTER_H_*/

@@ -1103,3 +1103,11 @@ void se_remove_all_non_permanent(struct msr_monster *monster) {
     }
 }
 
+void se_dbg_check_all(void) {
+    struct status_effect_list_entry *sele = status_effects_list_head.tqh_first;
+
+    while (sele != NULL) {
+        se_verify_status_effect(&sele->se.status_effect);
+        sele = sele->entries.tqe_next;
+    }
+}

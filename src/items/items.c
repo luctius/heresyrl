@@ -540,3 +540,10 @@ const char *wbl_spec_quality_description(enum wearable_special_quality spq) {
     return wbl_spcqlty_desc[spq];
 }
 
+void itm_dbg_check_all() {
+    struct itm_item *item = itmlst_get_next_item(NULL);
+    while ( (item = itmlst_get_next_item(item) ) != NULL) {
+        itm_verify_item(item);
+    }
+}
+

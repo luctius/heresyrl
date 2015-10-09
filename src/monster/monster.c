@@ -1141,3 +1141,9 @@ const char *msr_hitloc_name(struct msr_monster *monster, enum msr_hit_location m
     return NULL;
 }
 
+void msr_dbg_check_all() {
+    struct msr_monster *monster = msrlst_get_next_monster(NULL);
+    while ( (monster = msrlst_get_next_monster(monster) ) != NULL) {
+        msr_verify_monster(monster);
+    }
+}

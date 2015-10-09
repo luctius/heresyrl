@@ -250,4 +250,6 @@ bool se_remove_effects_by_tid(struct msr_monster *monster, uint32_t tid);
 
 bool se_add_critical_hit(struct msr_monster *monster, int critical_dmg, enum msr_hit_location mhl, enum dmg_type type);
 
+void se_dbg_check_all(void);
+
 #endif /* STATUS_EFFECTS_H */

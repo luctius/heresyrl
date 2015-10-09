@@ -1132,7 +1132,6 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
                 if (item_idx == INP_KEY_ESCAPE) break;
                 if ((item_idx + invstart) >= invsz) break;
                 item = invlist[item_idx +invstart].item;
-                free(invlist);
                 mapwin_display_map(map, &plr->player->pos);
 
                 return ma_do_use(plr->player, item);
@@ -1146,7 +1145,6 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
                 if (item_idx == INP_KEY_ESCAPE) break;
                 if ((item_idx + invstart) >= invsz) break;
                 item = invlist[item_idx +invstart].item;
-                free(invlist);
                 mapwin_display_map(map, &plr->player->pos);
 
                 if (inv_item_worn(plr->player->inventory, item) == true) {
@@ -1165,7 +1163,6 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
                 if (item_idx == INP_KEY_ESCAPE) break;
                 if ((item_idx + invstart) >= invsz) break;
                 item = invlist[item_idx +invstart].item;
-                free(invlist);
 
                 invwin_examine(char_win, invlist[item_idx +invstart].item);
                 examine = true;
@@ -1180,7 +1177,6 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
                 if (item_idx == INP_KEY_ESCAPE) break;
                 if ((item_idx + invstart) >= invsz) break;
                 item = invlist[item_idx +invstart].item;
-                free(invlist);
                 struct itm_item *items[1] = {item};
                 return ma_do_drop(plr->player, items, 1);
             } /*break;*/
@@ -1192,6 +1188,7 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
         wrefresh(map_win->win);
 
         if (examine == false) charwin_refresh();
+        free(invlist);
 
     } while((inventory != false) && (ch = inp_get_input(gbl_game->input) ) != INP_KEY_ESCAPE);
 

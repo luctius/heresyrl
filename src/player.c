@@ -28,6 +28,7 @@
 #include "game.h"
 #include "random.h"
 #include "ui/ui.h"
+#include "options.h"
 #include "ai/ai_utils.h"
 #include "dungeon/tiles.h"
 #include "dungeon/dungeon_map.h"
@@ -172,6 +173,16 @@ static bool plr_action_loop(struct msr_monster *player) {
     int ch;
     bool has_action = false;
 
+    if (options.debug) itm_dbg_check_all();
+    if (options.debug) msr_dbg_check_all();
+    if (options.debug) se_dbg_check_all();
+    if (options.debug) {
+        struct inv_inventory *inv = player->inventory;
+        struct itm_item *item = NULL;
+        while ( ( (item = inv_get_next_item(inv, item) ) != NULL) ) {
+            itm_verify_item(item);
+        }
+    }
     game_save();
 
     gbl_game->plr_last_turn = gbl_game->turn;
