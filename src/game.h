@@ -37,4 +37,6 @@ bool game_init_map(void);
 bool game_new_tick(void);
 bool game_exit(void);
 
+void game_save(void);
+
 #endif /*GAME_H_*/

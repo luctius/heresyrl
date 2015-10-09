@@ -40,8 +40,6 @@ const char *gengetopt_args_info_help[] = {
   "      --playback          play a savegame from start until current turn\n                            (default=off)",
   "      --pb_delay=INT      delay when playing a savegame in miliseconds, default\n                            is 1 second  (default=`100')",
   "      --pb_stop=INT       when playing a savegame, stop at after turn N\n                            (default=`0')",
-  "      --log_file=STRING   log file name  (default=`/tmp/heresyrl.log')",
-  "      --save_file=STRING  save file name  (default=`/tmp/heresyrl.save')",
   "      --name=STRING       name of character  (default=`')",
   "      --race=ENUM         race of character  (possible values=\"dwarf\",\n                            \"elf\", \"halfling\", \"human\")",
   "\nTesting Options:",
@@ -51,6 +49,9 @@ const char *gengetopt_args_info_help[] = {
   "  -l, --no_load           do not load a previous made character  (default=off)",
   "  -s, --no_save           do not save a made character  (default=off)",
   "      --print_map_only    only print the map and close  (default=off)",
+  "      --log_file=STRING   log file name  (default=`/tmp/heresyrl.log')",
+  "      --save_file=STRING  save file name  (default=`/tmp/heresyrl.save')",
+  "      --load_file=STRING  load file name  (default=`/tmp/heresyrl.save')",
     0
 };
 
@@ -84,8 +85,6 @@ void clear_given (struct gengetopt_args_info *args_info)
   args_info->playback_given = 0 ;
   args_info->pb_delay_given = 0 ;
   args_info->pb_stop_given = 0 ;
-  args_info->log_file_given = 0 ;
-  args_info->save_file_given = 0 ;
   args_info->name_given = 0 ;
   args_info->race_given = 0 ;
   args_info->debug_given = 0 ;
@@ -94,6 +93,9 @@ void clear_given (struct gengetopt_args_info *args_info)
   args_info->no_load_given = 0 ;
   args_info->no_save_given = 0 ;
   args_info->print_map_only_given = 0 ;
+  args_info->log_file_given = 0 ;
+  args_info->save_file_given = 0 ;
+  args_info->load_file_given = 0 ;
 }
 
 static
@@ -105,10 +107,6 @@ void clear_args (struct gengetopt_args_info *args_info)
   args_info->pb_delay_orig = NULL;
   args_info->pb_stop_arg = 0;
   args_info->pb_stop_orig = NULL;
-  args_info->log_file_arg = gengetopt_strdup ("/tmp/heresyrl.log");
-  args_info->log_file_orig = NULL;
-  args_info->save_file_arg = gengetopt_strdup ("/tmp/heresyrl.save");
-  args_info->save_file_orig = NULL;
   args_info->name_arg = gengetopt_strdup ("");
   args_info->name_orig = NULL;
   args_info->race_arg = race__NULL;
@@ -119,6 +117,12 @@ void clear_args (struct gengetopt_args_info *args_info)
   args_info->no_load_flag = 0;
   args_info->no_save_flag = 0;
   args_info->print_map_only_flag = 0;
+  args_info->log_file_arg = gengetopt_strdup ("/tmp/heresyrl.log");
+  args_info->log_file_orig = NULL;
+  args_info->save_file_arg = gengetopt_strdup ("/tmp/heresyrl.save");
+  args_info->save_file_orig = NULL;
+  args_info->load_file_arg = gengetopt_strdup ("/tmp/heresyrl.save");
+  args_info->load_file_orig = NULL;
   
 }
 
@@ -132,16 +136,17 @@ void init_args_info(struct gengetopt_args_info *args_info)
   args_info->playback_help = gengetopt_args_info_help[3] ;
   args_info->pb_delay_help = gengetopt_args_info_help[4] ;
   args_info->pb_stop_help = gengetopt_args_info_help[5] ;
-  args_info->log_file_help = gengetopt_args_info_help[6] ;
-  args_info->save_file_help = gengetopt_args_info_help[7] ;
-  args_info->name_help = gengetopt_args_info_help[8] ;
-  args_info->race_help = gengetopt_args_info_help[9] ;
-  args_info->debug_help = gengetopt_args_info_help[11] ;
-  args_info->map_help = gengetopt_args_info_help[12] ;
-  args_info->test_auto_help = gengetopt_args_info_help[13] ;
-  args_info->no_load_help = gengetopt_args_info_help[14] ;
-  args_info->no_save_help = gengetopt_args_info_help[15] ;
-  args_info->print_map_only_help = gengetopt_args_info_help[16] ;
+  args_info->name_help = gengetopt_args_info_help[6] ;
+  args_info->race_help = gengetopt_args_info_help[7] ;
+  args_info->debug_help = gengetopt_args_info_help[9] ;
+  args_info->map_help = gengetopt_args_info_help[10] ;
+  args_info->test_auto_help = gengetopt_args_info_help[11] ;
+  args_info->no_load_help = gengetopt_args_info_help[12] ;
+  args_info->no_save_help = gengetopt_args_info_help[13] ;
+  args_info->print_map_only_help = gengetopt_args_info_help[14] ;
+  args_info->log_file_help = gengetopt_args_info_help[15] ;
+  args_info->save_file_help = gengetopt_args_info_help[16] ;
+  args_info->load_file_help = gengetopt_args_info_help[17] ;
   
 }
 
@@ -227,13 +232,15 @@ cmdline_parser_release (struct gengetopt_args_info *args_info)
 
   free_string_field (&(args_info->pb_delay_orig));
   free_string_field (&(args_info->pb_stop_orig));
+  free_string_field (&(args_info->name_arg));
+  free_string_field (&(args_info->name_orig));
+  free_string_field (&(args_info->race_orig));
   free_string_field (&(args_info->log_file_arg));
   free_string_field (&(args_info->log_file_orig));
   free_string_field (&(args_info->save_file_arg));
   free_string_field (&(args_info->save_file_orig));
-  free_string_field (&(args_info->name_arg));
-  free_string_field (&(args_info->name_orig));
-  free_string_field (&(args_info->race_orig));
+  free_string_field (&(args_info->load_file_arg));
+  free_string_field (&(args_info->load_file_orig));
   
   
 
@@ -315,10 +322,6 @@ cmdline_parser_dump(FILE *outfile, struct gengetopt_args_info *args_info)
     write_into_file(outfile, "pb_delay", args_info->pb_delay_orig, 0);
   if (args_info->pb_stop_given)
     write_into_file(outfile, "pb_stop", args_info->pb_stop_orig, 0);
-  if (args_info->log_file_given)
-    write_into_file(outfile, "log_file", args_info->log_file_orig, 0);
-  if (args_info->save_file_given)
-    write_into_file(outfile, "save_file", args_info->save_file_orig, 0);
   if (args_info->name_given)
     write_into_file(outfile, "name", args_info->name_orig, 0);
   if (args_info->race_given)
@@ -335,6 +338,12 @@ cmdline_parser_dump(FILE *outfile, struct gengetopt_args_info *args_info)
     write_into_file(outfile, "no_save", 0, 0 );
   if (args_info->print_map_only_given)
     write_into_file(outfile, "print_map_only", 0, 0 );
+  if (args_info->log_file_given)
+    write_into_file(outfile, "log_file", args_info->log_file_orig, 0);
+  if (args_info->save_file_given)
+    write_into_file(outfile, "save_file", args_info->save_file_orig, 0);
+  if (args_info->load_file_given)
+    write_into_file(outfile, "load_file", args_info->load_file_orig, 0);
   
 
   i = EXIT_SUCCESS;
@@ -608,8 +617,6 @@ cmdline_parser_internal (
         { "playback",	0, NULL, 0 },
         { "pb_delay",	1, NULL, 0 },
         { "pb_stop",	1, NULL, 0 },
-        { "log_file",	1, NULL, 0 },
-        { "save_file",	1, NULL, 0 },
         { "name",	1, NULL, 0 },
         { "race",	1, NULL, 0 },
         { "debug",	0, NULL, 'd' },
@@ -618,6 +625,9 @@ cmdline_parser_internal (
         { "no_load",	0, NULL, 'l' },
         { "no_save",	0, NULL, 's' },
         { "print_map_only",	0, NULL, 0 },
+        { "log_file",	1, NULL, 0 },
+        { "save_file",	1, NULL, 0 },
+        { "load_file",	1, NULL, 0 },
         { 0,  0, 0, 0 }
       };
 
@@ -719,34 +729,6 @@ cmdline_parser_internal (
               goto failure;
           
           }
-          /* log file name.  */
-          else if (strcmp (long_options[option_index].name, "log_file") == 0)
-          {
-          
-          
-            if (update_arg( (void *)&(args_info->log_file_arg), 
-                 &(args_info->log_file_orig), &(args_info->log_file_given),
-                &(local_args_info.log_file_given), optarg, 0, "/tmp/heresyrl.log", ARG_STRING,
-                check_ambiguity, override, 0, 0,
-                "log_file", '-',
-                additional_error))
-              goto failure;
-          
-          }
-          /* save file name.  */
-          else if (strcmp (long_options[option_index].name, "save_file") == 0)
-          {
-          
-          
-            if (update_arg( (void *)&(args_info->save_file_arg), 
-                 &(args_info->save_file_orig), &(args_info->save_file_given),
-                &(local_args_info.save_file_given), optarg, 0, "/tmp/heresyrl.save", ARG_STRING,
-                check_ambiguity, override, 0, 0,
-                "save_file", '-',
-                additional_error))
-              goto failure;
-          
-          }
           /* name of character.  */
           else if (strcmp (long_options[option_index].name, "name") == 0)
           {
@@ -795,6 +777,48 @@ cmdline_parser_internal (
             if (update_arg((void *)&(args_info->print_map_only_flag), 0, &(args_info->print_map_only_given),
                 &(local_args_info.print_map_only_given), optarg, 0, 0, ARG_FLAG,
                 check_ambiguity, override, 1, 0, "print_map_only", '-',
+                additional_error))
+              goto failure;
+          
+          }
+          /* log file name.  */
+          else if (strcmp (long_options[option_index].name, "log_file") == 0)
+          {
+          
+          
+            if (update_arg( (void *)&(args_info->log_file_arg), 
+                 &(args_info->log_file_orig), &(args_info->log_file_given),
+                &(local_args_info.log_file_given), optarg, 0, "/tmp/heresyrl.log", ARG_STRING,
+                check_ambiguity, override, 0, 0,
+                "log_file", '-',
+                additional_error))
+              goto failure;
+          
+          }
+          /* save file name.  */
+          else if (strcmp (long_options[option_index].name, "save_file") == 0)
+          {
+          
+          
+            if (update_arg( (void *)&(args_info->save_file_arg), 
+                 &(args_info->save_file_orig), &(args_info->save_file_given),
+                &(local_args_info.save_file_given), optarg, 0, "/tmp/heresyrl.save", ARG_STRING,
+                check_ambiguity, override, 0, 0,
+                "save_file", '-',
+                additional_error))
+              goto failure;
+          
+          }
+          /* load file name.  */
+          else if (strcmp (long_options[option_index].name, "load_file") == 0)
+          {
+          
+          
+            if (update_arg( (void *)&(args_info->load_file_arg), 
+                 &(args_info->load_file_orig), &(args_info->load_file_given),
+                &(local_args_info.load_file_given), optarg, 0, "/tmp/heresyrl.save", ARG_STRING,
+                check_ambiguity, override, 0, 0,
+                "load_file", '-',
                 additional_error))
               goto failure;
           

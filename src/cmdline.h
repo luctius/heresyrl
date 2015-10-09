@@ -49,12 +49,6 @@ struct gengetopt_args_info
   int pb_stop_arg;	/**< @brief when playing a savegame, stop at after turn N (default='0').  */
   char * pb_stop_orig;	/**< @brief when playing a savegame, stop at after turn N original value given at command line.  */
   const char *pb_stop_help; /**< @brief when playing a savegame, stop at after turn N help description.  */
-  char * log_file_arg;	/**< @brief log file name (default='/tmp/heresyrl.log').  */
-  char * log_file_orig;	/**< @brief log file name original value given at command line.  */
-  const char *log_file_help; /**< @brief log file name help description.  */
-  char * save_file_arg;	/**< @brief save file name (default='/tmp/heresyrl.save').  */
-  char * save_file_orig;	/**< @brief save file name original value given at command line.  */
-  const char *save_file_help; /**< @brief save file name help description.  */
   char * name_arg;	/**< @brief name of character (default='').  */
   char * name_orig;	/**< @brief name of character original value given at command line.  */
   const char *name_help; /**< @brief name of character help description.  */
@@ -73,14 +67,21 @@ struct gengetopt_args_info
   const char *no_save_help; /**< @brief do not save a made character help description.  */
   int print_map_only_flag;	/**< @brief only print the map and close (default=off).  */
   const char *print_map_only_help; /**< @brief only print the map and close help description.  */
+  char * log_file_arg;	/**< @brief log file name (default='/tmp/heresyrl.log').  */
+  char * log_file_orig;	/**< @brief log file name original value given at command line.  */
+  const char *log_file_help; /**< @brief log file name help description.  */
+  char * save_file_arg;	/**< @brief save file name (default='/tmp/heresyrl.save').  */
+  char * save_file_orig;	/**< @brief save file name original value given at command line.  */
+  const char *save_file_help; /**< @brief save file name help description.  */
+  char * load_file_arg;	/**< @brief load file name (default='/tmp/heresyrl.save').  */
+  char * load_file_orig;	/**< @brief load file name original value given at command line.  */
+  const char *load_file_help; /**< @brief load file name help description.  */
   
   unsigned int help_given ;	/**< @brief Whether help was given.  */
   unsigned int version_given ;	/**< @brief Whether version was given.  */
   unsigned int playback_given ;	/**< @brief Whether playback was given.  */
   unsigned int pb_delay_given ;	/**< @brief Whether pb_delay was given.  */
   unsigned int pb_stop_given ;	/**< @brief Whether pb_stop was given.  */
-  unsigned int log_file_given ;	/**< @brief Whether log_file was given.  */
-  unsigned int save_file_given ;	/**< @brief Whether save_file was given.  */
   unsigned int name_given ;	/**< @brief Whether name was given.  */
   unsigned int race_given ;	/**< @brief Whether race was given.  */
   unsigned int debug_given ;	/**< @brief Whether debug was given.  */
@@ -89,6 +90,9 @@ struct gengetopt_args_info
   unsigned int no_load_given ;	/**< @brief Whether no_load was given.  */
   unsigned int no_save_given ;	/**< @brief Whether no_save was given.  */
   unsigned int print_map_only_given ;	/**< @brief Whether print_map_only was given.  */
+  unsigned int log_file_given ;	/**< @brief Whether log_file was given.  */
+  unsigned int save_file_given ;	/**< @brief Whether save_file was given.  */
+  unsigned int load_file_given ;	/**< @brief Whether load_file was given.  */
 
 } ;
 

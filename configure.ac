@@ -79,6 +79,7 @@ AC_CONFIG_TESTDIR(tests)
 AC_CONFIG_FILES(tests/atlocal)
 
 AC_CONFIG_FILES([Makefile
+                 tests/Makefile
                  heresyrl.ggo])
 AC_OUTPUT
 

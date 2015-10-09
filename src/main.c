@@ -113,6 +113,7 @@ int main(int argc, char *argv[]) {
 
         game_exit();
         lg_exit(gbl_log);
+        opt_exit();
         exit(EXIT_SUCCESS);
     }
 
@@ -147,6 +148,7 @@ int main(int argc, char *argv[]) {
     game_exit();
     ui_destroy();
     lg_exit(gbl_log);
+    opt_exit();
 
     clear();
     refresh();          //  Print it on to the real screen

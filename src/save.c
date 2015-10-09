@@ -29,6 +29,7 @@
 #include "input.h"
 #include "player.h"
 #include "random.h"
+#include "options.h"
 #include "monster/monster.h"
 #include "items/items.h"
 #include "dungeon/tiles.h"
@@ -55,7 +56,7 @@ static bool sv_save_log(FILE *file, int indent, struct logging *lctx) {
                     fprintf(file, "repeated=%d,",   le->repeat);
                     fprintf(file, "line=%d,",       le->line);
                     fprintf(file, "level=%d,",      le->level);
-                    fprintf(file, "module=\"%s\",", le->module);
+                    if (options.debug) fprintf(file, "module=\"%s\",", le->module);
                     fprintf(file, "string=\"%s\",", le->string);
                     fprintf(file, "},\n");
                     print_ctr++;

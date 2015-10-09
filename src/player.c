@@ -172,6 +172,7 @@ static bool plr_action_loop(struct msr_monster *player) {
     int ch;
     bool has_action = false;
 
+    game_save();
 
     gbl_game->plr_last_turn = gbl_game->turn;
 

@@ -39,6 +39,7 @@ struct opt_options {
 
     char *log_file_name;
     char *save_file_name;
+    char *load_file_name;
 
     char *char_name;
     enum msr_race char_race;
@@ -47,5 +48,6 @@ struct opt_options {
 extern struct opt_options options;
 
 void opt_parse_options(struct gengetopt_args_info *args_info);
+void opt_exit(void);
 
 #endif /* OPTIONS_H */

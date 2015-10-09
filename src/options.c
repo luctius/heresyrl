@@ -94,6 +94,9 @@ void opt_parse_options(struct gengetopt_args_info *args_info) {
             options.save_file_name = save_file;
         }
     }
+    if (args_info->load_file_given == true) {
+        options.load_file_name = strdup(args_info->load_file_arg);
+    }
 
     if (args_info->name_given == true) {
         options.char_name = strdup(args_info->name_arg);
@@ -113,6 +116,7 @@ void opt_parse_options(struct gengetopt_args_info *args_info) {
 
     if (options.log_file_name == NULL) options.log_file_name = strdup(args_info->log_file_arg);
     if (options.save_file_name == NULL) options.save_file_name = strdup(args_info->save_file_arg);
+    if (options.load_file_name == NULL) options.load_file_name = strdup(options.save_file_name);
     if (options.debug_no_load) options.play_recording = false;
 
     if (options.test_auto) {
@@ -121,3 +125,8 @@ void opt_parse_options(struct gengetopt_args_info *args_info) {
     }
 }
 
+void opt_exit(void) {
+    free(options.log_file_name);
+    free(options.save_file_name);
+    free(options.char_name);
+}
