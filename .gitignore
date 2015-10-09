@@ -66,3 +66,8 @@ perf.data
 #Generated source files
 config.h
 config.h.in~
+
+#test files
+tests/package.m4
+tests/testsuite
+
