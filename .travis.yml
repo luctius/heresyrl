@@ -15,8 +15,7 @@ script:
     - if [ $TRAVIS_OS_NAME == linux ]; then dpkg-buildpackage ; EC=$?; if [ ${EC} -ne 0 ] && [ ${EC} -ne 1 ]; then false; else true; fi ; fi
     - git clean -xdf
     - autoreconf -vfim
-    - if [ $TRAVIS_OS_NAME == linux ]; then ./configure ; fi
-    - if [ $TRAVIS_OS_NAME == osx ]; then LDFLAGS="-L/usr/local/opt/ncurses/lib" CPPFLAGS="-I/usr/local/opt/ncurses/include" ./configure; fi
+    - ./configure
     - make
     - if [ ! -z $(./heresyrl --version | grep -o dirty) ]; then echo "build directory is unclean" && git status . && false ; fi
     - make check
