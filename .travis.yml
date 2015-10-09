@@ -18,6 +18,7 @@ script:
     - if [ $TRAVIS_OS_NAME == linux ]; then ./configure ; fi
     - if [ $TRAVIS_OS_NAME == osx ]; then LDFLAGS="-L/usr/local/opt/ncurses/lib" CPPFLAGS="-I/usr/local/opt/ncurses/include" ./configure; fi
     - make
+    - git status .
     - make check
     - make distcheck
     - make dist-binary

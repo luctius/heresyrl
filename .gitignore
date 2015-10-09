@@ -70,4 +70,6 @@ config.h.in~
 #test files
 tests/package.m4
 tests/testsuite
+tests/atconfig
+tests/atlocal
 
