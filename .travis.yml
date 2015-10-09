@@ -18,7 +18,7 @@ script:
     - if [ $TRAVIS_OS_NAME == linux ]; then ./configure ; fi
     - if [ $TRAVIS_OS_NAME == osx ]; then LDFLAGS="-L/usr/local/opt/ncurses/lib" CPPFLAGS="-I/usr/local/opt/ncurses/include" ./configure; fi
     - make
-    - git status .
+    - if [ ! -z $(./heresyrl --version | grep -o dirty) ]; then echo "build directory is unclean" && git status . && false ; fi
     - make check
     - make distcheck
     - make dist-binary
