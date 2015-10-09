@@ -33,7 +33,7 @@ For a debian based Distribution (Debian, Ubuntu, Mint ...):
 
 
 For OSX the following should work:
-* 'brew install lua homebrew/dupes/ncurses ; brew doctor ; brew link ncurses --force'
+* 'brew install lua'
 * 'autoreconf -fim &&  LDFLAGS="-L/usr/local/opt/ncurses/lib" CPPFLAGS="-I/usr/local/opt/ncurses/include" ./configure'
 * 'make'
 * './heresyrl'
@@ -41,6 +41,5 @@ For OSX the following should work:
 
 Debug
 -----
+ASAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer-3.6 ASAN_OPTIONS=symbolize=1 ./heresyrl -lsd
 
-export ASAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer
-ASAN_OPTIONS=symbolize=1 ./heresyrl -lsd

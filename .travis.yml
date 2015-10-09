@@ -10,7 +10,7 @@ before_install:
     - if [ $TRAVIS_OS_NAME == osx ]; then brew update; fi
 install:
     - if [ $TRAVIS_OS_NAME == linux ]; then sudo apt-get install autoconf automake build-essential debhelper dpkg-dev autotools-dev dh-autoreconf liblua5.1-0-dev libncurses5-dev; fi
-    - if [ $TRAVIS_OS_NAME == osx ]; then brew install lua homebrew/dupes/ncurses ; brew doctor ; brew link ncurses --force; fi
+    - if [ $TRAVIS_OS_NAME == osx ]; then brew install lua; fi
 script:
     - if [ $TRAVIS_OS_NAME == linux ]; then dpkg-buildpackage ; EC=$?; if [ ${EC} -ne 0 ] && [ ${EC} -ne 1 ]; then false; else true; fi ; fi
     - git clean -xdf
@@ -36,8 +36,7 @@ deploy:
     api_key:
         secure: QBPVxUTvcHBH17Fu/WJlCa+CIoR+peB45PTdWyZIBn/VfEtLlemOeCppGBdv4S5WX2C0cygKnvUwfO4J9yXnpTBJ3L2uM9asRaDXzTZ59x1VJGhbyxfZTLtjNtrEheqV+S3dhuYrpE1xbtnyKLoYx8clgnXqGW7tXIMbU7SqwxY=
     - file:
-          - "heresyrl-0.1.0-x86_64-linux-gnu.tar.gz"
-          - "heresyrl_0.1.0-1_amd64.deb"
+          - "heresyrl-*.tar.gz"
     skip_cleanup: true
     on:
         tags: true
