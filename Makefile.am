@@ -112,6 +112,7 @@ if GENGETOPT
 src/cmdline.c src/cmdline.h: heresyrl.ggo
 	$(SED) -i"" "s:usr_prefix:${prefix}:g" $<
 	$(GENGETOPT) --output-dir=src/ < $<
+distcleancheck_listfiles=src/cmdline.c src/cmdline.h
 endif
 
 #clean-local:
