@@ -46,7 +46,7 @@ struct gengetopt_args_info
   int pb_delay_arg;	/**< @brief delay when playing a savegame in miliseconds, default is 1 second (default='100').  */
   char * pb_delay_orig;	/**< @brief delay when playing a savegame in miliseconds, default is 1 second original value given at command line.  */
   const char *pb_delay_help; /**< @brief delay when playing a savegame in miliseconds, default is 1 second help description.  */
-  int pb_stop_arg;	/**< @brief when playing a savegame, stop at after turn N (default='0').  */
+  int pb_stop_arg;	/**< @brief when playing a savegame, stop at after turn N (default='-1').  */
   char * pb_stop_orig;	/**< @brief when playing a savegame, stop at after turn N original value given at command line.  */
   const char *pb_stop_help; /**< @brief when playing a savegame, stop at after turn N help description.  */
   char * name_arg;	/**< @brief name of character (default='').  */

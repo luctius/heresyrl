@@ -39,7 +39,7 @@ const char *gengetopt_args_info_help[] = {
   "\nBasic Options:",
   "      --playback          play a savegame from start until current turn\n                            (default=off)",
   "      --pb_delay=INT      delay when playing a savegame in miliseconds, default\n                            is 1 second  (default=`100')",
-  "      --pb_stop=INT       when playing a savegame, stop at after turn N\n                            (default=`0')",
+  "      --pb_stop=INT       when playing a savegame, stop at after turn N\n                            (default=`-1')",
   "      --name=STRING       name of character  (default=`')",
   "      --race=ENUM         race of character  (possible values=\"dwarf\",\n                            \"elf\", \"halfling\", \"human\")",
   "\nTesting Options:",
@@ -105,7 +105,7 @@ void clear_args (struct gengetopt_args_info *args_info)
   args_info->playback_flag = 0;
   args_info->pb_delay_arg = 100;
   args_info->pb_delay_orig = NULL;
-  args_info->pb_stop_arg = 0;
+  args_info->pb_stop_arg = -1;
   args_info->pb_stop_orig = NULL;
   args_info->name_arg = gengetopt_strdup ("");
   args_info->name_orig = NULL;
@@ -722,7 +722,7 @@ cmdline_parser_internal (
           
             if (update_arg( (void *)&(args_info->pb_stop_arg), 
                  &(args_info->pb_stop_orig), &(args_info->pb_stop_given),
-                &(local_args_info.pb_stop_given), optarg, 0, "0", ARG_INT,
+                &(local_args_info.pb_stop_given), optarg, 0, "-1", ARG_INT,
                 check_ambiguity, override, 0, 0,
                 "pb_stop", '-',
                 additional_error))

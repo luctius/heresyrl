@@ -316,7 +316,7 @@ int fght_calc_dmg(struct random *r, struct msr_monster *monster, struct msr_mons
             }
             dmg += die_dmg;
         }
-        while (die_dmg == 10 && monster->is_player); /* Ulrics Fury!  */
+        while (die_dmg == 10 && monster != NULL && monster->is_player); /* Ulrics Fury!  */
 
         int dmg_add = wpn->dmg_addition;
         int penetration = wpn->penetration;
@@ -360,7 +360,7 @@ int fght_calc_dmg(struct random *r, struct msr_monster *monster, struct msr_mons
         }
 
         if (msr_do_dmg(target, total_damage, wpn->dmg_type, mhl) == true) {
-            if (monster->is_player) {
+            if (monster != NULL && monster->is_player) {
                 target->stealth.seen_plr = gbl_game->turn;
             }
         }

@@ -8,7 +8,7 @@ section "Basic Options"
 
 option "playback"   - "play a savegame from start until current turn" flag off
 option "pb_delay"   - "delay when playing a savegame in miliseconds, default is 1 second" default="100" int optional
-option "pb_stop"    - "when playing a savegame, stop at after turn N" default="0" int optional
+option "pb_stop"    - "when playing a savegame, stop at after turn N" default="-1" int optional
 
 option "name"       - "name of character" default="" string optional
 option "race"       - "race of character" values="dwarf","elf","halfling","human" enum optional

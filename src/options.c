@@ -52,9 +52,6 @@ struct opt_options options = {
 
 static const int path_max = PATH_MAX -1;
 
-static char log_file[PATH_MAX -1];
-static char save_file[PATH_MAX -1];
-
 void opt_parse_options(struct gengetopt_args_info *args_info) {
     const char *homedir = getenv("HOME");
     if (homedir == NULL) {
@@ -76,6 +73,7 @@ void opt_parse_options(struct gengetopt_args_info *args_info) {
     if (options.play_delay  == 0) options.refresh = false;
 
     if (args_info->log_file_given == false) {
+        char *log_file = malloc(PATH_MAX * sizeof(char) );
         snprintf(log_file, path_max, "%s/.%s", homedir, PACKAGE_NAME);
 
         struct stat st;
@@ -86,6 +84,7 @@ void opt_parse_options(struct gengetopt_args_info *args_info) {
     }
 
     if (args_info->save_file_given == false) {
+        char *save_file = malloc(PATH_MAX * sizeof(char) );
         snprintf(save_file, path_max, "%s/.%s", homedir, PACKAGE_NAME);
 
         struct stat st;

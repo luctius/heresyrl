@@ -13,3 +13,12 @@ AT_CHECK([  cp $abs_top_srcdir/tests/testdata/save.2 ./save.ref &&
             sed -i".b" "/.*version/D" save.ref && 
             diff -q save save.ref], [], [ignore], [ignore])  
 AT_CLEANUP
+
+AT_SETUP([heresyrl --test_auto medium])  
+AT_KEYWORDS([minimal])  
+AT_CHECK([  cp $abs_top_srcdir/tests/testdata/save.3 ./save.ref && 
+            $abs_top_builddir/heresyrl --pb_delay=0 --test_auto --load_file=./save.ref --save_file=./save --log_file=./log && 
+            sed -i".b" "/.*version/D" save && 
+            sed -i".b" "/.*version/D" save.ref && 
+            diff -q save save.ref], [], [ignore], [ignore])  
+AT_CLEANUP
