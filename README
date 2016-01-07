@@ -21,9 +21,10 @@ Compiling
 Dependencies:
 * A *nix (linux or mac for example)
 * libncurses5-dev
-* lua 5.x
+* lua 5.x-dev
 * Autotools
 * A C compiler (gcc or clang)
+* pkg-config
 
 For a debian based Distribution (Debian, Ubuntu, Mint ...):
 * 'sudo apt-get install autoconf automake build-essential autotools-dev liblua5.1-0-dev libncurses5-dev'
