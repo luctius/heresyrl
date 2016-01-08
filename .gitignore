@@ -64,14 +64,18 @@ perf.data
 
 # Editor files
 .*.swp
+.ycm_extra_conf.py
 
 #Generated source files
 config.h
 config.h.in~
+heresyrl.debug
 
 #test files
 tests/package.m4
 tests/testsuite
 tests/atconfig
 tests/atlocal
+tests/testsuite.dir/
+
 
