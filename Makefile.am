@@ -23,21 +23,21 @@ heresyrl_SOURCES =  \
 				src/load.h	\
 				src/game.h	\
 				src/items/items_static.h	\
-                src/items/items_static_def.h \
+				src/items/items_static_def.h \
 				src/items/items.h	\
 				src/logging.h	\
 				src/inventory.h	\
 				src/turn_tick.h	\
-                src/status_effects/ground_effects.h \
-                src/status_effects/ground_effects_static.h \
-                src/status_effects/ground_effects_static_def.h \
+				src/status_effects/ground_effects.h \
+				src/status_effects/ground_effects_static.h \
+				src/status_effects/ground_effects_static_def.h \
 				src/status_effects/status_effects.h	\
 				src/status_effects/ground_effects.h	\
 				src/status_effects/status_effects_critical_blunt.h	\
 				src/status_effects/status_effects_static.h	\
-                src/status_effects/status_effects_static_def.h  \
+				src/status_effects/status_effects_static_def.h  \
 				src/monster/monster_static.h	\
-                src/monster/monster_static_def.h    \
+				src/monster/monster_static_def.h    \
 				src/monster/monster_action.h	\
 				src/monster/monster.h	\
 				src/dungeon/dungeon_dla.h	\
@@ -49,12 +49,12 @@ heresyrl_SOURCES =  \
 				src/dungeon/tiles.h	\
 				src/dungeon/dungeon_cave.h	\
 				src/dungeon/dungeon_room.h	\
-                src/quests/quests.h \
-                src/quests/quests_static_def.h \
-                src/quests/quests_static.h \
+				src/quests/quests.h \
+				src/quests/quests_static_def.h \
+				src/quests/quests_static.h \
 				src/careers/careers.h	\
 				src/careers/careers_static.h	\
-                src/careers/careers_static_def.h    \
+				src/careers/careers_static_def.h    \
 				src/fov/sight.h	\
 				src/fov/rpsc_fov.h	\
 				src/ai/pathfinding.h	\
@@ -89,14 +89,14 @@ heresyrl_SOURCES =  \
 				src/dungeon/spawn.c \
 				src/dungeon/cellular_automata.c \
 				src/dungeon/diffusion_limited_aggregation.c \
-                src/quests/quests.c \
+				src/quests/quests.c \
 				src/ai/ai.c \
 				src/ai/ai_utils.c \
 				src/ai/pathfinding.c \
 				src/monster/monster_action.c \
 				src/monster/monster.c \
 				src/status_effects/status_effects.c \
-                src/status_effects/ground_effects.c \
+				src/status_effects/ground_effects.c \
 				src/fov/sight.c \
 				src/fov/rpsc_fov.c \
 				src/items/items.c \
