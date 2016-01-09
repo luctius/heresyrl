@@ -67,7 +67,7 @@ int main(int argc, char *argv[]) {
     }
     gbl_log = lg_init(options.log_file_name, debug_lvl, log_size);
 
- 	srand(time(NULL));
+    srand(time(NULL));
     game_init(NULL, rand());
 
     initscr(); //  Start curses mode

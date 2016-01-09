@@ -432,7 +432,7 @@ coord_t sgt_scatter(struct dm_map *map, struct random *r, coord_t *p, int radius
 
             /* require line of sight */
             if (sgt_has_los(map, p, &c, radius) == false) continue;
-            
+
             /* we found a point which mathes our restrictions*/
             return c;
         }

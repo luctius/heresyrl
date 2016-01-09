@@ -598,7 +598,7 @@ enum msr_hit_location msr_get_hit_location(struct msr_monster *monster, int hit_
             if (hit_roll >= hitloc_tbl[i]) mhl = hitloc_tbl[i];
         }
     }
-    
+
     return mhl;
 }
 
@@ -759,7 +759,7 @@ int msr_calculate_characteristic_bonus(struct msr_monster *monster, enum msr_cha
 
 int msr_calculate_fatique(struct msr_monster *monster) {
     if (msr_verify_monster(monster) == false) return -1;
-    
+
     /* TODO: implement fatique */
 
     return 0;
@@ -939,7 +939,7 @@ static void creature_weapon(struct msr_monster *monster) {
 void msr_populate_inventory(struct msr_monster *monster, int level, struct random *r) {
     if (msr_verify_monster(monster) == false) return;
     struct itm_item *item = NULL;
-    
+
     int mlevel = level;
     if (random_float(r) > 0.95) mlevel += 1;
 

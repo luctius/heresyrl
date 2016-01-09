@@ -27,7 +27,7 @@ bool sgt_calculate_all_light_sources(struct dm_map *map);
 
 bool sgt_calculate_light_source(struct dm_map *map, struct itm_item *item);
 
-/* 
+/*
     touches the visible grids within the players far sight and marks them:
       - in_sight
 

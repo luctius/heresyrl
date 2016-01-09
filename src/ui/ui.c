@@ -216,7 +216,6 @@ static void mapwin_display_map_noref(struct dm_map *map, coord_t *player) {
                         attr_mod = me->icon_attr_override;
                     }
                 }
-                
 
                 /* test colours */
                 {
@@ -880,7 +879,7 @@ void charwin_refresh() {
         }
     }
     ui_printf(char_win, "\n");
-    
+
     int cnt = 0;
     struct msr_monster *target = NULL;
     while ( (target = aiu_get_nearest_enemy(player, cnt, gbl_game->current_map) ) != NULL) {
@@ -1599,7 +1598,7 @@ void charwin_examine(const char *type, const char *name, const char *description
 
     werase(char_win->win);
     ui_print_reset(char_win);
-    
+
     ui_printf(char_win, cs_ATTR "%s:" cs_CLOSE, type);
     if (name) ui_printf(char_win, " %s\n", name);
     else ui_printf(char_win, "\n");

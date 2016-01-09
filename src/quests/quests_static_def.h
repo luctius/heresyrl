@@ -38,7 +38,7 @@
     .enemies[nr] = { \
         .race = tp, \
         .weight = wgt, \
-    }\
+    }
 
 static struct quest static_quest_list[] = {
 

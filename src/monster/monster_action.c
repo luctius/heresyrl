@@ -345,7 +345,7 @@ bool ma_do_reload_carried(struct msr_monster *monster, struct itm_item *ammo_ite
                     wpn->jammed = false;
                     You(monster, "unjam %s.", item->ld_name);
                     Monster(monster, "unjams %s.", item->ld_name);
-                    
+
                     if (cost == 0) {
                         cost += MSR_ACTION_RELOAD * item->use_delay;
                     }

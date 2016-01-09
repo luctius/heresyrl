@@ -651,7 +651,7 @@ bool ld_read_save_file(const char *path, struct gm_game *g) {
 
     lg_debug("loading game from %s", path);
     lua_State *L = conf_open(path);
-    
+
     if (L != NULL) {
         if (load_game(L, g) == false) return false;
         if (load_input(L, g) == false) return false;

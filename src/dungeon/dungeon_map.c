@@ -135,7 +135,7 @@ static bool dm_clear_map_unsafe(struct dm_map *map) {
     return true;
 }
 
-/* 
+/*
    As with every verify function, check if the 
    intergrity of the passed struct is correct.
  */
@@ -256,7 +256,7 @@ bool dm_populate_map(struct dm_map *map, struct random *r, uint32_t monster_chan
     return true;
 }
 
-/* 
+/*
    Here we add stairs, supports only 2 at a time, for now.
    randomly selects a tile, puts down the up stairs,
    then tries a few times untill the distance is satisfying 
@@ -273,7 +273,7 @@ static void dm_add_stairs(struct dm_map *map, struct random *r) {
     int i = 0;
     int large_num = 10000;
     int target_distance = map->size.x * 0.8f;
-    
+
     int last_distance = 0;
     coord_t up = cd_create(0,0);
     coord_t down = cd_create(0,0);
@@ -364,7 +364,7 @@ static bool dm_tunnel(struct dm_map *map, struct random *r, coord_t *start, coor
     while (!tunnel_done) {
         coord_t delta     = cd_delta(end, &prev);
         coord_t delta_abs = cd_delta_abs(end, &prev);
-        
+
         int xd = 0;
         int yd = 0;
         int xmod = (delta.x >= 0) ? 1: -1;
@@ -372,7 +372,7 @@ static bool dm_tunnel(struct dm_map *map, struct random *r, coord_t *start, coor
 
         bool last = false;
         if (cd_equal(&prev, end) || cd_neighbour(&prev, end) ) last = true;
-        
+
         int roll = random_int32(r) % 100;
         if (first || last || roll < 80) {
             if (delta_abs.x >= delta_abs.y) {
@@ -461,7 +461,7 @@ static void dm_add_loops(struct dm_map *map, struct pf_context *pf_ctx, struct r
             for (int x = 1; x < map->size.x && tunneled == false; x+=5) {
                 for (int y = 1; y < map->size.y && tunneled == false; y+=5) {
                     coord_t point;
-                    
+
                     coord_t best;
                     coord_t worst;
                     int best_distance = INT_MAX;

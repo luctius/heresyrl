@@ -394,7 +394,7 @@ static void rpsc_fov_octant(struct rpsc_fov_set *set, coord_t *src, int radius, 
                 }
             }
         }
-    
+
         if (obstacles_this_row > 0)  {
             /* we have gathered some new blockers, lets cleanup the list. */
             obstacles_total = scrub_blocked_list(blocked_list, obstacles_total + obstacles_this_row);

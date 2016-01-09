@@ -54,7 +54,7 @@ bool dm_generate_map_room(struct dm_map *map, struct random *r, enum dm_dungeon_
 
     if ( (r_ul.x + r_szx) >= sz_x-1) r_szx = sz_x - r_ul.x - 4;
     if ( (r_ul.y + r_szy) >= sz_y-1) r_szy = sz_y - r_ul.y - 4;
-    
+
     r_dr.x = r_ul.x + r_szx;
     r_dr.y = r_ul.y + r_szy;
 

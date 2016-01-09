@@ -89,7 +89,7 @@ int ui_printf_ext(struct hrl_window *win, int y_start, int x_start, const char *
     va_end(args);
     int print_txt_sz = ui_strlen(buf);
     //int real_txt_sz = strlen(buf);
-    
+
     int max_line_sz = win->cols -1;
 
     if (win->text_x != 0) {
