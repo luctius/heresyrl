@@ -56,6 +56,7 @@ X -- Could not wield a knife?
 X -- Announce seen monsters (and only once or so)
 V -- Apply penalty for stealth on both attack and being attacked.
 X -- Check file permissions on save_file location
+X -- playback/test_auto do not play well with name and race set on the commandline
 
 Combat:
 A melee attacker attacking someone in the light should get a bonus?

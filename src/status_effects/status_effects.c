@@ -32,46 +32,6 @@
 #include "items/items_static.h"
 #include "dungeon/dungeon_map.h"
 
-static inline bool effect_set_flag(struct se_type_struct *ces, enum status_effect_setting_flags flag) {
-    return set_bf(ces->effect_setting_flags, flag);
-}
-static inline bool effect_clr_flag(struct se_type_struct *ces, enum status_effect_setting_flags flag) {
-    return clr_bf(ces->effect_setting_flags, flag);
-}
-static inline bool effect_has_flag(struct se_type_struct *ces, enum status_effect_setting_flags flag) {
-    return test_bf(ces->effect_setting_flags, flag);
-}
-
-static inline bool check_effect_set_flag(struct status_effect *c, enum se_check_flags flag) {
-    return set_bf(c->check_flags, flag);
-}
-static inline bool check_effect_clr_flag(struct status_effect *c, enum se_check_flags flag) {
-    return clr_bf(c->check_flags, flag);
-}
-static inline bool check_effect_has_flag(struct status_effect *c, enum se_check_flags flag) {
-    return test_bf(c->check_flags, flag);
-}
-static inline bool effect_heal_set_flag(struct status_effect *c, enum se_heal_flags flag) {
-    return set_bf(c->heal_flags, flag);
-}
-static inline bool effect_heal_clr_flag(struct status_effect *c, enum se_heal_flags flag) {
-    return clr_bf(c->heal_flags, flag);
-}
-static inline bool effect_heal_has_flag(struct status_effect *c, enum se_heal_flags flag) {
-    return test_bf(c->heal_flags, flag);
-}
-
-
-static inline bool status_effect_set_flag(struct status_effect *c, enum status_effect_flags flag) {
-    return set_bf(c->setting_flags, flag);
-}
-static inline bool status_effect_clr_flag(struct status_effect *c, enum status_effect_flags flag) {
-    return clr_bf(c->setting_flags, flag);
-}
-static inline bool status_effect_has_flag(struct status_effect *c, enum status_effect_flags flag) {
-    return test_bf(c->setting_flags, flag);
-}
-
 struct se_entry {
     struct status_effect status_effect;
     LIST_ENTRY(se_entry) entries;

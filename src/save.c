@@ -203,26 +203,27 @@ static bool sv_save_status_effects(FILE *file, int indent) {
         struct status_effect *se = NULL;
         while ( (se = selst_get_next_status_effect(se) ) != NULL) {
             fprintf(file, "%*s" "{uid=%d,",  indent, "", se->uid);
-            fprintf(file, "tid=%d,",  se->template_id);
+                fprintf(file, "tid=%d,",  se->template_id);
 
-            fprintf(file,"duration_energy_min=%d,", se->duration_energy_min);
-            fprintf(file,"duration_energy_max=%d,", se->duration_energy_max);
-            fprintf(file,"duration_energy=%d,",     se->duration_energy);
+                fprintf(file,"duration_energy_min=%d,", se->duration_energy_min);
+                fprintf(file,"duration_energy_max=%d,", se->duration_energy_max);
+                fprintf(file,"duration_energy=%d,",     se->duration_energy);
 
-            int e_sz = 0;
-            fprintf(file,"effects={");
-            for (int i = 0; i < STATUS_EFFECT_MAX_NR_EFFECTS; i++) {
-                if (se->effects[i].effect == EF_NONE) i = STATUS_EFFECT_MAX_NR_EFFECTS;
-                    fprintf(file,"{");
-                        fprintf(file,"effect=%d,",               se->effects[i].effect);
-                        fprintf(file,"effect_setting_flags=%d,", se->effects[i].effect_setting_flags);
-                        fprintf(file,"tick_interval_energy=%d,", se->effects[i].tick_interval_energy);
-                        fprintf(file,"tick_energy=%d,",          se->effects[i].tick_energy);
-                        fprintf(file,"ticks_applied=%d,",        se->effects[i].ticks_applied);
-                        fprintf(file,"param=%d,",                se->effects[i].param);
-                    fprintf(file,"},");
-                    e_sz++;
-                }
+                int e_sz = 0;
+                fprintf(file,"effects={");
+                    for (int i = 0; i < STATUS_EFFECT_MAX_NR_EFFECTS; i++) {
+                        if (se->effects[i].effect == EF_NONE) break;
+                        if (status_effect_has_flag(se, SEF_ACTIVE) == false) break;
+                        fprintf(file,"{");
+                            fprintf(file,"effect=%d,",               se->effects[i].effect);
+                            fprintf(file,"effect_setting_flags=%d,", se->effects[i].effect_setting_flags);
+                            fprintf(file,"tick_interval_energy=%d,", se->effects[i].tick_interval_energy);
+                            fprintf(file,"tick_energy=%d,",          se->effects[i].tick_energy);
+                            fprintf(file,"ticks_applied=%d,",        se->effects[i].ticks_applied);
+                            fprintf(file,"param=%d,",                se->effects[i].param);
+                        fprintf(file,"},");
+                        e_sz++;
+                    }
                 fprintf(file,"sz=%d,},", e_sz);
             fprintf(file, "},\n");
             sz++;

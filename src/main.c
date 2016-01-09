@@ -140,12 +140,14 @@ int main(int argc, char *argv[]) {
             getmaxyx(stdscr, lines, cols);
             ui_create(cols, lines);
         }
+
+        System_msg("Goodbye.");
+        usleep(500000);
+
+        game_exit();
     }
+    else lg_error("Player invalid.");
 
-    System_msg("Goodbye.");
-    usleep(500000);
-
-    game_exit();
     ui_destroy();
     lg_exit(gbl_log);
     opt_exit();
