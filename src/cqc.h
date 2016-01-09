@@ -58,7 +58,7 @@ struct cqc {
 #define cqc_get(cqc)            ( (cqc).tail = ( ( (cqc).tail + 1) & (cqc).size ) )
 #define cqc_get_cnt(cqc, cnt)   ( (cqc).tail = ( ( (cqc).tail + cnt) & (cqc).size ) )
 /* Retreive item idx, does not touch bookkeeping. */
-#define cqc_peek(cqc, idx)  ( ((cqc).tail+idx)        & ((cqc).size) )
+#define cqc_peek(cqc, idx)  ( ((cqc).tail+1+idx)        & ((cqc).size) )
 /* Space left in the buffer. */
 #define cqc_space(cqc)      ( ((cqc).size)            - (cqc_cnt(cqc)) )
 
