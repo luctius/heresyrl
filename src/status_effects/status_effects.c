@@ -253,9 +253,9 @@ struct status_effect *se_create(enum se_ids tid) {
     cc->uid = selst_next_id();
 
     if (status_effect_has_flag(cc, SEF_PERMANENT) ) {
-        cc->duration_energy_max = TT_ENERGY_TURN;   
-        cc->duration_energy_min = TT_ENERGY_TURN;   
-        cc->duration_energy     = TT_ENERGY_TURN;   
+        cc->duration_energy_max = TT_ENERGY_TURN;
+        cc->duration_energy_min = TT_ENERGY_TURN;
+        cc->duration_energy     = TT_ENERGY_TURN;
     }
     else {
         int range = (cc->duration_energy_max - cc->duration_energy_min);
@@ -318,7 +318,7 @@ bool se_add_status_effect(struct msr_monster *monster, uint32_t tid, const char 
                 if (status_effect_has_flag(c, SEF_PERMANENT) ) {
                     return c->uid;
                 }
-                
+
                 /* if not permanent but is unique, then we restart the duration. */
                 lg_debug("Restarting status_effect: %p(%s)", c, c->name);
                 /* restart status_effect */
