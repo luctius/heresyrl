@@ -1538,8 +1538,8 @@ void show_msg(struct hrl_window *window) {
     int ctr = 0;
     if (log_sz > 0) {
         int min = 0;
-        for (int i = log_sz; i > 0; i--) {
-            tmp_entry = lg_peek(gbl_log, i-1);
+        for (int i = log_sz -1; i >= 0; i--) {
+            tmp_entry = lg_peek(gbl_log, i);
             if (tmp_entry != NULL) {
                 bool print = false;
                 if (tmp_entry->level <= LG_DEBUG_LEVEL_GAME) print = true;
