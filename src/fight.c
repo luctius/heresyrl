@@ -615,7 +615,7 @@ bool fght_explosion(struct random *r, struct itm_item *bomb, struct dm_map *map)
     if (wpn_has_spc_quality(bomb, WPN_SPCQLTY_BLAST_2) == true) radius = 2;
     if (wpn_has_spc_quality(bomb, WPN_SPCQLTY_BLAST_3) == true) radius = 3;
     if (wpn_has_spc_quality(bomb, WPN_SPCQLTY_BLAST_4) == true) radius = 4;
-    
+
     lg_debug("Exploding bomb on %d,%d() with radius %d.", c.x, c.y, radius);
 
     Event_msg(&c, "%s explodes.", bomb->ld_name);
@@ -762,7 +762,7 @@ bool fght_shoot(struct random *r, struct msr_monster *monster, struct dm_map *ma
     coord_t *path;
     int path_len = sgt_los_path(map, &monster->pos, e, &path, true);
 
-    /*  
+    /*
         Here we loop over the
      */
     int i = 1;
@@ -962,7 +962,7 @@ struct itm_item *fght_get_weapon(struct msr_monster *monster, enum item_weapon_t
     return item;
 }
 
-/*  
+/*
     same as fght_get_weapon except we also check 
     if the weapon is in working status_effect.
  */

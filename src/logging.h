@@ -67,7 +67,7 @@ struct log_entry {
 
     char *module;
     int line;
-    
+
     enum lg_debug_levels level;
     char *string;
 };

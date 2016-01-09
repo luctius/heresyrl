@@ -345,7 +345,7 @@ int clrstr_to_attr(const char *s) {
     else if (strncmp(cs_SYSTEM,   s, strlen(cs_SYSTEM) )   == 0) return get_colour(TERM_COLOUR_WHITE);
     else if (strncmp(cs_ATTR,     s, strlen(cs_ATTR) )     == 0) return get_colour(TERM_COLOUR_L_TEAL);
     else if (strncmp(cs_OLD,      s, strlen(cs_OLD) )      == 0) return get_colour(TERM_COLOUR_L_DARK);
-    
+
     return get_colour(TERM_COLOUR_L_WHITE);
 }
 

@@ -1,4 +1,4 @@
-/* 
+/*
    A C-program for MT19937, with initialization improved 2002/1/26.
    Coded by Takuji Nishimura and Makoto Matsumoto.
 
@@ -6,7 +6,7 @@
    or init_by_array(init_key, key_length).
 
    Copyright (C) 1997 - 2002, Makoto Matsumoto and Takuji Nishimura,
-   All rights reserved.                          
+   All rights reserved
 
    Redistribution and use in source and binary forms, with or without
    modification, are permitted provided that the following conditions
@@ -193,7 +193,7 @@ unsigned long random_int32(struct random *r)
 
         r->mti = 0;
     }
-  
+
     y = r->mt[r->mti++];
 
     /* Tempering */
@@ -237,8 +237,8 @@ double random_genrand_real3(struct random *r)
 
 /* generates a random number on [0,1) with 53-bit resolution*/
 double random_float(struct random *r) 
-{ 
+{
     unsigned long a=random_int32(r)>>5, b=random_int32(r)>>6; 
     return(a*67108864.0+b)*(1.0/9007199254740992.0); 
-} 
+}
 /* These real versions are due to Isaku Wada, 2002/01/09 added */

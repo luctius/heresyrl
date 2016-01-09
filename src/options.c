@@ -69,7 +69,7 @@ void opt_parse_options(struct gengetopt_args_info *args_info) {
     options.play_recording  = args_info->playback_flag;
     options.play_delay      = args_info->pb_delay_arg;
     options.play_stop       = args_info->pb_stop_arg;
-    
+
     if (args_info->log_file_given == false) {
         char *log_file = malloc(PATH_MAX * sizeof(char) );
         snprintf(log_file, path_max, "%s/.%s", homedir, PACKAGE_NAME);

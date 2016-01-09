@@ -335,7 +335,7 @@ static bool sv_save_map(FILE *file, int indent, struct dm_map *map) {
                             fprintf(file, "sz=%d,", invsz);
                             fprintf(file, "},");
                         }
-                        
+
                         fprintf(file, "},\n");
                         sz++;
                     }

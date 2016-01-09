@@ -32,7 +32,7 @@ static bool wield_melee_weapon(struct msr_monster *monster, struct itm_item *ite
     if (item->item_type != ITEM_TYPE_WEAPON) return false;
     if (wpn_is_type(item, WEAPON_TYPE_MELEE) == false) return false;
     struct inv_inventory *inv = monster->inventory;
-    
+
     bitfield32_t location = INV_LOC_NONE;
     if (wpn_is_catergory(item, WEAPON_CATEGORY_2H_MELEE) ) {
         if ( (inv_support_location(inv, INV_LOC_MAINHAND_WIELD) == false) ||

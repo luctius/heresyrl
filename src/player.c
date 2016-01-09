@@ -216,7 +216,7 @@ static bool plr_action_loop(struct msr_monster *player) {
             return true;
         }
     }
-    
+
     if (player->dead) {
         gbl_game->running = false;
         usleep(40000);
@@ -271,7 +271,7 @@ static bool plr_action_loop(struct msr_monster *player) {
                         int item_list_sz = 0;
                         bool stop = false;
                         bool pickup_all = false;
-                        
+
                         if (inv_inventory_size(inv) > 1) {
                             while ( ( (item = inv_get_next_item(inv, item) ) != NULL) && (stop == false) ){
                                 bool pickup = false;
@@ -386,7 +386,7 @@ static bool plr_action_loop(struct msr_monster *player) {
                         pos = player_running_dir;
                     }
                 } break;
-            
+
             default:
                 break;
         }

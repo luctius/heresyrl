@@ -192,9 +192,9 @@ static enum inp_keys inp_translate_key(int ch) {
         case '[':       k = INP_KEY_WEAPON_SETTING; break;
         case ']':       k = INP_KEY_WEAPON_SELECT; break;
         case '\\':      k = INP_KEY_AMMO_SELECT; break;
-        case '+':       
+        case '+':
         case '=':       k = INP_KEY_PLUS; break;
-        case '_':       
+        case '_':
         case '-':       k = INP_KEY_MINUS; break;
 
         case ' ':
@@ -214,7 +214,7 @@ static enum inp_keys inp_translate_key(int ch) {
         case '<':       k = INP_KEY_STAIRS_UP; break;
         case 24:        k = INP_KEY_QUIT; break;
         case 9:         k = INP_KEY_TAB; break;
-                
+
         default:
             lg_debug("key pressed: %d.", ch);
             break;
