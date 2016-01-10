@@ -363,6 +363,7 @@ static bool load_items_list(lua_State *L) {
         lua_intexpr(L, &t, "game.items[%d].uid", i+1); item->uid = t;
         lua_intexpr(L, &t, "game.items[%d].quality", i+1); item->quality = t;
         lua_intexpr(L, &t, "game.items[%d].quantity", i+1); item->stacked_quantity = t;
+        lua_intexpr(L, &t, "game.items[%d].identified", i+1); item->identified = t;
 
         switch(item->item_type) {
             case ITEM_TYPE_WEAPON: {
@@ -382,6 +383,8 @@ static bool load_items_list(lua_State *L) {
             case ITEM_TYPE_FOOD: {
                     struct item_food_specific *food = &item->specific.food;
                     lua_intexpr(L, &t, "game.items[%d].food.nutrition_left", i+1); food->nutrition_left = t;
+                    lua_intexpr(L, &t, "game.items[%d].food.side_effect_chance", i+1); food->side_effect_chance = t;
+                    lua_intexpr(L, &t, "game.items[%d].food.side_effect", i+1); food->side_effect = t;
                 } break;
             case ITEM_TYPE_TOOL: {
                     struct item_tool_specific *tool = &item->specific.tool;
