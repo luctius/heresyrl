@@ -33,7 +33,7 @@ enum se_ids {
     /* Weapons */
     SEID_WEAPON_FLAME,
 
-    /* 
+    /*
        Criticals -- it is required that these are in order! ie. HEAD1 , HEAD2, HEAD3 ...
        With exception to the healed ids.
      */
