@@ -78,6 +78,10 @@ bool char_creation_window(void) {
     if (options.char_name != NULL) {
         strcpy(name_buffer, options.char_name);
         name_done = true;
+
+        for (char *c = name_buffer; *c != 0; c++) {
+            inp_add_to_log(gbl_game->input, *c);
+        }
     }
 
     while (name_done == false) {
@@ -109,7 +113,6 @@ bool char_creation_window(void) {
     player->unique_name = strdup(name_buffer);
     charwin_refresh();
 
-
     ui_print_reset(map_win);
     werase(map_win->win);
 
@@ -134,6 +137,9 @@ bool char_creation_window(void) {
         player = plr->player;
         charwin_refresh();
         race_done = true;
+
+        inp_add_to_log(gbl_game->input, INP_KEY_APPLY);
+        inp_add_to_log(gbl_game->input, 0);
     }
 
     while (race_done == false) {
