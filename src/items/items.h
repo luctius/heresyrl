@@ -217,7 +217,7 @@ struct itm_item {
     int item_pre;
 
     /* unique id of this item instance. */
-    uint32_t uid; 
+    uint32_t uid;
 
     /* id of the items base copy. */
     uint32_t template_id;
@@ -243,11 +243,11 @@ struct itm_item {
     /* total amount of time this item exists, in energy*/
     unsigned long age;
 
-    /* 
-       amount of energy this item has, 
+    /*
+       amount of energy this item has,
        if energy_action == false, this is not used.
 
-       if energy_action == true, there is an action attached 
+       if energy_action == true, there is an action attached
        to this item when its energy reaches <= 0.
 
        this can be used by grenades and torches for example.
@@ -256,10 +256,10 @@ struct itm_item {
     int energy;
     bool permanent_energy; /* True if it is a permanent effect, like a magic cloak*/
 
-    /* 
-       whether or not this item appears on the ground after a creature is dead. 
-       non-dropable items will not be saved (since they will not be modified in 
-       a meaningfull way), thus any item which will be generated everytime a 
+    /*
+       whether or not this item appears on the ground after a creature is dead.
+       non-dropable items will not be saved (since they will not be modified in
+       a meaningfull way), thus any item which will be generated everytime a
        game is loaded should be non-dropable.
      */
     bool dropable;
@@ -290,7 +290,7 @@ void itmlst_items_list_init(void);
 void itmlst_items_list_exit(void);
 
 /* get next item from global items list.
-   if prev == NULL, get the first item, 
+   if prev == NULL, get the first item,
    otherwise the item after prev. */
 struct itm_item *itmlst_get_next_item(struct itm_item *prev);
 /* search the items list for the item with this uid. */

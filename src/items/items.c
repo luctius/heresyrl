@@ -115,7 +115,7 @@ static uint32_t itmlst_next_id(void) {
 
 static bool itm_is_in_group(struct itm_item *item, enum item_group ig) {
     switch(ig) {
-        case ITEM_GROUP_NONE: 
+        case ITEM_GROUP_NONE:
             return false;
         case ITEM_GROUP_1H_MELEE:
             return wpn_is_catergory(item, WEAPON_CATEGORY_1H_MELEE);
@@ -259,7 +259,7 @@ bool itm_insert_item(struct itm_item *item, struct dm_map *map, coord_t *pos) {
             item->owner.owner_map_entity = target;
             retval = true;
 
-            lg_debug("Inserting item %s (%c) [uid:%d, tid:%d] to (%d,%d)", 
+            lg_debug("Inserting item %s (%c) [uid:%d, tid:%d] to (%d,%d)",
                     item->sd_name, item->icon, item->uid, item->template_id, pos->x, pos->y);
         }
     }
@@ -388,7 +388,7 @@ bool itm_stack_compatible(struct itm_item *item1, struct itm_item *item2) {
             if (item1->specific.wearable.damage_reduction != item2->specific.wearable.damage_reduction) return false;
             if (item1->specific.wearable.special_quality != item2->specific.wearable.special_quality) return false;
             break;
-        case ITEM_TYPE_AMMO: 
+        case ITEM_TYPE_AMMO:
             if (item1->specific.ammo.ammo_type != item2->specific.ammo.ammo_type) return false;
             if (item1->specific.ammo.upgrades != item2->specific.ammo.upgrades) return false;
             if (item1->specific.ammo.convey_status_effect != item2->specific.ammo.convey_status_effect) return false;

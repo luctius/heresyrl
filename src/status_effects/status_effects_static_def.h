@@ -114,9 +114,9 @@ static const struct status_effect static_status_effect_list[] = {
 
 
     /* Critical hits */
-    /* Note: Critical hits should be in order (blunt_1, then blunt_2, without 
+    /* Note: Critical hits should be in order (blunt_1, then blunt_2, without
                anything interfering.  se_add_critical_hit requires that.) */
-    /* Note 2: Althought Left/Right leg and Left/Right arm are almost identical, right now 
+    /* Note 2: Althought Left/Right leg and Left/Right arm are almost identical, right now
                I do not see a way to merge them without causing lots headackes. */
     /*-------------------------------------------------------------------------*/
 

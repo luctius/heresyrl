@@ -448,12 +448,12 @@ int se_status_effect_strength(struct msr_monster *monster, enum status_effect_ef
 }
 
 /*
-   This lookup table retrieves the starting entry of the 
-   critical hit table. The damage is then added to that 
+   This lookup table retrieves the starting entry of the
+   critical hit table. The damage is then added to that
    to get to the correct entry.
 */
 static const enum se_ids dmg_type_to_id_lot[MSR_HITLOC_MAX][DMG_TYPE_MAX] = {
-    [MSR_HITLOC_LEFT_LEG] = { 
+    [MSR_HITLOC_LEFT_LEG] = {
         [DMG_TYPE_ARROW]    = SEID_BLUNT_LARM_1,
         [DMG_TYPE_BLUNT]    = SEID_BLUNT_LARM_1,
         [DMG_TYPE_BULLET]   = SEID_BLUNT_LARM_1,
@@ -464,7 +464,7 @@ static const enum se_ids dmg_type_to_id_lot[MSR_HITLOC_MAX][DMG_TYPE_MAX] = {
         [DMG_TYPE_SHRAPNEL] = SEID_BLUNT_LARM_1,
         [DMG_TYPE_UNARMED]  = SEID_BLUNT_LARM_1,
     },
-    [MSR_HITLOC_RIGHT_LEG] = { 
+    [MSR_HITLOC_RIGHT_LEG] = {
         [DMG_TYPE_ARROW]    = SEID_BLUNT_RARM_1,
         [DMG_TYPE_BLUNT]    = SEID_BLUNT_RARM_1,
         [DMG_TYPE_BULLET]   = SEID_BLUNT_RARM_1,
@@ -475,7 +475,7 @@ static const enum se_ids dmg_type_to_id_lot[MSR_HITLOC_MAX][DMG_TYPE_MAX] = {
         [DMG_TYPE_SHRAPNEL] = SEID_BLUNT_RARM_1,
         [DMG_TYPE_UNARMED]  = SEID_BLUNT_RARM_1,
     },
-    [MSR_HITLOC_LEFT_ARM] = { 
+    [MSR_HITLOC_LEFT_ARM] = {
         [DMG_TYPE_ARROW]    = SEID_BLUNT_LARM_1,
         [DMG_TYPE_BLUNT]    = SEID_BLUNT_LARM_1,
         [DMG_TYPE_BULLET]   = SEID_BLUNT_LARM_1,
@@ -486,7 +486,7 @@ static const enum se_ids dmg_type_to_id_lot[MSR_HITLOC_MAX][DMG_TYPE_MAX] = {
         [DMG_TYPE_SHRAPNEL] = SEID_BLUNT_LARM_1,
         [DMG_TYPE_UNARMED]  = SEID_BLUNT_LARM_1,
     },
-    [MSR_HITLOC_RIGHT_ARM] = { 
+    [MSR_HITLOC_RIGHT_ARM] = {
         [DMG_TYPE_ARROW]    = SEID_BLUNT_RARM_1,
         [DMG_TYPE_BLUNT]    = SEID_BLUNT_RARM_1,
         [DMG_TYPE_BULLET]   = SEID_BLUNT_RARM_1,
@@ -497,7 +497,7 @@ static const enum se_ids dmg_type_to_id_lot[MSR_HITLOC_MAX][DMG_TYPE_MAX] = {
         [DMG_TYPE_SHRAPNEL] = SEID_BLUNT_RARM_1,
         [DMG_TYPE_UNARMED]  = SEID_BLUNT_RARM_1,
     },
-    [MSR_HITLOC_BODY] = { 
+    [MSR_HITLOC_BODY] = {
         [DMG_TYPE_ARROW]    = SEID_BLUNT_LARM_1,
         [DMG_TYPE_BLUNT]    = SEID_BLUNT_LARM_1,
         [DMG_TYPE_BULLET]   = SEID_BLUNT_LARM_1,
@@ -508,7 +508,7 @@ static const enum se_ids dmg_type_to_id_lot[MSR_HITLOC_MAX][DMG_TYPE_MAX] = {
         [DMG_TYPE_SHRAPNEL] = SEID_BLUNT_LARM_1,
         [DMG_TYPE_UNARMED]  = SEID_BLUNT_LARM_1,
     },
-    [MSR_HITLOC_HEAD] = { 
+    [MSR_HITLOC_HEAD] = {
         [DMG_TYPE_ARROW]    = SEID_BLUNT_RARM_1,
         [DMG_TYPE_BLUNT]    = SEID_BLUNT_RARM_1,
         [DMG_TYPE_BULLET]   = SEID_BLUNT_RARM_1,
@@ -534,7 +534,7 @@ bool se_add_critical_hit(struct msr_monster *monster, int dmg, enum msr_hit_loca
     int crit_effect = tid +( abs(dmg) * STATUS_EFFECT_CRITICAL_RATIO);
 
     switch(mhl) {
-        case MSR_HITLOC_LEFT_LEG: 
+        case MSR_HITLOC_LEFT_LEG:
             if (se_has_non_healable_permanent_effect(monster, EF_DISABLED_LLEG) ) return false;
         case MSR_HITLOC_RIGHT_LEG:
             if (se_has_non_healable_permanent_effect(monster, EF_DISABLED_RLEG) ) return false;
@@ -746,7 +746,7 @@ void se_process_effects_last(struct se_type_struct *ces, struct msr_monster *mon
             /* if the monster already had the talent, the effect is set to be inactive and this doesn't apply. */
             msr_clr_talent(monster, ces->param);
             break;
-        case EF_TRAIT: 
+        case EF_TRAIT:
             /* if the monster already had the trait, the effect is set to be inactive and this doesn't apply. */
             msr_set_creature_trait(monster, ces->param);
             break;
@@ -761,7 +761,7 @@ void se_process_effects_last(struct se_type_struct *ces, struct msr_monster *mon
 
         case EF_MODIFY_MAX_WOUNDS:
             monster->wounds.max += (ces->strength * -1) * ces->ticks_applied;
-            monster->wounds.curr = (monster->wounds.curr < monster->wounds.max) ? 
+            monster->wounds.curr = (monster->wounds.curr < monster->wounds.max) ?
                                     monster->wounds.curr : monster->wounds.max;
             break;
 
@@ -870,13 +870,13 @@ void se_process_effects_during(struct se_type_struct *ces, struct msr_monster *m
 
         case EF_HEALTH:
             monster->wounds.curr += ces->strength;
-            monster->wounds.curr = (monster->wounds.curr < monster->wounds.max) ? 
+            monster->wounds.curr = (monster->wounds.curr < monster->wounds.max) ?
                                     monster->wounds.curr : monster->wounds.max;
             break;
 
         case EF_MODIFY_MAX_WOUNDS:
             monster->wounds.max += ces->strength;
-            monster->wounds.curr = (monster->wounds.curr < monster->wounds.max) ? 
+            monster->wounds.curr = (monster->wounds.curr < monster->wounds.max) ?
                                     monster->wounds.curr : monster->wounds.max;
             break;
 
@@ -897,7 +897,7 @@ static void se_process_effect(struct msr_monster *monster, struct status_effect 
 
     struct status_effect_list *se_list = monster->status_effects;
     if (se_verify_list(se_list) == false) return;
-    /* 
+    /*
        if the monster is dead, do nothing.
        we do this here because an effect can cause death.
      */
