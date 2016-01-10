@@ -62,7 +62,7 @@ $ is for money
 #define ITEM(item_id,_sd_name,_ld_name,item_quality,item_weight,item_cost,delay) \
             [item_id]={.uid=0, .template_id=item_id, .quality=item_quality, .age=0, \
             .weight=item_weight, .cost=item_cost, .sd_name=cs_ITEM _sd_name cs_CLOSE , .ld_name=cs_ITEM _ld_name cs_CLOSE, \
-            .icon_attr=TERM_COLOUR_SLATE, .use_delay=delay
+            .icon_attr=TERM_COLOUR_SLATE, .use_delay=delay, .identified=true
 #define ITEM_END }
 
 #define ITEM_NONE(item_id,_sd_name,_ld_name,item_weight,item_cost,delay) \
@@ -146,7 +146,7 @@ $ is for money
             .item_type=ITEM_TYPE_AMMO, .specific.ammo={ .ammo_type=_ammo_type, .convey_status_effect=cid, }
 
 #define DRAUGHT(cid) .icon='!', .stacked_quantity=1, .max_quantity=100, .dropable=true, \
-            .item_type=ITEM_TYPE_FOOD, .specific.food={ .food_type=FOOD_TYPE_LIQUID, .nutrition=2, .nutrition_left=2, .convey_status_effect=cid, }
+            .item_type=ITEM_TYPE_FOOD, .specific.food={ .food_type=FOOD_TYPE_LIQUID, .nutrition=2, .nutrition_left=2, .convey_status_effect=cid, .side_effect=0,}
 
 #define MUSHROOM(cid) .icon='&', .stacked_quantity=1, .max_quantity=100, .dropable=true, \
             .item_type=ITEM_TYPE_FOOD, .specific.food={ .food_type=FOOD_TYPE_SOLID, .nutrition=0, .nutrition_left=0, .convey_status_effect=cid, }
@@ -293,6 +293,13 @@ static const char *item_quality_strings[] = {
     [ITEM_QLTY_AVERAGE] =  "average",
     [ITEM_QLTY_GOOD]    =  "good",
     [ITEM_QLTY_BEST]    =  "best",
+};
+
+static const int item_food_quality_side_effect_chance[] = {
+    [ITEM_QLTY_POOR]    =  40,
+    [ITEM_QLTY_AVERAGE] =  20,
+    [ITEM_QLTY_GOOD]    =  10,
+    [ITEM_QLTY_BEST]    =  5,
 };
 
 static const char *ammo_type_strings[] = {

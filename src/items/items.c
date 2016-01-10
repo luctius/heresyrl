@@ -217,7 +217,9 @@ struct itm_item *itm_create(int template_id) {
 
     switch(i->item.item_type) {
         case ITEM_TYPE_FOOD:
-            i->item.specific.food.nutrition_left = i->item.specific.food.nutrition * i->item.quality; break;
+            i->item.specific.food.nutrition_left = i->item.specific.food.nutrition * i->item.quality;
+            i->item.specific.food.side_effect_chance = item_food_quality_side_effect_chance[i->item.quality];
+            i->item.identified = false;
             break;
         default: break;
     }
@@ -396,6 +398,8 @@ bool itm_stack_compatible(struct itm_item *item1, struct itm_item *item2) {
             if (item1->specific.food.nutrition != item2->specific.food.nutrition) return false;
             if (item1->specific.food.nutrition_left != item2->specific.food.nutrition_left) return false;
             if (item1->specific.food.convey_status_effect != item2->specific.food.convey_status_effect) return false;
+            if (item1->specific.food.side_effect_chance != item2->specific.food.side_effect_chance) return false;
+            if (item1->specific.food.side_effect != item2->specific.food.side_effect) return false;
             break;
         default: return false;
     }

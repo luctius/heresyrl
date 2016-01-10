@@ -182,7 +182,6 @@ struct item_food_specific {
     enum se_ids convey_status_effect;
 
     uint8_t side_effect_chance;
-    bool side_effect_identified;
     enum se_ids side_effect;
 };
 
@@ -239,6 +238,7 @@ struct itm_item {
     float use_delay;
     int8_t stacked_quantity;
     int8_t max_quantity;
+    bool identified;
 
     /* total amount of time this item exists, in energy*/
     unsigned long age;

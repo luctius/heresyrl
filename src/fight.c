@@ -844,6 +844,8 @@ bool fght_can_see(struct dm_map *map, struct msr_monster *monster, struct msr_mo
 
     if (monster->is_player) {
         if (me->in_sight == false) return false;
+
+        /* if the target has been seen in the last 2 turns, show him now to avoid popping in and out of monsters. */
         if (tgt->stealth.last_seen >= gbl_game->turn - (2 * TT_ENERGY_TURN) ) {
             tgt->stealth.last_seen = gbl_game->turn;
             return true;
@@ -851,6 +853,8 @@ bool fght_can_see(struct dm_map *map, struct msr_monster *monster, struct msr_mo
     }
     else {
         if (sgt_has_los(map, &monster->pos, &tgt->pos, far) == false) return false;
+
+        /* if the target has been seen in the last 2 turns, show him now to avoid popping in and out of monsters. */
         if (tgt->is_player) {
             if (monster->stealth.seen_plr >= gbl_game->turn - (2 * TT_ENERGY_TURN) ) {
                 monster->stealth.seen_plr = gbl_game->turn;
@@ -862,26 +866,33 @@ bool fght_can_see(struct dm_map *map, struct msr_monster *monster, struct msr_mo
 
     lg_ai_debug(monster, "testing visual to %s", msr_ldname(tgt));
 
+    /* Same faction can always see each other */
     if (monster->faction == tgt->faction) return true;
 
+    /* base modifiers are zero */
     int awareness_mod   = 0;
     int stealth_mod     = 0;
 
-    if (sgt_in_radius(map, &monster->pos, &tgt->pos, far) )    awareness_mod =  -2;
-    if (sgt_in_radius(map, &monster->pos, &tgt->pos, medium) ) awareness_mod =  -1;
+    /* near is easier to see, medium bit harder and far is again harder. */
     if (sgt_in_radius(map, &monster->pos, &tgt->pos, near) )   awareness_mod =  10;
+    else if (sgt_in_radius(map, &monster->pos, &tgt->pos, medium) ) awareness_mod =  -1;
+    else if (sgt_in_radius(map, &monster->pos, &tgt->pos, far) )    awareness_mod =  -2;
 
+    /* cascading light levels, bright is triggered twice and thus +20 */
     awareness_mod -= cd_pyth(&monster->pos, &tgt->pos);
     if (me->light_level >= 5) awareness_mod += 10;
     if (me->light_level >  0) awareness_mod += 10;
     if (me->light_level <  0) stealth_mod   += 5;
 
+    /* modify stealth by relative carrying weight */
     int tgt_cc = msr_calculate_carrying_capacity(tgt);
     int tgt_invweight = inv_get_weight(tgt->inventory);
 
     if (tgt_invweight > ( (tgt_cc * 70) / 100) ) stealth_mod -= 2;
     stealth_mod -= 5 * (tgt_invweight / tgt_cc);
 
+    /* for each tile which is not a sight blocking this, it is harder to be stealthy.
+       so try not to be in the open. */
     for (int i = 0; i < coord_nhlo_table_sz; i++) {
         coord_t c = cd_add(&tgt->pos, &coord_nhlo_table[i]);
         if (cd_within_bound(&c, &map->size) == true) {
@@ -893,6 +904,7 @@ bool fght_can_see(struct dm_map *map, struct msr_monster *monster, struct msr_mo
         }
     }
 
+    /* if you attacked or defended in the last turn, it is harder to be stealthy */
     if (tgt->stealth.last_attacked >= gbl_game->turn - (1 * TT_ENERGY_TURN) ) {
         stealth_mod -= 10;
     }
@@ -900,6 +912,7 @@ bool fght_can_see(struct dm_map *map, struct msr_monster *monster, struct msr_mo
         stealth_mod -= 10;
     }
 
+    /* The actual check and Degree of Success */
     int awareness = msr_calculate_skill(monster, MSR_SKILLS_AWARENESS) + awareness_mod;
     int stealth   = msr_calculate_skill(tgt, MSR_SKILLS_STEALTH)       + stealth_mod;
     int awareness_DoS = (awareness - tgt->stealth.awareness) / 10;
