@@ -7,8 +7,9 @@ AT_CLEANUP
 
 AT_SETUP([heresyrl --test_auto minimal])
 AT_KEYWORDS([minimal])
-AT_CHECK_UNQUOTED([  cp $abs_top_srcdir/tests/testdata/save.2 ./save.ref &&
-            $abs_top_builddir/heresyrl --pb_delay=0 --test_auto --load_file=./save.ref --save_file=./save --log_file=./log &&
+AT_CHECK([ cp $abs_top_srcdir/tests/testdata/save.2 ./save.ref ], [], [ignore], [ignore])
+AT_CHECK([ if [ $(which luac) -eq 0 ]; then luac -p save; fi ], [], [ignore], [ignore])
+AT_CHECK([  $abs_top_builddir/heresyrl --pb_delay=0 --test_auto --load_file=./save.ref --save_file=./save --log_file=./log &&
             $abs_top_srcdir/tests/testdata/ignore_line_number.sh save &&
             $abs_top_srcdir/tests/testdata/ignore_line_number.sh save.ref &&
             $abs_top_srcdir/tests/testdata/ignore_version.sh save &&
@@ -18,8 +19,9 @@ AT_CLEANUP
 
 AT_SETUP([heresyrl --test_auto medium])
 AT_KEYWORDS([minimal])
-AT_CHECK([  cp $abs_top_srcdir/tests/testdata/save.3 ./save.ref && 
-            $abs_top_builddir/heresyrl --pb_delay=0 --test_auto --load_file=./save.ref --save_file=./save --log_file=./log &&
+AT_CHECK([ cp $abs_top_srcdir/tests/testdata/save.3 ./save.ref ], [], [ignore], [ignore])
+AT_CHECK([ if [ $(which luac) -eq 0 ]; then luac -p save; fi ], [], [ignore], [ignore])
+AT_CHECK([  $abs_top_builddir/heresyrl --pb_delay=0 --test_auto --load_file=./save.ref --save_file=./save --log_file=./log &&
             $abs_top_srcdir/tests/testdata/ignore_line_number.sh save &&
             $abs_top_srcdir/tests/testdata/ignore_line_number.sh save.ref &&
             $abs_top_srcdir/tests/testdata/ignore_version.sh save &&
