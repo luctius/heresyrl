@@ -1218,11 +1218,11 @@ void character_window(void) {
     werase(pad.win);
 
 /*
-Name: 
-Career: 
+Name:
+Career:
 Rank:
-Origin: 
-Divination: 
+Origin:
+Divination:
 Wounds  0/0         Fate:  0/0
 Insanity: 0         Corruption: 0
 XP: 100             Spend: 3000
@@ -1231,7 +1231,7 @@ XP: 100             Spend: 3000
 [      ... ]
 
 Amour                 AP          location
-guard flak      
+guard flak
 
 Condition                   Note
 ....                        ....
