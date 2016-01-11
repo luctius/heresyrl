@@ -62,7 +62,7 @@ $ is for money
 #define ITEM(item_id,_sd_name,_ld_name,item_quality,item_weight,item_cost,delay) \
             [item_id]={.uid=0, .template_id=item_id, .quality=item_quality, .age=0, \
             .weight=item_weight, .cost=item_cost, .sd_name=cs_ITEM _sd_name cs_CLOSE , .ld_name=cs_ITEM _ld_name cs_CLOSE, \
-            .icon_attr=TERM_COLOUR_SLATE, .use_delay=delay, .identified=true
+            .icon_attr=TERM_COLOUR_SLATE, .use_delay=delay, .identified=true, .identify_last_try = 0
 #define ITEM_END }
 
 #define ITEM_NONE(item_id,_sd_name,_ld_name,item_weight,item_cost,delay) \
@@ -104,7 +104,7 @@ $ is for money
             .item_type=ITEM_TYPE_WEAPON, .dropable=false, .specific.weapon={.weapon_type=WEAPON_TYPE_MELEE,\
             .weapon_category=wpn_cat, .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=0,\
             .penetration=_penetration, .special_quality=bf(WPN_SPCQLTY_CREATURE) | special, .wpn_talent=TLT_NONE, .convey_status_effect=SEID_NONE, }, \
-            creature_desc 
+            creature_desc
 
 #define MELEE_1H(dmg_die,dmg_add,_dmg_type,_penetration,special,talent) .icon=')',.stacked_quantity=0, .max_quantity=0,\
             .item_type=ITEM_TYPE_WEAPON, .specific.weapon={.weapon_type=WEAPON_TYPE_MELEE, .weapon_category=WEAPON_CATEGORY_1H_MELEE, \
@@ -399,5 +399,21 @@ static const char *wbl_spcqlty_desc[] = {
     [WBL_SPCQLTY_MAIL]      = "Armour which give penalties",
     [WBL_SPCQLTY_SCALE]     = "Armour which give penalties",
     [WBL_SPCQLTY_PLATE]     = "Armour which give penalties",
+};
+
+struct item_food_side_effect_struct {
+    int weight;
+    enum se_ids side_effect_id;
+};
+
+static const struct item_food_side_effect_struct item_food_side_effects[] = {
+    {
+        .weight = 10,
+        .side_effect_id = SEID_MAD_CAP,
+    },
+    {
+        .weight = 20,
+        .side_effect_id = SEID_MINOR_HEALING,
+    },
 };
 

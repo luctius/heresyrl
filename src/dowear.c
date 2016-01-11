@@ -250,6 +250,7 @@ bool dw_use_item(struct msr_monster *monster, struct itm_item *item) {
     }
     if (item->item_type == ITEM_TYPE_FOOD) {
         bool destroy = false;
+        bool identified = item->identified;
 
         struct item_food_specific *food = &item->specific.food;
 
@@ -274,7 +275,20 @@ bool dw_use_item(struct msr_monster *monster, struct itm_item *item) {
             }
         }
 
+        /* We just identified the item by trying it. */
+        itm_identify(item);
+
+        /* Get the normal benefit. */
         if (food->convey_status_effect != SEID_NONE) se_add_status_effect(monster, food->convey_status_effect, item->ld_name);
+
+        /* Get the side efect. */
+        if (food->side_effect != SEID_NONE) {
+            se_add_status_effect(monster, food->side_effect, item->ld_name);
+
+            if (item->identified && !identified) {
+                You(monster, "identified the side effects of %s.\n", item->ld_name);
+            }
+        }
 
         if (destroy) {
             if (inv_remove_item(monster->inventory, item) == true) {

@@ -190,10 +190,6 @@ int itm_spawn(double roll, int level, enum item_group ig, struct msr_monster *mo
         if (roll < cumm_prob_arr[i]) idx = i;
     }
 
-    if (idx == IID_NONE) {
-        printf("bla");
-    }
-
     return idx;
 }
 
@@ -320,6 +316,7 @@ bool itm_energy_action(struct itm_item *item, struct dm_map *map) {
                 item->specific.tool.energy = 0;
                 item->specific.tool.lit = false;
                 msg("A %s switches off as it runs out of juice.", item->sd_name);
+                break;
             }
         case ITEM_TYPE_WEAPON: {
                 if (wpn_is_catergory(item, WEAPON_CATEGORY_THROWN_GRENADE) ) {
@@ -330,10 +327,11 @@ bool itm_energy_action(struct itm_item *item, struct dm_map *map) {
                         return false;
                     }
                 }
+                break;
             }
-        case ITEM_TYPE_WEARABLE:
-        case ITEM_TYPE_AMMO:
-        case ITEM_TYPE_FOOD:
+        case ITEM_TYPE_WEARABLE: break;
+        case ITEM_TYPE_AMMO: break;
+        case ITEM_TYPE_FOOD: break;
         default: break;
     }
 
@@ -354,6 +352,66 @@ int itm_get_energy(struct itm_item *item) {
     if (itm_verify_item(item) == false) return -1;
     if (item->energy_action == false) return -1;
     return item->energy;
+}
+
+static int itm_food_side_effects_spwn(double roll, const struct item_food_side_effect_struct *ifse, int sz) {
+    double prob_arr[sz];
+    double cumm_prob_arr[sz];
+    double sum = 0.f;
+    int idx = 0;
+
+    for (int i = 0; i < sz; i++) {
+        bool use = false;
+        sum += ifse[i].weight;
+        cumm_prob_arr[i] = 0.f;
+    }
+
+    double cumm = 0.f;
+    for (int i = IID_NONE; i < sz; i++) {
+        prob_arr[i] = ifse->weight / sum;
+        cumm += prob_arr[i];
+        cumm_prob_arr[i] = cumm;
+    }
+
+    for (int i = sz-1; i > IID_NONE; i--) {
+        if (cumm_prob_arr[i] == DBL_MAX) continue;
+        if (roll < cumm_prob_arr[i]) idx = i;
+    }
+
+    return idx;
+}
+
+void itm_identify(struct itm_item *item) {
+    if (itm_verify_item(item) == false) return;
+    if (item->identified == true) return;
+
+    item->identified = true;
+    if ( (item->quality > ITEM_QLTY_NONE) && (item->quality < ITEM_QLTY_MAX) ) {
+        switch(item->item_type) {
+            case ITEM_TYPE_FOOD: {
+                    if (random_d100(gbl_game->random) < item_food_quality_side_effect_chance[item->quality]) {
+                        int idx = itm_food_side_effects_spwn(random_float(gbl_game->random), item_food_side_effects,
+                                                ARRAY_SZ(item_food_side_effects) );
+                        item->specific.food.side_effect = item_food_side_effects[idx].side_effect_id;
+                    }
+                }
+                break;
+            case ITEM_TYPE_TOOL: break;
+            case ITEM_TYPE_WEAPON: break;
+            case ITEM_TYPE_WEARABLE: break;
+            case ITEM_TYPE_AMMO: break;
+            default: break;
+        }
+    }
+}
+
+bool itm_try_identify(struct itm_item *item) {
+    if (itm_verify_item(item) == false) return false;
+    if (item->identified == true) return false;
+
+    /* Todo identify items. */
+
+    return false;
 }
 
 bool itm_stack_compatible(struct itm_item *item1, struct itm_item *item2) {

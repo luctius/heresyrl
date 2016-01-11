@@ -239,6 +239,7 @@ struct itm_item {
     int8_t stacked_quantity;
     int8_t max_quantity;
     bool identified;
+    int identify_last_try;
 
     /* total amount of time this item exists, in energy*/
     unsigned long age;
@@ -328,7 +329,14 @@ bool itm_energy_action(struct itm_item *item, struct dm_map *map);
 /* change the item's energy by this much, true if succefull.  */
 bool itm_change_energy(struct itm_item *item, int energy);
 
+/* return the current amount of energy of the device, or -1 if invalid. */
 int itm_get_energy(struct itm_item *item);
+
+/* handle succesfull identification of an item */
+void itm_identify(struct itm_item *item);
+
+/* true if the item is now succesfully identified, false if failed or allready identified. */
+bool itm_try_identify(struct itm_item *item);
 
 /* true if the item is a weapon and is of this weapon type */
 bool wpn_is_type(struct itm_item *item, enum item_weapon_type type);
