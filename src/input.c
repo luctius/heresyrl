@@ -64,7 +64,7 @@ bool inp_log_has_keys(struct inp_input *i) {
     if (inp_verify(i) == false) return false;
     /*lg_debug("keylog has %d unread key strokes", i->keylog_widx - i->keylog_ridx);*/
 
-    if ( (i->keylog_ridx < i->keylog_widx) && 
+    if ( (i->keylog_ridx < i->keylog_widx) &&
          (i->keylog_widx < i->keylog_sz) ) {
         if (options.play_recording == true && options.play_delay > 0) usleep(options.play_delay * 1000);
         return true;
@@ -160,7 +160,7 @@ static enum inp_keys inp_translate_key(int ch) {
         case 'u': case 57:  case KEY_NPAGE: k = INP_KEY_UP_RIGHT; break;
         case 'l': case 54:  case KEY_RIGHT: k = INP_KEY_RIGHT; break;
         case 'n': case 51:  case KEY_PPAGE: k = INP_KEY_DOWN_RIGHT; break;
-        case 'j': case 50:  case KEY_DOWN:  k = INP_KEY_DOWN; break; 
+        case 'j': case 50:  case KEY_DOWN:  k = INP_KEY_DOWN; break;
         case 'b': case 49:  case KEY_END:   k = INP_KEY_DOWN_LEFT; break;
         case 'h': case 52:  case KEY_LEFT:  k = INP_KEY_LEFT; break;
         case 124: k = INP_KEY_DIR_COMB; break; /* TODO find differnt key for this */
@@ -228,7 +228,7 @@ enum inp_keys inp_get_input(struct inp_input *i) {
     enum inp_keys k = INP_KEY_NONE;
 
     if (inp_log_has_keys(i) == false) {
-        if (options.test_auto) { 
+        if (options.test_auto) {
             return INP_KEY_QUIT;
         }
 

@@ -33,13 +33,13 @@ static inline uint8_t *get_cell(coord_t *p, struct ca_map *map) {
 }
 
 bool ca_generation(struct ca_map *map, uint8_t birth_sum, uint8_t surv_sum, int radius) {
-    /* 
+    /*
        We do a two pass over the grid.
-       The first pass check if a cell should life or 
+       The first pass check if a cell should life or
        die and if so, we toggle the last bit.
 
        The second pass performs the action.
-       This is to ensure that we do not interfere 
+       This is to ensure that we do not interfere
        with the calculations of the first pass.
     */
 
@@ -100,7 +100,7 @@ void ca_free(struct ca_map *map) {
 
 bool ca_set_coord(struct ca_map *map, coord_t *point, enum cellular_automata val) {
     if (cd_within_bound(point, &map->size) == false) return false;
-    
+   
     uint8_t *cell = get_cell(point, map);
     *cell = val;
 

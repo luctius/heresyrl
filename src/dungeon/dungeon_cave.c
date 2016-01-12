@@ -18,7 +18,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
- 
+
 #include "cellular_automata.h"
 #include "dungeon_cave.h"
 #include "dungeon_map.h"

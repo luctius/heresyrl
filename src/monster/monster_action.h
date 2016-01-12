@@ -28,7 +28,7 @@
 enum MSR_ACTION_COSTS {
     MSR_ACTION_MOVE   = TT_ENERGY_TURN, /* divided by movement char */
     MSR_ACTION_IDLE   = TT_ENERGY_TICK,
-    MSR_ACTION_WEAR   = TT_ENERGY_TURN, /* times use_delay */ 
+    MSR_ACTION_WEAR   = TT_ENERGY_TURN, /* times use_delay */
     MSR_ACTION_REMOVE = TT_ENERGY_TURN, /* times use_delay */
     MSR_ACTION_PICKUP = TT_ENERGY_TURN, /* times nr items */
     MSR_ACTION_DROP   = TT_ENERGY_TURN, /* times nr items */
@@ -43,10 +43,10 @@ enum MSR_ACTION_COSTS {
 };
 
 /*
-   These functions make the monster do a 
+   These functions make the monster do a
    move and substract the correct energy.
-   Thi should only be done in the monsters 
-   callback and it should do only one such 
+   Thi should only be done in the monsters
+   callback and it should do only one such
    an action.
  */
 
@@ -71,7 +71,7 @@ bool ma_do_reload_carried(struct msr_monster *monster, struct itm_item *ammo_ite
 /*  ammo_item can be NULL, it will then search for similar ammo.  */
 bool ma_do_reload_weapon(struct msr_monster *monster, struct itm_item *weapon_item, struct itm_item *ammo_item);
 
-/*  weapon_item can be NULL, it will then unload either the first loaded weapon 
+/*  weapon_item can be NULL, it will then unload either the first loaded weapon
     on the ground, or it will unload all carried weapons. */
 bool ma_do_unload(struct msr_monster *monster, struct itm_item *weapon_item);
 

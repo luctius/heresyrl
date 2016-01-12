@@ -44,7 +44,7 @@ static inline coord_t next_coord(coord_t *last, uint32_t dir, enum dla_direction
     assert(num_dirs != 0);
 
     int rand_dir = dir % num_dirs;
-    if ( ( (dir_allowed & DLA_ORTHOGONAL) == 0) && 
+    if ( ( (dir_allowed & DLA_ORTHOGONAL) == 0) &&
             ( (dir_allowed & DLA_DIAGONAL) > 0) ) {
         rand_dir += 4;
     }
@@ -132,7 +132,7 @@ void dla_free(struct dla_map *map) {
 
 bool dla_set_coord(struct dla_map *map, coord_t *point, enum dla_map_types type) {
     if (cd_within_bound(point, &map->size) == false) return false;
-    
+   
     uint8_t *block = get_block(point, map);
     *block = type;
 

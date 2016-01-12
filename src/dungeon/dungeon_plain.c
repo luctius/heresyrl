@@ -18,7 +18,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
- 
+
 #include "dungeon_plain.h"
 #include "dungeon_map.h"
 #include "tiles.h"

@@ -30,50 +30,50 @@
 #define lg_debug(a, ...) do { } while (0);
 #endif
 
-/* 
+/*
    This is an implementation of:
     http://www.roguebasin.com/index.php?title=Restrictive_Precise_Angle_Shadowcasting
 
     Short overview:
     We divide the circle in 8 octants. Each octant having a row and a line of cells.
-    the number of cells in a line is the row number +1. We start at the first row, 
+    the number of cells in a line is the row number +1. We start at the first row,
     since row 0, cell 0 is the origin that is neither a blocker nor blocked.
 
-    For every cell in the row, we calculate angles. We have a angle range, 
+    For every cell in the row, we calculate angles. We have a angle range,
     the article uses 1.0f, but I use a large integer number; doesn't really matter.
     The angle range is divided over the cells which divide it over three angles per cell,
     near, center and far, with [cell 0].far being equal to [cell 1].near.
 
-    Per row, we first check if an cells angles are blocked by a blocking cell from 
-    a previous row. We do not need to check to current rows, because a cell on the 
-    current row can never block a cell on that row. 
+    Per row, we first check if an cells angles are blocked by a blocking cell from
+    a previous row. We do not need to check to current rows, because a cell on the
+    current row can never block a cell on that row.
     If it is blocked, we add it to a blocking list and it will be used on the next row.
-    If it is not, we check if it itself can block others (i.e. not transparent) and if so, 
+    If it is not, we check if it itself can block others (i.e. not transparent) and if so,
     add it to the blocking list and it will be used on the next row.
 
     At the end of a row, we try to combine all the blocking cells into one big blocker.
-    We do this for 3 reasons: 
-        1) It is easy to check if we are done, if we have one cell blocking the whole 
+    We do this for 3 reasons:
+        1) It is easy to check if we are done, if we have one cell blocking the whole
            octant there is no need to continue.
-        2) Speed, having less entries in the blocking list saves us looping through 
+        2) Speed, having less entries in the blocking list saves us looping through
            more entries.
-        3) Size, we can have a fairly small list. Idealy the list should be the 
-           size of the number of cells in the last row, but because we combine them 
+        3) Size, we can have a fairly small list. Idealy the list should be the
+           size of the number of cells in the last row, but because we combine them
            only after the row, it should be a little bit bigger.
 
     TODO:
     - fix cone fov, for area of effect weapons like flamers.
 
     IDEAS:
-    - Right now, we hold that [cell 0].far == [cell 1].near. Maybe it would be 
+    - Right now, we hold that [cell 0].far == [cell 1].near. Maybe it would be
       easier to make them distinct.
-    - Maybe we can increase the number of angles per cell, for example, to divide 
+    - Maybe we can increase the number of angles per cell, for example, to divide
       a cell into quadrants and calculate per quadrant if it is blocking. Then we
-      can set the strictness to the number of quadrants which should be blocked 
+      can set the strictness to the number of quadrants which should be blocked
       before a cell is really blocked.
 
       edit:
-      nice article about fov: 
+      nice article about fov:
       http://webcache.googleusercontent.com/search?q=cache:VnCoG9ca6JgJ:www.adammil.net/blog/v125_Roguelike_Vision_Algorithms.html+&cd=3&hl=en&ct=clnk&gl=nl
 */
 
@@ -142,10 +142,10 @@ enum rpsc_octant get_octant(coord_t *src, coord_t *dst) {
         struct rpsc_octant_quad *oct_mod = &octant_lo_table[i];
 
         bool flip = (delta.x >= delta.y);
-        if ( (src->x + (delta.x * oct_mod->x) == dst->x) && 
+        if ( (src->x + (delta.x * oct_mod->x) == dst->x) &&
              (src->y + (delta.y * oct_mod->y) == dst->y) ) {
             if (flip == oct_mod->flip) {
-                return i;   
+                return i;  
             }
         }
     }
@@ -189,7 +189,7 @@ static inline int angle_set_to_cell(struct angle_set *set, int row_new) {
     /* get the range within this row */
     angle_t new_range = ANGLE_RANGE / (row_new +1);
 
-    /* get the cell number within this row. this can be on near 
+    /* get the cell number within this row. this can be on near
        the border of this cell, but we'll handle that later */
     return set->center / new_range;
 }
@@ -281,14 +281,14 @@ static int scrub_blocked_list(struct angle_set *list, int list_sz) {
 
     lg_debug("scrub end, list sz is %d", MAX(list_sz, max_not_scrubbed));
 
-    /* 
+    /*
        Ok, we combined some new entries with existing ones.
        problem is, that it is possible to have an non-continues list,
        [3] is not combined, while [2] and [1] were combined with [0].
-       We can check all entries and move [3] to [1], but that requires 
+       We can check all entries and move [3] to [1], but that requires
        atleast another loop, probably 2.
 
-       What we do now is simple return 4 as the list size, and try 
+       What we do now is simple return 4 as the list size, and try
        next time if we can combine [3] with [0].
      */
     return MAX(list_sz, max_not_scrubbed);
@@ -301,7 +301,7 @@ static void rpsc_fov_octant(struct rpsc_fov_set *set, coord_t *src, int radius, 
        to avoid applying the cardinal directions twice. */
     bool shift = ( (octant % 2) == 0 ) ? true : false;
 
-    /* list of blocking cells. We should ideally only need <radius> nr of items, but since we 
+    /* list of blocking cells. We should ideally only need <radius> nr of items, but since we
        are combining them only after a row, we need some leeway. */
     struct angle_set blocked_list[radius *2];
 
@@ -357,7 +357,7 @@ static void rpsc_fov_octant(struct rpsc_fov_set *set, coord_t *src, int radius, 
                     lg_debug("test (%" PRIuFAST16 ",%" PRIuFAST16 ",%" PRIuFAST16 ") vs [%d] (%" PRIuFAST16 ",%" PRIuFAST16 ",%" PRIuFAST16 ")", as.near, as.center, as.far, i, blocked_list[i].near, blocked_list[i].center, blocked_list[i].far);
 
                     /* check if <as> if blocked or outside the view area. */
-                    if (angle_is_blocked(set, &as, &blocked_list[i], transparent) || 
+                    if (angle_is_blocked(set, &as, &blocked_list[i], transparent) ||
                         in_radius(set, row, cell, radius) == false) {
 
                         lg_debug("blocked by [%d]", i);
@@ -399,7 +399,7 @@ static void rpsc_fov_octant(struct rpsc_fov_set *set, coord_t *src, int radius, 
             /* we have gathered some new blockers, lets cleanup the list. */
             obstacles_total = scrub_blocked_list(blocked_list, obstacles_total + obstacles_this_row);
 
-            /* if there is one obstacle, which covers the minimum and maximum angle 
+            /* if there is one obstacle, which covers the minimum and maximum angle
                used in this row, it blocks everything. Thus there is no need to continue. */
             if ( (obstacles_total == 1) && (blocked_list[0].near <= 0) && (blocked_list[0].far >= ANGLE_RANGE) ) {
                 lg_debug("done: %" PRIuFAST16 ",%" PRIuFAST16 "", blocked_list[0].near, blocked_list[0].far);
@@ -457,15 +457,15 @@ bool rpsc_cone(struct rpsc_fov_set *set, coord_t *src, coord_t *dst, int angle, 
    however with some additions to avoid calculating the complete octant.
 
    We know the angles of the destination cell (we can calculate that).
-   Using that information we loop through the rows and check the cell in 
-   the direct line if it is blocked or itself a blocker. But since the 
+   Using that information we loop through the rows and check the cell in
+   the direct line if it is blocked or itself a blocker. But since the
    angles can cross neighbouring cells, we also check its direct neighbours.
-   We check the center cell first, because that is our ideal line, and if 
-   that one is not blocked, we inform the user about it. If it is blocked, 
-   we take one of the others and we don't really care which one. Since the 
-   center cell is allready on a direct path, we do not need to keep the 
-   information that we took another cell since, 
-   1) it borders o the next center cell and 
+   We check the center cell first, because that is our ideal line, and if
+   that one is not blocked, we inform the user about it. If it is blocked,
+   we take one of the others and we don't really care which one. Since the
+   center cell is allready on a direct path, we do not need to keep the
+   information that we took another cell since,
+   1) it borders o the next center cell and
    2) the center cell of the next row is probably directly above it anyway.
 */
 bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst) {
@@ -501,19 +501,19 @@ bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst) {
     struct angle_set as_dst = offset_to_angle_set(row_dst, cell_dst);
     lg_debug("los: (%d,%d) -> (%d,%d), length: %d", src->x,src->y,dst->x,dst->y, row_dst);
 
-    /* loop through the rows untill the desination row, or when we have 
-       determined that the destination cannot be visible. 
+    /* loop through the rows untill the desination row, or when we have
+       determined that the destination cannot be visible.
 
-       We will create a line of three cells thick from src to dst, adding 
-       obstacles as we go. Ideally we take the center cell as our path, 
-       but if that is blocked we take one of the other cells. 
+       We will create a line of three cells thick from src to dst, adding
+       obstacles as we go. Ideally we take the center cell as our path,
+       but if that is blocked we take one of the other cells.
      */
     for (int row = 1; (row <= row_dst) && (visible == true); row++) {
 
         /* the center_cell is the ideal line towards destination */
         int center_cell = angle_set_to_cell(&as_dst, row);
 
-        /* modifiers for the three cells, our preference is the center cell, but we also 
+        /* modifiers for the three cells, our preference is the center cell, but we also
            take the others into account. */
         int cell_select[3] = {0,-1,1};
 
@@ -537,10 +537,10 @@ bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst) {
             if (cell > row) continue;
 
             /* exceptional case:
-               we are now in the destination row, the other 2 cells are now unable 
-               to block the destination, and neither are they relevant to our path 
-               anymore. The destination cell itself however could still be blocked 
-               by the previous row. this we do calculate this row, but only for the 
+               we are now in the destination row, the other 2 cells are now unable
+               to block the destination, and neither are they relevant to our path
+               anymore. The destination cell itself however could still be blocked
+               by the previous row. this we do calculate this row, but only for the
                destination cell itsef. */
             if (cell_select[c] != 0 && row == row_dst) continue;
 
@@ -578,10 +578,10 @@ bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst) {
 
             /* the cell is not blocked by another. now we check it will block others. */
             if (blocked == false) {
-                /* 
+                /*
                    We check if this cell will block others (i.e. is a wall).
-                   Given a strict is_transparent funciton however, the target square 
-                   could also be blocked (for example to check line of fire, but the 
+                   Given a strict is_transparent funciton however, the target square
+                   could also be blocked (for example to check line of fire, but the
                    target square also has an actor).
 
                    Thus we do not do block the target square.
@@ -596,9 +596,9 @@ bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst) {
                     blocked = true;
                 }
                 else if (set->apply != NULL && applied == false) {
-                    /* if we have not yet applied in this row, 
-                       and it is not blocked, apply this cell. 
-                     This works because we are looping through 
+                    /* if we have not yet applied in this row,
+                       and it is not blocked, apply this cell.
+                     This works because we are looping through
                      the cells on priority.*/
                     set->apply(set, &point, src);
                     applied = true;
@@ -606,7 +606,7 @@ bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst) {
             }
 
             if ( (blocked) && (destination) ) {
-                /* if this cell is the destination, than it is 
+                /* if this cell is the destination, than it is
                    a done deal if it itself is blocked. */
                 visible = false;
             }
@@ -616,7 +616,7 @@ bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst) {
             /* we have gathered some new blockers, lets cleanup the list. */
             obstacles_total = scrub_blocked_list(blocked_list, obstacles_total + obstacles_this_row);
 
-            /* if there is one obstacle, which covers the minimum and maximum angle 
+            /* if there is one obstacle, which covers the minimum and maximum angle
                used in this row, it blocks everything. Thus there is no need to continue. */
             if ( (obstacles_total == 1) && (blocked_list[0].near <= as_dst.near) && (blocked_list[0].far >= as_dst.far) ) {
                 visible = false;

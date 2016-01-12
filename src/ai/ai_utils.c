@@ -29,7 +29,7 @@
 
 #include "game.h"
 
-/* 
+/*
    This file contains helper functions for the ai, and for automated actions for the player.
  */
 
@@ -63,7 +63,7 @@ struct msr_monster *aiu_get_nearest_enemy(struct msr_monster *monster, int ignor
 
     memset(target_best, 0x0, sizeof(struct msr_monster *) * (ignore_cnt +1) );
 
-    /* 
+    /*
        get the <ignore_cnt> nearest enemies, then return the last one.
      */
     for (int i = 0; i < ignore_cnt+1; i++) {
@@ -127,11 +127,11 @@ static unsigned int aiu_traversable_callback(void *vmap, coord_t *coord) {
 bool aiu_generate_dijkstra(struct pf_context **pf_ctx, struct dm_map *map, coord_t *start, int radius) {
     if (dm_verify_map(map) == false) return false;
 
-    struct pf_settings pf_set = { 
-        .map_start = { 
-            .x = 0, 
-            .y = 0, 
-        }, 
+    struct pf_settings pf_set = {
+        .map_start = {
+            .x = 0,
+            .y = 0,
+        },
         .map_end = {
             .x = map->size.x,
             .y = map->size.y,
@@ -160,11 +160,11 @@ bool aiu_generate_dijkstra(struct pf_context **pf_ctx, struct dm_map *map, coord
 bool aiu_generate_astar(struct pf_context **pf_ctx, struct dm_map *map, coord_t *start, coord_t *end, int radius) {
     if (dm_verify_map(map) == false) return false;
 
-    struct pf_settings pf_set = { 
-        .map_start = { 
-            .x = 0, 
-            .y = 0, 
-        }, 
+    struct pf_settings pf_set = {
+        .map_start = {
+            .x = 0,
+            .y = 0,
+        },
         .map_end = {
             .x = map->size.x,
             .y = map->size.y,

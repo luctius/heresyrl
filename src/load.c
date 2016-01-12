@@ -42,14 +42,14 @@
 #include "ai/ai.h"
 #include "careers/careers.h"
 
-/** 
-* Evaluates a Lua expression and returns the string result. 
-* If an error occurs or the result is not string, def is returned. 
-* 
+/**
+* Evaluates a Lua expression and returns the string result.
+* If an error occurs or the result is not string, def is returned.
+*
 * @param L the lua_State in which the string resides.
 * @param expr the lua expression to retreive the string
 * @param def the default string should the State not contain the expression given
-* 
+*
 * @return a pointer towards the asked string.
 */
 static const char* lua_stringexpr(lua_State *L, const char* format, ...)
@@ -80,15 +80,15 @@ static const char* lua_stringexpr(lua_State *L, const char* format, ...)
         lua_pop(L, 1);
     }
     return r;
-}  
+}
 
-/** 
-* Evaluates a Lua expression and returns the number result. 
-* 
+/**
+* Evaluates a Lua expression and returns the number result.
+*
 * @param L the lua_State in which the number resides.
 * @param expr the lua expression to retreive the number
 * @param out the result of the expression.
-* 
+*
 * @return zero on succes, otherwise 1.
 */
 static int lua_intexpr_va(lua_State *L, ptrdiff_t *out, const char* format, va_list args)
@@ -119,14 +119,14 @@ static int lua_intexpr_va(lua_State *L, ptrdiff_t *out, const char* format, va_l
     return ok;
 }
 
-/** 
-* Evaluates a Lua expression and returns the int result. 
+/**
+* Evaluates a Lua expression and returns the int result.
 * This uses lua_numberexpr underwater.
-* 
+*
 * @param L the lua_State in which the int resides.
 * @param expr the lua expression to retreive the int
 * @param out the result of the expression
-* 
+*
 * @return zero on succes, otherwise 1.
 */
 static int lua_intexpr(lua_State* L, uint64_t *out, const char* format, ...)
@@ -148,14 +148,14 @@ static int lua_intexpr(lua_State* L, uint64_t *out, const char* format, ...)
 }
 
 #if 0 /* Not used atm. */
-/** 
-* Evaluates a Lua expression and returns the bool result. 
-* If an error occurs or the result is not bool, def is returned. 
-* 
+/**
+* Evaluates a Lua expression and returns the bool result.
+* If an error occurs or the result is not bool, def is returned.
+*
 * @param L the lua_State in which the bool resides.
 * @param expr the lua expression to retreive the bool
 * @param def the default bool should the State not contain the expression given
-* 
+*
 * @return the bool retreived from lua via the expression
 */
 static int lua_boolexpr(lua_State* L, bool def, const char* format, va_list args)
@@ -187,11 +187,11 @@ static int lua_boolexpr(lua_State* L, bool def, const char* format, va_list args
 }
 #endif
 
-/** 
+/**
 * Opens the given file, and executes it within a Lua Context.
-* 
+*
 * @param file A path and file towards the config file.
-* 
+*
 * @return returns the lua_State on succes or NULL otherwise.
 */
 static lua_State *conf_open(const char *file)
@@ -205,7 +205,7 @@ static lua_State *conf_open(const char *file)
     }
 
     luaL_openlibs(L);
-    if ( (err = luaL_loadfile(L, file) ) != 0) 
+    if ( (err = luaL_loadfile(L, file) ) != 0)
     {
         if (err == LUA_ERRFILE)
         {
@@ -421,9 +421,9 @@ static bool load_status_effect_list(lua_State *L) {
                         c->effects[e].effect_setting_flags = 0;
 
                         if (e < effects_sz) {
-                            lua_intexpr(L, &t, "game.status_effects[%d].effects[%d].effect", j+1, e+1); 
+                            lua_intexpr(L, &t, "game.status_effects[%d].effects[%d].effect", j+1, e+1);
                                                     c->effects[e].effect = t;
-                            lua_intexpr(L, &t, "game.status_effects[%d].effects[%d].effect_setting_flags", j+1, e+1); 
+                            lua_intexpr(L, &t, "game.status_effects[%d].effects[%d].effect_setting_flags", j+1, e+1);
                                                     c->effects[e].effect_setting_flags = t;
                             lua_intexpr(L, &t, "game.status_effects[%d].effects[%d].tick_interval_energy", j+1, e+1);
                                                     c->effects[e].tick_interval_energy = t;
@@ -642,10 +642,10 @@ static bool load_map(lua_State *L, struct dm_map **m, int mapid) {
     return true;
 }
 
-/** 
+/**
 * This reads the default config file, or the system default if the first is not found.
 * When either is read, the application settings are read from file or their defaults are used.
-* 
+*
 * @return returns 0 on succes or 1 on failure.
 */
 bool ld_read_save_file(const char *path, struct gm_game *g) {

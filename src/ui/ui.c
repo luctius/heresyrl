@@ -481,18 +481,18 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dm_map *map, coord_t *
             case INP_KEY_TAB: {
 
                 if ( (target = aiu_get_nearest_enemy(plr->player, ign_cnt, map) ) != NULL) {
-                    e_pos = target->pos; 
-                    ign_cnt++; 
+                    e_pos = target->pos;
+                    ign_cnt++;
                 }
                 else {
                     ign_cnt = 0;
                     target = aiu_get_nearest_enemy(plr->player, ign_cnt, map);
                     if (target != NULL) {
-                        e_pos = target->pos; 
+                        e_pos = target->pos;
                         ign_cnt++;
                     }
                 }
-            } 
+            }
             break;
             case INP_KEY_YES:
             case INP_KEY_FIRE: {
@@ -578,13 +578,13 @@ bool mapwin_overlay_throw_item_cursor(struct gm_game *g, struct dm_map *map, coo
             case INP_KEY_DOWN:       e_pos.y++; break;
             case INP_KEY_DOWN_LEFT:  e_pos.y++; e_pos.x--; break;
             case INP_KEY_LEFT:       e_pos.x--; break;
-            case INP_KEY_WEAPON_SETTING: 
+            case INP_KEY_WEAPON_SETTING:
                 if (item_idx > 0) {
                     item_idx -= 0;
                     item = aiu_next_unused_item(plr->player, item_idx);
                 }
                 break;
-            case INP_KEY_WEAPON_SELECT: 
+            case INP_KEY_WEAPON_SELECT:
                 if (aiu_next_unused_item(plr->player, item_idx+1) != NULL) {
                     item_idx += 1;
                     item = aiu_next_unused_item(plr->player, item_idx);
@@ -676,27 +676,27 @@ bool mapwin_overlay_throw_cursor(struct gm_game *g, struct dm_map *map, coord_t 
             case INP_KEY_TAB: {
 
                 if ( (target = aiu_get_nearest_enemy(plr->player, ign_cnt, map) ) != NULL) {
-                    e_pos = target->pos; 
-                    ign_cnt++; 
+                    e_pos = target->pos;
+                    ign_cnt++;
                 }
                 else {
                     ign_cnt = 0;
                     target = aiu_get_nearest_enemy(plr->player, ign_cnt, map);
                     if (target != NULL) {
-                        e_pos = target->pos; 
+                        e_pos = target->pos;
                         ign_cnt++;
                     }
                 }
-            } 
+            }
             break;
-            case INP_KEY_WEAPON_SETTING: 
+            case INP_KEY_WEAPON_SETTING:
                 if (weapon_idx > 0) {
                     weapon_idx -= 0;
                     item = aiu_next_thrown_weapon(plr->player, weapon_idx);
                     item->energy = TT_ENERGY_TURN;
                 }
                 break;
-            case INP_KEY_WEAPON_SELECT: 
+            case INP_KEY_WEAPON_SELECT:
                 if (aiu_next_thrown_weapon(plr->player, weapon_idx+1) != NULL) {
                     weapon_idx += 1;
                     item = aiu_next_thrown_weapon(plr->player, weapon_idx);
@@ -809,7 +809,7 @@ void charwin_refresh() {
     ui_printf(char_win, "\n");
 
     ui_printf(char_win, cs_ATTR "Wounds" cs_CLOSE "    [%2d/%2d]\n", player->wounds.curr, player->wounds.max);
-    ui_printf(char_win, cs_ATTR "Armour" cs_CLOSE " [%d][%d][%d][%d]\n", 
+    ui_printf(char_win, cs_ATTR "Armour" cs_CLOSE " [%d][%d][%d][%d]\n",
                                             msr_calculate_armour(player, MSR_HITLOC_HEAD),
                                             msr_calculate_armour(player, MSR_HITLOC_BODY),
                                             msr_calculate_armour(player, MSR_HITLOC_LEFT_ARM), /* Left and Right should be the same*/
@@ -838,7 +838,7 @@ void charwin_refresh() {
                 if (wpn->weapon_type == WEAPON_TYPE_RANGED) {
                     if (wpn->jammed == false) {
                         ui_printf(char_win, "  " cs_ATTR "Ammo" cs_CLOSE " %d/%d\n", wpn->magazine_left, wpn->magazine_sz);
-                    } 
+                    }
                     else ui_printf(char_win, "  " cs_ATTR "jammed" cs_CLOSE "\n");
 
                     int single = wpn->rof[WEAPON_ROF_SETTING_SINGLE];
@@ -846,11 +846,11 @@ void charwin_refresh() {
                     int aut = wpn->rof[WEAPON_ROF_SETTING_AUTO];
 
                     if (semi > 0 || aut > 0) {
-                        const char *set = (wpn->rof_set == WEAPON_ROF_SETTING_SINGLE) ? "single": 
+                        const char *set = (wpn->rof_set == WEAPON_ROF_SETTING_SINGLE) ? "single":
                                     (wpn->rof_set == WEAPON_ROF_SETTING_SEMI) ? "semi": "auto";
                         char semi_str[4]; snprintf(semi_str, 3, "%d", semi);
                         char auto_str[4]; snprintf(auto_str, 3, "%d", aut);
-                        ui_printf(char_win, " " cs_ATTR "Setting:" cs_CLOSE " %s (%s/%s/%s)\n", set, 
+                        ui_printf(char_win, " " cs_ATTR "Setting:" cs_CLOSE " %s (%s/%s/%s)\n", set,
                                 (single > 0) ? "S" : "-", (semi > 0) ? semi_str : "-", (aut > 0) ? auto_str : "-");
                     }
                 }
@@ -997,14 +997,14 @@ void invwin_examine(struct hrl_window *window, struct itm_item *item) {
                 if (semi > 0 || aut > 0) {
                     char semi_str[4]; snprintf(semi_str, 3, "%d", semi);
                     char auto_str[4]; snprintf(auto_str, 3, "%d", aut);
-                    ui_printf(char_win, "- Rate of Fire (%s/%s/%s)\n", 
+                    ui_printf(char_win, "- Rate of Fire (%s/%s/%s)\n",
                             (single > 0) ? "S" : "-", (semi > 0) ? semi_str : "-", (aut > 0) ? auto_str : "-");
                 }
 
                 ui_printf(char_win, "\n");
                 if (wpn->magazine_left == 0) {
                     ui_printf(char_win, "The weapon is empty.\n");
-                } 
+                }
                 else {
                     struct itm_item *ammo = itm_create(wpn->ammo_used_template_id);
                     ui_printf(char_win, "It is currently loaded with %s.\n\n", ammo->ld_name);
@@ -1209,7 +1209,7 @@ void character_window(void) {
     pad.win = newpad(pad.lines, pad.cols);
     assert(pad.win != NULL);
 
-    if (options.refresh) { 
+    if (options.refresh) {
         wclear(window->win);
         werase(window->win);
     }
@@ -1283,7 +1283,7 @@ Basic weapon traning SP     ...                  |
     /* Armour */
     struct itm_item *item = NULL;
     while ( (item = inv_get_next_item(mon->inventory, item) ) != NULL) {
-        if ( (inv_item_worn(mon->inventory, item) == true) && 
+        if ( (inv_item_worn(mon->inventory, item) == true) &&
              (inv_item_wielded(mon->inventory, item) == false) ) {
             int armour = 0;
             bitfield32_t locs = inv_get_item_locations(mon->inventory, item);
@@ -1381,7 +1381,7 @@ Basic weapon traning SP     ...                  |
     delwin(pad.win);
     wclear(window->win);
     werase(window->win);
-    if (options.refresh) { 
+    if (options.refresh) {
         wrefresh(window->win);
     }
 
@@ -1510,7 +1510,7 @@ void show_log(struct hrl_window *window, bool input) {
 
     wclear(window->win);
     werase(window->win);
-    if (options.refresh) { 
+    if (options.refresh) {
         wrefresh(window->win);
     }
 
@@ -1746,7 +1746,7 @@ void levelup_selection_window(void) {
             if (cr_can_upgrade_talent(career, player, i) ) {
                 abs_idx[idx] = i;
                 lg_debug("tlt (%s) idx/i: %d/%d", msr_talent_names(i), idx, i);
-                ui_printf(window, "%c)  %s\n", inp_key_translate_idx(idx++), msr_talent_names(i) );   
+                ui_printf(window, "%c)  %s\n", inp_key_translate_idx(idx++), msr_talent_names(i) );  
             }
         }
 

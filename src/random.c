@@ -2,7 +2,7 @@
    A C-program for MT19937, with initialization improved 2002/1/26.
    Coded by Takuji Nishimura and Makoto Matsumoto.
 
-   Before using, initialize the state by using init_genrand(seed)  
+   Before using, initialize the state by using init_genrand(seed)
    or init_by_array(init_key, key_length).
 
    Copyright (C) 1997 - 2002, Makoto Matsumoto and Takuji Nishimura,
@@ -19,8 +19,8 @@
         notice, this list of conditions and the following disclaimer in the
         documentation and/or other materials provided with the distribution.
 
-     3. The names of its contributors may not be used to endorse or promote 
-        products derived from this software without specific prior written 
+     3. The names of its contributors may not be used to endorse or promote
+        products derived from this software without specific prior written
         permission.
 
    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -45,7 +45,7 @@
 #include <assert.h>
 #include "random.h"
 
-/* Period parameters */  
+/* Period parameters */
 #define N 624
 #define M 397
 #define MATRIX_A 0x9908b0dfUL   /* constant vector a */
@@ -79,8 +79,8 @@ struct random *random_init_genrand(unsigned long s)
 
         r->mt[0]= s & 0xffffffffUL;
         for (r->mti=1; r->mti<N; r->mti++) {
-            r->mt[r->mti] = 
-            (1812433253UL * (r->mt[r->mti-1] ^ (r->mt[r->mti-1] >> 30)) + r->mti); 
+            r->mt[r->mti] =
+            (1812433253UL * (r->mt[r->mti-1] ^ (r->mt[r->mti-1] >> 30)) + r->mti);
             /* See Knuth TAOCP Vol2. 3rd Ed. P.106 for multiplier. */
             /* In the previous versions, MSBs of the seed affect   */
             /* only MSBs of the array r->mt[].                        */
@@ -119,7 +119,7 @@ struct random *random_init_by_array(unsigned long init_key[], int key_length)
             if (i>=N) { r->mt[0] = r->mt[N-1]; i=1; }
         }
 
-        r->mt[0] = 0x80000000UL; /* MSB is 1; assuring non-zero initial array */ 
+        r->mt[0] = 0x80000000UL; /* MSB is 1; assuring non-zero initial array */
     }
     return r;
 }
@@ -216,14 +216,14 @@ long random_genrand_int31(struct random *r)
 /* generates a random number on [0,1]-real-interval */
 double random_genrand_real1(struct random *r)
 {
-    return random_int32(r)*(1.0/4294967295.0); 
-    /* divided by 2^32-1 */ 
+    return random_int32(r)*(1.0/4294967295.0);
+    /* divided by 2^32-1 */
 }
 
 /* generates a random number on [0,1)-real-interval */
 double random_genrand_real2(struct random *r)
 {
-    return random_int32(r)*(1.0/4294967296.0); 
+    return random_int32(r)*(1.0/4294967296.0);
     /* divided by 2^32 */
 }
 
@@ -231,14 +231,14 @@ double random_genrand_real2(struct random *r)
 double random_genrand_real3(struct random *r)
 {
     uint32_t u = random_int32(r);
-    return (((double)u) + 0.5)*(1.0/4294967296.0); 
+    return (((double)u) + 0.5)*(1.0/4294967296.0);
     /* divided by 2^32 */
 }
 
 /* generates a random number on [0,1) with 53-bit resolution*/
-double random_float(struct random *r) 
+double random_float(struct random *r)
 {
-    unsigned long a=random_int32(r)>>5, b=random_int32(r)>>6; 
-    return(a*67108864.0+b)*(1.0/9007199254740992.0); 
+    unsigned long a=random_int32(r)>>5, b=random_int32(r)>>6;
+    return(a*67108864.0+b)*(1.0/9007199254740992.0);
 }
 /* These real versions are due to Isaku Wada, 2002/01/09 added */

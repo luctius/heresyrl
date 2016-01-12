@@ -49,7 +49,7 @@ struct rpsc_fov_set {
     bool (*apply)(struct rpsc_fov_set *set, coord_t *point, coord_t *origin);
 };
 
-/* creates a fov from src with a given radius. 
+/* creates a fov from src with a given radius.
    returns true, unless there is an error with the given parameters.  */
 bool rpsc_fov(struct rpsc_fov_set *set, coord_t *src, int radius);
 

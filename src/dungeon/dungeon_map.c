@@ -48,7 +48,7 @@ extern inline struct dm_map_entity *dm_get_map_me(coord_t *c, struct dm_map *map
 extern inline struct tl_tile *dm_get_map_tile(coord_t *c, struct dm_map *map);
 static bool dm_clear_map_unsafe(struct dm_map *map);
 
-/* 
+/*
    These checks are used to ensure that the structure passed is correct.
    Both in type and that another function has not overstepped its bounds.
  */
@@ -90,7 +90,7 @@ bool dm_free_map(struct dm_map *map) {
     return true;
 }
 
-/* 
+/*
    This sets the map to default values.
  */
 static bool dm_clear_map_unsafe(struct dm_map *map) {
@@ -136,7 +136,7 @@ static bool dm_clear_map_unsafe(struct dm_map *map) {
 }
 
 /*
-   As with every verify function, check if the 
+   As with every verify function, check if the
    intergrity of the passed struct is correct.
  */
 bool dm_verify_map(struct dm_map *map) {
@@ -224,7 +224,7 @@ bool dm_populate_map(struct dm_map *map, struct random *r, uint32_t monster_chan
                                 leader = monster->uid;
                                 lg_debug("created swarm leader at (%d,%d)", cp.x, cp.y);
                             }
-                            else lg_debug("created swarm member at (%d,%d)", cp.x, cp.y); 
+                            else lg_debug("created swarm member at (%d,%d)", cp.x, cp.y);
                         }
                     }
                 }
@@ -259,7 +259,7 @@ bool dm_populate_map(struct dm_map *map, struct random *r, uint32_t monster_chan
 /*
    Here we add stairs, supports only 2 at a time, for now.
    randomly selects a tile, puts down the up stairs,
-   then tries a few times untill the distance is satisfying 
+   then tries a few times untill the distance is satisfying
    or untill we run out of tries.
 
    then it places the stairs.
@@ -664,8 +664,8 @@ bool dm_generate_map(struct dm_map *map, enum dm_dungeon_type type, int level, u
     int i = 0;
     for (i = 0; i < 1000 && (map_is_good == false); i++) {
         /*
-           We flood the map and rescue nonflooded segments untill we can find 
-           no more non-flooded tiles. This takes a long time though, 
+           We flood the map and rescue nonflooded segments untill we can find
+           no more non-flooded tiles. This takes a long time though,
            and can probably be optimised.
          */
 

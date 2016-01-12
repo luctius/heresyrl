@@ -258,9 +258,9 @@ void msg_internal(coord_t *origin, coord_t *target, const char* module, int line
     /* check if the message is relevant. */
     if (msg_valid(origin, target) == false) return;
 
-    /* Message is accepted, either because it is a system message, 
-       or because either the origin or target are of interrest to the 
-       player. 
+    /* Message is accepted, either because it is a system message,
+       or because either the origin or target are of interrest to the
+       player.
     */
 
     /* copy the string from the vararg list */

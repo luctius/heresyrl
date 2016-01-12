@@ -197,7 +197,7 @@ struct hrl_window *win_create(int height, int width, int starty, int startx, enu
         retval->x = startx;
         retval->type = type;
         retval->win = newwin(retval->lines, retval->cols, starty, startx);
-        if (options.refresh) { 
+        if (options.refresh) {
             wrefresh(retval->win);
         }
     }
@@ -207,7 +207,7 @@ struct hrl_window *win_create(int height, int width, int starty, int startx, enu
 
 void win_destroy(struct hrl_window *window) {
     if (window != NULL) {
-        if (options.refresh) { 
+        if (options.refresh) {
             wrefresh(window->win);
         }
         delwin(window->win);

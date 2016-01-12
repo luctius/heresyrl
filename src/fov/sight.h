@@ -51,10 +51,10 @@ coord_t sgt_scatter(struct dm_map *map, struct random *r, coord_t *p, int radius
 int sgt_explosion(struct dm_map *map, coord_t *pos, int radius, coord_t *grid_list[]);
 
 /*
-   calculates a path from s to e.  path_list must be the address of a 
-   coord_t *, which will be malloc'ed by the funtion and must be 
-   freed by the caller unless the return value is < 0. 
-   continue_path specifies if the path must extend past point e, 
+   calculates a path from s to e.  path_list must be the address of a
+   coord_t *, which will be malloc'ed by the funtion and must be
+   freed by the caller unless the return value is < 0.
+   continue_path specifies if the path must extend past point e,
    always up and until an obstruction.  it returns the length of the path.
  */
 int sgt_los_path(struct dm_map *map, coord_t *s, coord_t *e, coord_t *path_lst[], bool continue_path);

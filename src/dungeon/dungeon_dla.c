@@ -18,7 +18,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
- 
+
 #include "diffusion_limited_aggregation.h"
 #include "dungeon_map.h"
 #include "tiles.h"

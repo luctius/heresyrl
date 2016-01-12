@@ -72,7 +72,7 @@ int fght_ranged_calc_tohit(struct msr_monster *monster, coord_t *tpos, struct it
 
     CALC_TOHIT_INIT()
 
-    {/*add to-hit modifiers here*/ 
+    {/*add to-hit modifiers here*/
 
         /* Offhand Weapon */
         CALC_TOHIT(hand == FGHT_OFF_HAND, FGHT_MODIFIER_OFF_HAND, "using off-hand")
@@ -199,7 +199,7 @@ int fght_melee_calc_tohit(struct msr_monster *monster, coord_t *tpos, struct itm
 
     CALC_TOHIT_INIT()
 
-    {/*add to-hit modifiers here*/ 
+    {/*add to-hit modifiers here*/
 
         /* Dual-wielding and Off-hand Weapon */
         if (hand == FGHT_OFF_HAND) {
@@ -289,16 +289,16 @@ int fght_calc_dmg(struct random *r, struct msr_monster *monster, struct msr_mons
         if (msr_verify_monster(monster) == false) return -1;
     }
 
-    /* 
+    /*
        retreive hit location.
-        TODO: right now it only gives 1 hit location per 
+        TODO: right now it only gives 1 hit location per
         attempt, even with burst for example. The dark
-        heresy rules state that a hit location table 
+        heresy rules state that a hit location table
         should be used.
 
-        Not using such a system gives advantage to 
-        burst and auto fire because they do more 
-        damage to a certain location. For now I'll 
+        Not using such a system gives advantage to
+        burst and auto fire because they do more
+        damage to a certain location. For now I'll
         leave it like this.
      */
     int total_damage = 0;
@@ -388,7 +388,7 @@ bool fght_do_weapon_dmg(struct random *r, struct msr_monster *monster, struct ms
     struct item_weapon_specific *wpn = NULL;
     struct itm_item *witem = NULL;
 
-    /* This function is weapon type agnostic, but since we know 
+    /* This function is weapon type agnostic, but since we know
        we did hit with this hand, we don't really care with what */
     for (int i = 0; i < WEAPON_TYPE_MAX; i++) {
         witem = fght_get_working_weapon(monster, i, hand);
@@ -645,8 +645,8 @@ bool fght_explosion(struct random *r, struct itm_item *bomb, struct dm_map *map)
 }
 
 /*
-   We assume that the throwing weapon has been equiped 
-   before use, ma_do_throw should do that for the player 
+   We assume that the throwing weapon has been equiped
+   before use, ma_do_throw should do that for the player
    with a slight cost.
 
 TODO: let us throw things which are not weapons.
@@ -661,8 +661,8 @@ bool fght_throw_item(struct random *r, struct msr_monster *monster, struct dm_ma
 
     lg_debug("Throwing item to (%d,%d)", e->x, e->y);
 
-    /* Generate a path our projectile will take. Start at 
-       the shooter position, and continue the same path 
+    /* Generate a path our projectile will take. Start at
+       the shooter position, and continue the same path
        untill an obstacle is found.*/
     coord_t *path;
     int path_len = sgt_los_path(map, &monster->pos, &end, &path, false);
@@ -722,11 +722,11 @@ bool fght_throw_item(struct random *r, struct msr_monster *monster, struct dm_ma
 
         /* if the item is an grenade */
         if (itm_is_type(witem_copy, ITEM_TYPE_WEAPON) && wpn_is_catergory(witem_copy, WEAPON_CATEGORY_THROWN_GRENADE) ) {
-            /* set the fuse. the item processing loop will then handle 
+            /* set the fuse. the item processing loop will then handle
                the explosion.  This does mean that the throwing code has
-               has to set the energy. If that is not done, we set it here 
-               to a defualt value. This does mean that you cannot just throw 
-               a grenade and expect it not to explode, but that is a use 
+               has to set the energy. If that is not done, we set it here
+               to a defualt value. This does mean that you cannot just throw
+               a grenade and expect it not to explode, but that is a use
                case I doubt many will use.  */
             if (witem_copy->energy <= 0)  witem_copy->energy = TT_ENERGY_TURN;
             witem_copy->energy_action = true;
@@ -756,8 +756,8 @@ bool fght_shoot(struct random *r, struct msr_monster *monster, struct dm_map *ma
     ammo = MIN(wpn->magazine_left, wpn->rof[wpn->rof_set]);
     if (wpn_uses_ammo(item) && ammo == 0) return false;
 
-    /* Genereate a path our projectile will take. Start at 
-       the shooter position, and continue the same path 
+    /* Genereate a path our projectile will take. Start at
+       the shooter position, and continue the same path
        untill an obstacle is found.*/
     coord_t *path;
     int path_len = sgt_los_path(map, &monster->pos, e, &path, true);
@@ -936,9 +936,9 @@ bool fght_can_see(struct dm_map *map, struct msr_monster *monster, struct msr_mo
 }
 
 
-/* 
-   Given a monster, a type of weapon and a hand, 
-   check if that weapon type exists in our monsters 
+/*
+   Given a monster, a type of weapon and a hand,
+   check if that weapon type exists in our monsters
    hand and return it.
  */
 struct itm_item *fght_get_weapon(struct msr_monster *monster, enum item_weapon_type type, enum fght_hand hand) {
@@ -976,7 +976,7 @@ struct itm_item *fght_get_weapon(struct msr_monster *monster, enum item_weapon_t
 }
 
 /*
-    same as fght_get_weapon except we also check 
+    same as fght_get_weapon except we also check
     if the weapon is in working status_effect.
  */
 struct itm_item *fght_get_working_weapon(struct msr_monster *monster, enum item_weapon_type type, enum fght_hand hand) {

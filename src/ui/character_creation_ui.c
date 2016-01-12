@@ -39,7 +39,7 @@
 
 extern struct msr_monster static_monster_list[];
 
-struct spwn_monster_item items[] = {  
+struct spwn_monster_item items[] = { 
     {.id=IID_AXE,            .min=1,.max=1,.wear=true},
     {.id=IID_SHORT_BOW,      .min=1,.max=1,.wear=false},
     {.id=IID_ARROW,          .min=30,.max=60,.wear=false},
@@ -91,10 +91,10 @@ bool char_creation_window(void) {
         switch (k) {
             case '\n': if (strlen(name_buffer) > 0 ) { name_done = true; } break;
             case 24: return false;
-            case INP_KEY_BACKSPACE: 
+            case INP_KEY_BACKSPACE:
                 if (name_buffer_idx > 0) {
-                    name_buffer[name_buffer_idx--] = '\0'; 
-                    name_buffer[name_buffer_idx] = '\0'; 
+                    name_buffer[name_buffer_idx--] = '\0';
+                    name_buffer[name_buffer_idx] = '\0';
                 }
                 werase(map_win->win);
                 ui_print_reset(map_win);
@@ -160,10 +160,10 @@ bool char_creation_window(void) {
 
         int sel_idx = -1;
         switch (k) {
-            case INP_KEY_QUIT: 
+            case INP_KEY_QUIT:
             case INP_KEY_ESCAPE: return false; /*break;*/
-            case INP_KEY_ALL: 
-            case INP_KEY_APPLY: 
+            case INP_KEY_ALL:
+            case INP_KEY_APPLY:
                 ui_printf_ext(map_win, map_win->lines -3, 1, "Choose which Race?");
                 wrefresh(map_win->win);
                 werase(map_win->win);
@@ -172,7 +172,7 @@ bool char_creation_window(void) {
                 sel_idx = inp_get_input_idx(gbl_game->input);
                 break;
 
-            case INP_KEY_EXAMINE: 
+            case INP_KEY_EXAMINE:
                 ui_printf_ext(map_win, map_win->lines -3, 1, "Examine which Race?");
                 wrefresh(map_win->win);
                 werase(map_win->win);
@@ -183,7 +183,7 @@ bool char_creation_window(void) {
                 }
                 sel_idx = -1;
                 break;
-            default: 
+            default:
                 werase(map_win->win);
                 ui_print_reset(map_win);
                 break;

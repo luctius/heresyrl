@@ -19,20 +19,20 @@
 #define STATUS_EFFECTS_CRITICAL_BLUNT_H
 
 
-/* 
-   Head 
+/*
+   Head
 ------------------------------------------------------------------------------
 */
 
 
-/* 
-   Chest 
+/*
+   Chest
 ------------------------------------------------------------------------------
 */
 
 
-/* 
-   Arms 
+/*
+   Arms
 ------------------------------------------------------------------------------
 */
 STATUS_EFFECT(SEID_BLUNT_LARM_1, "Bashed Fingers", "Your fingers are numbed and you take a -10% Weapon Skill Penaly for 2 rounds."),
@@ -149,8 +149,8 @@ STATUS_EFFECT(SEID_BLUNT_RARM_5, "Demolished Ribcage", "You should be dead."),
     EFFECTS_END,
 STATUS_EFFECT_END,
 
-/* 
-   Legs 
+/*
+   Legs
 ------------------------------------------------------------------------------
 */
 
@@ -162,8 +162,8 @@ STATUS_EFFECT_END,
 
 
 
-/* 
-   Healed 
+/*
+   Healed
 ------------------------------------------------------------------------------
 */
 STATUS_EFFECT(SEID_BLUNT_ARM_3_HEALED, "Healing Smashed Shoulder", "Your shoulder is bashed but healing."),

@@ -34,7 +34,7 @@
     .characteristic[MSR_CHAR_AGILITY]={ .base_value=ag,}, \
     .characteristic[MSR_CHAR_INTELLIGENCE]={ .base_value=in,}, \
     .characteristic[MSR_CHAR_WILLPOWER]={ .base_value=wl,}, \
-    .characteristic[MSR_CHAR_PERCEPTION]={ .base_value=per,} 
+    .characteristic[MSR_CHAR_PERCEPTION]={ .base_value=per,}
 
 #define SKILLS(basic_skills, advanced_skills, expert_skills) .skills[MSR_SKILL_RATE_BASIC]=basic_skills, \
     .skills[MSR_SKILL_RATE_ADVANCED]=advanced_skills, .skills[MSR_SKILL_RATE_EXPERT]=expert_skills
@@ -87,7 +87,7 @@ struct msr_monster static_monster_list[] = {
        Remember to modify the starting wounds table and the fatepoint table
        in player.c when adding new player selectable races.
      */
-    [MID_DUMMY]=MONSTER('h',"dummy","a dummy",MSR_GENDER_MALE,1) 
+    [MID_DUMMY]=MONSTER('h',"dummy","a dummy",MSR_GENDER_MALE,1)
         HUMAN(TLT_NONE), CHARACTERISTICS(0,0,0,0,0,0,0,0), SKILLS(0,0,0),
     MONSTER_END,
 
@@ -185,9 +185,9 @@ static const char *msr_char_description[] = {
 };
 
 static const char *msr_skillrate_name[] = {
-    [MSR_SKILL_RATE_NONE]       = "untrained", 
-    [MSR_SKILL_RATE_BASIC]      = "basic", 
-    [MSR_SKILL_RATE_ADVANCED]   = "advanced", 
+    [MSR_SKILL_RATE_NONE]       = "untrained",
+    [MSR_SKILL_RATE_BASIC]      = "basic",
+    [MSR_SKILL_RATE_ADVANCED]   = "advanced",
     [MSR_SKILL_RATE_EXPERT]     = "expert",
 };
 

@@ -31,8 +31,8 @@
 #include "dungeon/dungeon_map.h"
 
 
-/* 
-   For now, this file contains every ai posible, 
+/*
+   For now, this file contains every ai posible,
    and gives an monster its ai based on race.
    We can later modify it by given out on other parameters.
  */

@@ -35,9 +35,9 @@
 
 #define SKILLS(_skills) .skills=_skills
 
-#define TALENTS(t...) .talents = { t, TLT_NONE, } 
-#define TRAPPINGS(t...) .trappings = { t, IID_NONE, } 
-#define EXITS(e...)   .exit_template_ids = { e, CRID_NONE, } 
+#define TALENTS(t...) .talents = { t, TLT_NONE, }
+#define TRAPPINGS(t...) .trappings = { t, IID_NONE, }
+#define EXITS(e...)   .exit_template_ids = { e, CRID_NONE, }
 #define DESCR(d)      .description=d
 #define ALLIES(ally_id) .allies_ids={ ally_id, MID_NONE, }
 

@@ -200,7 +200,7 @@ bool ma_do_melee(struct msr_monster *monster, coord_t *target_pos) {
         return false;
     }
 
-    int cost = MSR_ACTION_MELEE / msr_calculate_characteristic(monster, MSR_SEC_CHAR_ATTACKS); 
+    int cost = MSR_ACTION_MELEE / msr_calculate_characteristic(monster, MSR_SEC_CHAR_ATTACKS);
 
     if (fght_melee(gbl_game->random, monster, target) == false) {
         return false;
@@ -215,7 +215,7 @@ bool ma_do_throw(struct msr_monster *monster, coord_t *pos, struct itm_item *ite
     if (msr_verify_monster(monster) == false) return false;
     if (itm_verify_item(item) == false) return false;
     if (pos == NULL) return false;
-    int cost = MSR_ACTION_THROW / msr_calculate_characteristic(monster, MSR_SEC_CHAR_ATTACKS); 
+    int cost = MSR_ACTION_THROW / msr_calculate_characteristic(monster, MSR_SEC_CHAR_ATTACKS);
     bool thrown = false;
 
     /* do status checks on monster*/
@@ -239,7 +239,7 @@ bool ma_do_throw(struct msr_monster *monster, coord_t *pos, struct itm_item *ite
 bool ma_do_fire(struct msr_monster *monster, coord_t *pos) {
     if (msr_verify_monster(monster) == false) return false;
     if (pos == NULL) return false;
-    int cost = MSR_ACTION_FIRE / msr_calculate_characteristic(monster, MSR_SEC_CHAR_ATTACKS); 
+    int cost = MSR_ACTION_FIRE / msr_calculate_characteristic(monster, MSR_SEC_CHAR_ATTACKS);
 
     /* do status checks on monster*/
     if (se_has_effect(monster, EF_SWIMMING) ) {
@@ -326,7 +326,7 @@ bool ma_do_reload_carried(struct msr_monster *monster, struct itm_item *ammo_ite
                 if (ma_has_ammo(monster, item) == true ) {
                     cost += reload_cost * item->use_delay;
 
-                    /* Actors with Rapid Reload which reload an item which has a 
+                    /* Actors with Rapid Reload which reload an item which has a
                        use delay of half or less, for free. */
                     if (msr_has_talent(monster, TLT_RAPID_RELOAD) ) {
                         if (cost <= (MSR_ACTION_RELOAD / 2) ) {

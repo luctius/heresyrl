@@ -15,7 +15,7 @@
     along with heresyRL.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define __STDC_FORMAT_MACROS 
+#define __STDC_FORMAT_MACROS
 
 #include <stdlib.h>
 #include <stdio.h>

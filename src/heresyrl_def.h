@@ -173,7 +173,7 @@ enum term_colours {
 inline int pyth(int side1, int side2) {
     //return hypot(side1, side2);
 
-    /* 
+    /*
        This isn't Pythagoras, I know. He would turn around in his grave.
        However we don't really need that, this'll do.
        But we could if we wanted to...

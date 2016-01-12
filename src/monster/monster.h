@@ -197,7 +197,7 @@ struct msr_monster {
     /* array of bitfield of all the monster's talents */
     uint8_t talents[MSR_NR_TALENTS_MAX];
 
-    /* 
+    /*
        skills, divided in basic (has the skill), advanced and expert.
        a skill in advanced should also be in basic, etc.
      */
@@ -206,7 +206,7 @@ struct msr_monster {
     /* special creature traits. */
     bitfield64_t creature_traits;
 
-    /* base characteric score, +advancement. every advancement worth 5 points for 
+    /* base characteric score, +advancement. every advancement worth 5 points for
            basic characteristics and 1 point for secondary characteristics. */
     struct msr_char characteristic[MSR_CHAR_MAX];
 
@@ -247,7 +247,7 @@ struct msr_monster {
 void msrlst_monster_list_init(void);
 void msrlst_monster_list_exit(void);
 
-/* 
+/*
    get next monster from global monster list,
    if prev is NULL, return the first monster,
    otherwise return the one after prev.
@@ -336,7 +336,7 @@ bool msr_change_energy(struct msr_monster *monster, int energy);
 
 struct ai *msr_get_ai_ctx(struct msr_monster *monster);
 
-/* 
+/*
    get range of the sight.
    far includes medium, medium includes near.
  */

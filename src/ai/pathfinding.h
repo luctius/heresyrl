@@ -46,7 +46,7 @@ struct pf_settings {
     /* Pointer of local map structure */
     void *map;
 
-    /* Should return the cost of the tile (normally 1 and always higher than zero) 
+    /* Should return the cost of the tile (normally 1 and always higher than zero)
        or PF_BLOCKED if it is a non-traversable tile.*/
     unsigned int (*pf_traversable_callback)(void *map, coord_t *coord);
 };
@@ -54,7 +54,7 @@ struct pf_settings {
 struct pf_context;
 
 /*
-   Allocates memory for struct pf_context and copies 
+   Allocates memory for struct pf_context and copies
    the settings into them.
  */
 struct pf_context *pf_init(struct pf_settings *pf_set);
@@ -83,7 +83,7 @@ bool pf_calculate_reachability(struct pf_context *ctx);
 
 /*
 Prereq: pf_dijkstra_map AND pf_calculate_reachability == false
-Gives the coordinates of 'a' traversable tile which has not been 
+Gives the coordinates of 'a' traversable tile which has not been
 reached by dijkstra. Should only be called after pf_calculate_reachability.
 Return true when it finds such a tile, else false.
 */
@@ -91,7 +91,7 @@ bool pf_get_non_flooded_tile(struct pf_context *ctx, coord_t *target, coord_t *n
 
 /*
 Prereq: pf_dijkstra_map
-Gives the coordinates of a traversable tile which /has/ been reach 
+Gives the coordinates of a traversable tile which /has/ been reach
 by dijkstra and it closest to the given tile.
 return true on succes, false otherwise.
 */
@@ -99,7 +99,7 @@ bool pf_get_closest_flooded_tile(struct pf_context *ctx, coord_t *target, coord_
 
 /*
 Prepares a A* map of the area, calculating the distance to start from the squares it needs to reach end.
-Faster then pf_dijkstra_map, but it will only calculate the path needed to reach end, most of the squares 
+Faster then pf_dijkstra_map, but it will only calculate the path needed to reach end, most of the squares
 will not be touched. Thus it cannot be used by others to reach the same goal.
 */
 int pf_astar_map(struct pf_context *ctx, coord_t *start, coord_t *end);

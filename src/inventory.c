@@ -86,8 +86,8 @@ struct itm_item *inv_get_next_item(struct inv_inventory *inv, struct itm_item *p
     struct itm_item *item = NULL;
     bitfield32_t item_location = 0;
 
-    if (prev == NULL) { 
-        item = ie->item; /* if this is the first attempt take the first item */ 
+    if (prev == NULL) {
+        item = ie->item; /* if this is the first attempt take the first item */
         item_location =ie->location;
     }
 
@@ -105,7 +105,7 @@ struct itm_item *inv_get_next_item(struct inv_inventory *inv, struct itm_item *p
 
     if (item != NULL) {
         if (item->template_id == IID_HUMAN_UNARMED) {
-            if ( (item_location & INV_LOC_CREATURE_WIELD1) > 0) { 
+            if ( (item_location & INV_LOC_CREATURE_WIELD1) > 0) {
                 /* HACK: ignore creature wields (atleast for humans) */
                 item = inv_get_next_item(inv, item);
             }
@@ -274,7 +274,7 @@ bitfield32_t inv_get_item_locations(struct inv_inventory *inv, struct itm_item *
     if (inv_verify_inventory(inv) == false) return INV_LOC_NONE;
     if (itm_verify_item(item) == false) return INV_LOC_NONE;
     if (inv_has_item(inv, item) == false) return INV_LOC_NONE;
-    
+
     struct inv_entry *ie = inv->head.tqh_first;
     while (ie != NULL) {
         if (ie->item == item) {

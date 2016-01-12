@@ -19,8 +19,8 @@
 #include "heresyrl_def.h"
 
 const coord_t coord_nhlo_table[] = {
-    {-1,-1}, {-1,0}, {-1,1}, 
-    { 0,-1},         { 0,1}, 
+    {-1,-1}, {-1,0}, {-1,1},
+    { 0,-1},         { 0,1},
     { 1,-1}, { 1,0}, { 1,1},
 };
 const uint8_t coord_nhlo_table_sz = ARRAY_SZ(coord_nhlo_table);

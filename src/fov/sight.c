@@ -266,7 +266,7 @@ int sgt_explosion(struct dm_map *map, coord_t *pos, int radius, coord_t *grid_li
     }
 
     /* allocate the total number of grids within the explosion radius.
-     this should be way to many but at this point we do not now how 
+     this should be way to many but at this point we do not now how
      many there are.
      */
     int sz = (radius * 4) * (radius * 4);
@@ -274,7 +274,7 @@ int sgt_explosion(struct dm_map *map, coord_t *pos, int radius, coord_t *grid_li
     if (*grid_list == NULL) return -1;
 
 
-    /*create the explosion struct, containing 
+    /*create the explosion struct, containing
       - a list for the grids within the explosion
       - the maximum size of that list.
       - a index counter for that list.
@@ -296,7 +296,7 @@ int sgt_explosion(struct dm_map *map, coord_t *pos, int radius, coord_t *grid_li
 
     rpsc_fov(&set, pos, radius);
 
-    /* 
+    /*
        we are probably not using a lot of the space allocated.
        thus we request a smaller block. If we do that correctly,
        we should save the old pointer, but we do not because we
@@ -315,7 +315,7 @@ int sgt_los_path(struct dm_map *map, coord_t *s, coord_t *e, coord_t *path_lst[]
     if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(e,map), TILE_ATTR_TRAVERSABLE) == false) return -1;
 
     /* allocate the total number of grids within the path.
-     this should be way to many but at this point we do not 
+     this should be way to many but at this point we do not
      now how many there are.
      */
     int psz = cd_pyth(s,e) * 2;
@@ -327,7 +327,7 @@ int sgt_los_path(struct dm_map *map, coord_t *s, coord_t *e, coord_t *path_lst[]
     if (*path_lst == NULL) return -1;
 
 
-    /*create the projectile path struct, containing 
+    /*create the projectile path struct, containing
       - a list for the grids for the path
       - the maximum size of that list.
       - a index counter for that list.
@@ -395,7 +395,7 @@ int sgt_los_path(struct dm_map *map, coord_t *s, coord_t *e, coord_t *path_lst[]
         }
     }
 
-    /* 
+    /*
        we are probably not using a lot of the space allocated.
        thus we request a smaller block. If we do that correctly,
        we should save the old pointer, but we do not because we

@@ -72,9 +72,9 @@ static int gen_starting_fp(enum msr_race race, int roll_d10) {
 }
 
 static enum msr_talents random_talent[]=
-{ TLT_ACUTE_SIGHT, TLT_AMBIDEXTROUS, TLT_COOL_HEADED, TLT_EXCELENT_VISION, TLT_FLEET_FOOTED, 
-  TLT_HARDY, TLT_LIGHTNING_REFLEXES, TLT_LUCKY, TLT_MARKSMAN, TLT_NIGHT_VISION, TLT_RESITANCE_TO_MAGIC, 
-  TLT_RESITANCE_TO_DISEASE, TLT_RESITANCE_TO_POISON, TLT_SAVVY, TLT_SIXTH_SENSE, TLT_STRONG_MINDED, 
+{ TLT_ACUTE_SIGHT, TLT_AMBIDEXTROUS, TLT_COOL_HEADED, TLT_EXCELENT_VISION, TLT_FLEET_FOOTED,
+  TLT_HARDY, TLT_LIGHTNING_REFLEXES, TLT_LUCKY, TLT_MARKSMAN, TLT_NIGHT_VISION, TLT_RESITANCE_TO_MAGIC,
+  TLT_RESITANCE_TO_DISEASE, TLT_RESITANCE_TO_POISON, TLT_SAVVY, TLT_SIXTH_SENSE, TLT_STRONG_MINDED,
   TLT_STURDY, TLT_VERY_RESILIENT, TLT_VERY_STRONG, TLT_WARRIOR_BORN,};
 
 void plr_create(struct pl_player *plr, char *name, uint32_t template_id, enum msr_gender gender) {
@@ -262,7 +262,7 @@ static bool plr_action_loop(struct msr_monster *player) {
         //mapwin_display_map(map, player_pos);
         //charwin_refresh();
 
-        switch (ch = inp_get_input(gbl_game->input) ) { 
+        switch (ch = inp_get_input(gbl_game->input) ) {
             case INP_KEY_PICKUP: {
                     struct inv_inventory *inv = dm_get_map_me(&pos, map)->inventory;
                     if ( (inv_inventory_size(inv) ) > 0) {
@@ -326,31 +326,31 @@ static bool plr_action_loop(struct msr_monster *player) {
                 has_action = mapwin_overlay_throw_cursor(gbl_game, gbl_game->current_map, player_pos); break;
             case INP_KEY_STAIRS_DOWN:
                 if (dm_get_map_tile(player_pos, gbl_game->current_map)->type == TILE_TYPE_STAIRS_DOWN) {
-                    You(player, "win."); 
+                    You(player, "win.");
                     gbl_game->running = false;
-                } 
+                }
                 break;
             case INP_KEY_STAIRS_UP:
                 if (dm_get_map_tile(player_pos, gbl_game->current_map)->type == TILE_TYPE_STAIRS_UP) {
                     You(player, "see a broken stairway."); } break;
-            case INP_KEY_RELOAD: 
+            case INP_KEY_RELOAD:
                 has_action = ma_do_reload_carried(player, NULL); break;
-            case INP_KEY_WAIT: 
+            case INP_KEY_WAIT:
                 has_action = ma_do_idle(player); break; //ma_do_guard(player); break;
-            case INP_KEY_UNLOAD: 
+            case INP_KEY_UNLOAD:
                 has_action = ma_do_unload(player, NULL); break;
-            case INP_KEY_WEAPON_SETTING: 
-                if ( (player->wpn_sel == MSR_WEAPON_SELECT_MAIN_HAND) || 
-                     (player->wpn_sel == MSR_WEAPON_SELECT_DUAL_HAND) || 
+            case INP_KEY_WEAPON_SETTING:
+                if ( (player->wpn_sel == MSR_WEAPON_SELECT_MAIN_HAND) ||
+                     (player->wpn_sel == MSR_WEAPON_SELECT_DUAL_HAND) ||
                      (player->wpn_sel == MSR_WEAPON_SELECT_BOTH_HAND) ) {
                     wpn_ranged_next_rof_set(inv_get_item_from_location(player->inventory, INV_LOC_MAINHAND_WIELD) );
                 }
-                if ( (player->wpn_sel == MSR_WEAPON_SELECT_OFF_HAND) || 
+                if ( (player->wpn_sel == MSR_WEAPON_SELECT_OFF_HAND) ||
                      (player->wpn_sel == MSR_WEAPON_SELECT_DUAL_HAND) ) {
                     wpn_ranged_next_rof_set(inv_get_item_from_location(player->inventory, INV_LOC_OFFHAND_WIELD) );
                 }
                 break;
-            case INP_KEY_WEAPON_SELECT: 
+            case INP_KEY_WEAPON_SELECT:
                 msr_weapon_next_selection(player);
                 break;
 
@@ -369,7 +369,7 @@ static bool plr_action_loop(struct msr_monster *player) {
                     has_action = true;
                     player_running_dir = cd_create(0,0);
                     System_msg("Run into which direction?");
-                    switch (ch = inp_get_input(gbl_game->input) ) { 
+                    switch (ch = inp_get_input(gbl_game->input) ) {
                         case INP_KEY_UP_LEFT:    player_running_dir = cd_create(-1,-1); break;
                         case INP_KEY_UP:         player_running_dir = cd_create( 0,-1); break;
                         case INP_KEY_UP_RIGHT:   player_running_dir = cd_create( 1,-1); break;

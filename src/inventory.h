@@ -58,7 +58,7 @@ void inv_enable_location(struct inv_inventory *inv, bitfield32_t loc);
 bool inv_has_item(struct inv_inventory *inv, struct itm_item *item);
 
 /*
-   These functions should not be used, rather use the item or 
+   These functions should not be used, rather use the item or
    monster variants, the ensure proper ownership.
  */
 bool inv_add_item(struct inv_inventory *inv, struct itm_item *item); /*Internal use only !!*/

@@ -38,7 +38,7 @@ enum status_effect_flags {
     /* Only one  instance of this status_effect id will be permitted inside a list */
     SEF_UNIQUE,
 
-    /* If true, there will be no textual updates not will 
+    /* If true, there will be no textual updates not will
        this be visible in a character sheet */
     SEF_INVISIBLE,
 
@@ -119,7 +119,7 @@ enum status_effect_setting_flags {
     /* if true, this effect has a certain tick timer. */
     EF_SETT_TICK,
 
-    /* When a Beneficial effect requires an skill/char check, failing it will 
+    /* When a Beneficial effect requires an skill/char check, failing it will
        set the effect to inactive.  */
     EF_SETT_BENEFICIAL,
 
