@@ -100,7 +100,7 @@ void ca_free(struct ca_map *map) {
 
 bool ca_set_coord(struct ca_map *map, coord_t *point, enum cellular_automata val) {
     if (cd_within_bound(point, &map->size) == false) return false;
-   
+
     uint8_t *cell = get_cell(point, map);
     *cell = val;
 

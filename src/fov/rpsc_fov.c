@@ -145,7 +145,7 @@ enum rpsc_octant get_octant(coord_t *src, coord_t *dst) {
         if ( (src->x + (delta.x * oct_mod->x) == dst->x) &&
              (src->y + (delta.y * oct_mod->y) == dst->y) ) {
             if (flip == oct_mod->flip) {
-                return i;  
+                return i;
             }
         }
     }

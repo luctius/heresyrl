@@ -132,7 +132,7 @@ void dla_free(struct dla_map *map) {
 
 bool dla_set_coord(struct dla_map *map, coord_t *point, enum dla_map_types type) {
     if (cd_within_bound(point, &map->size) == false) return false;
-   
+
     uint8_t *block = get_block(point, map);
     *block = type;
 

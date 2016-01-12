@@ -502,7 +502,7 @@ struct pf_map_entity *pf_get_me(struct pf_context *ctx, coord_t *point) {
 
     coord_t pf_point = { .x = point->x - ctx->set.map_start.x, .y = point->y - ctx->set.map_start.y, };
     if (cd_within_bound(&pf_point, &ctx->map.size) == false) return NULL;
-   
+
     return pf_get_index(&pf_point, &ctx->map);
 }
 

@@ -1746,7 +1746,7 @@ void levelup_selection_window(void) {
             if (cr_can_upgrade_talent(career, player, i) ) {
                 abs_idx[idx] = i;
                 lg_debug("tlt (%s) idx/i: %d/%d", msr_talent_names(i), idx, i);
-                ui_printf(window, "%c)  %s\n", inp_key_translate_idx(idx++), msr_talent_names(i) );  
+                ui_printf(window, "%c)  %s\n", inp_key_translate_idx(idx++), msr_talent_names(i) );
             }
         }
 
