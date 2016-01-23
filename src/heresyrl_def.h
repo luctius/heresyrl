@@ -88,8 +88,7 @@ struct pl_player {
 
     struct pf_context *player_map;
     coord_t player_map_pos;
-
-
+    struct quest *quest;
 };
 
 struct gm_game {

@@ -22,6 +22,8 @@
 #include "monster/monster.h"
 #include "dungeon/dungeon_map.h"
 
+#define QUEST_SZ 10
+
 enum quest_types {
     QST_TYPE_NONE,
     QST_TYPE_KILL_ALL,
@@ -29,35 +31,50 @@ enum quest_types {
     QST_TYPE_FETCH,
 };
 
+enum qst_fetch_states {
+    QST_FTCH_START,
+    QST_FTCH_FETCHING,
+    QST_FTCH_END,
+};
+
 struct quest {
     uint32_t tid;
     enum quest_types type;
+    int qst_params[QUEST_SZ];
 
     const char *description;
     const char *start;
     const char *end;
     int xp_reward;
     int gp_reward;
+    int weight;
+    int min_level;
+    int max_level;
 
     struct {
         enum dm_dungeon_type type;
         int weight;
-    } dungeon[5];
+        int dungeon_levels;
+    } dungeon[QUEST_SZ];
 
     struct {
         enum msr_race race;
         int weight;
-    } enemies[5];
+    } enemies[QUEST_SZ];
 
     /* used by the code */
     int state;
-    uint32_t params[10];
+    uint32_t params[QUEST_SZ];
 };
 
 struct quest *qst_spawn(int level);
+enum dm_dungeon_type qst_select_dungeon(struct quest *quest, double roll);
+enum msr_race qst_select_enemy(struct quest *quest, double roll);
 
 void qst_process_quest_start(struct quest *quest, struct dm_map *map);
 void qst_process_quest_end(struct quest *quest, struct dm_map *map);
 void qst_process_quest_during(struct quest *quest, struct dm_map *map);
+
+bool qst_is_quest_done(struct quest *quest, struct dm_map *map);
 
 #endif /* QUESTS_H */

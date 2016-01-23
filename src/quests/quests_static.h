@@ -21,6 +21,7 @@
 enum qst_ids {
     QSTID_NONE,
     QSTID_WISE_WOMAN,
+    QSTID_MAX,
 };
 
 

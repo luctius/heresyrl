@@ -18,7 +18,7 @@
 #define QUEST(_tid, _type)  \
     [_tid] = { \
         .tid  = _tid, \
-        .type = _type,
+        .type = _type
 #define QUEST_END }
 
 #define DESCRIPTION(des)    .description=des
@@ -28,9 +28,13 @@
     .xp_reward=xp, \
     .gp_reward=gold
 
-#define DUNGEON(nr, tp, wgt) \
+#define WEIGHTS(wght,minlvl,maxlvl) \
+    .weight=wght, .min_level=minlvl, .max_level=maxlvl
+
+#define DUNGEON(nr, tp, lvls, wgt) \
     .dungeon[nr] = { \
         .type = tp, \
+        .dungeon_levels = lvls, \
         .weight = wgt, \
     }
 
@@ -40,16 +44,25 @@
         .weight = wgt, \
     }
 
-static struct quest static_quest_list[] = {
+#define FETCH_PARAMS(start, item, item_cnt) \
+    .qst_params[start*2] = item, .qst_params[(start*2)+1] = item_cnt
 
-    QUEST(QSTID_WISE_WOMAN, QST_TYPE_FETCH)
+static struct quest static_quest_list[] = {
+    QUEST(QSTID_WISE_WOMAN, QST_TYPE_FETCH),
         DESCRIPTION("fetch mushrooms"),
-        DESCR_ENTRANCE(NULL),
-        DESCR_EXIT("gratefull"),
+        DESCR_ENTRANCE("You arrived at the place where the wise woman asked you to search for her mushrooms."),
+        DESCR_EXIT("The wise woman was extremely gratefull when you returned with the mushrooms."),
         REWARDS(300, 100),
-        DUNGEON(0, DUNGEON_TYPE_CAVE, 1),
+        WEIGHTS(10, 1, 10),
+        DUNGEON(0, DUNGEON_TYPE_CAVE,  1, 10),
+        DUNGEON(1, DUNGEON_TYPE_PLAIN, 1, 1),
         ENEMIES(0, MSR_RACE_GREENSKIN, 8),
         ENEMIES(1, MSR_RACE_BEAST, 2),
+        FETCH_PARAMS(0, IID_MUSHROOM_MAD_CAP, 5),
+        FETCH_PARAMS(1, IID_NONE, 0),
+    QUEST_END,
+
+    QUEST(QSTID_MAX, QST_TYPE_NONE),
     QUEST_END,
 };
 

@@ -257,6 +257,7 @@ bool dm_populate_map(struct dm_map *map, struct random *r, uint32_t monster_chan
 }
 
 /*
+   TODO: seperate this into one stairs for up and one for down.
    Here we add stairs, supports only 2 at a time, for now.
    randomly selects a tile, puts down the up stairs,
    then tries a few times untill the distance is satisfying
@@ -282,7 +283,7 @@ static void dm_add_stairs(struct dm_map *map, struct random *r) {
     while (tile_up == NULL || tile_down == NULL) {
         coord_t c;
         c.x = random_int32(r) % map->size.x;
-        c. y = random_int32(r) % map->size.y;
+        c.y = random_int32(r) % map->size.y;
         i++;
 
         if (dm_get_map_tile(&c,map)->type == TILE_TYPE_FLOOR ) {

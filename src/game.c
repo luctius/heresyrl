@@ -32,6 +32,7 @@
 #include "monster/monster_action.h"
 #include "fov/sight.h"
 #include "ui/ui.h"
+#include "quests/quests.h"
 #include "careers/careers.h"
 
 #define LOAD 1
@@ -97,23 +98,18 @@ bool game_init_map(void) {
         return false;
     }
 
+    if (gbl_game->player_data.quest == NULL) {
+        gbl_game->player_data.quest = qst_spawn(0);
+    }
+
     if (gbl_game->current_map == NULL) {
         new_map = true;
         gbl_game->current_map = dm_alloc_map(x,y);
 
-        int rand = random_d100(gbl_game->random);
-        if (rand < 60) {
-            dm_generate_map(gbl_game->current_map, DUNGEON_TYPE_CAVE, 1, random_int32(gbl_game->random), true);
-        }
-        /*
-        else if (rand < 80) {
-            dm_generate_map(gbl_game->current_map, DUNGEON_TYPE_TUNNEL, 1, random_int32(gbl_game->random), true );
-        }
-        */
-        else {
-            dm_generate_map(gbl_game->current_map, DUNGEON_TYPE_PLAIN, 1, random_int32(gbl_game->random), true );
-        }
+        enum dm_dungeon_type dmt = qst_select_dungeon(gbl_game->player_data.quest, random_float(gbl_game->random));
+        dm_generate_map(gbl_game->current_map, dmt, 1, random_int32(gbl_game->random), true);
 
+        qst_process_quest_start(gbl_game->player_data.quest, gbl_game->current_map);
         System_msg("Press '?' to view the help screen.");
     }
 
@@ -161,6 +157,7 @@ bool game_new_tick(void) {
     }
 
     gbl_game->turn += TT_ENERGY_TICK;
+    qst_process_quest_during(gbl_game->player_data.quest, gbl_game->current_map);
 
     if (options.play_recording) {
         if (options.play_stop > -1) {

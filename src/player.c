@@ -37,6 +37,7 @@
 #include "monster/monster_action.h"
 #include "items/items.h"
 #include "careers/careers.h"
+#include "quests/quests.h"
 
 static bool plr_action_loop(struct msr_monster *player);
 
@@ -125,6 +126,7 @@ void plr_create(struct pl_player *plr, char *name, uint32_t template_id, enum ms
     plr->player_map_pos = cd_create(0,0);
     plr->xp_spend = 0;
     plr->xp_current = 300;
+    plr->quest = NULL;
 }
 
 bool plr_init(struct pl_player *plr) {
@@ -324,15 +326,25 @@ static bool plr_action_loop(struct msr_monster *player) {
                 has_action = mapwin_overlay_throw_item_cursor(gbl_game, gbl_game->current_map, player_pos); break;
             case INP_KEY_THROW:
                 has_action = mapwin_overlay_throw_cursor(gbl_game, gbl_game->current_map, player_pos); break;
-            case INP_KEY_STAIRS_DOWN:
+            /*case INP_KEY_STAIRS_DOWN:
                 if (dm_get_map_tile(player_pos, gbl_game->current_map)->type == TILE_TYPE_STAIRS_DOWN) {
                     You(player, "win.");
                     gbl_game->running = false;
                 }
-                break;
+                break;*/
             case INP_KEY_STAIRS_UP:
                 if (dm_get_map_tile(player_pos, gbl_game->current_map)->type == TILE_TYPE_STAIRS_UP) {
-                    You(player, "see a broken stairway."); } break;
+                    if (qst_is_quest_done(gbl_game->player_data.quest, gbl_game->current_map) ) {
+                        qst_process_quest_end(gbl_game->player_data.quest, gbl_game->current_map);
+                    }
+                    else {
+                        Your(player, "quest is not finished, are you sure? (o)k/(c)ancel");
+                        if ( (ch = inp_get_input(gbl_game->input) ) == INP_KEY_YES) {
+                            gbl_game->running = false;
+                        }
+                        else System_msg("Cancel.");
+                    }
+                } break;
             case INP_KEY_RELOAD:
                 has_action = ma_do_reload_carried(player, NULL); break;
             case INP_KEY_WAIT:
