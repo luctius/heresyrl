@@ -41,7 +41,7 @@
 struct beast_ai_struct {
     coord_t last_pos;
     int time_last_pos;
-    struct pf_context *pf_ctx;
+    struct pf_context *pf_ctx; /* TODO: free this correctly. */
 };
 
 static bool ai_beast_loop(struct msr_monster *monster) {
@@ -111,7 +111,7 @@ static bool ai_beast_loop(struct msr_monster *monster) {
 struct human_ai_struct {
     coord_t last_pos;
     int time_last_pos;
-    struct pf_context *pf_ctx;
+    struct pf_context *pf_ctx; /* TODO: free this correctly. */
 };
 static bool ai_human_loop(struct msr_monster *monster) {
     if (monster->dead == true) {

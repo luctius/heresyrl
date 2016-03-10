@@ -158,7 +158,8 @@ bool aiu_generate_dijkstra(struct pf_context **pf_ctx, struct dm_map *map, coord
 }
 
 bool aiu_generate_astar(struct pf_context **pf_ctx, struct dm_map *map, coord_t *start, coord_t *end, int radius) {
-    if (dm_verify_map(map) == false) return false;
+    bool retval = false;
+    if (dm_verify_map(map) == false) return retval;
 
     struct pf_settings pf_set = {
         .map_start = {
@@ -185,9 +186,9 @@ bool aiu_generate_astar(struct pf_context **pf_ctx, struct dm_map *map, coord_t 
     }
 
     if (pf_astar_map(*pf_ctx, start, end) ) {
-        return true;
+        retval = true;
     }
-    return false;
+    return retval;
 }
 
 struct itm_item *aiu_next_thrown_weapon(struct msr_monster *monster, int idx) {

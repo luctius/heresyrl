@@ -820,9 +820,10 @@ void charwin_refresh() {
     for (int i = 0; i<2; i++) {
         bitfield32_t loc = INV_LOC_MAINHAND_WIELD;
         if (i == 1) loc = INV_LOC_OFFHAND_WIELD;
-        if (item == inv_get_item_from_location(player->inventory, loc) ) continue; /*ignore off=hand when wielding 2h weapon.*/
 
         if ( (item = inv_get_item_from_location(player->inventory, loc) ) != NULL) {
+            if (item == inv_get_item_from_location(player->inventory, loc) ) continue; /*ignore off=hand when wielding 2h weapon.*/
+
             if (item->item_type == ITEM_TYPE_WEAPON) {
                 struct item_weapon_specific *wpn = &item->specific.weapon;
                 ui_printf(char_win, cs_ATTR "%s Wpn:" cs_CLOSE " %s\n", (i==0) ? "Main" : "Sec.", item->sd_name);

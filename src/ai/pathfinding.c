@@ -257,7 +257,7 @@ static bool pf_backtrace(struct pf_map *map, coord_t *end, coord_t coord_lst[], 
         if (me->distance == 0) return true;
 
         unsigned int best = PF_BLOCKED;
-        coord_t pos, best_pos;
+        coord_t pos, best_pos = cd_create(0,0);
         for (int j = 0; j < coord_nhlo_table_sz; j++) {
             pos.x = coord_nhlo_table[j].x + point.x;
             pos.y = coord_nhlo_table[j].y + point.y;
@@ -271,6 +271,8 @@ static bool pf_backtrace(struct pf_map *map, coord_t *end, coord_t coord_lst[], 
                 else if (best == me->cost) {
                     coord_t dp = cd_delta_abs(&pos, end);
                     coord_t dbp = cd_delta_abs(&best_pos, end);
+
+                    /* TODO: fix "conditional jump depends on uninit value" */
                     if ( (dp.x + dp.y) < (dbp.x + dbp.y) ) {
                         found_best = true;
                     }
@@ -360,6 +362,7 @@ int pf_astar_map(struct pf_context *ctx, coord_t *start, coord_t *end) {
     pf_list_init();
     bool retval = pf_astar_loop(ctx, start, end);
     pf_list_exit();
+
     return retval;
 }
 

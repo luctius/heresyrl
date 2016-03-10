@@ -128,5 +128,6 @@ void opt_parse_options(struct gengetopt_args_info *args_info) {
 void opt_exit(void) {
     free(options.log_file_name);
     free(options.save_file_name);
+    free(options.load_file_name);
     free(options.char_name);
 }

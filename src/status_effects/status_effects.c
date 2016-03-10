@@ -238,7 +238,7 @@ struct status_effect *se_create(enum se_ids tid) {
     return cc;
 }
 
-static void se_process_effect(struct msr_monster *monster, struct status_effect *c);
+static bool se_process_effect(struct msr_monster *monster, struct status_effect *c);
 
 bool se_add_to_list(struct msr_monster *monster, struct status_effect *con) {
     if (msr_verify_monster(monster) == false) return false;
@@ -332,11 +332,13 @@ bool se_remove_effects_by_tid(struct msr_monster *monster, uint32_t tid) {
 
     bool found = false;
     struct status_effect *c = NULL;
-    while ( (c = se_list_get_next_status_effect(se_list, c) ) != NULL) {
+    struct status_effect *c_prev = NULL;
+    while ( (c = se_list_get_next_status_effect(se_list, c_prev) ) != NULL) {
         if (c->template_id == tid) {
             se_remove_status_effect(monster, c);
             found = true;
         }
+        else c_prev = c;
     }
     return found;
 }
@@ -891,17 +893,18 @@ void se_process_effects_during(struct se_type_struct *ces, struct msr_monster *m
     }
 }
 
-static void se_process_effect(struct msr_monster *monster, struct status_effect *c) {
-    if (msr_verify_monster(monster) == false) return;
-    if (se_verify_status_effect(c) == false) return;
+static bool se_process_effect(struct msr_monster *monster, struct status_effect *c) {
+    bool removed = false;
+    if (msr_verify_monster(monster) == false) return removed;
+    if (se_verify_status_effect(c) == false) return removed;
 
     struct status_effect_list *se_list = monster->status_effects;
-    if (se_verify_list(se_list) == false) return;
+    if (se_verify_list(se_list) == false) return removed;
     /*
        if the monster is dead, do nothing.
        we do this here because an effect can cause death.
      */
-    if (monster->dead) return;
+    if (monster->dead) return removed;
 
     bool first_time = false;
     struct status_effect *c_prev = NULL;
@@ -1024,9 +1027,12 @@ static void se_process_effect(struct msr_monster *monster, struct status_effect 
 
         se_remove_status_effect(monster, c);
         c = c_prev;
+        removed = true;
     }
 
     c_prev = c;
+
+    return removed;
 }
 
 /* Process status_effects */
@@ -1037,8 +1043,11 @@ void se_process(struct msr_monster *monster) {
     if (se_verify_list(se_list) == false) return;
 
     struct status_effect *c = NULL;
-    while ( (c = se_list_get_next_status_effect(se_list, c) ) != NULL) {
-        se_process_effect(monster, c);
+    struct status_effect *c_prev = NULL;
+    while ( (c = se_list_get_next_status_effect(se_list, c_prev) ) != NULL) {
+        if (se_process_effect(monster, c) == false) {
+            c_prev = c;
+        }
     }
 }
 
