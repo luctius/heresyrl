@@ -468,13 +468,14 @@ int fght_ranged_roll(struct random *r, struct msr_monster *monster, struct msr_m
         }
     }
 
+    Info("Ranged to-hit: roll %d, target: %d", roll, to_hit);
+
     if (to_hit <= 0) {
         You(monster,                    "miss the shot by a huge margin.");
         Monster_tgt_he(monster, target, "misses the shot by a huge margin.");
         return 0;
     }
 
-    Info("Ranged to-hit: roll %d, target: %d", roll, to_hit);
     if (roll < to_hit) {
         int dos = (to_hit - roll) / 10;
         if (fght_can_see(gbl_game->current_map, target, monster) ) {
@@ -519,13 +520,14 @@ int fght_melee_roll(struct random *r, struct msr_monster *monster, struct msr_mo
 
     int to_hit = fght_melee_calc_tohit(monster, &target->pos, witem, hand);
     int roll = random_d100(r);
+    Info("Melee to-hit: roll %d, target: %d", roll, to_hit);
+
     if (to_hit <= 0) {
         You(monster,                    "miss by a huge margin.");
         Monster_tgt_he(monster, target, "misses by a huge margin.");
         return -1;
     }
 
-    Info("Melee to-hit: roll %d, target: %d", roll, to_hit);
     if (roll < to_hit) {
         if (fght_can_see(gbl_game->current_map, target, monster) ) {
             for (int i = 0; i < MSR_EVASION_MAX; i++) {
