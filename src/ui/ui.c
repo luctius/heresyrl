@@ -979,9 +979,11 @@ void invwin_examine(struct hrl_window *window, struct itm_item *item) {
             if (wpn->nr_dmg_die == 0) ui_printf(char_win, "1D5");
             else ui_printf(char_win, "%dD10", wpn->nr_dmg_die);
 
+            char mod = '+';
             int add = wpn->dmg_addition;
             if (wpn_is_type(item, WEAPON_TYPE_MELEE) ) add += msr_calculate_characteristic_bonus(player, MSR_CHAR_STRENGTH);
-            ui_printf(char_win, "+%d\n", add);
+            if (add < 0) mod = '-';
+            ui_printf(char_win, "%c%d\n", mod, abs(add) );
 
             if (wpn_is_type(item, WEAPON_TYPE_RANGED) || wpn_is_type(item, WEAPON_TYPE_THROWN) ) {
                 ui_printf(char_win, "- Range %d\n", wpn->range);
