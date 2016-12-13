@@ -52,6 +52,16 @@ static void sigfunc_quit(int s) {
     else System_msg("Please press Ctrl-X to quit");
 }
 
+void hr_exit() {
+    ui_destroy();
+    lg_exit(gbl_log);
+    opt_exit();
+
+    clear();
+    refresh();          //  Print it on to the real screen
+    endwin();           //  End curses mode
+}
+
 int main(int argc, char *argv[]) {
     struct gengetopt_args_info args_info;
 
@@ -95,6 +105,12 @@ int main(int argc, char *argv[]) {
             game_init(NULL, rand());
             System_msg("Loading game failed.");
         }
+    }
+    else if (options.test_auto) {
+        System_msg("Loading game failed.");
+        game_exit();
+        hr_exit();
+        exit(EXIT_FAILURE);
     }
 
         /* char creation */
@@ -148,14 +164,7 @@ int main(int argc, char *argv[]) {
     }
     else lg_error("Player invalid.");
 
-    ui_destroy();
-    lg_exit(gbl_log);
-    opt_exit();
-
-    clear();
-    refresh();          //  Print it on to the real screen
-    endwin();           //  End curses mode
-
+    hr_exit();
     printf("Done.\n");
 
     return EXIT_SUCCESS;
