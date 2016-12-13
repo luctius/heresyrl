@@ -96,14 +96,16 @@ int main(int argc, char *argv[]) {
     keypad(stdscr, TRUE);
 
     bool valid_player = false;
-    if (game_load() && options.play_recording == false) {
-        if (gbl_game->player_data.player != NULL) valid_player = true;
-        else {
-            game_exit();
-            lg_exit(gbl_log);
-            gbl_log = lg_init(options.log_file_name, debug_lvl, log_size);
-            game_init(NULL, rand());
-            System_msg("Loading game failed.");
+    if (game_load() ) {
+        if (options.play_recording == false) {
+            if (gbl_game->player_data.player != NULL) valid_player = true;
+            else {
+                game_exit();
+                lg_exit(gbl_log);
+                gbl_log = lg_init(options.log_file_name, debug_lvl, log_size);
+                game_init(NULL, rand());
+                System_msg("Loading game failed.");
+            }
         }
     }
     else if (options.test_auto) {

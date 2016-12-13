@@ -660,7 +660,7 @@ bool ld_read_save_file(const char *path, struct gm_game *g) {
         if (load_input(L, g) == false) return false;
 
         if (options.play_recording == false) {
-            if (load_log(L, gbl_log) == false) return false;
+            if ( (!options.test_mode) && (load_log(L, gbl_log) == false) ) return false;
             if (load_player(L, &g->player_data) == false) return false;
             if (load_items_list(L) == false) return false;
             if (load_map(L, &g->current_map, 1) == false) return false;

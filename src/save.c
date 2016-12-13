@@ -421,7 +421,7 @@ bool sv_save_game(const char *filename, struct gm_game *gm) {
         svprintf_close(file);
 
         sv_save_input(file, indent, gm->input);
-        sv_save_log(file, indent, gbl_log);
+        if (!options.test_mode) sv_save_log(file, indent, gbl_log);
 
     /* special case, no comma at the end */
     indent -= INDENTATION; svprintf(file, "}\n");

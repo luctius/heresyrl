@@ -31,6 +31,7 @@ struct opt_options {
     bool print_map_only;
 
     bool test_auto;
+    bool test_mode;
 
     bool play_recording;
     int  play_delay;

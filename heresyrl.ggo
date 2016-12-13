@@ -17,6 +17,7 @@ section "Testing Options"
 option "debug"          d "show debug output" flag off
 option "map"            m "show the complete map" flag off
 option "test_auto"      - "same as playback, but quite when done and show nothing" flag off
+option "test_mode"      - "turn features off to facilitate testing" flag off
 
 option "no_load"        l "do not load a previous made character" flag off
 option "no_save"        s "do not save a made character" flag off

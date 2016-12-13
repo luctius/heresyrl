@@ -61,6 +61,8 @@ struct gengetopt_args_info
   const char *map_help; /**< @brief show the complete map help description.  */
   int test_auto_flag;	/**< @brief same as playback, but quite when done and show nothing (default=off).  */
   const char *test_auto_help; /**< @brief same as playback, but quite when done and show nothing help description.  */
+  int test_mode_flag;	/**< @brief turn features off to facilitate testing (default=off).  */
+  const char *test_mode_help; /**< @brief turn features off to facilitate testing help description.  */
   int no_load_flag;	/**< @brief do not load a previous made character (default=off).  */
   const char *no_load_help; /**< @brief do not load a previous made character help description.  */
   int no_save_flag;	/**< @brief do not save a made character (default=off).  */
@@ -87,6 +89,7 @@ struct gengetopt_args_info
   unsigned int debug_given ;	/**< @brief Whether debug was given.  */
   unsigned int map_given ;	/**< @brief Whether map was given.  */
   unsigned int test_auto_given ;	/**< @brief Whether test_auto was given.  */
+  unsigned int test_mode_given ;	/**< @brief Whether test_mode was given.  */
   unsigned int no_load_given ;	/**< @brief Whether no_load was given.  */
   unsigned int no_save_given ;	/**< @brief Whether no_save was given.  */
   unsigned int print_map_only_given ;	/**< @brief Whether print_map_only was given.  */

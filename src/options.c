@@ -65,6 +65,7 @@ void opt_parse_options(struct gengetopt_args_info *args_info) {
     options.debug_no_save   = args_info->no_save_flag;
     options.print_map_only  = args_info->print_map_only_flag;
     options.test_auto       = args_info->test_auto_flag;
+    options.test_mode       = args_info->test_mode_flag;
 
     options.play_recording  = args_info->playback_flag;
     options.play_delay      = args_info->pb_delay_arg;

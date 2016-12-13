@@ -46,6 +46,7 @@ const char *gengetopt_args_info_help[] = {
   "  -d, --debug             show debug output  (default=off)",
   "  -m, --map               show the complete map  (default=off)",
   "      --test_auto         same as playback, but quite when done and show\n                            nothing  (default=off)",
+  "      --test_mode         turn features off to facilitate testing\n                            (default=off)",
   "  -l, --no_load           do not load a previous made character  (default=off)",
   "  -s, --no_save           do not save a made character  (default=off)",
   "      --print_map_only    only print the map and close  (default=off)",
@@ -90,6 +91,7 @@ void clear_given (struct gengetopt_args_info *args_info)
   args_info->debug_given = 0 ;
   args_info->map_given = 0 ;
   args_info->test_auto_given = 0 ;
+  args_info->test_mode_given = 0 ;
   args_info->no_load_given = 0 ;
   args_info->no_save_given = 0 ;
   args_info->print_map_only_given = 0 ;
@@ -114,6 +116,7 @@ void clear_args (struct gengetopt_args_info *args_info)
   args_info->debug_flag = 0;
   args_info->map_flag = 0;
   args_info->test_auto_flag = 0;
+  args_info->test_mode_flag = 0;
   args_info->no_load_flag = 0;
   args_info->no_save_flag = 0;
   args_info->print_map_only_flag = 0;
@@ -141,12 +144,13 @@ void init_args_info(struct gengetopt_args_info *args_info)
   args_info->debug_help = gengetopt_args_info_help[9] ;
   args_info->map_help = gengetopt_args_info_help[10] ;
   args_info->test_auto_help = gengetopt_args_info_help[11] ;
-  args_info->no_load_help = gengetopt_args_info_help[12] ;
-  args_info->no_save_help = gengetopt_args_info_help[13] ;
-  args_info->print_map_only_help = gengetopt_args_info_help[14] ;
-  args_info->log_file_help = gengetopt_args_info_help[15] ;
-  args_info->save_file_help = gengetopt_args_info_help[16] ;
-  args_info->load_file_help = gengetopt_args_info_help[17] ;
+  args_info->test_mode_help = gengetopt_args_info_help[12] ;
+  args_info->no_load_help = gengetopt_args_info_help[13] ;
+  args_info->no_save_help = gengetopt_args_info_help[14] ;
+  args_info->print_map_only_help = gengetopt_args_info_help[15] ;
+  args_info->log_file_help = gengetopt_args_info_help[16] ;
+  args_info->save_file_help = gengetopt_args_info_help[17] ;
+  args_info->load_file_help = gengetopt_args_info_help[18] ;
   
 }
 
@@ -332,6 +336,8 @@ cmdline_parser_dump(FILE *outfile, struct gengetopt_args_info *args_info)
     write_into_file(outfile, "map", 0, 0 );
   if (args_info->test_auto_given)
     write_into_file(outfile, "test_auto", 0, 0 );
+  if (args_info->test_mode_given)
+    write_into_file(outfile, "test_mode", 0, 0 );
   if (args_info->no_load_given)
     write_into_file(outfile, "no_load", 0, 0 );
   if (args_info->no_save_given)
@@ -622,6 +628,7 @@ cmdline_parser_internal (
         { "debug",	0, NULL, 'd' },
         { "map",	0, NULL, 'm' },
         { "test_auto",	0, NULL, 0 },
+        { "test_mode",	0, NULL, 0 },
         { "no_load",	0, NULL, 'l' },
         { "no_save",	0, NULL, 's' },
         { "print_map_only",	0, NULL, 0 },
@@ -765,6 +772,18 @@ cmdline_parser_internal (
             if (update_arg((void *)&(args_info->test_auto_flag), 0, &(args_info->test_auto_given),
                 &(local_args_info.test_auto_given), optarg, 0, 0, ARG_FLAG,
                 check_ambiguity, override, 1, 0, "test_auto", '-',
+                additional_error))
+              goto failure;
+          
+          }
+          /* turn features off to facilitate testing.  */
+          else if (strcmp (long_options[option_index].name, "test_mode") == 0)
+          {
+          
+          
+            if (update_arg((void *)&(args_info->test_mode_flag), 0, &(args_info->test_mode_given),
+                &(local_args_info.test_mode_given), optarg, 0, 0, ARG_FLAG,
+                check_ambiguity, override, 1, 0, "test_mode", '-',
                 additional_error))
               goto failure;
           
