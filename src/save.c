@@ -205,6 +205,7 @@ static bool sv_save_monsters(FILE *file, int indent) {
             fflush(file);
             sz++;
         }
+        svprintf(file, "sz=%d,", sz);
     svprintf_close(file);
 
     fflush(file);
