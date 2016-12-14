@@ -6,4 +6,4 @@ then
     exit
 fi
 
-../../heresyrl --test_mode -l --save_file=./$1 -d
+../../heresyrl --test_mode -l --save_file=./$1 -d || ../../build/heresyrl --test_mode -l --save_file=./$1 -d
