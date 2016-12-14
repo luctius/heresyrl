@@ -55,6 +55,7 @@ bool ma_do_move(struct msr_monster *monster, coord_t *pos) {
         msr_change_energy(monster, -( ( (me->tile->movement_cost * MSR_ACTION_MOVE) / TILE_COST_DIV) / speed) );
         monster->controller.interruptable = false;
         monster->controller.interrupted = false;
+        monster->stealth += MSR_STEALTH_MOVE;
         return true;
     }
     return false;
@@ -87,6 +88,7 @@ bool ma_do_wear(struct msr_monster *monster, struct itm_item *item) {
 
     msr_change_energy(monster, -(MSR_ACTION_WEAR * item->use_delay) );
     monster->controller.interruptable = false;
+    monster->stealth += MSR_STEALTH_MISC;
     return true;
 }
 
@@ -103,6 +105,7 @@ bool ma_do_remove(struct msr_monster *monster, struct itm_item *item) {
     msr_change_energy(monster, -(MSR_ACTION_REMOVE * item->use_delay) );
     monster->controller.interruptable = false;
     monster->controller.interrupted = false;
+    monster->stealth += MSR_STEALTH_MISC;
     return true;
 }
 
@@ -114,6 +117,7 @@ bool ma_do_use(struct msr_monster *monster, struct itm_item *item) {
 
     msr_change_energy(monster, -(MSR_ACTION_USE * item->use_delay) );
     monster->controller.interruptable = false;
+    monster->stealth += MSR_STEALTH_MISC;
     return true;
 }
 
@@ -139,6 +143,7 @@ bool ma_do_pickup(struct msr_monster *monster, struct itm_item *items[], int nr_
         }
     }
 
+    monster->stealth += MSR_STEALTH_MISC;
     monster->controller.interruptable = false;
     return true;
 }
@@ -181,6 +186,7 @@ bool ma_do_drop(struct msr_monster *monster, struct itm_item *items[], int nr_it
 
     if (msr_get_energy(monster) == TT_ENERGY_FULL) return false;
 
+    monster->stealth += MSR_STEALTH_MISC;
     monster->controller.interruptable = false;
     return true;
 }
@@ -208,6 +214,7 @@ bool ma_do_melee(struct msr_monster *monster, coord_t *target_pos) {
 
     msr_change_energy(monster, -(cost) );
     monster->controller.interruptable = false;
+    monster->stealth += MSR_STEALTH_ATTACK;
     return true;
 }
 
@@ -233,6 +240,7 @@ bool ma_do_throw(struct msr_monster *monster, coord_t *pos, struct itm_item *ite
     /* else we are done*/
     msr_change_energy(monster, -(cost) );
     monster->controller.interruptable = false;
+    monster->stealth += MSR_STEALTH_ATTACK;
     return true;
 }
 
@@ -254,6 +262,7 @@ bool ma_do_fire(struct msr_monster *monster, coord_t *pos) {
 
     msr_change_energy(monster, -(cost) );
     monster->controller.interruptable = false;
+    monster->stealth += MSR_STEALTH_ATTACK;
     return true;
 }
 
@@ -438,6 +447,7 @@ bool ma_do_unload(struct msr_monster *monster, struct itm_item *weapon_item) {
     if (cost == 0) return false;
     msr_change_energy(monster, -(cost) );
     monster->controller.interruptable = false;
+    monster->stealth += MSR_STEALTH_MISC;
     return true;
 }
 

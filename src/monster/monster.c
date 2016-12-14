@@ -190,7 +190,7 @@ struct msr_monster *msr_create(enum msr_ids template_id) {
     }
 
     creature_weapon(&m->monster);
-    m->monster.stealth.stealth_mode = false;
+    m->monster.stealth = 0;
 
     lg_debug("creating monster[%d, %s, %c]", m->monster.uid, m->monster.ld_name, m->monster.icon);
 
@@ -632,7 +632,7 @@ bool msr_do_dmg(struct msr_monster *monster, int dmg, enum dmg_type dmg_type, en
 
     if (dmg > 0) {
         monster->wounds.curr -= dmg;
-        monster->stealth.last_defended = gbl_game->turn;
+        monster->stealth += MSR_STEALTH_DEFEND;
 
         if (monster->wounds.curr < 0) {
             if (monster->unique_name == NULL) {

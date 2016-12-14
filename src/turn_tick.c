@@ -42,15 +42,6 @@ bool tt_interrupt_event(uint32_t monster_uid) {
 void tt_process_monsters(struct dm_map *map) {
     struct msr_monster *monster = NULL;
 
-    if (gbl_game->turn % TT_ENERGY_TURN == 0) {
-        while ( (monster = msrlst_get_next_monster(monster) ) != NULL) {
-            if (monster->dead == false) {
-                monster->stealth.awareness = random_d100(gbl_game->random);
-                monster->stealth.stealth   = random_d100(gbl_game->random);
-            }
-        }
-    }
-
     monster = NULL;
     while ( (monster = msrlst_get_next_monster(monster) ) != NULL) {
         if (monster->dead) {
@@ -71,6 +62,12 @@ void tt_process_monsters(struct dm_map *map) {
         if (msr_get_energy(monster) >= TT_ENERGY_FULL) do_action = true;
         if (monster->controller.interrupted == true) do_action = true;
 
+        if (gbl_game->turn % TT_ENERGY_TURN_MINI == 0) {
+            monster->stealth += MSR_STEALTH_BLEED;
+            monster->stealth %= MSR_STEALTH_MAX;
+            if (monster->stealth > 0) monster->stealth = 0;
+        }
+
         /* A stunned monster can do nothing. */
         if (se_has_effect(monster, EF_STUNNED) ) {
             do_action = false;
@@ -86,7 +83,7 @@ void tt_process_monsters(struct dm_map *map) {
             monster->controller.interrupted = false;
 
             /* TODO, HACK: performance drain, improve this!! */
-            //update_screen();
+            /*update_screen();*/
         }
 
         if (gbl_game->running == false) return;

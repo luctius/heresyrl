@@ -135,6 +135,7 @@ static bool sv_save_monsters(FILE *file, int indent) {
                 svprintf_close(file);
 
                 svprintf(file,"idle_counter=%d,", m->idle_counter);
+                svprintf(file,"stealth=%d,", m->stealth);
 
                 svprintf_open(file,"evasion=");
                     for (int i = 0; i < MSR_EVASION_MAX; i++) {
