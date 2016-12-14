@@ -307,6 +307,7 @@ int fght_calc_dmg(struct random *r, struct msr_monster *monster, struct msr_mons
     if (wpn->nr_dmg_die == 0) dmg_die_sz = 5;
     for (int h = 0; h < hits; h++) {
         int dmg = 0;
+        int rnd_dmg = 0;
         int die_dmg;
         do {
             die_dmg = random_xd10(r, wpn->nr_dmg_die);
@@ -349,7 +350,8 @@ int fght_calc_dmg(struct random *r, struct msr_monster *monster, struct msr_mons
 
         lg_debug("Armour %d, penetration %d, toughness %d, dmg %d, dmg_add %d", armour, penetration, toughness, dmg, dmg_add);
         armour = MAX((armour - penetration), 0); /* penetration only works against armour */
-        total_damage += MAX((dmg + dmg_add) - (armour  + toughness), 0);
+        rnd_dmg = MAX((dmg + dmg_add) - (armour  + toughness), 0);
+        total_damage += rnd_dmg;
 
         if (monster != NULL) {
             You(monster,                    "hit and do " cs_DAMAGE "%d" cs_CLOSE " damage.", MAX((dmg + dmg_add) - (armour  + toughness), 0));
@@ -359,13 +361,8 @@ int fght_calc_dmg(struct random *r, struct msr_monster *monster, struct msr_mons
             Event_msg(&target->pos, "It does %d to %s.", total_damage, msr_ldname(target) );
         }
 
-        if (msr_do_dmg(target, total_damage, wpn->dmg_type, mhl) == true) {
-            if (monster != NULL && monster->is_player) {
-                target->stealth.seen_plr = gbl_game->turn;
-            }
-        }
-
         Info("Doing %d%s+%d damage => %d, %d wnds left.", wpn->nr_dmg_die, random_die_name(dmg_die_sz), dmg_add, dmg, target->wounds.curr);
+        msr_do_dmg(target, rnd_dmg, wpn->dmg_type, mhl);
         if (target->dead) h = hits;
     }
 
@@ -447,8 +444,6 @@ int fght_ranged_roll(struct random *r, struct msr_monster *monster, struct msr_m
     Monster_tgt(monster, target, "%s at %s.", itm_msr_use_desc(witem), msr_ldname(target) );
     */
 
-    monster->stealth.last_attacked = gbl_game->turn;
-
     /* Do jamming test */
     if (roll >= jammed_threshold) {
         int reltest = -1;
@@ -516,8 +511,6 @@ int fght_melee_roll(struct random *r, struct msr_monster *monster, struct msr_mo
 
     /* TODO add Melee attack options */
 
-    monster->stealth.last_attacked = gbl_game->turn;
-
     int to_hit = fght_melee_calc_tohit(monster, &target->pos, witem, hand);
     int roll = random_d100(r);
     Info("Melee to-hit: roll %d, target: %d", roll, to_hit);
@@ -553,8 +546,6 @@ int fght_thrown_roll(struct random *r, struct msr_monster *monster, coord_t *pos
     if (itm_verify_item(witem) == false) return -1;
 
     struct msr_monster *target = dm_get_map_me(pos, gbl_game->current_map)->monster;
-
-    monster->stealth.last_attacked = gbl_game->turn;
 
     int to_hit = fght_ranged_calc_tohit(monster, pos, witem, hand, true);
     int roll = random_d100(r);
@@ -839,37 +830,18 @@ bool fght_can_see(struct dm_map *map, struct msr_monster *monster, struct msr_mo
     if (msr_verify_monster(tgt) == false) return false;
     if (monster == tgt) return true;
 
+    /* Same faction can always see each other */
+    if (monster->faction == tgt->faction) return true;
+
+    lg_ai_debug(monster, "testing visual to %s", msr_ldname(tgt));
+
     struct dm_map_entity *me = dm_get_map_me(&tgt->pos, map);
     int near    = msr_get_near_sight_range(monster);
     int medium  = msr_get_medium_sight_range(monster);
     int far     = msr_get_far_sight_range(monster);
 
-    if (monster->is_player) {
-        if (me->in_sight == false) return false;
-
-        /* if the target has been seen in the last 2 turns, show him now to avoid popping in and out of monsters. */
-        if (tgt->stealth.last_seen >= gbl_game->turn - (2 * TT_ENERGY_TURN) ) {
-            tgt->stealth.last_seen = gbl_game->turn;
-            return true;
-        }
-    }
-    else {
-        if (sgt_has_los(map, &monster->pos, &tgt->pos, far) == false) return false;
-
-        /* if the target has been seen in the last 2 turns, show him now to avoid popping in and out of monsters. */
-        if (tgt->is_player) {
-            if (monster->stealth.seen_plr >= gbl_game->turn - (2 * TT_ENERGY_TURN) ) {
-                monster->stealth.seen_plr = gbl_game->turn;
-                lg_ai_debug(monster, "sees %s automaticly", msr_ldname(tgt));
-                return true;
-            }
-        }
-    }
-
-    lg_ai_debug(monster, "testing visual to %s", msr_ldname(tgt));
-
-    /* Same faction can always see each other */
-    if (monster->faction == tgt->faction) return true;
+    if ( (monster->is_player) && (me->in_sight == false) ) return false;
+    else if (sgt_has_los(map, &monster->pos, &tgt->pos, far) == false) return false;
 
     /* base modifiers are zero */
     int awareness_mod   = 0;
@@ -906,34 +878,21 @@ bool fght_can_see(struct dm_map *map, struct msr_monster *monster, struct msr_mo
         }
     }
 
-    /* if you attacked or defended in the last turn, it is harder to be stealthy */
-    if (tgt->stealth.last_attacked >= gbl_game->turn - (1 * TT_ENERGY_TURN) ) {
-        stealth_mod -= 10;
-    }
-    if (tgt->stealth.last_defended >= gbl_game->turn - (1 * TT_ENERGY_TURN) ) {
-        stealth_mod -= 10;
-    }
-
     /* The actual check and Degree of Success */
-    int awareness = msr_calculate_skill(monster, MSR_SKILLS_AWARENESS) + awareness_mod;
-    int stealth   = msr_calculate_skill(tgt, MSR_SKILLS_STEALTH)       + stealth_mod;
-    int awareness_DoS = (awareness - tgt->stealth.awareness) / 10;
-    int stealth_DoS   = (stealth   - tgt->stealth.stealth)   / 10;
+    int awareness = msr_calculate_skill(monster, MSR_SKILLS_AWARENESS);
+    int stealth   = msr_calculate_skill(tgt, MSR_SKILLS_STEALTH);
+    int awareness_DoS = (awareness + awareness_mod) / 10;
+    int stealth_DoS   = (stealth + stealth_mod + tgt->stealth)   / 10;
 
-    lg_ai_debug(monster, "test see: (%d(%d) vs %s %d(%d) )", awareness, monster->stealth.awareness, msr_ldname(tgt), stealth, tgt->stealth.stealth);
+    lg_ai_debug(monster, "test see: (%d(+%d) vs %s %d(+%d+%d) )", awareness, awareness_mod, msr_ldname(tgt), stealth, stealth_mod, tgt->stealth);
     if (awareness_DoS > stealth_DoS) {
-        if (monster->is_player) {
-            tgt->stealth.last_seen = gbl_game->turn;
-        }
-        else if (tgt->is_player) {
-            monster->stealth.seen_plr = gbl_game->turn;
-        }
-
-        You(monster, "notice %s", msr_ldname(tgt) );
-        Monster(monster, "notices %s", msr_ldname(tgt) );
+        /* You(monster, "notice %s", msr_ldname(tgt) );*/
+        /* Monster(monster, "notices %s", msr_ldname(tgt) );*/
+        lg_ai_debug(monster, "sees %s", msr_ldname(tgt));
         return true;
     }
 
+    lg_ai_debug(monster, "does not see %s", msr_ldname(tgt));
     return false;
 }
 
