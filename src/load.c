@@ -41,6 +41,7 @@
 #include "dungeon/dungeon_map.h"
 #include "ai/ai.h"
 #include "careers/careers.h"
+#include "quests/quests.h"
 
 /**
 * Evaluates a Lua expression and returns the string result.
@@ -345,6 +346,13 @@ static bool load_player(lua_State *L, struct pl_player *plr) {
     lua_intexpr(L, &t, "game.player.xp_current");   plr->xp_current = t;
     lua_intexpr(L, &t, "game.player.career_id");    plr->career = cr_get_career_by_id(t);
 
+    lua_intexpr(L, &t, "game.player.quest.tid");    plr->quest = qst_by_tid(t);
+    lua_intexpr(L, &t, "game.player.quest.state");  plr->quest->state = t;
+    lua_intexpr(L, &t, "game.player.quest.params.sz");
+    int params_sz = t;
+    for (int i = 0; i < params_sz; i++) {
+        lua_intexpr(L, &t, "game.player.quest.params", i+1); plr->quest->params[i] = t;
+    }
     return true;
 }
 

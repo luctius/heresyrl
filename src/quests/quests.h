@@ -67,6 +67,7 @@ struct quest {
     uint32_t params[QUEST_SZ];
 };
 
+struct quest *qst_by_tid(uint32_t tid);
 struct quest *qst_spawn(int level);
 enum dm_dungeon_type qst_select_dungeon(struct quest *quest, double roll);
 enum msr_race qst_select_enemy(struct quest *quest, double roll);

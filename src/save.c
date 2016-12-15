@@ -36,6 +36,7 @@
 #include "dungeon/dungeon_map.h"
 #include "careers/careers.h"
 #include "status_effects/ground_effects.h"
+#include "quests/quests.h"
 
 #define INDENTATION 4
 #define svprintf_open(f,fmt) do { fprintf(f,"%*s" fmt "{\n", indent, ""); indent += INDENTATION; } while (0)
@@ -98,6 +99,16 @@ static bool sv_save_player(FILE *file, int indent, struct pl_player *plr) {
         svprintf(file,"career_id= %d,", plr->career->template_id);
         svprintf(file,"xp_current= %d,", plr->xp_current);
         svprintf(file,"xp_spend= %d,", plr->xp_spend);
+        svprintf_open(file,"quest=");
+            svprintf(file,"tid=%d,", plr->quest->tid);
+            svprintf(file,"state=%d,", plr->quest->state);
+            svprintf_open(file,"params=");
+                for (int i = 0; i < QUEST_SZ; i++) {
+                    svprintf(file,"%" PRIu32 ",", plr->quest->params[i]);
+                }
+                svprintf(file,"sz=%d,", QUEST_SZ);
+            svprintf_close(file);
+        svprintf_close(file);
     svprintf_close(file);
     fflush(file);
     return true;
