@@ -1,6 +1,7 @@
 AC_INIT(heresyrl, development, luctius@gmail.com, heresyrl)
 AC_CONFIG_SRCDIR([src])
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([1.11 foreign silent-rules subdir-objects -Wall])
+AM_MAINTAINER_MODE
 
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
@@ -9,7 +10,7 @@ AC_CONFIG_MACRO_DIR([m4])
 AC_PROG_MAKE_SET
 #AC_PROG_CC
 AC_PROG_CC_C99
-#AM_PROG_CC_C_O
+AM_PROG_CC_C_O
 #AC_PROG_CXX
 #AC_PROG_AWK
 AC_PROG_SED
@@ -21,7 +22,7 @@ AC_PROG_MKDIR_P
 
 AC_DEFINE([_GNU_SOURCE], 1, [Use GNU extensions])
 
-AC_DEFINE([CMDLINE_PARSER_VERSION], VERSION " (" GIT_VERSION ") <" __DATE__ " " __TIME__">", [extended version])
+AC_DEFINE([CMDLINE_PARSER_VERSION], VERSION " (" GIT_VERSION ") ", [extended version])
 
 # Checks for libraries.
 # FIXME: Replace `main' with a function in `-lm':
