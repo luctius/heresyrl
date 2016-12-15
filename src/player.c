@@ -195,6 +195,7 @@ static bool plr_action_loop(struct msr_monster *player) {
     sgt_calculate_player_sight(map, player);
 
     coord_t pos = player->pos;
+    coord_t change_pos = zero;
     coord_t *player_pos = &player->pos;
 
     if (player->dead) {
@@ -336,6 +337,7 @@ static bool plr_action_loop(struct msr_monster *player) {
                 if (dm_get_map_tile(player_pos, gbl_game->current_map)->type == TILE_TYPE_STAIRS_UP) {
                     if (qst_is_quest_done(gbl_game->player_data.quest, gbl_game->current_map) ) {
                         qst_process_quest_end(gbl_game->player_data.quest, gbl_game->current_map);
+                        gbl_game->running = false;
                     }
                     else {
                         Your(player, "quest is not finished, are you sure? (o)k/(c)ancel");
@@ -368,14 +370,14 @@ static bool plr_action_loop(struct msr_monster *player) {
 
             case INP_KEY_QUIT:       gbl_game->running = false; break;
 
-            case INP_KEY_UP_LEFT:    pos.y--; pos.x--; break;
-            case INP_KEY_UP:         pos.y--; break;
-            case INP_KEY_UP_RIGHT:   pos.y--; pos.x++; break;
-            case INP_KEY_RIGHT:      pos.x++; break;
-            case INP_KEY_DOWN_RIGHT: pos.y++; pos.x++; break;
-            case INP_KEY_DOWN:       pos.y++; break;
-            case INP_KEY_DOWN_LEFT:  pos.y++; pos.x--; break;
-            case INP_KEY_LEFT:       pos.x--; break;
+            case INP_KEY_UP_LEFT:    change_pos = cd_create(-1,-1); break;
+            case INP_KEY_UP:         change_pos = cd_create( 0,-1); break;
+            case INP_KEY_UP_RIGHT:   change_pos = cd_create( 1,-1); break;
+            case INP_KEY_RIGHT:      change_pos = cd_create( 1, 0); break;
+            case INP_KEY_DOWN_RIGHT: change_pos = cd_create( 1, 1); break;
+            case INP_KEY_DOWN:       change_pos = cd_create( 0, 1); break;
+            case INP_KEY_DOWN_LEFT:  change_pos = cd_create(-1, 1); break;
+            case INP_KEY_LEFT:       change_pos = cd_create(-1, 0); break;
 
             case INP_KEY_RUN: {
                     has_action = true;
@@ -404,6 +406,7 @@ static bool plr_action_loop(struct msr_monster *player) {
         }
 
         if (has_action == false) {
+            pos = cd_add(&pos, &change_pos);
             if (cd_equal(&pos, player_pos) == false) {
                 /* test for a move */
                 if (ma_do_move(player, &pos) == true) {
