@@ -351,7 +351,7 @@ static bool load_player(lua_State *L, struct pl_player *plr) {
     lua_intexpr(L, &t, "game.player.quest.params.sz");
     int params_sz = t;
     for (int i = 0; i < params_sz; i++) {
-        lua_intexpr(L, &t, "game.player.quest.params", i+1); plr->quest->params[i] = t;
+        lua_intexpr(L, &t, "game.player.quest.params[%d]", i+1); plr->quest->params[i] = t;
     }
     return true;
 }
