@@ -110,9 +110,9 @@ heresyrl_LDADD = $(INTI_LIBS) -lm $(lua_LIBS)
 
 if GENGETOPT
 src/cmdline.c src/cmdline.h: heresyrl.ggo
-	$(SED) -i"" "s:usr_prefix:${prefix}:g" $<
-	$(GENGETOPT) --output-dir=src/ < $<
-	distcleancheck_listfiles="src/cmdline.c src/cmdline.h"
+	$(AM_V_GEN)$(SED) -i"" "s:usr_prefix:${prefix}:g" $<
+	$(AM_V_GEN)$(GENGETOPT) --output-dir=src/ < $<
+	$(AM_V_GEN)distcleancheck_listfiles="src/cmdline.c src/cmdline.h"
 endif
 
 #clean-local:
@@ -122,11 +122,11 @@ endif
 heresyrl_tmpdir=/tmp/heresyrl-dist/
 heresyrl_release=$(PACKAGE)-$(VERSION)-$(shell gcc -dumpmachine)
 dist-binary:
-	rm heresyrl_release.tar.gz || :
-	mkdir -p $(heresyrl_tmpdir)/$(heresyrl_release)
-	cp $(bin_PROGRAMS) $(heresyrl_tmpdir)/$(heresyrl_release)
-	tar -C $(heresyrl_tmpdir) -cvf $(heresyrl_release).tar $(heresyrl_release)/$(bin_PROGRAMS)
-	gzip $(heresyrl_release).tar
-	rm -rf $(heresyrl_tmpdir)
+	$(AM_V_GEN)rm heresyrl_release.tar.gz || :
+	$(AM_V_GEN)mkdir -p $(heresyrl_tmpdir)/$(heresyrl_release)
+	$(AM_V_GEN)cp $(bin_PROGRAMS) $(heresyrl_tmpdir)/$(heresyrl_release)
+	$(AM_V_GEN)tar -C $(heresyrl_tmpdir) -cvf $(heresyrl_release).tar $(heresyrl_release)/$(bin_PROGRAMS)
+	$(AM_V_GEN)gzip $(heresyrl_release).tar
+	$(AM_V_GEN)rm -rf $(heresyrl_tmpdir)
 
 SUBDIRS=tests
