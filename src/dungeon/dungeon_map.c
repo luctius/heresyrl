@@ -193,6 +193,39 @@ bool dm_tile_instance(struct dm_map *map, enum tile_types tt, int instance, coor
     return false;
 }
 
+coord_t dm_scatter(struct dm_map *map, struct random *r) {
+    int i_max = map->size.x * map->size.y / 4;
+    coord_t p = cd_create(map->size.x/2, map->size.y/2);
+    coord_t c = p;
+
+    int i = 0;
+
+    while (i < i_max) {
+        i++;
+
+        /* get a random point within radius */
+        int dx = random_int32(r) % map->size.x/2;
+        int dy = random_int32(r) % map->size.x/2;
+
+        /* create the point relative to p */
+        c = cd_create(p.x + dx, p.y +dy);
+
+        /* require a point within map */
+        if (cd_within_bound(&c, &map->size) == false) continue;
+
+        /* require an traversable point */
+        if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(&c,map), TILE_ATTR_TRAVERSABLE) == false) continue;
+
+        /* require an tile without creatures */
+        if (dm_get_map_me(&c,map)->monster != NULL) continue;
+
+        /* we found a point which mathes our restrictions*/
+        return c;
+    }
+
+    return cd_create(0,0);
+}
+
 bool dm_populate_map(struct dm_map *map, struct random *r, uint32_t monster_chance, uint32_t item_chance, int level) {
     if (dm_verify_map(map) == false) return false;
     if (r == NULL) return false;

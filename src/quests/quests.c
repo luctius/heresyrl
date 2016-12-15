@@ -16,6 +16,7 @@
 */
 #include <float.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "quests.h"
 #include "quests_static.h"
@@ -103,10 +104,24 @@ enum msr_race qst_select_enemy(struct quest *quest, double roll) {
     return quest->enemies[idx].race;
 }
 
-void qst_process_quest_start(struct quest *quest, struct dm_map *map) {
+void qst_process_quest_start(struct quest *quest, struct dm_map *map, struct random *r) {
     switch (quest->type) {
         case QST_TYPE_FETCH: {
                 /* Distribute Items */
+                lg_debug("Distributing quest items.");
+                for (int i = 0; i < QUEST_SZ && quest->qst_params[i] != IID_NONE; i+= 2) {
+                    int nrj = quest->qst_params[i+1];
+                    for (int j = 0; j < nrj; j++) {
+                        coord_t p = dm_scatter(map, r);
+                        if (p.x == 0 && p.y == 0) {
+                            lg_debug("Placement of quest item failed.");
+                            continue;
+                        }
+
+                        struct itm_item *item = itm_create(quest->qst_params[i]);
+                        inv_add_item(dm_get_map_me(&p,map)->inventory, item);
+                    }
+                }
                 quest->state = QST_FTCH_FETCHING;
         } break;
         default: break;
@@ -131,26 +146,32 @@ void qst_process_quest_during(struct quest *quest, struct dm_map *map) {
                     struct msr_monster *player = gbl_game->player_data.player;
                     struct inv_inventory *inv =  player->inventory;
                     struct itm_item *item = NULL;
-                    bool done = true;
+                    bool done = false;
+                    int nrdone = 0;
+                    int qst_nr = 0;
+
+                    for (int i = 0; i < QUEST_SZ && quest->qst_params[i] != IID_NONE; i+= 2) {
+                        qst_nr++;
+                    }
 
                     while ( (item = inv_get_next_item(inv, item) ) != NULL) {
                         for (int i = 0; i < QUEST_SZ && quest->qst_params[i] != IID_NONE; i+= 2) {
-                            if (item->uid == quest->qst_params[i]) {
-                                quest->qst_params[i+1] -= item->stacked_quantity;
+                            if (item->template_id == quest->qst_params[i]) {
+                                if (quest->qst_params[i+1] <= item->stacked_quantity ) {
+                                    nrdone++;
+                                }
                             }
                         }
                     }
 
-                    for (int i = 0; i < QUEST_SZ && quest->qst_params[i] != IID_NONE; i+= 2) {
-                        if (quest->qst_params[i+1] > 0) done = false;
-                    }
+                    if (qst_nr <= nrdone) done = true;
 
                     if (done) {
-                        if (quest->state == QST_FTCH_FETCHING) You(player, "You now posses the items to complete your quest.");
+                        if (quest->state == QST_FTCH_FETCHING) You(player, "now posses the items to complete your quest.");
                         quest->state = QST_FTCH_END;
                     }
                     else {
-                        if (quest->state == QST_FTCH_END) You(player, "You no longer posses the items to complete your quest.");
+                        if (quest->state == QST_FTCH_END) You(player, "no longer posses the items to complete your quest.");
                         quest->state = QST_FTCH_FETCHING;
                     }
                 } break;
@@ -173,5 +194,19 @@ bool qst_is_quest_done(struct quest *quest, struct dm_map *map) {
         default: break;
     }
     return false;
+}
+
+void qst_get_description(struct quest *quest, char *str, int max_length) {
+    switch (quest->type) {
+        case QST_TYPE_FETCH: {
+                struct itm_item *item = itm_create(quest->qst_params[0]);
+                snprintf(str, max_length, quest_description_templates[quest->type], quest->qst_params[1], item->sd_name);
+                itm_destroy(item);
+            } break;
+        default: 
+                snprintf(str, max_length, "none.");
+            break;
+    }
+    str[max_length-1] = 0;
 }
 

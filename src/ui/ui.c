@@ -42,6 +42,7 @@
 #include "careers/careers.h"
 #include "dungeon/tiles.h"
 #include "dungeon/dungeon_map.h"
+#include "quests/quests.h"
 
 void show_msg(struct hrl_window *window);
 
@@ -1260,6 +1261,10 @@ Basic weapon traning SP     ...                  |
     ui_printf(&pad, cs_ATTR "XP:"       cs_CLOSE "            %d\n", plr->xp_current);
     ui_printf(&pad, cs_ATTR "XP Spend:" cs_CLOSE "      %d\n", plr->xp_spend);
 
+    int quest_desc_len = 100;
+    char quest_desc[quest_desc_len];
+    qst_get_description(plr->quest, quest_desc, quest_desc_len);
+    ui_printf(&pad, cs_ATTR "Quest:" cs_CLOSE "         %s\n", quest_desc);
     //ui_printf(&pad, cs_ATTR "Corruption:" cs_CLOSE "    %d\n", mon->corruption_points);
 
     ui_printf(&pad, "\n");

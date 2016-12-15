@@ -109,7 +109,7 @@ bool game_init_map(void) {
         enum dm_dungeon_type dmt = qst_select_dungeon(gbl_game->player_data.quest, random_float(gbl_game->random));
         dm_generate_map(gbl_game->current_map, dmt, 1, random_int32(gbl_game->random), true);
 
-        qst_process_quest_start(gbl_game->player_data.quest, gbl_game->current_map);
+        qst_process_quest_start(gbl_game->player_data.quest, gbl_game->current_map, gbl_game->random);
         System_msg("Press '?' to view the help screen.");
     }
 

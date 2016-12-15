@@ -92,4 +92,5 @@ void dm_process_tiles(struct dm_map *map);
 bool dm_tile_enter(struct dm_map *map, coord_t *point, struct msr_monster *monster, coord_t *prev);
 bool dm_tile_exit(struct dm_map *map, coord_t *point, struct msr_monster *monster, coord_t *next);
 
+coord_t dm_scatter(struct dm_map *map, struct random *r);
 #endif /* DUNGEON_MAP_H */

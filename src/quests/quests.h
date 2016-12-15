@@ -71,10 +71,11 @@ struct quest *qst_spawn(int level);
 enum dm_dungeon_type qst_select_dungeon(struct quest *quest, double roll);
 enum msr_race qst_select_enemy(struct quest *quest, double roll);
 
-void qst_process_quest_start(struct quest *quest, struct dm_map *map);
+void qst_process_quest_start(struct quest *quest, struct dm_map *map, struct random *r);
 void qst_process_quest_end(struct quest *quest, struct dm_map *map);
 void qst_process_quest_during(struct quest *quest, struct dm_map *map);
 
 bool qst_is_quest_done(struct quest *quest, struct dm_map *map);
 
+void qst_get_description(struct quest *quest, char *str, int max_length);
 #endif /* QUESTS_H */

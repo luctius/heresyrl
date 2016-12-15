@@ -50,15 +50,15 @@
 static struct quest static_quest_list[] = {
     QUEST(QSTID_WISE_WOMAN, QST_TYPE_FETCH),
         DESCRIPTION("fetch mushrooms"),
-        DESCR_ENTRANCE("You arrived at the place where the wise woman asked you to search for her mushrooms."),
-        DESCR_EXIT("The wise woman was extremely gratefull when you returned with the mushrooms."),
+        DESCR_ENTRANCE(cs_PLAYER "You" cs_CLOSE " arrived at the place where the wise woman asked " cs_PLAYER "you" cs_CLOSE " to search for her mushrooms."),
+        DESCR_EXIT("The wise woman was extremely gratefull when " cs_PLAYER "you" cs_CLOSE " returned with the mushrooms."),
         REWARDS(300, 100),
         WEIGHTS(10, 1, 10),
         DUNGEON(0, DUNGEON_TYPE_CAVE,  1, 10),
         DUNGEON(1, DUNGEON_TYPE_PLAIN, 1, 1),
         ENEMIES(0, MSR_RACE_GREENSKIN, 8),
         ENEMIES(1, MSR_RACE_BEAST, 2),
-        FETCH_PARAMS(0, IID_MUSHROOM_MAD_CAP, 5),
+        FETCH_PARAMS(0, IID_MUSHROOM_MAD_CAP, 1),
         FETCH_PARAMS(1, IID_NONE, 0),
     QUEST_END,
 
@@ -66,3 +66,9 @@ static struct quest static_quest_list[] = {
     QUEST_END,
 };
 
+const char *quest_description_templates[] = {
+    [QST_TYPE_NONE] = "",
+    [QST_TYPE_KILL_ALL] = "", 
+    [QST_TYPE_KILL_LEADER] = "",
+    [QST_TYPE_FETCH] = cs_PLAYER "You" cs_CLOSE " must retrieve " cs_ATTR "%d" cs_CLOSE " %s.",
+};
