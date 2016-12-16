@@ -161,7 +161,6 @@ int main(int argc, char *argv[]) {
             if (gbl_game->player_data.exit_map) {
                 game_cleanup();
                 game_init_map();
-                update_screen();
             }
         }
 
