@@ -25,7 +25,7 @@
 
 #include "quests_static_def.h"
 
-struct quest *qst_by_tid(uint32_t tid) {
+struct quest *qst_by_tid(enum qst_ids tid) {
     struct quest *quest = &static_quest_list[tid];
     quest->state = 0;
     memset(quest->params, 0x0, sizeof(quest->params) );
