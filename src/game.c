@@ -200,3 +200,28 @@ bool game_exit() {
     return true;
 }
 
+void game_cleanup(void) {
+    struct msr_monster *player = gbl_game->player_data.player;
+    struct inv_inventory *inv =  player->inventory;
+
+	gbl_game->player_data.quest = NULL;
+
+    struct msr_monster *m = NULL;
+    while ( (m = msrlst_get_next_monster(m) ) != NULL ) {
+        if (m->is_player) continue;
+        msr_destroy(m, gbl_game->current_map);
+        m = NULL;
+    }
+
+    struct ground_effect *g = NULL;
+    while ( (g = gelst_get_next(g) ) != NULL ) {
+        ge_destroy(g->me);
+        g = NULL;
+    }
+
+    se_remove_all_non_permanent(player);
+
+    dm_free_map(gbl_game->current_map);
+    gbl_game->current_map = NULL;
+    player->pos = cd_create(0,0);
+}

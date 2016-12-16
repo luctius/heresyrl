@@ -143,6 +143,7 @@ bool plr_init(struct pl_player *plr) {
         plr->player->icon = '@';
         plr->player->icon_attr = TERM_COLOUR_WHITE;
         plr->player->faction = MSR_FACTION_PLAYER;
+        plr->exit_map = false;
         return true;
     }
     return false;
@@ -175,10 +176,11 @@ static bool plr_action_loop(struct msr_monster *player) {
     int ch;
     bool has_action = false;
 
-    if (options.debug) itm_dbg_check_all();
-    if (options.debug) msr_dbg_check_all();
-    if (options.debug) se_dbg_check_all();
     if (options.debug) {
+        itm_dbg_check_all();
+        msr_dbg_check_all();
+        se_dbg_check_all();
+
         struct inv_inventory *inv = player->inventory;
         struct itm_item *item = NULL;
         while ( ( (item = inv_get_next_item(inv, item) ) != NULL) ) {
@@ -339,12 +341,12 @@ static bool plr_action_loop(struct msr_monster *player) {
                 if (dm_get_map_tile(player_pos, gbl_game->current_map)->type == TILE_TYPE_STAIRS_UP) {
                     if (qst_is_quest_done(gbl_game->player_data.quest, gbl_game->current_map) ) {
                         qst_process_quest_end(gbl_game->player_data.quest, gbl_game->current_map);
-                        gbl_game->running = false;
+                        has_action = gbl_game->player_data.exit_map = true;
                     }
                     else {
                         Your(player, "quest is not finished, are you sure? (o)k/(c)ancel");
                         if ( (ch = inp_get_input(gbl_game->input) ) == INP_KEY_YES) {
-                            gbl_game->running = false;
+                            has_action = gbl_game->player_data.exit_map = true;
                         }
                         else System_msg("Cancel.");
                     }

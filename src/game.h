@@ -39,4 +39,6 @@ bool game_exit(void);
 
 void game_save(void);
 
+void game_cleanup(void);
+
 #endif /*GAME_H_*/

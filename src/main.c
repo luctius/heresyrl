@@ -157,6 +157,12 @@ int main(int argc, char *argv[]) {
 
             getmaxyx(stdscr, lines, cols);
             ui_create(cols, lines);
+
+            if (gbl_game->player_data.exit_map) {
+                game_cleanup();
+                game_init_map();
+                update_screen();
+            }
         }
 
         System_msg("Goodbye.");

@@ -85,6 +85,7 @@ struct pl_player {
     struct cr_career *career;
     int xp_current;
     int xp_spend;
+    bool exit_map;
 
     struct pf_context *player_map;
     coord_t player_map_pos;
