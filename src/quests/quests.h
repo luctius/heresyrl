@@ -18,6 +18,7 @@
 #ifndef QUESTS_H
 #define QUESTS_H
 
+#include "quests/quests_static.h"
 #include "heresyrl_def.h"
 #include "monster/monster.h"
 #include "dungeon/dungeon_map.h"
