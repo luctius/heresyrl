@@ -157,7 +157,6 @@ bool game_new_tick(void) {
     }
 
     gbl_game->turn += TT_ENERGY_TICK;
-    qst_process_quest_during(gbl_game->player_data.quest, gbl_game->current_map);
 
     if (options.play_recording) {
         if (options.play_stop > -1) {

@@ -243,6 +243,8 @@ static bool plr_action_loop(struct msr_monster *player) {
         low_wounds_warning = false;
     }
 
+    qst_process_quest_during(gbl_game->player_data.quest, gbl_game->current_map);
+
     if (player_running == true) {
         if (interrupt_running(player, map, &pos, &player_running_dir) == false) {
             pos = cd_add(&pos, &player_running_dir);
