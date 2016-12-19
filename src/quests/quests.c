@@ -67,7 +67,7 @@ enum dm_dungeon_type qst_select_dungeon(struct quest *quest, double roll) {
         cumm_prob_arr[i] = cumm;
     }
 
-    for (int i = sz-1; i > 0; i--) {
+    for (int i = sz-1; i >= 0; i--) {
         if (cumm_prob_arr[i] == DBL_MAX) continue;
         if (roll < cumm_prob_arr[i]) idx = i;
     }
