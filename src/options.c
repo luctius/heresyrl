@@ -72,7 +72,7 @@ void opt_parse_options(struct gengetopt_args_info *args_info) {
     options.play_stop       = args_info->pb_stop_arg;
 
     if (args_info->log_file_given == false) {
-        char *log_file = malloc(PATH_MAX * sizeof(char) );
+        char *log_file = calloc(PATH_MAX, sizeof(char) );
         snprintf(log_file, path_max, "%s/.%s", homedir, PACKAGE_NAME);
 
         struct stat st;
@@ -83,7 +83,7 @@ void opt_parse_options(struct gengetopt_args_info *args_info) {
     }
 
     if (args_info->save_file_given == false) {
-        char *save_file = malloc(PATH_MAX * sizeof(char) );
+        char *save_file = calloc(PATH_MAX, sizeof(char) );
         snprintf(save_file, path_max, "%s/.%s", homedir, PACKAGE_NAME);
 
         struct stat st;

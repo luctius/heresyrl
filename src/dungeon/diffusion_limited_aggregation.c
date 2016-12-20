@@ -111,11 +111,11 @@ bool dla_generate(struct dla_map *map, struct random *r, int perc_floor, enum dl
 }
 
 struct dla_map *dla_init(coord_t *size) {
-    struct dla_map *map = malloc(sizeof(struct dla_map) );
+    struct dla_map *map = calloc(1, sizeof(struct dla_map) );
     if (map == NULL) return NULL;
 
     map->size = *size;
-    map->map = malloc(map->size.x * map->size.y * sizeof(uint8_t) );
+    map->map = calloc(map->size.x * map->size.y, sizeof(uint8_t) );
     if (map->map == NULL) {
         free(map);
         return NULL;

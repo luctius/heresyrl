@@ -71,7 +71,7 @@ const char *random_die_name(int die_sz) {
 /* initializes r->mt[N] with a seed */
 struct random *random_init_genrand(unsigned long s)
 {
-    struct random *r = malloc(sizeof(struct random) );
+    struct random *r = calloc(1, sizeof(struct random) );
     if (r != NULL) {
         r->called = 0;
         r->seed = s;

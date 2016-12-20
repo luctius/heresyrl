@@ -178,7 +178,7 @@ bool inv_add_item(struct inv_inventory *inv, struct itm_item *item) {
     if (inv_has_item(inv, item) == true ) return false;
     if (inv_add_stack(inv, item) == true) return true;
 
-    struct inv_entry *ie = malloc(sizeof(struct inv_entry) );
+    struct inv_entry *ie = calloc(1, sizeof(struct inv_entry) );
     if (ie == NULL) return false;
 
     ie->location = INV_LOC_INVENTORY;

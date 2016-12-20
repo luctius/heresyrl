@@ -79,11 +79,11 @@ bool ca_generation(struct ca_map *map, uint8_t birth_sum, uint8_t surv_sum, int 
 
 
 struct ca_map *ca_init(coord_t *size) {
-    struct ca_map *map = malloc(sizeof(struct ca_map) );
+    struct ca_map *map = calloc(1,sizeof(struct ca_map) );
     if (map == NULL) return NULL;
 
     map->size = *size;
-    map->map = malloc(map->size.x * map->size.y * sizeof(uint8_t) );
+    map->map = calloc(map->size.x * map->size.y, sizeof(uint8_t) );
     if (map->map == NULL) {
         free(map);
         return NULL;

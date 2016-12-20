@@ -197,7 +197,7 @@ struct status_effect *se_create(enum se_ids tid) {
     const struct status_effect *se_template = &static_status_effect_list[tid];
     assert(se_template != NULL);
 
-    struct status_effect_list_entry *sele = malloc(sizeof(struct status_effect_list_entry) );
+    struct status_effect_list_entry *sele = calloc(1, sizeof(struct status_effect_list_entry) );
     assert(sele != NULL);
 
     struct se_entry *ce = &sele->se;

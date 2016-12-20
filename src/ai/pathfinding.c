@@ -45,7 +45,7 @@ static void pf_list_exit(void) {
 }
 
 static void pf_list_add_tail(coord_t *c, struct pf_map_entity *pfe) {
-    struct pf_entry *e = malloc(sizeof(struct pf_entry) );
+    struct pf_entry *e = calloc(1,sizeof(struct pf_entry) );
     e->pos = *c;
     e->pfme = pfe;
 
@@ -53,7 +53,7 @@ static void pf_list_add_tail(coord_t *c, struct pf_map_entity *pfe) {
 }
 
 static void pf_list_add_sort(coord_t *c, struct pf_map_entity *pfe) {
-    struct pf_entry *e = malloc(sizeof(struct pf_entry) );
+    struct pf_entry *e = calloc(1,sizeof(struct pf_entry) );
     e->pos = *c;
     e->pfme = pfe;
 

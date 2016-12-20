@@ -182,7 +182,7 @@ int ui_printf_ext(struct hrl_window *win, int y_start, int x_start, const char *
 }
 
 struct hrl_window *win_create(int height, int width, int starty, int startx, enum window_type type) {
-    struct hrl_window *retval = malloc(sizeof(struct hrl_window) );
+    struct hrl_window *retval = calloc(1, sizeof(struct hrl_window) );
 
     if (retval != NULL) {
         clear();

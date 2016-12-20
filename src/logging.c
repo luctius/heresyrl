@@ -53,7 +53,7 @@ struct logging *lg_init(char *logfile, enum lg_debug_levels lvl, uint32_t max_si
 
     log_ctx->level = lvl;
     cqc_init(log_ctx->log_cqc, max_size);
-    log_ctx->log_q = malloc(cqc_qsz(log_ctx->log_cqc) * sizeof(struct log_entry) );
+    log_ctx->log_q = calloc(cqc_qsz(log_ctx->log_cqc), sizeof(struct log_entry) );
 
     log_ctx->log_file = fopen(logfile, "w");
     if (log_ctx->log_file == NULL) {

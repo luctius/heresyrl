@@ -108,7 +108,7 @@ struct ground_effect *ge_create(uint32_t tid, struct dm_map_entity *me) {
 
     const struct ground_effect *ge_template = &static_ground_effect_list[tid];
 
-    struct ground_effect_list_entry *gele = malloc(sizeof(struct ground_effect_list_entry) );
+    struct ground_effect_list_entry *gele = calloc(1, sizeof(struct ground_effect_list_entry) );
     if (gele == NULL) return NULL;
 
     memcpy(&gele->ground_effect, ge_template, sizeof(struct ground_effect) );

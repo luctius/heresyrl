@@ -267,7 +267,7 @@ enum inp_keys inp_get_input(struct inp_input *i) {
 }
 
 struct inp_input *inp_init(void) {
-    struct inp_input *i = malloc( sizeof(struct inp_input) );
+    struct inp_input *i = calloc(1, sizeof(struct inp_input) );
     if (i != NULL) {
         i->pre = INPUT_PRE_CHECK;
 
