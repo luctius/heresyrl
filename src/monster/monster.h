@@ -117,11 +117,11 @@ enum msr_factions {
 };
 
 enum msr_stealth {
-    MSR_STEALTH_MOVE = -5,
-    MSR_STEALTH_MISC = -5,
-    MSR_STEALTH_DEFEND = -30,
-    MSR_STEALTH_ATTACK = -40,
-    MSR_STEALTH_BLEED = 2,
+    MSR_STEALTH_MOVE = 5,
+    MSR_STEALTH_MISC = 5,
+    MSR_STEALTH_DEFEND = 30,
+    MSR_STEALTH_ATTACK = 40,
+    MSR_STEALTH_BLEED = 5,
     MSR_STEALTH_MAX = 60,
 };
 

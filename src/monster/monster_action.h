@@ -27,7 +27,7 @@
 
 enum MSR_ACTION_COSTS {
     MSR_ACTION_MOVE   = TT_ENERGY_TURN, /* divided by movement char */
-    MSR_ACTION_IDLE   = TT_ENERGY_TICK,
+    MSR_ACTION_IDLE   = TT_ENERGY_TICK * 10,
     MSR_ACTION_WEAR   = TT_ENERGY_TURN, /* times use_delay */
     MSR_ACTION_REMOVE = TT_ENERGY_TURN, /* times use_delay */
     MSR_ACTION_PICKUP = TT_ENERGY_TURN, /* times nr items */

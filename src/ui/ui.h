@@ -45,4 +45,6 @@ void help_window(void);
 bool char_creation_window(void);
 void levelup_selection_window(void);
 
+void village_screen(void);
+
 #endif /* UI_H */

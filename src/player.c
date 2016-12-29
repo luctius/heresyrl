@@ -127,6 +127,10 @@ void plr_create(struct pl_player *plr, char *name, uint32_t template_id, enum ms
     plr->xp_spend = 0;
     plr->xp_current = 300;
     plr->quest = NULL;
+    plr->level = 1;
+    plr->loan = 500;
+
+    System_msg("Press '?' to view the help screen.");
 }
 
 bool plr_init(struct pl_player *plr) {
@@ -316,7 +320,9 @@ static bool plr_action_loop(struct msr_monster *player) {
                 }
                 break;
             case INP_KEY_INVENTORY:
-                has_action = invwin_inventory(gbl_game->current_map, &gbl_game->player_data); break;
+                has_action = invwin_inventory(gbl_game->current_map, &gbl_game->player_data); 
+                update_screen();
+                break;
             case INP_KEY_CHARACTER:
                 character_window(); break;
             case INP_KEY_LOG:
@@ -331,24 +337,27 @@ static bool plr_action_loop(struct msr_monster *player) {
                 has_action = mapwin_overlay_throw_item_cursor(gbl_game, gbl_game->current_map, player_pos); break;
             case INP_KEY_THROW:
                 has_action = mapwin_overlay_throw_cursor(gbl_game, gbl_game->current_map, player_pos); break;
-            /*case INP_KEY_STAIRS_DOWN:
-                if (dm_get_map_tile(player_pos, gbl_game->current_map)->type == TILE_TYPE_STAIRS_DOWN) {
-                    You(player, "win.");
-                    gbl_game->running = false;
-                }
-                break;*/
+            case INP_KEY_STAIRS_DOWN:
+                break;
             case INP_KEY_STAIRS_UP:
                 if (dm_get_map_tile(player_pos, gbl_game->current_map)->type == TILE_TYPE_STAIRS_UP) {
+                    bool exit = false;
                     if (qst_is_quest_done(gbl_game->player_data.quest, gbl_game->current_map) ) {
                         qst_process_quest_end(gbl_game->player_data.quest, gbl_game->current_map);
-                        has_action = gbl_game->player_data.exit_map = true;
+                        exit = true;
                     }
                     else {
                         Your(player, "quest is not finished, are you sure? (o)k/(c)ancel");
                         if ( (ch = inp_get_input(gbl_game->input) ) == INP_KEY_YES) {
-                            has_action = gbl_game->player_data.exit_map = true;
+                            exit = true;
                         }
                         else System_msg("Cancel.");
+                    }
+
+                    if (exit) {
+                        has_action = gbl_game->player_data.exit_map = exit;
+                        se_remove_all_non_permanent(player);
+                        village_screen();
                     }
                 } break;
             case INP_KEY_RELOAD:

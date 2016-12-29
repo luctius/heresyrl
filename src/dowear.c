@@ -37,7 +37,7 @@ static bool wield_melee_weapon(struct msr_monster *monster, struct itm_item *ite
     if (wpn_is_catergory(item, WEAPON_CATEGORY_2H_MELEE) ) {
         if ( (inv_support_location(inv, INV_LOC_MAINHAND_WIELD) == false) ||
              (inv_support_location(inv, INV_LOC_OFFHAND_WIELD) == false) ) {
-            You(monster, "do not have two hands.");
+            You(monster, "do not have two hands available.");
             return false;
         }
         location = INV_LOC_MAINHAND_WIELD | INV_LOC_OFFHAND_WIELD;
@@ -78,7 +78,7 @@ static bool wield_ranged_weapon(struct msr_monster *monster, struct itm_item *it
              (inv_support_location(inv, INV_LOC_OFFHAND_WIELD) == false) )  ||
              ( (inv_loc_empty(inv, INV_LOC_MAINHAND_WIELD) == false) ||
                (inv_loc_empty(inv, INV_LOC_OFFHAND_WIELD) == false) ) ) {
-            You(monster, "do not have two hands.");
+            You(monster, "do not have two hands available.");
             return false;
         }
         location = INV_LOC_MAINHAND_WIELD | INV_LOC_OFFHAND_WIELD;

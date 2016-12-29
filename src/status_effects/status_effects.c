@@ -276,14 +276,14 @@ bool se_add_status_effect(struct msr_monster *monster, uint32_t tid, const char 
             if (status_effect_has_flag(c, SEF_UNIQUE) == true) {
                 /* and permanent, we do nothing */
                 if (status_effect_has_flag(c, SEF_PERMANENT) ) {
-                    return c->uid;
+                    return true;
                 }
 
                 /* if not permanent but is unique, then we restart the duration. */
                 lg_debug("Restarting status_effect: %p(%s)", c, c->name);
                 /* restart status_effect */
                 c->duration_energy = c->duration_energy_max -1;
-                return c->uid;
+                return true;
             }
         }
     }
@@ -297,6 +297,34 @@ bool se_add_status_effect(struct msr_monster *monster, uint32_t tid, const char 
 }
 
 void se_process_effects_last(struct se_type_struct *ces, struct msr_monster *monster, struct status_effect *c);
+
+bool se_heal_status_effect(struct msr_monster *monster, struct msr_monster *healer, struct status_effect *con, bool magic) {
+    if (monster == NULL) return false;
+    if (con == NULL) return false;
+    if (msr_verify_monster(monster) == false) return false;
+    if (se_verify_status_effect(con) == false) return false;
+    if (effect_heal_has_flag(con, EF_HEAL_ACTIVE) == false) return false;
+
+    if (healer != NULL) {
+        if (msr_verify_monster(healer) == false) return false;
+
+        if (msr_skill_check(healer, MSR_SKILLS_HEAL, con->heal_difficulty) <= 0) {
+            You(monster, "failed to heal %s.", con->name);
+            Monster(healer, "failed to heal %s of %s", monster->sd_name, con->name);
+            return false;
+        }
+    }
+
+    if (magic != effect_heal_has_flag(con, EF_HEAL_MAGIC_ONLY) ) {
+        You(monster, "can only heal %s by magic.", con->name);
+        return false;
+    }
+    const char *origin = con->name;
+    enum se_ids tid = con->heal_evolve_tid;
+    if (se_remove_status_effect(monster, con) == false) return false;
+
+    return se_add_status_effect(monster, tid, origin);
+}
 
 bool se_remove_status_effect(struct msr_monster *monster, struct status_effect *con) {
     struct status_effect_list *se_list = monster->status_effects;
@@ -418,7 +446,7 @@ bool se_has_effect_skip(struct msr_monster *monster, enum status_effect_effect_f
 
         for (unsigned int  i = 0; i < ARRAY_SZ(c->effects); i++) {
             if (c->effects[i].effect == effect) {
-                return true;
+                return effect_has_flag(&c->effects[i], EF_SETT_ACTIVE);
             }
         }
     }
@@ -559,6 +587,8 @@ void se_process_effects_first(struct se_type_struct *ces, struct msr_monster *mo
     if (msr_verify_monster(monster) == false) return;
     if (se_verify_status_effect(c) == false) return;
 
+    lg_debug("process effects first: %d", ces->effect);
+
     switch(ces->effect) {
         case EF_NONE: break;
         case EF_MAX: break;
@@ -693,6 +723,8 @@ void se_process_effects_last(struct se_type_struct *ces, struct msr_monster *mon
     if (msr_verify_monster(monster) == false) return;
     if (se_verify_status_effect(c) == false) return;
 
+    lg_debug("process effects last: %d", ces->effect);
+
     switch(ces->effect) {
         case EF_NONE: break;
         case EF_MAX: break;
@@ -797,6 +829,8 @@ void se_process_effects_during(struct se_type_struct *ces, struct msr_monster *m
         if (ces->on_tick_msr != NULL) Monster_msg(monster,  ces->on_tick_msr, msr_ldname(monster) );
     }
 
+    lg_debug("process effects during: %d", ces->effect);
+
     switch(ces->effect) {
         case EF_NONE: break;
         case EF_MAX: break;
@@ -887,9 +921,8 @@ void se_process_effects_during(struct se_type_struct *ces, struct msr_monster *m
 
     ces->tick_energy = ces->tick_interval_energy;
     ces->ticks_applied++;
-    if ( (ces->ticks_applied > ces->ticks_max) && (ces->ticks_max > 0) ) {
+    if ( (ces->ticks_applied >= ces->ticks_max) && (ces->ticks_max > 0) ) {
         se_process_effects_last(ces, monster, c);
-        effect_clr_flag(ces, EF_SETT_ACTIVE);
     }
 }
 
@@ -1011,11 +1044,15 @@ static bool se_process_effect(struct msr_monster *monster, struct status_effect 
         }
     }
 
-    if (c->duration_energy > 0) {
-        c->duration_energy -= MIN(TT_ENERGY_TICK, c->duration_energy);
-    }
 
-    if (c->duration_energy <= 0) status_effect_clr_flag(c, SEF_ACTIVE);
+    if (status_effect_has_flag(c, SEF_PERMANENT) == false) {
+        if (c->duration_energy > 0) {
+            c->duration_energy -= MIN(TT_ENERGY_TICK, c->duration_energy);
+        }
+
+        if (c->duration_energy <= 0) status_effect_clr_flag(c, SEF_ACTIVE);
+    }
+    else c->duration_energy = c->duration_energy_max -1;
 
     if (status_effect_has_flag(c, SEF_ACTIVE) == false) {
         lg_debug("Condition %p(%s) is to be destroyed.", c, c->name);

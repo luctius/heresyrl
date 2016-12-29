@@ -21,6 +21,8 @@
 enum item_ids {
     IID_NONE,
 
+    IID_MONEY,
+
     /* Wearables*/
     IID_LEATHER_SKULLCAP,
     IID_LEATHER_JERKIN,

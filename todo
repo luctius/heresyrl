@@ -1,3 +1,15 @@
+Version 0.1:
+    Pay Loan: Which means implementing money
+    --- Shops: Buying Selling :: basicly done, but sell screen does not list selling price for example.
+    --- Healer: Probably means implementing every critical hit, creating healing categories.  :: done
+    Quests: gain rewards, create list of available quests
+    Retire: Complete game, show 'score'
+    Implementing difficulty levels.
+
+Version 0.2:
+    Move towards Dark Heresy combined with zeihander improvements.
+    Add stealth mode / normal mode / run mode.
+
 Major Ideas:
 Episodic maps; large map, after the quest some downtime to heal 
    non-critical wounds, buy stuff and go to next mission.
@@ -57,6 +69,7 @@ X -- Announce seen monsters (and only once or so)
 V -- Apply penalty for stealth on both attack and being attacked.
 X -- Check file permissions on save_file location
 X -- playback/test_auto do not play well with name and race set on the commandline
+X -- stealth enemies can sometimes not been seen after attacking
 
 Combat:
 A melee attacker attacking someone in the light should get a bonus?

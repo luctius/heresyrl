@@ -86,6 +86,8 @@ struct pl_player {
     int xp_current;
     int xp_spend;
     bool exit_map;
+    int level;
+    int loan;
 
     struct pf_context *player_map;
     coord_t player_map_pos;

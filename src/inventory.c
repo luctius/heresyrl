@@ -115,6 +115,16 @@ struct itm_item *inv_get_next_item(struct inv_inventory *inv, struct itm_item *p
     return item;
 }
 
+struct itm_item *inv_get_item_by_template_id(struct inv_inventory *inv, uint32_t tid) {
+    struct itm_item *item = NULL;
+
+    while ( (item = inv_get_next_item(inv, item) ) != NULL) {
+        if (item->template_id == tid) break;
+    }
+
+    return item;
+}
+
 void inv_disable_location(struct inv_inventory *inv, bitfield32_t loc) {
     if (inv_verify_inventory(inv) == false) return;
     if (inv_support_location(inv, loc) == false) return;

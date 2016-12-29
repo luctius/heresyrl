@@ -42,6 +42,8 @@ bool tt_interrupt_event(uint32_t monster_uid) {
 void tt_process_monsters(struct dm_map *map) {
     struct msr_monster *monster = NULL;
 
+    if (gbl_game->turn % TT_ENERGY_TURN_MINI != 0) return;
+
     monster = NULL;
     while ( (monster = msrlst_get_next_monster(monster) ) != NULL) {
         if (monster->dead) {
@@ -63,9 +65,9 @@ void tt_process_monsters(struct dm_map *map) {
         if (monster->controller.interrupted == true) do_action = true;
 
         if (gbl_game->turn % TT_ENERGY_TURN_MINI == 0) {
-            monster->stealth += MSR_STEALTH_BLEED;
             monster->stealth %= MSR_STEALTH_MAX;
-            if (monster->stealth > 0) monster->stealth = 0;
+            monster->stealth -= MSR_STEALTH_BLEED;
+            if (monster->stealth < 0) monster->stealth = 0;
         }
 
         /* A stunned monster can do nothing. */
@@ -82,13 +84,14 @@ void tt_process_monsters(struct dm_map *map) {
             }
             monster->controller.interrupted = false;
 
+            if (gbl_game->player_data.exit_map == true) return;
+
             if (dm_get_map_me(&monster->pos, map)->visible) {
                 update_screen();
             }
         }
 
         if (gbl_game->running == false) return;
-        if (gbl_game->player_data.exit_map == true) return;
     }
 }
 
@@ -96,6 +99,9 @@ void tt_process_items(struct dm_map *map) {
     struct itm_item *item = NULL;
     struct itm_item *item_prev = NULL;
     if (gbl_game->running == false) return;
+
+
+    if (gbl_game->turn % TT_ENERGY_TURN_MINI != 0) return;
 
     while ( (item = itmlst_get_next_item(item_prev) ) != NULL) {
         if (item->energy_action == true) {
@@ -115,6 +121,8 @@ void tt_process_items(struct dm_map *map) {
 void tt_process_status_effects(void) {
     struct msr_monster *monster = NULL;
     if (gbl_game->running == false) return;
+
+    if (gbl_game->turn % TT_ENERGY_TURN_MINI != 0) return;
 
     while ( (monster = msrlst_get_next_monster(monster) ) != NULL) {
         if (monster->dead == false) {

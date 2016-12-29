@@ -89,6 +89,11 @@ $ is for money
             .specific.tool={ .tool_type=_tool_type, .energy=_energy, \
             .light_luminem=_light_luminem, .lit=false,}, .dropable=true
 
+#define MONEY() \
+            .icon='$', .stacked_quantity=1, .max_quantity=UINT32_MAX, .item_type=ITEM_TYPE_TOOL, \
+            .specific.tool={ .tool_type=TOOL_TYPE_MONEY, .energy=0, \
+            .light_luminem=0, .lit=false,}, .dropable=true
+
 #define ARMOUR(_damage_reduction,_locations,_special_quality) \
             .icon='[', .stacked_quantity=0, .max_quantity=0, .item_type=ITEM_TYPE_WEARABLE, \
             .specific.wearable={ .wearable_type=WEARABLE_TYPE_ARMOUR, .locations=_locations, \
@@ -145,14 +150,15 @@ $ is for money
 #define AMMO(_ammo_type,cid) .icon='\'', .stacked_quantity=1, .max_quantity=100, .dropable=true, \
             .item_type=ITEM_TYPE_AMMO, .specific.ammo={ .ammo_type=_ammo_type, .convey_status_effect=cid, }
 
-#define DRAUGHT(cid) .icon='!', .stacked_quantity=1, .max_quantity=100, .dropable=true, \
-            .item_type=ITEM_TYPE_FOOD, .specific.food={ .food_type=FOOD_TYPE_LIQUID, .nutrition=2, .nutrition_left=2, .convey_status_effect=cid, .side_effect=0,}
+#define DRAUGHT(cid, n) .icon='!', .stacked_quantity=1, .max_quantity=100, .dropable=true, \
+            .item_type=ITEM_TYPE_FOOD, .specific.food={ .food_type=FOOD_TYPE_LIQUID, .nutrition=n, .nutrition_left=n, .convey_status_effect=cid, .side_effect=0,}
 
 #define MUSHROOM(cid) .icon='&', .stacked_quantity=1, .max_quantity=100, .dropable=true, \
             .item_type=ITEM_TYPE_FOOD, .specific.food={ .food_type=FOOD_TYPE_SOLID, .nutrition=0, .nutrition_left=0, .convey_status_effect=cid, }
 
 static const char *itm_descs[] = {
     [IID_NONE]              = "none",
+    [IID_MONEY]             = "A bunch of coins in a supple leather bag",
     [IID_FIXED_LIGHT]       = "",
     [IID_TORCH]             = "This a generic torch",
 
@@ -212,8 +218,11 @@ static const char *itm_descs[] = {
 };
 
 static struct itm_item static_item_list[] = {
-    /* Tools */
+    /* Money */
+    /*    ID        short name    long name             quality          weight,cost,delay  tool type  */
+    ITEM(IID_MONEY, "coins",      "a bunch of coins",   ITEM_QLTY_AVERAGE, 0,     1,   1),  MONEY(),  ITEM_END,
 
+    /* Tools */
 
     /* Lights */
     /*    ID              short name    long name    quality          weight,cost,delay             tool type         energy  luminem*/
@@ -242,7 +251,7 @@ static struct itm_item static_item_list[] = {
 
     /* Melee */
     /*    ID                 short name,   long name              (wgt,cst,dly)      xd10 +X, dmg type         pen, special qualities,         talent*/
-    ITEM_AVG(IID_KNIFE,       "knife",     "a knife",              15, 50, 0),MELEE_1H(1,-4,  DMG_TYPE_PIERCING,0,  bf(WPN_SPCQLTY_LIGHT),    TLT_NONE), CREATION(20,1), ITEM_END,
+    ITEM_AVG(IID_KNIFE,       "knife",     "a knife",              15,  5, 0),MELEE_1H(1,-4,  DMG_TYPE_PIERCING,0,  bf(WPN_SPCQLTY_LIGHT),    TLT_NONE), CREATION(20,1), ITEM_END,
     ITEM_POOR(IID_AXE_POOR,   "axe",       "an shoddy axe",        75, 10, 0),MELEE_1H(1,-2,  DMG_TYPE_PIERCING,0,  0,                        TLT_NONE), CREATION(40,1), ITEM_END,
     ITEM_POOR(IID_PICK_POOR,  "pick",      "an shoddy pick",       75, 10, 0),MELEE_1H(1,-2,  DMG_TYPE_PIERCING,0,  0,                        TLT_NONE), CREATION(40,1), ITEM_END,
     ITEM_POOR(IID_HAMMER_POOR,"hammer",    "an shoddy hammer",     75, 10, 0),MELEE_1H(1,-2,  DMG_TYPE_PIERCING,0,  0,                        TLT_NONE), CREATION(40,1), ITEM_END,
@@ -261,11 +270,19 @@ static struct itm_item static_item_list[] = {
     ITEM_AVG(IID_SHORT_BOW,     "short bow",     "a short bow",     50, 7, 0.5),RANGED_2H(   DMG_TYPE_PIERCING,1, 3, 0,  8,     0,                   TLT_NONE),                    CREATION(10,1), ITEM_END,
     ITEM_AVG(IID_LONG_BOW,      "long bow",      "a long bow",      90,15, 0.5),RANGED_2H(   DMG_TYPE_PIERCING,1, 3, 1, 16,     0,                   TLT_SPEC_WPN_GRP_LONGBOW),    CREATION(10,1), ITEM_END,
     ITEM_AVG(IID_THROWING_KNIFE,"throwing knife","a throwing knife", 5, 5, 1),THROWN_WEAPON( DMG_TYPE_PIERCING,1,-3, 0,  2,     0,                   TLT_SPEC_WPN_GRP_THROWING),   CREATION(40,1), ITEM_END,
-    ITEM_AVG(IID_FIRE_BOMB,     "fire bomb",     "a fire bomb",      5,10, 1),THROWN_GRENADE(DMG_TYPE_SHRAPNEL,1,-5, 0,  2,bf(WPN_SPCQLTY_BLAST_1),  TLT_NONE, SEID_WEAPON_FLAME), CREATION(30,1), ITEM_END,
+    ITEM_AVG(IID_FIRE_BOMB,     "fire bomb",     "a fire bomb",      5, 2, 1),THROWN_GRENADE(DMG_TYPE_SHRAPNEL,1,-5, 0,  2,bf(WPN_SPCQLTY_BLAST_1),  TLT_NONE, SEID_WEAPON_FLAME), CREATION(30,1), ITEM_END,
 
     /* Ammo */
     /*    ID                    short name       long name        (wgt,cst,dly)     ammo type       status effect id*/
     ITEM_AVG(IID_ARROW,         "arrows",        "arrows",           1, 1, 1), AMMO(AMMO_TYPE_ARROW,SEID_NONE), CREATION(10,1), ITEM_END,
+
+    /* Potions */
+    /*    ID                                short name        long name              (wgt,cst,dly)            status_effect   sips*/
+    ITEM_POOR(IID_DRAUGHT_HEALING_MINOR,  "healing draught", "a minor healing draught", 0, 2, 1), DRAUGHT(SEID_MINOR_HEALING, 2), CREATION(10,1), ITEM_END,
+
+    /* Mushrooms */
+    /*    ID                                short name        long name       (wgt,cst,dly)           status_effect*/
+    ITEM_AVG(IID_MUSHROOM_MAD_CAP,  "mad cap mushroom", "a black cap mushroom", 0, 1, 1), MUSHROOM(SEID_MAD_CAP), ITEM_END,
 
     /* Creature Attacks */
     /*    ID                            hort name long name  (wgt,cst,dly)            CATEGORY               xd10  +X  dmg type     upgrades   special qualities*/
@@ -273,19 +290,11 @@ static struct itm_item static_item_list[] = {
     ITEM_NONE(IID_CREATURE_BITE_UNTRAINED,"teeth",   "teeth",   0, 0, 0), CREATURE_MELEE(WEAPON_CATEGORY_2H_MELEE,1, -4, DMG_TYPE_CLAW,   0,  bf(WPN_SPCQLTY_UNARMED) ), ITEM_END,
     ITEM_NONE(IID_CREATURE_BITE_TRAINED,  "teeth",   "teeth",   0, 0, 0), CREATURE_MELEE(WEAPON_CATEGORY_2H_MELEE,1,  0, DMG_TYPE_CLAW,   0,  0), ITEM_END,
 
-    /* Potions */
-    /*    ID                                short name        long name              (wgt,cst,dly)            status_effect*/
-    ITEM_POOR(IID_DRAUGHT_HEALING_MINOR,  "healing draught", "a minor healing draught", 0, 1, 1), DRAUGHT(SEID_MINOR_HEALING), CREATION(10,1), ITEM_END,
-
-    /* Mushrooms */
-    /*    ID                                short name        long name       (wgt,cst,dly)           status_effect*/
-    ITEM_AVG(IID_MUSHROOM_MAD_CAP,  "mad cap mushroom", "a black cap mushroom", 0, 1, 1), MUSHROOM(SEID_MAD_CAP), ITEM_END,
-
     /* status effect items */
     ITEM(IID_BODYPART_GRENADE,"critical","",ITEM_QLTY_AVERAGE,5,10,1),THROWN_GRENADE(DMG_TYPE_SHRAPNEL,1,0,0,3,bf(WPN_SPCQLTY_BLAST_2),TLT_NONE,SEID_NONE),ITEM_END,
 
     /* debug items */
-    ITEM(IID_STIMM_DEATH,   "death debug",  "an injector with a deadly liquid", ITEM_QLTY_AVERAGE, 0, 1, 1), DRAUGHT(SEID_DEATH_STIMM), ITEM_END,
+    ITEM(IID_STIMM_DEATH,   "death debug",  "an injector with a deadly liquid", ITEM_QLTY_AVERAGE, 0, 1, 1), DRAUGHT(SEID_BLUNT_RARM_4, 1), ITEM_END,
 };
 
 static const char *item_quality_strings[] = {
@@ -408,11 +417,11 @@ struct item_food_side_effect_struct {
 
 static const struct item_food_side_effect_struct item_food_side_effects[] = {
     {
-        .weight = 10,
+        .weight = 3,
         .side_effect_id = SEID_MAD_CAP,
     },
     {
-        .weight = 20,
+        .weight = 1,
         .side_effect_id = SEID_MINOR_HEALING,
     },
 };

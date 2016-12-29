@@ -144,14 +144,14 @@ static bool itm_is_in_group(struct itm_item *item, enum item_group ig) {
     return false;
 }
 
-int itm_spawn(double roll, int level, enum item_group ig, struct msr_monster *monster) {
+uint32_t itm_spawn(double roll, int level, enum item_group ig, struct msr_monster *monster) {
     int sz = ARRAY_SZ(static_item_list);
     double prob_arr[sz];
     double cumm_prob_arr[sz];
     double sum = 0.f;
 
     if (ig == ITEM_GROUP_NONE) return IID_NONE;
-    int idx = IID_NONE;
+    uint32_t idx = IID_NONE;
 
     cumm_prob_arr[0] = DBL_MAX;
     for (int i = IID_NONE; i < sz; i++) {
@@ -179,6 +179,7 @@ int itm_spawn(double roll, int level, enum item_group ig, struct msr_monster *mo
 
     double cumm = 0.f;
     for (int i = IID_NONE; i < sz; i++) {
+        prob_arr[i] = DBL_MAX;
         if (cumm_prob_arr[i] == DBL_MAX) continue;
         prob_arr[i] = static_item_list[i].spawn_weight / sum;
         cumm += prob_arr[i];
@@ -224,6 +225,10 @@ struct itm_item *itm_create(int template_id) {
 }
 
 void itm_destroy(struct itm_item *item) {
+    assert(item != NULL);
+    assert(item->item_pre == ITEM_PRE_CHECK);
+    assert(item->item_post == ITEM_POST_CHECK);
+
     struct itm_item_list_entry *ile = container_of(item, struct itm_item_list_entry, item);
 
     TAILQ_REMOVE(&items_list_head, ile, entries);

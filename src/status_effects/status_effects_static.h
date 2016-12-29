@@ -58,6 +58,7 @@ enum se_ids {
 
     /* System */
     SEID_ENCUMBERED,
+    SEID_STEALTH_ATTACKED,
 
     /*Death*/
     SEID_FATEHEALTH,

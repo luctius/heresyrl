@@ -140,6 +140,14 @@ void qst_process_quest_start(struct quest *quest, struct dm_map *map, struct ran
 void qst_process_quest_end(struct quest *quest, struct dm_map *map) {
     if (qst_is_quest_done(quest, map) ) {
         if (quest->end != NULL) GM_msg("%s", quest->end);
+        struct itm_item *money_item = inv_get_item_by_template_id(gbl_game->player_data.player->inventory, IID_MONEY);
+        if (money_item == NULL) {
+            money_item = itm_create(IID_MONEY);
+            msr_give_item(gbl_game->player_data.player, money_item);
+            money_item->stacked_quantity = 0;
+        }
+        money_item->stacked_quantity     += quest->gp_reward;
+        gbl_game->player_data.xp_current += quest->xp_reward;
     }
 }
 

@@ -43,6 +43,7 @@
 #include "dungeon/tiles.h"
 #include "dungeon/dungeon_map.h"
 #include "quests/quests.h"
+#include "random.h"
 
 void show_msg(struct hrl_window *window);
 
@@ -263,13 +264,16 @@ static void mapwin_examine(struct dm_map_entity *me) {
 
         if (me->visible) {
             if (me->monster != NULL) {
+                bool sees = false;
 
                 if (me->monster->is_player == true) {
                     ui_printf(char_win, cs_PLAYER "You" cs_CLOSE " see yourself.\n");
 
                     if (me->monster->wounds.curr < 0) ui_printf(char_win, cs_PLAYER "You" cs_CLOSE " are criticly wounded.\n");
                     else if (me->monster->wounds.curr != me->monster->wounds.max) ui_printf(char_win, cs_PLAYER "You" cs_CLOSE " are wounded.\n");
-                } else {
+
+                    sees = true;
+                } else if (fght_can_see(gbl_game->current_map, gbl_game->player_data.player, me->monster) ) {
                     ui_printf(char_win, cs_PLAYER "You" cs_CLOSE " see %s.\n", me->monster->ld_name);
 
                     if (me->monster->wounds.curr < 0) ui_printf(char_win, "%s is criticly wounded.\n", msr_gender_name(me->monster, false) );
@@ -284,9 +288,11 @@ static void mapwin_examine(struct dm_map_entity *me) {
                         struct itm_item *witem = inv_get_item_from_location(me->monster->inventory, INV_LOC_OFFHAND_WIELD);
                         if (witem != NULL) ui_printf(char_win, "%s wields %s in his off-hand.\n", msr_gender_name(me->monster, false), witem->ld_name);
                     }
+
+                    sees = true;
                 }
 
-                if (se_list_size(me->monster->status_effects) > 0) {
+                if (sees && se_list_size(me->monster->status_effects) > 0) {
                     ui_printf(char_win, "\nThis one is affected by:\n");
 
                     struct status_effect *c = NULL;
@@ -337,6 +343,11 @@ void mapwin_overlay_examine_cursor(struct dm_map *map, coord_t *p_pos) {
             case INP_KEY_DOWN:       e_pos.y++; break;
             case INP_KEY_DOWN_LEFT:  e_pos.y++; e_pos.x--; break;
             case INP_KEY_LEFT:       e_pos.x--; break;
+
+            case INP_KEY_HELP:
+            case INP_KEY_ESCAPE:
+            case INP_KEY_QUIT:
+            case INP_KEY_NO:
             case INP_KEY_YES:
             case INP_KEY_EXAMINE:    examine_mode = false; break;
             default: break;
@@ -385,7 +396,7 @@ void targetwin_examine(struct hrl_window *window, struct dm_map *map, struct msr
 
             if (me->monster->wounds.curr < 0) ui_printf(window, "You are criticly wounded.\n");
             else if (me->monster->wounds.curr != me->monster->wounds.max) ui_printf(window, "You are wounded.\n");
-        } else {
+        } else if (fght_can_see(map, player, me->monster) ) {
             ui_printf(window, "Target %s.\n", msr_ldname(me->monster) );
 
             if (me->monster->wounds.curr < 0) ui_printf(window, "\n%s is criticly wounded.\n", msr_gender_name(me->monster, false) );
@@ -823,7 +834,7 @@ void charwin_refresh() {
         if (i == 1) loc = INV_LOC_OFFHAND_WIELD;
 
         if ( (item = inv_get_item_from_location(player->inventory, loc) ) != NULL) {
-            if (item == inv_get_item_from_location(player->inventory, loc) ) continue; /*ignore off=hand when wielding 2h weapon.*/
+            if ( (loc == INV_LOC_MAINHAND_WIELD) && (item == inv_get_item_from_location(player->inventory, INV_LOC_OFFHAND_WIELD) ) )  continue; /*ignore off=hand when wielding 2h weapon.*/
 
             if (item->item_type == ITEM_TYPE_WEAPON) {
                 struct item_weapon_specific *wpn = &item->specific.weapon;
@@ -928,7 +939,7 @@ static int invwin_printlist(struct hrl_window *window, struct inv_show_item list
         int weight = item->weight;
         if (item->stacked_quantity > 1) {
             weight *= item->stacked_quantity;
-            ui_printf(window, "(x%d)", item->stacked_quantity);
+            ui_printf(window, "(x%llu)", (unsigned long long int) item->stacked_quantity);
         }
 
         ui_printf_ext(window, y, 40, " (%4.1f kg)\n", (weight * INV_WEIGHT_MODIFIER) );
@@ -1083,8 +1094,34 @@ void invwin_examine(struct hrl_window *window, struct itm_item *item) {
         case ITEM_TYPE_FOOD: break;
         default: break;
     }
-    if (options.refresh) wrefresh(char_win->win);
+    if (options.refresh) wrefresh(window->win);
 }
+
+void status_effect_examine(struct hrl_window *window, struct status_effect *se) {
+    if (window == NULL) return;
+    if (se_verify_status_effect(se) == false) return;
+    if (window->type != HRL_WINDOW_TYPE_CHARACTER) return;
+
+    wclear(window->win);
+    werase(window->win);
+    ui_print_reset(window);
+
+    if (se->name != NULL) {
+        ui_printf(window, "%s.\n",se->name);
+    }
+    else ui_printf(window, "Unknown.\n");
+
+    ui_printf(window, "\n");
+
+    if (se->description != NULL) {
+        ui_printf(window, "%s.\n",se->description);
+    }
+    else ui_printf(window, "No description available.\n");
+
+    ui_printf(window, "\n");
+    if (options.refresh) wrefresh(window->win);
+}
+
 
 bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
     if (map_win == NULL) return false;
@@ -1100,7 +1137,7 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
     int ch = INP_KEY_NONE;
     do {
         int invsz = inv_inventory_size(plr->player->inventory);
-        struct inv_show_item *invlist = calloc(invsz, sizeof(struct inv_show_item) );
+        struct inv_show_item invlist[invsz];
         inv_create_list(plr->player->inventory, invlist, invsz);
 
         werase(map_win->win);
@@ -1115,19 +1152,24 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
             invstart = 0;
             dislen = invwin_printlist(map_win, invlist, invsz, invstart, invstart +winsz);
         }
-        ui_printf_ext(map_win, winsz +1, 1, cs_ATTR "[q]" cs_CLOSE " exit,   " cs_ATTR "[space]" cs_CLOSE " next page.");
-        ui_printf_ext(map_win, winsz +2, 1, cs_ATTR "[d]" cs_CLOSE " drop,   " cs_ATTR "    [x]" cs_CLOSE " examine.");
-        ui_printf_ext(map_win, winsz +3, 1, cs_ATTR "[a]" cs_CLOSE " apply,  " cs_ATTR "    [w]" cs_CLOSE " wield/wear/remove.");
+        ui_printf_ext(map_win, winsz +1, 1, cs_ATTR "[a]" cs_CLOSE " apply             " cs_ATTR "[d]    " cs_CLOSE " drop.");
+        ui_printf_ext(map_win, winsz +2, 1, cs_ATTR "[w]" cs_CLOSE " wield/wear/remove " cs_ATTR "[x]    " cs_CLOSE " examine.");
+        ui_printf_ext(map_win, winsz +3, 1, cs_ATTR "[q]" cs_CLOSE " exit              " cs_ATTR "[space]" cs_CLOSE " next page.");
         if (options.refresh) wrefresh(map_win->win);
         bool examine = false;
 
         /* TODO clean this shit up */
         switch (ch) {
             case INP_KEY_YES: invstart += dislen; break;
+
+            case INP_KEY_HELP:
+            case INP_KEY_ESCAPE:
+            case INP_KEY_QUIT:
+            case INP_KEY_NO:
             case INP_KEY_INVENTORY: inventory = false; break;
             case INP_KEY_ALL:
             case INP_KEY_APPLY: {
-                ui_printf_ext(map_win, winsz, 1, "Use which item?.");
+                ui_printf_ext(map_win, winsz, 1, "Use which item?");
                 if (options.refresh) wrefresh(map_win->win);
 
                 int item_idx = inp_get_input_idx(gbl_game->input);
@@ -1135,12 +1177,11 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
                 if (item_idx == INP_KEY_ESCAPE) break;
                 if ((item_idx + invstart) >= invsz) break;
                 item = invlist[item_idx +invstart].item;
-                mapwin_display_map(map, &plr->player->pos);
 
-                return ma_do_use(plr->player, item);
-            } /*break;*/
+                if (ma_do_use(plr->player, item) ) return true;
+            } break;
             case INP_KEY_WEAR: {
-                ui_printf_ext(map_win, winsz, 1, "Wear which item?.");
+                ui_printf_ext(map_win, winsz, 1, "Wear which item?");
                 if (options.refresh) wrefresh(map_win->win);
 
                 int item_idx = inp_get_input_idx(gbl_game->input);
@@ -1148,17 +1189,16 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
                 if (item_idx == INP_KEY_ESCAPE) break;
                 if ((item_idx + invstart) >= invsz) break;
                 item = invlist[item_idx +invstart].item;
-                mapwin_display_map(map, &plr->player->pos);
 
                 if (inv_item_worn(plr->player->inventory, item) == true) {
-                    return ma_do_remove(plr->player, item);
+                    if (ma_do_remove(plr->player, item) ) return true;
                 }
                 else {
-                    return ma_do_wear(plr->player, item);
+                    if (ma_do_wear(plr->player, item) ) return true;
                 }
-            } /*break;*/
+            } break;
             case INP_KEY_EXAMINE: {
-                ui_printf_ext(map_win, winsz, 1, "Examine which item?.");
+                ui_printf_ext(map_win, winsz, 1, "Examine which item?");
                 if (options.refresh) wrefresh(map_win->win);
 
                 int item_idx = inp_get_input_idx(gbl_game->input);
@@ -1171,7 +1211,7 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
                 examine = true;
             } break;
             case INP_KEY_DROP: {
-                ui_printf_ext(map_win, winsz, 1, "Drop which item?.");
+                ui_printf_ext(map_win, winsz, 1, "Drop which item?");
                 if (options.refresh) wrefresh(map_win->win);
 
                 invsz = inv_inventory_size(plr->player->inventory);
@@ -1181,8 +1221,8 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
                 if ((item_idx + invstart) >= invsz) break;
                 item = invlist[item_idx +invstart].item;
                 struct itm_item *items[1] = {item};
-                return ma_do_drop(plr->player, items, 1);
-            } /*break;*/
+                if (ma_do_drop(plr->player, items, 1) ) return true;
+            } break;
             default: break;
         }
 
@@ -1191,11 +1231,9 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
         if (options.refresh) wrefresh(map_win->win);
 
         if (examine == false) charwin_refresh();
-        free(invlist);
 
     } while((inventory != false) && (ch = inp_get_input(gbl_game->input) ) != INP_KEY_ESCAPE);
 
-    mapwin_display_map(map, &plr->player->pos);
     charwin_refresh();
 
     return false;
@@ -1489,8 +1527,8 @@ void show_log(struct hrl_window *window, bool input) {
         bool watch = true;
         while(watch == true) {
             ui_print_reset(window);
-            ui_printf_ext(window, window->lines -3, 1, cs_ATTR " [q]" cs_CLOSE " exit.");
-            ui_printf_ext(window, window->lines -2, 1, cs_ATTR "[up]" cs_CLOSE " up,  " cs_ATTR "[down]" cs_CLOSE " down.");
+            ui_printf_ext(window, window->lines -3, 1, cs_ATTR "[up]" cs_CLOSE " newer,  " cs_ATTR "[down]" cs_CLOSE " older.");
+            ui_printf_ext(window, window->lines -2, 1, cs_ATTR " [q]" cs_CLOSE " exit.");
             if (options.refresh) wrefresh(window->win);
             prefresh(pad.win, line,0,pad.y,pad.x, pad.y + pad.lines -5, pad.x + pad.cols);
 
@@ -1683,19 +1721,23 @@ void levelup_selection_window(void) {
                     if (tidx >= 0 && tidx < skill_start) {
                         if (tidx == wnds_idx) {
                             upgrade = cr_upgrade_wounds(career, player);
+                            You(player, "increased your health.");
                         }
                         else {
                             int char_idx = abs_idx[tidx];
                             upgrade = cr_upgrade_characteristic(career, player, char_idx);
+                            You(player, "increased %s.", msr_char_names(char_idx) );
                         }
                     }
                     else if (tidx >= skill_start && tidx < talent_start) {
                         int skl_idx = abs_idx[tidx];
                             upgrade = cr_upgrade_skill(career, player, skl_idx);
+                            You(player, "improved in %s.", msr_skill_names(skl_idx) );
                     }
                     else if (tidx >= talent_start && tidx < idx) {
                         int tlt_idx = abs_idx[tidx];
                         upgrade = cr_upgrade_talent(career, player, tlt_idx);
+                        You(player, "learned %s.", msr_talent_names(tlt_idx) );
                     }
 
                     if (upgrade) {
@@ -1788,61 +1830,61 @@ void show_help(struct hrl_window *window, bool input) {
     ui_printf(&pad, "\n");
     ui_printf(&pad, "\n");
     ui_printf(&pad, "      VI movement:\n");
-    ui_printf(&pad, "        " cs_ATTR "[h/j/k/l]:" cs_CLOSE " left/down/up/right.\n");
-    ui_printf(&pad, "        " cs_ATTR "[y/u/b/n]:" cs_CLOSE " left-up/right-up/left-down/right-down.\n");
+    ui_printf(&pad, "        " cs_ATTR "<h/j/k/l>:" cs_CLOSE " left/down/up/right.\n");
+    ui_printf(&pad, "        " cs_ATTR "<y/u/b/n>:" cs_CLOSE " left-up/right-up/left-down/right-down.\n");
     ui_printf(&pad, "\n");
     ui_printf(&pad, "  Keypad movement:\n");
-    ui_printf(&pad, "        " cs_ATTR "[4/2/8/6]:" cs_CLOSE " left/down/up/right.\n");
-    ui_printf(&pad, "        " cs_ATTR "[7/9/1/3]:" cs_CLOSE " left-up/right-up/left-down/right-down.\n");
+    ui_printf(&pad, "        " cs_ATTR "<4/2/8/6>:" cs_CLOSE " left/down/up/right.\n");
+    ui_printf(&pad, "        " cs_ATTR "<7/9/1/3>:" cs_CLOSE " left-up/right-up/left-down/right-down.\n");
     ui_printf(&pad, "\n");
 
     /* <Do not touch this evil magic....> */
     ui_printf(&pad, cs_ATTR                "         7  8  9           y  k  u" cs_CLOSE "\n");
     ui_printf(&pad,                      "          \\ | /             \\ | /    \n");
-    ui_printf(&pad, "        " cs_ATTR "4" cs_CLOSE " - 5 - " cs_ATTR "6" cs_CLOSE "         " cs_ATTR "h" cs_CLOSE " - . - " cs_ATTR "l" cs_CLOSE "\n");
+    ui_printf(&pad, "        " cs_ATTR "4" cs_CLOSE " - " cs_ATTR "5" cs_CLOSE " - " cs_ATTR "6" cs_CLOSE "         " cs_ATTR "h" cs_CLOSE " - " cs_ATTR "." cs_CLOSE " - " cs_ATTR "l" cs_CLOSE "\n");
     ui_printf(&pad,                       "          / | \\             / | \\   \n");
     ui_printf(&pad, cs_ATTR                "         1  2  3           b  j  n" cs_CLOSE "\n");
     ui_printf(&pad, "\n");
     /* </Do not touch this evil magic....> */
 
     ui_printf(&pad, " General Controls:\n");
-    ui_printf(&pad, "         " cs_ATTR "[ctrl-X]:" cs_CLOSE " Save and Quit.\n");
-    ui_printf(&pad, "           " cs_ATTR "[/q/Q]:" cs_CLOSE " Quit Window.\n");
-    ui_printf(&pad, "            " cs_ATTR "[x/X]:" cs_CLOSE " eXamine.\n");
-    ui_printf(&pad, "            " cs_ATTR "[a/A]:" cs_CLOSE " Apply/Choose.\n");
-    ui_printf(&pad, "            " cs_ATTR "[c/C]:" cs_CLOSE " Cancel.\n");
-    ui_printf(&pad, "            " cs_ATTR "[o/O]:" cs_CLOSE " Ok.\n");
+    ui_printf(&pad, "         " cs_ATTR "<ctrl-X>:" cs_CLOSE " Save and Quit.\n");
+    ui_printf(&pad, "            " cs_ATTR "<q/Q>:" cs_CLOSE " Quit Window.\n");
+    ui_printf(&pad, "            " cs_ATTR "<x/X>:" cs_CLOSE " eXamine.\n");
+    ui_printf(&pad, "            " cs_ATTR "<a/A>:" cs_CLOSE " Apply/Choose.\n");
+    ui_printf(&pad, "            " cs_ATTR "<c/C>:" cs_CLOSE " Cancel.\n");
+    ui_printf(&pad, "            " cs_ATTR "<o/O>:" cs_CLOSE " Ok.\n");
     ui_printf(&pad, "\n");
     ui_printf(&pad, "          Windows:\n");
-    ui_printf(&pad, "              " cs_ATTR "[@]:" cs_CLOSE " Character.\n");
-    ui_printf(&pad, "              " cs_ATTR "[?]:" cs_CLOSE " This Help window.\n");
-    ui_printf(&pad, "              " cs_ATTR "[L]:" cs_CLOSE " Log.\n");
-    ui_printf(&pad, "            " cs_ATTR "[i/I]:" cs_CLOSE " Inventory.\n");
+    ui_printf(&pad, "              " cs_ATTR "<@>:" cs_CLOSE " Character overview.\n");
+    ui_printf(&pad, "              " cs_ATTR "<?>:" cs_CLOSE " This Help window.\n");
+    ui_printf(&pad, "              " cs_ATTR "<L>:" cs_CLOSE " message Log.\n");
+    ui_printf(&pad, "            " cs_ATTR "<i/I>:" cs_CLOSE " Inventory.\n");
     ui_printf(&pad, "\n");
     ui_printf(&pad, "Main Window Controls:\n");
-    ui_printf(&pad, "            " cs_ATTR "[f/F]:" cs_CLOSE " Fire or Fight.\n");
-    ui_printf(&pad, "            " cs_ATTR "[t/T]:" cs_CLOSE " Throw.\n");
-    ui_printf(&pad, "              " cs_ATTR "[r]:" cs_CLOSE " reload weapon.\n");
-    ui_printf(&pad, "              " cs_ATTR "[R]:" cs_CLOSE " unload weapon.\n");
-    ui_printf(&pad, "            " cs_ATTR "['[']:" cs_CLOSE " Change weapon fire setting.\n");
-    ui_printf(&pad, "            " cs_ATTR "[']']:" cs_CLOSE " Change weapon select.\n");
-    ui_printf(&pad, "            " cs_ATTR "[,/g]:" cs_CLOSE " Pickup.\n");
-    ui_printf(&pad, "            " cs_ATTR "[./5]:" cs_CLOSE " Wait.\n");
-    ui_printf(&pad, "              " cs_ATTR "[/]:" cs_CLOSE " Run into a direction.\n");
+    ui_printf(&pad, "            " cs_ATTR "<f/F>:" cs_CLOSE " Fire or Fight.\n");
+    ui_printf(&pad, "            " cs_ATTR "<t/T>:" cs_CLOSE " Throw.\n");
+    ui_printf(&pad, "              " cs_ATTR "<r>:" cs_CLOSE " reload weapon.\n");
+    ui_printf(&pad, "              " cs_ATTR "<R>:" cs_CLOSE " unload weapon.\n");
+    ui_printf(&pad, "              " cs_ATTR "<[>:" cs_CLOSE " Change weapon fire setting.\n");
+    ui_printf(&pad, "              " cs_ATTR "<]>:" cs_CLOSE " Change weapon select.\n");
+    ui_printf(&pad, "            " cs_ATTR "<,/g>:" cs_CLOSE " Pickup.\n");
+    ui_printf(&pad, "            " cs_ATTR "<./5>:" cs_CLOSE " Wait.\n");
+    ui_printf(&pad, "              " cs_ATTR "</>:" cs_CLOSE " Run into a direction.\n");
     ui_printf(&pad, "\n");
     ui_printf(&pad, "Inventory Controls:\n");
-    ui_printf(&pad, "            " cs_ATTR "[d/D]:" cs_CLOSE " Drop.\n");
+    ui_printf(&pad, "            " cs_ATTR "<d/D>:" cs_CLOSE " Drop.\n");
     ui_printf(&pad, "\n");
     ui_printf(&pad, "Fire Mode Controls:\n");
-    ui_printf(&pad, "          " cs_ATTR "['Tab']:" cs_CLOSE " Next Target.\n");
+    ui_printf(&pad, "            " cs_ATTR "<Tab>:" cs_CLOSE " Next Target.\n");
     y = ui_printf(&pad, "\n");
 
     if (input) {
         int line = 0;
         bool watch = true;
         while(watch == true) {
-            ui_printf_ext(window, window->lines -3, 1, cs_ATTR " [q]" cs_CLOSE " exit.");
-            ui_printf_ext(window, window->lines -2, 1, cs_ATTR "[up]" cs_CLOSE " up,  " cs_ATTR "[down]" cs_CLOSE " down.");
+            ui_printf_ext(window, window->lines -3, 1, cs_ATTR "[up]" cs_CLOSE " up,  " cs_ATTR "[down]" cs_CLOSE " down.");
+            ui_printf_ext(window, window->lines -2, 1, cs_ATTR " [q]" cs_CLOSE " exit.");
             if (options.refresh) wrefresh(window->win);
             prefresh(pad.win, line,0,pad.y,pad.x, pad.y + pad.lines -5, pad.x + pad.cols);
 
@@ -1879,5 +1921,294 @@ void show_help(struct hrl_window *window, bool input) {
 
 void help_window(void) {
     show_help(main_win, true);
+}
+
+void vs_shop(int32_t randint, char *shop_name, enum item_group *grplst, int grplst_sz){
+    struct random *r = random_init_genrand(randint);
+    bool buying = true;
+
+    int32_t sz = (random_int32(r) % 16) + 10;
+    uint32_t list[sz];
+
+    for (int i = 0; i < sz; i++) {
+        bool unique = false;
+
+        for (int j = 0; unique == false && j < 20; j++) {
+            int32_t grp = random_int32(r) % grplst_sz;
+            int idx = itm_spawn(random_float(r), gbl_game->player_data.level, grplst[grp], NULL);
+            list[i] = idx;
+
+            unique = true;
+            if (list[i] == IID_NONE) unique = false;
+            for (int k = 0; unique && k < i; k++) {
+                if (list[i] == list[k]) unique = false;
+            }
+        }
+        if (!unique) sz = i-1;
+    }
+
+    while(buying) {
+        struct msr_monster *monster = gbl_game->player_data.player;
+        werase(map_win->win);
+        ui_print_reset(map_win);
+
+        struct itm_item *money_item = inv_get_item_by_template_id(monster->inventory, IID_MONEY);
+        int money = 0;
+        if (money_item != NULL) money = money_item->stacked_quantity;
+
+        ui_printf(map_win, "%s:      (You have %lld gold)\n", shop_name, money);
+
+        for (int i = 0; i < sz; i++) {
+            struct itm_item *itm = itm_create(list[i]);
+            ui_printf(map_win, cs_ATTR " %c) " cs_CLOSE "%s", inp_key_translate_idx(i), itm->ld_name);
+            if (itm->quality != ITEM_QLTY_AVERAGE) ui_printf(map_win, " (%s)", itm_quality_string(itm) );
+            ui_printf(map_win, " (%d gold)\n", itm->cost);
+            itm_destroy(itm);
+        }
+
+        ui_printf_ext(map_win, map_win->lines -4, 1, cs_ATTR " [a]" cs_CLOSE " acquire" "  " cs_ATTR " [d]" cs_CLOSE " sell.");
+        ui_printf_ext(map_win, map_win->lines -3, 1, cs_ATTR " [x]" cs_CLOSE " examine" "  " cs_ATTR " [q]" cs_CLOSE " exit.");
+        if (options.refresh) wrefresh(map_win->win);
+
+        switch (inp_get_input(gbl_game->input) ) {
+            case INP_KEY_APPLY: {
+                ui_printf_ext(map_win, map_win->lines -5, 1, "Acquire which item?");
+                if (options.refresh) wrefresh(map_win->win);
+
+                int item_idx = inp_get_input_idx(gbl_game->input);
+                if (item_idx < 0) break;
+                if (item_idx == INP_KEY_ESCAPE) break;
+                if (item_idx >= sz) break;
+
+                struct itm_item *itm = itm_create(list[item_idx]);
+                if (itm->cost <= money) {
+                    money_item->stacked_quantity -= itm->cost;
+                    msr_give_item(monster, itm);
+                    You(monster, "acquired %s", itm->ld_name);
+                }
+                else {
+                    You(monster, "do not have enough money for %s", itm->ld_name);
+                    itm_destroy(itm);
+                }
+            } break;
+
+            case INP_KEY_DROP: {
+                int invsz = inv_inventory_size(monster->inventory);
+                struct inv_show_item invlist[invsz];
+                inv_create_list(monster->inventory, invlist, invsz);
+
+                /* TODO: implement large inventory support */
+                /* TODO: implement amount */
+                /* TODO: implement barthering */
+
+                werase(map_win->win);
+                ui_print_reset(map_win);
+
+                ui_printf(map_win, "Your Inventory:            [Total Weight: %4.0f/%4.0f kg]\n", (inv_get_weight(monster->inventory) * INV_WEIGHT_MODIFIER), (msr_calculate_carrying_capacity(monster) * INV_WEIGHT_MODIFIER) );
+
+                int dislen = 0;
+                int invstart = 0;
+                int winsz = map_win->lines;
+                if ( (dislen = invwin_printlist(map_win, invlist, invsz, invstart, invstart +winsz) ) == -1) {
+                    invstart = 0;
+                    dislen = invwin_printlist(map_win, invlist, invsz, invstart, invstart +winsz);
+                }
+
+                ui_printf_ext(map_win, map_win->lines -5, 1, "Sell which item?");
+                if (options.refresh) wrefresh(map_win->win);
+
+                int item_idx = inp_get_input_idx(gbl_game->input);
+                if (item_idx < 0) break;
+                if (item_idx == INP_KEY_ESCAPE) break;
+                if (item_idx >= sz) break;
+                struct itm_item *item = invlist[item_idx +invstart].item;
+                msr_remove_item(monster, item);
+                if (money_item == NULL) {
+                    money_item = itm_create(IID_MONEY);
+                    msr_give_item(monster, money_item);
+                    money_item->stacked_quantity = 0;
+                }
+                money_item->stacked_quantity += MAX(item->cost / 10, 1);
+            } break;
+
+            case INP_KEY_EXAMINE: {
+                ui_printf_ext(map_win, map_win->lines -5, 1, "Examine which item?");
+                if (options.refresh) wrefresh(map_win->win);
+
+                int item_idx = inp_get_input_idx(gbl_game->input);
+                if (item_idx < 0) break;
+                if (item_idx == INP_KEY_ESCAPE) break;
+                if (item_idx >= sz) break;
+
+                struct itm_item *itm = itm_create(list[item_idx]);
+                invwin_examine(char_win, itm);
+                itm_destroy(itm);
+            } break;
+
+            case INP_KEY_HELP:
+            case INP_KEY_ESCAPE:
+            case INP_KEY_QUIT:
+            case INP_KEY_NO:
+            case INP_KEY_YES: buying = false; break;
+            default: break;
+        }
+    }
+    charwin_refresh();
+}
+
+
+void vs_healer() {
+    bool healing = true;
+    struct msr_monster *monster = gbl_game->player_data.player; 
+
+    while(healing) {
+        struct msr_monster *monster = gbl_game->player_data.player;
+        werase(map_win->win);
+        ui_print_reset(map_win);
+
+        se_remove_all_non_permanent(monster);
+
+        struct itm_item *money_item = inv_get_item_by_template_id(monster->inventory, IID_MONEY);
+        int money = 0;
+        if (money_item != NULL) money = money_item->stacked_quantity;
+
+        ui_printf(map_win, "Healer:      (You have %lld gold)\n", money);
+
+        int listsz = se_list_size(monster->status_effects);
+        struct status_effect *se_lst[listsz];
+
+        int i = 0;
+        struct status_effect *c = NULL;
+        while ( (c = se_list_get_next_status_effect(monster->status_effects, c) ) != NULL) {
+            ui_printf(map_win, cs_ATTR " %c) " cs_CLOSE "%s", inp_key_translate_idx(i), c->name);
+            ui_printf(map_win, "(cost %d)\n", c->heal_cost);
+            se_lst[i++] = c;
+        }
+
+        ui_printf_ext(map_win, map_win->lines -4, 1, cs_ATTR " [a]" cs_CLOSE " heal" "  " cs_ATTR " [x]" cs_CLOSE " examine.");
+        ui_printf_ext(map_win, map_win->lines -3, 1, cs_ATTR " [q]" cs_CLOSE " exit.");
+        if (options.refresh) wrefresh(map_win->win);
+
+        switch (inp_get_input(gbl_game->input) ) {
+            case INP_KEY_APPLY: {
+                ui_printf_ext(map_win, map_win->lines -5, 1, "Heal which condition?");
+                if (options.refresh) wrefresh(map_win->win);
+
+                int se_idx = inp_get_input_idx(gbl_game->input);
+                if (se_idx < 0) break;
+                if (se_idx == INP_KEY_ESCAPE) break;
+                if (se_idx >= listsz) break;
+
+                c = se_lst[se_idx];
+                if (c->heal_cost <= money) {
+                    if (se_heal_status_effect(monster, NULL, c, false) ) {
+                        money_item->stacked_quantity -= c->heal_cost;
+                        You(monster, "healed %s", c->name);
+                    }
+                }
+                else {
+                    You(monster, "do not have enough money to heal %s", c->name);
+                }
+            } break;
+
+            case INP_KEY_EXAMINE: {
+                ui_printf_ext(map_win, map_win->lines -5, 1, "Examine which condition?");
+                if (options.refresh) wrefresh(map_win->win);
+
+                int se_idx = inp_get_input_idx(gbl_game->input);
+                if (se_idx < 0) break;
+                if (se_idx == INP_KEY_ESCAPE) break;
+                if (se_idx >= listsz) break;
+                status_effect_examine(char_win, se_lst[se_idx]);
+            } break;
+
+            case INP_KEY_HELP:
+            case INP_KEY_ESCAPE:
+            case INP_KEY_QUIT:
+            case INP_KEY_NO:
+            case INP_KEY_YES: healing = false; break;
+            default: break;
+        }
+    }
+    charwin_refresh();
+}
+
+void village_screen() {
+    int32_t r_ws = random_int32(gbl_game->random);
+    int32_t r_as = random_int32(gbl_game->random);
+    int32_t r_ap = random_int32(gbl_game->random);
+
+    int line = 0;
+    bool watch = true;
+    while(watch == true) {
+        werase(map_win->win);
+
+        ui_print_reset(map_win);
+
+        ui_printf(map_win, "Village:\n");
+        ui_printf(map_win, "\n");
+        ui_printf(map_win, cs_ATTR " a)" cs_CLOSE " Weapon Smith\n");
+        ui_printf(map_win, cs_ATTR " b)" cs_CLOSE " Armour Smith\n");
+        ui_printf(map_win, cs_ATTR " c)" cs_CLOSE " Apothecary\n");
+        ui_printf(map_win, cs_ATTR " d)" cs_CLOSE " Healer\n");
+        ui_printf(map_win, cs_ATTR " e)" cs_CLOSE " Pay Loan\n");
+        ui_printf(map_win, cs_ATTR " f)" cs_CLOSE " Train\n");
+        ui_printf(map_win, cs_ATTR " g)" cs_CLOSE " Quests\n");
+        ui_printf(map_win, cs_ATTR " h)" cs_CLOSE " Retire\n");
+        ui_printf(map_win, "\n");
+
+        ui_printf_ext(map_win, map_win->lines -4, 1, cs_ATTR " [a]" cs_CLOSE " travel to.");
+        ui_printf_ext(map_win, map_win->lines -3, 1, cs_ATTR " [q]" cs_CLOSE " exit.");
+        if (options.refresh) wrefresh(map_win->win);
+
+        switch (inp_get_input(gbl_game->input) ) {
+            case INP_KEY_APPLY:
+                ui_printf_ext(map_win, map_win->lines-5, 1, "Travel were?");
+                if (options.refresh) wrefresh(map_win->win);
+
+                enum item_group ws_grplst[] = {
+                    ITEM_GROUP_RANGED,
+                    ITEM_GROUP_GUNPOWDER,
+                    ITEM_GROUP_THROWING,
+                    ITEM_GROUP_1H_MELEE,
+                    ITEM_GROUP_2H_MELEE,
+                };
+
+                enum item_group as_grplst[] = {
+                    ITEM_GROUP_ARMOUR,
+                    ITEM_GROUP_SHIELD,
+                };
+
+                enum item_group ap_grplst[] = {
+                    ITEM_GROUP_POTION,
+                };
+
+                switch (inp_get_input_text(gbl_game->input) ) {
+                    case 'a': vs_shop(r_ws, "Weapon Smith", ws_grplst, ARRAY_SZ(ws_grplst) ); break;
+                    case 'b': vs_shop(r_as, "Armour Smith", as_grplst, ARRAY_SZ(as_grplst) ); break;
+                    case 'c': vs_shop(r_ap, "Apothecary",   ap_grplst, ARRAY_SZ(ap_grplst) ); break;
+                    case 'd': vs_healer(); break;
+                    case 'e': ui_printf_ext(map_win, map_win->lines-5, 1, "Not Implemented yet."); break;
+                    case 'f': levelup_selection_window(); break;
+                    case 'g': ui_printf_ext(map_win, map_win->lines-5, 1, "Not Implemented yet."); break;
+                    case 'h': ui_printf_ext(map_win, map_win->lines-5, 1, "Not Implemented yet."); break;
+                    default: break;
+                }
+                break;
+            case INP_KEY_HELP:
+            case INP_KEY_ESCAPE:
+            case INP_KEY_QUIT:
+            case INP_KEY_NO:
+            case INP_KEY_YES: watch = false; break;
+            default: break;
+        }
+    }
+
+    werase(map_win->win);
+    if (options.refresh) {
+        wrefresh(map_win->win);
+    }
+
+    show_msg(msg_win);
 }
 

@@ -215,6 +215,8 @@ struct status_effect {
     int duration_energy_max;
     int duration_energy;
 
+    int heal_cost;
+
     uint32_t status_effect_post;
 };
 
@@ -247,6 +249,8 @@ bool se_add_to_list(struct msr_monster *monster, struct status_effect *con);
 bool se_add_status_effect(struct msr_monster *monster, uint32_t tid, const char *origin);
 bool se_remove_status_effect(struct msr_monster *monster, struct status_effect *con);
 bool se_remove_effects_by_tid(struct msr_monster *monster, uint32_t tid);
+
+bool se_heal_status_effect(struct msr_monster *monster, struct msr_monster *healer, struct status_effect *con, bool magic);
 
 bool se_add_critical_hit(struct msr_monster *monster, int critical_dmg, enum msr_hit_location mhl, enum dmg_type type);
 

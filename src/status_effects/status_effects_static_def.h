@@ -15,8 +15,8 @@
     along with heresyRL.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define STATUS_EFFECT(_id, _name, _desc) \
-                [_id] = { .uid=0, .template_id=_id, .name=_name, .description=_desc
+#define STATUS_EFFECT(_id, _name, _desc, hc) \
+                [_id] = { .uid=0, .template_id=_id, .name=_name, .description=_desc, .heal_cost=hc
 #define STATUS_EFFECT_END }
 
 #define MESSAGES(_of_plr, _of_msr, _oe_plr, _oe_msr) \
@@ -52,12 +52,12 @@
 */
 
 static const struct status_effect static_status_effect_list[] = {
-    STATUS_EFFECT(SEID_NONE, "", ""),
+    STATUS_EFFECT(SEID_NONE, "", "", -1),
             SETTINGS(0, 0, 0),
     STATUS_EFFECT_END,
 
     /* Draughts */
-    STATUS_EFFECT(SEID_MINOR_HEALING, "healing draught", ""),
+    STATUS_EFFECT(SEID_MINOR_HEALING, "healing draught", "", 0),
         MESSAGES("Your wounds begin to heal.", "%s's wounds begin to heal.", "You feel the healing wearing off.", NULL),
         EFFECTS_START
             /* Type         Effect      Flags   Strength    Param   Interval    Max Msgs */
@@ -67,7 +67,7 @@ static const struct status_effect static_status_effect_list[] = {
             SETTINGS(       0,      2,          10),
     STATUS_EFFECT_END,
 
-    STATUS_EFFECT(SEID_MAD_CAP_AFTER, "mad cap mushroom after effect", ""),
+    STATUS_EFFECT(SEID_MAD_CAP_AFTER, "mad cap mushroom after effect", "", 0),
         MESSAGES("You are exhausted from the mushrooms trip.", "%s looks exhausted.", "You feel the after effects slipping away.", NULL),
         EFFECTS_START
             /* Type     Effect      Flags   Strength    Param*/
@@ -79,7 +79,7 @@ static const struct status_effect static_status_effect_list[] = {
             SETTINGS(       0,      2,          5),
     STATUS_EFFECT_END,
 
-    STATUS_EFFECT(SEID_MAD_CAP, "mad cap mushroom rage", ""),
+    STATUS_EFFECT(SEID_MAD_CAP, "mad cap mushroom rage", "", 0),
         MESSAGES("You slip into a mad and destructive rage.", "%s slips into a mad and destructive rage.", "The rage starts to wear off.", NULL),
         EFFECTS_START
             /* Type     Effect      Flags   Strength    Param*/
@@ -94,7 +94,7 @@ static const struct status_effect static_status_effect_list[] = {
     STATUS_EFFECT_END,
 
     /* Weapon Effects */
-    STATUS_EFFECT(SEID_WEAPON_FLAME, "flames", "flames are engulving you"),
+    STATUS_EFFECT(SEID_WEAPON_FLAME, "flames", "flames are engulving you", 0),
         MESSAGES("You catch fire.", "%s has catched fire.", "You manage to put out the flames.", "%s stomps out the flames."),
         EFFECTS_START
             /* Type         Effect           Flags      Strength    param. */
@@ -125,7 +125,7 @@ static const struct status_effect static_status_effect_list[] = {
 
     /*-------------------------------------------------------------------------*/
     /* Environment */
-    STATUS_EFFECT(SEID_SWIMMING, "Swimming", ""),
+    STATUS_EFFECT(SEID_SWIMMING, "Swimming", "", 0),
         EFFECTS_START
             /* Type     Effect      Flags   Strength   Param */
             EFFECT(EF_SWIMMING,     0,      0,         0),
@@ -138,7 +138,7 @@ static const struct status_effect static_status_effect_list[] = {
             SETTINGS(bf(SEF_UNIQUE) | bf(SEF_PERMANENT),      0,          0),
     STATUS_EFFECT_END,
 
-    STATUS_EFFECT(SEID_WADE, "Wading", ""),
+    STATUS_EFFECT(SEID_WADE, "Wading", "", 0),
         EFFECTS_START
             /* Type    Effect       Flags    Strength    Param */
             EFFECT(EF_MODIFY_CHAR,  0,        -20,       MSR_CHAR_WEAPON_SKILL),
@@ -150,7 +150,7 @@ static const struct status_effect static_status_effect_list[] = {
             SETTINGS(bf(SEF_UNIQUE) | bf(SEF_PERMANENT),      0,          0),
     STATUS_EFFECT_END,
 
-    STATUS_EFFECT(SEID_MUD, "Mud", ""),
+    STATUS_EFFECT(SEID_MUD, "Mud", "", 0),
         EFFECTS_START
             /* Type    Effect       Flags    Strength    Param */
             EFFECT(EF_MODIFY_CHAR,  0,        -10,       MSR_CHAR_WEAPON_SKILL),
@@ -162,7 +162,7 @@ static const struct status_effect static_status_effect_list[] = {
             SETTINGS(bf(SEF_UNIQUE) | bf(SEF_PERMANENT),      0,          0),
     STATUS_EFFECT_END,
 
-    STATUS_EFFECT(SEID_MAD_CAP_CLOUD, "mad cap cloud", ""),
+    STATUS_EFFECT(SEID_MAD_CAP_CLOUD, "mad cap cloud", "", 0),
         MESSAGES("You slip into a mad and destructive rage.", "%s slips into a mad and destructive rage.", "The rage starts to wear off.", NULL),
         EFFECTS_START
             /* Type     Effect      Flags   Strength    Param*/
@@ -178,7 +178,7 @@ static const struct status_effect static_status_effect_list[] = {
 
     /*-------------------------------------------------------------------------*/
 
-    STATUS_EFFECT(SEID_ENCUMBERED, "Encumbered", ""),
+    STATUS_EFFECT(SEID_ENCUMBERED, "Encumbered", "", 0),
         MESSAGES("You are encumbered.", NULL, "Your load seems manageble now.", NULL),
         EFFECTS_START
             /* Type    Effect           Flags   Strength     Param  Interval,   Max, Msgs */
@@ -189,7 +189,7 @@ static const struct status_effect static_status_effect_list[] = {
     STATUS_EFFECT_END,
 
     /* Healing after a fatepoint */
-    STATUS_EFFECT(SEID_FATEHEALTH, "fatepoint_health", ""),
+    STATUS_EFFECT(SEID_FATEHEALTH, "fatepoint_health", "", 0),
         EFFECTS_START
             /* Type         Effect      Flags   Strength            Param   Interval   Max, Msgs*/
             TICK_EFFECT(EF_HEALTH,      0,      EF_STRENGTH_4D10,   0,      1,         0,   NULL, NULL),
@@ -198,8 +198,20 @@ static const struct status_effect static_status_effect_list[] = {
         SETTINGS(       0,        2,          2),
     STATUS_EFFECT_END,
 
+    /* Stealth penalty after attacking */
+    STATUS_EFFECT(SEID_STEALTH_ATTACKED, "Combat Excitement", "", 0),
+        MESSAGES(NULL, NULL, "Your combat excitement wears down.", NULL),
+        EFFECTS_START
+            /* Type     Effect      Flags   Strength    Param*/
+            EFFECT(EF_MODIFY_SKILL, 0,        -50,      MSR_SKILLS_STEALTH),
+        EFFECTS_END,
+        /*Settings      Flags     Minimum  -  Maximum Turns*/
+        SETTINGS(       0,        5,          5),
+    STATUS_EFFECT_END,
+
+
     /* Debug */
-    STATUS_EFFECT(SEID_DEATH_STIMM, "death stimm", ""),
+    STATUS_EFFECT(SEID_DEATH_STIMM, "death stimm", "", -1),
         EFFECTS_START
             /* Type         Effect     Flags   Strength Param */
             EFFECT(EF_DISABLED_RARM,    0,      0,       0),

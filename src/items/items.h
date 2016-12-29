@@ -85,6 +85,7 @@ enum item_food_type {
 enum item_tool_type {
     TOOL_TYPE_LIGHT,
     TOOL_TYPE_CONTAINER,
+    TOOL_TYPE_MONEY,
     TOOL_TYPE_MAX,
     TOOL_TYPE_RANDOM,
 };
@@ -229,15 +230,15 @@ struct itm_item {
 
     enum item_quality quality;
     int weight;
-    int cost;
+    uint32_t cost;
     const char *sd_name;
     const char *ld_name;
     const char *description;
     char icon;
     int icon_attr;
     float use_delay;
-    int8_t stacked_quantity;
-    int8_t max_quantity;
+    uint32_t stacked_quantity;
+    uint32_t max_quantity;
     bool identified;
     int identify_last_try;
 
@@ -298,7 +299,7 @@ struct itm_item *itmlst_get_next_item(struct itm_item *prev);
 struct itm_item *itmlst_item_by_uid(uint32_t uid);
 
 /* retrieves a item template id based on parameters */
-int itm_spawn(double roll, int level, enum item_group ig, struct msr_monster *monster);
+uint32_t itm_spawn(double roll, int level, enum item_group ig, struct msr_monster *monster);
 
 /* create an item instance of this template id*/
 struct itm_item *itm_create(int template_id);
