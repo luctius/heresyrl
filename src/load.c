@@ -497,7 +497,6 @@ static bool load_monsters(lua_State *L, struct dm_map *map, struct gm_game *g) {
         lua_intexpr(L, &t, "game.monsters[%d].corruption_points", i+1); monster->corruption_points = t;
 
         lua_intexpr(L, &t, "game.monsters[%d].idle_counter", i+1); monster->idle_counter = t;
-        lua_intexpr(L, &t, "game.monsters[%d].stealth", i+1); monster->stealth = t;
         lua_intexpr(L, &t, "game.monsters[%d].ai_leader", i+1); leader_uid = t;
 
         lua_intexpr(L, &t, "game.monsters[%d].creature_traits", i+1); monster->creature_traits = t;

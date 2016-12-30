@@ -199,16 +199,15 @@ static const struct status_effect static_status_effect_list[] = {
     STATUS_EFFECT_END,
 
     /* Stealth penalty after attacking */
-    STATUS_EFFECT(SEID_STEALTH_ATTACKED, "Combat Excitement", "", 0),
+    STATUS_EFFECT(SEID_COMBAT_EXCITEMENT, "Combat Excitement", "", 0),
         MESSAGES(NULL, NULL, "Your combat excitement wears down.", NULL),
         EFFECTS_START
             /* Type     Effect      Flags   Strength    Param*/
-            EFFECT(EF_MODIFY_SKILL, 0,        -50,      MSR_SKILLS_STEALTH),
+            EFFECT(EF_MODIFY_SKILL,  0,        -50,      MSR_SKILLS_STEALTH),
         EFFECTS_END,
-        /*Settings      Flags     Minimum  -  Maximum Turns*/
-        SETTINGS(       0,        5,          5),
+        /*Settings      Flags                       Minimum  -  Maximum Turns*/
+        SETTINGS(bf(SEF_PERMANENT) | bf(SEF_UNIQUE),        5,          5),
     STATUS_EFFECT_END,
-
 
     /* Debug */
     STATUS_EFFECT(SEID_DEATH_STIMM, "death stimm", "", -1),

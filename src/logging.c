@@ -341,7 +341,7 @@ int clrstr_to_attr(const char *s) {
     else if (strncmp(cs_DAMAGE,   s, strlen(cs_DAMAGE) )   == 0) return get_colour(TERM_COLOUR_L_VIOLET);
     else if (strncmp(cs_WARNING,  s, strlen(cs_WARNING) )  == 0) return get_colour(TERM_COLOUR_L_YELLOW);
     else if (strncmp(cs_CRITICAL, s, strlen(cs_CRITICAL) ) == 0) return get_colour(TERM_COLOUR_RED);
-    else if (strncmp(cs_GM,       s, strlen(cs_GM) )       == 0) return get_colour(TERM_COLOUR_L_PURPLE);
+    else if (strncmp(cs_GM,       s, strlen(cs_GM) )       == 0) return get_colour(TERM_COLOUR_L_UMBER);
     else if (strncmp(cs_SYSTEM,   s, strlen(cs_SYSTEM) )   == 0) return get_colour(TERM_COLOUR_WHITE);
     else if (strncmp(cs_ATTR,     s, strlen(cs_ATTR) )     == 0) return get_colour(TERM_COLOUR_L_TEAL);
     else if (strncmp(cs_OLD,      s, strlen(cs_OLD) )      == 0) return get_colour(TERM_COLOUR_L_DARK);

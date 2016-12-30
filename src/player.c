@@ -129,8 +129,6 @@ void plr_create(struct pl_player *plr, char *name, uint32_t template_id, enum ms
     plr->quest = NULL;
     plr->level = 1;
     plr->loan = 500;
-
-    System_msg("Press '?' to view the help screen.");
 }
 
 bool plr_init(struct pl_player *plr) {

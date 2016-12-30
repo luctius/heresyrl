@@ -882,9 +882,9 @@ bool fght_can_see(struct dm_map *map, struct msr_monster *monster, struct msr_mo
     int awareness = msr_calculate_skill(monster, MSR_SKILLS_AWARENESS);
     int stealth   = msr_calculate_skill(tgt, MSR_SKILLS_STEALTH);
     int awareness_DoS = (awareness + awareness_mod) / 10;
-    int stealth_DoS   = (stealth + stealth_mod + tgt->stealth)   / 10;
+    int stealth_DoS   = (stealth + stealth_mod)  / 10;
 
-    lg_ai_debug(monster, "test see: (%d(+%d) vs %s %d(+%d+%d) )", awareness, awareness_mod, msr_ldname(tgt), stealth, stealth_mod, tgt->stealth);
+    lg_ai_debug(monster, "test see: (%d(+%d) vs %s %d(+%d) )", awareness, awareness_mod, msr_ldname(tgt), stealth, stealth_mod);
     if (awareness_DoS > stealth_DoS) {
         /* You(monster, "notice %s", msr_ldname(tgt) );*/
         /* Monster(monster, "notices %s", msr_ldname(tgt) );*/

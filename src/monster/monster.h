@@ -116,15 +116,6 @@ enum msr_factions {
     MSR_FACTION_MAX,
 };
 
-enum msr_stealth {
-    MSR_STEALTH_MOVE = 5,
-    MSR_STEALTH_MISC = 5,
-    MSR_STEALTH_DEFEND = 30,
-    MSR_STEALTH_ATTACK = 40,
-    MSR_STEALTH_BLEED = 5,
-    MSR_STEALTH_MAX = 60,
-};
-
 struct msr_char {
     uint8_t base_value;
     uint8_t advancement;
@@ -230,8 +221,6 @@ struct msr_monster {
 
     /* status_effects effecting this monster. */
     struct status_effect_list *status_effects;
-
-    int stealth;
 
     /* Monster creation. */
     int weight;

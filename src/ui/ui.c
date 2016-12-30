@@ -1709,7 +1709,7 @@ void levelup_selection_window(void) {
                     charwin_refresh();
 
                     if (gbl_game->player_data.xp_current <= 0) {
-                        System_msg(cs_PLAYER "You" cs_CLOSE " do not have enough experience points.");
+                        GM_msg(cs_PLAYER "You" cs_CLOSE " do not have any more experience points.");
                         break;
                     }
 
@@ -1721,23 +1721,23 @@ void levelup_selection_window(void) {
                     if (tidx >= 0 && tidx < skill_start) {
                         if (tidx == wnds_idx) {
                             upgrade = cr_upgrade_wounds(career, player);
-                            You(player, "increased your health.");
+                            GM_msg(cs_PLAYER "Your" cs_CLOSE " health was increased.");
                         }
                         else {
                             int char_idx = abs_idx[tidx];
                             upgrade = cr_upgrade_characteristic(career, player, char_idx);
-                            You(player, "increased %s.", msr_char_names(char_idx) );
+                            GM_msg(cs_PLAYER "You" cs_CLOSE " increased " cs_PLAYER "your" cs_CLOSE " %s.", msr_char_names(char_idx) );
                         }
                     }
                     else if (tidx >= skill_start && tidx < talent_start) {
                         int skl_idx = abs_idx[tidx];
                             upgrade = cr_upgrade_skill(career, player, skl_idx);
-                            You(player, "improved in %s.", msr_skill_names(skl_idx) );
+                            GM_msg(cs_PLAYER "You" cs_CLOSE " improved %s.", msr_skill_names(skl_idx) );
                     }
                     else if (tidx >= talent_start && tidx < idx) {
                         int tlt_idx = abs_idx[tidx];
                         upgrade = cr_upgrade_talent(career, player, tlt_idx);
-                        You(player, "learned %s.", msr_talent_names(tlt_idx) );
+                        GM_msg(cs_PLAYER "You" cs_CLOSE " learned %s.", msr_talent_names(tlt_idx) );
                     }
 
                     if (upgrade) {
@@ -1749,7 +1749,11 @@ void levelup_selection_window(void) {
                 break;
             case INP_KEY_HELP:
                 help_window();
+                charwin_refresh();
                 break;
+
+            case INP_KEY_QUIT:
+            case INP_KEY_NO:
             case INP_KEY_ESCAPE:
                 lvl_up_done = true;
             default: break;
@@ -1802,8 +1806,8 @@ void levelup_selection_window(void) {
 
         lg_debug("skill start: %d, talent start: %d, idx: %d", skill_start, talent_start, idx);
 
-        ui_printf_ext(map_win, map_win->lines - 3, 1, cs_ATTR "[q]" cs_CLOSE " exit,    " cs_ATTR "  [?]" cs_CLOSE " help.");
-        ui_printf_ext(map_win, map_win->lines - 2, 1, cs_ATTR "[a]" cs_CLOSE " acquire, " cs_ATTR "  [x]" cs_CLOSE " examine.");
+        ui_printf_ext(map_win, map_win->lines - 3, 1, cs_ATTR "[a]" cs_CLOSE " acquire, " cs_ATTR "  [x]" cs_CLOSE " examine.");
+        ui_printf_ext(map_win, map_win->lines - 2, 1, cs_ATTR "[q]" cs_CLOSE " exit,    " cs_ATTR "  [?]" cs_CLOSE " help.");
         if (options.refresh) wrefresh(window->win);
 
     } while((lvl_up_done == false) && (ch = inp_get_input(gbl_game->input) ) != INP_KEY_ESCAPE);
@@ -2059,7 +2063,6 @@ void vs_shop(int32_t randint, char *shop_name, enum item_group *grplst, int grpl
 
 void vs_healer() {
     bool healing = true;
-    struct msr_monster *monster = gbl_game->player_data.player; 
 
     while(healing) {
         struct msr_monster *monster = gbl_game->player_data.player;
@@ -2131,6 +2134,52 @@ void vs_healer() {
         }
     }
     charwin_refresh();
+}
+
+void pay_loan() {
+    bool payment = true;
+
+    while (payment) {
+        struct msr_monster *monster = gbl_game->player_data.player;
+        werase(map_win->win);
+        ui_print_reset(map_win);
+
+        struct itm_item *money_item = inv_get_item_by_template_id(monster->inventory, IID_MONEY);
+        int money = 0;
+        if (money_item != NULL) money = money_item->stacked_quantity;
+
+        ui_printf(map_win, "Loanshark:      (You have %lld gold)\n", money);
+        ui_printf(map_win, "Credit: %d\n",  gbl_game->player_data.loan);
+
+        ui_printf_ext(map_win, map_win->lines -4, 1, cs_ATTR " [a]" cs_CLOSE " pay loan.");
+        ui_printf_ext(map_win, map_win->lines -3, 1, cs_ATTR " [q]" cs_CLOSE " exit.");
+        if (options.refresh) wrefresh(map_win->win);
+
+        switch (inp_get_input(gbl_game->input) ) {
+            case INP_KEY_APPLY: {
+                int payment = 0;
+                ui_printf_ext(map_win, map_win->lines -5, 1, "Pay how much?");
+                if (options.refresh) wrefresh(map_win->win);
+
+                int se_idx = inp_get_input_idx(gbl_game->input);
+
+                if (payment <= money) {
+                    money_item->stacked_quantity -= payment;
+                    You(monster, "payed the loanshark %d gp.", payment);
+                }
+                else {
+                    You(monster, "do not have enough money to pay  %d", payment);
+                }
+            } break;
+
+            case INP_KEY_HELP:
+            case INP_KEY_ESCAPE:
+            case INP_KEY_QUIT:
+            case INP_KEY_NO:
+            case INP_KEY_YES: payment = false; break;
+            default: break;
+        }
+    }
 }
 
 void village_screen() {

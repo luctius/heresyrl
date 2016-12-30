@@ -7,8 +7,60 @@ Version 0.1:
     Implementing difficulty levels.
 
 Version 0.2:
-    Move towards Dark Heresy combined with zeihander improvements.
+    Move towards Dark Heresy 2e combined with zeihander improvements.
+        Characteristics
+            Combat Skill
+            Strength
+            Toughness
+            Agility
+            Intelligence
+            Perception
+            Willpower
+            (Influence)
+        Skills (4 ranks: Known, Trained, Experience and Veteran)
+            Melee (Combat, General)
+            Ranged (Combat, General)
+            Acrobatics (Agility, General)
+            Awareness (Perception, Fieldcraft)
+            Dodge (Agility, Defence)
+            Parry (Weaponskill, Defence)
+            Stealth (Agility, Fieldcraft)
+            Survival (Perception, Fieldcraft)
+        Talents
+            Ambidextrious (Melee, Ranged)
+            Blind Fighting (Perception, Fieldcraft)
+            Die Hard (Willpower, Defence)
+            Disarm (Melee, Defence)
+            Frenzy (Strength, Offence)
+            Iron Jaw (Willpower, Defence)
+            Jaded (Willpower, Defence)
+            Leap-up (Agility, General)
+            Quick Draw (Agility, Finess)
+            Rapid Reload (Agility, Fieldcraft)
+            Resistance* (Toughness, Defence)
+            Takedown (Melee, Offence)
+            Weapon Training* (General, Finess)
+        Traits
+        Home Worlds:
+            Hive World
+        Aptitudes
+            General
+            Characteristic-Based (- Combat)
+            Melee
+            Ranged
+            Offence
+            Finess
+            Defence
+            Fieldcraft
+        Backgrounds
+            Imperial Guard
+            Outcast
+        Roles
+            Seeker
+            Warrior
+    Talent based Actions
     Add stealth mode / normal mode / run mode.
+    
 
 Major Ideas:
 Episodic maps; large map, after the quest some downtime to heal 

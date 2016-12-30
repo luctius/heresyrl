@@ -64,12 +64,6 @@ void tt_process_monsters(struct dm_map *map) {
         if (msr_get_energy(monster) >= TT_ENERGY_FULL) do_action = true;
         if (monster->controller.interrupted == true) do_action = true;
 
-        if (gbl_game->turn % TT_ENERGY_TURN_MINI == 0) {
-            monster->stealth %= MSR_STEALTH_MAX;
-            monster->stealth -= MSR_STEALTH_BLEED;
-            if (monster->stealth < 0) monster->stealth = 0;
-        }
-
         /* A stunned monster can do nothing. */
         if (se_has_effect(monster, EF_STUNNED) ) {
             do_action = false;

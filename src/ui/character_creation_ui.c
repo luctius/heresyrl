@@ -66,6 +66,8 @@ bool char_creation_window(void) {
 
     const char *enter_name_string = "Please enter your name:";
 
+    System_msg("Welcome to heresyrl.");
+
     ui_print_reset(map_win);
     ui_printf(map_win, "%s ", enter_name_string);
 
@@ -143,8 +145,17 @@ bool char_creation_window(void) {
         inp_add_to_log(gbl_game->input, 0);
     }
 
+    bool first = true;
     while (race_done == false) {
         ui_print_reset(map_win);
+
+        if (first) {
+            System_msg("Please select a race by first pressing 'a' and then the letter before the race you want.");
+            System_msg("This mechanism is used througout the game; first the action than the noun.");
+            System_msg("With 'x' you can examine more about the races.");
+            System_msg("Press '?' to view the help screen.");
+            first = false;
+        }
 
         int valid_choice = 0;
         ui_printf(map_win, "    Choose your Race\n");
@@ -154,13 +165,14 @@ bool char_creation_window(void) {
             }
         }
         ui_printf_ext(map_win, map_win->lines -2, 1, cs_ATTR "[a]" cs_CLOSE " acquire,  " cs_ATTR "[x]" cs_CLOSE " examine");
-        ui_printf_ext(map_win, map_win->lines -1, 1, cs_ATTR "[q]" cs_CLOSE " quit");
+        ui_printf_ext(map_win, map_win->lines -1, 1, cs_ATTR "[q]" cs_CLOSE " continue  " cs_ATTR "[?]" cs_CLOSE " help");
 
         wrefresh(map_win->win);
         k = inp_get_input(gbl_game->input);
 
         int sel_idx = -1;
         switch (k) {
+            case INP_KEY_NO:
             case INP_KEY_QUIT:
             case INP_KEY_ESCAPE: return false; /*break;*/
             case INP_KEY_ALL:
@@ -171,6 +183,11 @@ bool char_creation_window(void) {
                 ui_print_reset(map_win);
 
                 sel_idx = inp_get_input_idx(gbl_game->input);
+                if (sel_idx < (int) MID_MAX) {
+                    if (sel_idx > 0) {
+                        GM_msg(cs_PLAYER "You" cs_CLOSE " become a %s.", static_monster_list[sel_idx+MID_DUMMY+1].sd_name);
+                    }
+                }
                 break;
 
             case INP_KEY_EXAMINE:
@@ -183,6 +200,10 @@ bool char_creation_window(void) {
                     charwin_examine("Race", static_monster_list[sel_idx+MID_DUMMY+1].sd_name, static_monster_list[sel_idx+MID_DUMMY+1].description);
                 }
                 sel_idx = -1;
+                break;
+            case INP_KEY_HELP:
+                help_window();
+                charwin_refresh();
                 break;
             default:
                 werase(map_win->win);
