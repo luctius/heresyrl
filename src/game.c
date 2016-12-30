@@ -99,7 +99,7 @@ bool game_init_map(void) {
     }
 
     if (gbl_game->player_data.quest == NULL) {
-        gbl_game->player_data.quest = qst_spawn(0);
+        gbl_game->player_data.quest = qst_spawn(1, random_int32(gbl_game->random) );
     }
 
     if (gbl_game->current_map == NULL) {

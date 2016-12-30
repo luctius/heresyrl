@@ -61,7 +61,7 @@ static bool status_effects_list_initialised = false;
 void se_init(void) {
     for (unsigned int i = 0; i < SEID_MAX; i++) {
         const struct status_effect *status_effect = &static_status_effect_list[i];
-        if (status_effect->template_id != i) {
+        if (status_effect->tid != i) {
             fprintf(stderr, "Status Effects list integrity check failed! [%d]\n", i);
             exit(EXIT_FAILURE);
         }
@@ -362,7 +362,7 @@ bool se_remove_effects_by_tid(struct msr_monster *monster, uint32_t tid) {
     struct status_effect *c = NULL;
     struct status_effect *c_prev = NULL;
     while ( (c = se_list_get_next_status_effect(se_list, c_prev) ) != NULL) {
-        if (c->template_id == tid) {
+        if (c->tid == tid) {
             se_remove_status_effect(monster, c);
             found = true;
         }
@@ -389,7 +389,7 @@ bool se_has_tid(struct status_effect_list *se_list, enum se_ids tid) {
 
     struct status_effect *c = NULL;
     while ( (c = se_list_get_next_status_effect(se_list, c) ) != NULL) {
-        if (c->template_id == tid) {
+        if (c->tid == tid) {
             return true;
         }
     }
@@ -428,7 +428,7 @@ struct status_effect *se_get_status_effect_tid(struct msr_monster *monster, enum
 
     struct status_effect *c = NULL;
     while ( (c = se_list_get_next_status_effect(se_list, c) ) != NULL) {
-        if (c->template_id == tid) {
+        if (c->tid == tid) {
             return c;
         }
     }
@@ -959,7 +959,7 @@ static bool se_process_effect(struct msr_monster *monster, struct status_effect 
             if (first_time) {
                 lg_debug("Condition %p(%s) is processed for the first time.", c, c->name);
 
-                if (c->template_id == SEID_NONE) status_effect_clr_flag(c, SEF_ACTIVE);
+                if (c->tid == SEID_NONE) status_effect_clr_flag(c, SEF_ACTIVE);
 
                 /* Handle Checks */
                 if (check_effect_has_flag(c, EF_CHECK_ACTIVE) ) {

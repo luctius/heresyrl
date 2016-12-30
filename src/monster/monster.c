@@ -136,10 +136,10 @@ int32_t msr_spawn(int32_t roll, int level, enum dm_dungeon_type dt) {
 #define MONSTER_POST_CHECK (10706)
 static void creature_weapon(struct msr_monster *monster);
 
-struct msr_monster *msr_create(enum msr_ids template_id) {
-    if (template_id >= (int) ARRAY_SZ(static_monster_list)) { assert(false && "template_id bigger than list"); return NULL; };
-    if (template_id == MID_NONE)                            { assert(false && "template_id invalid"); return NULL; };
-    struct msr_monster *template_monster = &static_monster_list[template_id];
+struct msr_monster *msr_create(enum msr_ids tid) {
+    if (tid >= (int) ARRAY_SZ(static_monster_list)) { assert(false && "template_id bigger than list"); return NULL; };
+    if (tid == MID_NONE)                            { assert(false && "template_id invalid"); return NULL; };
+    struct msr_monster *template_monster = &static_monster_list[tid];
 
     struct msr_monster_list_entry *m = calloc(1,sizeof(struct msr_monster_list_entry) );
     assert(m != NULL);
@@ -149,7 +149,7 @@ struct msr_monster *msr_create(enum msr_ids template_id) {
     m->monster.controller.controller_cb = NULL;
     m->monster.pos = cd_create(0,0);
     m->monster.uid = msrlst_next_id();
-    m->monster.template_id = template_id;
+    m->monster.tid = tid;
     m->monster.energy = TT_ENERGY_FULL;
     m->monster.faction = MSR_FACTION_MONSTERS;
     m->monster.inventory = NULL;

@@ -60,7 +60,7 @@ static bool ai_beast_loop(struct msr_monster *monster) {
     bool has_action = false;
     monster->wpn_sel = MSR_WEAPON_SELECT_CREATURE1;
 
-    //lg_debug("ai_beast_loop for [uid: %d, tid: %d]", monster->uid, monster->template_id);
+    //lg_debug("ai_beast_loop for [uid: %d, tid: %d]", monster->uid, monster->tid);
 
     if (msr_weapon_type_check(monster, WEAPON_TYPE_MELEE) ) {
         struct msr_monster *enemy = NULL;
@@ -129,7 +129,7 @@ static bool ai_human_loop(struct msr_monster *monster) {
     bool has_action = false;
     monster->wpn_sel = MSR_WEAPON_SELECT_CREATURE1;
 
-    //lg_debug("ai_human_loop for [uid: %d, tid: %d]", monster->uid, monster->template_id);
+    //lg_debug("ai_human_loop for [uid: %d, tid: %d]", monster->uid, monster->tid);
 
     for (int i = 0; i < MSR_WEAPON_SELECT_MAX; i++) {
         monster->wpn_sel = i;
@@ -153,7 +153,7 @@ static bool ai_human_loop(struct msr_monster *monster) {
         }
 
         if ( (enemy = aiu_get_nearest_enemy(monster, 0, map) ) != NULL) {
-            lg_debug("[uid: %d, tid: %d] sees an enemy (ranged)", monster->uid, monster->template_id);
+            lg_debug("[uid: %d, tid: %d] sees an enemy (ranged)", monster->uid, monster->tid);
             has_action = ma_do_fire(monster, &enemy->pos);
         }
     }
@@ -164,7 +164,7 @@ static bool ai_human_loop(struct msr_monster *monster) {
 
         if ( (enemy = aiu_get_nearest_enemy(monster, 0, map) ) != NULL) {
             if (cd_pyth(&monster->pos, &enemy->pos) > 2) {
-                lg_debug("[uid: %d, tid: %d] sees an enemy (throw)", monster->uid, monster->template_id);
+                lg_debug("[uid: %d, tid: %d] sees an enemy (throw)", monster->uid, monster->tid);
                 has_action = ma_do_throw(monster, &enemy->pos, item);
             }
         }

@@ -698,7 +698,7 @@ bool fght_throw_item(struct random *r, struct msr_monster *monster, struct dm_ma
     }
 
     /* create a copy of the item to place it on the map. */
-    struct itm_item *witem_copy = itm_create(witem->template_id);
+    struct itm_item *witem_copy = itm_create(witem->tid);
     if (witem_copy != NULL) {
         /* copy any changes from the item to its copy */
         witem_copy->energy = witem->energy;

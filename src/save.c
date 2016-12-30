@@ -96,7 +96,7 @@ static bool sv_save_player(FILE *file, int indent, struct pl_player *plr) {
     if (file == NULL) return false;
 
     svprintf_open(file, "player=");
-        svprintf(file,"career_id= %d,", plr->career->template_id);
+        svprintf(file,"career_id= %d,", plr->career->tid);
         svprintf(file,"xp_current= %d,", plr->xp_current);
         svprintf(file,"xp_spend= %d,", plr->xp_spend);
         svprintf_open(file,"quest=");
@@ -125,7 +125,7 @@ static bool sv_save_monsters(FILE *file, int indent) {
 
             svprintf_open(file, "");
                 svprintf(file,"uid=%d,", m->uid);
-                svprintf(file,"template_id=%d,", m->template_id);
+                svprintf(file,"tid=%d,", m->tid);
                 svprintf(file,"race=%d,", m->race);
                 svprintf(file,"size=%d,", m->size);
                 svprintf(file,"gender=%d,", m->gender);
@@ -232,7 +232,7 @@ static bool sv_save_status_effects(FILE *file, int indent) {
         while ( (se = selst_get_next_status_effect(se) ) != NULL) {
             svprintf_open(file, "");
                 svprintf(file, "uid=%d,",  se->uid);
-                svprintf(file, "tid=%d,",  se->template_id);
+                svprintf(file, "tid=%d,",  se->tid);
 
                 svprintf(file,"duration_energy_min=%d,", se->duration_energy_min);
                 svprintf(file,"duration_energy_max=%d,", se->duration_energy_max);
@@ -300,7 +300,7 @@ static bool sv_save_items(FILE *file, int indent) {
 
             svprintf_open(file, "");
                 svprintf(file, "uid=%d,",  item->uid);
-                svprintf(file, "template_id=%d,",  item->template_id);
+                svprintf(file, "tid=%d,",  item->tid);
                 svprintf(file, "quality=%d,",      item->quality);
                 svprintf(file, "quantity=%d,",     item->stacked_quantity);
                 svprintf(file, "identified=%d,",   item->identified);
@@ -309,7 +309,7 @@ static bool sv_save_items(FILE *file, int indent) {
                             struct item_weapon_specific *wpn = &item->specific.weapon;
                             svprintf_open(file, "weapon=");
                                 svprintf(file, "magazine_left=%d,", wpn->magazine_left);
-                                svprintf(file, "ammo_used_template_id=%d,", wpn->ammo_used_template_id);
+                                svprintf(file, "ammo_used_tid=%d,", wpn->ammo_used_tid);
                                 svprintf(file, "jammed=%d,", wpn->jammed);
                                 svprintf(file, "special_quality=%"PRIu64",", wpn->special_quality);
                                 svprintf(file, "upgrades=%"PRIu64",", wpn->upgrades);

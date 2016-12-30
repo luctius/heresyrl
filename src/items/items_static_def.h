@@ -60,7 +60,7 @@ $ is for money
     .msr_use_desc = {"throws", "lobs", "flings", "tosses", NULL, }
 
 #define ITEM(item_id,_sd_name,_ld_name,item_quality,item_weight,item_cost,delay) \
-            [item_id]={.uid=0, .template_id=item_id, .quality=item_quality, .age=0, \
+            [item_id]={.uid=0, .tid=item_id, .quality=item_quality, .age=0, \
             .weight=item_weight, .cost=item_cost, .sd_name=cs_ITEM _sd_name cs_CLOSE , .ld_name=cs_ITEM _ld_name cs_CLOSE, \
             .icon_attr=TERM_COLOUR_SLATE, .use_delay=delay, .identified=true, .identify_last_try = 0
 #define ITEM_END }
@@ -136,7 +136,7 @@ $ is for money
             .weapon_category=WEAPON_CATEGORY_1H_RANGED, .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=_range, \
             .rof[WEAPON_ROF_SETTING_SINGLE]=1, .rof[WEAPON_ROF_SETTING_SEMI]=0, .rof[WEAPON_ROF_SETTING_AUTO]=0, \
             .rof_set=WEAPON_ROF_SETTING_SINGLE, .magazine_sz=1, .magazine_left=1, .penetration=_penetration, \
-            .ammo_type=AMMO_TYPE_ARROW, .ammo_used_template_id=IID_ARROW, .special_quality=special, .upgrades=0, \
+            .ammo_type=AMMO_TYPE_ARROW, .ammo_used_tid=IID_ARROW, .special_quality=special, .upgrades=0, \
             .wpn_talent=talent, .jammed=false, .convey_status_effect=SEID_NONE, }, .dropable=true, ranged_desc
 
 #define RANGED_2H(_dmg_type,dmg_die,dmg_add,_penetration,_range,special,talent) \
@@ -144,7 +144,7 @@ $ is for money
             .weapon_category=WEAPON_CATEGORY_2H_RANGED, .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=_range, \
             .rof[WEAPON_ROF_SETTING_SINGLE]=1, .rof[WEAPON_ROF_SETTING_SEMI]=0, .rof[WEAPON_ROF_SETTING_AUTO]=0, \
             .rof_set=WEAPON_ROF_SETTING_SINGLE, .magazine_sz=1, .magazine_left=1, .penetration=_penetration, \
-            .ammo_type=AMMO_TYPE_ARROW, .ammo_used_template_id=IID_ARROW, .special_quality=special, .upgrades=0, \
+            .ammo_type=AMMO_TYPE_ARROW, .ammo_used_tid=IID_ARROW, .special_quality=special, .upgrades=0, \
             .wpn_talent=talent, .jammed=false, .convey_status_effect=SEID_NONE, }, .dropable=true, ranged_desc
 
 #define AMMO(_ammo_type,cid) .icon='\'', .stacked_quantity=1, .max_quantity=100, .dropable=true, \

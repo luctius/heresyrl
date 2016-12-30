@@ -15,7 +15,7 @@
     along with heresyRL.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define CAREER(_cid,_title) [_cid]={.template_id=_cid, .title=_title
+#define CAREER(_cid,_title) [_cid]={.tid=_cid, .title=_title
 
 #define CAREER_END }
 
@@ -37,7 +37,7 @@
 
 #define TALENTS(t...) .talents = { t, TLT_NONE, }
 #define TRAPPINGS(t...) .trappings = { t, IID_NONE, }
-#define EXITS(e...)   .exit_template_ids = { e, CRID_NONE, }
+#define EXITS(e...)   .exit_tid = { e, CRID_NONE, }
 #define DESCR(d)      .description=d
 #define ALLIES(ally_id) .allies_ids={ ally_id, MID_NONE, }
 

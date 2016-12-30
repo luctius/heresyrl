@@ -363,9 +363,9 @@ static bool load_items_list(lua_State *L) {
 
     int items_sz = t;
     for (int i = 0; i < items_sz; i++) {
-        if (lua_intexpr(L, &t, "game.items[%d].template_id", i+1) == 0) return false;
-        int template_id = t;
-        struct itm_item *item = itm_create(template_id);
+        if (lua_intexpr(L, &t, "game.items[%d].tid", i+1) == 0) return false;
+        int tid = t;
+        struct itm_item *item = itm_create(tid);
         if (itm_verify_item(item) == false) return false;
 
         lua_intexpr(L, &t, "game.items[%d].uid", i+1); item->uid = t;
@@ -381,7 +381,7 @@ static bool load_items_list(lua_State *L) {
                     lua_intexpr(L, &t, "game.items[%d].weapon.upgrades", i+1); wpn->upgrades = t;
                     lua_intexpr(L, &t, "game.items[%d].weapon.rof_set", i+1); wpn->rof_set = t;
                     lua_intexpr(L, &t, "game.items[%d].weapon.jammed", i+1); wpn->jammed = t;
-                    lua_intexpr(L, &t, "game.items[%d].weapon.ammo_used_template_id", i+1); wpn->ammo_used_template_id = t;
+                    lua_intexpr(L, &t, "game.items[%d].weapon.ammo_used_tid", i+1); wpn->ammo_used_tid = t;
                     if (wpn_ranged_weapon_rof_set_check(item) == false) wpn_ranged_weapon_rof_set_check(item);
                 } break;
             case ITEM_TYPE_WEARABLE: {
@@ -482,12 +482,12 @@ static bool load_monsters(lua_State *L, struct dm_map *map, struct gm_game *g) {
 
     int monsters_sz = t;
     for (int i = 0; i < monsters_sz; i++) {
-        if (lua_intexpr(L, &t, "game.monsters[%d].template_id", i+1) == 0) return false;
+        if (lua_intexpr(L, &t, "game.monsters[%d].tid", i+1) == 0) return false;
         struct msr_monster *monster = msr_create(t);
         if (msr_verify_monster(monster) == false) return false;
 
 
-        monster->template_id = t;
+        monster->tid = t;
         lua_intexpr(L, &t, "game.monsters[%d].uid", i+1); monster->uid = t;
         lua_intexpr(L, &t, "game.monsters[%d].race", i+1); monster->race = t;
         lua_intexpr(L, &t, "game.monsters[%d].size", i+1); monster->size = t;

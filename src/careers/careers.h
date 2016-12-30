@@ -31,7 +31,7 @@
 #define CR_TALENTS_MAX   10
 #define CR_ALLIES_MAX    2
 struct cr_career {
-    enum career_ids template_id;
+    enum career_ids tid;
 
     const char *title;
     const char *description;
@@ -44,7 +44,7 @@ struct cr_career {
     uint8_t talents[CR_TALENTS_MAX];
 
     enum item_ids trappings[CR_TRAPPINGS_MAX];
-    enum career_ids exit_template_ids[CR_EXIT_IDS_MAX];
+    enum career_ids exit_tid[CR_EXIT_IDS_MAX];
     enum msr_ids allies_ids[CR_ALLIES_MAX];
 
     /* career generation */
@@ -52,7 +52,7 @@ struct cr_career {
     bool available[MSR_RACE_MAX];
 };
 
-struct cr_career *cr_get_career_by_id(enum career_ids template_id);
+struct cr_career *cr_get_career_by_id(enum career_ids tid);
 enum career_ids cr_get_next_career_id_for_race(enum msr_race race, enum career_ids prev_tid);
 enum career_ids cr_spawn(int32_t roll, enum msr_race race);
 

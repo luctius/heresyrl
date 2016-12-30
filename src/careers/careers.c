@@ -64,12 +64,12 @@ enum career_ids cr_spawn(int32_t roll, enum msr_race race) {
     return random_gen_spawn(&s);
 }
 
-struct cr_career *cr_get_career_by_id(enum career_ids template_id) {
-    if (template_id < CRID_NONE) return NULL;
-    if (template_id >= CRID_MAX) return NULL;
+struct cr_career *cr_get_career_by_id(enum career_ids tid) {
+    if (tid < CRID_NONE) return NULL;
+    if (tid >= CRID_MAX) return NULL;
 
-    lg_debug("creating career tid: %d", template_id);
-    return &static_career_list[template_id];
+    lg_debug("creating career tid: %d", tid);
+    return &static_career_list[tid];
 }
 
 enum career_ids cr_get_next_career_id_for_race(enum msr_race race, enum career_ids prev_tid) {

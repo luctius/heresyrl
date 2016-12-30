@@ -1021,7 +1021,7 @@ void invwin_examine(struct hrl_window *window, struct itm_item *item) {
                     ui_printf(char_win, "The weapon is empty.\n");
                 }
                 else {
-                    struct itm_item *ammo = itm_create(wpn->ammo_used_template_id);
+                    struct itm_item *ammo = itm_create(wpn->ammo_used_tid);
                     ui_printf(char_win, "It is currently loaded with %s.\n\n", ammo->ld_name);
                     itm_destroy(ammo);
                 }
@@ -1956,7 +1956,7 @@ void vs_shop(int32_t randint, char *shop_name, enum item_group *grplst, int grpl
         werase(map_win->win);
         ui_print_reset(map_win);
 
-        struct itm_item *money_item = inv_get_item_by_template_id(monster->inventory, IID_MONEY);
+        struct itm_item *money_item = inv_get_item_by_tid(monster->inventory, IID_MONEY);
         int money = 0;
         if (money_item != NULL) money = money_item->stacked_quantity;
 
@@ -2071,7 +2071,7 @@ void vs_healer() {
 
         se_remove_all_non_permanent(monster);
 
-        struct itm_item *money_item = inv_get_item_by_template_id(monster->inventory, IID_MONEY);
+        struct itm_item *money_item = inv_get_item_by_tid(monster->inventory, IID_MONEY);
         int money = 0;
         if (money_item != NULL) money = money_item->stacked_quantity;
 
@@ -2144,7 +2144,7 @@ void pay_loan() {
         werase(map_win->win);
         ui_print_reset(map_win);
 
-        struct itm_item *money_item = inv_get_item_by_template_id(monster->inventory, IID_MONEY);
+        struct itm_item *money_item = inv_get_item_by_tid(monster->inventory, IID_MONEY);
         int money = 0;
         if (money_item != NULL) money = money_item->stacked_quantity;
 
@@ -2205,7 +2205,6 @@ void pay_loan() {
 }
 
 void quest_selection(int32_t randint) {
-/*
     struct random *r = random_init_genrand(randint);
     bool quest = true;
 
@@ -2215,9 +2214,10 @@ void quest_selection(int32_t randint) {
         bool unique = false;
 
         for (int j = 0; unique == false && j < 20; j++) {
-            int32_t grp = random_int32(r) % grplst_sz;
-            int idx = qst_select_dungeon(int32(r), gbl_game->player_data.level, grplst[grp], NULL);
-            list[i] = idx;
+            int32_t grp = random_int32(r) % sz;
+            struct quest *quest = qst_spawn(gbl_game->player_data.level, random_int32(r) );
+            if (quest == NULL) continue;
+            list[i] = quest->tid;
 
             unique = true;
             if (list[i] == IID_NONE) unique = false;
@@ -2227,7 +2227,6 @@ void quest_selection(int32_t randint) {
         }
         if (!unique) sz = i-1;
     }
-*/
 }
 
 void village_screen() {

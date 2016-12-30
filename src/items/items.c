@@ -45,7 +45,7 @@ static bool items_list_initialised = false;
 void itmlst_items_list_init(void) {
     for (unsigned int i = 0; i < IID_MAX; i++) {
         struct itm_item *item = &static_item_list[i];
-        if (item->template_id != i) {
+        if (item->tid != i) {
             fprintf(stderr, "Item list integrity check failed! [%d]\n", i);
             fprintf(stderr, "Item: %s.\n", static_item_list[i].sd_name);
             exit(EXIT_FAILURE);
@@ -187,22 +187,22 @@ uint32_t itm_spawn(int32_t roll, int level, enum item_group ig, struct msr_monst
     return random_gen_spawn(&s);
 }
 
-struct itm_item *itm_create(int template_id) {
-    if (template_id <= IID_NONE) return NULL;
-    if (template_id >= IID_MAX) return NULL;
-    if (template_id >= (int) ARRAY_SZ(static_item_list)) return NULL;
+struct itm_item *itm_create(int tid) {
+    if (tid <= IID_NONE) return NULL;
+    if (tid >= IID_MAX) return NULL;
+    if (tid >= (int) ARRAY_SZ(static_item_list)) return NULL;
     if (items_list_initialised == false) itmlst_items_list_init();
 
     struct itm_item_list_entry *i = calloc(1, sizeof(struct itm_item_list_entry) );
     assert(i != NULL);
 
-    memcpy(&i->item, &static_item_list[template_id], sizeof(static_item_list[template_id]));
+    memcpy(&i->item, &static_item_list[tid], sizeof(static_item_list[tid]));
     TAILQ_INSERT_TAIL(&items_list_head, i, entries);
     i->item.item_pre    = ITEM_PRE_CHECK;
     i->item.item_post   = ITEM_POST_CHECK;
     i->item.uid         = itmlst_next_id();
     i->item.owner_type  = ITEM_OWNER_NONE;
-    i->item.description = itm_descs[template_id];
+    i->item.description = itm_descs[tid];
     assert(i->item.description != NULL);
 
     switch(i->item.item_type) {
@@ -254,7 +254,7 @@ bool itm_insert_item(struct itm_item *item, struct dm_map *map, coord_t *pos) {
             retval = true;
 
             lg_debug("Inserting item %s (%c) [uid:%d, tid:%d] to (%d,%d)",
-                    item->sd_name, item->icon, item->uid, item->template_id, pos->x, pos->y);
+                    item->sd_name, item->icon, item->uid, item->tid, pos->x, pos->y);
         }
     }
 
@@ -417,7 +417,7 @@ bool itm_stack_compatible(struct itm_item *item1, struct itm_item *item2) {
     if (itm_verify_item(item1) == false) return false;
     if (itm_verify_item(item2) == false) return false;
 
-    if (item1->template_id != item2->template_id) return false;
+    if (item1->tid != item2->tid) return false;
     if (item1->item_type != item2->item_type) return false;
     if (item1->quality != item2->quality) return false;
     if (item1->weight != item2->weight) return false;
@@ -515,7 +515,7 @@ enum item_ammo_type wpn_get_ammo_type(struct itm_item *item) {
 enum item_ids wpn_get_ammo_used_id(struct itm_item *item) {
     if (itm_verify_item(item) == false) return IID_NONE;
     if (item->item_type != ITEM_TYPE_WEAPON) return IID_NONE;
-    return item->specific.weapon.ammo_used_template_id;
+    return item->specific.weapon.ammo_used_tid;
 }
 
 bool wbl_is_type(struct itm_item *item, enum item_wearable_type type) {

@@ -376,7 +376,7 @@ static bool unload(struct msr_monster *monster, struct itm_item *weapon_item) {
         return false;
     }
 
-    struct itm_item *ammo_item = itm_create(wpn->ammo_used_template_id);
+    struct itm_item *ammo_item = itm_create(wpn->ammo_used_tid);
     if (itm_verify_item(ammo_item) == false) return false;
     assert(ammo_is_type(ammo_item, wpn->ammo_type) == true);
 

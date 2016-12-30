@@ -16,7 +16,7 @@
 */
 
 #define STATUS_EFFECT(_id, _name, _desc, hc) \
-                [_id] = { .uid=0, .template_id=_id, .name=_name, .description=_desc, .heal_cost=hc
+                [_id] = { .uid=0, .tid=_id, .name=_name, .description=_desc, .heal_cost=hc
 #define STATUS_EFFECT_END }
 
 #define MESSAGES(_of_plr, _of_msr, _oe_plr, _oe_msr) \

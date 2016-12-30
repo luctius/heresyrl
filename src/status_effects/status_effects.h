@@ -188,7 +188,7 @@ struct status_effect {
     uint32_t status_effect_pre;
 
     uint32_t uid;
-    enum se_ids template_id;
+    enum se_ids tid;
 
     const char *name;
     const char *description;

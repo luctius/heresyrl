@@ -104,7 +104,7 @@ struct itm_item *inv_get_next_item(struct inv_inventory *inv, struct itm_item *p
     }
 
     if (item != NULL) {
-        if (item->template_id == IID_HUMAN_UNARMED) {
+        if (item->tid == IID_HUMAN_UNARMED) {
             if ( (item_location & INV_LOC_CREATURE_WIELD1) > 0) {
                 /* HACK: ignore creature wields (atleast for humans) */
                 item = inv_get_next_item(inv, item);
@@ -115,11 +115,11 @@ struct itm_item *inv_get_next_item(struct inv_inventory *inv, struct itm_item *p
     return item;
 }
 
-struct itm_item *inv_get_item_by_template_id(struct inv_inventory *inv, uint32_t tid) {
+struct itm_item *inv_get_item_by_tid(struct inv_inventory *inv, uint32_t tid) {
     struct itm_item *item = NULL;
 
     while ( (item = inv_get_next_item(inv, item) ) != NULL) {
-        if (item->template_id == tid) break;
+        if (item->tid == tid) break;
     }
 
     return item;
@@ -166,7 +166,7 @@ bool inv_add_stack(struct inv_inventory *inv, struct itm_item *item) {
 
     struct itm_item *i = NULL;
     while ( (i = inv_get_next_item(inv, i) ) != NULL ) {
-        if (i->template_id == item->template_id) {
+        if (i->tid == item->tid) {
             if (i->stacked_quantity < i->max_quantity) {
                 if (itm_stack_compatible(i, item) == true) {
                     int space_left = (i->max_quantity - i->stacked_quantity);

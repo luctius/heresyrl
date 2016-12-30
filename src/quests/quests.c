@@ -40,10 +40,38 @@ static struct quest *qst_select(int idx) {
     return quest;
 }
 
-struct quest *qst_spawn(int level) {
-    int idx = 1;
+struct qst_spawn_weight_struct {
+    int level;
+};
 
-    return qst_select(idx);
+static int32_t qst_spawn_weight(void *ctx, int idx) {
+    assert (ctx != NULL);
+    struct qst_spawn_weight_struct *sws = ctx;
+
+    if (sws->level < static_quest_list[idx].min_level) return RANDOM_GEN_WEIGHT_IGNORE;
+    if (sws->level > static_quest_list[idx].max_level) return RANDOM_GEN_WEIGHT_IGNORE;
+    return static_quest_list[idx].weight;
+}
+
+struct quest *qst_spawn(int level, int32_t roll) {
+    int32_t idx = 1;
+
+    struct qst_spawn_weight_struct sws = {
+        .level = level,
+    };
+
+    struct random_gen_settings s = {
+        .start_idx = idx,
+        .end_idx = ARRAY_SZ(static_quest_list),
+        .roll = roll,
+        .ctx = &sws,
+        .weight = qst_spawn_weight,
+    };
+
+    idx = random_gen_spawn(&s);
+    if (idx >= s.start_idx && idx < s.end_idx) return qst_select(idx);
+    return qst_select(1);
+
 }
 
 static int32_t qst_dungeon_spawn_weight(void *ctx, int idx) {
@@ -67,7 +95,7 @@ enum dm_dungeon_type qst_select_dungeon(struct quest *quest, int32_t roll) {
     };
 
     int32_t idx = random_gen_spawn(&s);
-    if (idx >= 0 && idx < QUEST_SZ) return quest->dungeon[idx].type;
+    if (idx >= s.start_idx && idx < s.end_idx) return quest->dungeon[idx].type;
     return DUNGEON_TYPE_PLAIN;
 }
 
@@ -93,7 +121,7 @@ enum msr_race qst_select_enemy(struct quest *quest, int32_t roll) {
     };
 
     int32_t idx = random_gen_spawn(&s);
-    if (idx >= 0 && idx < QUEST_SZ) return quest->enemies[idx].race;
+    if (idx >= s.start_idx && idx < s.end_idx) return quest->enemies[idx].race;
     return MSR_RACE_BEAST;
 }
 
@@ -126,7 +154,7 @@ void qst_process_quest_start(struct quest *quest, struct dm_map *map, struct ran
 void qst_process_quest_end(struct quest *quest, struct dm_map *map) {
     if (qst_is_quest_done(quest, map) ) {
         if (quest->end != NULL) GM_msg("%s", quest->end);
-        struct itm_item *money_item = inv_get_item_by_template_id(gbl_game->player_data.player->inventory, IID_MONEY);
+        struct itm_item *money_item = inv_get_item_by_tid(gbl_game->player_data.player->inventory, IID_MONEY);
         if (money_item == NULL) {
             money_item = itm_create(IID_MONEY);
             msr_give_item(gbl_game->player_data.player, money_item);
@@ -157,7 +185,7 @@ void qst_process_quest_during(struct quest *quest, struct dm_map *map) {
 
                     while ( (item = inv_get_next_item(inv, item) ) != NULL) {
                         for (int i = 0; i < QUEST_SZ && quest->qst_params[i] != IID_NONE; i+= 2) {
-                            if (item->template_id == quest->qst_params[i]) {
+                            if (item->tid == quest->qst_params[i]) {
                                 if (quest->qst_params[i+1] <= item->stacked_quantity ) {
                                     nrdone++;
                                 }

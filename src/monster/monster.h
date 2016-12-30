@@ -136,7 +136,7 @@ struct msr_monster {
     uint32_t uid;
 
     /* id of the base template of this monster */
-    enum msr_ids template_id;
+    enum msr_ids tid;
 
     /* current grid position */
     coord_t pos;
@@ -249,7 +249,7 @@ int msr_spawn(int32_t roll, int level, enum dm_dungeon_type dt);
 void msr_populate_inventory(struct msr_monster *monster, int level, struct random *r);
 
 /* create a instance of this monster template. */
-struct msr_monster *msr_create(enum msr_ids template_id);
+struct msr_monster *msr_create(enum msr_ids tid);
 
 /* remove monster from map and global monster list. */
 void msr_destroy(struct msr_monster *monster, struct dm_map *map);

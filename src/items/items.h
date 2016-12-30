@@ -153,7 +153,7 @@ struct item_weapon_specific {
     uint8_t magazine_left;
     uint8_t penetration;
     enum item_ammo_type ammo_type;
-    enum item_ids ammo_used_template_id; /* <enum item_ids> item template id of the ammo currently used. this is used to unload the ammo and check for special attributes. */
+    enum item_ids ammo_used_tid; /* <enum item_ids> item template id of the ammo currently used. this is used to unload the ammo and check for special attributes. */
     bitfield64_t special_quality;
     bitfield64_t upgrades;
     bitfield64_t wpn_talent;  /* talent required for this weapon to operate.*/
@@ -221,7 +221,7 @@ struct itm_item {
     uint32_t uid;
 
     /* id of the items base copy. */
-    uint32_t template_id;
+    uint32_t tid;
     enum item_types item_type;
     /*enum item_material material;*/
 
@@ -302,7 +302,7 @@ struct itm_item *itmlst_item_by_uid(uint32_t uid);
 uint32_t itm_spawn(int32_t roll, int level, enum item_group ig, struct msr_monster *monster);
 
 /* create an item instance of this template id*/
-struct itm_item *itm_create(int template_id);
+struct itm_item *itm_create(int tid);
 
 /* destroy the item and remove it from the global item list */
 void itm_destroy(struct itm_item *item);
