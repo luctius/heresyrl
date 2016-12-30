@@ -1939,7 +1939,7 @@ void vs_shop(int32_t randint, char *shop_name, enum item_group *grplst, int grpl
 
         for (int j = 0; unique == false && j < 20; j++) {
             int32_t grp = random_int32(r) % grplst_sz;
-            int idx = itm_spawn(random_float(r), gbl_game->player_data.level, grplst[grp], NULL);
+            int idx = itm_spawn(random_int32(r), gbl_game->player_data.level, grplst[grp], NULL);
             list[i] = idx;
 
             unique = true;
@@ -2148,11 +2148,14 @@ void pay_loan() {
         int money = 0;
         if (money_item != NULL) money = money_item->stacked_quantity;
 
-        ui_printf(map_win, "Loanshark:      (You have %lld gold)\n", money);
-        ui_printf(map_win, "Credit: %d\n",  gbl_game->player_data.loan);
-
         ui_printf_ext(map_win, map_win->lines -4, 1, cs_ATTR " [a]" cs_CLOSE " pay loan.");
         ui_printf_ext(map_win, map_win->lines -3, 1, cs_ATTR " [q]" cs_CLOSE " exit.");
+        ui_printf_ext(map_win, 1, 1, "");
+
+        ui_printf(map_win, "Loanshark:      (You have %lld gold)\n", money);
+        ui_printf(map_win, "Credit: %d\n",  gbl_game->player_data.loan);
+        ui_printf(map_win, "Payment: ");
+
         if (options.refresh) wrefresh(map_win->win);
 
         switch (inp_get_input(gbl_game->input) ) {
@@ -2161,9 +2164,28 @@ void pay_loan() {
                 ui_printf_ext(map_win, map_win->lines -5, 1, "Pay how much?");
                 if (options.refresh) wrefresh(map_win->win);
 
-                int se_idx = inp_get_input_idx(gbl_game->input);
+                bool b = true;
+                enum inp_keys key = 0;
+                int amount = 0;
+                while ( b && (key = inp_get_input_digit(gbl_game->input) ) ) {
+                    switch (key) {
+                        case '\n': 
+                        case 24: b = false; break;
+                        case INP_KEY_BACKSPACE:
+                            amount /= 10;
+                            break;
+                        default: {
+                            amount = inp_input_to_digit(key);
+                            if (amount >= 0) {
+                                ui_printf(map_win, "%d",  amount);
+                                payment *= 10;
+                                payment += amount;
+                            }
+                        }
+                    }
+                }
 
-                if (payment <= money) {
+                if (payment <= money && payment > 0) {
                     money_item->stacked_quantity -= payment;
                     You(monster, "payed the loanshark %d gp.", payment);
                 }
@@ -2182,10 +2204,37 @@ void pay_loan() {
     }
 }
 
+void quest_selection(int32_t randint) {
+/*
+    struct random *r = random_init_genrand(randint);
+    bool quest = true;
+
+    int32_t sz = (random_int32(r) % 3) + 2;
+    uint32_t list[sz];
+    for (int i = 0; i < sz; i++) {
+        bool unique = false;
+
+        for (int j = 0; unique == false && j < 20; j++) {
+            int32_t grp = random_int32(r) % grplst_sz;
+            int idx = qst_select_dungeon(int32(r), gbl_game->player_data.level, grplst[grp], NULL);
+            list[i] = idx;
+
+            unique = true;
+            if (list[i] == IID_NONE) unique = false;
+            for (int k = 0; unique && k < i; k++) {
+                if (list[i] == list[k]) unique = false;
+            }
+        }
+        if (!unique) sz = i-1;
+    }
+*/
+}
+
 void village_screen() {
     int32_t r_ws = random_int32(gbl_game->random);
     int32_t r_as = random_int32(gbl_game->random);
     int32_t r_ap = random_int32(gbl_game->random);
+    int32_t r_qst = random_int32(gbl_game->random);
 
     int line = 0;
     bool watch = true;
@@ -2237,9 +2286,9 @@ void village_screen() {
                     case 'b': vs_shop(r_as, "Armour Smith", as_grplst, ARRAY_SZ(as_grplst) ); break;
                     case 'c': vs_shop(r_ap, "Apothecary",   ap_grplst, ARRAY_SZ(ap_grplst) ); break;
                     case 'd': vs_healer(); break;
-                    case 'e': ui_printf_ext(map_win, map_win->lines-5, 1, "Not Implemented yet."); break;
+                    case 'e': pay_loan(); break;
                     case 'f': levelup_selection_window(); break;
-                    case 'g': ui_printf_ext(map_win, map_win->lines-5, 1, "Not Implemented yet."); break;
+                    case 'g': quest_selection(r_qst); break;
                     case 'h': ui_printf_ext(map_win, map_win->lines-5, 1, "Not Implemented yet."); break;
                     default: break;
                 }

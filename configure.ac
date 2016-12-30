@@ -49,7 +49,7 @@ AM_CONDITIONAL([GENGETOPT], [test x$GENGETOPT != x])
 AC_ARG_VAR([GENGETOPT], [application to generate the commandline arguments code])
 
 # Checks for header files.
-AC_CHECK_HEADERS([float.h inttypes.h limits.h stddef.h stdint.h stdlib.h string.h sys/param.h unistd.h])
+AC_CHECK_HEADERS([inttypes.h limits.h stddef.h stdint.h stdlib.h string.h sys/param.h unistd.h])
 
 # Checks for library functions.
 # Checks for typedefs, structures, and compiler characteristics.

@@ -212,33 +212,3 @@ long random_genrand_int31(struct random *r)
 {
     return (long)(random_int32(r)>>1);
 }
-
-/* generates a random number on [0,1]-real-interval */
-double random_genrand_real1(struct random *r)
-{
-    return random_int32(r)*(1.0/4294967295.0);
-    /* divided by 2^32-1 */
-}
-
-/* generates a random number on [0,1)-real-interval */
-double random_genrand_real2(struct random *r)
-{
-    return random_int32(r)*(1.0/4294967296.0);
-    /* divided by 2^32 */
-}
-
-/* generates a random number on (0,1)-real-interval */
-double random_genrand_real3(struct random *r)
-{
-    uint32_t u = random_int32(r);
-    return (((double)u) + 0.5)*(1.0/4294967296.0);
-    /* divided by 2^32 */
-}
-
-/* generates a random number on [0,1) with 53-bit resolution*/
-double random_float(struct random *r)
-{
-    unsigned long a=random_int32(r)>>5, b=random_int32(r)>>6;
-    return(a*67108864.0+b)*(1.0/9007199254740992.0);
-}
-/* These real versions are due to Isaku Wada, 2002/01/09 added */

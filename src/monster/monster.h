@@ -243,7 +243,7 @@ void msrlst_monster_list_exit(void);
 struct msr_monster *msrlst_get_next_monster(struct msr_monster *prev);
 
 /* retrieves a monster template id based on parameters */
-int msr_spawn(double roll, int level, enum dm_dungeon_type dt);
+int msr_spawn(int32_t roll, int level, enum dm_dungeon_type dt);
 
 /* Equipes the monster with weapons according to its profile. */
 void msr_populate_inventory(struct msr_monster *monster, int level, struct random *r);

@@ -1,5 +1,5 @@
 Version 0.1:
-    Pay Loan: Which means implementing money
+    --- Pay Loan: Which means implementing money :: implemented, badly
     --- Shops: Buying Selling :: basicly done, but sell screen does not list selling price for example.
     --- Healer: Probably means implementing every critical hit, creating healing categories.  :: done
     Quests: gain rewards, create list of available quests

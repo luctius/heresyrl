@@ -14,9 +14,10 @@
     You should have received a copy of the GNU General Public License
     along with heresyRL.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <float.h>
 #include <string.h>
 #include <stdio.h>
+
+#include "random_generator.h"
 
 #include "quests.h"
 #include "quests_static.h"
@@ -32,83 +33,68 @@ struct quest *qst_by_tid(enum qst_ids tid) {
     return quest;
 }
 
-struct quest *qst_spawn(int level) {
-    struct quest *quest = &static_quest_list[QSTID_WISE_WOMAN];
+static struct quest *qst_select(int idx) {
+    struct quest *quest = &static_quest_list[idx];
     quest->state = 0;
     memset(quest->params, 0x0, sizeof(quest->params) );
     return quest;
 }
 
-enum dm_dungeon_type qst_select_dungeon(struct quest *quest, double roll) {
-    int sz = QUEST_SZ;
-    double prob_arr[sz];
-    double cumm_prob_arr[sz];
-    double sum = 0.f;
+struct quest *qst_spawn(int level) {
+    int idx = 1;
 
-    int idx = DUNGEON_TYPE_PLAIN;
-
-    cumm_prob_arr[0] = DBL_MAX;
-    for (int i = 0; i < sz; i++) {
-        bool use = false;
-        if (quest->dungeon[i].weight != 0) use = true;
-
-        if (use) {
-            sum += quest->dungeon[i].weight;
-            cumm_prob_arr[i] = 0.f;
-        }
-        else cumm_prob_arr[i] = DBL_MAX;
-    }
-
-    double cumm = 0.f;
-    for (int i = 0; i < sz; i++) {
-        if (cumm_prob_arr[i] == DBL_MAX) continue;
-        prob_arr[i] = quest->dungeon[i].weight / sum;
-        cumm += prob_arr[i];
-        cumm_prob_arr[i] = cumm;
-    }
-
-    for (int i = sz-1; i >= 0; i--) {
-        if (cumm_prob_arr[i] == DBL_MAX) continue;
-        if (roll < cumm_prob_arr[i]) idx = i;
-    }
-
-    return quest->dungeon[idx].type;
+    return qst_select(idx);
 }
 
-enum msr_race qst_select_enemy(struct quest *quest, double roll) {
-    int sz = QUEST_SZ;
-    double prob_arr[sz];
-    double cumm_prob_arr[sz];
-    double sum = 0.f;
+static int32_t qst_dungeon_spawn_weight(void *ctx, int idx) {
+    assert (ctx != NULL);
+    struct quest *quest = ctx;
 
-    int idx = MSR_RACE_BEAST;
+    if (quest->dungeon[idx].weight != 0) return quest->dungeon[idx].weight;
 
-    cumm_prob_arr[0] = DBL_MAX;
-    for (int i = 0; i < sz; i++) {
-        bool use = false;
-        if (quest->enemies[i].weight != 0) use = true;
+    return RANDOM_GEN_WEIGHT_IGNORE;
+}
 
-        if (use) {
-            sum += quest->enemies[i].weight;
-            cumm_prob_arr[i] = 0.f;
-        }
-        else cumm_prob_arr[i] = DBL_MAX;
-    }
+enum dm_dungeon_type qst_select_dungeon(struct quest *quest, int32_t roll) {
+    assert(quest != NULL);
 
-    double cumm = 0.f;
-    for (int i = 0; i < sz; i++) {
-        if (cumm_prob_arr[i] == DBL_MAX) continue;
-        prob_arr[i] = quest->enemies[i].weight / sum;
-        cumm += prob_arr[i];
-        cumm_prob_arr[i] = cumm;
-    }
+    struct random_gen_settings s = {
+        .start_idx = 0,
+        .end_idx = QUEST_SZ,
+        .roll = roll,
+        .ctx = quest,
+        .weight = qst_dungeon_spawn_weight,
+    };
 
-    for (int i = sz-1; i > 0; i--) {
-        if (cumm_prob_arr[i] == DBL_MAX) continue;
-        if (roll < cumm_prob_arr[i]) idx = i;
-    }
+    int32_t idx = random_gen_spawn(&s);
+    if (idx >= 0 && idx < QUEST_SZ) return quest->dungeon[idx].type;
+    return DUNGEON_TYPE_PLAIN;
+}
 
-    return quest->enemies[idx].race;
+static int32_t qst_enemies_spawn_weight(void *ctx, int idx) {
+    assert (ctx != NULL);
+    struct quest *quest = ctx;
+
+    if (quest->enemies[idx].weight != 0) quest->enemies[idx].weight;
+
+    return RANDOM_GEN_WEIGHT_IGNORE;
+}
+
+
+enum msr_race qst_select_enemy(struct quest *quest, int32_t roll) {
+    assert(quest != NULL);
+
+    struct random_gen_settings s = {
+        .start_idx = 0,
+        .end_idx = QUEST_SZ,
+        .roll = roll,
+        .ctx = quest,
+        .weight = qst_enemies_spawn_weight,
+    };
+
+    int32_t idx = random_gen_spawn(&s);
+    if (idx >= 0 && idx < QUEST_SZ) return quest->enemies[idx].race;
+    return MSR_RACE_BEAST;
 }
 
 void qst_process_quest_start(struct quest *quest, struct dm_map *map, struct random *r) {

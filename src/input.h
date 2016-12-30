@@ -93,5 +93,7 @@ enum inp_keys inp_get_input_idx(struct inp_input *i);
 char inp_key_translate_idx(int idx);
 int inp_input_to_idx(enum inp_keys k);
 enum inp_keys inp_get_input_text(struct inp_input *i);
+enum inp_keys inp_get_input_digit(struct inp_input *i);
+int inp_input_to_digit(enum inp_keys k);
 
 #endif /* INPUT_H */

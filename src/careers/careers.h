@@ -54,7 +54,7 @@ struct cr_career {
 
 struct cr_career *cr_get_career_by_id(enum career_ids template_id);
 enum career_ids cr_get_next_career_id_for_race(enum msr_race race, enum career_ids prev_tid);
-enum career_ids cr_spawn(double roll, enum msr_race race);
+enum career_ids cr_spawn(int32_t roll, enum msr_race race);
 
 bool cr_give_trappings_to_player(struct cr_career *car, struct msr_monster *monster);
 bool cr_generate_allies(struct cr_career *car, struct msr_monster *player, struct dm_map *map);

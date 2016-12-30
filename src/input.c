@@ -107,6 +107,15 @@ int inp_input_to_idx(enum inp_keys k) {
     return ret;
 }
 
+int inp_input_to_digit(enum inp_keys k) {
+    int ret = -1;
+
+    /* 0-9 -> 26 - 35*/
+    if (isdigit(k) ) ret = (k - 0x30);
+
+    return ret;
+}
+
 bool inp_keylog_stop(struct inp_input *i) {
     if (i == NULL) return false;
     if (inp_verify(i) == false) return NULL;
@@ -151,6 +160,25 @@ enum inp_keys inp_get_input_text(struct inp_input *i) {
     lg_debug("key text %d", k);
     return k;
 }
+
+enum inp_keys inp_get_input_digit(struct inp_input *i) {
+    if (i == NULL) return -1;
+    if (inp_verify(i) == false) return -1;
+    enum inp_keys k = INP_KEY_ESCAPE;
+
+    if (inp_log_has_keys(i) == false) {
+        while ( (isdigit(k = getch() ) == false) && (k != ' ') && (k != '\n') && (k != KEY_BACKSPACE) ) {
+            /*lg_debug("key %d", k);*/
+        }
+        inp_add_to_log(i, k);
+    }
+
+    assert(inp_log_has_keys(i) );
+    k = inp_get_from_log(i);
+    lg_debug("key text %d", k);
+    return k;
+}
+
 
 static enum inp_keys inp_translate_key(int ch) {
     enum inp_keys k = INP_KEY_NONE;

@@ -18,7 +18,6 @@
 #include <assert.h>
 #include <string.h>
 #include <sys/queue.h>
-#include <float.h>
 
 #include "careers.h"
 #include "careers_static.h"
@@ -29,40 +28,40 @@
 #include "monster/monster.h"
 #include "items/items.h"
 #include "fov/sight.h"
+#include "random_generator.h"
 
 #include "careers_static_def.h"
 
-enum career_ids cr_spawn(double roll, enum msr_race race) {
-    int sz = ARRAY_SZ(static_career_list);
-    double prob_arr[sz];
-    double cumm_prob_arr[sz];
-    double sum = 0;
 
-    int idx = CRID_NONE;
+struct cr_spawn_weigh_struct {
+    enum msr_race race;
+};
 
-    cumm_prob_arr[0] = DBL_MAX;
-    for (int i = CRID_NONE; i < sz; i++) {
-        if (static_career_list[i].available[race] == true) {
-            sum += static_career_list[i].weight[race];
-            cumm_prob_arr[i] = 0.f;
-        }
-        else cumm_prob_arr[i] = DBL_MAX;
+static int32_t cr_spawn_weight(void *ctx, int idx) {
+    assert (ctx != NULL);
+    struct cr_spawn_weigh_struct *sws = ctx;
+
+    if (static_career_list[idx].available[sws->race] == true) {
+        return static_career_list[idx].weight[sws->race];
     }
 
-    double cumm = 0;
-    for (int i = CRID_NONE; i < sz; i++) {
-        if (cumm_prob_arr[i] == DBL_MAX) continue;
-        prob_arr[i] = static_career_list[i].weight[race] / sum;
-        cumm += prob_arr[i];
-        cumm_prob_arr[i] = cumm;
-    }
+    return RANDOM_GEN_WEIGHT_IGNORE;
+}
 
-    for (int i = sz-1; i > CRID_NONE; i--) {
-        if (cumm_prob_arr[i] == DBL_MAX) continue;
-        if (roll < cumm_prob_arr[i]) idx = i;
-    }
+enum career_ids cr_spawn(int32_t roll, enum msr_race race) {
+    struct cr_spawn_weigh_struct sws = {
+        .race = race,
+    };
 
-    return idx;
+    struct random_gen_settings s = {
+        .start_idx = 0,
+        .end_idx = ARRAY_SZ(static_career_list),
+        .roll = roll,
+        .ctx = &sws,
+        .weight = cr_spawn_weight,
+    };
+
+    return random_gen_spawn(&s);
 }
 
 struct cr_career *cr_get_career_by_id(enum career_ids template_id) {

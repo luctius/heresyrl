@@ -28,6 +28,7 @@ heresyrl_SOURCES =  \
 				src/logging.h	\
 				src/inventory.h	\
 				src/turn_tick.h	\
+				src/random_generator.h	\
 				src/status_effects/ground_effects.h \
 				src/status_effects/ground_effects_static.h \
 				src/status_effects/ground_effects_static_def.h \
@@ -79,6 +80,7 @@ heresyrl_SOURCES =  \
 				src/save.c \
 				src/options.c \
 				src/turn_tick.c \
+				src/random_generator.c \
 				src/careers/careers.c \
 				src/dungeon/tiles.c \
 				src/dungeon/dungeon_cave.c \

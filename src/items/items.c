@@ -18,13 +18,13 @@
 #include <assert.h>
 #include <string.h>
 #include <sys/queue.h>
-#include <float.h>
 
 #include "items.h"
 #include "items_static.h"
 #include "random.h"
 #include "inventory.h"
 #include "fight.h"
+#include "random_generator.h"
 #include "dungeon/tiles.h"
 #include "dungeon/dungeon_map.h"
 #include "monster/monster.h"
@@ -144,54 +144,47 @@ static bool itm_is_in_group(struct itm_item *item, enum item_group ig) {
     return false;
 }
 
-uint32_t itm_spawn(double roll, int level, enum item_group ig, struct msr_monster *monster) {
-    int sz = ARRAY_SZ(static_item_list);
-    double prob_arr[sz];
-    double cumm_prob_arr[sz];
-    double sum = 0.f;
+struct itm_spawn_weigh_struct {
+    int level;
+    enum item_group ig;
+    struct msr_monster *monster;
+};
 
-    if (ig == ITEM_GROUP_NONE) return IID_NONE;
-    uint32_t idx = IID_NONE;
+static int32_t itm_spawn_weight(void *ctx, int idx) {
+    assert (ctx != NULL);
+    struct itm_spawn_weigh_struct *sws = ctx;
 
-    cumm_prob_arr[0] = DBL_MAX;
-    for (int i = IID_NONE; i < sz; i++) {
-        bool use = false;
-        if (level >= static_item_list[i].spawn_level) {
-            if (itm_is_in_group(&static_item_list[i], ig) ) {
-                use = true;
-                if (monster != NULL) {
-                    use = false;
-                    if (static_item_list[i].item_type == ITEM_TYPE_WEAPON) {
-                        if (msr_has_talent(monster, static_item_list[i].specific.weapon.wpn_talent) == true) {
-                            use = true;
-                        }
-                    }
+    if (sws->level >= static_item_list[idx].spawn_level) {
+        if (itm_is_in_group(&static_item_list[idx], sws->ig) ) {
+            if (sws->monster == NULL) return static_item_list[idx].spawn_weight;
+
+            if (static_item_list[idx].item_type == ITEM_TYPE_WEAPON) {
+                if (msr_has_talent(sws->monster, static_item_list[idx].specific.weapon.wpn_talent) == true) {
+                    return static_item_list[idx].spawn_weight;
                 }
             }
         }
-
-        if (use) {
-            sum += static_item_list[i].spawn_weight;
-            cumm_prob_arr[i] = 0.f;
-        }
-        else cumm_prob_arr[i] = DBL_MAX;
     }
 
-    double cumm = 0.f;
-    for (int i = IID_NONE; i < sz; i++) {
-        prob_arr[i] = DBL_MAX;
-        if (cumm_prob_arr[i] == DBL_MAX) continue;
-        prob_arr[i] = static_item_list[i].spawn_weight / sum;
-        cumm += prob_arr[i];
-        cumm_prob_arr[i] = cumm;
-    }
+    return RANDOM_GEN_WEIGHT_IGNORE;
+}
 
-    for (int i = sz-1; i > IID_NONE; i--) {
-        if (cumm_prob_arr[i] == DBL_MAX) continue;
-        if (roll < cumm_prob_arr[i]) idx = i;
-    }
+uint32_t itm_spawn(int32_t roll, int level, enum item_group ig, struct msr_monster *monster) {
+    struct itm_spawn_weigh_struct sws = {
+        .level = level,
+        .ig = ig,
+        .monster = monster,
+    };
 
-    return idx;
+    struct random_gen_settings s = {
+        .start_idx = 0,
+        .end_idx = ARRAY_SZ(static_item_list),
+        .roll = roll,
+        .ctx = &sws,
+        .weight = itm_spawn_weight,
+    };
+
+    return random_gen_spawn(&s);
 }
 
 struct itm_item *itm_create(int template_id) {
@@ -359,32 +352,33 @@ int itm_get_energy(struct itm_item *item) {
     return item->energy;
 }
 
-static int itm_food_side_effects_spwn(double roll, const struct item_food_side_effect_struct *ifse, int sz) {
-    double prob_arr[sz];
-    double cumm_prob_arr[sz];
-    double sum = 0.f;
-    int idx = 0;
+struct itm_food_spawn_weigh_struct {
+    const struct item_food_side_effect_struct *ifse;
+};
 
-    for (int i = 0; i < sz; i++) {
-        bool use = false;
-        sum += ifse[i].weight;
-        cumm_prob_arr[i] = 0.f;
-    }
+static int32_t itm_food_spawn_weight(void *ctx, int idx) {
+    assert (ctx != NULL);
+    struct itm_food_spawn_weigh_struct *sws = ctx;
 
-    double cumm = 0.f;
-    for (int i = IID_NONE; i < sz; i++) {
-        prob_arr[i] = ifse->weight / sum;
-        cumm += prob_arr[i];
-        cumm_prob_arr[i] = cumm;
-    }
-
-    for (int i = sz-1; i > IID_NONE; i--) {
-        if (cumm_prob_arr[i] == DBL_MAX) continue;
-        if (roll < cumm_prob_arr[i]) idx = i;
-    }
-
-    return idx;
+    return sws->ifse[idx].weight;
 }
+
+static int itm_food_side_effects_spwn(int32_t roll, const struct item_food_side_effect_struct *ifse, int sz) {
+    struct itm_food_spawn_weigh_struct sws = {
+        .ifse = ifse,
+    };
+
+    struct random_gen_settings s = {
+        .start_idx = 0,
+        .end_idx = sz,
+        .roll = roll,
+        .ctx = &sws,
+        .weight = itm_food_spawn_weight,
+    };
+
+    return random_gen_spawn(&s);
+}
+
 
 void itm_identify(struct itm_item *item) {
     if (itm_verify_item(item) == false) return;
@@ -395,7 +389,7 @@ void itm_identify(struct itm_item *item) {
         switch(item->item_type) {
             case ITEM_TYPE_FOOD: {
                     if (random_d100(gbl_game->random) < item_food_quality_side_effect_chance[item->quality]) {
-                        int idx = itm_food_side_effects_spwn(random_float(gbl_game->random), item_food_side_effects,
+                        int idx = itm_food_side_effects_spwn(random_int32(gbl_game->random), item_food_side_effects,
                                                 ARRAY_SZ(item_food_side_effects) );
                         item->specific.food.side_effect = item_food_side_effects[idx].side_effect_id;
                     }

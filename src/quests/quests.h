@@ -70,8 +70,8 @@ struct quest {
 
 struct quest *qst_by_tid(enum qst_ids tid);
 struct quest *qst_spawn(int level);
-enum dm_dungeon_type qst_select_dungeon(struct quest *quest, double roll);
-enum msr_race qst_select_enemy(struct quest *quest, double roll);
+enum dm_dungeon_type qst_select_dungeon(struct quest *quest, int32_t roll);
+enum msr_race qst_select_enemy(struct quest *quest, int32_t roll);
 
 void qst_process_quest_start(struct quest *quest, struct dm_map *map, struct random *r);
 void qst_process_quest_end(struct quest *quest, struct dm_map *map);

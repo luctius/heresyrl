@@ -236,7 +236,7 @@ struct itm_item {
     const char *description;
     char icon;
     int icon_attr;
-    float use_delay;
+    int use_delay;
     uint32_t stacked_quantity;
     uint32_t max_quantity;
     bool identified;
@@ -299,7 +299,7 @@ struct itm_item *itmlst_get_next_item(struct itm_item *prev);
 struct itm_item *itmlst_item_by_uid(uint32_t uid);
 
 /* retrieves a item template id based on parameters */
-uint32_t itm_spawn(double roll, int level, enum item_group ig, struct msr_monster *monster);
+uint32_t itm_spawn(int32_t roll, int level, enum item_group ig, struct msr_monster *monster);
 
 /* create an item instance of this template id*/
 struct itm_item *itm_create(int template_id);

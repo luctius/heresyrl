@@ -21,7 +21,6 @@
 #include <sys/param.h>
 #include <ncurses.h>
 #include <assert.h>
-#include <float.h>
 
 #include "monster.h"
 #include "monster_static.h"
@@ -35,6 +34,7 @@
 #include "dungeon/tiles.h"
 #include "dungeon/dungeon_map.h"
 #include "dowear.h"
+#include "random_generator.h"
 #include "fov/sight.h"
 
 static TAILQ_HEAD(monster_list, msr_monster_list_entry) monster_list_head;
@@ -97,48 +97,39 @@ static uint32_t msrlst_next_id(void) {
     return uid;
 }
 
-int msr_spawn(double roll, int level, enum dm_dungeon_type dt) {
-    int sz = ARRAY_SZ(static_monster_list);
-    double prob_arr[sz];
-    double cumm_prob_arr[sz];
-    double sum = 0;
-    bool found_dt = false;
+struct msr_spawn_weigh_struct {
+    int level;
+    enum dm_dungeon_type dt;
+};
 
-    int idx = MID_NONE;
+static int32_t msr_spawn_weight(void *ctx, int idx) {
+    struct msr_spawn_weigh_struct *sws = ctx;
 
-    cumm_prob_arr[0] = DBL_MAX;
-    for (int i = MID_NONE+1; i < sz; i++) {
-        bool valid = false;
-        if (level <= static_monster_list[i].level) {
-
-            if (test_bf(static_monster_list[i].dungeon_locale, dt) ||
-                 test_bf(static_monster_list[i].dungeon_locale, DUNGEON_TYPE_ALL) ) {
-                valid = true;
-                found_dt = true;
-                sum += static_monster_list[i].weight;
-            }
+    if (sws->level <= static_monster_list[idx].level) {
+        if (test_bf(static_monster_list[idx].dungeon_locale, sws->dt) ||
+             test_bf(static_monster_list[idx].dungeon_locale, DUNGEON_TYPE_ALL) ) {
+            return static_monster_list[idx].weight;
         }
-
-        if (!valid) cumm_prob_arr[i] = DBL_MAX;
-        else cumm_prob_arr[i] = 0.f;
     }
 
-    assert(found_dt && "Dungeon Type not used in monster list!");
+    return RANDOM_GEN_WEIGHT_IGNORE;
+}
 
-    double cumm = 0;
-    for (int i = MID_NONE+1; i < sz; i++) {
-        if (cumm_prob_arr[i] == DBL_MAX) continue;
-        prob_arr[i] = static_monster_list[i].weight / sum;
-        cumm += prob_arr[i];
-        cumm_prob_arr[i] = cumm;
-    }
+int32_t msr_spawn(int32_t roll, int level, enum dm_dungeon_type dt) {
+    struct msr_spawn_weigh_struct sws = {
+        .level = level,
+        .dt = dt,
+    };
 
-    for (int i = sz-1; i > MID_NONE+1; i--) {
-        if (cumm_prob_arr[i] == DBL_MAX) continue;
-        if (roll < cumm_prob_arr[i]) idx = i;
-    }
+    struct random_gen_settings s = {
+        .start_idx = 0,
+        .end_idx = ARRAY_SZ(static_monster_list),
+        .roll = roll,
+        .ctx = &sws,
+        .weight = msr_spawn_weight,
+    };
 
-    return idx;
+    return random_gen_spawn(&s);
 }
 
 #define MONSTER_PRE_CHECK (10477)
@@ -939,11 +930,11 @@ void msr_populate_inventory(struct msr_monster *monster, int level, struct rando
     struct itm_item *item = NULL;
 
     int mlevel = level;
-    if (random_float(r) > 0.95) mlevel += 1;
+    if ( (random_int32(r) % 100) > 95) mlevel += 1;
 
     for (int i = 0; i < MSR_NR_DEFAULT_WEAPONS_MAX; i++) {
         if (monster->def_items[i] != ITEM_GROUP_NONE) {
-            item = itm_create(itm_spawn(random_float(r), mlevel, monster->def_items[i], monster) );
+            item = itm_create(itm_spawn(random_int32(r), mlevel, monster->def_items[i], monster) );
             if (itm_verify_item(item) == true) {
                 if (inv_add_item(monster->inventory, item) == true) {
                     if (dw_can_wear_item(monster, item) ) {
