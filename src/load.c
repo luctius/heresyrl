@@ -603,32 +603,47 @@ static bool load_monsters(lua_State *L, struct dm_map *map, struct gm_game *g) {
 static bool load_map(lua_State *L, struct dm_map **m, int mapid) {
     if (L == NULL) return false;
     uint64_t t;
-    int map_sz = 0, x_sz, y_sz, type, threat;
+    int map_sz = 0, x_sz, y_sz, type, threat_min, threat_max, item_chance, monster_chance;
     uint64_t seed;
     if (lua_intexpr(L, &t, "game.maps[%d].map.sz", mapid) == 1) {
         map_sz = t;
-        if (lua_intexpr(L, &t, "game.maps[%d].seed", mapid) == 0) return false;
+        if (lua_intexpr(L, &t, "game.maps[%d].sett.seed", mapid) == 0) return false;
         seed = t;
-        if (lua_intexpr(L, &t, "game.maps[%d].type", mapid) == 0) return false;
+        if (lua_intexpr(L, &t, "game.maps[%d].sett.type", mapid) == 0) return false;
         type = t;
-        if (lua_intexpr(L, &t, "game.maps[%d].size.x", mapid) == 0) return false;
+        if (lua_intexpr(L, &t, "game.maps[%d].sett.size.x", mapid) == 0) return false;
         x_sz = t;
-        if (lua_intexpr(L, &t, "game.maps[%d].size.y", mapid) == 0) return false;
+        if (lua_intexpr(L, &t, "game.maps[%d].sett.size.y", mapid) == 0) return false;
         y_sz = t;
-        if (lua_intexpr(L, &t, "game.maps[%d].threat", mapid) == 0) t = 1;
-        threat = t;
+        if (lua_intexpr(L, &t, "game.maps[%d].sett.threat_min", mapid) == 0) return false;
+        threat_min = t;
+        if (lua_intexpr(L, &t, "game.maps[%d].sett.threat_max", mapid) == 0) return false;
+        threat_max = t;
+        if (lua_intexpr(L, &t, "game.maps[%d].sett.item_chance", mapid) == 0) return false;
+        item_chance = t;
+        if (lua_intexpr(L, &t, "game.maps[%d].sett.monster_chance", mapid) == 0) return false;
+        monster_chance = t;
 
-        *m = dm_alloc_map(x_sz, y_sz);
+        struct dm_spawn_settings spwn_sett = {
+            .size = cd_create(x_sz,y_sz),
+            .threat_lvl_min = threat_min,
+            .threat_lvl_max = threat_max,
+            .item_chance = item_chance,
+            .monster_chance = monster_chance,
+            .seed = seed,
+            .type = type,
+        };
+
+        *m = dm_generate_map(&spwn_sett);
         if (*m != NULL) {
             struct dm_map *map = *m;
-            dm_generate_map(map, type, threat, seed, false);
             dm_clear_map(map);
 
             for (int i = 0; i < map_sz; i++) {
                 coord_t pos;
                 lua_intexpr(L, &t, "game.maps[%d].map[%d].pos.x", mapid, i+1); pos.x = t;
                 lua_intexpr(L, &t, "game.maps[%d].map[%d].pos.y", mapid, i+1); pos.y = t;
-                if ( (pos.x < map->size.x) && (pos.y < map->size.y) ) {
+                if ( (pos.x < map->sett.size.x) && (pos.y < map->sett.size.y) ) {
                     dm_get_map_me(&pos, map)->pos = pos;
                     lua_intexpr(L, &t, "game.maps[%d].map[%d].tile.id", mapid, i+1); dm_get_map_me(&pos, map)->tile = ts_get_tile_specific(t);
                     lua_intexpr(L, &t, "game.maps[%d].map[%d].discovered", mapid, i+1); dm_get_map_me(&pos, map)->discovered = t;

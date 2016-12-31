@@ -42,8 +42,6 @@ bool tt_interrupt_event(uint32_t monster_uid) {
 void tt_process_monsters(struct dm_map *map) {
     struct msr_monster *monster = NULL;
 
-    if (gbl_game->turn % TT_ENERGY_TURN_MINI != 0) return;
-
     monster = NULL;
     while ( (monster = msrlst_get_next_monster(monster) ) != NULL) {
         if (monster->dead) {
@@ -95,8 +93,6 @@ void tt_process_items(struct dm_map *map) {
     if (gbl_game->running == false) return;
 
 
-    if (gbl_game->turn % TT_ENERGY_TURN_MINI != 0) return;
-
     while ( (item = itmlst_get_next_item(item_prev) ) != NULL) {
         if (item->energy_action == true) {
             itm_change_energy(item, -TT_ENERGY_TICK);
@@ -115,8 +111,6 @@ void tt_process_items(struct dm_map *map) {
 void tt_process_status_effects(void) {
     struct msr_monster *monster = NULL;
     if (gbl_game->running == false) return;
-
-    if (gbl_game->turn % TT_ENERGY_TURN_MINI != 0) return;
 
     while ( (monster = msrlst_get_next_monster(monster) ) != NULL) {
         if (monster->dead == false) {

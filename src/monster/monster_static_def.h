@@ -21,8 +21,8 @@
         .gender=_gender, .wounds = { .curr=maxwounds, .max=maxwounds, },
 #define MONSTER_END }
 
-#define CREATION(wght, lvl, l) \
-    .weight=wght, .level=lvl, .dungeon_locale=l
+#define CREATION(wght, lvl, l, grp_ch) \
+    .spwn.weight=wght, .spwn.level=lvl, .spwn.dungeon_locale=l, .spwn.group_chance = grp_ch
 
 #define DESCRIPTION(desc) .description=desc
 
@@ -126,7 +126,7 @@ struct msr_monster static_monster_list[] = {
         DEF_ITEM(0, ITEM_GROUP_1H_MELEE),
         SKILLS(MSR_SKILLS_SURVIVAL|MSR_SKILLS_SCALE_SHEER_SURFACE|MSR_SKILLS_SET_TRAP,0,0),
         DESCRIPTION("description of an goblin fighter"),
-        CREATION(30,1,bf(DUNGEON_TYPE_CAVE) | bf(DUNGEON_TYPE_PLAIN) ),
+        CREATION(30,1,bf(DUNGEON_TYPE_CAVE) | bf(DUNGEON_TYPE_PLAIN), 70),
     MONSTER_END,
 
     MONSTER('g',"goblin","a goblin archer",MSR_GENDER_MALE,1)
@@ -135,7 +135,7 @@ struct msr_monster static_monster_list[] = {
         DEF_ITEM(0, ITEM_GROUP_RANGED),
         SKILLS(MSR_SKILLS_SURVIVAL|MSR_SKILLS_SCALE_SHEER_SURFACE|MSR_SKILLS_SET_TRAP,0,0),
         DESCRIPTION("description of an goblin archer"),
-        CREATION(30,1,bf(DUNGEON_TYPE_CAVE) | bf(DUNGEON_TYPE_PLAIN) ),
+        CREATION(30,1,bf(DUNGEON_TYPE_CAVE) | bf(DUNGEON_TYPE_PLAIN), 70),
     MONSTER_END,
 
     MONSTER('g',"goblin","a goblin thrower",MSR_GENDER_MALE,1)
@@ -144,7 +144,7 @@ struct msr_monster static_monster_list[] = {
         DEF_ITEM(0, ITEM_GROUP_THROWING),
         SKILLS(MSR_SKILLS_SURVIVAL|MSR_SKILLS_SCALE_SHEER_SURFACE|MSR_SKILLS_SET_TRAP,0,0),
         DESCRIPTION("description of an goblin thrower"),
-        CREATION(30,1,bf(DUNGEON_TYPE_CAVE) | bf(DUNGEON_TYPE_PLAIN) ),
+        CREATION(30,1,bf(DUNGEON_TYPE_CAVE) | bf(DUNGEON_TYPE_PLAIN), 10),
     MONSTER_END,
 
     MONSTER('w',"wolf","a vicious wolf",MSR_GENDER_MALE,1)
@@ -152,7 +152,7 @@ struct msr_monster static_monster_list[] = {
         CHARACTERISTICS(40,0,40,40,50,24,35,30),
         SKILLS(MSR_SKILLS_AWARENESS|MSR_SKILLS_STEALTH, 0,0),
         DESCRIPTION("description of a viscious dog"),
-        CREATION(20,1,bf(DUNGEON_TYPE_ALL) ),
+        CREATION(20,1,bf(DUNGEON_TYPE_ALL), 30),
      MONSTER_END,
 };
 

@@ -123,7 +123,9 @@ static bool itm_is_in_group(struct itm_item *item, enum item_group ig) {
             return wpn_is_catergory(item, WEAPON_CATEGORY_2H_MELEE);
         case ITEM_GROUP_ARMOUR:
             return wbl_is_type(item, WEARABLE_TYPE_ARMOUR);
-        case ITEM_GROUP_POTION: break;
+        case ITEM_GROUP_POTION: 
+            if (itm_is_type(item, ITEM_TYPE_FOOD) ) return true;
+            break;
         case ITEM_GROUP_GUNPOWDER:
             if (wpn_is_type(item, WEAPON_TYPE_RANGED) ) {
                 if (wpn_has_spc_quality(item, WPN_SPCQLTY_GUNPOWDER) == true) return true;
@@ -239,7 +241,7 @@ bool itm_insert_item(struct itm_item *item, struct dm_map *map, coord_t *pos) {
     bool retval = false;
     if (itm_verify_item(item) == false) return false;
     if (dm_verify_map(map) == false) return false;
-    if (cd_within_bound(pos, &map->size) == false) return false;
+    if (cd_within_bound(pos, &map->sett.size) == false) return false;
 
     struct dm_map_entity *target = dm_get_map_me(pos, map);
     if (inv_has_item(target->inventory, item) == false) {
@@ -265,7 +267,7 @@ bool itm_remove_item(struct itm_item *item, struct dm_map *map, coord_t *pos) {
     bool retval = false;
     if (itm_verify_item(item) == false) return false;
     if (dm_verify_map(map) == false) return false;
-    if (cd_within_bound(pos, &map->size) == false) return false;
+    if (cd_within_bound(pos, &map->sett.size) == false) return false;
 
     struct dm_map_entity *target = dm_get_map_me(pos, map);
     if (inv_has_item(target->inventory, item) == true) {

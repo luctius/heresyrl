@@ -57,7 +57,7 @@ static bool dm_clear_map_unsafe(struct dm_map *map);
 #define MAPENTITY_PRE_CHECK (320)
 #define MAPENTITY_POST_CHECK (7936)
 
-struct dm_map *dm_alloc_map(int x_sz, int y_sz) {
+static struct dm_map *dm_alloc_map(int x_sz, int y_sz) {
     if (x_sz < 2) return NULL;
     if (y_sz < 2) return NULL;
 
@@ -68,8 +68,6 @@ struct dm_map *dm_alloc_map(int x_sz, int y_sz) {
 
     map->map_pre = MAP_PRE_CHECK;
     map->map_post = MAP_POST_CHECK;
-    map->size = cd_create(x_sz, y_sz);
-    map->seed = 0;
 
     dm_clear_map_unsafe(map);
 
@@ -80,8 +78,8 @@ bool dm_free_map(struct dm_map *map) {
     if (dm_verify_map(map) == false) return false;
 
     coord_t c = cd_create(0,0);
-    for (c.x = 0; c.x < map->size.x; c.x++) {
-        for (c.y = 0; c.y < map->size.y; c.y++) {
+    for (c.x = 0; c.x < map->sett.size.x; c.x++) {
+        for (c.y = 0; c.y < map->sett.size.y; c.y++) {
             inv_exit(dm_get_map_me(&c,map)->inventory);
         }
     }
@@ -95,8 +93,8 @@ bool dm_free_map(struct dm_map *map) {
  */
 static bool dm_clear_map_unsafe(struct dm_map *map) {
     coord_t c = cd_create(0,0);
-    for (c.x = 0; c.x < map->size.x; c.x++) {
-        for (c.y = 0; c.y < map->size.y; c.y++) {
+    for (c.x = 0; c.x < map->sett.size.x; c.x++) {
+        for (c.y = 0; c.y < map->sett.size.y; c.y++) {
             dm_get_map_me(&c,map)->map_entity_pre = MAPENTITY_PRE_CHECK;
             dm_get_map_me(&c,map)->map_entity_post = MAPENTITY_POST_CHECK;
 
@@ -143,8 +141,8 @@ bool dm_verify_map(struct dm_map *map) {
     assert(map != NULL);
     assert(map->map_pre == MAP_PRE_CHECK);
     assert(map->map_post == MAP_POST_CHECK);
-    assert(map->size.x > 2);
-    assert(map->size.y > 2);
+    assert(map->sett.size.x > 2);
+    assert(map->sett.size.y > 2);
     assert(map->map != NULL);
 
     coord_t c = cd_create(0,0);
@@ -152,7 +150,7 @@ bool dm_verify_map(struct dm_map *map) {
     assert(me->map_entity_pre = MAPENTITY_PRE_CHECK);
     assert(me->map_entity_post = MAPENTITY_POST_CHECK);
 
-    c = cd_create(map->size.x -1, map->size.y -1);
+    c = cd_create(map->sett.size.x -1, map->sett.size.y -1);
     me = dm_get_map_me(&c, map);
     assert(me->map_entity_pre = MAPENTITY_PRE_CHECK);
     assert(me->map_entity_post = MAPENTITY_POST_CHECK);
@@ -164,8 +162,8 @@ bool dm_print_map(struct dm_map *map) {
     if (dm_verify_map(map) == false) return false;
 
     coord_t c;
-    for (c.y = 0; c.y < map->size.y; c.y++) {
-        for (c.x = 0; c.x < map->size.x; c.x++) {
+    for (c.y = 0; c.y < map->sett.size.y; c.y++) {
+        for (c.x = 0; c.x < map->sett.size.x; c.x++) {
             putchar(dm_get_map_tile(&c,map)->icon);
         }
         putchar('\n');
@@ -179,8 +177,8 @@ bool dm_tile_instance(struct dm_map *map, enum tile_types tt, int instance, coor
     if (dm_verify_map(map) == false) return false;
 
     coord_t c;
-    for (c.x = 0; c.x < map->size.x; c.x++) {
-        for (c.y = 0; c.y < map->size.y; c.y++) {
+    for (c.x = 0; c.x < map->sett.size.x; c.x++) {
+        for (c.y = 0; c.y < map->sett.size.y; c.y++) {
             if (dm_get_map_tile(&c,map)->type == tt ) {
                 instance--;
                 if (instance <= 0) {
@@ -194,8 +192,8 @@ bool dm_tile_instance(struct dm_map *map, enum tile_types tt, int instance, coor
 }
 
 coord_t dm_scatter(struct dm_map *map, struct random *r) {
-    int i_max = map->size.x * map->size.y / 4;
-    coord_t p = cd_create(map->size.x/2, map->size.y/2);
+    int i_max = map->sett.size.x * map->sett.size.y / 4;
+    coord_t p = cd_create(map->sett.size.x/2, map->sett.size.y/2);
     coord_t c = p;
 
     int i = 0;
@@ -204,14 +202,14 @@ coord_t dm_scatter(struct dm_map *map, struct random *r) {
         i++;
 
         /* get a random point within radius */
-        int dx = random_int32(r) % map->size.x/2;
-        int dy = random_int32(r) % map->size.x/2;
+        int dx = random_int32(r) % map->sett.size.x/2;
+        int dy = random_int32(r) % map->sett.size.x/2;
 
         /* create the point relative to p */
         c = cd_create(p.x + dx, p.y +dy);
 
         /* require a point within map */
-        if (cd_within_bound(&c, &map->size) == false) continue;
+        if (cd_within_bound(&c, &map->sett.size) == false) continue;
 
         /* require an traversable point */
         if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(&c,map), TILE_ATTR_TRAVERSABLE) == false) continue;
@@ -226,61 +224,68 @@ coord_t dm_scatter(struct dm_map *map, struct random *r) {
     return cd_create(0,0);
 }
 
-bool dm_populate_map(struct dm_map *map, struct random *r, uint32_t monster_chance, uint32_t item_chance, int level) {
+bool dm_populate_map(struct dm_map *map) {
     if (dm_verify_map(map) == false) return false;
-    if (r == NULL) return false;
     coord_t c;
     int idx;
 
+    /* init random*/
+    struct random *r = random_init_genrand(map->sett.seed);
+    if (r == NULL) return false;
+
     int nogo_radius = 20;
 
-    for (int xi = 0; xi < map->size.x; xi++) {
-        for (int yi = 0; yi < map->size.y; yi++) {
+    for (int xi = 0; xi < map->sett.size.x; xi++) {
+        for (int yi = 0; yi < map->sett.size.y; yi++) {
             c = cd_create(xi,yi);
             if (cd_pyth(&map->stair_up, &c) <= nogo_radius) continue; /* no npc's too close to the start */
 
-            if ( (random_int32(r) % 10000) <= (monster_chance/20)+1 ) {
-                uint32_t leader = 0;
-                int msr_cnt = random_int32(r) % 20;
-                for (int i = 0; i < msr_cnt; i++) {
-                    idx = msr_spawn(random_int32(r), level, map->type);
-                    coord_t cp = sgt_scatter(map, r, &c, 10);
+            if ( (random_int32(r) % 10000) <= map->sett.monster_chance) {
+                uint32_t mc = random_int32(r) % 100;
+                if (mc <= 30) {
+                    uint32_t leader = 0;
+                    int msr_cnt = (random_int32(r) % 5) +1;
+                    for (int i = 0; i < msr_cnt; i++) {
+                        idx = msr_spawn(random_int32(r), map->sett.threat_lvl_min, map->sett.threat_lvl_max, map->sett.type);
+                        coord_t cp = sgt_scatter(map, r, &c, 10);
 
-                    if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(&cp,map), TILE_ATTR_TRAVERSABLE) == true) {
-                        if (dm_get_map_me(&cp,map)->monster == NULL) {
-                            struct msr_monster *monster = msr_create(idx);
-                            msr_populate_inventory(monster, level, r);
+                        if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(&cp,map), TILE_ATTR_TRAVERSABLE) == true) {
+                            if (dm_get_map_me(&cp,map)->monster == NULL) {
+                                struct msr_monster *monster = msr_create(idx);
+                                msr_insert_monster(monster, map, &c);
+                                msr_populate_inventory(monster, map->sett.threat_lvl_min, map->sett.threat_lvl_max, r);
 
-                            msr_insert_monster(monster, map, &c);
-                            ai_monster_init(monster, leader);
-                            if (leader == 0) {
-                                leader = monster->uid;
-                                lg_debug("created swarm leader at (%d,%d)", cp.x, cp.y);
+                                ai_monster_init(monster, leader);
+                                if (leader == 0) {
+                                    leader = monster->uid;
+                                    lg_debug("created swarm leader at (%d,%d)", cp.x, cp.y);
+                                }
+                                else lg_debug("created swarm member at (%d,%d)", cp.x, cp.y);
                             }
-                            else lg_debug("created swarm member at (%d,%d)", cp.x, cp.y);
                         }
                     }
                 }
-            }
-            else if ( (random_int32(r) % 10000) <= monster_chance) {
-                if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(&c,map), TILE_ATTR_TRAVERSABLE) == true) {
-                    idx = msr_spawn(random_int32(r), level, map->type);
+                else if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(&c,map), TILE_ATTR_TRAVERSABLE) == true) {
+                    idx = msr_spawn(random_int32(r), map->sett.threat_lvl_min, map->sett.threat_lvl_max, map->sett.type);
                     struct msr_monster *monster = msr_create(idx);
-                    msr_populate_inventory(monster, level, r);
-
                     msr_insert_monster(monster, map, &c);
+                    msr_populate_inventory(monster, map->sett.threat_lvl_min, map->sett.threat_lvl_max, r);
+
                     ai_monster_init(monster, 0);
+                    lg_debug("spawning monster %s at (%d,%d)", monster->sd_name, c.x, c.y);
                 }
             }
-            else if ( (random_int32(r) % 10000) <= item_chance) {
+            else if ( (random_int32(r) % 10000) <= map->sett.item_chance) {
                 if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(&c,map), TILE_ATTR_TRAVERSABLE) == true) {
-                    int item_level = level;
+                    int range = map->sett.threat_lvl_max - map->sett.threat_lvl_min;
+                    int item_level = (random_int32(r) % range) + map->sett.threat_lvl_min;
                     if ( (random_int32(r) % 100) > 95) item_level += 1;
                     if ( (random_int32(r) % 100) > 99) item_level += 1;
                     idx = itm_spawn(random_int32(r), item_level, ITEM_GROUP_ANY, NULL);
                     struct itm_item *item = itm_create(idx);
 
                     itm_insert_item(item, map, &c);
+                    lg_debug("spawning item %s at (%d,%d)", item->sd_name, c.x, c.y);
                 }
             }
         }
@@ -306,7 +311,7 @@ static void dm_add_stairs(struct dm_map *map, struct random *r) {
     struct tl_tile **tile_down_temp = NULL;
     int i = 0;
     int large_num = 10000;
-    int target_distance = map->size.x * 0.8f;
+    int target_distance = map->sett.size.x * 0.8f;
 
     int last_distance = 0;
     coord_t up = cd_create(0,0);
@@ -315,8 +320,8 @@ static void dm_add_stairs(struct dm_map *map, struct random *r) {
 
     while (tile_up == NULL || tile_down == NULL) {
         coord_t c;
-        c.x = random_int32(r) % map->size.x;
-        c.y = random_int32(r) % map->size.y;
+        c.x = random_int32(r) % map->sett.size.x;
+        c.y = random_int32(r) % map->sett.size.y;
         i++;
 
         if (dm_get_map_tile(&c,map)->type == TILE_TYPE_FLOOR ) {
@@ -365,11 +370,11 @@ bool dm_clear_map(struct dm_map *map) {
 bool dm_clear_map_visibility(struct dm_map *map, coord_t *start, coord_t *end) {
     if (dm_verify_map(map) == false) return false;
 
-    if (cd_within_bound(start, &map->size) == false) return false;
-    if (end->x > map->size.x) return false;
-    if (end->y > map->size.y) return false;
-    if (end->x+start->x > map->size.x) return false;
-    if (end->y+start->y > map->size.y) return false;
+    if (cd_within_bound(start, &map->sett.size) == false) return false;
+    if (end->x > map->sett.size.x) return false;
+    if (end->y > map->sett.size.y) return false;
+    if (end->x+start->x > map->sett.size.x) return false;
+    if (end->y+start->y > map->sett.size.y) return false;
 
     coord_t c = cd_add(start, end);
     for (c.x = start->x; c.x < end->x; c.x++) {
@@ -387,8 +392,8 @@ bool dm_clear_map_visibility(struct dm_map *map, coord_t *start, coord_t *end) {
 
 static bool dm_tunnel(struct dm_map *map, struct random *r, coord_t *start, coord_t *end, struct tl_tile *tl) {
     if (dm_verify_map(map) == false) return false;
-    if (cd_within_bound(start, &map->size) == false) return false;
-    if (cd_within_bound(end, &map->size) == false) return false;
+    if (cd_within_bound(start, &map->sett.size) == false) return false;
+    if (cd_within_bound(end, &map->sett.size) == false) return false;
     if (tl == NULL) return false;
 
     bool first = true;
@@ -433,7 +438,7 @@ static bool dm_tunnel(struct dm_map *map, struct random *r, coord_t *start, coor
         }
 
         coord_t next = { .x = prev.x +xd, .y = prev.y +yd, };
-        if (cd_within_bound(&next, &map->size) ) {
+        if (cd_within_bound(&next, &map->sett.size) ) {
             if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(&next, map), TILE_ATTR_TRAVERSABLE) == false) {
                 dm_get_map_me(&next, map)->tile = tl;
             }
@@ -450,8 +455,8 @@ static bool dm_tunnel(struct dm_map *map, struct random *r, coord_t *start, coor
 static bool dm_has_floors(struct dm_map *map) {
     coord_t c;
 
-    for (c.x = 0; c.x < map->size.x; c.x++) {
-        for (c.y = 0; c.y < map->size.y; c.y++) {
+    for (c.x = 0; c.x < map->sett.size.x; c.x++) {
+        for (c.y = 0; c.y < map->sett.size.y; c.y++) {
             if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(&c, map),TILE_ATTR_TRAVERSABLE) ) return true;
         }
     }
@@ -492,8 +497,8 @@ static void dm_add_loops(struct dm_map *map, struct pf_context *pf_ctx, struct r
 
         if (aiu_generate_dijkstra(&pf_ctx, map, &map->stair_down, 0) ) {
 
-            for (int x = 1; x < map->size.x && tunneled == false; x+=5) {
-                for (int y = 1; y < map->size.y && tunneled == false; y+=5) {
+            for (int x = 1; x < map->sett.size.x && tunneled == false; x+=5) {
+                for (int y = 1; y < map->sett.size.y && tunneled == false; y+=5) {
                     coord_t point;
 
                     coord_t best;
@@ -528,14 +533,14 @@ static void dm_add_loops(struct dm_map *map, struct pf_context *pf_ctx, struct r
 }
 
 static void dm_add_lights(struct dm_map *map, struct random *r) {
-    for (int x = 1; x < map->size.x; x++) {
-        for (int y = 1; y < map->size.y; y++) {
+    for (int x = 1; x < map->sett.size.x; x++) {
+        for (int y = 1; y < map->sett.size.y; y++) {
             coord_t point = { .x = x, .y = y, };
 
             int num = 0;
             coord_t test = { .x = point.x, .y = point.y, };
             for (int i = 0; i < coord_nhlo_table_sz; i++) {
-                if (cd_within_bound(&test, &map->size) == false) continue;
+                if (cd_within_bound(&test, &map->sett.size) == false) continue;
 
                 if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(&test, map), TILE_ATTR_TRANSPARENT) == false) {
                     num++;
@@ -572,7 +577,7 @@ bool dm_generate_feature(struct dm_map *map, struct random *r, coord_t *point, i
         for (c.y = 0; c.y < max_radius; c.y++) {
             coord_t p = cd_add(&c, &ul);
 
-            if (cd_within_bound(&p, &map->size) == false) {
+            if (cd_within_bound(&p, &map->sett.size) == false) {
                 ca_set_coord(camap, &c, CA_OBSTACLE);
             }
             else if (dm_get_map_tile(&p, map)->type != TILE_TYPE_FLOOR) {
@@ -610,7 +615,7 @@ bool dm_generate_feature(struct dm_map *map, struct random *r, coord_t *point, i
 
             coord_t p = cd_add(&c, &ul);
 
-            if (cd_within_bound(&p, &map->size) == false) continue;
+            if (cd_within_bound(&p, &map->sett.size) == false) continue;
             struct dm_map_entity *me = dm_get_map_me(&p, map);
 
             int sum = ca_get_coord_sum(camap, &c, 2);
@@ -627,23 +632,22 @@ bool dm_generate_feature(struct dm_map *map, struct random *r, coord_t *point, i
     return true;
 }
 
-bool dm_generate_map(struct dm_map *map, enum dm_dungeon_type type, int level, unsigned long seed, bool populate) {
-    if (dm_verify_map(map) == false) return false;
+struct dm_map *dm_generate_map(struct dm_spawn_settings *sett) {
+    struct dm_map *map = dm_alloc_map(sett->size.x, sett->size.y);
+    memcpy(&map->sett, sett, sizeof(struct dm_spawn_settings) );
+    if (dm_verify_map(map) == false) return NULL;
 
-    map->seed = seed;
-    map->type = type;
-    map->threat_lvl = level;
-
-    lg_debug("generating map with seed \'%lu\', type \'%d\' and threat_lvl \'%d\'", seed, type, level);
+    lg_debug("generating map with seed \'%lu\', type \'%d\' and threat_lvl \'%d-%d\'",
+            map->sett.seed, map->sett.type, map->sett.threat_lvl_min, map->sett.threat_lvl_max);
 
     coord_t c;
     /* Create an non-destructable border wall around the 4 sides of the map */
-    for (c.x = 0; c.x < map->size.x; c.x++) {
-        for (c.y = 0; c.y < map->size.y; c.y++) {
+    for (c.x = 0; c.x < map->sett.size.x; c.x++) {
+        for (c.y = 0; c.y < map->sett.size.y; c.y++) {
             if ( (c.x == 0) ||
                  (c.y == 0) ||
-                 (c.x == map->size.x-1) ||
-                 (c.y == map->size.y-1) ) {
+                 (c.x == map->sett.size.x-1) ||
+                 (c.y == map->sett.size.y-1) ) {
                 dm_get_map_me(&c,map)->tile = ts_get_tile_specific(TILE_ID_BORDER_WALL);
             }
             else {
@@ -654,25 +658,25 @@ bool dm_generate_map(struct dm_map *map, enum dm_dungeon_type type, int level, u
 
     /* save upper left and down right. */
     coord_t ul = { .x = 2, .y = 2,};
-    coord_t dr = { .x = map->size.x-2, .y = map->size.y-2, };
+    coord_t dr = { .x = map->sett.size.x-2, .y = map->sett.size.y-2, };
 
     /* init random*/
-    struct random *r = random_init_genrand(seed);
+    struct random *r = random_init_genrand(map->sett.seed);
 
     /* fill the map with room accoring to the specified algorithm */
-    switch(type) {
+    switch(map->sett.type) {
         case DUNGEON_TYPE_CAVE:
             lg_debug("map_type is cave");
-            cave_generate_map(map, r, type, &ul, &dr);
+            cave_generate_map(map, r, map->sett.type, &ul, &dr);
             break;
         default:
         case DUNGEON_TYPE_PLAIN:
             lg_debug("map_type is plain");
-            dm_generate_map_plain(map, r, type, &ul, &dr);
+            dm_generate_map_plain(map, r, map->sett.type, &ul, &dr);
             break;
         case DUNGEON_TYPE_TUNNEL:
             lg_debug("map_type is tunnel");
-            dm_generate_map_dla(map, r, type, &ul, &dr);
+            dm_generate_map_dla(map, r, map->sett.type, &ul, &dr);
             break;
     }
     assert(dm_has_floors(map) );
@@ -724,8 +728,8 @@ bool dm_generate_map(struct dm_map *map, enum dm_dungeon_type type, int level, u
     dm_add_loops(map, pf_ctx, r);
 
     for (i = 0; i < 10; i++) {
-        int x = random_int32(r) % map->size.x;
-        int y = random_int32(r) % map->size.y;
+        int x = random_int32(r) % map->sett.size.x;
+        int y = random_int32(r) % map->sett.size.y;
         coord_t point = { .x = x, .y = y, };
 
         if (dm_generate_feature(map, r, &point, 15, 15, DM_FT_POOL) ) continue;
@@ -738,12 +742,12 @@ bool dm_generate_map(struct dm_map *map, enum dm_dungeon_type type, int level, u
     pf_exit(pf_ctx);
 
     /* fill the map with items and monsters */
-    if (populate) dm_populate_map(map, r, 150, 5, level);
+    //if (map->sett.populate) dm_populate_map(map, r);
 
     /*cleanup random*/
     random_exit(r);
 
-    return true;
+    return map;
 }
 
 void dm_process_tiles(struct dm_map *map) {
@@ -751,8 +755,8 @@ void dm_process_tiles(struct dm_map *map) {
 
     /* Process tiles with additional effects. */
     coord_t c;
-    for (c.x = 0; c.x < map->size.x; c.x++) {
-        for (c.y = 0; c.y < map->size.y; c.y++) {
+    for (c.x = 0; c.x < map->sett.size.x; c.x++) {
+        for (c.y = 0; c.y < map->sett.size.y; c.y++) {
             struct dm_map_entity *me = dm_get_map_me(&c, map);
             if (me->monster != NULL) ts_turn_tick_monster(me->tile, me->monster);
             ts_turn_tick(me->tile, &c, map);

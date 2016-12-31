@@ -38,6 +38,20 @@ enum qst_fetch_states {
     QST_FTCH_END,
 };
 
+struct qst_dungeon {
+    enum dm_dungeon_type type;
+    int weight;
+    int dungeon_levels;
+    int item_chance;
+    int monster_chance;
+    coord_t size;
+};
+
+struct qst_enemies {
+    enum msr_race race;
+    int weight;
+};
+
 struct quest {
     enum qst_ids tid;
     enum quest_types type;
@@ -52,16 +66,8 @@ struct quest {
     int min_level;
     int max_level;
 
-    struct {
-        enum dm_dungeon_type type;
-        int weight;
-        int dungeon_levels;
-    } dungeon[QUEST_SZ];
-
-    struct {
-        enum msr_race race;
-        int weight;
-    } enemies[QUEST_SZ];
+    struct qst_dungeon dungeon[QUEST_SZ];
+    struct qst_enemies enemies[QUEST_SZ];
 
     /* used by the code */
     int state;
@@ -70,8 +76,8 @@ struct quest {
 
 struct quest *qst_by_tid(enum qst_ids tid);
 struct quest *qst_spawn(int level, int32_t roll);
-enum dm_dungeon_type qst_select_dungeon(struct quest *quest, int32_t roll);
-enum msr_race qst_select_enemy(struct quest *quest, int32_t roll);
+struct qst_dungeon *qst_select_dungeon(struct quest *quest, int32_t roll);
+struct qst_enemies *qst_select_enemy(struct quest *quest, int32_t roll);
 
 void qst_process_quest_start(struct quest *quest, struct dm_map *map, struct random *r);
 void qst_process_quest_end(struct quest *quest, struct dm_map *map);

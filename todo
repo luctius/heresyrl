@@ -2,7 +2,7 @@ Version 0.1:
     --- Pay Loan: Which means implementing money :: implemented, badly
     --- Shops: Buying Selling :: basicly done, but sell screen does not list selling price for example.
     --- Healer: Probably means implementing every critical hit, creating healing categories.  :: done
-    Quests: gain rewards, create list of available quests
+    --- Quests: gain rewards, create list of available quests
     Retire: Complete game, show 'score'
     Implementing difficulty levels.
 
@@ -63,9 +63,6 @@ Version 0.2:
     
 
 Major Ideas:
-Episodic maps; large map, after the quest some downtime to heal 
-   non-critical wounds, buy stuff and go to next mission.
-Quack medicine, most of the times provides a benefit, and also something else.
 Critical damage should be tracked seperatly, and only normal damage can be 
     healed through non magical means.
 Add status effect symbols to charwin, show negative and positive modifications of characteristics
@@ -92,14 +89,12 @@ Corruption system
 Improve Vision and lighting code, add stealth gameplay. -- More testing and balancing is required.
 
 Minor
-Create a XX turn tick function for new monster spawns and mushroom generation etc.
 Chests with locks
 Oil and fire which spreads
-Status effects add temporary talent
 Markdown readme ingame?
-Move spawn decisions to map
 Beastmen who charge ahead for 4 tiles or so and can't stop.
 '? - something should be identified with enough DoS.'
+What to do with fortune points?
 
 Reminder
 Rolling 1 on magic die causes will check or 1 insanity.

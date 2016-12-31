@@ -72,6 +72,8 @@ enum item_ids {
     IID_HAMMER_GOOD,
     IID_SWORD_GOOD,
 
+    IID_2H_SWORD,
+
     /* Ranged */
     IID_SHORT_BOW,
     IID_LONG_BOW,

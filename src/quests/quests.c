@@ -26,6 +26,39 @@
 
 #include "quests_static_def.h"
 
+struct qst_spawn_weight_struct {
+    int level;
+};
+
+static int32_t qst_spawn_weight(void *ctx, int idx) {
+    assert (ctx != NULL);
+    struct qst_spawn_weight_struct *sws = ctx;
+
+    if (sws->level < static_quest_list[idx].min_level) return RANDOM_GEN_WEIGHT_IGNORE;
+    if (sws->level > static_quest_list[idx].max_level) return RANDOM_GEN_WEIGHT_IGNORE;
+    return static_quest_list[idx].weight;
+}
+
+static int32_t qst_dungeon_spawn_weight(void *ctx, int idx) {
+    assert (ctx != NULL);
+    struct quest *quest = ctx;
+
+    if (quest->dungeon[idx].weight != 0) return quest->dungeon[idx].weight;
+
+    return RANDOM_GEN_WEIGHT_IGNORE;
+}
+
+static int32_t qst_enemies_spawn_weight(void *ctx, int idx) {
+    assert (ctx != NULL);
+    struct quest *quest = ctx;
+
+    if (quest->enemies[idx].weight != 0) quest->enemies[idx].weight;
+
+    return RANDOM_GEN_WEIGHT_IGNORE;
+}
+
+
+
 struct quest *qst_by_tid(enum qst_ids tid) {
     struct quest *quest = &static_quest_list[tid];
     quest->state = 0;
@@ -40,21 +73,8 @@ static struct quest *qst_select(int idx) {
     return quest;
 }
 
-struct qst_spawn_weight_struct {
-    int level;
-};
-
-static int32_t qst_spawn_weight(void *ctx, int idx) {
-    assert (ctx != NULL);
-    struct qst_spawn_weight_struct *sws = ctx;
-
-    if (sws->level < static_quest_list[idx].min_level) return RANDOM_GEN_WEIGHT_IGNORE;
-    if (sws->level > static_quest_list[idx].max_level) return RANDOM_GEN_WEIGHT_IGNORE;
-    return static_quest_list[idx].weight;
-}
-
 struct quest *qst_spawn(int level, int32_t roll) {
-    int32_t idx = 1;
+    int32_t idx = QSTID_NONE;
 
     struct qst_spawn_weight_struct sws = {
         .level = level,
@@ -74,16 +94,7 @@ struct quest *qst_spawn(int level, int32_t roll) {
 
 }
 
-static int32_t qst_dungeon_spawn_weight(void *ctx, int idx) {
-    assert (ctx != NULL);
-    struct quest *quest = ctx;
-
-    if (quest->dungeon[idx].weight != 0) return quest->dungeon[idx].weight;
-
-    return RANDOM_GEN_WEIGHT_IGNORE;
-}
-
-enum dm_dungeon_type qst_select_dungeon(struct quest *quest, int32_t roll) {
+struct qst_dungeon *qst_select_dungeon(struct quest *quest, int32_t roll) {
     assert(quest != NULL);
 
     struct random_gen_settings s = {
@@ -95,21 +106,11 @@ enum dm_dungeon_type qst_select_dungeon(struct quest *quest, int32_t roll) {
     };
 
     int32_t idx = random_gen_spawn(&s);
-    if (idx >= s.start_idx && idx < s.end_idx) return quest->dungeon[idx].type;
-    return DUNGEON_TYPE_PLAIN;
+    if (idx >= s.start_idx && idx < s.end_idx) return &quest->dungeon[idx];
+    return NULL;
 }
 
-static int32_t qst_enemies_spawn_weight(void *ctx, int idx) {
-    assert (ctx != NULL);
-    struct quest *quest = ctx;
-
-    if (quest->enemies[idx].weight != 0) quest->enemies[idx].weight;
-
-    return RANDOM_GEN_WEIGHT_IGNORE;
-}
-
-
-enum msr_race qst_select_enemy(struct quest *quest, int32_t roll) {
+struct qst_enemies *qst_select_enemy(struct quest *quest, int32_t roll) {
     assert(quest != NULL);
 
     struct random_gen_settings s = {
@@ -121,8 +122,8 @@ enum msr_race qst_select_enemy(struct quest *quest, int32_t roll) {
     };
 
     int32_t idx = random_gen_spawn(&s);
-    if (idx >= s.start_idx && idx < s.end_idx) return quest->enemies[idx].race;
-    return MSR_RACE_BEAST;
+    if (idx >= s.start_idx && idx < s.end_idx) return &quest->enemies[idx];
+    return NULL;
 }
 
 void qst_process_quest_start(struct quest *quest, struct dm_map *map, struct random *r) {
@@ -232,7 +233,7 @@ void qst_get_description(struct quest *quest, char *str, int max_length) {
                 snprintf(str, max_length, quest_description_templates[quest->type], quest->qst_params[1], item->sd_name);
                 itm_destroy(item);
             } break;
-        default: 
+        default:
                 snprintf(str, max_length, "none.");
             break;
     }

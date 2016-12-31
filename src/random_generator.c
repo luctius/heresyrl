@@ -2,6 +2,7 @@
 #include <assert.h>
 
 #include "random_generator.h"
+#include "logging.h"
 
 int32_t random_gen_spawn(struct random_gen_settings *s) {
     if (s == NULL) return -1;

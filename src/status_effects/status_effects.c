@@ -1052,7 +1052,7 @@ static bool se_process_effect(struct msr_monster *monster, struct status_effect 
 
         if (c->duration_energy <= 0) status_effect_clr_flag(c, SEF_ACTIVE);
     }
-    else c->duration_energy = c->duration_energy_max -1;
+    else c->duration_energy += c->duration_energy_max;
 
     if (status_effect_has_flag(c, SEF_ACTIVE) == false) {
         lg_debug("Condition %p(%s) is to be destroyed.", c, c->name);

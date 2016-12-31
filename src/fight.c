@@ -57,7 +57,7 @@ int fght_ranged_calc_tohit(struct msr_monster *monster, coord_t *tpos, struct it
     struct dm_map *map = gbl_game->current_map;
 
     /* check los with a rediculous radius. if true, it means that there is a LoS. */
-    if (sgt_has_los(map, &monster->pos, tpos, map->size.x + map->size.y) == false) return -1;
+    if (sgt_has_los(map, &monster->pos, tpos, map->sett.size.x + map->sett.size.y) == false) return -1;
 
     struct dm_map_entity *me = dm_get_map_me(tpos, gbl_game->current_map);
     struct msr_monster *target = me->monster;
@@ -186,7 +186,7 @@ int fght_melee_calc_tohit(struct msr_monster *monster, coord_t *tpos, struct itm
     if (witem == NULL) return -1;
 
     /* check los with a rediculous radius. if true, it means that there is a LoS. */
-    if (sgt_has_los(map, &monster->pos, tpos, map->size.x + map->size.y) == false) return false;
+    if (sgt_has_los(map, &monster->pos, tpos, map->sett.size.x + map->sett.size.y) == false) return false;
 
     struct dm_map_entity *me = dm_get_map_me(tpos, gbl_game->current_map);
     struct msr_monster *target = me->monster;
@@ -648,7 +648,7 @@ bool fght_throw_item(struct random *r, struct msr_monster *monster, struct dm_ma
     if (msr_verify_monster(monster) == false) return false;
     if (itm_verify_item(witem) == false) return false;
     if (dm_verify_map(map) == false) return false;
-    if (cd_within_bound(e, &map->size) == false) return false;
+    if (cd_within_bound(e, &map->sett.size) == false) return false;
     if (sgt_has_los(map, &monster->pos, e, 1000) == false) return false;
     coord_t end = *e;
 
@@ -737,7 +737,7 @@ bool fght_throw_item(struct random *r, struct msr_monster *monster, struct dm_ma
 bool fght_shoot(struct random *r, struct msr_monster *monster, struct dm_map *map, coord_t *e, enum fght_hand hand) {
     if (msr_verify_monster(monster) == false) return false;
     if (dm_verify_map(map) == false) return false;
-    if (cd_within_bound(&monster->pos, &map->size) == false) return false;
+    if (cd_within_bound(&monster->pos, &map->sett.size) == false) return false;
     if (msr_weapon_type_check(monster, WEAPON_TYPE_RANGED) == false) return false;
     if (sgt_has_los(map, &monster->pos, e, 1000) == false) return false;
     struct itm_item *item = fght_get_working_weapon(monster, WEAPON_TYPE_RANGED, hand);
@@ -869,7 +869,7 @@ bool fght_can_see(struct dm_map *map, struct msr_monster *monster, struct msr_mo
        so try not to be in the open. */
     for (int i = 0; i < coord_nhlo_table_sz; i++) {
         coord_t c = cd_add(&tgt->pos, &coord_nhlo_table[i]);
-        if (cd_within_bound(&c, &map->size) == true) {
+        if (cd_within_bound(&c, &map->sett.size) == true) {
             struct dm_map_entity *cme = dm_get_map_me(&c, map);
             if (TILE_HAS_ATTRIBUTE(cme->tile, TILE_ATTR_TRANSPARENT) ||
                 ( (cme->effect != NULL) && ( (cme->effect->flags & GR_EFFECTS_OPAQUE) == 0) ) ) {

@@ -194,7 +194,7 @@ static bool plr_action_loop(struct msr_monster *player) {
     gbl_game->plr_last_turn = gbl_game->turn;
 
     coord_t zero = cd_create(0,0);
-    dm_clear_map_visibility(map, &zero, &map->size);
+    dm_clear_map_visibility(map, &zero, &map->sett.size);
     sgt_calculate_all_light_sources(map);
     sgt_calculate_player_sight(map, player);
 
@@ -432,7 +432,7 @@ static bool plr_action_loop(struct msr_monster *player) {
         pos = player->pos;
     }
 
-    dm_clear_map_visibility(map, &zero, &map->size);
+    dm_clear_map_visibility(map, &zero, &map->sett.size);
     sgt_calculate_all_light_sources(map);
     sgt_calculate_player_sight(map, player);
 

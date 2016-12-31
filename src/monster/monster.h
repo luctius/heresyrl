@@ -156,10 +156,6 @@ struct msr_monster {
     const char *ld_name;
     const char *description;
 
-    /* faction this monster belongs to. should probably be a bitfield. */
-    bitfield8_t faction;
-    bitfield32_t dungeon_locale;
-
     struct {
         /* current number of wounds, more is better */
         int8_t curr;
@@ -222,9 +218,18 @@ struct msr_monster {
     /* status_effects effecting this monster. */
     struct status_effect_list *status_effects;
 
+    bitfield8_t faction;
+
     /* Monster creation. */
-    int weight;
-    int level;
+    struct {
+        int weight;
+        int level;
+        int group_chance;
+
+        /* faction this monster belongs to. should probably be a bitfield. */
+        bitfield32_t dungeon_locale;
+    } spwn;
+
     enum item_ids crtr_wpn;
     enum item_group def_items[MSR_NR_DEFAULT_WEAPONS_MAX];
 
@@ -243,10 +248,10 @@ void msrlst_monster_list_exit(void);
 struct msr_monster *msrlst_get_next_monster(struct msr_monster *prev);
 
 /* retrieves a monster template id based on parameters */
-int msr_spawn(int32_t roll, int level, enum dm_dungeon_type dt);
+int msr_spawn(int32_t roll, int lvl_min, int lvl_max, enum dm_dungeon_type dt);
 
 /* Equipes the monster with weapons according to its profile. */
-void msr_populate_inventory(struct msr_monster *monster, int level, struct random *r);
+void msr_populate_inventory(struct msr_monster *monster, int lvl_min, int lvl_max, struct random *r);
 
 /* create a instance of this monster template. */
 struct msr_monster *msr_create(enum msr_ids tid);

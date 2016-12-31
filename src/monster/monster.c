@@ -98,26 +98,28 @@ static uint32_t msrlst_next_id(void) {
 }
 
 struct msr_spawn_weigh_struct {
-    int level;
+    int min_level;
+    int max_level;
     enum dm_dungeon_type dt;
 };
 
 static int32_t msr_spawn_weight(void *ctx, int idx) {
     struct msr_spawn_weigh_struct *sws = ctx;
 
-    if (sws->level <= static_monster_list[idx].level) {
-        if (test_bf(static_monster_list[idx].dungeon_locale, sws->dt) ||
-             test_bf(static_monster_list[idx].dungeon_locale, DUNGEON_TYPE_ALL) ) {
-            return static_monster_list[idx].weight;
+    if (sws->min_level <= static_monster_list[idx].spwn.level && sws->max_level >= static_monster_list[idx].spwn.level) {
+        if (test_bf(static_monster_list[idx].spwn.dungeon_locale, sws->dt) ||
+             test_bf(static_monster_list[idx].spwn.dungeon_locale, DUNGEON_TYPE_ALL) ) {
+            return static_monster_list[idx].spwn.weight;
         }
     }
 
     return RANDOM_GEN_WEIGHT_IGNORE;
 }
 
-int32_t msr_spawn(int32_t roll, int level, enum dm_dungeon_type dt) {
+int32_t msr_spawn(int32_t roll, int min_level, int max_level, enum dm_dungeon_type dt) {
     struct msr_spawn_weigh_struct sws = {
-        .level = level,
+        .min_level = min_level,
+        .max_level = max_level,
         .dt = dt,
     };
 
@@ -243,7 +245,7 @@ void msr_clear_controller(struct msr_monster *monster) {
 bool msr_insert_monster(struct msr_monster *monster, struct dm_map *map, coord_t *pos) {
     if (msr_verify_monster(monster) == false) return false;
     if (dm_verify_map(map) == false) return false;
-    if (cd_within_bound(pos, &map->size) == false) return false;
+    if (cd_within_bound(pos, &map->sett.size) == false) return false;
 
     struct dm_map_entity *me_future = dm_get_map_me(pos, map);
     if (TILE_HAS_ATTRIBUTE(me_future->tile, TILE_ATTR_TRAVERSABLE) == false) return false;
@@ -262,7 +264,7 @@ bool msr_insert_monster(struct msr_monster *monster, struct dm_map *map, coord_t
 bool msr_move_monster(struct msr_monster *monster, struct dm_map *map, coord_t *pos) {
     if (msr_verify_monster(monster) == false) return false;
     if (dm_verify_map(map) == false) return false;
-    if (cd_within_bound(pos, &map->size) == false) return false;
+    if (cd_within_bound(pos, &map->sett.size) == false) return false;
     if (cd_equal(&monster->pos, pos) == true ) return false;
 
     struct dm_map_entity *me_future = dm_get_map_me(pos, map);
@@ -394,8 +396,8 @@ bool msr_change_energy(struct msr_monster *monster, int energy) {
     //lg_ai_debug(monster, "idle counter: %d", monster->idle_counter);
 
     monster->energy += energy;
-    if (monster->energy < 0) monster->energy = 0;
-    if (monster->energy > TT_ENERGY_FULL) monster->energy = TT_ENERGY_FULL;
+    //if (monster->energy < 0) monster->energy = 0;
+    //if (monster->energy > TT_ENERGY_FULL) monster->energy = TT_ENERGY_FULL;
     //lg_ai_debug(monster, "energy: %d", monster->energy);
 
     return true;
@@ -925,12 +927,13 @@ static void creature_weapon(struct msr_monster *monster) {
     assert(inv_loc_empty(monster->inventory, INV_LOC_CREATURE_WIELD1) == false);
 }
 
-void msr_populate_inventory(struct msr_monster *monster, int level, struct random *r) {
+void msr_populate_inventory(struct msr_monster *monster, int lvl_min, int lvl_max, struct random *r) {
     if (msr_verify_monster(monster) == false) return;
     struct itm_item *item = NULL;
 
-    int mlevel = level;
-    if ( (random_int32(r) % 100) > 95) mlevel += 1;
+    int range = lvl_max - lvl_min;
+    int mlevel = (random_int32(r) % range) + lvl_min;
+    if ( (random_int32(r) % 100) > 98) mlevel += random_int32(r) % 3;
 
     for (int i = 0; i < MSR_NR_DEFAULT_WEAPONS_MAX; i++) {
         if (monster->def_items[i] != ITEM_GROUP_NONE) {
@@ -1124,7 +1127,6 @@ const char *msr_hitloc_name(struct msr_monster *monster, enum msr_hit_location m
         case MSR_HITLOC_RIGHT_LEG:  return "right leg";
         case MSR_HITLOC_LEFT_ARM:   return "left arm";
         case MSR_HITLOC_RIGHT_ARM:  return "right arm";
-        case MSR_HITLOC_HEAD:       return "head";
         default: break;
     }
     return NULL;
@@ -1136,3 +1138,4 @@ void msr_dbg_check_all() {
         msr_verify_monster(monster);
     }
 }
+

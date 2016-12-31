@@ -31,11 +31,15 @@
 #define WEIGHTS(wght,minlvl,maxlvl) \
     .weight=wght, .min_level=minlvl, .max_level=maxlvl
 
-#define DUNGEON(nr, tp, lvls, wgt) \
+#define DUNGEON(nr, tp, lvls, wgt, i_c, m_c, sx, sy) \
     .dungeon[nr] = { \
         .type = tp, \
         .dungeon_levels = lvls, \
         .weight = wgt, \
+        .item_chance = i_c, \
+        .monster_chance = m_c, \
+        .size.x = sx, \
+        .size.y = sy, \
     }
 
 #define ENEMIES(nr, tp, wgt) \
@@ -54,8 +58,8 @@ static struct quest static_quest_list[] = {
         DESCR_EXIT("The wise woman was extremely gratefull when " cs_PLAYER "you" cs_CLOSE " returned with the mushrooms."),
         REWARDS(200, 5),
         WEIGHTS(10, 1, 10),
-        DUNGEON(0, DUNGEON_TYPE_CAVE,  1, 10),
-        DUNGEON(1, DUNGEON_TYPE_PLAIN, 1, 1),
+        DUNGEON(0, DUNGEON_TYPE_CAVE,  1, 10, 50, 150, 100, 100),
+        DUNGEON(1, DUNGEON_TYPE_PLAIN, 1, 1,  50, 150, 100, 100),
         ENEMIES(0, MSR_RACE_GREENSKIN, 8),
         ENEMIES(1, MSR_RACE_BEAST, 2),
         FETCH_PARAMS(0, IID_MUSHROOM_MAD_CAP, 5),
@@ -68,7 +72,7 @@ static struct quest static_quest_list[] = {
 
 const char *quest_description_templates[] = {
     [QST_TYPE_NONE] = "",
-    [QST_TYPE_KILL_ALL] = "", 
-    [QST_TYPE_KILL_LEADER] = "",
+    [QST_TYPE_KILL_ALL] = cs_PLAYER "You" cs_CLOSE " must kill all %s's.",
+    [QST_TYPE_KILL_LEADER] = cs_PLAYER "You" cs_CLOSE " must kill the leader, %s.",
     [QST_TYPE_FETCH] = cs_PLAYER "You" cs_CLOSE " must retrieve " cs_ATTR "%d" cs_CLOSE " %s.",
 };

@@ -353,18 +353,23 @@ static bool sv_save_map(FILE *file, int indent, struct dm_map *map) {
     int sz = 0;
 
     svprintf_open(file, "");
-        svprintf_open(file, "size=");
-            svprintf(file, "x=%d,", map->size.x);
-            svprintf(file, "y=%d,", map->size.y);
+        svprintf_open(file, "sett=");
+            svprintf_open(file, "size=");
+                svprintf(file, "x=%d,", map->sett.size.x);
+                svprintf(file, "y=%d,", map->sett.size.y);
+            svprintf_close(file);
+            svprintf(file, "seed=%" PRIu32 ",",  map->sett.seed);
+            svprintf(file, "type=%d,",  map->sett.type);
+            svprintf(file, "threat_lvl_min=%d,", map->sett.threat_lvl_min);
+            svprintf(file, "threat_lvl_max=%d,", map->sett.threat_lvl_max);
+            svprintf(file, "item_chance=%d,",  map->sett.item_chance);
+            svprintf(file, "monster_chance=%d,",  map->sett.monster_chance);
         svprintf_close(file);
-        svprintf(file, "seed=%lu,",  map->seed);
-        svprintf(file, "type=%d,",  map->type);
-        svprintf(file, "threat_lvl=%d,", map->threat_lvl);
 
         svprintf_open(file, "map=");
             coord_t c;
-            for (c.x = 0; c.x < map->size.x; c.x++) {
-                for (c.y = 0; c.y < map->size.y; c.y++) {
+            for (c.x = 0; c.x < map->sett.size.x; c.x++) {
+                for (c.y = 0; c.y < map->sett.size.y; c.y++) {
                     struct dm_map_entity *me = dm_get_map_me(&c, map);
                     if (me->discovered == true || inv_inventory_size(me->inventory) > 0) {
                         svprintf_open(file, "");

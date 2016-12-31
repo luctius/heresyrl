@@ -196,6 +196,8 @@ static const char *itm_descs[] = {
     [IID_HAMMER_GOOD]           = "",
     [IID_PICK_GOOD]             = "",
 
+    [IID_2H_SWORD]              = "",
+
     /* Ranged */
     [IID_THROWING_KNIFE]        = "",
     [IID_SHORT_BOW]             = "",
@@ -264,6 +266,9 @@ static struct itm_item static_item_list[] = {
     ITEM_GOOD(IID_HAMMER_GOOD,"hammer",    "a military hammer",    75,100, 0),MELEE_1H(1, 0,  DMG_TYPE_BLUNT,   0,  bf(WPN_SPCQLTY_PUMMELING),TLT_NONE), CREATION(10,2), ITEM_END,
     ITEM_GOOD(IID_PICK_GOOD,  "pick",      "a military pick",      75,100, 0),MELEE_1H(1, 0,  DMG_TYPE_PIERCING,1,  bf(WPN_SPCQLTY_SLOW),     TLT_NONE), CREATION(10,2), ITEM_END,
     ITEM_GOOD(IID_SWORD_GOOD, "sword",     "a military sword",     75,100, 0),MELEE_1H(1, 0,  DMG_TYPE_CUTTING, 0,  bf(WPN_SPCQLTY_DEFENSIVE),TLT_NONE), CREATION(10,2), ITEM_END,
+
+    /*    ID                           short name,   long name             (wgt,cst,dly)      xd10 +X, dmg type         pen, special qualities,         talent*/
+    ITEM_POOR(IID_2H_SWORD, "two-handed sword", "a two-handed sword", 75, 10, 0),MELEE_2H(1,2,  DMG_TYPE_PIERCING,0,  0,                        TLT_NONE), CREATION(40,1), ITEM_END,
 
     /* Ranged */
     /*    ID                    short name       long name        (wgt,cst,dly)              dmg type       xd10 +x pen range  special qualities     talents*/

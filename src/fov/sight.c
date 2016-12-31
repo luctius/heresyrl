@@ -39,7 +39,7 @@ static bool rpsc_check_transparent_lof(struct rpsc_fov_set *set, coord_t *point,
     /* verify map structure */
     if (dm_verify_map(map) == false) return false;
     /* check if this point is within the map boundries. */
-    if (cd_within_bound(point, &map->size) == false) return false;
+    if (cd_within_bound(point, &map->sett.size) == false) return false;
 
     /* if the point is not traversable, return false */
     if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(point,map), TILE_ATTR_TRAVERSABLE) == false) return false;
@@ -60,7 +60,7 @@ static bool rpsc_check_transparent_los(struct rpsc_fov_set *set, coord_t *point,
     /* verify map structure */
     if (dm_verify_map(map) == false) return false;
     /* check if this point is within the map boundries. */
-    if (cd_within_bound(point, &map->size) == false) return false;
+    if (cd_within_bound(point, &map->sett.size) == false) return false;
 
     /* if it is transparent, return true, else return false. */
     if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(point,map), TILE_ATTR_TRANSPARENT) == false) {
@@ -87,7 +87,7 @@ static bool rpsc_apply_player_sight(struct rpsc_fov_set *set, coord_t *point, co
     /* verify map structure */
     if (dm_verify_map(map) == false) return false;
     /* check if this point is within map boundries. */
-    if (cd_within_bound(point, &map->size) == false) return false;
+    if (cd_within_bound(point, &map->sett.size) == false) return false;
     /*verify monster structure */
     if (msr_verify_monster(monster) == false) return false;
 
@@ -140,7 +140,7 @@ static bool rpsc_apply_light_source(struct rpsc_fov_set *set, coord_t *point, co
     struct itm_item *item = set->source;
 
     if (dm_verify_map(map) == false) return false;
-    if (cd_within_bound(point, &map->size) == false) return false;
+    if (cd_within_bound(point, &map->sett.size) == false) return false;
     if (itm_verify_item(item) == false) return false;
 
     struct dm_map_entity *me = dm_get_map_me(point,map);
@@ -174,7 +174,7 @@ static bool rpsc_apply_explosion(struct rpsc_fov_set *set, coord_t *point, coord
     FIX_UNUSED(origin);
 
     if (dm_verify_map(map) == false) return false;
-    if (cd_within_bound(point, &map->size) == false) return false;
+    if (cd_within_bound(point, &map->sett.size) == false) return false;
     if (ex->list_idx >= ex->list_sz) return false;
     if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(point,map), TILE_ATTR_TRAVERSABLE) == false) return false;
 
@@ -196,7 +196,7 @@ static bool rpsc_apply_projectile_path(struct rpsc_fov_set *set, coord_t *point,
     FIX_UNUSED(origin);
 
     if (dm_verify_map(map) == false) return false;
-    if (cd_within_bound(point, &map->size) == false) return false;
+    if (cd_within_bound(point, &map->sett.size) == false) return false;
     if (pp->list_idx >= pp->list_sz) return false;
     if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(point,map), TILE_ATTR_TRAVERSABLE) == false) return false;
 
@@ -217,7 +217,7 @@ bool sgt_calculate_light_source(struct dm_map *map, struct itm_item *item) {
         .source = item,
         .area = RPSC_AREA_OCTAGON,
         .map = map,
-        .size = map->size,
+        .size = map->sett.size,
         .is_transparent = rpsc_check_transparent_los,
         .apply = rpsc_apply_light_source,
     };
@@ -246,7 +246,7 @@ bool sgt_calculate_player_sight(struct dm_map *map, struct msr_monster *monster)
         .source = monster,
         .area = RPSC_AREA_OCTAGON,
         .map = map,
-        .size = map->size,
+        .size = map->sett.size,
         .is_transparent = rpsc_check_transparent_los,
         .apply = rpsc_apply_player_sight,
     };
@@ -289,7 +289,7 @@ int sgt_explosion(struct dm_map *map, coord_t *pos, int radius, coord_t *grid_li
         .source = &ex,
         .area = RPSC_AREA_OCTAGON,
         .map = map,
-        .size = map->size,
+        .size = map->sett.size,
         .is_transparent = rpsc_check_transparent_los,
         .apply = rpsc_apply_explosion,
     };
@@ -320,7 +320,7 @@ int sgt_los_path(struct dm_map *map, coord_t *s, coord_t *e, coord_t *path_lst[]
      */
     int psz = cd_pyth(s,e) * 2;
     if (continue_path) {
-        psz = MAX(map->size.x, map->size.y);
+        psz = MAX(map->sett.size.x, map->sett.size.y);
     }
 
     *path_lst = calloc(psz, sizeof(coord_t) );
@@ -342,7 +342,7 @@ int sgt_los_path(struct dm_map *map, coord_t *s, coord_t *e, coord_t *path_lst[]
         .source = &pp,
         .area = RPSC_AREA_OCTAGON,
         .map = map,
-        .size = map->size,
+        .size = map->sett.size,
         .is_transparent = rpsc_check_transparent_lof,
         .apply = rpsc_apply_projectile_path,
     };
@@ -425,7 +425,7 @@ coord_t sgt_scatter(struct dm_map *map, struct random *r, coord_t *p, int radius
             c = cd_create(p->x + dx, p->y +dy);
 
             /* require a point within map */
-            if (cd_within_bound(&c, &map->size) == false) continue;
+            if (cd_within_bound(&c, &map->sett.size) == false) continue;
 
             /* require an traversable point */
             if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(&c,map), TILE_ATTR_TRAVERSABLE) == false) continue;
@@ -449,7 +449,7 @@ bool sgt_has_los(struct dm_map *map, coord_t *s, coord_t *e, int radius) {
         .source = s,
         .area = RPSC_AREA_OCTAGON,
         .map = map,
-        .size = map->size,
+        .size = map->sett.size,
         .is_transparent = rpsc_check_transparent_los,
         .apply = NULL,
     };
@@ -465,7 +465,7 @@ bool sgt_has_lof(struct dm_map *map, coord_t *s, coord_t *e, int radius) {
         .source = s,
         .area = RPSC_AREA_OCTAGON,
         .map = map,
-        .size = map->size,
+        .size = map->sett.size,
         .is_transparent = rpsc_check_transparent_lof,
         .apply = NULL,
     };
@@ -481,7 +481,7 @@ bool sgt_in_radius(struct dm_map *map, coord_t *s, coord_t *e, int radius) {
         .source = s,
         .area = RPSC_AREA_OCTAGON,
         .map = map,
-        .size = map->size,
+        .size = map->sett.size,
         .is_transparent = rpsc_check_transparent_lof,
         .apply = NULL,
     };

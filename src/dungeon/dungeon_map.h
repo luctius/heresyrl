@@ -52,16 +52,24 @@ struct dm_map_entity {
     uint32_t map_entity_post;
 };
 
+struct dm_spawn_settings {
+    coord_t size;
+    int threat_lvl_min;
+    int threat_lvl_max;
+    int item_chance;
+    int monster_chance;
+    uint32_t seed;
+    enum dm_dungeon_type type;
+};
+
 struct dm_map {
     uint32_t map_pre;
 
-    coord_t size;
-    unsigned long seed;
-    enum dm_dungeon_type type;
-    int threat_lvl;
+    struct dm_spawn_settings sett;
 
     coord_t stair_up;
     coord_t stair_down;
+
 
     uint32_t map_post;
 
@@ -69,21 +77,22 @@ struct dm_map {
 };
 
 inline struct dm_map_entity *dm_get_map_me(coord_t *c, struct dm_map *map) {
-    if (cd_within_bound(c, &map->size) == false) return NULL;
-    return &map->map[((c->x) * (map)->size.y) + (c->y)];
+    if (cd_within_bound(c, &map->sett.size) == false) return NULL;
+    return &map->map[((c->x) * (map)->sett.size.y) + (c->y)];
 }
 
 inline struct tl_tile *dm_get_map_tile(coord_t *c, struct dm_map *map) {
-    if (cd_within_bound(c, &map->size) == false) return NULL;
-    return map->map[((c->x) * (map)->size.y) + (c->y)].tile;
+    if (cd_within_bound(c, &map->sett.size) == false) return NULL;
+    return map->map[((c->x) * (map)->sett.size.y) + (c->y)].tile;
 }
 
-struct dm_map *dm_alloc_map(int x_sz, int y_sz);
+struct dm_map *dm_generate_map(struct dm_spawn_settings *sett);
+bool dm_populate_map(struct dm_map *map);
+
 bool dm_free_map(struct dm_map *map);
 bool dm_verify_map(struct dm_map *map);
 
 bool dm_print_map(struct dm_map *map);
-bool dm_generate_map(struct dm_map *map, enum dm_dungeon_type type, int level, unsigned long seed, bool populate);
 bool dm_tile_instance(struct dm_map *map, enum tile_types tt, int instance, coord_t *pos);
 bool dm_clear_map_visibility(struct dm_map *map, coord_t *start, coord_t *end);
 bool dm_clear_map(struct dm_map *map);

@@ -27,8 +27,8 @@ void ui_animate_explosion(struct dm_map *map, coord_t path[], int path_len) {
     if (gbl_game == NULL) return;
     if (gbl_game->player_data.player == NULL) return;
 
-    int scr_x = get_viewport(last_ppos.x, map_win->cols, map->size.x);
-    int scr_y = get_viewport(last_ppos.y, map_win->lines, map->size.y);
+    int scr_x = get_viewport(last_ppos.x, map_win->cols, map->sett.size.x);
+    int scr_y = get_viewport(last_ppos.y, map_win->lines, map->sett.size.y);
 
     chtype chlist[path_len];
 
@@ -66,8 +66,8 @@ void ui_animate_projectile(struct dm_map *map, coord_t path[], int path_len) {
     if (gbl_game == NULL) return;
     if (gbl_game->player_data.player == NULL) return;
 
-    int scr_x = get_viewport(last_ppos.x, map_win->cols, map->size.x);
-    int scr_y = get_viewport(last_ppos.y, map_win->lines, map->size.y);
+    int scr_x = get_viewport(last_ppos.x, map_win->cols, map->sett.size.x);
+    int scr_y = get_viewport(last_ppos.y, map_win->lines, map->sett.size.y);
 
     for (int i = 1; i < path_len; i++) {
         if (dm_get_map_me(&path[i],map)->visible == true) {

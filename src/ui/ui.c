@@ -142,8 +142,8 @@ static void mapwin_display_map_noref(struct dm_map *map, coord_t *player) {
 
     struct msr_monster *plr = dm_get_map_me(player, map)->monster;
 
-    int x_max = (map_win->cols < map->size.x) ? map_win->cols : map->size.x;
-    int y_max = (map_win->lines < map->size.y) ? map_win->lines : map->size.y;
+    int x_max = (map_win->cols < map->sett.size.x) ? map_win->cols : map->sett.size.x;
+    int y_max = (map_win->lines < map->sett.size.y) ? map_win->lines : map->sett.size.y;
     werase(map_win->win);
     curs_set(0);
 
@@ -156,8 +156,8 @@ static void mapwin_display_map_noref(struct dm_map *map, coord_t *player) {
     else { ppos = last_ppos; }
 
     // Calculate top left of camera position
-    scr_c.x = get_viewport(ppos.x, map_win->cols,  map->size.x);
-    scr_c.y = get_viewport(ppos.y, map_win->lines, map->size.y);
+    scr_c.x = get_viewport(ppos.x, map_win->cols,  map->sett.size.x);
+    scr_c.y = get_viewport(ppos.y, map_win->lines, map->sett.size.y);
 
     bool map_see = options.debug_show_map;
 
@@ -330,8 +330,8 @@ void mapwin_overlay_examine_cursor(struct dm_map *map, coord_t *p_pos) {
     if (char_win->type != HRL_WINDOW_TYPE_CHARACTER) return;
 
     coord_t e_pos = *p_pos;
-    int scr_x = get_viewport(last_ppos.x, map_win->cols, map->size.x);
-    int scr_y = get_viewport(last_ppos.y, map_win->lines, map->size.y);
+    int scr_x = get_viewport(last_ppos.x, map_win->cols, map->sett.size.x);
+    int scr_y = get_viewport(last_ppos.y, map_win->lines, map->sett.size.y);
 
     do {
         switch (ch) {
@@ -355,9 +355,9 @@ void mapwin_overlay_examine_cursor(struct dm_map *map, coord_t *p_pos) {
         if (examine_mode == false) break;
 
         if (e_pos.y < 0) e_pos.y = 0;
-        if (e_pos.y >= map->size.y) e_pos.y = map->size.y -1;
+        if (e_pos.y >= map->sett.size.y) e_pos.y = map->sett.size.y -1;
         if (e_pos.x < 0) e_pos.x = 0;
-        if (e_pos.x >= map->size.x) e_pos.x = map->size.x -1;
+        if (e_pos.x >= map->sett.size.x) e_pos.x = map->sett.size.x -1;
 
         lg_debug("examining pos: (%d,%d), plr (%d,%d)", e_pos.x, e_pos.y, p_pos->x, p_pos->y);
         chtype oldch = mvwinch(map_win->win, e_pos.y - scr_y, e_pos.x - scr_x);
@@ -472,8 +472,8 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dm_map *map, coord_t *
         ign_cnt++;
     }
 
-    int scr_x = get_viewport(last_ppos.x, map_win->cols, map->size.x);
-    int scr_y = get_viewport(last_ppos.y, map_win->lines, map->size.y);
+    int scr_x = get_viewport(last_ppos.x, map_win->cols, map->sett.size.x);
+    int scr_y = get_viewport(last_ppos.y, map_win->lines, map->sett.size.y);
 
     coord_t *path;
     int path_len = 0;
@@ -525,9 +525,9 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dm_map *map, coord_t *
         if (fire_mode == false) break;
 
         if (e_pos.y < 0) e_pos.y = 0;
-        if (e_pos.y >= map->size.y) e_pos.y = map->size.y -1;
+        if (e_pos.y >= map->sett.size.y) e_pos.y = map->sett.size.y -1;
         if (e_pos.x < 0) e_pos.x = 0;
-        if (e_pos.x >= map->size.x) e_pos.x = map->size.x -1;
+        if (e_pos.x >= map->sett.size.x) e_pos.x = map->sett.size.x -1;
 
         lg_debug("entering fire_mode (%d,%d) -> (%d,%d)", p_pos->x, p_pos->y, e_pos.x, e_pos.y);
 
@@ -568,8 +568,8 @@ bool mapwin_overlay_throw_item_cursor(struct gm_game *g, struct dm_map *map, coo
     if (plr == NULL) return false;
     coord_t e_pos = *p_pos;
 
-    int scr_x = get_viewport(last_ppos.x, map_win->cols, map->size.x);
-    int scr_y = get_viewport(last_ppos.y, map_win->lines, map->size.y);
+    int scr_x = get_viewport(last_ppos.x, map_win->cols, map->sett.size.x);
+    int scr_y = get_viewport(last_ppos.y, map_win->lines, map->sett.size.y);
 
     coord_t *path;
     int path_len = 0;
@@ -618,9 +618,9 @@ bool mapwin_overlay_throw_item_cursor(struct gm_game *g, struct dm_map *map, coo
         if (fire_mode == false) break;
 
         if (e_pos.y < 0) e_pos.y = 0;
-        if (e_pos.y >= map->size.y) e_pos.y = map->size.y -1;
+        if (e_pos.y >= map->sett.size.y) e_pos.y = map->sett.size.y -1;
         if (e_pos.x < 0) e_pos.x = 0;
-        if (e_pos.x >= map->size.x) e_pos.x = map->size.x -1;
+        if (e_pos.x >= map->sett.size.x) e_pos.x = map->sett.size.x -1;
 
         path_len = sgt_los_path(gbl_game->current_map, p_pos, &e_pos, &path, false);
         for (int i = 1; i < path_len; i++) {
@@ -663,8 +663,8 @@ bool mapwin_overlay_throw_cursor(struct gm_game *g, struct dm_map *map, coord_t 
         ign_cnt++;
     }
 
-    int scr_x = get_viewport(last_ppos.x, map_win->cols, map->size.x);
-    int scr_y = get_viewport(last_ppos.y, map_win->lines, map->size.y);
+    int scr_x = get_viewport(last_ppos.x, map_win->cols, map->sett.size.x);
+    int scr_y = get_viewport(last_ppos.y, map_win->lines, map->sett.size.y);
 
     coord_t *path;
     int path_len = 0;
@@ -742,9 +742,9 @@ bool mapwin_overlay_throw_cursor(struct gm_game *g, struct dm_map *map, coord_t 
         if (fire_mode == false) break;
 
         if (e_pos.y < 0) e_pos.y = 0;
-        if (e_pos.y >= map->size.y) e_pos.y = map->size.y -1;
+        if (e_pos.y >= map->sett.size.y) e_pos.y = map->sett.size.y -1;
         if (e_pos.x < 0) e_pos.x = 0;
-        if (e_pos.x >= map->size.x) e_pos.x = map->size.x -1;
+        if (e_pos.x >= map->sett.size.x) e_pos.x = map->sett.size.x -1;
 
         path_len = sgt_los_path(gbl_game->current_map, p_pos, &e_pos, &path, false);
         for (int i = 1; i < path_len; i++) {
@@ -1948,7 +1948,7 @@ void vs_shop(int32_t randint, char *shop_name, enum item_group *grplst, int grpl
                 if (list[i] == list[k]) unique = false;
             }
         }
-        if (!unique) sz = i-1;
+        if (!unique) sz = i;
     }
 
     while(buying) {
@@ -2205,6 +2205,7 @@ void pay_loan() {
 }
 
 void quest_selection(int32_t randint) {
+    struct msr_monster *monster = gbl_game->player_data.player;
     struct random *r = random_init_genrand(randint);
     bool quest = true;
 
@@ -2214,19 +2215,59 @@ void quest_selection(int32_t randint) {
         bool unique = false;
 
         for (int j = 0; unique == false && j < 20; j++) {
-            int32_t grp = random_int32(r) % sz;
             struct quest *quest = qst_spawn(gbl_game->player_data.level, random_int32(r) );
             if (quest == NULL) continue;
             list[i] = quest->tid;
 
             unique = true;
-            if (list[i] == IID_NONE) unique = false;
+            if (list[i] == QSTID_NONE) unique = false;
             for (int k = 0; unique && k < i; k++) {
                 if (list[i] == list[k]) unique = false;
             }
         }
-        if (!unique) sz = i-1;
+        if (!unique) sz = i;
     }
+
+    while (quest) {
+        werase(map_win->win);
+        ui_print_reset(map_win);
+
+        ui_printf(map_win, "These are the available quests:\n");
+        for (int i = 0; i < sz; i++) {
+            struct quest *q = qst_by_tid(list[i]);
+            assert(q != NULL);
+            ui_printf(map_win, cs_ATTR " %c) " cs_CLOSE "%s", inp_key_translate_idx(i), q->description);
+            ui_printf(map_win, " (%dgp, %dxp)\n", q->gp_reward, q->xp_reward);
+        }
+
+        ui_printf_ext(map_win, map_win->lines -4, 1, cs_ATTR " [a]" cs_CLOSE " accept quest.");
+        ui_printf_ext(map_win, map_win->lines -3, 1, cs_ATTR " [q]" cs_CLOSE " exit.");
+
+        if (options.refresh) wrefresh(map_win->win);
+
+        switch (inp_get_input(gbl_game->input) ) {
+            case INP_KEY_APPLY: {
+                ui_printf_ext(map_win, map_win->lines -5, 1, "Acquire which quest?");
+                if (options.refresh) wrefresh(map_win->win);
+
+                int quest_idx = inp_get_input_idx(gbl_game->input);
+                if (quest_idx < 0) break;
+                if (quest_idx == INP_KEY_ESCAPE) break;
+                if (quest_idx >= sz) break;
+
+                gbl_game->player_data.quest = qst_by_tid(list[quest_idx]);
+                You(monster, "selected '%s' as your next quest.\n", gbl_game->player_data.quest->description);
+            } break;
+
+            case INP_KEY_HELP:
+            case INP_KEY_ESCAPE:
+            case INP_KEY_QUIT:
+            case INP_KEY_NO:
+            case INP_KEY_YES: quest = false; break;
+            default: break;
+        }
+    }
+    charwin_refresh();
 }
 
 void village_screen() {
@@ -2258,6 +2299,9 @@ void village_screen() {
         ui_printf_ext(map_win, map_win->lines -3, 1, cs_ATTR " [q]" cs_CLOSE " exit.");
         if (options.refresh) wrefresh(map_win->win);
 
+        show_msg(msg_win);
+        charwin_refresh();
+
         switch (inp_get_input(gbl_game->input) ) {
             case INP_KEY_APPLY:
                 ui_printf_ext(map_win, map_win->lines-5, 1, "Travel were?");
@@ -2265,15 +2309,15 @@ void village_screen() {
 
                 enum item_group ws_grplst[] = {
                     ITEM_GROUP_RANGED,
-                    ITEM_GROUP_GUNPOWDER,
                     ITEM_GROUP_THROWING,
                     ITEM_GROUP_1H_MELEE,
                     ITEM_GROUP_2H_MELEE,
+                    /*ITEM_GROUP_GUNPOWDER,*/
                 };
 
                 enum item_group as_grplst[] = {
                     ITEM_GROUP_ARMOUR,
-                    ITEM_GROUP_SHIELD,
+                    /*ITEM_GROUP_SHIELD,*/
                 };
 
                 enum item_group ap_grplst[] = {

@@ -90,8 +90,6 @@ bool game_load(void) {
 bool game_init_map(void) {
     if (gbl_game == NULL) return false;
 
-    int x = 100;
-    int y = 100;
     bool new_map = false;
 
     if (plr_init(&gbl_game->player_data) == false) {
@@ -104,11 +102,21 @@ bool game_init_map(void) {
 
     if (gbl_game->current_map == NULL) {
         new_map = true;
-        gbl_game->current_map = dm_alloc_map(x,y);
+        struct qst_dungeon *dun = qst_select_dungeon(gbl_game->player_data.quest, random_int32(gbl_game->random));
 
-        enum dm_dungeon_type dmt = qst_select_dungeon(gbl_game->player_data.quest, random_int32(gbl_game->random));
-        dm_generate_map(gbl_game->current_map, dmt, 1, random_int32(gbl_game->random), true);
+        struct quest *q = gbl_game->player_data.quest;
+        struct dm_spawn_settings spwn_sett = {
+            .size = cd_create(dun->size.x, dun->size.y),
+            .threat_lvl_min  = q->min_level,
+            .threat_lvl_max = q->max_level,
+            .item_chance = dun->item_chance,
+            .monster_chance = dun->monster_chance,
+            .seed = random_int32(gbl_game->random),
+            .type = dun->type,
+        };
 
+        gbl_game->current_map = dm_generate_map(&spwn_sett);
+        dm_populate_map(gbl_game->current_map);
         qst_process_quest_start(gbl_game->player_data.quest, gbl_game->current_map, gbl_game->random);
     }
 
@@ -119,7 +127,7 @@ bool game_init_map(void) {
         if (new_map) cr_generate_allies(gbl_game->player_data.career, gbl_game->player_data.player, gbl_game->current_map);
     }
 
-    dm_clear_map_visibility(gbl_game->current_map, &c, &gbl_game->current_map->size);
+    dm_clear_map_visibility(gbl_game->current_map, &c, &gbl_game->current_map->sett.size);
     sgt_calculate_all_light_sources(gbl_game->current_map);
     sgt_calculate_player_sight(gbl_game->current_map, gbl_game->player_data.player);
     gbl_game->running = true;
