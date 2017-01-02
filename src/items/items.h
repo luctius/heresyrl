@@ -78,6 +78,7 @@ enum item_weapon_type {
 enum item_food_type {
     FOOD_TYPE_SOLID,
     FOOD_TYPE_LIQUID,
+    FOOD_TYPE_INJECTION,
     FOOD_TYPE_MAX,
     FOOD_TYPE_RANDOM,
 };
@@ -93,6 +94,34 @@ enum item_tool_type {
 enum item_ammo_type {
     AMMO_TYPE_NONE,
     AMMO_TYPE_ARROW,
+    AMMO_TYPE_PISTOL_SP,
+    AMMO_TYPE_PISTOL_LAS,
+    AMMO_TYPE_PISTOL_PLASMA,
+    AMMO_TYPE_PISTOL_MELTA,
+    AMMO_TYPE_PISTOL_FLAME,
+    AMMO_TYPE_PISTOL_BOLT,
+    AMMO_TYPE_PISTOL_SHURIKEN,
+    AMMO_TYPE_PISTOL_SHOTGUN,
+                             
+    AMMO_TYPE_BASIC_GRENADE,
+    AMMO_TYPE_BASIC_SP,
+    AMMO_TYPE_BASIC_LAS,
+    AMMO_TYPE_BASIC_PLASMA,
+    AMMO_TYPE_BASIC_MELTA,
+    AMMO_TYPE_BASIC_FLAME,
+    AMMO_TYPE_BASIC_BOLT,
+    AMMO_TYPE_BASIC_SHOTGUN,
+    AMMO_TYPE_BASIC_SHURIKEN,
+    AMMO_TYPE_BASIC_ROCKET,
+                             
+    AMMO_TYPE_HEAVY_GRENADE,
+    AMMO_TYPE_HEAVY_SP,
+    AMMO_TYPE_HEAVY_LAS,
+    AMMO_TYPE_HEAVY_PLASMA,
+    AMMO_TYPE_HEAVY_FLAME,
+    AMMO_TYPE_HEAVY_MELTA,
+    AMMO_TYPE_HEAVY_BOLT,
+    AMMO_TYPE_HEAVY_ROCKET,
     AMMO_TYPE_MAX,
     AMMO_TYPE_RANDOM,
 };
@@ -190,6 +219,8 @@ struct item_ammo_specific {
     enum item_ammo_type ammo_type;
     bitfield64_t upgrades;
     enum se_ids convey_status_effect;
+    int energy;
+    int energy_left;
 };
 
 enum item_owner {

@@ -129,7 +129,7 @@ static const struct status_effect static_status_effect_list[] = {
         EFFECTS_START
             /* Type     Effect      Flags   Strength   Param */
             EFFECT(EF_SWIMMING,     0,      0,         0),
-            EFFECT(EF_MODIFY_CHAR,  0,      -30,       MSR_CHAR_WEAPON_SKILL),
+            EFFECT(EF_MODIFY_CHAR,  0,      -30,       MSR_CHAR_COMBAT),
             EFFECT(EF_MODIFY_CHAR,  0,      -30,       MSR_CHAR_AGILITY),
             EFFECT(EF_MODIFY_SKILL, 0,      -30,       MSR_SKILLS_DODGE),
             EFFECT(EF_MODIFY_SKILL, 0,      -30,       MSR_SKILLS_STEALTH),
@@ -141,7 +141,7 @@ static const struct status_effect static_status_effect_list[] = {
     STATUS_EFFECT(SEID_WADE, "Wading", "", 0),
         EFFECTS_START
             /* Type    Effect       Flags    Strength    Param */
-            EFFECT(EF_MODIFY_CHAR,  0,        -20,       MSR_CHAR_WEAPON_SKILL),
+            EFFECT(EF_MODIFY_CHAR,  0,        -20,       MSR_CHAR_COMBAT),
             EFFECT(EF_MODIFY_CHAR,  0,        -20,       MSR_CHAR_AGILITY),
             EFFECT(EF_MODIFY_SKILL, 0,        -20,       MSR_SKILLS_DODGE),
             EFFECT(EF_MODIFY_SKILL, 0,        -20,       MSR_SKILLS_STEALTH),
@@ -153,7 +153,7 @@ static const struct status_effect static_status_effect_list[] = {
     STATUS_EFFECT(SEID_MUD, "Mud", "", 0),
         EFFECTS_START
             /* Type    Effect       Flags    Strength    Param */
-            EFFECT(EF_MODIFY_CHAR,  0,        -10,       MSR_CHAR_WEAPON_SKILL),
+            EFFECT(EF_MODIFY_CHAR,  0,        -10,       MSR_CHAR_COMBAT),
             EFFECT(EF_MODIFY_CHAR,  0,        -10,       MSR_CHAR_AGILITY),
             EFFECT(EF_MODIFY_SKILL, 0,        -10,       MSR_SKILLS_DODGE),
             EFFECT(EF_MODIFY_SKILL, 0,        -10,       MSR_SKILLS_STEALTH),
@@ -220,4 +220,49 @@ static const struct status_effect static_status_effect_list[] = {
         CHECK(bf(EF_CHECK_CHARACTERISTIC), MSR_CHAR_TOUGHNESS,   +20),
     STATUS_EFFECT_END,
 };
+
+/*
+   This lookup table retrieves the starting entry of the
+   critical hit table. The damage is then added to that
+   to get to the correct entry.
+*/
+static const enum se_ids dmg_type_to_id_lot[MSR_HITLOC_MAX][DMG_TYPE_MAX] = {
+    [MSR_HITLOC_LEFT_LEG] = {
+        [DMG_TYPE_ENERGY]    = SEID_BLUNT_LARM_1,
+        [DMG_TYPE_EXPLOSIVE] = SEID_BLUNT_LARM_1,
+        [DMG_TYPE_IMPACT]    = SEID_BLUNT_LARM_1,
+        [DMG_TYPE_RENDING]   = SEID_BLUNT_LARM_1,
+    },
+    [MSR_HITLOC_RIGHT_LEG] = {
+        [DMG_TYPE_ENERGY]    = SEID_BLUNT_LARM_1,
+        [DMG_TYPE_EXPLOSIVE] = SEID_BLUNT_LARM_1,
+        [DMG_TYPE_IMPACT]    = SEID_BLUNT_LARM_1,
+        [DMG_TYPE_RENDING]   = SEID_BLUNT_LARM_1,
+    },
+    [MSR_HITLOC_LEFT_ARM] = {
+        [DMG_TYPE_ENERGY]    = SEID_BLUNT_LARM_1,
+        [DMG_TYPE_EXPLOSIVE] = SEID_BLUNT_LARM_1,
+        [DMG_TYPE_IMPACT]    = SEID_BLUNT_LARM_1,
+        [DMG_TYPE_RENDING]   = SEID_BLUNT_LARM_1,
+    },
+    [MSR_HITLOC_RIGHT_ARM] = {
+        [DMG_TYPE_ENERGY]    = SEID_BLUNT_LARM_1,
+        [DMG_TYPE_EXPLOSIVE] = SEID_BLUNT_LARM_1,
+        [DMG_TYPE_IMPACT]    = SEID_BLUNT_LARM_1,
+        [DMG_TYPE_RENDING]   = SEID_BLUNT_LARM_1,
+    },
+    [MSR_HITLOC_BODY] = {
+        [DMG_TYPE_ENERGY]    = SEID_BLUNT_LARM_1,
+        [DMG_TYPE_EXPLOSIVE] = SEID_BLUNT_LARM_1,
+        [DMG_TYPE_IMPACT]    = SEID_BLUNT_LARM_1,
+        [DMG_TYPE_RENDING]   = SEID_BLUNT_LARM_1,
+    },
+    [MSR_HITLOC_HEAD] = {
+        [DMG_TYPE_ENERGY]    = SEID_BLUNT_LARM_1,
+        [DMG_TYPE_EXPLOSIVE] = SEID_BLUNT_LARM_1,
+        [DMG_TYPE_IMPACT]    = SEID_BLUNT_LARM_1,
+        [DMG_TYPE_RENDING]   = SEID_BLUNT_LARM_1,
+    },
+};
+
 

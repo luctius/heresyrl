@@ -200,7 +200,8 @@ bool ma_do_melee(struct msr_monster *monster, coord_t *target_pos) {
         return false;
     }
 
-    int cost = MSR_ACTION_MELEE / msr_calculate_characteristic(monster, MSR_SEC_CHAR_ATTACKS);
+    //TODO MULTIPLE ATTACKS  int cost = MSR_ACTION_MELEE / msr_calculate_characteristic(monster, MSR_SEC_CHAR_ATTACKS);
+    int cost = MSR_ACTION_MELEE;
 
     if (fght_melee(gbl_game->random, monster, target) == false) {
         return false;
@@ -216,7 +217,8 @@ bool ma_do_throw(struct msr_monster *monster, coord_t *pos, struct itm_item *ite
     if (msr_verify_monster(monster) == false) return false;
     if (itm_verify_item(item) == false) return false;
     if (pos == NULL) return false;
-    int cost = MSR_ACTION_THROW / msr_calculate_characteristic(monster, MSR_SEC_CHAR_ATTACKS);
+    // TODO multiple attacks  int cost = MSR_ACTION_THROW / msr_calculate_characteristic(monster, MSR_SEC_CHAR_ATTACKS);
+    int cost = MSR_ACTION_THROW;
     bool thrown = false;
 
     /* do status checks on monster*/
@@ -241,7 +243,8 @@ bool ma_do_throw(struct msr_monster *monster, coord_t *pos, struct itm_item *ite
 bool ma_do_fire(struct msr_monster *monster, coord_t *pos) {
     if (msr_verify_monster(monster) == false) return false;
     if (pos == NULL) return false;
-    int cost = MSR_ACTION_FIRE / msr_calculate_characteristic(monster, MSR_SEC_CHAR_ATTACKS);
+    //TODO multiple attacks  int cost = MSR_ACTION_FIRE / msr_calculate_characteristic(monster, MSR_SEC_CHAR_ATTACKS);
+    int cost = MSR_ACTION_FIRE;
 
     /* do status checks on monster*/
     if (se_has_effect(monster, EF_SWIMMING) ) {
@@ -272,12 +275,24 @@ static bool ma_has_ammo(struct msr_monster *monster, struct itm_item *item) {
     while ( (a_item = inv_get_next_item(monster->inventory, a_item) ) != NULL) {
         if (ammo_is_type(a_item, wpn->ammo_type) ) {
             int to_fill = wpn->magazine_sz - wpn->magazine_left;
-            /*
-               Transfer ammo from stack to the magazine of the item.
-             */
-            int sz = MIN(to_fill, a_item->stacked_quantity);
-            wpn->magazine_left += sz;
-            a_item->stacked_quantity -= sz;
+            struct item_ammo_specific *ammo = &a_item->specific.ammo;
+
+            if (ammo->energy > 0) {
+                int mod = ammo->energy / (float) wpn->magazine_sz;
+                int ammo_in_pack = round(ammo->energy_left / mod);
+                int sz = MIN(to_fill, ammo_in_pack);
+                wpn->magazine_left += sz;
+                ammo->energy_left -= (sz * mod);
+                if (ammo->energy_left < 2) a_item->stacked_quantity = 0;
+            }
+            else {
+                /*
+                   Transfer ammo from stack to the magazine of the item.
+                 */
+                int sz = MIN(to_fill, a_item->stacked_quantity);
+                wpn->magazine_left += sz;
+                a_item->stacked_quantity -= sz;
+            }            
 
             /* TODO: destroy all items in inventory of stack_qnty == 0 */
             if (a_item->stacked_quantity == 0) {
@@ -317,7 +332,7 @@ bool ma_do_reload_carried(struct msr_monster *monster, struct itm_item *ammo_ite
     }
 
     int reload_cost = MSR_ACTION_RELOAD;
-    if (msr_has_talent(monster, TLT_RAPID_RELOAD) ) {
+    if (msr_has_talent(monster, TLT_1_RAPID_RELOAD) ) {
         reload_cost = MSR_ACTION_RELOAD / 2;
     }
 
@@ -331,7 +346,7 @@ bool ma_do_reload_carried(struct msr_monster *monster, struct itm_item *ammo_ite
 
                     /* Actors with Rapid Reload which reload an item which has a
                        use delay of half or less, for free. */
-                    if (msr_has_talent(monster, TLT_RAPID_RELOAD) ) {
+                    if (msr_has_talent(monster, TLT_1_RAPID_RELOAD) ) {
                         if (cost <= (MSR_ACTION_RELOAD / 2) ) {
                             cost = 0;
                         }
@@ -379,9 +394,18 @@ static bool unload(struct msr_monster *monster, struct itm_item *weapon_item) {
     struct itm_item *ammo_item = itm_create(wpn->ammo_used_tid);
     if (itm_verify_item(ammo_item) == false) return false;
     assert(ammo_is_type(ammo_item, wpn->ammo_type) == true);
+    struct item_ammo_specific *ammo = &ammo_item->specific.ammo;
 
-    /* We count individual bullets */
-    ammo_item->stacked_quantity = wpn->magazine_left;
+    if (ammo->energy > 0) {
+        /* We count charge packs with energy */
+        ammo_item->stacked_quantity = 1;
+        float mod = ammo->energy / (float) wpn->magazine_sz;
+        ammo->energy_left = wpn->magazine_left * mod;
+    } else {
+        /* We count individual bullets */
+        ammo_item->stacked_quantity = wpn->magazine_left;
+    }    
+
     wpn->magazine_left = 0;
 
     You(monster, "have unloaded %s.", weapon_item->ld_name);

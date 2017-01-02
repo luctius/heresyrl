@@ -25,6 +25,7 @@
 #include <limits.h>
 
 #include "logging.h"
+#include "careers/careers_static.h"
 
 #ifndef FIX_UNUSED
 #define FIX_UNUSED(X) (void) (X) /* avoid warnings for unused params */
@@ -40,6 +41,7 @@
 #define set_bf(field, attr) (field |= bf(attr) )
 #define clr_bf(field, attr) (field &= ~(bf(attr) ) )
 #define test_bf(field, attr) ( (field & bf(attr) ) > 0)
+typedef __uint128_t    bitfield128_t;
 typedef uint_least64_t bitfield64_t;
 typedef uint_least32_t bitfield32_t;
 typedef uint_least16_t bitfield16_t;
@@ -79,12 +81,22 @@ enum dmg_type;
 enum item_group;
 enum item_weapon_type;
 enum wpn_rof_setting;
+enum background_ids;
+enum role_ids;
+
+struct cr_career {
+    int xp_current;
+    int xp_spend;
+
+    enum background_ids b_tid;
+    enum role_ids r_tid;
+
+    bitfield32_t aptitudes;
+};
 
 struct pl_player {
     struct msr_monster *player;
-    struct cr_career *career;
-    int xp_current;
-    int xp_spend;
+    struct cr_career career;
     bool exit_map;
     int level;
     int loan;

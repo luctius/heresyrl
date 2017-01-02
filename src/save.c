@@ -96,9 +96,11 @@ static bool sv_save_player(FILE *file, int indent, struct pl_player *plr) {
     if (file == NULL) return false;
 
     svprintf_open(file, "player=");
-        svprintf(file,"career_id= %d,", plr->career->tid);
-        svprintf(file,"xp_current= %d,", plr->xp_current);
-        svprintf(file,"xp_spend= %d,", plr->xp_spend);
+        svprintf_open(file, "career=");
+            //svprintf(file,"career_id= %d,", plr->career->tid);
+            svprintf(file,"xp_current= %d,", plr->career.xp_current);
+            svprintf(file,"xp_spend= %d,", plr->career.xp_spend);
+        svprintf_close(file);
         svprintf_open(file,"quest=");
             svprintf(file,"tid=%d,", plr->quest->tid);
             svprintf(file,"state=%d,", plr->quest->state);
@@ -156,10 +158,8 @@ static bool sv_save_monsters(FILE *file, int indent) {
 
                 svprintf_open(file,"talents=");
                     int t_sz = 0;
-                    for (int i = 0; i < MSR_NR_TALENTS_MAX; i++) {
-                        if (m->talents[i] == TLT_NONE) break;
-
-                        svprintf(file,"%" PRIu8 ",", m->talents[i]);
+                    for (int i = 0; i < MSR_TALENT_TIER_MAX; i++) {
+                        svprintf(file,"%" PRIu64 ",", m->talents[i]);
                         t_sz++;
                     }
                     svprintf(file,"sz=%d,", t_sz);

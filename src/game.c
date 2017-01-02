@@ -55,6 +55,7 @@ void game_init(struct pl_player *plr, unsigned long initial_seed) {
             tt_init();
             se_init();
             ge_init();
+            cr_init();
 
             gbl_game->input = inp_init();
         }
@@ -124,7 +125,6 @@ bool game_init_map(void) {
     if (cd_equal(&gbl_game->player_data.player->pos, &c) == true) {
         if (dm_tile_instance(gbl_game->current_map, TILE_TYPE_STAIRS_UP, 0, &c) == false) exit(1);
         if (msr_insert_monster(gbl_game->player_data.player, gbl_game->current_map, &c) == false) exit(1);
-        if (new_map) cr_generate_allies(gbl_game->player_data.career, gbl_game->player_data.player, gbl_game->current_map);
     }
 
     dm_clear_map_visibility(gbl_game->current_map, &c, &gbl_game->current_map->sett.size);
@@ -232,3 +232,4 @@ void game_cleanup(void) {
     gbl_game->current_map = NULL;
     player->pos = cd_create(0,0);
 }
+

@@ -274,6 +274,16 @@ bool dw_use_item(struct msr_monster *monster, struct itm_item *item) {
                 destroy = true;
             }
         }
+        else if (food->food_type == FOOD_TYPE_INJECTION) {
+            You(monster,     "inject a %s.", item->ld_name);
+            Monster(monster, "injects a %s.", item->ld_name);
+
+            food->nutrition_left -= 1;
+            if (food->nutrition_left <= 0) {
+                You_msg(monster, "That was the last drop.");
+                destroy = true;
+            }
+        }
 
         /* We just identified the item by trying it. */
         itm_identify(item);

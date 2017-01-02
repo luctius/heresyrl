@@ -50,9 +50,17 @@ struct msr_monster_list_entry {
 void msrlst_monster_list_init(void) {
     for (unsigned int i = 1; i < ARRAY_SZ(static_monster_list); i++) {
         struct msr_monster *template_monster = &static_monster_list[i];
-        if (template_monster->icon == '\0') {
+        if ( (template_monster->icon == '\0') || (template_monster->sd_name == NULL) || (template_monster->ld_name == NULL) ){
             fprintf(stderr, "Monster list integrity check failed! [%d]\n", i);
             exit(EXIT_FAILURE);
+        }
+
+        for (int j = 0; j < MSR_TALENT_TIER_MAX; j++) {
+            if ( ( (template_monster->talents[j] & MSR_TALENT_HEADER_MASK) != 0) &&
+                ( ( (template_monster->talents[j] & MSR_TALENT_HEADER_MASK) != MSR_TALENT_HEADER(j) ) ) ) {
+                fprintf(stderr, "Monster list integrity check failed on talents! [%d:%d]\n", i, j);
+                exit(EXIT_FAILURE);
+            }
         }
     }
 
@@ -161,6 +169,11 @@ struct msr_monster *msr_create(enum msr_ids tid) {
     }
     assert(m->monster.description != NULL);
 
+    for (int tier = 0; tier < MSR_TALENT_TIER_MAX; tier++) {
+        m->monster.talents[tier] = 0;
+        m->monster.talents[tier] |= MSR_TALENT_HEADER(tier);
+    }
+
     m->monster.monster_pre = MONSTER_PRE_CHECK;
     m->monster.monster_post = MONSTER_POST_CHECK;
 
@@ -213,6 +226,10 @@ bool msr_verify_monster(struct msr_monster *monster) {
     assert(monster->monster_post == MONSTER_POST_CHECK);
     assert(inv_verify_inventory(monster->inventory) == true );
     assert(se_verify_list(monster->status_effects) == true);
+
+    for (int tier = 0; tier < MSR_TALENT_TIER_MAX; tier++) {
+        assert(msr_get_tier(monster->talents[tier]) == tier);
+    }
 
     if (monster->dead == true) return false;
 
@@ -312,7 +329,7 @@ bool msr_remove_item(struct msr_monster *monster, struct itm_item *item) {
 int msr_get_near_sight_range(struct msr_monster *monster) {
     if (msr_verify_monster(monster) == false) return -1;
     int sight_near = ( (msr_calculate_characteristic_bonus(monster, MSR_CHAR_PERCEPTION) * 1.0f) ) +1;
-    if (msr_has_talent(monster, TLT_NIGHT_VISION) ) {
+    if (msr_has_creature_trait(monster, CTRTRT_DARK_SIGHT) ) {
         int nv_sight = 16 * RANGE_MULTIPLIER;
         if(sight_near < nv_sight) sight_near = nv_sight;
     }
@@ -324,7 +341,7 @@ int msr_get_near_sight_range(struct msr_monster *monster) {
 int msr_get_medium_sight_range(struct msr_monster *monster) {
     if (msr_verify_monster(monster) == false) return -1;
     int sight_medium = ( (msr_calculate_characteristic_bonus(monster, MSR_CHAR_PERCEPTION) * 2.0f) ) +1;
-    if (msr_has_talent(monster, TLT_NIGHT_VISION) ) {
+    if (msr_has_creature_trait(monster, CTRTRT_DARK_SIGHT) ) {
         int nv_sight = 16 * RANGE_MULTIPLIER;
         if(sight_medium < nv_sight) sight_medium = nv_sight;
     }
@@ -336,7 +353,7 @@ int msr_get_medium_sight_range(struct msr_monster *monster) {
 int msr_get_far_sight_range(struct msr_monster *monster) {
     if (msr_verify_monster(monster) == false) return -1;
     int sight_far = ( (msr_calculate_characteristic_bonus(monster, MSR_CHAR_PERCEPTION) * 5.0f) ) +1;
-    if (msr_has_talent(monster, TLT_NIGHT_VISION) ) {
+    if (msr_has_creature_trait(monster, CTRTRT_DARK_SIGHT) ) {
         int nv_sight = 16 * RANGE_MULTIPLIER;
         if(sight_far < nv_sight) sight_far = nv_sight;
     }
@@ -544,22 +561,6 @@ bool msr_use_evasion(struct msr_monster *monster, struct msr_monster *attacker, 
     return false;
 }
 
-static const int human_hitloc_lotable[] = {
-    [MSR_HITLOC_HEAD]       = 0,
-    [MSR_HITLOC_RIGHT_ARM]  = 10,
-    [MSR_HITLOC_LEFT_ARM]   = 20,
-    [MSR_HITLOC_BODY]       = 30,
-    [MSR_HITLOC_RIGHT_LEG]  = 70,
-    [MSR_HITLOC_LEFT_LEG]   = 85,
-};
-
-static const int beast_hitloc_lotable[] = {
-    [MSR_HITLOC_HEAD]       = 0,
-    [MSR_HITLOC_BODY]       = 10,
-    [MSR_HITLOC_RIGHT_LEG]  = 50,
-    [MSR_HITLOC_LEFT_LEG]   = 75,
-};
-
 enum msr_hit_location msr_get_hit_location(struct msr_monster *monster, int hit_roll) {
     if (msr_verify_monster(monster) == false) return MSR_HITLOC_NONE;
     if (hit_roll > 99) hit_roll %= 100;
@@ -690,10 +691,11 @@ int msr_calculate_skill(struct msr_monster *monster, enum msr_skills skill) {
 
     enum msr_skill_rate r = msr_has_skill(monster, skill);
     switch(r) {
-        case MSR_SKILL_RATE_EXPERT:     charac += 20; lg_print("You are an expert (%d)", charac); break;
-        case MSR_SKILL_RATE_ADVANCED:   charac += 10; lg_print("You are advanced (%d)", charac); break;
-        case MSR_SKILL_RATE_BASIC:      lg_print("You have the skill (%d)", charac); break;
-        case MSR_SKILL_RATE_NONE:       charac -= 10; lg_print("You do not have this skill (%d)", charac); break;
+        case MSR_SKILL_RATE_VETERAN:        charac += 30; lg_print("You are a veteran (%d)", charac); break;
+        case MSR_SKILL_RATE_EXPERIENCED:    charac += 20; lg_print("You are an expert (%d)", charac); break;
+        case MSR_SKILL_RATE_TRAINED:        charac += 10; lg_print("You are advanced (%d)", charac); break;
+        case MSR_SKILL_RATE_KNOWN:          lg_print("You have the skill (%d)", charac); break;
+        case MSR_SKILL_RATE_UNKNOWN:        charac = (charac / 2) +1; lg_print("You do not have this skill (%d)", charac); break;
         default: assert(false); break;
     }
 
@@ -722,18 +724,6 @@ int msr_calculate_characteristic(struct msr_monster *monster, enum msr_character
     if (msr_verify_monster(monster) == false) return -1;
     if (chr >= MSR_CHAR_MAX) return -1;
     int mod = 0;
-
-    if (chr == MSR_CHAR_AGILITY) {
-        if (inv_wears_wearable_with_spcqlty(monster->inventory, WBL_SPCQLTY_PLATE) ) {
-            mod -= 20;
-        }
-        else if (inv_wears_wearable_with_spcqlty(monster->inventory, WBL_SPCQLTY_SCALE) ) {
-            mod -= 10;
-        }
-        else if (inv_wears_wearable_with_spcqlty(monster->inventory, WBL_SPCQLTY_MAIL) ) {
-            mod -= 10;
-        }
-    }
 
     int adv = monster->characteristic[chr].advancement;
     int retchr = monster->characteristic[chr].base_value + adv + monster->characteristic[chr].mod + mod;
@@ -766,17 +756,21 @@ int msr_calculate_carrying_capacity(struct msr_monster *monster) {
 }
 
 enum msr_skill_rate msr_has_skill(struct msr_monster *monster, enum msr_skills skill) {
-    if (msr_verify_monster(monster) == false) return MSR_SKILL_RATE_NONE;
+    if (msr_verify_monster(monster) == false) return MSR_SKILL_RATE_UNKNOWN;
 
-    enum msr_skill_rate r = MSR_SKILL_RATE_NONE;
-    if ((monster->skills[MSR_SKILL_RATE_BASIC]    & bf(skill) ) > 0) r = MSR_SKILL_RATE_BASIC;
-    if ((monster->skills[MSR_SKILL_RATE_ADVANCED] & bf(skill) ) > 0) r = MSR_SKILL_RATE_ADVANCED;
-    if ((monster->skills[MSR_SKILL_RATE_EXPERT]   & bf(skill) ) > 0) r = MSR_SKILL_RATE_EXPERT;
+    enum msr_skill_rate r = MSR_SKILL_RATE_UNKNOWN;
+    if ((monster->skills[MSR_SKILL_RATE_VETERAN]            & bf(skill) ) > 0) r = MSR_SKILL_RATE_VETERAN;
+    else if ((monster->skills[MSR_SKILL_RATE_EXPERIENCED]   & bf(skill) ) > 0) r = MSR_SKILL_RATE_EXPERIENCED;
+    else if ((monster->skills[MSR_SKILL_RATE_TRAINED]       & bf(skill) ) > 0) r = MSR_SKILL_RATE_TRAINED;
+    else if ((monster->skills[MSR_SKILL_RATE_KNOWN]         & bf(skill) ) > 0) r = MSR_SKILL_RATE_KNOWN;
     return r;
 }
 
 bool msr_set_skill(struct msr_monster *monster, enum msr_skills skill, enum msr_skill_rate rate) {
-    if (msr_has_skill(monster, skill) >= rate) return false;
+    if (skill == MSR_SKILLS_NONE) return false;
+    if (skill >= MSR_SKILLS_MAX) return false;
+    if (rate >= MSR_SKILL_RATE_MAX) return false;
+    if (msr_has_skill(monster, skill) == rate) return false;
 
     set_bf(monster->skills[rate], skill);
 
@@ -978,14 +972,31 @@ bool msr_clr_creature_trait(struct msr_monster *monster,  enum msr_creature_trai
     return msr_has_creature_trait(monster, trait);
 }
 
+enum msr_talent_tiers msr_get_tier(bitfield64_t t) {
+    bitfield64_t header = t>> MSR_TALENT_HEADER_SHIFT;
+    assert(__builtin_popcountll(header) == 1);
+
+    for (int i = 0; i < MSR_TALENT_TIER_MAX; i++)  {
+        if (header == 1) return i;
+        header >>= 1;
+    }
+    return MSR_TALENT_TIER_MAX;
+}
+
 bool msr_has_talent(struct msr_monster *monster, enum msr_talents talent) {
     if (msr_verify_monster(monster) == false) return false;
     if (talent == TLT_NONE) return true;
     if (talent >= TLT_MAX) return false;
 
-    for (unsigned int i = 0; i < ARRAY_SZ(monster->talents); i++) {
-        if (monster->talents[i] == talent) return true;
-    }
+    int tier = msr_get_tier(talent);
+    assert(tier < MSR_TALENT_TIER_MAX);
+    assert(msr_get_tier(monster->talents[tier]) == tier);
+    assert(__builtin_popcountll(talent >> MSR_TALENT_HEADER_SHIFT) == 1);
+
+    bitfield64_t talent_id = talent & MSR_TALENT_ID_MASK;
+    assert(__builtin_popcountll(talent_id) == 1);
+
+    if ( (monster->talents[tier] & talent_id) == talent_id) return true;
     return false;
 }
 
@@ -994,32 +1005,37 @@ bool msr_set_talent(struct msr_monster *monster, enum msr_talents talent) {
     if (msr_has_talent(monster, talent) == true) return false;
     if (talent >= TLT_MAX) return false;
 
-    for (unsigned int i = 0; i < ARRAY_SZ(monster->talents); i++) {
-        if (monster->talents[i] == TLT_NONE) {
-            monster->talents[i] = talent;
-            return true;
-        }
-    }
-    return false;
+    int tier = msr_get_tier(talent);
+    assert(tier < MSR_TALENT_TIER_MAX);
+    assert(__builtin_popcountll(talent >> MSR_TALENT_HEADER_SHIFT) == 1);
+
+    bitfield64_t talent_id = talent & MSR_TALENT_ID_MASK;
+    assert(__builtin_popcountll(talent_id) == 1);
+
+    monster->talents[tier] |= talent;
+    assert(msr_get_tier(monster->talents[tier]) == tier);
+
+    return msr_has_talent(monster, talent);
 }
 
 bool msr_clr_talent(struct msr_monster *monster, enum msr_talents talent) {
     if (msr_verify_monster(monster) == false) return false;
     if (msr_has_talent(monster, talent) == false) return false;
 
-    for (unsigned int i = 0; i < ARRAY_SZ(monster->talents); i++) {
-        if (monster->talents[i] == talent) {
-            monster->talents[i] = talent;
-            return true;
-        }
-    }
+    int tier = msr_get_tier(talent);
+    assert(tier < MSR_TALENT_TIER_MAX);
+    assert(__builtin_popcountll(talent >> MSR_TALENT_HEADER_SHIFT) == 1);
 
-    return false;
+    bitfield64_t talent_id = talent & MSR_TALENT_ID_MASK;
+    assert(__builtin_popcountll(talent_id) == 1);
+
+    monster->talents[tier] &= ~talent;
+    return (msr_has_talent(monster, talent) == false);
 }
 
 uint8_t msr_get_movement_rate(struct msr_monster *monster) {
     if (msr_verify_monster(monster) == false) return false;
-    int speed = (msr_calculate_characteristic(monster, MSR_SEC_CHAR_MOVEMENT) );
+    int speed = (msr_calculate_characteristic(monster, MSR_CHAR_AGILITY) );
     int speed_mod = 0;
     int min_speed = MSR_MOVEMENT_MIN;
     int max_speed = MSR_MOVEMENT_MAX;
@@ -1036,13 +1052,6 @@ uint8_t msr_get_movement_rate(struct msr_monster *monster) {
     if (se_has_effect(monster, EF_DISABLED_LLEG) ) {
         max_speed -= 2;
         speed_mod -= speed / 2;
-    }
-
-    if (inv_wears_wearable_with_spcqlty(monster->inventory, WBL_SPCQLTY_PLATE) ) {
-        speed_mod -= 1;
-    }
-    else if (inv_wears_wearable_with_spcqlty(monster->inventory, WBL_SPCQLTY_SCALE) ) {
-        speed_mod -= 1;
     }
 
     speed += speed_mod;
@@ -1074,11 +1083,8 @@ const char *msr_gender_name(struct msr_monster *monster, bool possesive) {
     if (monster->gender >= MSR_GENDER_MAX) gender = MSR_GENDER_IT;
     if (!dm_get_map_me(&monster->pos, gbl_game->current_map)->visible) gender = MSR_GENDER_IT;
 
-    switch(gender) {
-        case MSR_GENDER_MALE:        return (possesive) ? cs_MONSTER "his" cs_CLOSE : cs_MONSTER "he"  cs_CLOSE;
-        case MSR_GENDER_FEMALE:      return (possesive) ? cs_MONSTER "her" cs_CLOSE : cs_MONSTER "she" cs_CLOSE;
-        case MSR_GENDER_IT: default: return (possesive) ? cs_MONSTER "its" cs_CLOSE : cs_MONSTER "it"  cs_CLOSE;
-    }
+    int pos = (possesive) ? 0 : 1;
+    return gender_names[gender][pos];
 }
 
 const char *msr_char_names(enum msr_characteristic c) {
@@ -1109,27 +1115,29 @@ const char *msr_skillrate_names(enum msr_skill_rate sr) {
 
 const char *msr_talent_names(enum msr_talents t) {
     if (t >= TLT_MAX) return NULL;
-    return msr_talent_name[t];
+    for (int i = 0; i < ARRAY_SZ(talent_descriptions); i++) {
+        if (talent_descriptions[i].talent != t) continue;
+
+        return talent_descriptions[i].name;
+    }
+    return NULL;
 }
 
 const char *msr_talent_descriptions(enum msr_talents t) {
     if (t >= TLT_MAX) return NULL;
-    return msr_talent_description[t];
+    for (int i = 0; i < ARRAY_SZ(talent_descriptions); i++) {
+        if (talent_descriptions[i].talent != t) continue;
+
+        return talent_descriptions[i].description;
+    }
+    return NULL;
 }
 
 const char *msr_hitloc_name(struct msr_monster *monster, enum msr_hit_location mhl) {
     if (msr_verify_monster(monster) == false) return NULL;
     if (mhl >= MSR_HITLOC_MAX) return NULL;
 
-    switch(mhl) {
-        case MSR_HITLOC_BODY:       return "thorax";
-        case MSR_HITLOC_LEFT_LEG:   return "left leg";
-        case MSR_HITLOC_RIGHT_LEG:  return "right leg";
-        case MSR_HITLOC_LEFT_ARM:   return "left arm";
-        case MSR_HITLOC_RIGHT_ARM:  return "right arm";
-        default: break;
-    }
-    return NULL;
+    return hitloc_names[mhl];
 }
 
 void msr_dbg_check_all() {

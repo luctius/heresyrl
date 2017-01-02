@@ -126,14 +126,9 @@ static bool itm_is_in_group(struct itm_item *item, enum item_group ig) {
         case ITEM_GROUP_POTION: 
             if (itm_is_type(item, ITEM_TYPE_FOOD) ) return true;
             break;
-        case ITEM_GROUP_GUNPOWDER:
-            if (wpn_is_type(item, WEAPON_TYPE_RANGED) ) {
-                if (wpn_has_spc_quality(item, WPN_SPCQLTY_GUNPOWDER) == true) return true;
-            }
-            break;
         case ITEM_GROUP_RANGED:
             if (wpn_is_type(item, WEAPON_TYPE_RANGED) ) {
-                if (wpn_has_spc_quality(item, WPN_SPCQLTY_GUNPOWDER) == false) return true;
+                return true;
             }
             break;
         case ITEM_GROUP_THROWING:

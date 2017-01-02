@@ -22,10 +22,7 @@ enum msr_ids {
     MID_NONE,
 
     MID_DUMMY,
-    MID_BASIC_DWARF,
-    MID_BASIC_ELF,
-    MID_BASIC_HALFLING,
-    MID_BASIC_HUMAN,
+    MID_PLAYER,
     MID_MAX,
 };
 

@@ -308,7 +308,7 @@ bool se_heal_status_effect(struct msr_monster *monster, struct msr_monster *heal
     if (healer != NULL) {
         if (msr_verify_monster(healer) == false) return false;
 
-        if (msr_skill_check(healer, MSR_SKILLS_HEAL, con->heal_difficulty) <= 0) {
+        if (msr_skill_check(healer, MSR_SKILLS_MEDICAE, con->heal_difficulty) <= 0) {
             You(monster, "failed to heal %s.", con->name);
             Monster(healer, "failed to heal %s of %s", monster->sd_name, con->name);
             return false;
@@ -476,80 +476,6 @@ int se_status_effect_strength(struct msr_monster *monster, enum status_effect_ef
 
     return strength;
 }
-
-/*
-   This lookup table retrieves the starting entry of the
-   critical hit table. The damage is then added to that
-   to get to the correct entry.
-*/
-static const enum se_ids dmg_type_to_id_lot[MSR_HITLOC_MAX][DMG_TYPE_MAX] = {
-    [MSR_HITLOC_LEFT_LEG] = {
-        [DMG_TYPE_ARROW]    = SEID_BLUNT_LARM_1,
-        [DMG_TYPE_BLUNT]    = SEID_BLUNT_LARM_1,
-        [DMG_TYPE_BULLET]   = SEID_BLUNT_LARM_1,
-        [DMG_TYPE_CLAW]     = SEID_BLUNT_LARM_1,
-        [DMG_TYPE_CUTTING]  = SEID_BLUNT_LARM_1,
-        [DMG_TYPE_ENERGY]   = SEID_BLUNT_LARM_1,
-        [DMG_TYPE_PIERCING] = SEID_BLUNT_LARM_1,
-        [DMG_TYPE_SHRAPNEL] = SEID_BLUNT_LARM_1,
-        [DMG_TYPE_UNARMED]  = SEID_BLUNT_LARM_1,
-    },
-    [MSR_HITLOC_RIGHT_LEG] = {
-        [DMG_TYPE_ARROW]    = SEID_BLUNT_RARM_1,
-        [DMG_TYPE_BLUNT]    = SEID_BLUNT_RARM_1,
-        [DMG_TYPE_BULLET]   = SEID_BLUNT_RARM_1,
-        [DMG_TYPE_CLAW]     = SEID_BLUNT_RARM_1,
-        [DMG_TYPE_CUTTING]  = SEID_BLUNT_RARM_1,
-        [DMG_TYPE_ENERGY]   = SEID_NONE,
-        [DMG_TYPE_PIERCING] = SEID_BLUNT_RARM_1,
-        [DMG_TYPE_SHRAPNEL] = SEID_BLUNT_RARM_1,
-        [DMG_TYPE_UNARMED]  = SEID_BLUNT_RARM_1,
-    },
-    [MSR_HITLOC_LEFT_ARM] = {
-        [DMG_TYPE_ARROW]    = SEID_BLUNT_LARM_1,
-        [DMG_TYPE_BLUNT]    = SEID_BLUNT_LARM_1,
-        [DMG_TYPE_BULLET]   = SEID_BLUNT_LARM_1,
-        [DMG_TYPE_CLAW]     = SEID_BLUNT_LARM_1,
-        [DMG_TYPE_CUTTING]  = SEID_BLUNT_LARM_1,
-        [DMG_TYPE_ENERGY]   = SEID_BLUNT_LARM_1,
-        [DMG_TYPE_PIERCING] = SEID_BLUNT_LARM_1,
-        [DMG_TYPE_SHRAPNEL] = SEID_BLUNT_LARM_1,
-        [DMG_TYPE_UNARMED]  = SEID_BLUNT_LARM_1,
-    },
-    [MSR_HITLOC_RIGHT_ARM] = {
-        [DMG_TYPE_ARROW]    = SEID_BLUNT_RARM_1,
-        [DMG_TYPE_BLUNT]    = SEID_BLUNT_RARM_1,
-        [DMG_TYPE_BULLET]   = SEID_BLUNT_RARM_1,
-        [DMG_TYPE_CLAW]     = SEID_BLUNT_RARM_1,
-        [DMG_TYPE_CUTTING]  = SEID_BLUNT_RARM_1,
-        [DMG_TYPE_ENERGY]   = SEID_NONE,
-        [DMG_TYPE_PIERCING] = SEID_BLUNT_RARM_1,
-        [DMG_TYPE_SHRAPNEL] = SEID_BLUNT_RARM_1,
-        [DMG_TYPE_UNARMED]  = SEID_BLUNT_RARM_1,
-    },
-    [MSR_HITLOC_BODY] = {
-        [DMG_TYPE_ARROW]    = SEID_BLUNT_LARM_1,
-        [DMG_TYPE_BLUNT]    = SEID_BLUNT_LARM_1,
-        [DMG_TYPE_BULLET]   = SEID_BLUNT_LARM_1,
-        [DMG_TYPE_CLAW]     = SEID_BLUNT_LARM_1,
-        [DMG_TYPE_CUTTING]  = SEID_BLUNT_LARM_1,
-        [DMG_TYPE_ENERGY]   = SEID_BLUNT_LARM_1,
-        [DMG_TYPE_PIERCING] = SEID_BLUNT_LARM_1,
-        [DMG_TYPE_SHRAPNEL] = SEID_BLUNT_LARM_1,
-        [DMG_TYPE_UNARMED]  = SEID_BLUNT_LARM_1,
-    },
-    [MSR_HITLOC_HEAD] = {
-        [DMG_TYPE_ARROW]    = SEID_BLUNT_RARM_1,
-        [DMG_TYPE_BLUNT]    = SEID_BLUNT_RARM_1,
-        [DMG_TYPE_BULLET]   = SEID_BLUNT_RARM_1,
-        [DMG_TYPE_CLAW]     = SEID_BLUNT_RARM_1,
-        [DMG_TYPE_CUTTING]  = SEID_BLUNT_RARM_1,
-        [DMG_TYPE_ENERGY]   = SEID_NONE,
-        [DMG_TYPE_PIERCING] = SEID_BLUNT_RARM_1,
-        [DMG_TYPE_SHRAPNEL] = SEID_BLUNT_RARM_1,
-        [DMG_TYPE_UNARMED]  = SEID_BLUNT_RARM_1,
-    },
-};
 
 bool se_add_critical_hit(struct msr_monster *monster, int dmg, enum msr_hit_location mhl, enum dmg_type type) {
     if (msr_verify_monster(monster) == false) return false;

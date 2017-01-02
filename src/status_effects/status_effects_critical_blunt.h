@@ -39,8 +39,7 @@ STATUS_EFFECT(SEID_BLUNT_LARM_1, "Bashed Fingers", "Your fingers are numbed and 
     MESSAGES("Your fingers just took a beating.", "%s fingers just took a beating.", NULL, NULL),
     EFFECTS_START
         /* Type  Effect             Flags   Strength    param */
-        EFFECT(EF_MODIFY_CHAR,      0,    -10,         MSR_CHAR_WEAPON_SKILL),
-        EFFECT(EF_MODIFY_CHAR,      0,    -10,         MSR_CHAR_BALISTIC_SKILL),
+        EFFECT(EF_MODIFY_CHAR,      0,    -10,         MSR_CHAR_COMBAT),
     EFFECTS_END,
     /*Settings      Flags     Minimum  -  Maximum Turns*/
     SETTINGS(       0,        2,          2),
@@ -62,8 +61,7 @@ STATUS_EFFECT(SEID_BLUNT_LARM_3, "Smashed Shoulder", "Your shoulder is bashed an
     EFFECTS_START
         /* Type  Effect          Flags  Strength    Param*/
         EFFECT(EF_DISABLED_LARM, 0,     0,         -1),
-        EFFECT(EF_MODIFY_CHAR,   0,     -20,        MSR_CHAR_WEAPON_SKILL),
-        EFFECT(EF_MODIFY_CHAR,   0,     -20,        MSR_CHAR_BALISTIC_SKILL),
+        EFFECT(EF_MODIFY_CHAR,   0,     -10,        MSR_CHAR_COMBAT),
     EFFECTS_END,
     /*Settings      Flags     Minimum  -  Maximum Turns*/
     SETTINGS(       0,        10,          20),
@@ -95,8 +93,7 @@ STATUS_EFFECT(SEID_BLUNT_RARM_1, "Bashed Fingers", "Your fingers are numbed and 
     MESSAGES("Your fingers just took a beating.", "%s fingers just took a beating.", NULL, NULL),
     EFFECTS_START
         /* Type  Effect         Flags   Strength    Param */
-        EFFECT(EF_MODIFY_CHAR,  0,      -10,        MSR_CHAR_WEAPON_SKILL),
-        EFFECT(EF_MODIFY_CHAR,  0,      -10,        MSR_CHAR_BALISTIC_SKILL),
+        EFFECT(EF_MODIFY_CHAR,  0,      -10,        MSR_CHAR_COMBAT),
     EFFECTS_END,
     /*Settings      Flags     Minimum  -  Maximum Turns*/
     SETTINGS(       0,        2,          2),
@@ -118,8 +115,7 @@ STATUS_EFFECT(SEID_BLUNT_RARM_3, "Smashed Shoulder", "Your shoulder is bashed an
     EFFECTS_START
         /* Type  Effect             Flags   Strength    Param*/
         EFFECT(EF_DISABLED_RARM,      0,    0,          -1),
-        EFFECT(EF_MODIFY_CHAR,        0,    -20,        MSR_CHAR_WEAPON_SKILL),
-        EFFECT(EF_MODIFY_CHAR,        0,    -20,        MSR_CHAR_BALISTIC_SKILL),
+        EFFECT(EF_MODIFY_CHAR,        0,    -20,        MSR_CHAR_COMBAT),
     EFFECTS_END,
     /*Settings      Flags     Minimum  -  Maximum Turns*/
     SETTINGS(       0,        10,          20),
@@ -170,8 +166,7 @@ STATUS_EFFECT(SEID_BLUNT_ARM_3_HEALED, "Healing Shoulder", "Your shoulder is bas
     MESSAGES(NULL, NULL, NULL, NULL),
     EFFECTS_START
         /* Type  Effect             Flags                       Strength    Param*/
-        EFFECT(EF_MODIFY_CHAR,     MSR_CHAR_WEAPON_SKILL,     20,         -1),
-        EFFECT(EF_MODIFY_CHAR,     MSR_CHAR_BALISTIC_SKILL,   20,         -1),
+        EFFECT(EF_MODIFY_CHAR,     MSR_CHAR_COMBAT,              20,         -1),
     EFFECTS_END,
     /*Settings      Flags     Minimum  -  Maximum Turns*/
     SETTINGS(       0,        10,          20),
@@ -182,8 +177,7 @@ STATUS_EFFECT(SEID_BLUNT_ARM_4_HEALED, "Healing Collarbone", "Your collarbone is
     MESSAGES(NULL, NULL, NULL, NULL),
     EFFECTS_START
         /* Type  Effect             Flags  Strength    Param   Interval    Max,  Msgs*/
-        EFFECT(EF_MODIFY_CHAR,      0,    20,         MSR_CHAR_WEAPON_SKILL),
-        EFFECT(EF_MODIFY_CHAR,      0,    20,         MSR_CHAR_BALISTIC_SKILL),
+        EFFECT(EF_MODIFY_CHAR,      0,    20,         MSR_CHAR_COMBAT),
     EFFECTS_END,
     /*Settings      Flags                   Minimum  -  Maximum Turns*/
     SETTINGS(       0,                      40,          80),

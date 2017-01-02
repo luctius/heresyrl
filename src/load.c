@@ -342,9 +342,9 @@ static bool load_player(lua_State *L, struct pl_player *plr) {
     uint64_t t;
     if (L == NULL) return false;
 
-    lua_intexpr(L, &t, "game.player.xp_spend");     plr->xp_spend = t;
-    lua_intexpr(L, &t, "game.player.xp_current");   plr->xp_current = t;
-    lua_intexpr(L, &t, "game.player.career_id");    plr->career = cr_get_career_by_id(t);
+    lua_intexpr(L, &t, "game.player.career.xp_spend");     plr->career.xp_spend = t;
+    lua_intexpr(L, &t, "game.player.career.xp_current");   plr->career.xp_current = t;
+    //lua_intexpr(L, &t, "game.player.career_id");    plr->career = cr_get_career_by_id(t);
 
     lua_intexpr(L, &t, "game.player.quest.tid");    plr->quest = qst_by_tid(t);
     lua_intexpr(L, &t, "game.player.quest.state");  plr->quest->state = t;
@@ -547,8 +547,8 @@ static bool load_monsters(lua_State *L, struct dm_map *map, struct gm_game *g) {
 
         if (lua_intexpr(L, &t, "game.monsters[%d].talents.sz", i+1) == 1) {
             int talents_sz = t;
-            for (int j = 0; j < MSR_NR_TALENTS_MAX; j++) {
-                monster->talents[j] = TLT_NONE;
+            for (int j = 0; j < MSR_TALENT_TIER_MAX; j++) {
+                monster->talents[j] = 0;
 
                 if (j < talents_sz) {
                     if (lua_intexpr(L, &t, "game.monsters[%d].talents[%d]", i+1, j+1) == 1) {

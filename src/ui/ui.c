@@ -410,17 +410,17 @@ void targetwin_examine(struct hrl_window *window, struct dm_map *map, struct msr
     int tohit = 0;
     if (wtype == WEAPON_TYPE_MELEE && (cd_pyth(&player->pos, pos) == 1) ) {
         tohit = fght_melee_calc_tohit(player, pos, witem, FGHT_MAIN_HAND);
-        ui_printf(window,"Weapon Skill: %d\n\n", msr_calculate_characteristic(player, MSR_CHAR_WEAPON_SKILL) );
+        ui_printf(window,"Melee Skill: %d\n\n", msr_calculate_skill(player, MSR_SKILLS_MELEE) );
         item_is_weapon = true;
     }
     else if (wtype == WEAPON_TYPE_RANGED) {
         tohit = fght_ranged_calc_tohit(player, pos, witem, FGHT_MAIN_HAND, false);
-        ui_printf(window,"Ballistic Skill: %d\n\n", msr_calculate_characteristic(player, MSR_CHAR_BALISTIC_SKILL) );
+        ui_printf(window,"Ranged Skill: %d\n\n", msr_calculate_skill(player, MSR_SKILLS_MELEE) );
         item_is_weapon = true;
     }
     else if (wtype == WEAPON_TYPE_THROWN) {
         tohit = fght_ranged_calc_tohit(player, pos, witem, FGHT_MAIN_HAND, true);
-        ui_printf(window,"Ballistic Skill: %d\n\n", msr_calculate_characteristic(player, MSR_CHAR_BALISTIC_SKILL) );
+        ui_printf(window,"Ranged Skill: %d\n\n", msr_calculate_skill(player, MSR_SKILLS_MELEE) );
         item_is_weapon = true;
     }
     else item_is_weapon = false;
@@ -797,26 +797,24 @@ void charwin_refresh() {
     struct msr_monster *player = plr->player;
 
     ui_printf(char_win, cs_ATTR "Name"   cs_CLOSE "      %s\n", player->unique_name);
-    ui_printf(char_win, cs_ATTR "Career" cs_CLOSE "    %s\n", plr->career->title);
+    ui_printf(char_win, cs_ATTR "Background" cs_CLOSE "    %s\n", cr_get_background_by_id(plr->career.b_tid)->name);
+    ui_printf(char_win, cs_ATTR "Role" cs_CLOSE "    %s\n", cr_get_role_by_id(plr->career.r_tid)->name);
+
     ui_printf(char_win, cs_ATTR "Turn"   cs_CLOSE "      %d.%d\n", gbl_game->turn / TT_ENERGY_TURN, gbl_game->turn % TT_ENERGY_TURN);
     ui_printf(char_win, "\n");
 
-    int ws = msr_calculate_characteristic(player, MSR_CHAR_WEAPON_SKILL);
-    int bs = msr_calculate_characteristic(player, MSR_CHAR_BALISTIC_SKILL);
+    int cmb = msr_calculate_characteristic(player, MSR_CHAR_COMBAT);
     int str = msr_calculate_characteristic(player, MSR_CHAR_STRENGTH);
     int tgh = msr_calculate_characteristic(player, MSR_CHAR_TOUGHNESS);
     int agi = msr_calculate_characteristic(player, MSR_CHAR_AGILITY);
     int intel = msr_calculate_characteristic(player, MSR_CHAR_INTELLIGENCE);
     int per = msr_calculate_characteristic(player, MSR_CHAR_PERCEPTION);
     int wil = msr_calculate_characteristic(player, MSR_CHAR_WILLPOWER);
-    int mov = msr_calculate_characteristic(player, MSR_SEC_CHAR_MOVEMENT);
-    int att = msr_calculate_characteristic(player, MSR_SEC_CHAR_ATTACKS);
 
-    ui_printf(char_win, cs_ATTR "WS"  cs_CLOSE "   %3d  " cs_ATTR "BS"  cs_CLOSE "   %3d\n", ws,  bs);
+    ui_printf(char_win, cs_ATTR "CMB" cs_CLOSE "   %3d\n", cmb);
     ui_printf(char_win, cs_ATTR "Str" cs_CLOSE  "  %3d  " cs_ATTR "Tgh" cs_CLOSE  "  %3d\n", str, tgh);
     ui_printf(char_win, cs_ATTR "Agi" cs_CLOSE  "  %3d  " cs_ATTR "Int" cs_CLOSE  "  %3d\n", agi, intel);
     ui_printf(char_win, cs_ATTR "Per" cs_CLOSE  "  %3d  " cs_ATTR "Wil" cs_CLOSE  "  %3d\n", per, wil);
-    ui_printf(char_win, cs_ATTR "Mov" cs_CLOSE  "  %3d  " cs_ATTR "Att" cs_CLOSE  "  %3d\n", mov, att);
 
     ui_printf(char_win, "\n");
 
@@ -1293,11 +1291,12 @@ Basic weapon traning SP     ...                  |
     ui_printf(&pad, cs_ATTR "Name:"     cs_CLOSE "          %-20s\n", mon->unique_name);
     ui_printf(&pad, cs_ATTR "Gender:"   cs_CLOSE "        %-20s\n", msr_gender_string(mon) );
     ui_printf(&pad, cs_ATTR "Race:"     cs_CLOSE "          %-20s\n", mon->sd_name);
-    ui_printf(&pad, cs_ATTR "Career:"   cs_CLOSE "        %-20s\n", plr->career->title);
+    ui_printf(&pad, cs_ATTR "Background" cs_CLOSE "    %-20s\n", cr_get_background_by_id(plr->career.b_tid)->name);
+    ui_printf(&pad, cs_ATTR "Role"      cs_CLOSE "    %-20s\n", cr_get_role_by_id(plr->career.r_tid)->name);
 
     ui_printf(&pad, cs_ATTR "Wounds:"   cs_CLOSE "        %d/%d\n", mon->wounds.curr, mon->wounds.max);
-    ui_printf(&pad, cs_ATTR "XP:"       cs_CLOSE "            %d\n", plr->xp_current);
-    ui_printf(&pad, cs_ATTR "XP Spend:" cs_CLOSE "      %d\n", plr->xp_spend);
+    ui_printf(&pad, cs_ATTR "XP:"       cs_CLOSE "            %d\n", plr->career.xp_current);
+    ui_printf(&pad, cs_ATTR "XP Spend:" cs_CLOSE "      %d\n", plr->career.xp_spend);
 
     int quest_desc_len = 100;
     char quest_desc[quest_desc_len];
@@ -1307,16 +1306,13 @@ Basic weapon traning SP     ...                  |
 
     ui_printf(&pad, "\n");
     ui_printf(&pad, "\n");
-    ui_printf(&pad,           cs_ATTR "WS"  cs_CLOSE "   %-2d", msr_calculate_characteristic(mon, MSR_CHAR_WEAPON_SKILL) );
-        ui_printf(&pad, "   " cs_ATTR "BS"  cs_CLOSE "    %-2d\n", msr_calculate_characteristic(mon, MSR_CHAR_BALISTIC_SKILL) );
+    ui_printf(&pad,           cs_ATTR "Cmb"  cs_CLOSE "   %-2d\n", msr_calculate_characteristic(mon, MSR_CHAR_COMBAT) );
     ui_printf(&pad,           cs_ATTR "Str" cs_CLOSE "  %-2d", msr_calculate_characteristic(mon, MSR_CHAR_STRENGTH) );
         ui_printf(&pad, "   " cs_ATTR "Tgh" cs_CLOSE "   %-2d\n", msr_calculate_characteristic(mon, MSR_CHAR_TOUGHNESS) );
     ui_printf(&pad,           cs_ATTR "Agi" cs_CLOSE "  %-2d", msr_calculate_characteristic(mon, MSR_CHAR_AGILITY) );
         ui_printf(&pad, "   " cs_ATTR "Int" cs_CLOSE "   %-2d\n", msr_calculate_characteristic(mon, MSR_CHAR_INTELLIGENCE) );
     ui_printf(&pad,           cs_ATTR "Per" cs_CLOSE "  %-2d", msr_calculate_characteristic(mon, MSR_CHAR_PERCEPTION) );
         ui_printf(&pad, "   " cs_ATTR "Wil" cs_CLOSE "   %-2d\n", msr_calculate_characteristic(mon, MSR_CHAR_WILLPOWER) );
-    ui_printf(&pad,           cs_ATTR "Mov" cs_CLOSE "  %-2d", msr_calculate_characteristic(mon, MSR_SEC_CHAR_MOVEMENT) );
-        ui_printf(&pad, "   " cs_ATTR "Att" cs_CLOSE "   %-2d\n", msr_calculate_characteristic(mon, MSR_SEC_CHAR_ATTACKS) );
 
     ui_printf(&pad, "\n");
     ui_printf(&pad, "\n");
@@ -1361,8 +1357,6 @@ Basic weapon traning SP     ...                  |
 
     for (unsigned int i = 0; i < MSR_SKILLS_MAX; i++) {
         if (msr_has_skill(mon, i) ) {
-            //ui_printf(&pad, "%s\n", msr_skill_names(i) );
-
             enum msr_skill_rate skillrate = msr_has_skill(mon,  i);
             lg_debug("skill rate: %d", skillrate);
             ui_printf(&pad, "%-20s (%s)\n", msr_skill_names(i),  msr_skillrate_names(skillrate));
@@ -1374,9 +1368,14 @@ Basic weapon traning SP     ...                  |
     ui_printf(&pad, cs_ATTR "Talents" cs_CLOSE "\n");
     ui_printf(&pad, cs_ATTR "-------" cs_CLOSE "\n");
 
-    for (unsigned int i = 1; i < TLT_MAX; i++) {
-        if (msr_has_talent(mon, i) ) {
-            ui_printf(&pad, "%s\n", msr_talent_names(i) );
+    for (int i = MSR_TALENT_TIER_T1; i < MSR_TALENT_TIER_MAX; i++) {
+        for (int x = 0; x < MSR_TALENTS_PER_TIER; x++) {
+            enum msr_talents t = MSR_TALENT(i, x);
+            if (t == TLT_NONE) continue;
+
+            if (msr_has_talent(mon, t) ) {
+                ui_printf(&pad, "%s\n", msr_talent_names(t) );
+            }
         }
     }
     ui_printf(&pad, "\n");
@@ -1654,96 +1653,187 @@ void charwin_examine(const char *type, const char *name, const char *description
     wrefresh(char_win->win);
 }
 
-void levelup_selection_window(void) {
-    //if (options.refresh == false) return;
+enum lvlup_type {
+    LVLUP_NONE,
+    LVLUP_CHAR,
+    LVLUP_SKILL,
+    LVLUP_TLT_T1,
+    LVLUP_TLT_T2,
+    LVLUP_TLT_T3,
+};
 
+struct lvl_struct {
+    enum lvlup_type type;
+    bitfield64_t id;
+    int cost;
+
+    const char *name;
+    const char *description;
+};
+
+void levelup_aquire_window(struct lvl_struct *list, int start, int sz, const char *type_str) {
     struct hrl_window *window = map_win;
 
-    struct cr_career *career = gbl_game->player_data.career;
-    if (career == NULL) return;
     struct msr_monster *player = gbl_game->player_data.player;
     if (msr_verify_monster(player) == false) return;
     charwin_refresh();
 
-    int abs_idx[MSR_CHAR_MAX + MSR_SKILLS_MAX + TLT_MAX];
-
     bool lvl_up_done = false;
-    int ch = INP_KEY_NONE;
+    while(lvl_up_done == false) {
+        wclear(window->win);
+        werase(window->win);
+        ui_print_reset(window);
 
-    int wnds_idx = -1;
-    int skill_start = 0;
-    int talent_start = 0;
-    int idx = 0;
+        ui_printf(window,"%s\n", type_str);
+        ui_printf(window, cs_ATTR "XP left:" cs_CLOSE " %d\n", gbl_game->player_data.career.xp_current);
+        ui_printf(window,"\n");
 
-    do {
+        enum lvlup_type type = list[start].type;
+        for (int i = start; i < sz && list[i+1].type == type; i++) {
+            ui_printf(window, cs_ATTR " %c) " cs_CLOSE "%s (cost %dxp)\n", inp_key_translate_idx(i-start), list[i].name, list[i].cost);
+        }
+
+        ui_printf_ext(map_win, map_win->lines - 3, 1, cs_ATTR "[a]" cs_CLOSE " acquire, " cs_ATTR "  [x]" cs_CLOSE " examine.");
+        ui_printf_ext(map_win, map_win->lines - 2, 1, cs_ATTR "[q]" cs_CLOSE " exit,    " cs_ATTR "  [?]" cs_CLOSE " help.");
+        if (options.refresh) wrefresh(window->win);
+
+        int ch = inp_get_input(gbl_game->input);
         switch (ch) {
             case INP_KEY_EXAMINE: {
                     ui_printf_ext(map_win, map_win->lines - 4, 1, "Examine which selection?");
                     if (options.refresh) wrefresh(window->win);
 
-                    int tidx = inp_get_input_idx(gbl_game->input);
-
-                    if (tidx >= 0 && tidx < skill_start) {
-                        if (tidx == wnds_idx) {
-                            charwin_examine("Wounds", NULL, "Description of wounds");
-                        }
-                        else {
-                            int char_idx = abs_idx[tidx];
-                            charwin_examine("Characteristic", msr_char_names(char_idx), msr_char_descriptions(char_idx) );
-                        }
-                    }
-                    else if (tidx >= skill_start && tidx < talent_start) {
-                        int skl_idx = abs_idx[tidx];
-                        lg_debug("chose skill (%s) tidx/i: %d/%d", msr_skill_names(skl_idx), tidx, skl_idx);
-                        charwin_examine("Skill", msr_skill_names(skl_idx), msr_skill_descriptions(skl_idx) );
-                    }
-                    else if (tidx >= talent_start && tidx < idx) {
-                        int tlt_idx = abs_idx[tidx];
-                        lg_debug("chose talent (%s) tidx/i: %d/%d", msr_talent_names(tlt_idx), tidx, tlt_idx);
-                        charwin_examine("Talent", msr_talent_names(tlt_idx), msr_talent_descriptions(tlt_idx) );
-                    }
+                    int tidx = inp_get_input_idx(gbl_game->input) + start;
+                    charwin_examine(type_str, list[tidx].name, list[tidx].description);
                 }
                 break;
             case INP_KEY_APPLY: {
                     bool upgrade = false;
                     charwin_refresh();
 
-                    if (gbl_game->player_data.xp_current <= 0) {
-                        GM_msg(cs_PLAYER "You" cs_CLOSE " do not have any more experience points.");
-                        break;
-                    }
-
                     ui_printf_ext(map_win, map_win->lines - 4, 1, "Upgrade which selection?");
                     if (options.refresh) wrefresh(window->win);
 
+                    int tidx = inp_get_input_idx(gbl_game->input) + start;
+                    if (gbl_game->player_data.career.xp_current <= list[tidx].cost) {
+                        GM_msg(cs_PLAYER "You" cs_CLOSE " do not have enough experience points.");
+                        break;
+                    }
+
+                    switch(list[tidx].type){
+                        case LVLUP_NONE: assert(false);
+                        case LVLUP_CHAR: assert(false);
+                        case LVLUP_SKILL: {
+                            enum msr_skill_rate sr = msr_has_skill(player, list[tidx].id) +1;
+                            assert(msr_set_skill(player, list[tidx].id, sr) );
+                            GM_msg(cs_PLAYER "You" cs_CLOSE " trained the %s skill to %s level.", msr_skill_names(list[tidx].id), msr_skillrate_names(sr) );
+                            gbl_game->player_data.career.xp_current -= list[tidx].cost;
+                            gbl_game->player_data.career.xp_spend   += list[tidx].cost;
+                        } break;
+                        case LVLUP_TLT_T1:
+                        case LVLUP_TLT_T2:
+                        case LVLUP_TLT_T3: {
+                            assert(msr_set_talent(player, list[tidx].id) );
+                            GM_msg(cs_PLAYER "You" cs_CLOSE " acquired the %s talent.", msr_talent_names(list[tidx].id));
+                            gbl_game->player_data.career.xp_current -= list[tidx].cost;
+                            gbl_game->player_data.career.xp_spend   += list[tidx].cost;
+                        } break;
+                    }
+                    lvl_up_done = true;
+                }
+                break;
+            case INP_KEY_HELP:
+                help_window();
+                charwin_refresh();
+                break;
+
+            case INP_KEY_QUIT:
+            case INP_KEY_NO:
+            case INP_KEY_ESCAPE:
+                lvl_up_done = true;
+            default: break;
+        }
+    }
+}
+
+void levelup_selection_window(void) {
+    //if (options.refresh == false) return;
+
+    struct hrl_window *window = map_win;
+
+    struct msr_monster *player = gbl_game->player_data.player;
+    if (msr_verify_monster(player) == false) return;
+    charwin_refresh();
+
+    int lvl_list_sz = MSR_CHAR_MAX + MSR_SKILLS_MAX +(3 * MSR_TALENTS_PER_TIER);
+    struct lvl_struct lvl_list[lvl_list_sz];
+
+    bool lvl_up_done = false;
+    int ch = INP_KEY_NONE;
+    do {
+        wclear(window->win);
+        werase(window->win);
+        ui_print_reset(window);
+
+        int lvl_list_idx = 0;
+
+        int skill_start = lvl_list_idx;
+        for (int i = MSR_SKILLS_NONE+1; i < MSR_SKILLS_MAX; i++) {
+            if (msr_has_skill(player, i) != MSR_SKILL_RATE_VETERAN) {
+                lvl_list[lvl_list_idx].type = LVLUP_SKILL;
+                lvl_list[lvl_list_idx].id = i;
+                lvl_list[lvl_list_idx].name = msr_skill_names(i);
+                lvl_list[lvl_list_idx].description = msr_skill_descriptions(i);
+                lvl_list[lvl_list_idx].cost = cr_skill_cost(&gbl_game->player_data, i);
+
+                lvl_list_idx++;
+            }
+        }
+
+        int talent_start[MSR_TALENT_TIER_MAX];
+        //for (int i = MSR_TALENT_TIER_T1; i < MSR_TALENT_TIER_MISC; i++) {
+        int i = 0;
+            talent_start[i] = lvl_list_idx;
+            for (int x = 1; x < MSR_TALENTS_PER_TIER; x++) {
+                enum msr_talents t = MSR_TALENT(i, x);
+                if ( (msr_has_talent(player, t) == false) && (cr_talent_cost(&gbl_game->player_data, t) > 0) ) {
+                    lvl_list[lvl_list_idx].type = LVLUP_TLT_T1 +i;
+                    lvl_list[lvl_list_idx].id = t;
+                    lvl_list[lvl_list_idx].name = msr_talent_names(t);
+                    lvl_list[lvl_list_idx].description = msr_talent_descriptions(t);
+                    lvl_list[lvl_list_idx].cost = cr_talent_cost(&gbl_game->player_data, t);
+
+                    lvl_list_idx++;
+                }
+            }
+        //}
+
+        ui_printf(window,"Spending experience points\n");
+        ui_printf(window, cs_ATTR "XP left:" cs_CLOSE " %d\n", gbl_game->player_data.career.xp_current);
+        ui_printf(window,"\n");
+
+        ui_printf(window, cs_ATTR " a)" cs_CLOSE " Level Characteristics\n");
+        ui_printf(window, cs_ATTR " b)" cs_CLOSE " Train Skills\n");
+        ui_printf(window, cs_ATTR " c)" cs_CLOSE " Acquire Tier 1 Talent\n");
+
+        ui_printf_ext(map_win, map_win->lines - 3, 1, cs_ATTR "[a]" cs_CLOSE " acquire." );
+        ui_printf_ext(map_win, map_win->lines - 2, 1, cs_ATTR "[q]" cs_CLOSE " exit,    " cs_ATTR "  [?]" cs_CLOSE " help.");
+        if (options.refresh) wrefresh(window->win);
+
+        ch = inp_get_input(gbl_game->input);
+        switch (ch) {
+            case INP_KEY_APPLY: {
+                    bool upgrade = false;
+                    charwin_refresh();
+
+                    ui_printf_ext(map_win, map_win->lines - 4, 1, "Upgrade what?");
+                    if (options.refresh) wrefresh(window->win);
+
                     int tidx = inp_get_input_idx(gbl_game->input);
-
-                    if (tidx >= 0 && tidx < skill_start) {
-                        if (tidx == wnds_idx) {
-                            upgrade = cr_upgrade_wounds(career, player);
-                            GM_msg(cs_PLAYER "Your" cs_CLOSE " health was increased.");
-                        }
-                        else {
-                            int char_idx = abs_idx[tidx];
-                            upgrade = cr_upgrade_characteristic(career, player, char_idx);
-                            GM_msg(cs_PLAYER "You" cs_CLOSE " increased " cs_PLAYER "your" cs_CLOSE " %s.", msr_char_names(char_idx) );
-                        }
-                    }
-                    else if (tidx >= skill_start && tidx < talent_start) {
-                        int skl_idx = abs_idx[tidx];
-                            upgrade = cr_upgrade_skill(career, player, skl_idx);
-                            GM_msg(cs_PLAYER "You" cs_CLOSE " improved %s.", msr_skill_names(skl_idx) );
-                    }
-                    else if (tidx >= talent_start && tidx < idx) {
-                        int tlt_idx = abs_idx[tidx];
-                        upgrade = cr_upgrade_talent(career, player, tlt_idx);
-                        GM_msg(cs_PLAYER "You" cs_CLOSE " learned %s.", msr_talent_names(tlt_idx) );
-                    }
-
-                    if (upgrade) {
-                        gbl_game->player_data.xp_current -= 100;
-                        gbl_game->player_data.xp_spend   += 100;
-                        charwin_refresh();
+                    switch(tidx) {
+                        case 0: break;
+                        case 1: levelup_aquire_window(lvl_list, skill_start, lvl_list_sz, "Skills"); break;
+                        case 2: levelup_aquire_window(lvl_list, talent_start[0], lvl_list_sz, "Talents"); break;
                     }
                 }
                 break;
@@ -1758,59 +1848,7 @@ void levelup_selection_window(void) {
                 lvl_up_done = true;
             default: break;
         }
-
-        wclear(window->win);
-        werase(window->win);
-        ui_print_reset(window);
-
-        ui_printf(window, cs_ATTR "Career:"  cs_CLOSE " %s\n", career->title);
-        ui_printf(window, cs_ATTR "XP left:" cs_CLOSE " %d\n", gbl_game->player_data.xp_current);
-        ui_printf(window,"\n");
-
-        idx = 0;
-        ui_printf(window, cs_ATTR "Characteristics:\n" cs_CLOSE);
-        for (int i = 0; i < MSR_CHAR_MAX; i++) {
-            if (cr_can_upgrade_characteristic(career, player, i) )   {
-                abs_idx[idx] = i;
-                ui_printf(window, "%c)  %s\n", inp_key_translate_idx(idx++), msr_char_names(i) );
-            }
-        }
-
-        wnds_idx = -1;
-        if (cr_can_upgrade_wounds(career, player) ) {
-            wnds_idx = idx;
-            ui_printf(window, "%c)  %s\n", inp_key_translate_idx(idx++), "Wounds");
-        }
-        ui_printf(window,"\n");
-
-        ui_printf(window,cs_ATTR "Skills:\n" cs_CLOSE);
-        skill_start = idx;
-        for (int i = 0; i < MSR_SKILLS_MAX; i++) {
-            if (cr_can_upgrade_skill(career, player, i) ) {
-                abs_idx[idx] = i;
-                lg_debug("skill (%s) idx/i: %d/%d", msr_skill_names(i), idx, i);
-                ui_printf(window, "%c)  %s\n", inp_key_translate_idx(idx++), msr_skill_names(i) );
-            }
-        }
-        ui_printf(window, "\n");
-
-        ui_printf(window, cs_ATTR "Talents:\n" cs_CLOSE);
-        talent_start = idx;
-        for (int i = 0; i < TLT_MAX; i++) {
-            if (cr_can_upgrade_talent(career, player, i) ) {
-                abs_idx[idx] = i;
-                lg_debug("tlt (%s) idx/i: %d/%d", msr_talent_names(i), idx, i);
-                ui_printf(window, "%c)  %s\n", inp_key_translate_idx(idx++), msr_talent_names(i) );
-            }
-        }
-
-        lg_debug("skill start: %d, talent start: %d, idx: %d", skill_start, talent_start, idx);
-
-        ui_printf_ext(map_win, map_win->lines - 3, 1, cs_ATTR "[a]" cs_CLOSE " acquire, " cs_ATTR "  [x]" cs_CLOSE " examine.");
-        ui_printf_ext(map_win, map_win->lines - 2, 1, cs_ATTR "[q]" cs_CLOSE " exit,    " cs_ATTR "  [?]" cs_CLOSE " help.");
-        if (options.refresh) wrefresh(window->win);
-
-    } while((lvl_up_done == false) && (ch = inp_get_input(gbl_game->input) ) != INP_KEY_ESCAPE);
+    } while((lvl_up_done == false) && ch != INP_KEY_ESCAPE);
 }
 
 void show_help(struct hrl_window *window, bool input) {
@@ -2169,7 +2207,7 @@ void pay_loan() {
                 int amount = 0;
                 while ( b && (key = inp_get_input_digit(gbl_game->input) ) ) {
                     switch (key) {
-                        case '\n': 
+                        case '\n':
                         case 24: b = false; break;
                         case INP_KEY_BACKSPACE:
                             amount /= 10;

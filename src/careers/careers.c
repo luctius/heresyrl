@@ -32,56 +32,28 @@
 
 #include "careers_static_def.h"
 
-
-struct cr_spawn_weigh_struct {
-    enum msr_race race;
-};
-
-static int32_t cr_spawn_weight(void *ctx, int idx) {
-    assert (ctx != NULL);
-    struct cr_spawn_weigh_struct *sws = ctx;
-
-    if (static_career_list[idx].available[sws->race] == true) {
-        return static_career_list[idx].weight[sws->race];
+void cr_init() {
+    for (int i = 0; i < ARRAY_SZ(static_homeworld_list); i++) {
+        if (static_homeworld_list[i].homeworld_talent != 0)
+            assert(msr_get_tier(static_homeworld_list[i].homeworld_talent) == MSR_TALENT_TIER_MISC);
     }
 
-    return RANDOM_GEN_WEIGHT_IGNORE;
-}
-
-enum career_ids cr_spawn(int32_t roll, enum msr_race race) {
-    struct cr_spawn_weigh_struct sws = {
-        .race = race,
-    };
-
-    struct random_gen_settings s = {
-        .start_idx = 0,
-        .end_idx = ARRAY_SZ(static_career_list),
-        .roll = roll,
-        .ctx = &sws,
-        .weight = cr_spawn_weight,
-    };
-
-    return random_gen_spawn(&s);
-}
-
-struct cr_career *cr_get_career_by_id(enum career_ids tid) {
-    if (tid < CRID_NONE) return NULL;
-    if (tid >= CRID_MAX) return NULL;
-
-    lg_debug("creating career tid: %d", tid);
-    return &static_career_list[tid];
-}
-
-enum career_ids cr_get_next_career_id_for_race(enum msr_race race, enum career_ids prev_tid) {
-    if (prev_tid < CRID_NONE) return CRID_NONE;
-
-    for (int i = prev_tid; i < (int) ARRAY_SZ(static_career_list); i++) {
-        if (static_career_list[i].available[race] == true) return i;
+    for (int i = 0; i < ARRAY_SZ(static_background_list); i++) {
+        if (static_background_list[i].talents != 0)
+            assert(msr_get_tier(static_background_list[i].talents) == MSR_TALENT_TIER_T1);
+        if (static_background_list[i].background_talent != 0)
+            assert(msr_get_tier(static_background_list[i].background_talent) == MSR_TALENT_TIER_MISC);
     }
-    return CRID_NONE;
+
+    for (int i = 0; i < ARRAY_SZ(static_role_list); i++) {
+        if (static_role_list[i].talents != 0)
+            assert(msr_get_tier(static_role_list[i].talents) == MSR_TALENT_TIER_T1);
+        if (static_role_list[i].role_talent != 0)
+            assert(msr_get_tier(static_role_list[i].role_talent) == MSR_TALENT_TIER_MISC);
+    }
 }
 
-bool cr_give_trappings_to_player(struct cr_career *car, struct msr_monster *player) {
+static bool cr_give_trappings_to_player(struct cr_background *car, struct msr_monster *player) {
     if (msr_verify_monster(player) == false) return false;
 
     for (int i = 0; i < (int) ARRAY_SZ(car->trappings); i++) {
@@ -94,105 +66,97 @@ bool cr_give_trappings_to_player(struct cr_career *car, struct msr_monster *play
     return true;
 }
 
-bool cr_generate_allies(struct cr_career *car, struct msr_monster *player, struct dm_map *map) {
-    if (msr_verify_monster(player) == false) return false;
+void cr_init_career(struct pl_player *plr, enum homeworld_ids htid, enum background_ids btid, enum role_ids rtid) {
+    plr->career.b_tid = btid;
+    plr->career.r_tid = btid;
 
-    for (int i = 0; i < (int) ARRAY_SZ(car->allies_ids); i++) {
-        if (car->allies_ids[i] != MID_NONE) {
-            struct msr_monster *monster = msr_create(car->allies_ids[i]);
-            coord_t c = sgt_scatter(map, gbl_game->random, &player->pos, 5);
-            msr_insert_monster(monster, map, &c);
-            monster->faction = 0;
-            ai_monster_init(monster, 0);
-        }
+    plr->career.xp_current = 0;
+    plr->career.xp_spend   = 0;
+
+    plr->player->wounds.max  = cr_get_homeworld_by_id(htid)->wounds + random_xd5(gbl_game->random, 1);
+    plr->player->wounds.curr = plr->player->wounds.max;
+
+    plr->career.aptitudes = bf(APTITUDE_GENERAL);
+
+    if (cr_get_homeworld_by_id(htid)->aptitudes != 0)    plr->career.aptitudes  |= cr_get_homeworld_by_id(htid)->aptitudes;
+    if (cr_get_background_by_id(btid)->aptitudes != 0)  plr->career.aptitudes  |= cr_get_background_by_id(btid)->aptitudes;
+    if (cr_get_role_by_id(rtid)->aptitudes != 0)        plr->career.aptitudes  |= cr_get_role_by_id(rtid)->aptitudes;
+
+    //if (cr_get_homeworld_by_id(htid)->talents != 0)     plr->player->talents[MSR_TALENT_TIER_T1] |= cr_get_homeworld_by_id(htid)->talents;
+    if (cr_get_background_by_id(btid)->talents != 0)    plr->player->talents[MSR_TALENT_TIER_T1] |= cr_get_background_by_id(btid)->talents;
+    if (cr_get_role_by_id(htid)->talents != 0)          plr->player->talents[MSR_TALENT_TIER_T1] |= cr_get_role_by_id(rtid)->talents;
+
+    if (cr_get_homeworld_by_id(htid)->homeworld_talent != 0)    msr_set_talent(plr->player, cr_get_homeworld_by_id(htid)->homeworld_talent);
+    if (cr_get_background_by_id(btid)->background_talent != 0)  msr_set_talent(plr->player, cr_get_background_by_id(btid)->background_talent);
+    if (cr_get_role_by_id(rtid)->role_talent != 0)              msr_set_talent(plr->player, cr_get_role_by_id(rtid)->role_talent);
+
+    cr_give_trappings_to_player(cr_get_background_by_id(btid), plr->player);
+    msr_verify_monster(plr->player);
+}
+
+struct cr_homeworld *cr_get_homeworld_by_id(enum homeworld_ids tid) {
+    if (tid < CR_HWID_NONE) return NULL;
+    if (tid >= CR_HWID_MAX) return NULL;
+    return &static_homeworld_list[tid];
+}
+
+struct cr_background *cr_get_background_by_id(enum background_ids tid) {
+    if (tid < CR_BCKGRNDID_NONE) return NULL;
+    if (tid >= CR_BCKGRNDID_MAX) return NULL;
+    return &static_background_list[tid];
+}
+
+struct cr_role *cr_get_role_by_id(enum role_ids tid) {
+    if (tid < CR_ROLEID_NONE) return NULL;
+    if (tid >= CR_ROLEID_MAX) return NULL;
+    return &static_role_list[tid];
+}
+
+int cr_skill_cost(struct pl_player *plr, enum msr_skills skill) {
+    if (plr == NULL) return -1;
+    if (skill <= MSR_SKILLS_NONE) return -1;
+    if (skill >= MSR_SKILLS_MAX) return -1;
+
+    int mult = 3;
+    if (test_bf(plr->career.aptitudes, aptitude_skill_list[skill].apt1) ) mult -= 1;
+    if (test_bf(plr->career.aptitudes, aptitude_skill_list[skill].apt2) ) mult -= 1;
+
+    int mult2 = msr_has_skill(plr->player, skill) +1;
+    if (mult2 >= MSR_SKILL_RATE_MAX) return -1;
+
+    return mult * mult2 * 100;
+}
+
+int cr_talent_cost(struct pl_player *plr, enum msr_talents talent) {
+    if (plr == NULL) return -1;
+    if (talent <= TLT_NONE) return -1;
+    if (talent >= TLT_MAX) return -1;
+    if (msr_has_talent(plr->player, talent) ) return -1;
+
+    int tier = talent >> MSR_TALENT_HEADER_SHIFT;
+    for (int i = 0; i < ARRAY_SZ(aptitude_talent_list); i++) {
+        if (aptitude_talent_list[i].talent != talent) continue;
+        int has = 0;
+        if (test_bf(plr->career.aptitudes, aptitude_talent_list[i].apt1) ) has += 1;
+        if (test_bf(plr->career.aptitudes, aptitude_talent_list[i].apt2) ) has += 1;
+
+        return talent_cost_list[tier][has];
     }
-
-    return true;
+    return -1;
 }
 
-bool cr_can_upgrade_characteristic(struct cr_career *cr, struct msr_monster *player, enum msr_characteristic c) {
-    if (msr_verify_monster(player) == false) return false;
-    if (cr == NULL) return false;
-
-    if (player->characteristic[c].advancement >= cr->char_advancements[c]) return false;
-    return true;
+bool cr_has_aptitude(struct pl_player *plr, enum aptitude_enum aptitude) {
+    if (plr == NULL) return NULL;
+    return test_bf(plr->career.aptitudes, aptitude);
 }
 
-bool cr_can_upgrade_wounds(struct cr_career *cr, struct msr_monster *player) {
-    if (msr_verify_monster(player) == false) return false;
-    if (cr == NULL) return false;
-
-    if (player->wounds.added >= cr->wounds) return false;
-    return true;
+void cr_set_aptitude(struct pl_player *plr, enum aptitude_enum aptitude) {
+    assert (plr != NULL);
+    set_bf(plr->career.aptitudes, aptitude);
 }
-
-/* TODO: this only checks for untrained. we should find a way to do this for basic and advanced. */
-bool cr_can_upgrade_skill(struct cr_career *cr, struct msr_monster *player, enum msr_skills skill) {
-    if (skill == 0) return false;
-    if (msr_verify_monster(player) == false) return false;
-    if (cr == NULL) return false;
-    if (msr_has_skill(player, skill) > MSR_SKILL_RATE_NONE) return false;
-
-    if (test_bf(cr->skills, skill) == false) return false;
-    return true;
-}
-
-bool cr_can_upgrade_talent(struct cr_career *cr, struct msr_monster *player, enum msr_talents talent) {
-    if (talent == TLT_NONE) return false;
-    if (msr_verify_monster(player) == false) return false;
-    if (cr == NULL) return false;
-    if (msr_has_talent(player, talent) == true) return false;
-
-    for (int i = 0; i < CR_TALENTS_MAX; i++) {
-        if (cr->talents[i] == talent) return true;
-    }
-
-    return false;
-}
-
-bool cr_upgrade_characteristic(struct cr_career *cr, struct msr_monster *player, enum msr_characteristic c) {
-    if (cr_can_upgrade_characteristic(cr, player, c) == false) return false;
-
-    switch (c) {
-        case MSR_CHAR_WEAPON_SKILL:
-        case MSR_CHAR_BALISTIC_SKILL:
-        case MSR_CHAR_STRENGTH:
-        case MSR_CHAR_TOUGHNESS:
-        case MSR_CHAR_AGILITY:
-        case MSR_CHAR_INTELLIGENCE:
-        case MSR_CHAR_WILLPOWER:
-        case MSR_CHAR_PERCEPTION:
-            player->characteristic[c].advancement += 5;
-            break;
-        case MSR_SEC_CHAR_ATTACKS:
-        case MSR_SEC_CHAR_MOVEMENT:
-        case MSR_SEC_CHAR_MAGIC:
-            player->characteristic[c].advancement += 1;
-            break;
-        default: assert(false && "Unknown Characteristic");
-    }
-
-    return true;
-}
-
-bool cr_upgrade_wounds(struct cr_career *cr, struct msr_monster *player) {
-    if (cr_can_upgrade_wounds(cr, player) == false) return false;
-
-    player->wounds.curr += 1;
-    player->wounds.max += 1;
-    player->wounds.added += 1;
-    return true;
-}
-
-/* TODO: this only checks for untrained. we should find a way to do this for basic and advanced. */
-bool cr_upgrade_skill(struct cr_career *cr, struct msr_monster *player, enum msr_skills skill) {
-    if (cr_can_upgrade_skill(cr, player, skill) == false) return false;
-
-    return msr_set_skill(player, skill, MSR_SKILL_RATE_BASIC);
-}
-
-bool cr_upgrade_talent(struct cr_career *cr, struct msr_monster *player, enum msr_talents talent) {
-    if (cr_can_upgrade_talent(cr, player, talent) == false) return false;
-    return msr_set_talent(player, talent);
+const char *cr_aptitude_name(enum aptitude_enum aptitude) {
+    if (aptitude <= 0) return NULL;
+    if (aptitude >= APTITUDE_MAX) return NULL;
+    return aptitude_names[aptitude];
 }
 

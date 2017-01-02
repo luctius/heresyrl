@@ -23,6 +23,7 @@
 #include "quests_static.h"
 
 #include "items/items.h"
+#include "careers/careers.h"
 
 #include "quests_static_def.h"
 
@@ -161,8 +162,8 @@ void qst_process_quest_end(struct quest *quest, struct dm_map *map) {
             msr_give_item(gbl_game->player_data.player, money_item);
             money_item->stacked_quantity = 0;
         }
-        money_item->stacked_quantity     += quest->gp_reward;
-        gbl_game->player_data.xp_current += quest->xp_reward;
+        money_item->stacked_quantity            += quest->gp_reward;
+        gbl_game->player_data.career.xp_current += quest->xp_reward;
     }
 }
 

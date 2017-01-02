@@ -67,7 +67,7 @@ int fght_ranged_calc_tohit(struct msr_monster *monster, coord_t *tpos, struct it
 
     if ( (throwing == false) && itm_is_type(witem, ITEM_TYPE_WEAPON) && wpn_is_type(witem, WEAPON_TYPE_THROWN) ) return -1;
 
-    int to_hit = msr_calculate_characteristic(monster, MSR_CHAR_BALISTIC_SKILL);
+    int to_hit = msr_calculate_skill(monster, MSR_SKILLS_RANGED);
     int to_hit_mod = 0;
 
     CALC_TOHIT_INIT()
@@ -124,7 +124,9 @@ int fght_ranged_calc_tohit(struct msr_monster *monster, coord_t *tpos, struct it
         {
             /* normally you would not be able to fire with a normal weapon and get this penaly with a pistol, but that is too harsh since you cannot disengage. */
             /* TODO add check for other enemies in melee. */
-            CALC_TOHIT( (distance == FGHT_MELEE_RANGE), FGHT_RANGED_MODIFIER_MELEE, "you are in melee range")
+
+            CALC_TOHIT( (distance == FGHT_MELEE_RANGE) && (wpn_is_catergory(witem, WEAPON_CATEGORY_1H_RANGED) ), 0, "you are in melee combat with a pistol")
+            else CALC_TOHIT( (distance == FGHT_MELEE_RANGE), FGHT_RANGED_MODIFIER_MELEE, "you are in melee combat")
             else CALC_TOHIT(dis_in_meters >= (weapon_range * 3), FGHT_RANGED_MODIFIER_EXTREME_RANGE, "target is at extreme range")
             else CALC_TOHIT(dis_in_meters >= (weapon_range * 2), FGHT_RANGED_MODIFIER_LONG_RANGE, "target is at long range")
             else CALC_TOHIT(distance <= FGHT_POINT_BLANK_RANGE, FGHT_RANGED_MODIFIER_POINT_BLACK, "target is at point-blank range")
@@ -194,7 +196,7 @@ int fght_melee_calc_tohit(struct msr_monster *monster, coord_t *tpos, struct itm
         if (msr_verify_monster(target) == false) return -1;
     }
 
-    int to_hit = msr_calculate_characteristic(monster, MSR_CHAR_WEAPON_SKILL);
+    int to_hit = msr_calculate_skill(monster, MSR_SKILLS_MELEE);
     int to_hit_mod = 0;
 
     CALC_TOHIT_INIT()
@@ -205,7 +207,7 @@ int fght_melee_calc_tohit(struct msr_monster *monster, coord_t *tpos, struct itm
         if (hand == FGHT_OFF_HAND) {
             CALC_TOHIT(true, FGHT_MODIFIER_OFF_HAND, "using off-hand")
             CALC_TOHIT(wpn_has_spc_quality(witem, WPN_SPCQLTY_LIGHT), FGHT_MODIFIER_DUAL_WIELD_WEAPON_LIGHT,  "your weapon is light")
-            CALC_TOHIT( (hand == FGHT_OFF_HAND) && msr_has_talent(monster, TLT_AMBIDEXTROUS), FGHT_MODIFIER_OFF_HAND_DUAL_WIELD,  "you are ambidextrous")
+            CALC_TOHIT( (hand == FGHT_OFF_HAND) && msr_has_talent(monster, TLT_1_AMBIDEXTRIOUS), FGHT_MODIFIER_OFF_HAND_DUAL_WIELD,  "you are ambidextrous")
         }
 
         if ( (inv_loc_empty(monster->inventory, INV_LOC_MAINHAND_WIELD) == false) &&
@@ -213,7 +215,7 @@ int fght_melee_calc_tohit(struct msr_monster *monster, coord_t *tpos, struct itm
             CALC_TOHIT(hand == FGHT_MAIN_HAND, FGHT_MODIFIER_MAIN_HAND_DUAL_WIELD, "you are dual wielding, this is your main hand")
             else CALC_TOHIT(hand == FGHT_OFF_HAND,  FGHT_MODIFIER_OFF_HAND_DUAL_WIELD,  "you are dual wielding, this is your off-hand")
 
-            CALC_TOHIT(msr_has_talent(monster, TLT_TWO_WEAPON_FIGHTING),  FGHT_MODIFIER_DUAL_WIELD_TWO_WEAPON_FIGHTING,  "you are trained in dual wielding")
+            CALC_TOHIT(msr_has_talent(monster, TLT_2_TWO_WEAPON_FIGHTING),  FGHT_MODIFIER_DUAL_WIELD_TWO_WEAPON_FIGHTING,  "you are trained in dual wielding")
             CALC_TOHIT( (hand == FGHT_MAIN_HAND) && wpn_has_spc_quality(witem, WPN_SPCQLTY_LIGHT), FGHT_MODIFIER_DUAL_WIELD_WEAPON_LIGHT,  "your weapon is light")
         }
 

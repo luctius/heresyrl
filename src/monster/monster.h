@@ -31,13 +31,12 @@
 #include "items/items.h"
 #include "items/items_static.h"
 
-#define MSR_NR_TALENTS_MAX 30
 #define MSR_NR_DEFAULT_WEAPONS_MAX 3
 #define MSR_FATIQUE_RECOVER_DELAY (100)
 
 #define MSR_WEAPON_DAMAGE_INSTA_DEATH (10)
 
-#define MSR_MOVEMENT_MIN 1
+#define MSR_MOVEMENT_MIN 0
 #define MSR_MOVEMENT_MAX 9
 
 enum msr_gender {
@@ -59,17 +58,13 @@ enum msr_race {
 };
 
 enum msr_characteristic {
-    MSR_CHAR_WEAPON_SKILL,
-    MSR_CHAR_BALISTIC_SKILL,
+    MSR_CHAR_COMBAT,
     MSR_CHAR_STRENGTH,
     MSR_CHAR_TOUGHNESS,
     MSR_CHAR_AGILITY,
     MSR_CHAR_INTELLIGENCE,
     MSR_CHAR_WILLPOWER,
     MSR_CHAR_PERCEPTION,
-    MSR_SEC_CHAR_ATTACKS,
-    MSR_SEC_CHAR_MOVEMENT,
-    MSR_SEC_CHAR_MAGIC,
     MSR_CHAR_MAX,
 };
 
@@ -190,8 +185,8 @@ struct msr_monster {
 
     int idle_counter;
 
-    /* array of bitfield of all the monster's talents */
-    uint8_t talents[MSR_NR_TALENTS_MAX];
+    /* bitfield of the monster's talents, divided in tiers */
+    bitfield64_t talents[MSR_TALENT_TIER_MAX];
 
     /*
        skills, divided in basic (has the skill), advanced and expert.
@@ -340,6 +335,7 @@ int msr_get_far_sight_range(struct msr_monster *monster);
 bool msr_has_creature_trait(struct msr_monster *monster, enum msr_creature_traits trait);
 bool msr_set_creature_trait(struct msr_monster *monster, enum msr_creature_traits trait);
 bool msr_clr_creature_trait(struct msr_monster *monster, enum msr_creature_traits trait);
+enum msr_talent_tiers msr_get_tier(bitfield64_t t);
 bool msr_has_talent(struct msr_monster *monster, enum msr_talents talent);
 bool msr_set_talent(struct msr_monster *monster, enum msr_talents talent);
 bool msr_clr_talent(struct msr_monster *monster, enum msr_talents talent);

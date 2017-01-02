@@ -18,12 +18,26 @@
 #ifndef CAREERS_STATIC_H
 #define CAREERS_STATIC_H
 
-enum career_ids {
-    CRID_NONE,
-    CRID_BODYGUARD,
-    CRID_MERCENARY,
-    CRID_FIELDWARDEN,
-    CRID_MAX,
+enum homeworld_ids {
+    CR_HWID_NONE,
+
+    CR_HWID_HIVE,
+
+    CR_HWID_MAX,
+};
+
+enum background_ids {
+    CR_BCKGRNDID_NONE,
+    CR_BCKGRNDID_IMPERIAL_GUARD,
+    CR_BCKGRNDID_OUTCAST,
+    CR_BCKGRNDID_MAX,
+};
+
+enum role_ids {
+    CR_ROLEID_NONE,
+    CR_ROLEID_SEEKER,
+    CR_ROLEID_WARRIOR,
+    CR_ROLEID_MAX,
 };
 
 #endif /* CAREERS_STATIC_H */
