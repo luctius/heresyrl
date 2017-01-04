@@ -224,7 +224,7 @@ inline static bool in_radius(struct rpsc_fov_set *set, int row, int cell, int ra
             /* simple square, row is always bigger than the cell. */
             if (row <= radius) return true;
             break;
-        case default: assert(false); break;
+        default: assert(false); break;
     }
 
     return false;
