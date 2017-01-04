@@ -209,7 +209,7 @@ bool char_creation_window(void) {
         i++;
     }
 
-    levelup_selection_window();
+    //levelup_selection_window();
 
     System_msg("Welcome %s %s.", plr->career->title, player->unique_name);
     return true;

@@ -305,12 +305,18 @@ static void rpsc_fov_octant(struct rpsc_fov_set *set, coord_t *src, int radius, 
        to avoid applying the cardinal directions twice. */
     bool shift = ( (octant % 2) == 0 ) ? true : false;
 
-    /* list of blocking cells. We should ideally only need <radius> nr of items, but since we
-       are combining them only after a row, we need some leeway. */
-    struct angle_set blocked_list[radius * ( (radius+1) / 2)];
-
     /* number of obstacles up untill the previous line*/
     int obstacles_total = 0;
+
+    /* Set the maximum for the blocked_list. This is the safe option regardless of the radius.
+       radius * 3 should be enough for most pratical purposes, but there is little negative 
+       for using the safe option */
+    int obstacles_max = radius * ( (radius+1) / 2);
+
+    /* list of blocking cells. We should ideally only need <radius> nr of items, but since we
+       are combining them only after a row, we need some leeway. */
+    struct angle_set blocked_list[obstacles_max];
+
 
     /* descriptor of this octant */
     struct rpsc_octant_quad *oct_mod = &octant_lo_table[octant];
@@ -365,6 +371,7 @@ static void rpsc_fov_octant(struct rpsc_fov_set *set, coord_t *src, int radius, 
                         in_radius(set, row, cell, radius) == false) {
 
                         lg_debug("blocked by [%d]", i);
+                        assert( (obstacles_total + obstacles_this_row) < obstacles_max);
                         blocked_list[obstacles_total + obstacles_this_row] = as;
                         obstacles_this_row++;
                         lg_debug("becomes obstacle [%d]", obstacles_this_row + obstacles_total -1);
@@ -402,6 +409,7 @@ static void rpsc_fov_octant(struct rpsc_fov_set *set, coord_t *src, int radius, 
         if (obstacles_this_row > 0)  {
             /* we have gathered some new blockers, lets cleanup the list. */
             obstacles_total = scrub_blocked_list(blocked_list, obstacles_total + obstacles_this_row);
+            assert(obstacles_total < obstacles_max);
 
             /* if there is one obstacle, which covers the minimum and maximum angle
                used in this row, it blocks everything. Thus there is no need to continue. */

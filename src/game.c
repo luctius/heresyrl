@@ -90,8 +90,8 @@ bool game_load(void) {
 bool game_init_map(void) {
     if (gbl_game == NULL) return false;
 
-    int x = 100;
-    int y = 100;
+    int x = 500;
+    int y = 500;
     bool new_map = false;
 
     if (plr_init(&gbl_game->player_data) == false) {
