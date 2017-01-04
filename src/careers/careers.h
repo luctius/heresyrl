@@ -63,6 +63,7 @@ struct cr_role {
 };
 
 void cr_init();
+void cr_exit(struct pl_player *plr);
 
 void cr_init_career(struct pl_player *plr, enum homeworld_ids hid, enum background_ids btid, enum role_ids rtid);
 struct cr_homeworld *cr_get_homeworld_by_id(enum homeworld_ids tid);
@@ -77,5 +78,6 @@ void cr_set_aptitude(struct pl_player *plr, enum aptitude_enum aptitude);
 const char *cr_aptitude_name(enum aptitude_enum aptitude);
 
 void cr_add_achievement(struct pl_player *plr, int turn, const char *achievement);
+void cr_print_morgue_file(struct pl_player *plr);
 
 #endif /* CAREER_H */

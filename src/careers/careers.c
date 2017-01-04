@@ -18,6 +18,10 @@
 #include <assert.h>
 #include <string.h>
 #include <sys/queue.h>
+#include <stdint.h>
+#include <inttypes.h>
+
+#include <time.h>
 
 #include "careers.h"
 #include "careers_static.h"
@@ -29,8 +33,11 @@
 #include "items/items.h"
 #include "fov/sight.h"
 #include "random_generator.h"
+#include "turn_tick.h"
 
 #include "careers_static_def.h"
+
+static time_t session_time_start = 0;
 
 void cr_init() {
     for (int i = 0; i < ARRAY_SZ(static_homeworld_list); i++) {
@@ -53,6 +60,10 @@ void cr_init() {
     }
 }
 
+void cr_exit(struct pl_player *plr) {
+    plr->career.play_seconds += time(NULL) - session_time_start;
+}
+
 static bool cr_give_trappings_to_player(struct cr_background *car, struct msr_monster *player) {
     if (msr_verify_monster(player) == false) return false;
 
@@ -67,6 +78,9 @@ static bool cr_give_trappings_to_player(struct cr_background *car, struct msr_mo
 }
 
 void cr_init_career(struct pl_player *plr, enum homeworld_ids htid, enum background_ids btid, enum role_ids rtid) {
+    session_time_start = time(NULL);
+    plr->career.play_seconds = 0;
+
     plr->career.b_tid = btid;
     plr->career.r_tid = btid;
 
@@ -179,4 +193,14 @@ void cr_add_achievement(struct pl_player *plr, int turn, const char *achievement
 
         return;
     }
+}
+
+void cr_print_morgue_file(struct pl_player *plr) {
+    if (plr == NULL) return;
+    plr->career.play_seconds += time(NULL) - session_time_start;
+
+    printf("%s played for %d seconds and %" PRIu64 ".%" PRIu64 " turns\n", plr->player->unique_name, plr->career.play_seconds, gbl_game->turn / TT_ENERGY_TURN, gbl_game->turn % TT_ENERGY_TURN      );
+    printf("%s still owed the loan-shark %d throne guilders\n", plr->player->unique_name, plr->loan);
+
+    printf("%s's states were: \n", plr->player->unique_name);
 }

@@ -187,6 +187,9 @@ bool game_exit() {
 
     struct pl_player *plr = &gbl_game->player_data;
     if (plr != NULL && plr->player != NULL) {
+        if (plr->player->dead) {
+            cr_print_morgue_file(plr);
+        }
         free(plr->player->unique_name);
     }
 
@@ -198,6 +201,7 @@ bool game_exit() {
     ge_exit();
     se_exit();
     tt_exit();
+    cr_exit(plr);
 
     inp_exit(gbl_game->input);
 
@@ -211,7 +215,7 @@ void game_cleanup(void) {
     struct msr_monster *player = gbl_game->player_data.player;
     struct inv_inventory *inv =  player->inventory;
 
-	gbl_game->player_data.quest = NULL;
+    gbl_game->player_data.quest = NULL;
 
     struct msr_monster *m = NULL;
     while ( (m = msrlst_get_next_monster(m) ) != NULL ) {

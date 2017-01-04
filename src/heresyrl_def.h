@@ -99,6 +99,8 @@ struct cr_career {
         const char *achievement;
     } achievements[ACHIEVEMENTS_MAX];
 
+    time_t play_seconds;
+
     const char *killer;
 };
 
