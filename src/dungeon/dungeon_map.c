@@ -700,7 +700,7 @@ struct dm_map *dm_generate_map(struct dm_spawn_settings *sett) {
     struct pf_context *pf_ctx = NULL;
 
     int i = 0;
-    for (i = 0; i < ( (map->size.x * map->size.y) / 100) && (map_is_good == false); i++) {
+    for (i = 0; i < ( (map->sett.size.x * map->sett.size.y) / 100) && (map_is_good == false); i++) {
         /*
            We flood the map and rescue nonflooded segments untill we can find
            no more non-flooded tiles. This takes a long time though,
