@@ -159,7 +159,6 @@ int ui_printf_ext(struct hrl_window *win, int y_start, int x_start, const char *
             else {
                 if (options.refresh) {
                     mvwaddch(win->win, win->text_y, win->text_x++, buf[real_txt_idx]);
-//                    wrefresh(win->win);
                 }
 
                 real_txt_idx++;
@@ -178,7 +177,7 @@ int ui_printf_ext(struct hrl_window *win, int y_start, int x_start, const char *
     }
 
     if (has_colors() == TRUE) wattrset(win->win, attr_mod[attr_mod_ctr]);
-    wrefresh(win->win);
+    if (options.refresh) wrefresh(win->win);
 
     return win->text_y;
 }

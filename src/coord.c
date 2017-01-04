@@ -25,11 +25,11 @@ const coord_t coord_nhlo_table[] = {
 };
 const uint8_t coord_nhlo_table_sz = ARRAY_SZ(coord_nhlo_table);
 
-extern inline coord_t cd_create(short x, short y);
+extern inline coord_t cd_create(int x, int y);
 extern inline coord_t cd_add(const coord_t *a, const coord_t *b);
 extern inline bool cd_equal(const coord_t *a, const coord_t *b);
 extern inline bool cd_within_bound(const coord_t *a, const coord_t *max);
-extern inline short cd_pyth(const coord_t *a, const coord_t *b);
+extern inline int cd_pyth(const coord_t *a, const coord_t *b);
 extern inline coord_t cd_delta(const coord_t *a, const coord_t *b);
 extern inline coord_t cd_delta_abs(const coord_t *a, const coord_t *b);
 extern inline int cd_delta_abs_total(const coord_t *a, const coord_t *b);

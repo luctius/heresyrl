@@ -101,18 +101,21 @@ struct msr_monster *aiu_get_nearest_monster(coord_t *pos, int radius, int ignore
 }
 
 static unsigned int aiu_traversable_callback(void *vmap, coord_t *coord) {
-    if (vmap == NULL) return PF_BLOCKED;
-    if (coord == NULL) return PF_BLOCKED;
-    struct dm_map *map = (struct dm_map *) vmap;
-
     unsigned int cost = PF_BLOCKED;
-    if (dm_verify_map(map) == false) return PF_BLOCKED;
-    if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(coord, map),TILE_ATTR_TRAVERSABLE) == true) {
-        cost = dm_get_map_tile(coord, map)->movement_cost;
-    }
-    if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(coord, map),TILE_ATTR_BORDER) == true) cost = PF_BLOCKED;
+    if (vmap == NULL) return cost;
+    if (coord == NULL) return cost;
 
+    //if (dm_verify_map(map) == false) return PF_BLOCKED;
+    struct dm_map *map = (struct dm_map *) vmap;
     struct dm_map_entity *me = dm_get_map_me(coord, map);
+    struct tl_tile *te = me->tile;
+
+    if (TILE_HAS_ATTRIBUTE(te,TILE_ATTR_BORDER) == true) return cost;
+
+    if (TILE_HAS_ATTRIBUTE(te,TILE_ATTR_TRAVERSABLE) == true) {
+        cost = te->movement_cost;
+    }
+
     if (me->monster != NULL) {
         cost += me->monster->idle_counter;
     }

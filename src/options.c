@@ -122,8 +122,8 @@ void opt_parse_options(struct gengetopt_args_info *args_info) {
         if (args_info->pb_delay_given == false) options.play_delay = 0;
     }
 
-    if (options.play_delay  == 0) options.refresh = false;
-
+    if (options.play_delay == 0) options.refresh = false;
+    if (options.print_map_only)  options.refresh = false;
 }
 
 void opt_exit(void) {

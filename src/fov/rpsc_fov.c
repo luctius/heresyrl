@@ -208,21 +208,25 @@ inline static bool angle_is_blocked(struct rpsc_fov_set *set, struct angle_set *
 
 /* check if (row,cell) is within radius with the given settings */
 inline static bool in_radius(struct rpsc_fov_set *set, int row, int cell, int radius) {
-    if (set->area == RPSC_AREA_OCTAGON) {
-        if ( ( ( (row) + (cell/2) ) ) <= radius) return true;
+    switch (set->area) {
+        case RPSC_AREA_OCTAGON:
+            if ( ( ( (row) + (cell/2) ) ) <= radius) return true;
+            break;
+        case RPSC_AREA_CIRCLE:
+            /* nicer circle */
+            if ( ( (row*row) + (cell*cell) ) <= ((radius*radius) + radius) ) return true;
+            break;
+        case RPSC_AREA_CIRCLE_STRICT:
+            /* pythagoras circle, which does not translate well to an ascii grid. */
+            if ( ( (row*row) + (cell*cell) ) <= (radius*radius) ) return true;
+            break;
+        case RPSC_AREA_SQUARE:
+            /* simple square, row is always bigger than the cell. */
+            if (row <= radius) return true;
+            break;
+        default: assert(false); break;
     }
-    else if (set->area == RPSC_AREA_CIRCLE) {
-        /* nicer circle */
-        if ( ( (row*row) + (cell*cell) ) <= ((radius*radius) + radius) ) return true;
-    }
-    else if (set->area == RPSC_AREA_CIRCLE_STRICT) {
-        /* pythagoras circle, which does not translate well to an ascii grid. */
-        if ( ( (row*row) + (cell*cell) ) <= (radius*radius) ) return true;
-    }
-    else if (set->area == RPSC_AREA_SQUARE) {
-        /* simple square, row is always bigger than the cell. */
-        if (row <= radius) return true;
-    }
+
     return false;
 }
 
@@ -301,12 +305,18 @@ static void rpsc_fov_octant(struct rpsc_fov_set *set, coord_t *src, int radius, 
        to avoid applying the cardinal directions twice. */
     bool shift = ( (octant % 2) == 0 ) ? true : false;
 
-    /* list of blocking cells. We should ideally only need <radius> nr of items, but since we
-       are combining them only after a row, we need some leeway. */
-    struct angle_set blocked_list[radius *2];
-
     /* number of obstacles up untill the previous line*/
     int obstacles_total = 0;
+
+    /* Set the maximum for the blocked_list. This is the safe option regardless of the radius.
+       radius * 3 should be enough for most pratical purposes, but there is little negative 
+       for using the safe option */
+    int obstacles_max = radius * ( (radius+1) / 2);
+
+    /* list of blocking cells. We should ideally only need <radius> nr of items, but since we
+       are combining them only after a row, we need some leeway. */
+    struct angle_set blocked_list[obstacles_max];
+
 
     /* descriptor of this octant */
     struct rpsc_octant_quad *oct_mod = &octant_lo_table[octant];
@@ -369,6 +379,8 @@ static void rpsc_fov_octant(struct rpsc_fov_set *set, coord_t *src, int radius, 
                         /* this cell is check and found blocking */
                         blocked = true;
                     }
+
+                    assert( (obstacles_total + obstacles_this_row) < obstacles_max);
                 }
 
                 /* the cell is visible, now check if it will block others. */
@@ -398,6 +410,7 @@ static void rpsc_fov_octant(struct rpsc_fov_set *set, coord_t *src, int radius, 
         if (obstacles_this_row > 0)  {
             /* we have gathered some new blockers, lets cleanup the list. */
             obstacles_total = scrub_blocked_list(blocked_list, obstacles_total + obstacles_this_row);
+            assert(obstacles_total < obstacles_max);
 
             /* if there is one obstacle, which covers the minimum and maximum angle
                used in this row, it blocks everything. Thus there is no need to continue. */
@@ -480,13 +493,17 @@ bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst) {
     /* get the octant describtor */
     struct rpsc_octant_quad *oct_mod = &octant_lo_table[octant];
 
-    /* allocate the list of blocked angle_sets. */
-    struct angle_set blocked_list[cd_pyth(src,dst) *2];
     /* total number of obstacles found up untill the previous line */
     int obstacles_total = 0;
+    /* maximum number of obstacles */
+    int obstacles_max = cd_pyth(src,dst) *3;
+    /* allocate the list of blocked angle_sets. */
+    struct angle_set blocked_list[obstacles_max];
 
-    if (set->apply != NULL) lg_debug("-------------with apply start in octand %s----------", oct_mod->desc);
-    if (set->apply != NULL) set->apply(set, src, src);
+    if (set->apply != NULL) {
+        lg_debug("-------------with apply start in octand %s----------", oct_mod->desc);
+        set->apply(set, src, src);
+    }
 
     /* find the row and cell nr of the destination, with regard to the octant we are in. */
     coord_t delta = cd_delta_abs(src, dst);
@@ -559,7 +576,8 @@ bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst) {
 
             /* loop through the obstacles and check if this cell if being blocked. */
             for (int i = 0; i < obstacles_total; i++) {
-                lg_debug("test (%" PRIuFAST16 ",%" PRIuFAST16 ",%" PRIuFAST16 ") vs [%d] (%" PRIuFAST16 ",%" PRIuFAST16 ",%" PRIuFAST16 ")", as.near, as.center, as.far, i, blocked_list[i].near, blocked_list[i].center, blocked_list[i].far);
+                lg_debug("test (%" PRIuFAST16 ",%" PRIuFAST16 ",%" PRIuFAST16 ") vs [%d] (%" PRIuFAST16 ",%" PRIuFAST16 ",%" PRIuFAST16 ")", 
+                         as.near, as.center, as.far, i, blocked_list[i].near, blocked_list[i].center, blocked_list[i].far);
 
                 /* check if the angles of this cell border a blocked cell or if it is outside the view area. */
                 if (angle_is_blocked(set, &as, &blocked_list[i], transparent) ) {
@@ -574,6 +592,8 @@ bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst) {
                     /* this cell is blocked. */
                     blocked = true;
                 }
+
+                assert( (obstacles_total + obstacles_this_row) < obstacles_max);
             }
 
             /* the cell is not blocked by another. now we check it will block others. */
@@ -615,6 +635,7 @@ bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst) {
         if (obstacles_this_row > 0 && visible == true)  {
             /* we have gathered some new blockers, lets cleanup the list. */
             obstacles_total = scrub_blocked_list(blocked_list, obstacles_total + obstacles_this_row);
+            assert(obstacles_total < obstacles_max);
 
             /* if there is one obstacle, which covers the minimum and maximum angle
                used in this row, it blocks everything. Thus there is no need to continue. */

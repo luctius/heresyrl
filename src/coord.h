@@ -28,14 +28,14 @@
 #include <sys/param.h>
 
 typedef struct coord {
-    short x;
-    short y;
+    int x;
+    int y;
 } coord_t;
 
 extern const coord_t coord_nhlo_table[];
 extern const uint8_t coord_nhlo_table_sz;
 
-inline coord_t cd_create(short x, short y) {
+inline coord_t cd_create(int x, int y) {
     coord_t c = { .x = x, .y = y,};
     return c;
 }
@@ -59,7 +59,7 @@ inline bool cd_within_bound(const coord_t *a, const coord_t *b) {
     return true;
 }
 
-inline short cd_pyth(const coord_t *a, const coord_t *b) {
+inline int cd_pyth(const coord_t *a, const coord_t *b) {
     int s1 = abs(a->x - b->x);
     int s2 = abs(a->y - b->y);
     return MAX(s1, s2);
