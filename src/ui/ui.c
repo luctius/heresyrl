@@ -97,7 +97,7 @@ bool ui_create(int cols, int lines) {
             main_win = win_create(lines - 2, cols - 2, 1, 1, HRL_WINDOW_TYPE_MAIN);
             map_win = win_create(map_lines-2, map_cols-2, 1, 1, HRL_WINDOW_TYPE_MAP);
             char_win = win_create(char_lines, char_cols, 1, map_cols+1, HRL_WINDOW_TYPE_CHARACTER);
-            msg_win = win_create(msg_lines, msg_cols, map_lines, 1, HRL_WINDOW_TYPE_MESSAGE);
+            msg_win = win_create(msg_lines, msg_cols-1, map_lines, 1, HRL_WINDOW_TYPE_MESSAGE);
             lg_set_callback(gbl_log, NULL, msgwin_log_callback);
             show_msg(msg_win);
             return true;
