@@ -45,7 +45,7 @@ struct ground_effect {
     const char *ld_name;
     const char *description;
 
-    char icon;
+    icon_t icon;
     int icon_attr;
     int min_energy;
     int max_energy;

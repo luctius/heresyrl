@@ -77,7 +77,7 @@ struct tl_tile {
     enum tile_types type;
     bitfield32_t dungeon_locale;
 
-    char icon;
+    icon_t icon;
     int icon_attr;
 
     uint8_t movement_cost;

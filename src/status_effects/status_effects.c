@@ -477,8 +477,9 @@ int se_status_effect_strength(struct msr_monster *monster, enum status_effect_ef
     return strength;
 }
 
-bool se_add_critical_hit(struct msr_monster *monster, int dmg, enum msr_hit_location mhl, enum dmg_type type) {
+bool se_add_critical_hit(struct msr_monster *monster, const char *origin, int dmg, enum msr_hit_location mhl, enum dmg_type type) {
     if (msr_verify_monster(monster) == false) return false;
+    assert(origin != NULL);
 
     struct status_effect_list *se_list = monster->status_effects;
     if (se_verify_list(se_list) == false) return false;
@@ -506,7 +507,7 @@ bool se_add_critical_hit(struct msr_monster *monster, int dmg, enum msr_hit_loca
     lg_ai_debug(monster, "Adding Critical Hit: %s (tid:%d)", static_status_effect_list[crit_effect].name, crit_effect);
 
     /* TODO: update this when more critical hits become available */
-    return se_add_status_effect(monster, crit_effect, "critical");
+    return se_add_status_effect(monster, crit_effect, origin);
 }
 
 void se_process_effects_first(struct se_type_struct *ces, struct msr_monster *monster, struct status_effect *c) {
@@ -638,7 +639,7 @@ void se_process_effects_first(struct se_type_struct *ces, struct msr_monster *mo
         } /* No Break */
         case EF_INSTANT_DEATH: {
             effect_clr_flag(ces, EF_SETT_ACTIVE);
-            msr_die(monster, gbl_game->current_map);
+            msr_die(monster, c->origin, gbl_game->current_map);
         } break;
 
         default: effect_clr_flag(ces, EF_SETT_ACTIVE); break;
@@ -735,7 +736,7 @@ void se_process_effects_last(struct se_type_struct *ces, struct msr_monster *mon
         case EF_EXPLODE:
         case EF_INSTANT_DEATH: {
             effect_clr_flag(ces, EF_SETT_ACTIVE);
-            msr_die(monster, gbl_game->current_map);
+            msr_die(monster, c->origin, gbl_game->current_map);
         } break;
 
         default: effect_clr_flag(ces, EF_SETT_ACTIVE); break;
@@ -827,7 +828,7 @@ void se_process_effects_during(struct se_type_struct *ces, struct msr_monster *m
                 int hitloc = MSR_HITLOC_NONE;
                 int dmg_type = DMG_TYPE_ENERGY;
                 if (effect_has_flag(ces, EF_SETT_HITLOC_RANDOM) ) hitloc = msr_get_hit_location(monster, random_d100(gbl_game->random));
-                msr_do_dmg(monster, ces->strength, dmg_type, hitloc);
+                msr_do_dmg(monster, c->origin, ces->strength, dmg_type, hitloc);
             } break;
 
         case EF_HEALTH:

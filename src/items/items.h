@@ -265,7 +265,7 @@ struct itm_item {
     const char *sd_name;
     const char *ld_name;
     const char *description;
-    char icon;
+    icon_t icon;
     int icon_attr;
     int use_delay;
     uint32_t stacked_quantity;

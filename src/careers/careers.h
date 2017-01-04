@@ -76,4 +76,6 @@ bool cr_has_aptitude(struct pl_player *plr, enum aptitude_enum aptitude);
 void cr_set_aptitude(struct pl_player *plr, enum aptitude_enum aptitude);
 const char *cr_aptitude_name(enum aptitude_enum aptitude);
 
+void cr_add_achievement(struct pl_player *plr, int turn, const char *achievement);
+
 #endif /* CAREER_H */

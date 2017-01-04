@@ -462,6 +462,7 @@ bool msr_can_use_evasion(struct msr_monster *monster, enum msr_evasions evasion)
     if (se_has_effect(monster, EF_SWIMMING) ) return false;
     if (se_has_effect(monster, EF_STUNNED) ) return false;
     if (se_has_effect(monster, EF_BLINDED) ) return false;
+    if (se_has_effect(monster, EF_PRONE) ) return false;
 
     struct inv_inventory *inv = monster->inventory;
     if (inv_verify_inventory(monster->inventory) == false) return false;
@@ -595,7 +596,7 @@ enum msr_hit_location msr_get_hit_location(struct msr_monster *monster, int hit_
     return mhl;
 }
 
-bool msr_die(struct msr_monster *monster, struct dm_map *map) {
+bool msr_die(struct msr_monster *monster, const char *origin, struct dm_map *map) {
     if (msr_verify_monster(monster) == false) return false;
     if (dm_verify_map(map) == false) return false;
 
@@ -604,24 +605,29 @@ bool msr_die(struct msr_monster *monster, struct dm_map *map) {
         Monster(monster, "falls unconsious.");
     }
     else {
-        You(monster, "die...");
-        Monster(monster, "dies.");
+        You(monster, "are killed by %s", origin);
+        Monster(monster, "is killed by %s", origin);
 
         msr_drop_inventory(monster, map);
         msr_remove_monster(monster, map);
+    }
+
+    if (gbl_game->player_data.player == monster) {
+        gbl_game->player_data.career.killer = origin;
     }
 
     monster->dead = true;
     return true;
 }
 
-bool msr_do_dmg(struct msr_monster *monster, int dmg, enum dmg_type dmg_type, enum msr_hit_location mhl) {
+bool msr_do_dmg(struct msr_monster *monster, const char *origin, int dmg, enum dmg_type dmg_type, enum msr_hit_location mhl) {
     if (msr_verify_monster(monster) == false) return false;
     if (monster->dead) return false;
-    bool critic = false;
+    assert(origin != NULL);
+    bool was_critical = false;
 
      /* temp var so we can notify the player when the monster is critical wounded for the first time.*/
-    if (monster->wounds.curr < 0) critic = true;
+    if (monster->wounds.curr < 0) was_critical = true;
 
     if (dmg > 0) {
         monster->wounds.curr -= dmg;
@@ -629,22 +635,22 @@ bool msr_do_dmg(struct msr_monster *monster, int dmg, enum dmg_type dmg_type, en
         if (monster->wounds.curr < 0) {
             if (monster->unique_name == NULL) {
                 if (dmg > MSR_WEAPON_DAMAGE_INSTA_DEATH) {
-                    return msr_die(monster, gbl_game->current_map);
+                    return msr_die(monster, origin, gbl_game->current_map);
                 }
             }
 
             /* do critical hits! */
             if (mhl != MSR_HITLOC_NONE) {
                 /* Add critical hit */
-                se_add_critical_hit(monster, monster->wounds.curr, mhl, dmg_type);
+                se_add_critical_hit(monster, origin, monster->wounds.curr, mhl, dmg_type);
             }
 
             if (monster->wounds.curr < -STATUS_EFFECT_CRITICAL_MAX && monster->dead == false) {
                 lg_ai_debug(monster, "Paranoia Death (%d, max %d).", monster->wounds.curr, -STATUS_EFFECT_CRITICAL_MAX);
-                return msr_die(monster, gbl_game->current_map);
+                return msr_die(monster, origin, gbl_game->current_map);
             }
 
-            if (critic == false) {
+            if (was_critical == false) {
                 //You(monster, "are criticly wounded.");
                 Monster(monster, "is criticly wounded.");
             }
@@ -1035,7 +1041,7 @@ bool msr_clr_talent(struct msr_monster *monster, enum msr_talents talent) {
 
 uint8_t msr_get_movement_rate(struct msr_monster *monster) {
     if (msr_verify_monster(monster) == false) return false;
-    int speed = (msr_calculate_characteristic(monster, MSR_CHAR_AGILITY) );
+    int speed = (msr_calculate_characteristic_bonus(monster, MSR_CHAR_AGILITY) );
     int speed_mod = 0;
     int min_speed = MSR_MOVEMENT_MIN;
     int max_speed = MSR_MOVEMENT_MAX;

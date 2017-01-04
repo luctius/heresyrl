@@ -58,7 +58,7 @@ static const struct status_effect static_status_effect_list[] = {
 
     /* Draughts */
     STATUS_EFFECT(SEID_MINOR_HEALING, "healing draught", "", 0),
-        MESSAGES("Your wounds begin to heal.", "%s's wounds begin to heal.", "You feel the healing wearing off.", NULL),
+        MESSAGES(cs_PLAYER "Your" cs_CLOSE " wounds begin to heal.", "%s's wounds begin to heal.", cs_PLAYER "You" cs_CLOSE " feel the healing wearing off.", NULL),
         EFFECTS_START
             /* Type         Effect      Flags   Strength    Param   Interval    Max Msgs */
             TICK_EFFECT(EF_HEALTH,      0,      1,          0,      2,          0,  NULL, NULL),
@@ -68,7 +68,7 @@ static const struct status_effect static_status_effect_list[] = {
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_MAD_CAP_AFTER, "mad cap mushroom after effect", "", 0),
-        MESSAGES("You are exhausted from the mushrooms trip.", "%s looks exhausted.", "You feel the after effects slipping away.", NULL),
+        MESSAGES(cs_PLAYER "You" cs_CLOSE " are exhausted from the mushrooms trip.", "%s looks exhausted.", cs_PLAYER "You" cs_CLOSE " feel the after effects slipping away.", NULL),
         EFFECTS_START
             /* Type     Effect      Flags   Strength    Param*/
             EFFECT(EF_MODIFY_CHAR,  0,         -10,      MSR_CHAR_TOUGHNESS),
@@ -80,7 +80,7 @@ static const struct status_effect static_status_effect_list[] = {
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_MAD_CAP, "mad cap mushroom rage", "", 0),
-        MESSAGES("You slip into a mad and destructive rage.", "%s slips into a mad and destructive rage.", "The rage starts to wear off.", NULL),
+        MESSAGES(cs_PLAYER "You" cs_CLOSE " slip into a mad and destructive rage.", "%s slips into a mad and destructive rage.", "The rage starts to wear off.", NULL),
         EFFECTS_START
             /* Type     Effect      Flags   Strength    Param*/
             EFFECT(EF_MODIFY_CHAR,  0,         10,      MSR_CHAR_TOUGHNESS),
@@ -95,7 +95,7 @@ static const struct status_effect static_status_effect_list[] = {
 
     /* Weapon Effects */
     STATUS_EFFECT(SEID_WEAPON_FLAME, "flames", "flames are engulving you", 0),
-        MESSAGES("You catch fire.", "%s has catched fire.", "You manage to put out the flames.", "%s stomps out the flames."),
+        MESSAGES(cs_PLAYER "You" cs_CLOSE " catch fire.", "%s has catched fire.", cs_PLAYER "You" cs_CLOSE " manage to put out the flames.", "%s stomps out the flames."),
         EFFECTS_START
             /* Type         Effect           Flags      Strength    param. */
             EFFECT(     EF_ON_FIRE,          0,         0,          0),
@@ -163,7 +163,7 @@ static const struct status_effect static_status_effect_list[] = {
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_MAD_CAP_CLOUD, "mad cap cloud", "", 0),
-        MESSAGES("You slip into a mad and destructive rage.", "%s slips into a mad and destructive rage.", "The rage starts to wear off.", NULL),
+        MESSAGES(cs_PLAYER "You" cs_CLOSE " slip into a mad and destructive rage.", "%s slips into a mad and destructive rage.", "The rage starts to wear off.", NULL),
         EFFECTS_START
             /* Type     Effect      Flags   Strength    Param*/
             EFFECT(EF_MODIFY_CHAR,  0,         10,      MSR_CHAR_TOUGHNESS),
@@ -179,7 +179,7 @@ static const struct status_effect static_status_effect_list[] = {
     /*-------------------------------------------------------------------------*/
 
     STATUS_EFFECT(SEID_ENCUMBERED, "Encumbered", "", 0),
-        MESSAGES("You are encumbered.", NULL, "Your load seems manageble now.", NULL),
+        MESSAGES(cs_PLAYER "You" cs_CLOSE " are encumbered.", NULL, cs_PLAYER "Your" cs_CLOSE " load seems manageble now.", NULL),
         EFFECTS_START
             /* Type    Effect           Flags   Strength     Param  Interval,   Max, Msgs */
             TICK_EFFECT(EF_ENCUMBERED,  0,      0,           0,     0.01,       0,   NULL, NULL),
@@ -200,7 +200,7 @@ static const struct status_effect static_status_effect_list[] = {
 
     /* Stealth penalty after attacking */
     STATUS_EFFECT(SEID_COMBAT_EXCITEMENT, "Combat Excitement", "", 0),
-        MESSAGES(NULL, NULL, "Your combat excitement wears down.", NULL),
+        MESSAGES(NULL, NULL, cs_PLAYER "Your" cs_CLOSE " combat excitement wears down.", NULL),
         EFFECTS_START
             /* Type     Effect      Flags   Strength    Param*/
             EFFECT(EF_MODIFY_SKILL,  0,        -50,      MSR_SKILLS_STEALTH),

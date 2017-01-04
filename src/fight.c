@@ -123,27 +123,23 @@ int fght_ranged_calc_tohit(struct msr_monster *monster, coord_t *tpos, struct it
 
         {
             /* normally you would not be able to fire with a normal weapon and get this penaly with a pistol, but that is too harsh since you cannot disengage. */
-            /* TODO add check for other enemies in melee. */
-
-            CALC_TOHIT( (distance == FGHT_MELEE_RANGE) && (wpn_is_catergory(witem, WEAPON_CATEGORY_1H_RANGED) ), 0, "you are in melee combat with a pistol")
-            else CALC_TOHIT( (distance == FGHT_MELEE_RANGE), FGHT_RANGED_MODIFIER_MELEE, "you are in melee combat")
-            else CALC_TOHIT(dis_in_meters >= (weapon_range * 3), FGHT_RANGED_MODIFIER_EXTREME_RANGE, "target is at extreme range")
-            else CALC_TOHIT(dis_in_meters >= (weapon_range * 2), FGHT_RANGED_MODIFIER_LONG_RANGE, "target is at long range")
-            else CALC_TOHIT(distance <= FGHT_POINT_BLANK_RANGE, FGHT_RANGED_MODIFIER_POINT_BLACK, "target is at point-blank range")
-            else CALC_TOHIT(dis_in_meters <= (weapon_range * 0.5), FGHT_RANGED_MODIFIER_SHORT_RANGE, "target is at short range")
 
             bool in_melee = false;
             for (int i = 0; i < coord_nhlo_table_sz && in_melee == false; i++) {
                 coord_t pos = cd_add(&monster->pos, &coord_nhlo_table[i]);
                 struct dm_map_entity *mon_me = dm_get_map_me(&pos, gbl_game->current_map);
                 if (mon_me->monster != NULL && mon_me->monster->faction != monster->faction)  {
-                    struct itm_item *ti = fght_get_working_weapon(target, WEAPON_TYPE_MELEE, FGHT_MAIN_HAND);
-                    if (ti == NULL) ti = fght_get_working_weapon(target, WEAPON_TYPE_MELEE, FGHT_OFF_HAND);
-                    if (ti != NULL) {
-                        CALC_TOHIT(true, FGHT_RANGED_MODIFIER_MELEE, "you are in melee combat")
-                        in_melee = true;
-                    }
+                    CALC_TOHIT( (distance == FGHT_MELEE_RANGE) && (wpn_is_catergory(witem, WEAPON_CATEGORY_1H_RANGED) ), 0, "you are in melee combat with a pistol")
+                    else CALC_TOHIT(true, FGHT_RANGED_MODIFIER_MELEE, "you are in melee combat")
+                    in_melee = true;
                 }
+            }
+
+            if (!in_melee) {
+                CALC_TOHIT(dis_in_meters >= (weapon_range * 3), FGHT_RANGED_MODIFIER_EXTREME_RANGE, "target is at extreme range")
+                else CALC_TOHIT(dis_in_meters >= (weapon_range * 2), FGHT_RANGED_MODIFIER_LONG_RANGE, "target is at long range")
+                else CALC_TOHIT(distance <= FGHT_POINT_BLANK_RANGE, FGHT_RANGED_MODIFIER_POINT_BLACK, "target is at point-blank range")
+                else CALC_TOHIT(dis_in_meters <= (weapon_range * 0.5), FGHT_RANGED_MODIFIER_SHORT_RANGE, "target is at short range")
             }
         }
 
@@ -364,7 +360,7 @@ int fght_calc_dmg(struct random *r, struct msr_monster *monster, struct msr_mons
         }
 
         Info("Doing %d%s+%d damage => %d, %d wnds left.", wpn->nr_dmg_die, random_die_name(dmg_die_sz), dmg_add, dmg, target->wounds.curr);
-        msr_do_dmg(target, rnd_dmg, wpn->dmg_type, mhl);
+        msr_do_dmg(target, msr_ldname(monster), rnd_dmg, wpn->dmg_type, mhl);
         if (target->dead) h = hits;
     }
 

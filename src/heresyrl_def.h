@@ -41,11 +41,11 @@
 #define set_bf(field, attr) (field |= bf(attr) )
 #define clr_bf(field, attr) (field &= ~(bf(attr) ) )
 #define test_bf(field, attr) ( (field & bf(attr) ) > 0)
-typedef __uint128_t    bitfield128_t;
 typedef uint_least64_t bitfield64_t;
 typedef uint_least32_t bitfield32_t;
 typedef uint_least16_t bitfield16_t;
 typedef uint_least8_t  bitfield8_t;
+typedef char           icon_t;
 #define bitfield_width (sizeof(bitfield_t) * CHAR_BIT)
 
 #define RANGE_MULTIPLIER (0.50f)
@@ -84,6 +84,7 @@ enum wpn_rof_setting;
 enum background_ids;
 enum role_ids;
 
+#define ACHIEVEMENTS_MAX 50
 struct cr_career {
     int xp_current;
     int xp_spend;
@@ -92,6 +93,13 @@ struct cr_career {
     enum role_ids r_tid;
 
     bitfield32_t aptitudes;
+
+    struct {
+        int turn;
+        const char *achievement;
+    } achievements[ACHIEVEMENTS_MAX];
+
+    const char *killer;
 };
 
 struct pl_player {

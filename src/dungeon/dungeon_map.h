@@ -37,7 +37,7 @@ struct dm_map_entity {
 
     coord_t pos;
     char type;
-    char icon_override;
+    icon_t icon_override;
     int icon_attr_override;
     bool in_sight;
     bool visible;

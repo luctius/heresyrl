@@ -1,33 +1,15 @@
 Version 0.1:
-    --- Pay Loan: Which means implementing money :: implemented, badly
-    --- Shops: Buying Selling :: basicly done, but sell screen does not list selling price for example.
-    --- Healer: Probably means implementing every critical hit, creating healing categories.  :: done
-    --- Quests: gain rewards, create list of available quests
     Retire: Complete game, show 'score'
     Implementing difficulty levels.
 
-Version 0.2:
     Move towards Dark Heresy 2e combined with zeihander improvements.
         Characteristics
-            Combat Skill
-            Strength
-            Toughness
-            Agility
-            Intelligence
-            Perception
-            Willpower
             (Influence)
         Skills (4 ranks: Known, Trained, Experience and Veteran)
-            Melee (Combat, General)
-            Ranged (Combat, General)
             Acrobatics (Agility, General)
-            Awareness (Perception, Fieldcraft)
-            Dodge (Agility, Defence)
-            Parry (Weaponskill, Defence)
-            Stealth (Agility, Fieldcraft)
+            Medicae (Intelligence, Fieldcraft)
             Survival (Perception, Fieldcraft)
         Talents
-            Ambidextrious (Melee, Ranged)
             Blind Fighting (Perception, Fieldcraft)
             Die Hard (Willpower, Defence)
             Disarm (Melee, Defence)
@@ -39,19 +21,8 @@ Version 0.2:
             Rapid Reload (Agility, Fieldcraft)
             Resistance* (Toughness, Defence)
             Takedown (Melee, Offence)
-            Weapon Training* (General, Finess)
         Traits
-        Home Worlds:
-            Hive World
         Aptitudes
-            General
-            Characteristic-Based (- Combat)
-            Melee
-            Ranged
-            Offence
-            Finess
-            Defence
-            Fieldcraft
         Backgrounds
             Imperial Guard
             Outcast

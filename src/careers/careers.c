@@ -78,7 +78,13 @@ void cr_init_career(struct pl_player *plr, enum homeworld_ids htid, enum backgro
 
     plr->career.aptitudes = bf(APTITUDE_GENERAL);
 
-    if (cr_get_homeworld_by_id(htid)->aptitudes != 0)    plr->career.aptitudes  |= cr_get_homeworld_by_id(htid)->aptitudes;
+    plr->career.killer = NULL;
+    for (int i = 0; i < ACHIEVEMENTS_MAX; i++) {
+        plr->career.achievements[i].turn = -1;
+        plr->career.achievements[i].achievement = NULL;
+    }
+
+    if (cr_get_homeworld_by_id(htid)->aptitudes != 0)   plr->career.aptitudes  |= cr_get_homeworld_by_id(htid)->aptitudes;
     if (cr_get_background_by_id(btid)->aptitudes != 0)  plr->career.aptitudes  |= cr_get_background_by_id(btid)->aptitudes;
     if (cr_get_role_by_id(rtid)->aptitudes != 0)        plr->career.aptitudes  |= cr_get_role_by_id(rtid)->aptitudes;
 
@@ -160,3 +166,17 @@ const char *cr_aptitude_name(enum aptitude_enum aptitude) {
     return aptitude_names[aptitude];
 }
 
+void cr_add_achievement(struct pl_player *plr, int turn, const char *achievement) {
+    if (plr == NULL) return;
+    if (turn == -1) return;
+    if (achievement == NULL) return;
+
+    for (int i = 0; i < ACHIEVEMENTS_MAX; i++) {
+        if (plr->career.achievements[i].turn >= 0) continue;
+
+        plr->career.achievements[i].turn = turn;
+        plr->career.achievements[i].achievement = achievement;
+
+        return;
+    }
+}

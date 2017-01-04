@@ -56,15 +56,13 @@ bool ui_create(int cols, int lines) {
         hdr_lines = lines;
         hdr_cols = cols;
 
-        if ( (lines < 24) || (cols < 60) ) {
+        if ( (lines < LINES_MIN) || (cols < COLS_MIN) ) {
             endwin();           /*  End curses mode       */
-            fprintf(stderr, "Terminal is too small, minimum is 60x24, this terminal is %dx%d.\n", cols, lines);
+            fprintf(stderr, "Terminal is too small, minimum is %dx%d, this terminal is %dx%d.\n", COLS_MIN, LINES_MIN, cols, lines);
             exit(1);
         }
 
         curs_set(0);
-
-
 
         /* Calculate 3 windows sizes */
         int map_cols = cols - CHAR_MIN_COLS;
@@ -76,7 +74,7 @@ bool ui_create(int cols, int lines) {
 
         int msg_cols = cols;
         if ( (msg_cols > MSG_MAX_COLS) && (MSG_MAX_COLS != 0) ) msg_cols = MSG_MAX_COLS;
-        int msg_lines = (lines -1) - map_lines;
+        int msg_lines = (lines) - map_lines;
         if (msg_lines < MSG_MIN_LINES) msg_lines = MSG_MIN_LINES;
         if ( (msg_lines > MSG_MAX_LINES) && (MSG_MAX_LINES != 0) ) msg_lines = MSG_MAX_LINES;
 
@@ -94,11 +92,16 @@ bool ui_create(int cols, int lines) {
         if (total_lines > lines) { fprintf(stderr, "Too many lines used!\n"); exit(1); }
         if (total_cols > cols) { fprintf(stderr, "Too many cols used!\n"); exit(1); }
 
+        int l_margin = lines / LINES_MIN;
+        int c_margin = cols / COLS_MIN;
+        if (l_margin > 2) l_margin = 2;
+        if (c_margin > 2) c_margin = 2;
+
         if ( (map_win == NULL) || (char_win == NULL) ||(msg_win == NULL)  ) {
-            main_win = win_create(lines - 2, cols - 2, 1, 1, HRL_WINDOW_TYPE_MAIN);
-            map_win = win_create(map_lines-2, map_cols-2, 1, 1, HRL_WINDOW_TYPE_MAP);
-            char_win = win_create(char_lines, char_cols, 1, map_cols+1, HRL_WINDOW_TYPE_CHARACTER);
-            msg_win = win_create(msg_lines, msg_cols-1, map_lines, 1, HRL_WINDOW_TYPE_MESSAGE);
+            main_win = win_create(lines - l_margin, cols - c_margin, l_margin, c_margin, HRL_WINDOW_TYPE_MAIN);
+            map_win = win_create(map_lines - l_margin, map_cols - l_margin, l_margin, c_margin, HRL_WINDOW_TYPE_MAP);
+            char_win = win_create(char_lines - l_margin, char_cols - c_margin, l_margin, map_cols+1, HRL_WINDOW_TYPE_CHARACTER);
+            msg_win = win_create(msg_lines - l_margin, msg_cols - c_margin, map_lines, c_margin, HRL_WINDOW_TYPE_MESSAGE);
             lg_set_callback(gbl_log, NULL, msgwin_log_callback);
             show_msg(msg_win);
             return true;
@@ -169,7 +172,7 @@ static void mapwin_display_map_noref(struct dm_map *map, coord_t *player) {
 
             if ( (me->visible == true) || (me->discovered == true) || (map_see == true) || me->icon_override != -1) {
                 int attr_mod = TERM_COLOUR_L_DARK;
-                char icon = tile->icon;
+                icon_t icon = tile->icon;
 
                 /* Otherwise visible traversable tiles */
                 if (me->visible == true) {

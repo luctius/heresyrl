@@ -23,6 +23,9 @@
 #include "heresyrl_def.h"
 #include "coord.h"
 
+#define LINES_MIN 22
+#define COLS_MIN  60
+
 #define MAP_MIN_COLS 20
 #define MAP_MAX_COLS 150
 #define MAP_COLS_FACTOR 0.90f
@@ -39,7 +42,7 @@
 #define MSG_MAX_LINES 0
 #define MSG_LINES_FACTOR 0.10f
 
-#define CHAR_MIN_COLS 31
+#define CHAR_MIN_COLS 23
 #define CHAR_MAX_COLS 40
 #define CHAR_COLS_FACTOR 0.05f
 
