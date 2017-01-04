@@ -208,21 +208,25 @@ inline static bool angle_is_blocked(struct rpsc_fov_set *set, struct angle_set *
 
 /* check if (row,cell) is within radius with the given settings */
 inline static bool in_radius(struct rpsc_fov_set *set, int row, int cell, int radius) {
-    if (set->area == RPSC_AREA_OCTAGON) {
-        if ( ( ( (row) + (cell/2) ) ) <= radius) return true;
+    switch (set->area) {
+        case RPSC_AREA_OCTAGON:
+            if ( ( ( (row) + (cell/2) ) ) <= radius) return true;
+            break;
+        case RPSC_AREA_CIRCLE:
+            /* nicer circle */
+            if ( ( (row*row) + (cell*cell) ) <= ((radius*radius) + radius) ) return true;
+            break;
+        case RPSC_AREA_CIRCLE_STRICT:
+            /* pythagoras circle, which does not translate well to an ascii grid. */
+            if ( ( (row*row) + (cell*cell) ) <= (radius*radius) ) return true;
+            break;
+        case RPSC_AREA_SQUARE:
+            /* simple square, row is always bigger than the cell. */
+            if (row <= radius) return true;
+            break;
+        case default: assert(false); break;
     }
-    else if (set->area == RPSC_AREA_CIRCLE) {
-        /* nicer circle */
-        if ( ( (row*row) + (cell*cell) ) <= ((radius*radius) + radius) ) return true;
-    }
-    else if (set->area == RPSC_AREA_CIRCLE_STRICT) {
-        /* pythagoras circle, which does not translate well to an ascii grid. */
-        if ( ( (row*row) + (cell*cell) ) <= (radius*radius) ) return true;
-    }
-    else if (set->area == RPSC_AREA_SQUARE) {
-        /* simple square, row is always bigger than the cell. */
-        if (row <= radius) return true;
-    }
+
     return false;
 }
 
@@ -485,8 +489,10 @@ bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst) {
     /* total number of obstacles found up untill the previous line */
     int obstacles_total = 0;
 
-    if (set->apply != NULL) lg_debug("-------------with apply start in octand %s----------", oct_mod->desc);
-    if (set->apply != NULL) set->apply(set, src, src);
+    if (set->apply != NULL) {
+        lg_debug("-------------with apply start in octand %s----------", oct_mod->desc);
+        set->apply(set, src, src);
+    }
 
     /* find the row and cell nr of the destination, with regard to the octant we are in. */
     coord_t delta = cd_delta_abs(src, dst);
@@ -559,7 +565,8 @@ bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst) {
 
             /* loop through the obstacles and check if this cell if being blocked. */
             for (int i = 0; i < obstacles_total; i++) {
-                lg_debug("test (%" PRIuFAST16 ",%" PRIuFAST16 ",%" PRIuFAST16 ") vs [%d] (%" PRIuFAST16 ",%" PRIuFAST16 ",%" PRIuFAST16 ")", as.near, as.center, as.far, i, blocked_list[i].near, blocked_list[i].center, blocked_list[i].far);
+                lg_debug("test (%" PRIuFAST16 ",%" PRIuFAST16 ",%" PRIuFAST16 ") vs [%d] (%" PRIuFAST16 ",%" PRIuFAST16 ",%" PRIuFAST16 ")", 
+                         as.near, as.center, as.far, i, blocked_list[i].near, blocked_list[i].center, blocked_list[i].far);
 
                 /* check if the angles of this cell border a blocked cell or if it is outside the view area. */
                 if (angle_is_blocked(set, &as, &blocked_list[i], transparent) ) {
