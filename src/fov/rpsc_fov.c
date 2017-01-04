@@ -307,7 +307,7 @@ static void rpsc_fov_octant(struct rpsc_fov_set *set, coord_t *src, int radius, 
 
     /* list of blocking cells. We should ideally only need <radius> nr of items, but since we
        are combining them only after a row, we need some leeway. */
-    struct angle_set blocked_list[radius *2];
+    struct angle_set blocked_list[radius * ( (radius+1) / 2)];
 
     /* number of obstacles up untill the previous line*/
     int obstacles_total = 0;
@@ -485,7 +485,7 @@ bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst) {
     struct rpsc_octant_quad *oct_mod = &octant_lo_table[octant];
 
     /* allocate the list of blocked angle_sets. */
-    struct angle_set blocked_list[cd_pyth(src,dst) *2];
+    struct angle_set blocked_list[cd_pyth(src,dst) *3];
     /* total number of obstacles found up untill the previous line */
     int obstacles_total = 0;
 
