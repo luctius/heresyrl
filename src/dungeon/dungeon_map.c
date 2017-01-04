@@ -701,6 +701,9 @@ bool dm_generate_map(struct dm_map *map, enum dm_dungeon_type type, int level, u
            We flood the map and rescue nonflooded segments untill we can find
            no more non-flooded tiles. This takes a long time though,
            and can probably be optimised.
+
+           TODO: cache the generated dijkstra and only add new stuff. this
+                 is /the/ performance killer for generating maps.
          */
 
         /* We generate a new flood map */
