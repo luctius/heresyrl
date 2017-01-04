@@ -142,6 +142,7 @@ static void mapwin_display_map_noref(struct dm_map *map, coord_t *player) {
     if (dm_verify_map(map) == false) return;
     if (player == NULL) return;
     if (map_win->type != HRL_WINDOW_TYPE_MAP) return;
+    if (gbl_game->player_data.player->dead) return;
 
     struct msr_monster *plr = dm_get_map_me(player, map)->monster;
 
@@ -515,9 +516,12 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dm_map *map, coord_t *
                     mapwin_display_map(map, p_pos);
                     return true;
                 }
-                if(ma_do_melee(plr->player, &e_pos) == true) {
+                else if(ma_do_melee(plr->player, &e_pos) == true) {
                     mapwin_display_map(map, p_pos);
                     return true;
+                }
+                else if (cd_equal(&e_pos, &plr->player->pos) ) {
+                    You(plr->player, "dare not attack yourself.");
                 }
                 else Your(plr->player, "weapon(s) failed to fire.");
                 fire_mode=false;
