@@ -1,10 +1,12 @@
 ACLOCAL_AMFLAGS=-I m4
 AUTOMAKE_OPTIONS = subdir-objects
-AM_CPPFLAGS=-I$(top_srcdir)/src/
-bin_PROGRAMS = heresyrl
+AM_CPPFLAGS=-I$(top_srcdir)/src/ -I$(top_srcdir)/libuncursed/include
+#noinst_LTLIBRARIES = libuncursed_tty.la
+lib_LTLIBRARIES = libuncursed.la libuncursed_tty.la
+bin_PROGRAMS = heresyrl test_uncursed
 
 GIT_VERSION=$(shell cd $(top_srcdir) && git describe --abbrev=10 --dirty --always)
-AM_CFLAGS= -Wall -O0 -ggdb -Wextra -Wformat=2 -Wswitch-default -Wcast-align -Wpointer-arith -Wbad-function-cast -Wstrict-prototypes -Winline -Wundef -Wnested-externs -Wcast-qual -Wshadow -Wwrite-strings  -Wunreachable-code -Wstrict-aliasing=2 -Wwrite-strings -Wno-aggressive-loop-optimizations -Wlogical-op -Wno-uninitialized -fsanitize=address -fno-omit-frame-pointer -Wshadow -fsanitize=undefined -fsanitize=shift -fsanitize=integer-divide-by-zero -fsanitize=unreachable -fsanitize=vla-bound -fsanitize=null -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=alignment -fsanitize=object-size -fsanitize=enum -fsanitize=bool 
+#AM_CFLAGS= -Wall -O0 -ggdb -Wextra -Wformat=2 -Wswitch-default -Wcast-align -Wpointer-arith -Wbad-function-cast -Wstrict-prototypes -Winline -Wundef -Wnested-externs -Wcast-qual -Wshadow -Wwrite-strings  -Wunreachable-code -Wstrict-aliasing=2 -Wwrite-strings -Wno-aggressive-loop-optimizations -Wlogical-op -Wno-uninitialized -fsanitize=address -fno-omit-frame-pointer -Wshadow -fsanitize=undefined -fsanitize=shift -fsanitize=integer-divide-by-zero -fsanitize=unreachable -fsanitize=vla-bound -fsanitize=null -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=alignment -fsanitize=object-size -fsanitize=enum -fsanitize=bool 
 #-Wpadded -Waggregate-return #this is not something you want during general development
 
 heresyrl_SOURCES =  \
@@ -132,3 +134,22 @@ dist-binary:
 	$(AM_V_GEN)rm -rf $(heresyrl_tmpdir)
 
 SUBDIRS=tests
+
+###
+
+libuncursed_la_SOURCES=libuncursed/src/libuncursed.c libuncursed/src/plugins.c libuncursed/src/plugins/tty.c libuncursed/src/plugins/tty.cxx
+libuncursed_la_CFLAGS=-DAIMAKE_BUILDOS_linux
+libuncursed_la_LDFLAGS=-ldl
+libuncursed_la_includedir=$(top_srcdir)/libuncursed/include
+
+libuncursed_tty_la_SOURCES=libuncursed/src/plugins/tty.c libuncursed/src/plugins/tty.cxx
+libuncursed_tty_la_CFLAGS=-DAIMAKE_BUILDOS_linux
+libuncursed_tty_la_LDFLAGS=
+libuncursed_la_includedir=$(top_srcdir)/libuncursed/include
+
+test_uncursed_SOURCES=libuncursed/src/test_uncursed.c #libuncursed/src/libuncursed.c libuncursed/src/plugins.c libuncursed/src/plugins/tty.c
+test_uncursed_CFLAGS=-DUNCURSED_MAIN_PROGRAM -DAIMAKE_BUILDOS_linux -L$(top_srcdir)/.libs/
+test_uncursed_LDFLAGS=-ldl -luncursed
+test_uncursed_includedir=$(top_srcdir)/libuncursed/include
+
+###
