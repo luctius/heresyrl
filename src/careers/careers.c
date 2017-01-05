@@ -199,7 +199,7 @@ void cr_print_morgue_file(struct pl_player *plr) {
     if (plr == NULL) return;
     plr->career.play_seconds += time(NULL) - session_time_start;
 
-    printf("%s played for %d seconds and %" PRIu64 ".%" PRIu64 " turns\n", plr->player->unique_name, plr->career.play_seconds, gbl_game->turn / TT_ENERGY_TURN, gbl_game->turn % TT_ENERGY_TURN      );
+    printf("%s played for %lu seconds and %" PRIu64 ".%" PRIu64 " turns\n", plr->player->unique_name, (unsigned long int) plr->career.play_seconds, gbl_game->turn / TT_ENERGY_TURN, gbl_game->turn % TT_ENERGY_TURN      );
     printf("%s still owed the loan-shark %d throne guilders\n", plr->player->unique_name, plr->loan);
 
     printf("%s's states were: \n", plr->player->unique_name);
