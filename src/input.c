@@ -60,13 +60,18 @@ void inp_add_to_log(struct inp_input *i, enum inp_keys key) {
     i->keylog[i->keylog_widx++] = key;
 }
 
+int inp_log_key_count(struct inp_input *i) {
+    if (inp_verify(i) == false) return -1;
+    /*lg_debug("keylog has %d unread key strokes", i->keylog_widx - i->keylog_ridx);*/
+    return i->keylog_widx - i->keylog_ridx;
+}
+
 bool inp_log_has_keys(struct inp_input *i) {
     if (inp_verify(i) == false) return false;
     /*lg_debug("keylog has %d unread key strokes", i->keylog_widx - i->keylog_ridx);*/
 
     if ( (i->keylog_ridx < i->keylog_widx) &&
          (i->keylog_widx < i->keylog_sz) ) {
-        if (options.play_recording == true && options.play_delay > 0) usleep(options.play_delay * 1000);
         return true;
     }
 
@@ -84,6 +89,7 @@ bool inp_log_has_keys(struct inp_input *i) {
 enum inp_keys inp_get_from_log(struct inp_input *i) {
     inp_verify(i);
 
+    if (options.play_recording == true && options.play_delay > 0) usleep(options.play_delay * 1000);
     return i->keylog[i->keylog_ridx++];
 }
 
@@ -139,7 +145,7 @@ enum inp_keys inp_get_input_idx(struct inp_input *i) {
 
     assert(inp_log_has_keys(i) );
     k = inp_get_from_log(i);
-    lg_debug("key %d", k);
+    /*lg_debug("key %d", k);*/
     return k;
 }
 
@@ -157,7 +163,7 @@ enum inp_keys inp_get_input_text(struct inp_input *i) {
 
     assert(inp_log_has_keys(i) );
     k = inp_get_from_log(i);
-    lg_debug("key text %d", k);
+    /*lg_debug("key text %d", k);*/
     return k;
 }
 
@@ -175,7 +181,7 @@ enum inp_keys inp_get_input_digit(struct inp_input *i) {
 
     assert(inp_log_has_keys(i) );
     k = inp_get_from_log(i);
-    lg_debug("key text %d", k);
+    /*lg_debug("key text %d", k);*/
     return k;
 }
 
@@ -244,7 +250,7 @@ static enum inp_keys inp_translate_key(int ch) {
         case 9:         k = INP_KEY_TAB; break;
 
         default:
-            lg_debug("key pressed: %d.", ch);
+            /* lg_debug("key pressed: %d.", ch); */
             break;
     }
     return k;
@@ -287,7 +293,7 @@ enum inp_keys inp_get_input(struct inp_input *i) {
     if (k != INP_KEY_QUIT) {
         assert(inp_log_has_keys(i) );
         k = inp_get_from_log(i);
-        lg_debug("key text %d", k);
+        /* lg_debug("key text %d", k); */
         return k;
     }
 
