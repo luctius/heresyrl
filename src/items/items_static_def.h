@@ -275,16 +275,16 @@ static struct itm_item static_item_list[] = {
 
     /* Melee */
     /*    ID                 short name,   long name              (wgt,cst,dly)      xd10 +X, dmg type         pen, special qualities,         talent*/
-    ITEM_AVG(IID_KNIFE,       "knife",     "a knife",              15,  5, 0),MELEE_1H(1,-4,  DMG_TYPE_IMPACT,0,  bf(WPN_SPCQLTY_LIGHT),    TLT_NONE), CREATION(20,1), ITEM_END,
-    ITEM_AVG(IID_SWORD,       "sword",     "a sword",              75, 10, 0),MELEE_1H(1, 0,  DMG_TYPE_IMPACT,0,  0,                        TLT_NONE), CREATION(20,1), ITEM_END,
+    ITEM_AVG(IID_KNIFE,       "knife",     "a knife",               5,  5, 0),MELEE_1H(1,-4,  DMG_TYPE_IMPACT,0,  bf(WPN_SPCQLTY_LIGHT),    TLT_NONE), CREATION(20,1), ITEM_END,
+    ITEM_AVG(IID_SWORD,       "sword",     "a sword",              20, 10, 0),MELEE_1H(1, 0,  DMG_TYPE_IMPACT,0,  0,                        TLT_NONE), CREATION(20,1), ITEM_END,
 
     /*    ID                short name,         long name           (wgt,cst,dly)      xd10 +X, dmg type         pen, special qualities, talent*/
-    ITEM_POOR(IID_2H_SWORD, "two-handed sword", "a two-handed sword", 75, 10, 0),MELEE_2H(1, 2, DMG_TYPE_IMPACT, 0,   0,                 TLT_NONE), CREATION(40,1), ITEM_END,
+    ITEM_POOR(IID_2H_SWORD, "two-handed sword", "a two-handed sword", 30, 10, 0),MELEE_2H(1, 2, DMG_TYPE_IMPACT, 0,   0,                 TLT_NONE), CREATION(40,1), ITEM_END,
 
     /* Ranged */
     /*    ID                    short name       long name        (wgt,cst,dly)              dmg type    xd10 +x pen range special qualities  */
-    ITEM_AVG(IID_SHORT_BOW,     "short bow",     "a short bow",     50, 7, 0.5),LOW_TECH(DMG_TYPE_IMPACT,1, 3, 0,  8,          0           ), CREATION(10,1), ITEM_END,
-    ITEM_AVG(IID_LONG_BOW,      "long bow",      "a long bow",      90,15, 0.5),LOW_TECH(DMG_TYPE_IMPACT,1, 3, 1, 16,          0           ), CREATION(10,1), ITEM_END,
+    ITEM_AVG(IID_SHORT_BOW,     "short bow",     "a short bow",     15, 7, 0.5),LOW_TECH(DMG_TYPE_IMPACT,1, 3, 0,  8,          0           ), CREATION(10,1), ITEM_END,
+    ITEM_AVG(IID_LONG_BOW,      "long bow",      "a long bow",      20,15, 0.5),LOW_TECH(DMG_TYPE_IMPACT,1, 3, 1, 16,          0           ), CREATION(10,1), ITEM_END,
 
     /*    ID                    short name       long name        (wgt,cst,dly)            dmg type      xd10 +x pen range S/X/X) mag_sz  upgrades special qualities */
     ITEM_AVG(IID_STUB_AUTOMATIC,"stub automatic","a stub automatic",15, 50, 1), PISTOL_SP(DMG_TYPE_IMPACT,  1, 3, 0, 30,   1,3,0,  9,     0,            0                 ), CREATION(10,1), ITEM_END,
@@ -299,11 +299,11 @@ static struct itm_item static_item_list[] = {
 
     /* Ammo */
     /*    ID                 short name            long name                                 (wgt,cst,dly)         ammo Type         energy level*/
-    ITEM_AVG(IID_PISTOL_AMMO_SP, "solid pistol ammo", "a clip of solid projectile pistol ammo",0, 1,  0), AMMO(AMMO_TYPE_PISTOL_SP,  0   , SEID_NONE), CREATION(60,1), ITEM_END,
-    ITEM_AVG(IID_PISTOL_AMMO_LAS,"pistol charge pack","a pistol charge pack",                  0, 1,  0), AMMO(AMMO_TYPE_PISTOL_LAS, 1000, SEID_NONE), CREATION(60,1), ITEM_END,
+    ITEM_AVG(IID_PISTOL_AMMO_SP, "solid pistol ammo", "a clip of solid projectile pistol ammo",1, 1,  0), AMMO(AMMO_TYPE_PISTOL_SP,  0   , SEID_NONE), CREATION(60,1), ITEM_END,
+    ITEM_AVG(IID_PISTOL_AMMO_LAS,"pistol charge pack","a pistol charge pack",                  2, 1,  0), AMMO(AMMO_TYPE_PISTOL_LAS, 1000, SEID_NONE), CREATION(60,1), ITEM_END,
 
-    ITEM_AVG(IID_BASIC_AMMO_SP,  "solid basic ammo",  "a clip of solid projectile basic ammo", 0, 1,  0), AMMO(AMMO_TYPE_BASIC_SP,   0   , SEID_NONE), CREATION(40,1), ITEM_END,
-    ITEM_AVG(IID_BASIC_AMMO_LAS, "basic charge pack", "a basic weapon charge pack",            0, 1,  0), AMMO(AMMO_TYPE_BASIC_LAS,  1000, SEID_NONE), CREATION(40,1), ITEM_END,
+    ITEM_AVG(IID_BASIC_AMMO_SP,  "solid basic ammo",  "a clip of solid projectile basic ammo", 1, 1,  0), AMMO(AMMO_TYPE_BASIC_SP,   0   , SEID_NONE), CREATION(40,1), ITEM_END,
+    ITEM_AVG(IID_BASIC_AMMO_LAS, "basic charge pack", "a basic weapon charge pack",            4, 1,  0), AMMO(AMMO_TYPE_BASIC_LAS,  1000, SEID_NONE), CREATION(40,1), ITEM_END,
     ITEM_AVG(IID_ARROW,          "arrows",            "arrows",                                1, 1,  1), AMMO(AMMO_TYPE_ARROW,      0,    SEID_NONE), CREATION(10,1), ITEM_END,
 
     /* Thrown */
