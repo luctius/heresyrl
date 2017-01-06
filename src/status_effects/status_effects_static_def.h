@@ -129,8 +129,8 @@ static const struct status_effect static_status_effect_list[] = {
         EFFECTS_START
             /* Type     Effect      Flags   Strength   Param */
             EFFECT(EF_SWIMMING,     0,      0,         0),
-            EFFECT(EF_MODIFY_CHAR,  0,      -30,       MSR_CHAR_COMBAT),
-            EFFECT(EF_MODIFY_CHAR,  0,      -30,       MSR_CHAR_AGILITY),
+            EFFECT(EF_MODIFY_CHAR,  0,      -20,       MSR_CHAR_COMBAT),
+            EFFECT(EF_MODIFY_CHAR,  0,      -10,       MSR_CHAR_AGILITY),
             EFFECT(EF_MODIFY_SKILL, 0,      -30,       MSR_SKILLS_DODGE),
             EFFECT(EF_MODIFY_SKILL, 0,      -30,       MSR_SKILLS_STEALTH),
         EFFECTS_END,
@@ -142,7 +142,7 @@ static const struct status_effect static_status_effect_list[] = {
         EFFECTS_START
             /* Type    Effect       Flags    Strength    Param */
             EFFECT(EF_MODIFY_CHAR,  0,        -20,       MSR_CHAR_COMBAT),
-            EFFECT(EF_MODIFY_CHAR,  0,        -20,       MSR_CHAR_AGILITY),
+            EFFECT(EF_MODIFY_CHAR,  0,        -10,       MSR_CHAR_AGILITY),
             EFFECT(EF_MODIFY_SKILL, 0,        -20,       MSR_SKILLS_DODGE),
             EFFECT(EF_MODIFY_SKILL, 0,        -20,       MSR_SKILLS_STEALTH),
         EFFECTS_END,
