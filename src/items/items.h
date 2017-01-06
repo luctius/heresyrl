@@ -232,7 +232,6 @@ enum item_owner {
 
 enum item_group {
     ITEM_GROUP_NONE,
-    ITEM_GROUP_UNARMED,
     ITEM_GROUP_ARMOUR,
     ITEM_GROUP_SHIELD,
     ITEM_GROUP_RANGED,

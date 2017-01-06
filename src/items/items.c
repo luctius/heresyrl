@@ -150,20 +150,22 @@ struct itm_spawn_weigh_struct {
 static int32_t itm_spawn_weight(void *ctx, int idx) {
     assert (ctx != NULL);
     struct itm_spawn_weigh_struct *sws = ctx;
+    int32_t ret = RANDOM_GEN_WEIGHT_IGNORE;
+    if (static_item_list[idx].dropable == false) return ret;
+    if (static_item_list[idx].spawn_level == 0) return ret;
 
     if (sws->level >= static_item_list[idx].spawn_level) {
         if (itm_is_in_group(&static_item_list[idx], sws->ig) ) {
-            if (sws->monster == NULL) return static_item_list[idx].spawn_weight;
-
-            if (static_item_list[idx].item_type == ITEM_TYPE_WEAPON) {
+            if (sws->monster == NULL) ret = static_item_list[idx].spawn_weight;
+            else if (static_item_list[idx].item_type == ITEM_TYPE_WEAPON) {
                 if (msr_has_talent(sws->monster, static_item_list[idx].specific.weapon.wpn_talent) == true) {
-                    return static_item_list[idx].spawn_weight;
+                    ret = static_item_list[idx].spawn_weight;
                 }
             }
         }
     }
 
-    return RANDOM_GEN_WEIGHT_IGNORE;
+    return ret;
 }
 
 uint32_t itm_spawn(int32_t roll, int level, enum item_group ig, struct msr_monster *monster) {
