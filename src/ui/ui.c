@@ -906,16 +906,37 @@ void charwin_refresh() {
     int cnt = 0;
     struct msr_monster *target = NULL;
     while ( (target = aiu_get_nearest_enemy(player, cnt, gbl_game->current_map) ) != NULL) {
-        int y = ui_printf(char_win, " : %s\n", msr_ldname(target));
-        if (has_colors() == TRUE) wattron(char_win->win, get_colour(target->icon_attr) );
+        int y = ui_printf(char_win, "    %s\n", msr_ldname(target));
+        wattron(char_win->win, get_colour(target->icon_attr) );
         mvwaddch(char_win->win, y-1, 0, target->icon);
-        if (has_colors() == TRUE) wattroff(char_win->win, get_colour(target->icon_attr) );
+        wattroff(char_win->win, get_colour(target->icon_attr) );
+
+        int tgt_status = get_colour(TERM_COLOUR_BG_GREEN);
+        if (target->wounds.curr < 0) tgt_status = get_colour(TERM_COLOUR_BG_RED);
+        else if ( ( (target->wounds.curr * 100) / target->wounds.max) < 50) tgt_status = get_colour(TERM_COLOUR_BG_YELLOW);
+
+        wattron(char_win->win, tgt_status);
+        mvwaddch(char_win->win, y-1, 2, ' ');
+        wattroff(char_win->win, tgt_status);
 
         cnt++;
     }
 
+    ui_printf(char_win, "\n");
 
     if (options.refresh) wrefresh(char_win->win);
+    enum status_effect_effect_flags seef[] = { EF_BLEEDING, EF_BLINDED, EF_BROKEN, EF_CONFUSED, 
+            EF_COWERING, EF_DAZED, EF_DAZZLED, EF_DEAFENED, EF_DISABLED_LLEG, EF_DISABLED_RLEG, 
+            EF_DISABLED_LARM, EF_DISABLED_RARM, EF_DISABLED_EYE, EF_ENCUMBERED, EF_ENTANGLED, 
+            EF_EXHAUSTED, EF_FRIGHTENED, EF_GRAPPLED, EF_HELPLESS, EF_INVISIBLE, EF_NAUSEATED, 
+            EF_ON_FIRE, EF_PANICKED, EF_PARALYZED, EF_PETRIFIED, EF_POISON, EF_PINNED, EF_PRONE, 
+            EF_SHAKEN, EF_SICKENED, EF_SWIMMING, EF_STAGGERED, EF_STUNNED, EF_UNCONSCIOUS, };
+    for (int i = 0; i < ARRAY_SZ(seef); i++) {
+        if (se_has_effect(player, seef[i]) ) {
+            ui_printf(char_win, "[%s]", se_effect_names(seef[i]) );
+        }
+    }
+    ui_printf(char_win, "\n");
 }
 
 /* Beware of dragons here..... */
