@@ -25,7 +25,7 @@
 
 #include "cmdline.h"
 
-const char *gengetopt_args_info_purpose = "Roguelike based on the Warhammer Roleplay version 2 rules from Black\nIndustries.";
+const char *gengetopt_args_info_purpose = "Roguelike based on the Dark Heresy rules from Black Industries and Fantasy\nFlight Games.";
 
 const char *gengetopt_args_info_usage = "Usage: heresyrl [OPTIONS]...";
 
@@ -40,13 +40,16 @@ const char *gengetopt_args_info_help[] = {
   "      --playback          play a savegame from start until current turn\n                            (default=off)",
   "      --pb_delay=INT      delay when playing a savegame in miliseconds, default\n                            is 1 second  (default=`100')",
   "      --pb_stop=INT       when playing a savegame, stop at after turn N\n                            (default=`-1')",
-  "      --name=STRING       name of character  (default=`')",
-  "      --race=ENUM         race of character  (possible values=\"dwarf\",\n                            \"elf\", \"halfling\", \"human\")",
+  "      --name=STRING       name of the character  (default=`')",
+  "      --homeworld=ENUM    race of the character  (possible values=\"hive\")",
+  "      --background=ENUM   background of the character  (possible\n                            values=\"iguard\", \"outcast\")",
+  "      --role=ENUM         role of the character  (possible values=\"seeker\",\n                            \"warrior\")",
   "\nTesting Options:",
   "  -d, --debug             show debug output  (default=off)",
   "  -m, --map               show the complete map  (default=off)",
   "      --test_auto         same as playback, but quite when done and show\n                            nothing  (default=off)",
   "      --test_mode         turn features off to facilitate testing\n                            (default=off)",
+  "      --rnd_auto_play     put random values into the input log to simulate\n                            player  (default=off)",
   "  -l, --no_load           do not load a previous made character  (default=off)",
   "  -s, --no_save           do not save a made character  (default=off)",
   "      --print_map_only    only print the map and close  (default=off)",
@@ -73,7 +76,9 @@ cmdline_parser_internal (int argc, char **argv, struct gengetopt_args_info *args
                         struct cmdline_parser_params *params, const char *additional_error);
 
 
-const char *cmdline_parser_race_values[] = {"dwarf", "elf", "halfling", "human", 0}; /*< Possible values for race. */
+const char *cmdline_parser_homeworld_values[] = {"hive", 0}; /*< Possible values for homeworld. */
+const char *cmdline_parser_background_values[] = {"iguard", "outcast", 0}; /*< Possible values for background. */
+const char *cmdline_parser_role_values[] = {"seeker", "warrior", 0}; /*< Possible values for role. */
 
 static char *
 gengetopt_strdup (const char *s);
@@ -87,11 +92,14 @@ void clear_given (struct gengetopt_args_info *args_info)
   args_info->pb_delay_given = 0 ;
   args_info->pb_stop_given = 0 ;
   args_info->name_given = 0 ;
-  args_info->race_given = 0 ;
+  args_info->homeworld_given = 0 ;
+  args_info->background_given = 0 ;
+  args_info->role_given = 0 ;
   args_info->debug_given = 0 ;
   args_info->map_given = 0 ;
   args_info->test_auto_given = 0 ;
   args_info->test_mode_given = 0 ;
+  args_info->rnd_auto_play_given = 0 ;
   args_info->no_load_given = 0 ;
   args_info->no_save_given = 0 ;
   args_info->print_map_only_given = 0 ;
@@ -111,12 +119,17 @@ void clear_args (struct gengetopt_args_info *args_info)
   args_info->pb_stop_orig = NULL;
   args_info->name_arg = gengetopt_strdup ("");
   args_info->name_orig = NULL;
-  args_info->race_arg = race__NULL;
-  args_info->race_orig = NULL;
+  args_info->homeworld_arg = homeworld__NULL;
+  args_info->homeworld_orig = NULL;
+  args_info->background_arg = background__NULL;
+  args_info->background_orig = NULL;
+  args_info->role_arg = role__NULL;
+  args_info->role_orig = NULL;
   args_info->debug_flag = 0;
   args_info->map_flag = 0;
   args_info->test_auto_flag = 0;
   args_info->test_mode_flag = 0;
+  args_info->rnd_auto_play_flag = 0;
   args_info->no_load_flag = 0;
   args_info->no_save_flag = 0;
   args_info->print_map_only_flag = 0;
@@ -140,17 +153,20 @@ void init_args_info(struct gengetopt_args_info *args_info)
   args_info->pb_delay_help = gengetopt_args_info_help[4] ;
   args_info->pb_stop_help = gengetopt_args_info_help[5] ;
   args_info->name_help = gengetopt_args_info_help[6] ;
-  args_info->race_help = gengetopt_args_info_help[7] ;
-  args_info->debug_help = gengetopt_args_info_help[9] ;
-  args_info->map_help = gengetopt_args_info_help[10] ;
-  args_info->test_auto_help = gengetopt_args_info_help[11] ;
-  args_info->test_mode_help = gengetopt_args_info_help[12] ;
-  args_info->no_load_help = gengetopt_args_info_help[13] ;
-  args_info->no_save_help = gengetopt_args_info_help[14] ;
-  args_info->print_map_only_help = gengetopt_args_info_help[15] ;
-  args_info->log_file_help = gengetopt_args_info_help[16] ;
-  args_info->save_file_help = gengetopt_args_info_help[17] ;
-  args_info->load_file_help = gengetopt_args_info_help[18] ;
+  args_info->homeworld_help = gengetopt_args_info_help[7] ;
+  args_info->background_help = gengetopt_args_info_help[8] ;
+  args_info->role_help = gengetopt_args_info_help[9] ;
+  args_info->debug_help = gengetopt_args_info_help[11] ;
+  args_info->map_help = gengetopt_args_info_help[12] ;
+  args_info->test_auto_help = gengetopt_args_info_help[13] ;
+  args_info->test_mode_help = gengetopt_args_info_help[14] ;
+  args_info->rnd_auto_play_help = gengetopt_args_info_help[15] ;
+  args_info->no_load_help = gengetopt_args_info_help[16] ;
+  args_info->no_save_help = gengetopt_args_info_help[17] ;
+  args_info->print_map_only_help = gengetopt_args_info_help[18] ;
+  args_info->log_file_help = gengetopt_args_info_help[19] ;
+  args_info->save_file_help = gengetopt_args_info_help[20] ;
+  args_info->load_file_help = gengetopt_args_info_help[21] ;
   
 }
 
@@ -238,7 +254,9 @@ cmdline_parser_release (struct gengetopt_args_info *args_info)
   free_string_field (&(args_info->pb_stop_orig));
   free_string_field (&(args_info->name_arg));
   free_string_field (&(args_info->name_orig));
-  free_string_field (&(args_info->race_orig));
+  free_string_field (&(args_info->homeworld_orig));
+  free_string_field (&(args_info->background_orig));
+  free_string_field (&(args_info->role_orig));
   free_string_field (&(args_info->log_file_arg));
   free_string_field (&(args_info->log_file_orig));
   free_string_field (&(args_info->save_file_arg));
@@ -328,8 +346,12 @@ cmdline_parser_dump(FILE *outfile, struct gengetopt_args_info *args_info)
     write_into_file(outfile, "pb_stop", args_info->pb_stop_orig, 0);
   if (args_info->name_given)
     write_into_file(outfile, "name", args_info->name_orig, 0);
-  if (args_info->race_given)
-    write_into_file(outfile, "race", args_info->race_orig, cmdline_parser_race_values);
+  if (args_info->homeworld_given)
+    write_into_file(outfile, "homeworld", args_info->homeworld_orig, cmdline_parser_homeworld_values);
+  if (args_info->background_given)
+    write_into_file(outfile, "background", args_info->background_orig, cmdline_parser_background_values);
+  if (args_info->role_given)
+    write_into_file(outfile, "role", args_info->role_orig, cmdline_parser_role_values);
   if (args_info->debug_given)
     write_into_file(outfile, "debug", 0, 0 );
   if (args_info->map_given)
@@ -338,6 +360,8 @@ cmdline_parser_dump(FILE *outfile, struct gengetopt_args_info *args_info)
     write_into_file(outfile, "test_auto", 0, 0 );
   if (args_info->test_mode_given)
     write_into_file(outfile, "test_mode", 0, 0 );
+  if (args_info->rnd_auto_play_given)
+    write_into_file(outfile, "rnd_auto_play", 0, 0 );
   if (args_info->no_load_given)
     write_into_file(outfile, "no_load", 0, 0 );
   if (args_info->no_save_given)
@@ -624,11 +648,14 @@ cmdline_parser_internal (
         { "pb_delay",	1, NULL, 0 },
         { "pb_stop",	1, NULL, 0 },
         { "name",	1, NULL, 0 },
-        { "race",	1, NULL, 0 },
+        { "homeworld",	1, NULL, 0 },
+        { "background",	1, NULL, 0 },
+        { "role",	1, NULL, 0 },
         { "debug",	0, NULL, 'd' },
         { "map",	0, NULL, 'm' },
         { "test_auto",	0, NULL, 0 },
         { "test_mode",	0, NULL, 0 },
+        { "rnd_auto_play",	0, NULL, 0 },
         { "no_load",	0, NULL, 'l' },
         { "no_save",	0, NULL, 's' },
         { "print_map_only",	0, NULL, 0 },
@@ -736,7 +763,7 @@ cmdline_parser_internal (
               goto failure;
           
           }
-          /* name of character.  */
+          /* name of the character.  */
           else if (strcmp (long_options[option_index].name, "name") == 0)
           {
           
@@ -750,16 +777,44 @@ cmdline_parser_internal (
               goto failure;
           
           }
-          /* race of character.  */
-          else if (strcmp (long_options[option_index].name, "race") == 0)
+          /* race of the character.  */
+          else if (strcmp (long_options[option_index].name, "homeworld") == 0)
           {
           
           
-            if (update_arg( (void *)&(args_info->race_arg), 
-                 &(args_info->race_orig), &(args_info->race_given),
-                &(local_args_info.race_given), optarg, cmdline_parser_race_values, 0, ARG_ENUM,
+            if (update_arg( (void *)&(args_info->homeworld_arg), 
+                 &(args_info->homeworld_orig), &(args_info->homeworld_given),
+                &(local_args_info.homeworld_given), optarg, cmdline_parser_homeworld_values, 0, ARG_ENUM,
                 check_ambiguity, override, 0, 0,
-                "race", '-',
+                "homeworld", '-',
+                additional_error))
+              goto failure;
+          
+          }
+          /* background of the character.  */
+          else if (strcmp (long_options[option_index].name, "background") == 0)
+          {
+          
+          
+            if (update_arg( (void *)&(args_info->background_arg), 
+                 &(args_info->background_orig), &(args_info->background_given),
+                &(local_args_info.background_given), optarg, cmdline_parser_background_values, 0, ARG_ENUM,
+                check_ambiguity, override, 0, 0,
+                "background", '-',
+                additional_error))
+              goto failure;
+          
+          }
+          /* role of the character.  */
+          else if (strcmp (long_options[option_index].name, "role") == 0)
+          {
+          
+          
+            if (update_arg( (void *)&(args_info->role_arg), 
+                 &(args_info->role_orig), &(args_info->role_given),
+                &(local_args_info.role_given), optarg, cmdline_parser_role_values, 0, ARG_ENUM,
+                check_ambiguity, override, 0, 0,
+                "role", '-',
                 additional_error))
               goto failure;
           
@@ -784,6 +839,18 @@ cmdline_parser_internal (
             if (update_arg((void *)&(args_info->test_mode_flag), 0, &(args_info->test_mode_given),
                 &(local_args_info.test_mode_given), optarg, 0, 0, ARG_FLAG,
                 check_ambiguity, override, 1, 0, "test_mode", '-',
+                additional_error))
+              goto failure;
+          
+          }
+          /* put random values into the input log to simulate player.  */
+          else if (strcmp (long_options[option_index].name, "rnd_auto_play") == 0)
+          {
+          
+          
+            if (update_arg((void *)&(args_info->rnd_auto_play_flag), 0, &(args_info->rnd_auto_play_given),
+                &(local_args_info.rnd_auto_play_given), optarg, 0, 0, ARG_FLAG,
+                check_ambiguity, override, 1, 0, "rnd_auto_play", '-',
                 additional_error))
               goto failure;
           

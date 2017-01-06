@@ -30,6 +30,8 @@ struct opt_options {
     bool debug_no_save;
     bool print_map_only;
 
+    bool rnd_auto_play;
+
     bool test_auto;
     bool test_mode;
 
@@ -43,7 +45,10 @@ struct opt_options {
     char *load_file_name;
 
     char *char_name;
-    enum msr_race char_race;
+
+    enum homeworld_ids char_hw;
+    enum background_ids char_bg;
+    enum role_ids char_role;
 };
 
 extern struct opt_options options;

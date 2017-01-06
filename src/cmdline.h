@@ -34,7 +34,9 @@ extern "C" {
 #define CMDLINE_PARSER_VERSION "development"
 #endif
 
-enum enum_race { race__NULL = -1, race_arg_dwarf = 0, race_arg_elf, race_arg_halfling, race_arg_human };
+enum enum_homeworld { homeworld__NULL = -1, homeworld_arg_hive = 0 };
+enum enum_background { background__NULL = -1, background_arg_iguard = 0, background_arg_outcast };
+enum enum_role { role__NULL = -1, role_arg_seeker = 0, role_arg_warrior };
 
 /** @brief Where the command line options are stored */
 struct gengetopt_args_info
@@ -49,12 +51,18 @@ struct gengetopt_args_info
   int pb_stop_arg;	/**< @brief when playing a savegame, stop at after turn N (default='-1').  */
   char * pb_stop_orig;	/**< @brief when playing a savegame, stop at after turn N original value given at command line.  */
   const char *pb_stop_help; /**< @brief when playing a savegame, stop at after turn N help description.  */
-  char * name_arg;	/**< @brief name of character (default='').  */
-  char * name_orig;	/**< @brief name of character original value given at command line.  */
-  const char *name_help; /**< @brief name of character help description.  */
-  enum enum_race race_arg;	/**< @brief race of character.  */
-  char * race_orig;	/**< @brief race of character original value given at command line.  */
-  const char *race_help; /**< @brief race of character help description.  */
+  char * name_arg;	/**< @brief name of the character (default='').  */
+  char * name_orig;	/**< @brief name of the character original value given at command line.  */
+  const char *name_help; /**< @brief name of the character help description.  */
+  enum enum_homeworld homeworld_arg;	/**< @brief race of the character.  */
+  char * homeworld_orig;	/**< @brief race of the character original value given at command line.  */
+  const char *homeworld_help; /**< @brief race of the character help description.  */
+  enum enum_background background_arg;	/**< @brief background of the character.  */
+  char * background_orig;	/**< @brief background of the character original value given at command line.  */
+  const char *background_help; /**< @brief background of the character help description.  */
+  enum enum_role role_arg;	/**< @brief role of the character.  */
+  char * role_orig;	/**< @brief role of the character original value given at command line.  */
+  const char *role_help; /**< @brief role of the character help description.  */
   int debug_flag;	/**< @brief show debug output (default=off).  */
   const char *debug_help; /**< @brief show debug output help description.  */
   int map_flag;	/**< @brief show the complete map (default=off).  */
@@ -63,6 +71,8 @@ struct gengetopt_args_info
   const char *test_auto_help; /**< @brief same as playback, but quite when done and show nothing help description.  */
   int test_mode_flag;	/**< @brief turn features off to facilitate testing (default=off).  */
   const char *test_mode_help; /**< @brief turn features off to facilitate testing help description.  */
+  int rnd_auto_play_flag;	/**< @brief put random values into the input log to simulate player (default=off).  */
+  const char *rnd_auto_play_help; /**< @brief put random values into the input log to simulate player help description.  */
   int no_load_flag;	/**< @brief do not load a previous made character (default=off).  */
   const char *no_load_help; /**< @brief do not load a previous made character help description.  */
   int no_save_flag;	/**< @brief do not save a made character (default=off).  */
@@ -85,11 +95,14 @@ struct gengetopt_args_info
   unsigned int pb_delay_given ;	/**< @brief Whether pb_delay was given.  */
   unsigned int pb_stop_given ;	/**< @brief Whether pb_stop was given.  */
   unsigned int name_given ;	/**< @brief Whether name was given.  */
-  unsigned int race_given ;	/**< @brief Whether race was given.  */
+  unsigned int homeworld_given ;	/**< @brief Whether homeworld was given.  */
+  unsigned int background_given ;	/**< @brief Whether background was given.  */
+  unsigned int role_given ;	/**< @brief Whether role was given.  */
   unsigned int debug_given ;	/**< @brief Whether debug was given.  */
   unsigned int map_given ;	/**< @brief Whether map was given.  */
   unsigned int test_auto_given ;	/**< @brief Whether test_auto was given.  */
   unsigned int test_mode_given ;	/**< @brief Whether test_mode was given.  */
+  unsigned int rnd_auto_play_given ;	/**< @brief Whether rnd_auto_play was given.  */
   unsigned int no_load_given ;	/**< @brief Whether no_load was given.  */
   unsigned int no_save_given ;	/**< @brief Whether no_save was given.  */
   unsigned int print_map_only_given ;	/**< @brief Whether print_map_only was given.  */
@@ -220,7 +233,9 @@ void cmdline_parser_free (struct gengetopt_args_info *args_info);
 int cmdline_parser_required (struct gengetopt_args_info *args_info,
   const char *prog_name);
 
-extern const char *cmdline_parser_race_values[];  /**< @brief Possible values for race. */
+extern const char *cmdline_parser_homeworld_values[];  /**< @brief Possible values for homeworld. */
+extern const char *cmdline_parser_background_values[];  /**< @brief Possible values for background. */
+extern const char *cmdline_parser_role_values[];  /**< @brief Possible values for role. */
 
 
 #ifdef __cplusplus

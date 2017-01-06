@@ -1,6 +1,6 @@
 package "@PACKAGE_NAME@"
 version "@PACKAGE_VERSION@"
-purpose "Roguelike based on the Warhammer Roleplay version 2 rules from Black Industries."
+purpose "Roguelike based on the Dark Heresy rules from Black Industries and Fantasy Flight Games."
  
 args "<command line options>"
 
@@ -10,14 +10,17 @@ option "playback"   - "play a savegame from start until current turn" flag off
 option "pb_delay"   - "delay when playing a savegame in miliseconds, default is 1 second" default="100" int optional
 option "pb_stop"    - "when playing a savegame, stop at after turn N" default="-1" int optional
 
-option "name"       - "name of character" default="" string optional
-option "race"       - "race of character" values="dwarf","elf","halfling","human" enum optional
+option "name"       - "name of the character" default="" string optional
+option "homeworld"  - "race of the character" values="hive" enum optional
+option "background" - "background of the character" values="iguard","outcast" enum optional
+option "role"       - "role of the character" values="seeker","warrior" enum optional
 
 section "Testing Options"
 option "debug"          d "show debug output" flag off
 option "map"            m "show the complete map" flag off
 option "test_auto"      - "same as playback, but quite when done and show nothing" flag off
 option "test_mode"      - "turn features off to facilitate testing" flag off
+option "rnd_auto_play"  - "put random values into the input log to simulate player" flag off
 
 option "no_load"        l "do not load a previous made character" flag off
 option "no_save"        s "do not save a made character" flag off
