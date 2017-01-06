@@ -32,6 +32,7 @@
 #include "inventory.h"
 #include "input.h"
 #include "game.h"
+#include "random.h"
 #include "dungeon/spawn.h"
 #include "monster/monster.h"
 #include "careers/careers.h"
@@ -54,6 +55,20 @@ bool char_creation_window(void) {
     werase(char_win->win);
     wrefresh(map_win->win);
     wrefresh(char_win->win);
+
+    enum homeworld_ids h_tid;
+    enum background_ids b_tid;
+    enum role_ids r_tid;
+
+    if (options.rnd_auto_play) {
+        int max = 100 - inp_log_key_count(gbl_game->input);
+        for (int i = max; i > 0; i--) {
+            enum inp_keys k = random_int32(gbl_game->random) % INP_KEY_MAX;
+
+            if (k == INP_KEY_QUIT) continue;
+            inp_add_to_log(gbl_game->input, k);
+        }
+    }
 
     struct pl_player *plr = &gbl_game->player_data;
     plr->player = msr_create(MID_PLAYER);
@@ -118,29 +133,13 @@ bool char_creation_window(void) {
     ui_print_reset(map_win);
     werase(map_win->win);
 
-    bool race_done = false;
-    if ( (options.char_race >= 0) && (options.char_race < (int) MSR_RACE_MAX) ) {
-        /* copy name*/
-        char *name = player->unique_name;
-        player->unique_name = NULL;
-
-        int sel_idx = -1;
-        for (unsigned int i = 0; i < MID_MAX; i++) {
-            if (static_monster_list[i].is_player == true) {
-                if (static_monster_list[i].race == options.char_race) {
-                    sel_idx = i;
-                }
-            }
-        }
-
-        /* create player */
-        plr_create(plr, name, options.char_race +MID_DUMMY+1, MSR_GENDER_MALE);
-        player = plr->player;
-        charwin_refresh();
-        race_done = true;
+    bool homeworld_done = false;
+    if ( (options.char_hw != CR_HWID_NONE) ) {
+        homeworld_done = true;
+        h_tid = options.char_hw;
 
         inp_add_to_log(gbl_game->input, INP_KEY_APPLY);
-        inp_add_to_log(gbl_game->input, 0);
+        inp_add_to_log(gbl_game->input, 'a' + (h_tid -1) );
     }
 
     System_msg("Please select a race by first pressing 'a' and then the letter before the race you want.");
@@ -148,11 +147,6 @@ bool char_creation_window(void) {
     System_msg("With 'x' you can examine more about the races.");
     System_msg("Press '?' to view the help screen.");
 
-    enum homeworld_ids h_tid;
-    enum background_ids b_tid;
-    enum role_ids r_tid;
-
-    bool homeworld_done = false;
     while (!homeworld_done) {
         ui_print_reset(map_win);
 
@@ -215,6 +209,14 @@ bool char_creation_window(void) {
     }
 
     bool background_done = false;
+    if ( (options.char_bg != CR_BCKGRNDID_NONE) ) {
+        background_done = true;
+        b_tid = options.char_bg;
+
+        inp_add_to_log(gbl_game->input, INP_KEY_APPLY);
+        inp_add_to_log(gbl_game->input, 'a' + (b_tid -1) );
+    }
+
     while (!background_done) {
         ui_print_reset(map_win);
 
@@ -277,6 +279,14 @@ bool char_creation_window(void) {
     }
 
     bool role_done = false;
+    if ( (options.char_role != CR_ROLEID_NONE) ) {
+        role_done = true;
+        r_tid = options.char_role;
+
+        inp_add_to_log(gbl_game->input, INP_KEY_APPLY);
+        inp_add_to_log(gbl_game->input, 'a' + (r_tid -1) );
+    }
+
     while (!role_done) {
         ui_print_reset(map_win);
 
