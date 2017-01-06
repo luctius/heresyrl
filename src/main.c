@@ -167,8 +167,8 @@ int main(int argc, char *argv[]) {
     else lg_error("Player invalid.");
     System_msg("Goodbye.");
 
-    hr_exit();
     game_exit();
+    hr_exit();
     usleep(500000);
 
     printf("Done.\n");
