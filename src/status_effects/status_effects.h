@@ -77,7 +77,6 @@ enum status_effect_effect_flags {
     EF_ENCUMBERED,
     EF_ENTANGLED,
     EF_EXHAUSTED,
-    EF_FLAT_FOOTED,
     EF_FRIGHTENED,
     EF_GRAPPLED,
     EF_HELPLESS,
@@ -94,7 +93,6 @@ enum status_effect_effect_flags {
     EF_SHAKEN,
     EF_SICKENED,
     EF_SWIMMING,
-    EF_STABLE,
     EF_STAGGERED,
     EF_STUNNED,
     EF_SUMMONED,
@@ -255,6 +253,7 @@ bool se_add_critical_hit(struct msr_monster *monster, const char *origin, int dm
 
 void se_dbg_check_all(void);
 
+const char *se_effect_names(enum status_effect_effect_flags f);
 
 static inline bool effect_set_flag(struct se_type_struct *ces, enum status_effect_setting_flags flag) {
     return set_bf(ces->effect_setting_flags, flag);

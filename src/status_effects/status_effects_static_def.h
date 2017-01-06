@@ -265,4 +265,68 @@ static const enum se_ids dmg_type_to_id_lot[MSR_HITLOC_MAX][DMG_TYPE_MAX] = {
     },
 };
 
+static const char *se_names[] = {
+    [EF_NONE]               = "error",
 
+    [EF_SET_CHAR]           = "error",            /* param     =            = enum msr_characteristic */
+
+    [EF_MODIFY_FATIQUE]     = "error",
+    [EF_MODIFY_CHAR]        = "error",       /* param          =            = enum msr_characteristic */
+    [EF_MODIFY_SKILL]       = "error",      /* param           =            = enum msr_skills */
+    [EF_MODIFY_MAX_WOUNDS]  = "error",
+
+    [EF_DEAD]               = "error",
+
+    [EF_DAMAGE]             = "DoT",
+    [EF_HEALTH]             = "Healing",
+
+    [EF_ALLY]               = "error",                /* param =            = ally_faction */
+    [EF_ENEMY]              = "error",               /* param  =            = ally_faction */
+    [EF_BLEEDING]           = "Bleeding",
+    [EF_BLINDED]            = "Blinded",
+    [EF_BROKEN]             = "Broken",
+    [EF_CONFUSED]           = "Confused",
+    [EF_COWERING]           = "Cowering",
+    [EF_DAZED]              = "Dazed",
+    [EF_DAZZLED]            = "Dazzled",
+    [EF_DEAFENED]           = "Deaf",
+    [EF_DISABLED_LLEG]      = "L Leg",
+    [EF_DISABLED_RLEG]      = "R Leg",
+    [EF_DISABLED_LARM]      = "L Arm",
+    [EF_DISABLED_RARM]      = "R Arm",
+    [EF_DISABLED_EYE]       = "Eye",
+    [EF_ENCUMBERED]         = "Encumbered",
+    [EF_ENTANGLED]          = "Entangled",
+    [EF_EXHAUSTED]          = "Exhausted",
+    [EF_FRIGHTENED]         = "Frightened",
+    [EF_GRAPPLED]           = "Grappled",
+    [EF_HELPLESS]           = "Helpless",
+    [EF_INHIBIT_FATE_POINT] = "No Fate",
+    [EF_INVISIBLE]          = "Invisible",
+    [EF_NAUSEATED]          = "Nauseated",
+    [EF_ON_FIRE]            = "Fire",
+    [EF_PANICKED]           = "Panic",
+    [EF_PARALYZED]          = "Paralyzed",
+    [EF_PETRIFIED]          = "Petrified",
+    [EF_POISON]             = "Poison",
+    [EF_PINNED]             = "Pinned",
+    [EF_PRONE]              = "Prone",
+    [EF_SHAKEN]             = "Shaken",
+    [EF_SICKENED]           = "Sickened",
+    [EF_SWIMMING]           = "Swimming",
+    [EF_STAGGERED]          = "Staggered",
+    [EF_STUNNED]            = "Stunned",
+    [EF_SUMMONED]           = "Summoned",
+    [EF_UNCONSCIOUS]        = "Unconscious",
+
+    [EF_INSTANT_DEATH]      = "error",
+    [EF_EXPLODE]            = "error",
+
+    [EF_TALENT]             = "error",
+    [EF_SKILL]              = "error",
+    [EF_TRAIT]              = "error",
+
+    [EF_EVOLVES]            = "error",
+
+    [EF_MAX]                = "error",
+};

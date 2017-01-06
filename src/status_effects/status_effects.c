@@ -537,7 +537,6 @@ void se_process_effects_first(struct se_type_struct *ces, struct msr_monster *mo
         case EF_ENCUMBERED: break;
         case EF_ENTANGLED: break;
         case EF_EXHAUSTED: break;
-        case EF_FLAT_FOOTED: break;
         case EF_FRIGHTENED: break;
         case EF_GRAPPLED: break;
         case EF_HEALTH: break;
@@ -555,7 +554,6 @@ void se_process_effects_first(struct se_type_struct *ces, struct msr_monster *mo
         case EF_SHAKEN: break;
         case EF_SICKENED: break;
         case EF_SWIMMING: break;
-        case EF_STABLE: break;
         case EF_STAGGERED: break;
         case EF_STUNNED: break;
         case EF_SUMMONED: break;
@@ -672,7 +670,6 @@ void se_process_effects_last(struct se_type_struct *ces, struct msr_monster *mon
         case EF_ENCUMBERED: break;
         case EF_ENTANGLED: break;
         case EF_EXHAUSTED: break;
-        case EF_FLAT_FOOTED: break;
         case EF_FRIGHTENED: break;
         case EF_GRAPPLED: break;
         case EF_HELPLESS: break;
@@ -689,7 +686,6 @@ void se_process_effects_last(struct se_type_struct *ces, struct msr_monster *mon
         case EF_SHAKEN: break;
         case EF_SICKENED: break;
         case EF_SWIMMING: break;
-        case EF_STABLE: break;
         case EF_STAGGERED: break;
         case EF_STUNNED: break;
         case EF_SUMMONED: break;
@@ -786,7 +782,6 @@ void se_process_effects_during(struct se_type_struct *ces, struct msr_monster *m
 
         case EF_ENTANGLED: break;
         case EF_EXHAUSTED: break;
-        case EF_FLAT_FOOTED: break;
         case EF_FRIGHTENED: break;
         case EF_GRAPPLED: break;
         case EF_HELPLESS: break;
@@ -803,7 +798,6 @@ void se_process_effects_during(struct se_type_struct *ces, struct msr_monster *m
         case EF_SHAKEN: break;
         case EF_SICKENED: break;
         case EF_SWIMMING: break;
-        case EF_STABLE: break;
         case EF_STAGGERED: break;
         case EF_STUNNED: break;
         case EF_SUMMONED: break;
@@ -1034,6 +1028,12 @@ void se_remove_all_non_permanent(struct msr_monster *monster) {
             se_remove_status_effect(monster, c);
         }
     }
+}
+
+const char *se_effect_names(enum status_effect_effect_flags f) {
+    if (f < 0) return NULL;
+    if (f >= EF_MAX ) return NULL;
+    return se_names[f];
 }
 
 void se_dbg_check_all(void) {
