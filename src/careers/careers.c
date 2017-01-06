@@ -34,6 +34,8 @@
 #include "fov/sight.h"
 #include "random_generator.h"
 #include "turn_tick.h"
+#include "status_effects/status_effects.h"
+#include "quests/quests.h"
 
 #include "careers_static_def.h"
 
@@ -98,9 +100,10 @@ void cr_init_career(struct pl_player *plr, enum homeworld_ids htid, enum backgro
         plr->career.achievements[i].achievement = NULL;
     }
 
-    if (cr_get_homeworld_by_id(htid)->aptitudes != 0)   plr->career.aptitudes  |= cr_get_homeworld_by_id(htid)->aptitudes;
-    if (cr_get_background_by_id(btid)->aptitudes != 0)  plr->career.aptitudes  |= cr_get_background_by_id(btid)->aptitudes;
-    if (cr_get_role_by_id(rtid)->aptitudes != 0)        plr->career.aptitudes  |= cr_get_role_by_id(rtid)->aptitudes;
+    if (cr_get_homeworld_by_id(htid)->aptitudes != 0)   plr->career.aptitudes    |= cr_get_homeworld_by_id(htid)->aptitudes;
+    if (cr_get_homeworld_by_id(htid)->fate_points != 0) plr->player->fate_points |= cr_get_homeworld_by_id(htid)->fate_points;
+    if (cr_get_background_by_id(btid)->aptitudes != 0)  plr->career.aptitudes    |= cr_get_background_by_id(btid)->aptitudes;
+    if (cr_get_role_by_id(rtid)->aptitudes != 0)        plr->career.aptitudes    |= cr_get_role_by_id(rtid)->aptitudes;
 
     //if (cr_get_homeworld_by_id(htid)->talents != 0)     plr->player->talents[MSR_TALENT_TIER_T1] |= cr_get_homeworld_by_id(htid)->talents;
     if (cr_get_background_by_id(btid)->talents != 0)    plr->player->talents[MSR_TALENT_TIER_T1] |= cr_get_background_by_id(btid)->talents;
@@ -198,9 +201,113 @@ void cr_add_achievement(struct pl_player *plr, int turn, const char *achievement
 void cr_print_morgue_file(struct pl_player *plr) {
     if (plr == NULL) return;
     plr->career.play_seconds += time(NULL) - session_time_start;
+    struct msr_monster *mon = plr->player;
 
-    printf("%s played for %lu seconds and %" PRIu64 ".%" PRIu64 " turns\n", plr->player->unique_name, (unsigned long int) plr->career.play_seconds, gbl_game->turn / TT_ENERGY_TURN, gbl_game->turn % TT_ENERGY_TURN      );
-    printf("%s still owed the loan-shark %d throne guilders\n", plr->player->unique_name, plr->loan);
+    printf("%s played for %lu seconds and %" PRIu64 ".%" PRIu64 " turns\n", mon->unique_name, (unsigned long int) plr->career.play_seconds, gbl_game->turn / TT_ENERGY_TURN, gbl_game->turn % TT_ENERGY_TURN      );
+    printf("%s still owed the loan-shark %d throne guilders\n", mon->unique_name, plr->loan);
 
-    printf("%s's states were: \n", plr->player->unique_name);
+    printf("\n");
+    printf("\n");
+
+    printf("Character Sheet\n");
+
+    printf("Name:       %20s\n", mon->unique_name);
+    printf("Gender:     %20s\n", msr_gender_string(mon) );
+    printf("Race:       %20s\n", mon->sd_name);
+    printf("Background: %20s\n", cr_get_background_by_id(plr->career.b_tid)->name);
+    printf("Role:       %20s\n", cr_get_role_by_id(plr->career.r_tid)->name);
+
+    printf("Wounds: %15d/%4d\n", mon->wounds.curr, mon->wounds.max);
+    printf("XP:         %20d\n", plr->career.xp_current);
+    printf("XP Spend:   %20d\n", plr->career.xp_spend);
+
+    int quest_desc_len = 100;
+    char quest_desc[quest_desc_len];
+    qst_get_description(plr->quest, quest_desc, quest_desc_len);
+    printf( "Quest:     %20s\n", quest_desc);
+    //printf( "Corruption:"  "    %d\n", mon->corruption_points);
+
+    printf("\n");
+    printf("\n");
+    printf("Cmb:          %-2d\n",    msr_calculate_characteristic(mon, MSR_CHAR_COMBAT) );
+    printf("Str:          %-2d  ", msr_calculate_characteristic(mon, MSR_CHAR_STRENGTH) );   printf("Tgh:          %-2d\n", msr_calculate_characteristic(mon, MSR_CHAR_TOUGHNESS) );
+    printf("Agi:          %-2d  ", msr_calculate_characteristic(mon, MSR_CHAR_AGILITY) );    printf("Int:          %-2d\n", msr_calculate_characteristic(mon, MSR_CHAR_INTELLIGENCE) );
+    printf("Per:          %-2d  ", msr_calculate_characteristic(mon, MSR_CHAR_PERCEPTION) ); printf("Wil:          %-2d\n", msr_calculate_characteristic(mon, MSR_CHAR_WILLPOWER) );
+
+    printf("\n");
+    printf("\n");
+
+
+    /* Armour  */
+    printf( "Armour\t\tProtection\tLocations\n");
+    printf( "------\t\t----------\t---------\n");
+
+    /* Armour */
+    struct itm_item *item = NULL;
+    while ( (item = inv_get_next_item(mon->inventory, item) ) != NULL) {
+        if ( (inv_item_worn(mon->inventory, item) == true) &&
+             (inv_item_wielded(mon->inventory, item) == false) ) {
+            int armour = 0;
+            bitfield32_t locs = inv_get_item_locations(mon->inventory, item);
+
+            if (wbl_is_type(item, WEARABLE_TYPE_ARMOUR) == true) {
+                armour = item->specific.wearable.damage_reduction;
+            }
+
+            printf("%-30s", item->ld_name);
+            printf("%5d  ", armour);
+
+            bool first = true;
+            for (enum inv_locations i = 1; i < INV_LOC_MAX; i <<= 1) {
+                if ( (locs & i) > 0) {
+                    if (first == false) printf("/");
+                    printf("%s", inv_location_name(locs & i) );
+                    first = false;
+                }
+            }
+            printf("\n");
+        }
+    }
+    printf("\n");
+    printf("\n");
+
+    /* Skills */
+    printf( "Skills                   Rate\n");
+    printf( "------                   ----\n");
+
+    for (unsigned int i = 0; i < MSR_SKILLS_MAX; i++) {
+        if (msr_has_skill(mon, i) ) {
+            enum msr_skill_rate skillrate = msr_has_skill(mon,  i);
+            printf("%20s\t(%s)\n", msr_skill_names(i),  msr_skillrate_names(skillrate));
+        }
+    }
+    printf("\n");
+    printf("\n");
+    /* Talents */
+    printf( "Talents"  "\n");
+    printf( "-------"  "\n");
+
+    for (int i = MSR_TALENT_TIER_T1; i < MSR_TALENT_TIER_MAX; i++) {
+        for (int x = 0; x < MSR_TALENTS_PER_TIER; x++) {
+            enum msr_talents t = MSR_TALENT(i, x);
+            if (t == TLT_NONE) continue;
+
+            if (msr_has_talent(mon, t) ) {
+                printf("%s\n", msr_talent_names(t) );
+            }
+        }
+    }
+    printf("\n");
+    printf("\n");
+
+
+    /* Status Effects */
+    printf( "Status Effects"  "\n");
+    printf( "--------------"  "\n");
+
+    struct status_effect *c = NULL;
+    while ( (c = se_list_get_next_status_effect(mon->status_effects, c) ) != NULL) {
+        printf("%s\n", c->name);
+    }
+    printf("\n");
 }
