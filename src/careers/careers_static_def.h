@@ -72,7 +72,7 @@ static struct cr_background static_background_list[] = {
         .name = "Outcast",
         .description = "description of outcast",
 
-        .skills = bf(MSR_SKILLS_ACROBATICS) | bf(MSR_SKILLS_DODGE) | bf(MSR_SKILLS_STEALTH),
+        .skills = bf(MSR_SKILLS_DODGE) | bf(MSR_SKILLS_STEALTH),
         .talents = TLT_1_WEAPON_TRAINING_SP | TLT_1_WEAPON_TRAINING_CHAIN,
         .aptitudes = bf(APTITUDE_FIELDCRAFT),
         .background_talent = 0,
@@ -128,12 +128,10 @@ static const struct aptitudes_per_skill aptitude_skill_list[] = {
     [MSR_SKILLS_NONE]       = { .apt1 = APTITUDE_GENERAL, .apt2 = APTITUDE_GENERAL, },
     [MSR_SKILLS_MELEE]      = { .apt1 = APTITUDE_GENERAL, .apt2 = APTITUDE_GENERAL, },
     [MSR_SKILLS_RANGED]     = { .apt1 = APTITUDE_GENERAL, .apt2 = APTITUDE_GENERAL, },
-    [MSR_SKILLS_ACROBATICS] = { .apt1 = APTITUDE_GENERAL, .apt2 = APTITUDE_GENERAL, },
     [MSR_SKILLS_AWARENESS]  = { .apt1 = APTITUDE_GENERAL, .apt2 = APTITUDE_GENERAL, },
     [MSR_SKILLS_DODGE]      = { .apt1 = APTITUDE_GENERAL, .apt2 = APTITUDE_GENERAL, },
     [MSR_SKILLS_PARRY]      = { .apt1 = APTITUDE_GENERAL, .apt2 = APTITUDE_GENERAL, },
     [MSR_SKILLS_STEALTH]    = { .apt1 = APTITUDE_GENERAL, .apt2 = APTITUDE_GENERAL, },
-    [MSR_SKILLS_SURVIVAL]   = { .apt1 = APTITUDE_GENERAL, .apt2 = APTITUDE_GENERAL, },
     [MSR_SKILLS_MAX]        = { .apt1 = APTITUDE_GENERAL, .apt2 = APTITUDE_GENERAL, },
 };
 

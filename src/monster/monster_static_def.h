@@ -78,7 +78,7 @@ struct msr_monster static_monster_list[] = {
         CHARACTERISTICS(MSR_CHAR_WILLPOWER,     20),
         CHARACTERISTICS(MSR_CHAR_PERCEPTION,    30),
         DEF_ITEM(0, ITEM_GROUP_1H_MELEE),
-        SKILLS(bf(MSR_SKILLS_SURVIVAL)| bf(MSR_SKILLS_AWARENESS) | bf(MSR_SKILLS_RANGED) | bf(MSR_SKILLS_MELEE) ,0,0),
+        SKILLS(bf(MSR_SKILLS_AWARENESS) | bf(MSR_SKILLS_RANGED) | bf(MSR_SKILLS_MELEE) ,0,0),
         DESCRIPTION("description of an scavenger"),
         CREATION(30,1,bf(DUNGEON_TYPE_CAVE) | bf(DUNGEON_TYPE_PLAIN), 70),
     MONSTER_END,
@@ -114,40 +114,34 @@ static const char *msr_skillrate_name[] = {
 
 static enum msr_characteristic msr_skill_charac[] = {
     [MSR_SKILLS_AWARENESS]          = MSR_CHAR_PERCEPTION,
-    [MSR_SKILLS_ACROBATICS]         = MSR_CHAR_AGILITY,
     [MSR_SKILLS_DODGE]              = MSR_CHAR_AGILITY,
     [MSR_SKILLS_MEDICAE]            = MSR_CHAR_INTELLIGENCE,
     [MSR_SKILLS_MELEE]              = MSR_CHAR_COMBAT,
     [MSR_SKILLS_PARRY]              = MSR_CHAR_COMBAT,
     [MSR_SKILLS_RANGED]             = MSR_CHAR_COMBAT,
     [MSR_SKILLS_STEALTH]            = MSR_CHAR_AGILITY,
-    [MSR_SKILLS_SURVIVAL]           = MSR_CHAR_INTELLIGENCE,
     [MSR_SKILLS_MAX]                = MSR_CHAR_MAX,
 };
 
 static const char *msr_skill_name[] = {
     [MSR_SKILLS_AWARENESS]          = "Awareness",
-    [MSR_SKILLS_ACROBATICS]         = "Acrobatics",
     [MSR_SKILLS_DODGE]              = "Dodge",
     [MSR_SKILLS_MEDICAE]            = "Medicae",
     [MSR_SKILLS_MELEE]              = "Melee",
     [MSR_SKILLS_PARRY]              = "Parry",
     [MSR_SKILLS_RANGED]             = "Ranged",
     [MSR_SKILLS_STEALTH]            = "Stealth",
-    [MSR_SKILLS_SURVIVAL]           = "Survival",
     [MSR_SKILLS_MAX]                = "Max,"
 };
 
 static const char *msr_skill_description[] = {
     [MSR_SKILLS_AWARENESS]          = "Awareness",
-    [MSR_SKILLS_ACROBATICS]         = "Acrobatics",
     [MSR_SKILLS_DODGE]              = "Dodge",
     [MSR_SKILLS_MEDICAE]            = "Medicae",
     [MSR_SKILLS_MELEE]              = "Melee",
     [MSR_SKILLS_PARRY]              = "Parry",
     [MSR_SKILLS_RANGED]             = "Ranged",
     [MSR_SKILLS_STEALTH]            = "Stealth",
-    [MSR_SKILLS_SURVIVAL]           = "Survival",
     [MSR_SKILLS_MAX]                = "Max,"
 };
 

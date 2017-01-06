@@ -103,7 +103,6 @@ enum msr_skill_rate {
 
 enum msr_skills {
     MSR_SKILLS_NONE,
-    MSR_SKILLS_ACROBATICS,
     MSR_SKILLS_AWARENESS,
     MSR_SKILLS_DODGE,
     MSR_SKILLS_PARRY,
@@ -111,7 +110,6 @@ enum msr_skills {
     MSR_SKILLS_MELEE,
     MSR_SKILLS_RANGED,
     MSR_SKILLS_STEALTH,
-    MSR_SKILLS_SURVIVAL,
     MSR_SKILLS_MAX,
 };
 
