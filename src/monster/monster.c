@@ -727,7 +727,7 @@ int msr_skill_check(struct msr_monster *monster, enum msr_skills skill, int mod)
 }
 
 int msr_calculate_characteristic(struct msr_monster *monster, enum msr_characteristic chr) {
-    if (msr_verify_monster(monster) == false) return -1;
+    //if (msr_verify_monster(monster) == false) return -1;
     if (chr >= MSR_CHAR_MAX) return -1;
     int mod = 0;
 
