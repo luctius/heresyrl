@@ -106,10 +106,14 @@ static bool sv_save_player(FILE *file, int indent, struct pl_player *plr) {
             svprintf(file,"aptitudes= %" PRIu32 ",", plr->career.aptitudes);
             if (!options.test_mode) svprintf(file,"play_seconds= %" PRIu64 ",", plr->career.play_seconds);
             svprintf_open(file, "achievements=");
+                int a_max = 0;
                 for (int i = 0; i < ACHIEVEMENTS_MAX; i++) {
-                    svprintf(file,"turn= %d,", plr->career.achievements[i].turn);
-                    svprintf(file,"achievement=\"%s\",", plr->career.achievements[i].achievement);
+                    if (plr->career.achievements[i].turn >= 0) {
+                        svprintf(file,"turn= %d,", plr->career.achievements[i].turn);
+                        svprintf(file,"achievement=\"%s\",", plr->career.achievements[i].achievement);
+                    }
                 }
+                svprintf(file,"sz= %d,", a_max);
             svprintf_close(file);
         svprintf_close(file);
         svprintf_open(file,"quest=");
