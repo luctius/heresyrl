@@ -63,9 +63,9 @@ static struct cr_background static_background_list[] = {
         .background_talent = 0,
 
         .trappings = {
-            IID_LAS_GUN,
-            IID_BASIC_AMMO_LAS,
-            IID_FLAK_GUARD_ARMOUR,
+            { IID_LAS_GUN,           1, }, 
+            { IID_BASIC_AMMO_LAS,    1, },
+            { IID_FLAK_GUARD_ARMOUR, 1, },
         },
     },
     [CR_BCKGRNDID_OUTCAST] = {
@@ -78,9 +78,9 @@ static struct cr_background static_background_list[] = {
         .background_talent = 0,
 
         .trappings = {
-            IID_STUB_AUTOMATIC,
-            IID_PISTOL_AMMO_SP,
-            IID_FLAK_VEST,
+            { IID_STUB_AUTOMATIC,  1, },
+            { IID_FLAK_VEST,       1, },
+            { IID_PISTOL_AMMO_SP, 10, },
         },
     },
 

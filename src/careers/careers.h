@@ -50,7 +50,7 @@ struct cr_background {
     bitfield32_t aptitudes;
     enum msr_talents background_talent;
 
-    enum item_ids trappings[CR_TRAPPINGS_MAX];
+    enum item_ids trappings[CR_TRAPPINGS_MAX][2];
 };
 
 struct cr_role {

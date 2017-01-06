@@ -70,8 +70,9 @@ static bool cr_give_trappings_to_player(struct cr_background *car, struct msr_mo
     if (msr_verify_monster(player) == false) return false;
 
     for (int i = 0; i < (int) ARRAY_SZ(car->trappings); i++) {
-        if (car->trappings[i] != IID_NONE) {
-            struct itm_item *item = itm_create(car->trappings[i]);
+        if (car->trappings[i][0] != IID_NONE) {
+            struct itm_item *item = itm_create(car->trappings[i][0]);
+            item->stacked_quantity = car->trappings[i][1];
             assert(item != NULL);
             assert( (msr_give_item(player, item) ) );
         }
@@ -214,7 +215,7 @@ void cr_print_morgue_file(struct pl_player *plr) {
 
     printf("Name:       %20s\n", mon->unique_name);
     printf("Gender:     %20s\n", msr_gender_string(mon) );
-    printf("Race:       %20s\n", mon->sd_name);
+    printf("Homeworld:  %20s\n", cr_get_homeworld_by_id(plr->career.h_tid)->name );
     printf("Background: %20s\n", cr_get_background_by_id(plr->career.b_tid)->name);
     printf("Role:       %20s\n", cr_get_role_by_id(plr->career.r_tid)->name);
 
