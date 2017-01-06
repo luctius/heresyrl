@@ -1099,6 +1099,10 @@ void invwin_examine(struct hrl_window *window, struct itm_item *item) {
         }break;
         case ITEM_TYPE_AMMO: {
             struct item_ammo_specific *ammo = &item->specific.ammo;
+            if (ammo->energy > 0) {
+                int energy_pc = (ammo->energy * 100) / ammo->energy;
+                ui_printf(char_win, "Energy left %d\%\n", energy_pc);
+            }
             ui_printf(char_win, "Provides %s\n", wpn_ammo_string(ammo->ammo_type) );
         } break;
         case ITEM_TYPE_FOOD: break;
@@ -1314,7 +1318,7 @@ Basic weapon traning SP     ...                  |
     int quest_desc_len = 100;
     char quest_desc[quest_desc_len];
     qst_get_description(plr->quest, quest_desc, quest_desc_len);
-    ui_printf(&pad, cs_ATTR "Quest:" cs_CLOSE "         %s\n", quest_desc);
+    ui_printf(&pad, cs_ATTR "Quest:" cs_CLOSE " %-20s\n", quest_desc);
     //ui_printf(&pad, cs_ATTR "Corruption:" cs_CLOSE "    %d\n", mon->corruption_points);
 
     ui_printf(&pad, "\n");
@@ -1332,8 +1336,8 @@ Basic weapon traning SP     ...                  |
 
 
     /* Armour  */
-    ui_printf(&pad, cs_ATTR "Armour            Protection   Locations" cs_CLOSE "\n");
-    ui_printf(&pad, cs_ATTR "------            ----------   ---------" cs_CLOSE "\n");
+    ui_printf(&pad, cs_ATTR "Armour       Protection   Locations" cs_CLOSE "\n");
+    ui_printf(&pad, cs_ATTR "------       ----------   ---------" cs_CLOSE "\n");
 
     /* Armour */
     struct itm_item *item = NULL;
@@ -1347,14 +1351,14 @@ Basic weapon traning SP     ...                  |
                 armour = item->specific.wearable.damage_reduction;
             }
 
-            ui_printf(&pad, "%-30s", item->ld_name);
-            ui_printf(&pad, "%5d  ", armour);
+            int y = ui_printf(&pad, "%s", item->ld_name);
+            ui_printf_ext(&pad,y, 13, "%5d  ", armour);
 
             bool first = true;
             for (enum inv_locations i = 1; i < INV_LOC_MAX; i <<= 1) {
                 if ( (locs & i) > 0) {
                     if (first == false) ui_printf(&pad, "/");
-                    ui_printf(&pad, "%s", inv_location_name(locs & i) );
+                    ui_printf_ext(&pad,y,25, "%s", inv_location_name(locs & i) );
                     first = false;
                 }
             }
@@ -1365,8 +1369,8 @@ Basic weapon traning SP     ...                  |
     ui_printf(&pad, "\n");
 
     /* Skills */
-    ui_printf(&pad, cs_ATTR "Skills" cs_CLOSE "              "cs_ATTR "Rate" cs_CLOSE "\n");
-    ui_printf(&pad, cs_ATTR "------" cs_CLOSE "              "cs_ATTR "----" cs_CLOSE "\n");
+    ui_printf(&pad, cs_ATTR "Skills" cs_CLOSE "               "cs_ATTR "Rate" cs_CLOSE "\n");
+    ui_printf(&pad, cs_ATTR "------" cs_CLOSE "               "cs_ATTR "----" cs_CLOSE "\n");
 
     for (unsigned int i = 0; i < MSR_SKILLS_MAX; i++) {
         if (msr_has_skill(mon, i) ) {
