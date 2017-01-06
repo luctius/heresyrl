@@ -164,13 +164,6 @@ static bool sv_save_monsters(FILE *file, int indent) {
 
                 svprintf(file,"idle_counter=%d,", m->idle_counter);
 
-                svprintf_open(file,"evasion=");
-                    for (int i = 0; i < MSR_EVASION_MAX; i++) {
-                        svprintf(file,"%" PRIu32 ",", m->evasion_last_used[i]);
-                    }
-                    svprintf(file,"sz=%d,", MSR_EVASION_MAX);
-                svprintf_close(file);
-
                 svprintf_open(file,"talents=");
                     int t_sz = 0;
                     for (int i = 0; i < MSR_TALENT_TIER_MAX; i++) {

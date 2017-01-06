@@ -171,9 +171,6 @@ struct msr_monster {
     /* current number of corruption points, not used. */
     uint8_t corruption_points;
 
-    /* array wth the turn the particular evasion method was last used. */
-    uint32_t evasion_last_used[MSR_EVASION_MAX];
-
     /* true if the monster is dead and to be cleaned up. */
     bool dead;
 
@@ -304,7 +301,6 @@ int msr_calculate_armour(struct msr_monster *monster, enum msr_hit_location hitl
 
 bool msr_can_use_evasion(struct msr_monster *monster, enum msr_evasions evasion);
 bool msr_use_evasion(struct msr_monster *monster, struct msr_monster *attacker, struct itm_item *atk_wpn, enum msr_evasions evasion, int to_hit_DoS, int mod);
-void msr_disable_evasion(struct msr_monster *monster, enum msr_evasions evasion);
 
 /* do damage to that hit location, including critical hits, and handle the first part of monster death. */
 bool msr_do_dmg(struct msr_monster *monster, const char *origin, int dmg, enum dmg_type dmg_type, enum msr_hit_location mhl);

@@ -525,16 +525,6 @@ static bool load_monsters(lua_State *L, struct dm_map *map, struct gm_game *g) {
             lg_debug("monster[%d] name is %s", monster->uid, monster->unique_name);
         }
 
-        if (lua_intexpr(L, &t, "game.monsters[%d].evasion.sz", i+1) == 1) {
-            int evasion_sz = t;
-            for (int j = 0; j < evasion_sz; j++) {
-                if (lua_intexpr(L, &t, "game.monsters[%d].evasion[%d]", i+1, j+1) == 1) {
-                    monster->evasion_last_used[j] = t;
-                }
-            }
-        }
-
-
         if (lua_intexpr(L, &t, "game.monsters[%d].skills.sz", i+1) == 1) {
             int skills_sz = t;
             for (int j = 0; j < skills_sz; j++) {

@@ -453,7 +453,6 @@ int msr_calculate_armour(struct msr_monster *monster, enum msr_hit_location mhl)
 
 bool msr_can_use_evasion(struct msr_monster *monster, enum msr_evasions evasion) {
     if (msr_verify_monster(monster) == false) return false;
-    if ( (monster->evasion_last_used[evasion] + TT_ENERGY_TURN ) >= gbl_game->turn) return false;
 
     /* do status checks on monster*/
     if (se_has_effect(monster, EF_SWIMMING) ) return false;
@@ -468,15 +467,12 @@ bool msr_can_use_evasion(struct msr_monster *monster, enum msr_evasions evasion)
         case MSR_EVASION_MAIN_HAND: {
             struct itm_item *witem = inv_get_item_from_location(inv, INV_LOC_MAINHAND_WIELD);
             if (wpn_is_type(witem, WEAPON_TYPE_MELEE) == false) return false;
-            if (wpn_has_spc_quality(witem, WPN_SPCQLTY_UNBALANCED) ) return false;
             break; }
         case MSR_EVASION_OFF_HAND: {
             struct itm_item *witem = inv_get_item_from_location(inv, INV_LOC_OFFHAND_WIELD);
             if (wpn_is_type(witem, WEAPON_TYPE_MELEE) == false) return false;
-            if (wpn_has_spc_quality(witem, WPN_SPCQLTY_UNBALANCED) ) return false;
             break; }
         case MSR_EVASION_DODGE:
-            if (msr_has_skill(monster, MSR_SKILLS_DODGE) == false) return false;
             break;
         case MSR_EVASION_MAX:
         default:
@@ -484,11 +480,6 @@ bool msr_can_use_evasion(struct msr_monster *monster, enum msr_evasions evasion)
     }
 
     return true;
-}
-
-void msr_disable_evasion(struct msr_monster *monster, enum msr_evasions evasion) {
-    if (msr_verify_monster(monster) == false) return;
-    monster->evasion_last_used[evasion] = gbl_game->turn;
 }
 
 bool msr_use_evasion(struct msr_monster *monster, struct msr_monster *attacker, struct itm_item *atk_wpn, enum msr_evasions evasion, int to_hit_DoS, int mod) {
@@ -512,8 +503,8 @@ bool msr_use_evasion(struct msr_monster *monster, struct msr_monster *attacker, 
             struct itm_item *witem = inv_get_item_from_location(inv, INV_LOC_MAINHAND_WIELD);
             if (witem != NULL) {
                 if (wpn_has_spc_quality(witem, WPN_SPCQLTY_UNBALANCED) ) return false;
-                if (wpn_has_spc_quality(witem, WPN_SPCQLTY_DEFENSIVE) ) mod += 10;
-                if (wpn_has_spc_quality(witem, WPN_SPCQLTY_UNWIELDY) ) mod -= 10;
+                if (wpn_has_spc_quality(witem, WPN_SPCQLTY_DEFENSIVE) ) mod += 5;
+                if (wpn_has_spc_quality(witem, WPN_SPCQLTY_UNWIELDY) ) mod -= 5;
                 roll = msr_skill_check(monster, MSR_SKILLS_PARRY, mod);
                 Info("Using main-hand, unable to parry with it for one turn.");
             }
@@ -522,8 +513,8 @@ bool msr_use_evasion(struct msr_monster *monster, struct msr_monster *attacker, 
             struct itm_item *witem = inv_get_item_from_location(inv, INV_LOC_OFFHAND_WIELD);
             if (witem != NULL) {
                 if (wpn_has_spc_quality(witem, WPN_SPCQLTY_UNBALANCED) ) return false;
-                if (wpn_has_spc_quality(witem, WPN_SPCQLTY_DEFENSIVE) ) mod += 10;
-                if (wpn_has_spc_quality(witem, WPN_SPCQLTY_UNWIELDY) ) mod -= 10;
+                if (wpn_has_spc_quality(witem, WPN_SPCQLTY_DEFENSIVE) ) mod += 5;
+                if (wpn_has_spc_quality(witem, WPN_SPCQLTY_UNWIELDY) ) mod -= 5;
                 roll = msr_skill_check(monster, MSR_SKILLS_PARRY, mod);
                 Info("Using off-hand, unable to parry or attack with it for one turn.");
             }
