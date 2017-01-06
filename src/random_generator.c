@@ -25,7 +25,8 @@ int32_t random_gen_spawn(struct random_gen_settings *s) {
         }
     }
 
-    assert(sum != 0);
+    //assert(sum != 0);
+    if(sum == 0) return -1;
 
     roll = s->roll % sum;
     for (int32_t i = s->end_idx; i > s->start_idx; i--) {
