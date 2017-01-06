@@ -89,6 +89,7 @@ struct cr_career {
     int xp_current;
     int xp_spend;
 
+    enum homeworld_ids h_tid;
     enum background_ids b_tid;
     enum role_ids r_tid;
 
