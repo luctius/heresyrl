@@ -35,7 +35,7 @@
    Arms
 ------------------------------------------------------------------------------
 */
-STATUS_EFFECT(SEID_BLUNT_LARM_1, "Bashed Fingers", "Your fingers are numbed and you take a -10% Weapon Skill Penaly for 2 rounds.", 0),
+STATUS_EFFECT(SEID_BLUNT_LARM_1, "Bashed left fingers", "Your fingers are numbed and you take a -10% Weapon Skill Penaly for 2 rounds.", 0),
     MESSAGES("Your fingers just took a beating.", "%s fingers just took a beating.", NULL, NULL),
     EFFECTS_START
         /* Type  Effect             Flags   Strength    param */
@@ -45,7 +45,7 @@ STATUS_EFFECT(SEID_BLUNT_LARM_1, "Bashed Fingers", "Your fingers are numbed and 
     SETTINGS(       0,        2,          2),
 STATUS_EFFECT_END,
 
-STATUS_EFFECT(SEID_BLUNT_LARM_2, "Bashed Elbow", "Your elbow is bashed and you have to make a Hard (-20%) Toughness test or drop what is in your hand.", 0),
+STATUS_EFFECT(SEID_BLUNT_LARM_2, "Bashed left elbow", "Your elbow is bashed and you have to make a Hard (-20%) Toughness test or drop what is in your hand.", 0),
     MESSAGES("Your elbow was bashed.", "%s elbow was bashed.", NULL, NULL),
     EFFECTS_START
         /* Type  Effect             Flags   Strength    param*/
@@ -56,7 +56,7 @@ STATUS_EFFECT(SEID_BLUNT_LARM_2, "Bashed Elbow", "Your elbow is bashed and you h
     CHECK(bf(EF_CHECK_CHARACTERISTIC), MSR_CHAR_TOUGHNESS,   -20),
 STATUS_EFFECT_END,
 
-STATUS_EFFECT(SEID_BLUNT_LARM_3, "Smashed Shoulder", "Your shoulder is bashed and receive -20% Weapon Skill and Ballistic Skill for 10 to 20 turns.", 2),
+STATUS_EFFECT(SEID_BLUNT_LARM_3, "Smashed left shoulder", "Your shoulder is bashed and receive -20% Weapon Skill and Ballistic Skill for 10 to 20 turns.", 2),
     MESSAGES("Your shoulder was bashed.", "%s shoulder was bashed.", NULL, NULL),
     EFFECTS_START
         /* Type  Effect          Flags  Strength    Param*/
@@ -67,7 +67,7 @@ STATUS_EFFECT(SEID_BLUNT_LARM_3, "Smashed Shoulder", "Your shoulder is bashed an
     SETTINGS(       0,        10,          20),
 STATUS_EFFECT_END,
 
-STATUS_EFFECT(SEID_BLUNT_LARM_4, "Fractured Collarbone", "You lose the function in that arm until healed by a professional. In addition you are stunned and fall to the ground in excrusating pain.", 5),
+STATUS_EFFECT(SEID_BLUNT_LARM_4, "Fractured left collarbone", "You lose the function in that arm until healed by a professional. In addition you are stunned and fall to the ground in excrusating pain.", 5),
     MESSAGES("Your collarbone fractured.", "%s collarbone was fractured.", NULL, NULL),
     EFFECTS_START
         /* Type  Effect             Flags  Strength    Param   Interval    Max,  Msgs*/
@@ -89,7 +89,7 @@ STATUS_EFFECT(SEID_BLUNT_LARM_5, "Demolished Ribcage", "You should be dead.", -1
     EFFECTS_END,
 STATUS_EFFECT_END,
 
-STATUS_EFFECT(SEID_BLUNT_RARM_1, "Bashed Fingers", "Your fingers are numbed and you take a -10% Weapon Skill Penaly for 2 rounds.", 0),
+STATUS_EFFECT(SEID_BLUNT_RARM_1, "Bashed right fingers", "Your fingers are numbed and you take a -10% Weapon Skill Penaly for 2 rounds.", 0),
     MESSAGES("Your fingers just took a beating.", "%s fingers just took a beating.", NULL, NULL),
     EFFECTS_START
         /* Type  Effect         Flags   Strength    Param */
@@ -99,7 +99,7 @@ STATUS_EFFECT(SEID_BLUNT_RARM_1, "Bashed Fingers", "Your fingers are numbed and 
     SETTINGS(       0,        2,          2),
 STATUS_EFFECT_END,
 
-STATUS_EFFECT(SEID_BLUNT_RARM_2, "Bashed Elbow", "Your elbow is bashed and you have to make a Hard (-20%) Toughness test or drop what is in your hand.", 0),
+STATUS_EFFECT(SEID_BLUNT_RARM_2, "Bashed right elbow", "Your elbow is bashed and you have to make a Hard (-20%) Toughness test or drop what is in your hand.", 0),
     MESSAGES("Your elbow was bashed.", "%s elbow was bashed.", NULL, NULL),
     EFFECTS_START
         /* Type  Effect             Flags   Strength    param*/
@@ -110,7 +110,7 @@ STATUS_EFFECT(SEID_BLUNT_RARM_2, "Bashed Elbow", "Your elbow is bashed and you h
     CHECK(bf(EF_CHECK_CHARACTERISTIC), MSR_CHAR_TOUGHNESS,   -20),
 STATUS_EFFECT_END,
 
-STATUS_EFFECT(SEID_BLUNT_RARM_3, "Smashed Shoulder", "Your shoulder is bashed and receive -20% Weapon Skill and Ballistic Skill for 10 to 20 turns.", 2),
+STATUS_EFFECT(SEID_BLUNT_RARM_3, "Smashed right shoulder", "Your shoulder is bashed and receive -20% Weapon Skill and Ballistic Skill for 10 to 20 turns.", 2),
     MESSAGES("Your shoulder was bashed.", "%s shoulder was bashed.", NULL, NULL),
     EFFECTS_START
         /* Type  Effect             Flags   Strength    Param*/
@@ -123,7 +123,7 @@ STATUS_EFFECT(SEID_BLUNT_RARM_3, "Smashed Shoulder", "Your shoulder is bashed an
     HEALING(0,      -10,              SEID_BLUNT_ARM_3_HEALED),
 STATUS_EFFECT_END,
 
-STATUS_EFFECT(SEID_BLUNT_RARM_4, "Fractured Collarbone", "You lose the function in that arm until healed by a professional. In addition you are stunned and fall to the ground in excrusating pain.", 5),
+STATUS_EFFECT(SEID_BLUNT_RARM_4, "Fractured right collarbone", "You lose the function in that arm until healed by a professional. In addition you are stunned and fall to the ground in excrusating pain.", 5),
     MESSAGES("Your collarbone fractured.", "%s collarbone was fractured.", NULL, NULL),
     EFFECTS_START
         /* Type  Effect             Flags  Strength    Param   Interval    Max,  Msgs*/

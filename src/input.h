@@ -86,6 +86,7 @@ void inp_exit(struct inp_input *i);
 void inp_add_to_log(struct inp_input *i, enum inp_keys key);
 enum inp_keys inp_get_from_log(struct inp_input *i);
 bool inp_log_has_keys(struct inp_input *i);
+int inp_log_key_count(struct inp_input *i);
 bool inp_keylog_stop(struct inp_input *i);
 
 enum inp_keys inp_get_input(struct inp_input *i);

@@ -143,6 +143,7 @@ static void mapwin_display_map_noref(struct dm_map *map, coord_t *player) {
     if (player == NULL) return;
     if (map_win->type != HRL_WINDOW_TYPE_MAP) return;
     if (gbl_game->player_data.player->dead) return;
+    if (options.refresh == false) return;
 
     struct msr_monster *plr = dm_get_map_me(player, map)->monster;
 
@@ -246,6 +247,7 @@ void mapwin_display_map(struct dm_map *map, coord_t *player) {
     if (dm_verify_map(map) == false) return;
     if (player == NULL) return;
     if (map_win->type != HRL_WINDOW_TYPE_MAP) return;
+    if (options.refresh == false) return;
 
     mapwin_display_map_noref(map, player);
     if (options.refresh) wrefresh(map_win->win);
@@ -257,6 +259,7 @@ static void mapwin_examine(struct dm_map_entity *me) {
     if (char_win == NULL) return;
     if (me == NULL) return;
     if (char_win->type != HRL_WINDOW_TYPE_CHARACTER) return;
+    if (options.refresh == false) return;
 
     wclear(char_win->win);
     werase(char_win->win);
@@ -366,7 +369,7 @@ void mapwin_overlay_examine_cursor(struct dm_map *map, coord_t *p_pos) {
         lg_debug("examining pos: (%d,%d), plr (%d,%d)", e_pos.x, e_pos.y, p_pos->x, p_pos->y);
         chtype oldch = mvwinch(map_win->win, e_pos.y - scr_y, e_pos.x - scr_x);
         mvwaddch(map_win->win, e_pos.y - scr_y, e_pos.x - scr_x, (oldch & 0xFF) | get_colour(TERM_COLOUR_BG_RED) );
-        wrefresh(map_win->win);
+        if (options.refresh) wrefresh(map_win->win);
         mvwaddch(map_win->win, e_pos.y - scr_y, e_pos.x - scr_x, oldch);
 
         mapwin_examine(dm_get_map_me(&e_pos, map) );
@@ -382,6 +385,7 @@ void targetwin_examine(struct hrl_window *window, struct dm_map *map, struct msr
     if (msr_verify_monster(player) == false) return;
     if (itm_verify_item(witem) == false) return;
     if (window->type != HRL_WINDOW_TYPE_CHARACTER) return;
+    if (options.refresh == false) return;
     struct dm_map_entity *me = dm_get_map_me(pos, map);
     bool item_is_weapon = true;
 
@@ -789,6 +793,7 @@ void charwin_refresh() {
     struct pl_player *plr = &gbl_game->player_data;
     if (plr == NULL) return;
     if (char_win->type != HRL_WINDOW_TYPE_CHARACTER) return;
+    if (options.refresh == false) return;
     int starty = 1;
 
     werase(char_win->win);
@@ -803,11 +808,11 @@ void charwin_refresh() {
 
     struct msr_monster *player = plr->player;
 
-    ui_printf(char_win, cs_ATTR "Name"   cs_CLOSE "      %s\n", player->unique_name);
-    ui_printf(char_win, cs_ATTR "Background" cs_CLOSE "    %s\n", cr_get_background_by_id(plr->career.b_tid)->name);
-    ui_printf(char_win, cs_ATTR "Role" cs_CLOSE "    %s\n", cr_get_role_by_id(plr->career.r_tid)->name);
+    ui_printf(char_win, cs_ATTR "Name      " cs_CLOSE " %-14s\n", player->unique_name);
+    ui_printf(char_win, cs_ATTR "Background" cs_CLOSE " %-14s\n", cr_get_background_by_id(plr->career.b_tid)->name);
+    ui_printf(char_win, cs_ATTR "Role      " cs_CLOSE " %-14s\n", cr_get_role_by_id(plr->career.r_tid)->name);
 
-    ui_printf(char_win, cs_ATTR "Turn"   cs_CLOSE "      %d.%d\n", gbl_game->turn / TT_ENERGY_TURN, gbl_game->turn % TT_ENERGY_TURN);
+    ui_printf(char_win, cs_ATTR "Turn      " cs_CLOSE " %d.%d\n", gbl_game->turn / TT_ENERGY_TURN, gbl_game->turn % TT_ENERGY_TURN);
     ui_printf(char_win, "\n");
 
     int cmb = msr_calculate_characteristic(player, MSR_CHAR_COMBAT);
@@ -818,10 +823,10 @@ void charwin_refresh() {
     int per = msr_calculate_characteristic(player, MSR_CHAR_PERCEPTION);
     int wil = msr_calculate_characteristic(player, MSR_CHAR_WILLPOWER);
 
-    ui_printf(char_win, cs_ATTR "CMB" cs_CLOSE "   %3d\n", cmb);
-    ui_printf(char_win, cs_ATTR "Str" cs_CLOSE  "  %3d  " cs_ATTR "Tgh" cs_CLOSE  "  %3d\n", str, tgh);
-    ui_printf(char_win, cs_ATTR "Agi" cs_CLOSE  "  %3d  " cs_ATTR "Int" cs_CLOSE  "  %3d\n", agi, intel);
-    ui_printf(char_win, cs_ATTR "Per" cs_CLOSE  "  %3d  " cs_ATTR "Wil" cs_CLOSE  "  %3d\n", per, wil);
+    ui_printf(char_win, cs_ATTR "CMB" cs_CLOSE "  %3d\n", cmb);
+    ui_printf(char_win, cs_ATTR "Str" cs_CLOSE "  %3d  " cs_ATTR "Tgh" cs_CLOSE  "  %3d\n", str, tgh);
+    ui_printf(char_win, cs_ATTR "Agi" cs_CLOSE "  %3d  " cs_ATTR "Int" cs_CLOSE  "  %3d\n", agi, intel);
+    ui_printf(char_win, cs_ATTR "Per" cs_CLOSE "  %3d  " cs_ATTR "Wil" cs_CLOSE  "  %3d\n", per, wil);
 
     ui_printf(char_win, "\n");
 
@@ -1106,6 +1111,7 @@ void status_effect_examine(struct hrl_window *window, struct status_effect *se) 
     if (window == NULL) return;
     if (se_verify_status_effect(se) == false) return;
     if (window->type != HRL_WINDOW_TYPE_CHARACTER) return;
+    if (options.refresh == false) return;
 
     wclear(window->win);
     werase(window->win);
@@ -1295,15 +1301,15 @@ Basic weapon traning SP     ...                  |
     /* General Stats */
 
     ui_print_reset(&pad);
-    ui_printf(&pad, cs_ATTR "Name:"     cs_CLOSE "          %-20s\n", mon->unique_name);
-    ui_printf(&pad, cs_ATTR "Gender:"   cs_CLOSE "        %-20s\n", msr_gender_string(mon) );
-    ui_printf(&pad, cs_ATTR "Race:"     cs_CLOSE "          %-20s\n", mon->sd_name);
-    ui_printf(&pad, cs_ATTR "Background" cs_CLOSE "    %-20s\n", cr_get_background_by_id(plr->career.b_tid)->name);
-    ui_printf(&pad, cs_ATTR "Role"      cs_CLOSE "    %-20s\n", cr_get_role_by_id(plr->career.r_tid)->name);
+    ui_printf(&pad, cs_ATTR "Name:      " cs_CLOSE " %-20s\n", mon->unique_name);
+    ui_printf(&pad, cs_ATTR "Gender:    " cs_CLOSE " %-20s\n", msr_gender_string(mon) );
+    ui_printf(&pad, cs_ATTR "Race:      " cs_CLOSE " %-20s\n", mon->sd_name);
+    ui_printf(&pad, cs_ATTR "Background " cs_CLOSE " %-20s\n", cr_get_background_by_id(plr->career.b_tid)->name);
+    ui_printf(&pad, cs_ATTR "Role       " cs_CLOSE " %-20s\n", cr_get_role_by_id(plr->career.r_tid)->name);
 
-    ui_printf(&pad, cs_ATTR "Wounds:"   cs_CLOSE "        %d/%d\n", mon->wounds.curr, mon->wounds.max);
-    ui_printf(&pad, cs_ATTR "XP:"       cs_CLOSE "            %d\n", plr->career.xp_current);
-    ui_printf(&pad, cs_ATTR "XP Spend:" cs_CLOSE "      %d\n", plr->career.xp_spend);
+    ui_printf(&pad, cs_ATTR "Wounds:    " cs_CLOSE " %d/%d\n", mon->wounds.curr, mon->wounds.max);
+    ui_printf(&pad, cs_ATTR "XP:        " cs_CLOSE " %d\n", plr->career.xp_current);
+    ui_printf(&pad, cs_ATTR "XP Spend:  " cs_CLOSE " %d\n", plr->career.xp_spend);
 
     int quest_desc_len = 100;
     char quest_desc[quest_desc_len];
@@ -1574,8 +1580,7 @@ void show_msg(struct hrl_window *window) {
     int y = 0;
     int log_sz = lg_size(gbl_log);
     struct log_entry *tmp_entry = NULL;
-
-    //if (options.refresh == false) return;
+    if (options.refresh == false) return;
 
     struct hrl_window pad;
     memmove(&pad, window, sizeof(struct hrl_window) );
@@ -1697,7 +1702,8 @@ void levelup_aquire_window(struct lvl_struct *list, int start, int sz, const cha
 
         enum lvlup_type type = list[start].type;
         for (int i = start; i < sz && list[i+1].type == type; i++) {
-            ui_printf(window, cs_ATTR " %c) " cs_CLOSE "%s (cost %dxp)\n", inp_key_translate_idx(i-start), list[i].name, list[i].cost);
+            int y = ui_printf(window, cs_ATTR " %c) " cs_CLOSE "%s", inp_key_translate_idx(i-start), list[i].name);
+            ui_printf_ext(window, y, 30, "%dxp\n", list[i].cost);
         }
 
         ui_printf_ext(map_win, map_win->lines - 3, 1, cs_ATTR "[a]" cs_CLOSE " acquire, " cs_ATTR "  [x]" cs_CLOSE " examine.");
@@ -1722,7 +1728,7 @@ void levelup_aquire_window(struct lvl_struct *list, int start, int sz, const cha
                     if (options.refresh) wrefresh(window->win);
 
                     int tidx = inp_get_input_idx(gbl_game->input) + start;
-                    if (gbl_game->player_data.career.xp_current <= list[tidx].cost) {
+                    if (gbl_game->player_data.career.xp_current < list[tidx].cost) {
                         GM_msg(cs_PLAYER "You" cs_CLOSE " do not have enough experience points.");
                         break;
                     }
@@ -2008,15 +2014,16 @@ void vs_shop(int32_t randint, char *shop_name, enum item_group *grplst, int grpl
         int money = 0;
         if (money_item != NULL) money = money_item->stacked_quantity;
 
-        ui_printf(map_win, "%s:      (You have %lld gold)\n", shop_name, money);
+        int y = ui_printf(map_win, "%s", shop_name);
+        ui_printf_ext(map_win, y, 30, "(You have %lld gold)\n", money);
 
         for (int i = 0; i < sz; i++) {
             if (list[i] == -1) continue;
 
             struct itm_item *itm = itm_create(list[i]);
-            ui_printf(map_win, cs_ATTR " %c) " cs_CLOSE "%s", inp_key_translate_idx(i), itm->ld_name);
-            if (itm->quality != ITEM_QLTY_AVERAGE) ui_printf(map_win, " (%s)", itm_quality_string(itm) );
-            ui_printf(map_win, " (%d gold)\n", itm->cost);
+            y = ui_printf(map_win, cs_ATTR " %c) " cs_CLOSE "%s", inp_key_translate_idx(i), itm->ld_name);
+            if (itm->quality != ITEM_QLTY_AVERAGE) ui_printf_ext(map_win, y, 30, " (%s)", itm_quality_string(itm) );
+            ui_printf_ext(map_win, y, 40, " (%d gold)\n", itm->cost);
             itm_destroy(itm);
         }
 
@@ -2286,8 +2293,9 @@ void quest_selection(int32_t randint) {
         for (int i = 0; i < sz; i++) {
             struct quest *q = qst_by_tid(list[i]);
             assert(q != NULL);
-            ui_printf(map_win, cs_ATTR " %c) " cs_CLOSE "%s", inp_key_translate_idx(i), q->description);
-            ui_printf(map_win, " (%dgp, %dxp)\n", q->gp_reward, q->xp_reward);
+            int y = ui_printf(map_win, cs_ATTR " %c) " cs_CLOSE "%s", inp_key_translate_idx(i), q->description);
+            ui_printf_ext(map_win, y, 40, "%dgp", q->gp_reward);
+            ui_printf_ext(map_win, y, 45, "%dxp\n", q->xp_reward);
         }
 
         ui_printf_ext(map_win, map_win->lines -4, 1, cs_ATTR " [a]" cs_CLOSE " accept quest.");

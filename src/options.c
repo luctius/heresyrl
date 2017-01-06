@@ -36,6 +36,7 @@ struct opt_options options = {
     .debug_no_save   = false,
     .print_map_only  = false,
     .test_auto       = false,
+    .rnd_auto_play   = false,
 
     .play_recording  = false,
     .play_delay      = 100,
@@ -47,7 +48,9 @@ struct opt_options options = {
     .save_file_name  = NULL,
 
     .char_name      = NULL,
-    .char_race      = MSR_RACE_MAX,
+    .char_hw        = CR_HWID_NONE,
+    .char_bg        = CR_BCKGRNDID_NONE,
+    .char_role      = CR_ROLEID_NONE,
 };
 
 static const int path_max = PATH_MAX -1;
@@ -66,6 +69,7 @@ void opt_parse_options(struct gengetopt_args_info *args_info) {
     options.print_map_only  = args_info->print_map_only_flag;
     options.test_auto       = args_info->test_auto_flag;
     options.test_mode       = args_info->test_mode_flag;
+    options.rnd_auto_play   = args_info->rnd_auto_play_flag;
 
     options.play_recording  = args_info->playback_flag;
     options.play_delay      = args_info->pb_delay_arg;
@@ -100,15 +104,31 @@ void opt_parse_options(struct gengetopt_args_info *args_info) {
         options.char_name = strdup(args_info->name_arg);
         options.debug_no_load = true;
     }
-    if (args_info->race_given == true) {
-        switch(args_info->race_arg) {
-            case race__NULL:        options.char_race = MSR_RACE_MAX;       break;
-            case race_arg_dwarf:    options.char_race = MSR_RACE_DWARF;     break;
-            case race_arg_elf:      options.char_race = MSR_RACE_ELF;       break;
-            case race_arg_halfling: options.char_race = MSR_RACE_HALFLING;  break;
-            case race_arg_human:    options.char_race = MSR_RACE_HUMAN;     break;
+    if (args_info->homeworld_given == true) {
+        switch(args_info->homeworld_arg) {
+            case homeworld__NULL:       options.char_hw = CR_HWID_NONE;      break;
+            case homeworld_arg_hive:    options.char_hw = CR_HWID_HIVE;     break;
             default: assert(false); break;
-        };
+        }
+        options.debug_no_load = true;
+    }
+    if (args_info->background_given == true) {
+        switch(args_info->background_arg) {
+            case background__NULL:       options.char_bg = CR_BCKGRNDID_NONE;           break;
+            case background_arg_iguard:  options.char_bg = CR_BCKGRNDID_IMPERIAL_GUARD; break;
+            case background_arg_outcast: options.char_bg = CR_BCKGRNDID_OUTCAST;        break;
+            default: assert(false); break;
+        }
+        options.debug_no_load = true;
+    }
+
+    if (args_info->role_given == true) {
+        switch(args_info->role_arg) {
+            case role__NULL:       options.char_role = CR_ROLEID_NONE;    break;
+            case role_arg_seeker:  options.char_role = CR_ROLEID_SEEKER;  break;
+            case role_arg_warrior: options.char_role = CR_ROLEID_WARRIOR; break;
+            default: assert(false); break;
+        }
         options.debug_no_load = true;
     }
 
@@ -117,6 +137,9 @@ void opt_parse_options(struct gengetopt_args_info *args_info) {
     if (options.load_file_name == NULL) options.load_file_name = strdup(options.save_file_name);
     if (options.debug_no_load) options.play_recording = false;
 
+    if (options.rnd_auto_play) {
+        options.play_recording = true;
+    }
     if (options.test_auto) {
         options.play_recording = true;
         if (args_info->pb_delay_given == false) options.play_delay = 0;

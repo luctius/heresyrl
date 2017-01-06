@@ -22,6 +22,7 @@
 #include <stddef.h>
 #include <assert.h>
 #include <string.h>
+#include <inttypes.h>
 #include <ncurses.h>
 
 #include "heresyrl_def.h"
@@ -161,6 +162,7 @@ bool dm_verify_map(struct dm_map *map) {
 bool dm_print_map(struct dm_map *map) {
     if (dm_verify_map(map) == false) return false;
 
+    printf("map seed: %" PRIu32 "\n", map->sett.seed);
     coord_t c;
     for (c.y = 0; c.y < map->sett.size.y; c.y++) {
         for (c.x = 0; c.x < map->sett.size.x; c.x++) {
