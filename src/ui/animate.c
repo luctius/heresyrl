@@ -22,6 +22,7 @@
 #include "ui_common.h"
 #include "options.h"
 #include "dungeon/dungeon_map.h"
+#include "dungeon/tiles.h"
 
 void ui_animate_explosion(struct dm_map *map, coord_t path[], int path_len) {
     if (gbl_game == NULL) return;
@@ -34,7 +35,8 @@ void ui_animate_explosion(struct dm_map *map, coord_t path[], int path_len) {
 
     for (int i = 0; i < path_len; i++) {
         if (dm_get_map_me(&path[i],map)->visible == true) {
-            chlist[i] = mvwinch(map_win->win, path[i].y - scr_y, path[i].x - scr_x);
+            //chlist[i] = mvwinch(map_win->win, path[i].y - scr_y, path[i].x - scr_x);
+            chlist[i] = dm_get_map_me(&path[i],map)->tile->icon;
             mvwaddch(map_win->win, path[i].y - scr_y, path[i].x - scr_x, chlist[i] | get_colour(TERM_COLOUR_BG_YELLOW) );
         }
     }
@@ -71,7 +73,8 @@ void ui_animate_projectile(struct dm_map *map, coord_t path[], int path_len) {
 
     for (int i = 1; i < path_len; i++) {
         if (dm_get_map_me(&path[i],map)->visible == true) {
-            chtype oldch = mvwinch(map_win->win, path[i].y - scr_y, path[i].x - scr_x);
+            //chtype oldch = mvwinch(map_win->win, path[i].y - scr_y, path[i].x - scr_x);
+            chtype oldch = dm_get_map_me(&path[i],map)->tile->icon;
             mvwaddch(map_win->win, path[i].y - scr_y, path[i].x - scr_x, '*' | get_colour(TERM_COLOUR_RED) );
             if (options.refresh) wrefresh(map_win->win);
             mvwaddch(map_win->win, path[i].y - scr_y, path[i].x - scr_x, oldch);

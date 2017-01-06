@@ -15,7 +15,7 @@
     along with heresyRL.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <ncurses.h>
+#include <uncursed.h>
 #include <assert.h>
 
 #include "heresyrl_def.h"
@@ -24,12 +24,12 @@ extern inline int pyth(int side1, int side2);
 
 enum colours {
     CLR_PAIR_WHITE,
+    CLR_PAIR_CYAN,
     CLR_PAIR_RED,
     CLR_PAIR_GREEN,
     CLR_PAIR_YELLOW,
     CLR_PAIR_BLUE,
     CLR_PAIR_MAGENTA,
-    CLR_PAIR_CYAN,
     CLR_PAIR_BLACK,
 
     CLR_PAIR_BG_WHITE,
@@ -45,15 +45,17 @@ static int term_colour_table[TERM_COLOUR_MAX];
 
 void generate_colours(void) {
         /* Prepare the color pairs */
+
         init_pair(CLR_PAIR_WHITE   , COLOR_WHITE   , COLOR_BLACK);
-        init_pair(CLR_PAIR_RED     , COLOR_RED     , COLOR_BLACK);
         init_pair(CLR_PAIR_GREEN   , COLOR_GREEN   , COLOR_BLACK);
         init_pair(CLR_PAIR_YELLOW  , COLOR_YELLOW  , COLOR_BLACK);
         init_pair(CLR_PAIR_BLUE    , COLOR_BLUE    , COLOR_BLACK);
         init_pair(CLR_PAIR_MAGENTA , COLOR_MAGENTA , COLOR_BLACK);
         init_pair(CLR_PAIR_CYAN    , COLOR_CYAN    , COLOR_BLACK);
         init_pair(CLR_PAIR_BLACK   , COLOR_BLACK   , COLOR_BLACK);
+        init_pair(CLR_PAIR_RED     , COLOR_RED     , COLOR_BLACK);
 
+        /*
         init_pair(CLR_PAIR_BG_WHITE   , COLOR_BLACK   , COLOR_WHITE);
         init_pair(CLR_PAIR_BG_RED     , COLOR_BLACK     , COLOR_RED);
         init_pair(CLR_PAIR_BG_GREEN   , COLOR_BLACK   , COLOR_GREEN);
@@ -61,6 +63,8 @@ void generate_colours(void) {
         init_pair(CLR_PAIR_BG_BLUE    , COLOR_BLACK    , COLOR_BLUE);
         init_pair(CLR_PAIR_BG_MAGENTA , COLOR_BLACK , COLOR_MAGENTA);
         init_pair(CLR_PAIR_BG_CYAN    , COLOR_BLACK    , COLOR_CYAN);
+        */
+
 
         /* Prepare the colors */
         term_colour_table[TERM_COLOUR_DARK]     = (COLOR_PAIR(CLR_PAIR_BLACK));

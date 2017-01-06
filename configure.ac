@@ -21,9 +21,12 @@ AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MKDIR_P
 
+AC_PROG_CXX
 AM_PROG_AR
 AC_PROG_LIBTOOL
-LT_INIT
+LT_INIT([dlopen])
+#LT_CONFIG_LTDL_DIR([libltdl])
+#LTDL_INIT([nonrecursive])
 
 AC_DEFINE([_GNU_SOURCE], 1, [Use GNU extensions])
 
@@ -42,10 +45,7 @@ if test "x$lua_LIBS" = "x"; then
     AC_MSG_ERROR([Lua not found!])
 fi
 
-AC_SEARCH_LIBS(initscr, ncurses, [], [AC_MSG_ERROR([Unable to find ncurses])], [])
-#AC_SEARCH_LIBS(new_panel, panel, [], [AC_MSG_ERROR([Unable to find ncurses panel])], [])
-#AC_SEARCH_LIBS(new_menu, menu,   [], [AC_MSG_ERROR([Unable to find ncurses menu])], [])
-#AC_SEARCH_LIBS(new_form, form,   [], [AC_MSG_ERROR([Unable to find ncurses form])], [])
+#AC_SEARCH_LIBS(initscr, ncurses, [], [AC_MSG_ERROR([Unable to find ncurses])], [])
 
 AC_PATH_PROGS([GENGETOPT], [gengetopt])
 AM_CONDITIONAL([GENGETOPT], [test x$GENGETOPT != x])

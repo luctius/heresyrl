@@ -19,7 +19,6 @@
 #include <stddef.h>
 #include <string.h>
 #include <sys/param.h>
-#include <ncurses.h>
 #include <assert.h>
 
 #include "monster.h"

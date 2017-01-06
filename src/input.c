@@ -15,10 +15,10 @@
     along with heresyRL.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <ncurses.h>
 #include <assert.h>
 #include <unistd.h>
 #include <ctype.h>
+#include <uncursed.h>
 
 #include "input.h"
 #include "options.h"
@@ -130,9 +130,13 @@ enum inp_keys inp_get_input_idx(struct inp_input *i) {
     enum inp_keys k = INP_KEY_ESCAPE;
 
     if (inp_log_has_keys(i) == false) {
-        int ch = getch();
+        wint_t ch;
+        int ret;
+        ret = get_wch(&ch);
 
-        k = inp_input_to_idx(ch);
+        if (ret == OK) {
+            k = inp_input_to_idx(ch);
+        }
 
         inp_add_to_log(i, k);
     }
@@ -149,9 +153,13 @@ enum inp_keys inp_get_input_text(struct inp_input *i) {
     enum inp_keys k = INP_KEY_ESCAPE;
 
     if (inp_log_has_keys(i) == false) {
-        while ( (isalnum(k = getch() ) == false) && (k != ' ') && (k != '\n') && (k != KEY_BACKSPACE) ) {
+        wint_t k;
+        int ret;
+
+        do {
+            ret = get_wch(&k);
             /*lg_debug("key %d", k);*/
-        }
+        } while ( ( (ret == KEY_CODE_YES) && (isalnum(k) && (k != ' ') ) ) || ( (ret == OK) && (k == KEY_ENTER) || (k == KEY_BACKSPACE) ) );
         inp_add_to_log(i, k);
     }
 
@@ -167,9 +175,13 @@ enum inp_keys inp_get_input_digit(struct inp_input *i) {
     enum inp_keys k = INP_KEY_ESCAPE;
 
     if (inp_log_has_keys(i) == false) {
-        while ( (isdigit(k = getch() ) == false) && (k != ' ') && (k != '\n') && (k != KEY_BACKSPACE) ) {
+        wint_t k;
+        int ret;
+
+        do {
+            ret = get_wch(&k);
             /*lg_debug("key %d", k);*/
-        }
+        } while ( ( (ret == KEY_CODE_YES) && (isdigit(k) && (k != ' ') ) ) || ( (ret == OK) && (k == KEY_ENTER) || (k == KEY_BACKSPACE) ) );
         inp_add_to_log(i, k);
     }
 
@@ -183,22 +195,23 @@ enum inp_keys inp_get_input_digit(struct inp_input *i) {
 static enum inp_keys inp_translate_key(int ch) {
     enum inp_keys k = INP_KEY_NONE;
     switch (ch) {
-        case 'y': case 55:  case KEY_HOME:  k = INP_KEY_UP_LEFT; break;
-        case 'k': case 56:  case KEY_UP:    k = INP_KEY_UP; break;
-        case 'u': case 57:  case KEY_NPAGE: k = INP_KEY_UP_RIGHT; break;
-        case 'l': case 54:  case KEY_RIGHT: k = INP_KEY_RIGHT; break;
-        case 'n': case 51:  case KEY_PPAGE: k = INP_KEY_DOWN_RIGHT; break;
-        case 'j': case 50:  case KEY_DOWN:  k = INP_KEY_DOWN; break;
-        case 'b': case 49:  case KEY_END:   k = INP_KEY_DOWN_LEFT; break;
-        case 'h': case 52:  case KEY_LEFT:  k = INP_KEY_LEFT; break;
+        case KEY_BACKSPACE: k = INP_KEY_BACKSPACE; break;
+        case 'y': case KEY_A1: case KEY_HOME:   k = INP_KEY_UP_LEFT; break;
+        case 'k': case KEY_A2: case KEY_UP:     k = INP_KEY_UP; break;
+        case 'u': case KEY_A3: case KEY_PPAGE:  k = INP_KEY_UP_RIGHT; break;
+        case 'h': case KEY_B1: case KEY_LEFT:   k = INP_KEY_LEFT; break;
+        case 'l': case KEY_B3: case KEY_RIGHT:  k = INP_KEY_RIGHT; break;
+        case 'n': case KEY_C3: case KEY_NPAGE:  k = INP_KEY_DOWN_RIGHT; break;
+        case 'j': case KEY_C2: case KEY_DOWN:   k = INP_KEY_DOWN; break;
+        case 'b': case KEY_C1: case KEY_END:    k = INP_KEY_DOWN_LEFT; break;
         case 124: k = INP_KEY_DIR_COMB; break; /* TODO find differnt key for this */
-        case '.': case 53:                  k = INP_KEY_WAIT; break;
+        case '.': case KEY_B2: case 53:                  k = INP_KEY_WAIT; break;
 
         case '/':       k = INP_KEY_RUN; break;
 
         case 'q':
         case 'Q':
-        case 27:        k = INP_KEY_ESCAPE; break;
+        case KEY_ESCAPE: k = INP_KEY_ESCAPE; break;
 
         case '@':       k = INP_KEY_CHARACTER; break;
         case 'L':       k = INP_KEY_LOG; break;
@@ -227,6 +240,7 @@ static enum inp_keys inp_translate_key(int ch) {
 
         case ' ':
         case '\n':
+        case KEY_ENTER:
         case 'O':
         case 'o':       k = INP_KEY_YES; break;
         case 'C':
@@ -260,14 +274,19 @@ enum inp_keys inp_get_input(struct inp_input *i) {
             return INP_KEY_QUIT;
         }
 
-        k = inp_translate_key(getch() );
+        int ret;
+        wint_t w;
+        ret = get_wch(&w);
+        k = inp_translate_key(w);
 
         if (k == INP_KEY_DIR_COMB) {
             k = INP_KEY_NONE;
 
-            int k1 = inp_translate_key(getch());
+            ret = get_wch(&w);
+            int k1 = inp_translate_key(w);
             if (k1 == INP_KEY_LEFT || k1 == INP_KEY_RIGHT || k1 == INP_KEY_UP || k1 == INP_KEY_DOWN) {
-                int k2 = inp_translate_key(getch());
+                ret = get_wch(&w);
+                int k2 = inp_translate_key(w);
                 if (k2 == INP_KEY_LEFT || k2 == INP_KEY_RIGHT || k2 == INP_KEY_UP || k2 == INP_KEY_DOWN) {
                     if      (k1 == INP_KEY_UP    && k2 == INP_KEY_LEFT)  k = INP_KEY_UP_LEFT;
                     else if (k1 == INP_KEY_LEFT  && k2 == INP_KEY_UP)    k = INP_KEY_UP_LEFT;

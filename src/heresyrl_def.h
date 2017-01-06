@@ -45,7 +45,7 @@ typedef uint_least64_t bitfield64_t;
 typedef uint_least32_t bitfield32_t;
 typedef uint_least16_t bitfield16_t;
 typedef uint_least8_t  bitfield8_t;
-typedef char           icon_t;
+typedef wchar_t        icon_t;
 #define bitfield_width (sizeof(bitfield_t) * CHAR_BIT)
 
 #define RANGE_MULTIPLIER (0.50f)

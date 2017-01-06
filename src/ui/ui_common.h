@@ -18,7 +18,8 @@
 #ifndef UI_COMMON_H
 #define UI_COMMON_H
 
-#include <ncurses.h>
+//#include <ncurses.h>
+#include <uncursed.h>
 
 #include "heresyrl_def.h"
 #include "coord.h"

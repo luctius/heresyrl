@@ -18,9 +18,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <assert.h>
-#include <ncurses.h>
 #include <sys/param.h>
 #include <string.h>
+#include <uncursed.h>
 
 #include "ui.h"
 #include "ui_common.h"
@@ -54,6 +54,22 @@ bool char_creation_window(void) {
     werase(char_win->win);
     wrefresh(map_win->win);
     wrefresh(char_win->win);
+
+    /*
+    for (int i = 1; i < 16; i++) {
+        init_pair(1, i, 0);
+        int c = COLOR_PAIR(1);
+
+        wint_t w = 48+i;
+        cchar_t ct = { A_UNDERLINE | c, {w, 0} };
+
+        //wattrset(map_win->win, c);
+        mvwprintw(map_win->win, i, 0, "\n");
+        wadd_wch(map_win->win, &ct);
+        wrefresh(map_win->win);
+        sleep(1);
+    }
+    */
 
     struct pl_player *plr = &gbl_game->player_data;
     plr->player = msr_create(MID_PLAYER);
@@ -91,8 +107,8 @@ bool char_creation_window(void) {
 
         k = inp_get_input_text(gbl_game->input);
         switch (k) {
-            case '\n': if (strlen(name_buffer) > 0 ) { name_done = true; } break;
-            case 24: return false;
+            case INP_KEY_YES: if (strlen(name_buffer) > 0 ) { name_done = true; } break;
+            //case INP_KEY_YES: return false;
             case INP_KEY_BACKSPACE:
                 if (name_buffer_idx > 0) {
                     name_buffer[name_buffer_idx--] = '\0';

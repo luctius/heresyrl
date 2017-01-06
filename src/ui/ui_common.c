@@ -93,14 +93,15 @@ int ui_printf_ext(struct hrl_window *win, int y_start, int x_start, const char *
 
     int max_line_sz = win->cols -1;
 
-    if (win->text_x != 0) {
-        if (options.refresh) mvwaddch(win->win, win->text_y, win->text_x++, ' ');
-    }
-
     int attr_mod[MAX_CLR_DEPTH];
     attr_mod[0] = get_colour(TERM_COLOUR_L_WHITE);
     int attr_mod_ctr = 0;
-    if (has_colors() == TRUE) wattrset(win->win, attr_mod[0]);
+    wattrset(win->win, attr_mod[0]);
+
+    if (win->text_x != 0) {
+        cchar_t space = { attr_mod[0], {' ', 0} };
+        if (options.refresh) mvwadd_wch(win->win, win->text_y, win->text_x++, &space);
+    }
 
     int print_txt_idx = 0;
     int real_txt_idx = 0;
@@ -132,10 +133,10 @@ int ui_printf_ext(struct hrl_window *win, int y_start, int x_start, const char *
                 break;
             }
             else if (clrstr_is_close(&buf[real_txt_idx]) ) {
-                if (has_colors() == TRUE) wattrset(win->win, attr_mod[attr_mod_ctr]);
+                wattrset(win->win, attr_mod[attr_mod_ctr]);
                 attr_mod_ctr--;
                 assert(attr_mod_ctr >= 0);
-                if (has_colors() == TRUE) wattrset(win->win, attr_mod[attr_mod_ctr]);
+                wattrset(win->win, attr_mod[attr_mod_ctr]);
 
                 assert(attr_mod_ctr < MAX_CLR_DEPTH);
 
@@ -150,7 +151,7 @@ int ui_printf_ext(struct hrl_window *win, int y_start, int x_start, const char *
 
                 attr_mod_ctr++;
                 attr_mod[attr_mod_ctr]= c;
-                if (has_colors() == TRUE) wattrset(win->win, attr_mod[attr_mod_ctr]);
+                wattrset(win->win, attr_mod[attr_mod_ctr]);
 
                 assert(attr_mod_ctr < MAX_CLR_DEPTH);
                 real_txt_idx += cstr_len;
@@ -158,7 +159,8 @@ int ui_printf_ext(struct hrl_window *win, int y_start, int x_start, const char *
             }
             else {
                 if (options.refresh) {
-                    mvwaddch(win->win, win->text_y, win->text_x++, buf[real_txt_idx]);
+                    cchar_t b = { attr_mod[attr_mod_ctr], {buf[real_txt_idx], 0} };
+                    mvwadd_wch(win->win, win->text_y, win->text_x++, &b);
                 }
 
                 real_txt_idx++;
@@ -176,7 +178,7 @@ int ui_printf_ext(struct hrl_window *win, int y_start, int x_start, const char *
         }
     }
 
-    if (has_colors() == TRUE) wattrset(win->win, attr_mod[attr_mod_ctr]);
+    wattrset(win->win, attr_mod[attr_mod_ctr]);
     if (options.refresh) wrefresh(win->win);
 
     return win->text_y;
