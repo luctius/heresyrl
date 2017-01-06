@@ -21,7 +21,7 @@
 #include "heresyrl_def.h"
 #include "enums.h"
 
-#define INV_WEIGHT_MODIFIER (.14f)
+#define INV_WEIGHT_MODIFIER (0.1f)
 
 struct inv_inventory;
 

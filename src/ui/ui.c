@@ -556,7 +556,7 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dm_map *map, coord_t *
         if (witem == NULL) witem = fght_get_working_weapon(plr->player, WEAPON_TYPE_RANGED, FGHT_OFF_HAND);
         if (witem != NULL) targetwin_examine(char_win, gbl_game->current_map, plr->player, &e_pos, witem, WEAPON_TYPE_RANGED);
         else {
-            if (witem == NULL) witem = fght_get_working_weapon(plr->player, WEAPON_TYPE_MELEE, FGHT_MAIN_HAND);
+            witem = fght_get_working_weapon(plr->player, WEAPON_TYPE_MELEE, FGHT_MAIN_HAND);
             if (witem == NULL) witem = fght_get_working_weapon(plr->player, WEAPON_TYPE_MELEE, FGHT_OFF_HAND);
             if (witem != NULL) targetwin_examine(char_win, gbl_game->current_map, plr->player, &e_pos, witem, WEAPON_TYPE_MELEE);
         }
@@ -973,7 +973,7 @@ static int invwin_printlist(struct hrl_window *window, struct inv_show_item list
             ui_printf(window, "(x%llu)", (unsigned long long int) item->stacked_quantity);
         }
 
-        ui_printf_ext(window, y, 40, " (%4.1f kg)\n", (weight * INV_WEIGHT_MODIFIER) );
+        ui_printf_ext(window, y, 34, " (%4.1f kg)\n", (weight * INV_WEIGHT_MODIFIER) );
     }
 
     return max;
@@ -1182,7 +1182,7 @@ bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
         /*mapwin_display_map_noref(map, &plr->player->pos);
         touchwin(map_win->win);*/
 
-        ui_printf(map_win, "Inventory:            [Total Weight: %4.0f/%4.0f kg]\n", (inv_get_weight(plr->player->inventory) * INV_WEIGHT_MODIFIER), (msr_calculate_carrying_capacity(plr->player) * INV_WEIGHT_MODIFIER) );
+        ui_printf(map_win, "Inventory:         [Total Weight: %3.0f/%3.0f kg]\n", (inv_get_weight(plr->player->inventory) * INV_WEIGHT_MODIFIER), (msr_calculate_carrying_capacity(plr->player) * INV_WEIGHT_MODIFIER) );
 
         if ( (dislen = invwin_printlist(map_win, invlist, invsz, invstart, invstart +winsz) ) == -1) {
             invstart = 0;
@@ -1357,8 +1357,8 @@ Basic weapon traning SP     ...                  |
 
 
     /* Armour  */
-    ui_printf(&pad, cs_ATTR "Armour       Protection   Locations" cs_CLOSE "\n");
-    ui_printf(&pad, cs_ATTR "------       ----------   ---------" cs_CLOSE "\n");
+    ui_printf(&pad, cs_ATTR "Armour              DR    Locations" cs_CLOSE "\n");
+    ui_printf(&pad, cs_ATTR "------              ---   ---------" cs_CLOSE "\n");
 
     /* Armour */
     struct itm_item *item = NULL;
@@ -1373,13 +1373,14 @@ Basic weapon traning SP     ...                  |
             }
 
             int y = ui_printf(&pad, "%s", item->ld_name);
-            ui_printf_ext(&pad,y, 13, "%5d  ", armour);
+            ui_printf_ext(&pad,y, 20, "%-2d  ", armour);
+            ui_printf_ext(&pad,y, 24, "");
 
             bool first = true;
             for (enum inv_locations i = 1; i < INV_LOC_MAX; i <<= 1) {
                 if ( (locs & i) > 0) {
                     if (first == false) ui_printf(&pad, "/");
-                    ui_printf_ext(&pad,y,25, "%s", inv_location_name(locs & i) );
+                    ui_printf(&pad,"%s", inv_location_name(locs & i) );
                     first = false;
                 }
             }
