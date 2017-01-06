@@ -266,8 +266,9 @@ static bool load_game(lua_State *L, struct gm_game *g) {
     if (L == NULL) return false;
 
     const char *version_ptr;
+    const char *version_ptr_game = GIT_VERSION;
     if ( (version_ptr = lua_stringexpr(L,"game.git_version") ) == NULL) return false;
-    if (strcmp(version_ptr, GIT_VERSION) != 0) lg_warning("Warning: save game version and game version do not match!");
+    if (strcmp(version_ptr, version_ptr_game) != 0) lg_warning("Warning: save game version and game version do not match!");
 
     if (lua_intexpr(L, &t, "game.random.seed") == 0) return false;
     g->random = random_init_genrand(t);
@@ -346,7 +347,7 @@ static bool load_player(lua_State *L, struct pl_player *plr) {
     lua_intexpr(L, &t, "game.player.career.h_tid");        plr->career.h_tid = t;
     lua_intexpr(L, &t, "game.player.career.b_tid");        plr->career.b_tid = t;
     lua_intexpr(L, &t, "game.player.career.r_tid");        plr->career.r_tid = t;
-    cr_init_career(plr, plr->career.h_tid, plr->career.b_tid, plr->career.r_tid);
+    //cr_init_career(plr, plr->career.h_tid, plr->career.b_tid, plr->career.r_tid);
     lua_intexpr(L, &t, "game.player.career.aptitudes");    plr->career.aptitudes = t;
     if (lua_intexpr(L, &t, "game.player.career.play_seconds") == 0)    plr->career.play_seconds = t;
     else plr->career.play_seconds = 0;
@@ -625,9 +626,9 @@ static bool load_map(lua_State *L, struct dm_map **m, int mapid) {
         x_sz = t;
         if (lua_intexpr(L, &t, "game.maps[%d].sett.size.y", mapid) == 0) return false;
         y_sz = t;
-        if (lua_intexpr(L, &t, "game.maps[%d].sett.threat_min", mapid) == 0) return false;
+        if (lua_intexpr(L, &t, "game.maps[%d].sett.threat_lvl_min", mapid) == 0) return false;
         threat_min = t;
-        if (lua_intexpr(L, &t, "game.maps[%d].sett.threat_max", mapid) == 0) return false;
+        if (lua_intexpr(L, &t, "game.maps[%d].sett.threat_lvl_max", mapid) == 0) return false;
         threat_max = t;
         if (lua_intexpr(L, &t, "game.maps[%d].sett.item_chance", mapid) == 0) return false;
         item_chance = t;
