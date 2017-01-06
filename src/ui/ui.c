@@ -1976,15 +1976,18 @@ void vs_shop(int32_t randint, char *shop_name, enum item_group *grplst, int grpl
     struct random *r = random_init_genrand(randint);
     bool buying = true;
 
+    lg_debug("shop: %s", shop_name);
+
     int32_t sz = (random_int32(r) % 16) + 10;
     uint32_t list[sz];
 
     for (int i = 0; i < sz; i++) {
         bool unique = false;
 
-        for (int j = 0; unique == false && j < 20; j++) {
+        for (int j = 0; unique == false && j < 2000; j++) {
             int32_t grp = random_int32(r) % grplst_sz;
-            int idx = itm_spawn(random_int32(r), gbl_game->player_data.level, grplst[grp], NULL);
+            int level_add = random_xd5(r, 1);
+            int idx = itm_spawn(random_int32(r), gbl_game->player_data.level +level_add, grplst[grp], NULL);
             list[i] = idx;
 
             unique = true;
@@ -2008,6 +2011,8 @@ void vs_shop(int32_t randint, char *shop_name, enum item_group *grplst, int grpl
         ui_printf(map_win, "%s:      (You have %lld gold)\n", shop_name, money);
 
         for (int i = 0; i < sz; i++) {
+            if (list[i] == -1) continue;
+
             struct itm_item *itm = itm_create(list[i]);
             ui_printf(map_win, cs_ATTR " %c) " cs_CLOSE "%s", inp_key_translate_idx(i), itm->ld_name);
             if (itm->quality != ITEM_QLTY_AVERAGE) ui_printf(map_win, " (%s)", itm_quality_string(itm) );
