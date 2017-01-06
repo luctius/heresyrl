@@ -163,15 +163,13 @@ int main(int argc, char *argv[]) {
                 game_init_map();
             }
         }
-        System_msg("Goodbye.");
-
-        hr_exit();
-
-        usleep(500000);
-
-        game_exit();
     }
     else lg_error("Player invalid.");
+    System_msg("Goodbye.");
+
+    hr_exit();
+    game_exit();
+    usleep(500000);
 
     printf("Done.\n");
 
