@@ -1722,7 +1722,7 @@ void levelup_aquire_window(struct lvl_struct *list, int start, int sz, const cha
                     if (options.refresh) wrefresh(window->win);
 
                     int tidx = inp_get_input_idx(gbl_game->input) + start;
-                    if (gbl_game->player_data.career.xp_current <= list[tidx].cost) {
+                    if (gbl_game->player_data.career.xp_current < list[tidx].cost) {
                         GM_msg(cs_PLAYER "You" cs_CLOSE " do not have enough experience points.");
                         break;
                     }
