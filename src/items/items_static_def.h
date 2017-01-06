@@ -123,43 +123,47 @@ $ is for money
 
 #define LOW_TECH(_dmg_type,dmg_die,dmg_add,_penetration,_range,special) \
             .icon='}', .stacked_quantity=0, .max_quantity=0, .item_type=ITEM_TYPE_WEAPON, .specific.weapon={ \
-            .weapon_category=WEAPON_CATEGORY_2H_RANGED, .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=_range, \
-            .rof[WEAPON_ROF_SETTING_SINGLE]=1, .rof[WEAPON_ROF_SETTING_SEMI]=0, .rof[WEAPON_ROF_SETTING_AUTO]=0, \
+            .weapon_type=WEAPON_TYPE_RANGED,.weapon_category=WEAPON_CATEGORY_2H_RANGED, .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, \
+            .dmg_addition=dmg_add, .range=_range, .rof[WEAPON_ROF_SETTING_SINGLE]=1, .rof[WEAPON_ROF_SETTING_SEMI]=0, .rof[WEAPON_ROF_SETTING_AUTO]=0, \
             .rof_set=WEAPON_ROF_SETTING_SINGLE, .magazine_sz=1, .magazine_left=1, .penetration=_penetration, \
             .ammo_type=AMMO_TYPE_ARROW, .ammo_used_tid=IID_ARROW, .special_quality=bf(WPN_SPCQLTY_PRIMITIVE) | special, .upgrades=0, \
             .wpn_talent=TLT_1_WEAPON_TRAINING_LOW_TECH, .jammed=false, .convey_status_effect=SEID_NONE, }, .dropable=true, ranged_desc
 
 #define PISTOL_SP(_dmg_type,dmg_die,dmg_add,_penetration,_range,rof_single,rof_semi,rof_auto,mag_sz,_upgrades,special) \
             .icon='|', .stacked_quantity=0, .max_quantity=1, .item_type=ITEM_TYPE_WEAPON, .specific.weapon={ \
-            .weapon_category=WEAPON_CATEGORY_1H_RANGED, .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=_range, \
-            .rof[WEAPON_ROF_SETTING_SINGLE]=rof_single, .rof[WEAPON_ROF_SETTING_SEMI]=rof_semi, .rof[WEAPON_ROF_SETTING_AUTO]=rof_auto, \
-            .rof_set=WEAPON_ROF_SETTING_SINGLE, .magazine_sz=mag_sz, .magazine_left=mag_sz, .penetration=_penetration, \
-            .ammo_type=AMMO_TYPE_PISTOL_SP, .ammo_used_tid=IID_PISTOL_AMMO_SP, .special_quality=special, .upgrades=_upgrades, \
-            .wpn_talent=TLT_1_WEAPON_TRAINING_SP, .jammed=false, .convey_status_effect=SEID_NONE, }, .dropable=true, ranged_desc
+            .weapon_type=WEAPON_TYPE_RANGED,.weapon_category=WEAPON_CATEGORY_1H_RANGED, .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, \
+            .dmg_addition=dmg_add, .range=_range, .rof[WEAPON_ROF_SETTING_SINGLE]=rof_single, .rof[WEAPON_ROF_SETTING_SEMI]=rof_semi, \
+            .rof[WEAPON_ROF_SETTING_AUTO]=rof_auto, .rof_set=WEAPON_ROF_SETTING_SINGLE, .magazine_sz=mag_sz, .magazine_left=mag_sz, \
+            .penetration=_penetration, .ammo_type=AMMO_TYPE_PISTOL_SP, .ammo_used_tid=IID_PISTOL_AMMO_SP, .special_quality=special, \
+            .upgrades=_upgrades, .wpn_talent=TLT_1_WEAPON_TRAINING_SP, .jammed=false, .convey_status_effect=SEID_NONE, }, .dropable=true, \
+            ranged_desc
 
 #define PISTOL_LAS(_dmg_type,dmg_die,dmg_add,_penetration,_range,rof_single,rof_semi,rof_auto,mag_sz,_upgrades,special) \
             .icon='|', .stacked_quantity=0, .max_quantity=1, .item_type=ITEM_TYPE_WEAPON, .specific.weapon={ \
-            .weapon_category=WEAPON_CATEGORY_1H_RANGED, .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=_range, \
-            .rof[WEAPON_ROF_SETTING_SINGLE]=rof_single, .rof[WEAPON_ROF_SETTING_SEMI]=rof_semi, .rof[WEAPON_ROF_SETTING_AUTO]=rof_auto, \
-            .rof_set=WEAPON_ROF_SETTING_SINGLE, .magazine_sz=mag_sz, .magazine_left=mag_sz, .penetration=_penetration, \
-            .ammo_type=AMMO_TYPE_PISTOL_LAS, .ammo_used_tid=IID_PISTOL_AMMO_LAS, .special_quality=special, .upgrades=_upgrades, \
-            .wpn_talent=TLT_1_WEAPON_TRAINING_LAS, .jammed=false, .convey_status_effect=SEID_NONE, }, .dropable=true, ranged_desc
+            .weapon_type=WEAPON_TYPE_RANGED,.weapon_category=WEAPON_CATEGORY_1H_RANGED, .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, \
+            .dmg_addition=dmg_add, .range=_range, .rof[WEAPON_ROF_SETTING_SINGLE]=rof_single, .rof[WEAPON_ROF_SETTING_SEMI]=rof_semi, \
+            .rof[WEAPON_ROF_SETTING_AUTO]=rof_auto, .rof_set=WEAPON_ROF_SETTING_SINGLE, .magazine_sz=mag_sz, .magazine_left=mag_sz, \
+            .penetration=_penetration, .ammo_type=AMMO_TYPE_PISTOL_LAS, .ammo_used_tid=IID_PISTOL_AMMO_LAS, .special_quality=special, \
+            .upgrades=_upgrades, .wpn_talent=TLT_1_WEAPON_TRAINING_LAS, .jammed=false, .convey_status_effect=SEID_NONE, }, .dropable=true, \
+            ranged_desc
 
 #define BASIC_SP(_dmg_type,dmg_die,dmg_add,_penetration,_range,rof_single,rof_semi,rof_auto,mag_sz,_upgrades,special) \
             .icon='|', .stacked_quantity=0, .max_quantity=1, .item_type=ITEM_TYPE_WEAPON, .specific.weapon={ \
-            .weapon_category=WEAPON_CATEGORY_2H_RANGED, .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=_range, \
-            .rof[WEAPON_ROF_SETTING_SINGLE]=rof_single, .rof[WEAPON_ROF_SETTING_SEMI]=rof_semi, .rof[WEAPON_ROF_SETTING_AUTO]=rof_auto, \
-            .rof_set=WEAPON_ROF_SETTING_SINGLE, .magazine_sz=mag_sz, .magazine_left=mag_sz, .penetration=_penetration, \
-            .ammo_type=AMMO_TYPE_BASIC_SP, .ammo_used_tid=IID_BASIC_AMMO_SP, .special_quality=special, .upgrades=_upgrades, \
-            .wpn_talent=TLT_1_WEAPON_TRAINING_SP, .jammed=false, .convey_status_effect=SEID_NONE, }, .dropable=true, ranged_desc
+            .weapon_type=WEAPON_TYPE_RANGED,.weapon_category=WEAPON_CATEGORY_2H_RANGED, .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, \
+            .dmg_addition=dmg_add, .range=_range, .rof[WEAPON_ROF_SETTING_SINGLE]=rof_single, .rof[WEAPON_ROF_SETTING_SEMI]=rof_semi, \
+            .rof[WEAPON_ROF_SETTING_AUTO]=rof_auto, .rof_set=WEAPON_ROF_SETTING_SINGLE, .magazine_sz=mag_sz, .magazine_left=mag_sz, \
+            .penetration=_penetration, .ammo_type=AMMO_TYPE_BASIC_SP, .ammo_used_tid=IID_BASIC_AMMO_SP, .special_quality=special, \
+            .upgrades=_upgrades, .wpn_talent=TLT_1_WEAPON_TRAINING_SP, .jammed=false, .convey_status_effect=SEID_NONE, }, .dropable=true, \
+            ranged_desc
 
 #define BASIC_LAS(_dmg_type,dmg_die,dmg_add,_penetration,_range,rof_single,rof_semi,rof_auto,mag_sz,_upgrades,special) \
             .icon='|', .stacked_quantity=0, .max_quantity=1, .item_type=ITEM_TYPE_WEAPON, .specific.weapon={ \
-            .weapon_category=WEAPON_CATEGORY_2H_RANGED, .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=_range, \
-            .rof[WEAPON_ROF_SETTING_SINGLE]=rof_single, .rof[WEAPON_ROF_SETTING_SEMI]=rof_semi, .rof[WEAPON_ROF_SETTING_AUTO]=rof_auto, \
-            .rof_set=WEAPON_ROF_SETTING_SINGLE, .magazine_sz=mag_sz, .magazine_left=mag_sz, .penetration=_penetration, \
-            .ammo_type=AMMO_TYPE_BASIC_LAS, .ammo_used_tid=IID_BASIC_AMMO_LAS, .special_quality=special, .upgrades=_upgrades, \
-            .wpn_talent=TLT_1_WEAPON_TRAINING_LAS, .jammed=false, .convey_status_effect=SEID_NONE, }, .dropable=true, ranged_desc
+            .weapon_type=WEAPON_TYPE_RANGED,.weapon_category=WEAPON_CATEGORY_2H_RANGED, .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, \
+            .dmg_addition=dmg_add, .range=_range, .rof[WEAPON_ROF_SETTING_SINGLE]=rof_single, .rof[WEAPON_ROF_SETTING_SEMI]=rof_semi, \
+            .rof[WEAPON_ROF_SETTING_AUTO]=rof_auto, .rof_set=WEAPON_ROF_SETTING_SINGLE, .magazine_sz=mag_sz, .magazine_left=mag_sz, \
+            .penetration=_penetration, .ammo_type=AMMO_TYPE_BASIC_LAS, .ammo_used_tid=IID_BASIC_AMMO_LAS, .special_quality=special, \
+            .upgrades=_upgrades, .wpn_talent=TLT_1_WEAPON_TRAINING_LAS, .jammed=false, .convey_status_effect=SEID_NONE, }, .dropable=true, \
+            ranged_desc
 
 #define THROWN_WEAPON(_dmg_type,dmg_die,dmg_add,_penetration,_range,_upgrade,special,talent) .icon='}',.stacked_quantity=1, .max_quantity=100,\
             .item_type=ITEM_TYPE_WEAPON, .specific.weapon={.weapon_type=WEAPON_TYPE_THROWN, .weapon_category=WEAPON_CATEGORY_THROWN_WEAPON, \
