@@ -423,12 +423,12 @@ void targetwin_examine(struct hrl_window *window, struct dm_map *map, struct msr
     }
     else if (wtype == WEAPON_TYPE_RANGED) {
         tohit = fght_ranged_calc_tohit(player, pos, witem, FGHT_MAIN_HAND, false);
-        ui_printf(window,"Ranged Skill: %d\n\n", msr_calculate_skill(player, MSR_SKILLS_MELEE) );
+        ui_printf(window,"Ranged Skill: %d\n\n", msr_calculate_skill(player, MSR_SKILLS_RANGED) );
         item_is_weapon = true;
     }
     else if (wtype == WEAPON_TYPE_THROWN) {
         tohit = fght_ranged_calc_tohit(player, pos, witem, FGHT_MAIN_HAND, true);
-        ui_printf(window,"Ranged Skill: %d\n\n", msr_calculate_skill(player, MSR_SKILLS_MELEE) );
+        ui_printf(window,"Ranged Skill: %d\n\n", msr_calculate_skill(player, MSR_SKILLS_RANGED) );
         item_is_weapon = true;
     }
     else item_is_weapon = false;
@@ -1307,7 +1307,7 @@ Basic weapon traning SP     ...                  |
     ui_print_reset(&pad);
     ui_printf(&pad, cs_ATTR "Name:      " cs_CLOSE " %-20s\n", mon->unique_name);
     ui_printf(&pad, cs_ATTR "Gender:    " cs_CLOSE " %-20s\n", msr_gender_string(mon) );
-    ui_printf(&pad, cs_ATTR "Race:      " cs_CLOSE " %-20s\n", mon->sd_name);
+    ui_printf(&pad, cs_ATTR "Homeworld: " cs_CLOSE " %-20s\n", cr_get_homeworld_by_id(plr->career.h_tid)->name );
     ui_printf(&pad, cs_ATTR "Background " cs_CLOSE " %-20s\n", cr_get_background_by_id(plr->career.b_tid)->name);
     ui_printf(&pad, cs_ATTR "Role       " cs_CLOSE " %-20s\n", cr_get_role_by_id(plr->career.r_tid)->name);
 
@@ -1323,7 +1323,7 @@ Basic weapon traning SP     ...                  |
 
     ui_printf(&pad, "\n");
     ui_printf(&pad, "\n");
-    ui_printf(&pad,           cs_ATTR "Cmb"  cs_CLOSE "   %-2d\n", msr_calculate_characteristic(mon, MSR_CHAR_COMBAT) );
+    ui_printf(&pad,           cs_ATTR "Cmb" cs_CLOSE "  %-2d\n", msr_calculate_characteristic(mon, MSR_CHAR_COMBAT) );
     ui_printf(&pad,           cs_ATTR "Str" cs_CLOSE "  %-2d", msr_calculate_characteristic(mon, MSR_CHAR_STRENGTH) );
         ui_printf(&pad, "   " cs_ATTR "Tgh" cs_CLOSE "   %-2d\n", msr_calculate_characteristic(mon, MSR_CHAR_TOUGHNESS) );
     ui_printf(&pad,           cs_ATTR "Agi" cs_CLOSE "  %-2d", msr_calculate_characteristic(mon, MSR_CHAR_AGILITY) );
@@ -1376,7 +1376,7 @@ Basic weapon traning SP     ...                  |
         if (msr_has_skill(mon, i) ) {
             enum msr_skill_rate skillrate = msr_has_skill(mon,  i);
             lg_debug("skill rate: %d", skillrate);
-            ui_printf(&pad, "%-20s (%s)\n", msr_skill_names(i),  msr_skillrate_names(skillrate));
+            ui_printf(&pad, "%-20s %s\n", msr_skill_names(i),  msr_skillrate_names(skillrate));
         }
     }
     ui_printf(&pad, "\n");
