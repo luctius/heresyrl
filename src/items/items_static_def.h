@@ -102,14 +102,14 @@ $ is for money
 #define MARTIAL(wpn_cat,dmg_die,dmg_add,_dmg_type,_penetration,special) .icon=' ',.stacked_quantity=0, .max_quantity=0,\
             .item_type=ITEM_TYPE_WEAPON, .dropable=false, .specific.weapon={.weapon_type=WEAPON_TYPE_MELEE,\
             .weapon_category=wpn_cat, .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=0,\
-            .penetration=_penetration, .special_quality=bf(WPN_SPCQLTY_CREATURE) | special, .wpn_talent=TLT_NONE, .convey_status_effect=SEID_NONE, }, \
-            martial_desc
+            .penetration=_penetration, .special_quality=bf(WPN_SPCQLTY_CREATURE) | special, .wpn_talent=TLT_NONE, \
+            .convey_status_effect=SEID_NONE, }, martial_desc
 
 #define CREATURE_MELEE(wpn_cat,dmg_die,dmg_add,_dmg_type,_penetration,special) .icon=' ',.stacked_quantity=0, .max_quantity=0,\
             .item_type=ITEM_TYPE_WEAPON, .dropable=false, .specific.weapon={.weapon_type=WEAPON_TYPE_MELEE,\
             .weapon_category=wpn_cat, .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, .dmg_addition=dmg_add, .range=0,\
-            .penetration=_penetration, .special_quality=bf(WPN_SPCQLTY_CREATURE) | special, .wpn_talent=TLT_NONE, .convey_status_effect=SEID_NONE, }, \
-            creature_desc
+            .penetration=_penetration, .special_quality=bf(WPN_SPCQLTY_CREATURE) | special, .wpn_talent=TLT_NONE, \
+            .convey_status_effect=SEID_NONE, }, creature_desc
 
 #define MELEE_1H(dmg_die,dmg_add,_dmg_type,_penetration,special,talent) .icon=')',.stacked_quantity=0, .max_quantity=0,\
             .item_type=ITEM_TYPE_WEAPON, .specific.weapon={.weapon_type=WEAPON_TYPE_MELEE, .weapon_category=WEAPON_CATEGORY_1H_MELEE, \
@@ -134,36 +134,36 @@ $ is for money
             .weapon_type=WEAPON_TYPE_RANGED,.weapon_category=WEAPON_CATEGORY_1H_RANGED, .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, \
             .dmg_addition=dmg_add, .range=_range, .rof[WEAPON_ROF_SETTING_SINGLE]=rof_single, .rof[WEAPON_ROF_SETTING_SEMI]=rof_semi, \
             .rof[WEAPON_ROF_SETTING_AUTO]=rof_auto, .rof_set=WEAPON_ROF_SETTING_SINGLE, .magazine_sz=mag_sz, .magazine_left=mag_sz, \
-            .penetration=_penetration, .ammo_type=AMMO_TYPE_PISTOL_SP, .ammo_used_tid=IID_PISTOL_AMMO_SP, .special_quality=special, \
-            .upgrades=_upgrades, .wpn_talent=TLT_1_WEAPON_TRAINING_SP, .jammed=false, .convey_status_effect=SEID_NONE, }, .dropable=true, \
-            ranged_desc
+            .penetration=_penetration, .ammo_type=AMMO_TYPE_PISTOL_SP, .ammo_used_tid=IID_PISTOL_AMMO_SP, \
+            .special_quality=bf(WPN_SPCQLTY_JAMS) | special, .upgrades=_upgrades, .wpn_talent=TLT_1_WEAPON_TRAINING_SP, .jammed=false, \
+            .convey_status_effect=SEID_NONE, }, .dropable=true, ranged_desc
 
 #define PISTOL_LAS(_dmg_type,dmg_die,dmg_add,_penetration,_range,rof_single,rof_semi,rof_auto,mag_sz,_upgrades,special) \
             .icon='|', .stacked_quantity=0, .max_quantity=1, .item_type=ITEM_TYPE_WEAPON, .specific.weapon={ \
             .weapon_type=WEAPON_TYPE_RANGED,.weapon_category=WEAPON_CATEGORY_1H_RANGED, .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, \
             .dmg_addition=dmg_add, .range=_range, .rof[WEAPON_ROF_SETTING_SINGLE]=rof_single, .rof[WEAPON_ROF_SETTING_SEMI]=rof_semi, \
             .rof[WEAPON_ROF_SETTING_AUTO]=rof_auto, .rof_set=WEAPON_ROF_SETTING_SINGLE, .magazine_sz=mag_sz, .magazine_left=mag_sz, \
-            .penetration=_penetration, .ammo_type=AMMO_TYPE_PISTOL_LAS, .ammo_used_tid=IID_PISTOL_AMMO_LAS, .special_quality=special, \
-            .upgrades=_upgrades, .wpn_talent=TLT_1_WEAPON_TRAINING_LAS, .jammed=false, .convey_status_effect=SEID_NONE, }, .dropable=true, \
-            ranged_desc
+            .penetration=_penetration, .ammo_type=AMMO_TYPE_PISTOL_LAS, .ammo_used_tid=IID_PISTOL_AMMO_LAS, \
+            .special_quality=bf(WPN_SPCQLTY_JAMS) | special, .upgrades=_upgrades, .wpn_talent=TLT_1_WEAPON_TRAINING_LAS, .jammed=false, \
+            .convey_status_effect=SEID_NONE, }, .dropable=true, ranged_desc
 
 #define BASIC_SP(_dmg_type,dmg_die,dmg_add,_penetration,_range,rof_single,rof_semi,rof_auto,mag_sz,_upgrades,special) \
             .icon='|', .stacked_quantity=0, .max_quantity=1, .item_type=ITEM_TYPE_WEAPON, .specific.weapon={ \
             .weapon_type=WEAPON_TYPE_RANGED,.weapon_category=WEAPON_CATEGORY_2H_RANGED, .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, \
             .dmg_addition=dmg_add, .range=_range, .rof[WEAPON_ROF_SETTING_SINGLE]=rof_single, .rof[WEAPON_ROF_SETTING_SEMI]=rof_semi, \
             .rof[WEAPON_ROF_SETTING_AUTO]=rof_auto, .rof_set=WEAPON_ROF_SETTING_SINGLE, .magazine_sz=mag_sz, .magazine_left=mag_sz, \
-            .penetration=_penetration, .ammo_type=AMMO_TYPE_BASIC_SP, .ammo_used_tid=IID_BASIC_AMMO_SP, .special_quality=special, \
-            .upgrades=_upgrades, .wpn_talent=TLT_1_WEAPON_TRAINING_SP, .jammed=false, .convey_status_effect=SEID_NONE, }, .dropable=true, \
-            ranged_desc
+            .penetration=_penetration, .ammo_type=AMMO_TYPE_BASIC_SP, .ammo_used_tid=IID_BASIC_AMMO_SP, \
+            .special_quality=bf(WPN_SPCQLTY_JAMS) | special, .upgrades=_upgrades, .wpn_talent=TLT_1_WEAPON_TRAINING_SP, .jammed=false, \
+            .convey_status_effect=SEID_NONE, }, .dropable=true, ranged_desc
 
 #define BASIC_LAS(_dmg_type,dmg_die,dmg_add,_penetration,_range,rof_single,rof_semi,rof_auto,mag_sz,_upgrades,special) \
             .icon='|', .stacked_quantity=0, .max_quantity=1, .item_type=ITEM_TYPE_WEAPON, .specific.weapon={ \
             .weapon_type=WEAPON_TYPE_RANGED,.weapon_category=WEAPON_CATEGORY_2H_RANGED, .dmg_type=_dmg_type, .nr_dmg_die=dmg_die, \
             .dmg_addition=dmg_add, .range=_range, .rof[WEAPON_ROF_SETTING_SINGLE]=rof_single, .rof[WEAPON_ROF_SETTING_SEMI]=rof_semi, \
             .rof[WEAPON_ROF_SETTING_AUTO]=rof_auto, .rof_set=WEAPON_ROF_SETTING_SINGLE, .magazine_sz=mag_sz, .magazine_left=mag_sz, \
-            .penetration=_penetration, .ammo_type=AMMO_TYPE_BASIC_LAS, .ammo_used_tid=IID_BASIC_AMMO_LAS, .special_quality=special, \
-            .upgrades=_upgrades, .wpn_talent=TLT_1_WEAPON_TRAINING_LAS, .jammed=false, .convey_status_effect=SEID_NONE, }, .dropable=true, \
-            ranged_desc
+            .penetration=_penetration, .ammo_type=AMMO_TYPE_BASIC_LAS, .ammo_used_tid=IID_BASIC_AMMO_LAS, \
+            .special_quality=bf(WPN_SPCQLTY_JAMS) | special, .upgrades=_upgrades, .wpn_talent=TLT_1_WEAPON_TRAINING_LAS, .jammed=false, \
+            .convey_status_effect=SEID_NONE, }, .dropable=true, ranged_desc
 
 #define THROWN_WEAPON(_dmg_type,dmg_die,dmg_add,_penetration,_range,_upgrade,special,talent) .icon='}',.stacked_quantity=1, .max_quantity=100,\
             .item_type=ITEM_TYPE_WEAPON, .specific.weapon={.weapon_type=WEAPON_TYPE_THROWN, .weapon_category=WEAPON_CATEGORY_THROWN_WEAPON, \
@@ -211,7 +211,6 @@ static const char *itm_descs[] = {
     /* Throwing */
     [IID_FRAG_GRENADE]      = "",
     [IID_FIRE_BOMB]         = "",
-    [IID_BODYPART_GRENADE]  = "used in status effects",
     [IID_THROWING_KNIFE]    = "",
 
     /* Ranged */
@@ -245,11 +244,11 @@ static const char *itm_descs[] = {
     [IID_MUSHROOM_MAD_CAP] = "A mad cap mushroom",
 
     /* Debug and internal items */
-    [IID_HUMAN_UNARMED]           = "",
-    [IID_CREATURE_BITE_UNTRAINED] = "",
-    [IID_CREATURE_BITE_TRAINED]   = "",
-    [IID_BODYPART_GRENADE]  = "used in status effects",
-    [IID_STIMM_DEATH]      = "Death stimm injector *debug*",
+    [IID_HUMAN_UNARMED]           = "error",
+    [IID_CREATURE_BITE_UNTRAINED] = "error",
+    [IID_CREATURE_BITE_TRAINED]   = "error",
+    [IID_BODYPART_GRENADE]        = "error",
+    [IID_STIMM_DEATH]             = "Death stimm injector *debug*",
 };
 
 static struct itm_item static_item_list[] = {
@@ -288,7 +287,6 @@ static struct itm_item static_item_list[] = {
     ITEM_AVG(IID_LONG_BOW,      "long bow",      "a long bow",      90,15, 0.5),LOW_TECH(DMG_TYPE_IMPACT,1, 3, 1, 16,          0           ), CREATION(10,1), ITEM_END,
 
     /*    ID                    short name       long name        (wgt,cst,dly)            dmg type      xd10 +x pen range S/X/X) mag_sz  upgrades special qualities */
-
     ITEM_AVG(IID_STUB_AUTOMATIC,"stub automatic","a stub automatic",15, 50, 1), PISTOL_SP(DMG_TYPE_IMPACT,  1, 3, 0, 30,   1,3,0,  9,     0,            0                 ), CREATION(10,1), ITEM_END,
     ITEM_AVG(IID_STUB_REVOLVER, "stub revolver", "a stub revolver", 15, 40, 2), PISTOL_SP(DMG_TYPE_IMPACT,  1, 3, 0, 30,   1,0,0,  6,     0,     bf(WPN_SPCQLTY_RELIABLE) ), CREATION(10,1), ITEM_END,
     ITEM_AVG(IID_LAS_PISTOL,    "las pistol",    "a las pistol",    17, 50, 1), PISTOL_LAS(DMG_TYPE_ENERGY, 1, 2, 0, 30,   1,0,0,  30,    0,     bf(WPN_SPCQLTY_RELIABLE) ), CREATION(10,1), ITEM_END,
@@ -388,71 +386,63 @@ static const char *ammo_type_strings[] = {
 
 
 static const char *wpn_spcqlty_name[] = {
-    [WPN_SPCQLTY_ACCURATE]      = "Accurate",
-    [WPN_SPCQLTY_BALANCED]      = "Balanced",
+    /*[WPN_SPCQLTY_ACCURATE]      = "Accurate",*/
     [WPN_SPCQLTY_BLAST_1]       = "Blast 1",
     [WPN_SPCQLTY_BLAST_2]       = "Blast 2",
     [WPN_SPCQLTY_BLAST_3]       = "Blast 3",
     [WPN_SPCQLTY_BLAST_4]       = "Blast 4",
     [WPN_SPCQLTY_DEFENSIVE]     = "Defensive",
     [WPN_SPCQLTY_FAST]          = "Fast",
-    [WPN_SPCQLTY_FLAME]         = "Flame",
+    /*[WPN_SPCQLTY_FLAME]         = "Flame",*/
     [WPN_SPCQLTY_FLEXIBLE]      = "Flexible",
-    [WPN_SPCQLTY_IMPACT]        = "Impact",
-    [WPN_SPCQLTY_INACCURATE]    = "Inaccurate",
+    /*[WPN_SPCQLTY_INACCURATE]    = "Inaccurate",*/
     [WPN_SPCQLTY_JAMS]          = "Jams",
     [WPN_SPCQLTY_LIGHT]         = "Light",
-    [WPN_SPCQLTY_OVERHEATS]     = "Overheats",
+    /*[WPN_SPCQLTY_OVERHEATS]     = "Overheats",*/
     [WPN_SPCQLTY_PRIMITIVE]     = "Primitive",
-    [WPN_SPCQLTY_PRECISE]       = "Precise",
-    [WPN_SPCQLTY_PUMMELING]     = "Pummeling",
     [WPN_SPCQLTY_RELIABLE]      = "Reliable",
-    [WPN_SPCQLTY_SCATTER]       = "Scatter",
-    [WPN_SPCQLTY_SHOCKING]      = "Shocking",
+    /*[WPN_SPCQLTY_SCATTER]       = "Scatter",*/
+    /*[WPN_SPCQLTY_SHOCKING]      = "Shocking",*/
     [WPN_SPCQLTY_SHIELD]        = "Shield",
     [WPN_SPCQLTY_SLOW]          = "Slow",
-    [WPN_SPCQLTY_SMOKE]         = "Smoke",
+    /*[WPN_SPCQLTY_SMOKE]         = "Smoke",*/
     [WPN_SPCQLTY_TEARING]       = "Tearing",
-    [WPN_SPCQLTY_TOXIC]         = "Toxic",
+    /*[WPN_SPCQLTY_TOXIC]         = "Toxic",*/
     [WPN_SPCQLTY_UNARMED]       = "Unarmed",
     [WPN_SPCQLTY_UNBALANCED]    = "Unbalanced",
     [WPN_SPCQLTY_UNRELIABLE]    = "Unreliable",
-    [WPN_SPCQLTY_UNSTABLE]      = "Unstable",
+    /*[WPN_SPCQLTY_UNSTABLE]      = "Unstable",*/
     [WPN_SPCQLTY_UNWIELDY]      = "Unwieldy",
 };
 
 static const char *wpn_spcqlty_desc[] = {
-    [WPN_SPCQLTY_ACCURATE]      = " Additional +10 to hit when used with the aim action ",
-    [WPN_SPCQLTY_BALANCED]      = " +10 Parry ",
-    [WPN_SPCQLTY_BLAST_1]       = " All within the weapon's blast radius in squares is hit ",
-    [WPN_SPCQLTY_BLAST_2]       = " All within the weapon's blast radius in squares is hit ",
-    [WPN_SPCQLTY_BLAST_3]       = " All within the weapon's blast radius in squares is hit ",
-    [WPN_SPCQLTY_BLAST_4]       = " All within the weapon's blast radius in squares is hit ",
-    [WPN_SPCQLTY_DEFENSIVE]     = " +15 Parry, -10 to hit  ",
-    [WPN_SPCQLTY_FAST]          = " -10% to parry or dodge against ",
-    [WPN_SPCQLTY_FLAME]         = " No BS Test, All in arc take Agility Test or take damage, 2nd Ag. test to avoid catch fire. ",
-    [WPN_SPCQLTY_FLEXIBLE]      = " Cannot be Parried. ",
-    [WPN_SPCQLTY_IMPACT]        = " Damage is rolled twice and the highest is picked. ",
-    [WPN_SPCQLTY_INACCURATE]    = " No bonus with aim action ",
-    [WPN_SPCQLTY_JAMS]          = " Can Jam on 95% ",
-    [WPN_SPCQLTY_LIGHT]         = " This light weapon is easier to handle in your off-hand ",
-    [WPN_SPCQLTY_OVERHEATS]     = " 90+ -> Overheat ",
-    [WPN_SPCQLTY_PRIMITIVE]     = " AP doubled, unless armour is also primitive ",
-    [WPN_SPCQLTY_PRECISE]       = " +2 Critical hit value ",
-    [WPN_SPCQLTY_PUMMELING]     = " +10% on Strength for Strike to Stun ",
-    [WPN_SPCQLTY_RELIABLE]      = " If jam, 10 on 1d10 to actually jam.",
-    [WPN_SPCQLTY_SCATTER]       = " Point Blank: 2 DoS score another hit, AP doubled at Long and Extreme ranges. ",
-    [WPN_SPCQLTY_SHOCKING]      = " If damage, test Toughness or be stunned. ",
-    [WPN_SPCQLTY_SHIELD]        = " Gives ranged attackers a -10% to hit.",
-    [WPN_SPCQLTY_SLOW]          = " Defenders can parry this weapon easier.",
-    [WPN_SPCQLTY_SMOKE]         = " Creates smoke screen 3d10 metres in diameters, lasts 2d10 Rounds. ",
-    [WPN_SPCQLTY_TEARING]       = " Roll twice, take highest damage ",
-    [WPN_SPCQLTY_TOXIC]         = " if damage, teest toughness -5 for every damage taken. if failed, take 1d10 extra impact damage. ",
-    [WPN_SPCQLTY_UNARMED]       = " 1d5-3 +Str, Armour doubles ",
-    [WPN_SPCQLTY_UNBALANCED]    = " -10 when parry ",
-    [WPN_SPCQLTY_UNRELIABLE]    = " jams on 90+ ",
-    [WPN_SPCQLTY_UNSTABLE]      = " on hit, roll 1d10: 1: half dmg, 2-9: normal, 10: double damage ",
-    [WPN_SPCQLTY_UNWIELDY]      = " Cannot be used to parry. ",
+    /*[WPN_SPCQLTY_ACCURATE]      = "Additional +10 to hit when used with the aim action ",*/
+    [WPN_SPCQLTY_BLAST_1]       = "All within 1 squares is hit",
+    [WPN_SPCQLTY_BLAST_2]       = "All within 2 squares is hit",
+    [WPN_SPCQLTY_BLAST_3]       = "All within 3 squares is hit",
+    [WPN_SPCQLTY_BLAST_4]       = "All within 4 squares is hit",
+    [WPN_SPCQLTY_DEFENSIVE]     = "Easier to parry with: +5 Parry ",
+    [WPN_SPCQLTY_FAST]          = "-10% Harder to dodge or parry against",
+    /*[WPN_SPCQLTY_FLAME]         = "No BS Test, All in arc take Agility Test or take damage, 2nd Ag. test to avoid catch fire.",*/
+    [WPN_SPCQLTY_FLEXIBLE]      = "Cannot be Parried",
+    /*[WPN_SPCQLTY_INACCURATE]    = "No bonus with aim action",*/
+    [WPN_SPCQLTY_JAMS]          = "Jams on a to-hit roll of 95+",
+    [WPN_SPCQLTY_LIGHT]         = "This light weapon is easier to handle in your off-hand",
+    /*[WPN_SPCQLTY_OVERHEATS]     = "90+ -> Overheat",*/
+    [WPN_SPCQLTY_PRIMITIVE]     = "AP doubled, unless armour is also primitive",
+    [WPN_SPCQLTY_RELIABLE]      = "Jams only on  a to-hit roll of 100",
+    /*[WPN_SPCQLTY_SCATTER]       = "Point Blank: 2 DoS score another hit, AP doubled at Long and Extreme ranges",*/
+    /*[WPN_SPCQLTY_SHOCKING]      = "If damage, test Toughness or be stunned",*/
+    [WPN_SPCQLTY_SHIELD]        = "Gives ranged attackers a -10% to hit",
+    [WPN_SPCQLTY_SLOW]          = "Defenders can parry this 5% weapon easier",
+    /* [WPN_SPCQLTY_SMOKE]         = "Creates smoke screen 3d10 metres in diameters, lasts 2d10 Rounds", */
+    [WPN_SPCQLTY_TEARING]       = "Roll an extra damage die, take highest ",
+    /* [WPN_SPCQLTY_TOXIC]         = "if damage, teest toughness -5 for every damage taken. if failed, take 1d10 extra impact damage.", */
+    [WPN_SPCQLTY_UNARMED]       = "1d5-3 +Str, Armour doubles",
+    [WPN_SPCQLTY_UNBALANCED]    = "-10 when parry",
+    [WPN_SPCQLTY_UNRELIABLE]    = "jams on 90+",
+    /* [WPN_SPCQLTY_UNSTABLE]      = "on hit, roll 1d10: 1: half dmg, 2-9: normal, 10: double damage", */
+    [WPN_SPCQLTY_UNWIELDY]      = "Cannot be used to parry with",
 };
 
 

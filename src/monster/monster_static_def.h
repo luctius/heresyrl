@@ -185,10 +185,10 @@ struct talent_descriptions_struct talent_descriptions[] = {
     { .talent = TLT_1_WEAPON_TRAINING_SHOCK,    .name = "Weapon Training (Shock)",    .description = "",               } ,
     { .talent = TLT_1_WEAPON_TRAINING_SP,       .name = "Weapon Training (SP)",       .description = "",               } ,
 
-    { .talent = TLT_2_ARMOUR_MONGER,            .name = "Armour Monger",              .description = "",               } ,
+    /*{ .talent = TLT_2_ARMOUR_MONGER,            .name = "Armour Monger",              .description = "",               } ,*/
     { .talent = TLT_2_TWO_WEAPON_FIGHTING,      .name = "Two-weapon Fighting",        .description = "",               } ,
 
-    { .talent = TLT_3_ASSASSINS_STRIKE,         .name = "Assassins Strike",           .description = "",               } ,
+    /*{ .talent = TLT_3_ASSASSINS_STRIKE,         .name = "Assassins Strike",           .description = "",               } ,*/
 
     { .talent = TLT_MAX,                        .name = "Max",                        .description = "Max",            } 
 };

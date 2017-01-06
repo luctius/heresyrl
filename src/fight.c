@@ -309,7 +309,7 @@ int fght_calc_dmg(struct random *r, struct msr_monster *monster, struct msr_mons
         int die_dmg;
         do {
             die_dmg = random_xd10(r, wpn->nr_dmg_die);
-            if (wpn_has_spc_quality(witem, WPN_SPCQLTY_IMPACT) ) {
+            if (wpn_has_spc_quality(witem, WPN_SPCQLTY_TEARING) ) {
                 int dmg2 = random_xd10(r, wpn->nr_dmg_die);
                 if (dmg2 > die_dmg) die_dmg = dmg2;
             }
@@ -427,12 +427,17 @@ int fght_ranged_roll(struct random *r, struct msr_monster *monster, struct msr_m
     /* Calculate jamming threshold*/
     int jammed_threshold = 101;
     if (wpn_has_spc_quality(witem, WPN_SPCQLTY_JAMS) ) {
-        jammed_threshold = FGHT_RANGED_JAM;
+        if (wpn_has_spc_quality(witem, WPN_SPCQLTY_RELIABLE) ) jammed_threshold = MIN(FGHT_RANGED_JAM_RELIABLE, jammed_threshold);
+        else if ( (wpn->rof_set == WEAPON_ROF_SETTING_SEMI) || (wpn->rof_set == WEAPON_ROF_SETTING_AUTO) ) jammed_threshold = MIN(FGHT_RANGED_JAM_SEMI,jammed_threshold);
+        else jammed_threshold = MIN(FGHT_RANGED_JAM, jammed_threshold);
 
-        if ( (wpn->rof_set == WEAPON_ROF_SETTING_SEMI) || (wpn->rof_set == WEAPON_ROF_SETTING_AUTO) ) jammed_threshold = MIN(FGHT_RANGED_JAM_SEMI,jammed_threshold);
-        if (wpn_has_spc_quality(witem, WPN_SPCQLTY_UNRELIABLE) ) jammed_threshold = MIN(FGHT_RANGED_JAM_UNRELIABLE, jammed_threshold);
+        if ( (wpn_has_spc_quality(witem, WPN_SPCQLTY_UNRELIABLE) ) && (wpn_has_spc_quality(witem, WPN_SPCQLTY_RELIABLE) ) ) jammed_threshold = MIN(FGHT_RANGED_JAM, jammed_threshold);
+        else if (wpn_has_spc_quality(witem, WPN_SPCQLTY_UNRELIABLE) ) jammed_threshold = MIN(FGHT_RANGED_JAM_UNRELIABLE, jammed_threshold);
+
         if (msr_has_talent(monster, wpn->wpn_talent) == false) jammed_threshold = MIN(FGHT_RANGED_JAM_UNRELIABLE, jammed_threshold);
-        if (itm_has_quality(witem, ITEM_QLTY_POOR) ) jammed_threshold = MIN(to_hit, jammed_threshold);
+
+        if ( (wpn_has_spc_quality(witem, WPN_SPCQLTY_UNRELIABLE) ) && (itm_has_quality(witem, ITEM_QLTY_POOR) ) ) jammed_threshold = MIN(to_hit, jammed_threshold);
+        else if (itm_has_quality(witem, ITEM_QLTY_POOR) ) jammed_threshold = MIN(FGHT_RANGED_JAM_UNRELIABLE, jammed_threshold);
     }
 
     lg_debug("roll %d vs to hit %d, jamm_threshold %d", roll, to_hit, jammed_threshold);
@@ -446,12 +451,6 @@ int fght_ranged_roll(struct random *r, struct msr_monster *monster, struct msr_m
     if (roll >= jammed_threshold) {
         int reltest = -1;
         wpn->jammed = true;
-        if (wpn_has_spc_quality(witem, WPN_SPCQLTY_RELIABLE) ) {
-            /* If the weapon is reliable, it only jamms on a 10 on a d10, when there is a chance to jam */
-            if ( (reltest = random_xd10(r,1) ) <= 9) {
-                wpn->jammed = false;
-            }
-        }
 
         if (wpn->jammed) {
             Your(monster,                    "%s weapon jams.",  fght_weapon_hand_name(hand) );
@@ -582,14 +581,6 @@ bool fght_melee(struct random *r, struct msr_monster *monster, struct msr_monste
         /* Do the actual damage if we did score a hit. */
         if (hits > 0) {
             fght_do_weapon_dmg(r, monster, target, hits, hand);
-        }
-
-        /* Disable parry for this hand. */
-        if (hand == FGHT_MAIN_HAND) {
-            msr_disable_evasion(monster, MSR_EVASION_MAIN_HAND);
-        }
-        else if (hand == FGHT_OFF_HAND) {
-            msr_disable_evasion(monster, MSR_EVASION_OFF_HAND);
         }
     }
 

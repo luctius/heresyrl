@@ -29,38 +29,36 @@ enum dmg_type {
 /* Check Only war for more ideas about weapon spc qualities and upgrades*/
 
 enum weapon_special_quality {
-    WPN_SPCQLTY_ACCURATE,    /* Additional +10 to hit when used with the aim action */
-    WPN_SPCQLTY_BALANCED,    /* Ignore the -20% Dual Wield Penalty */
     WPN_SPCQLTY_BLAST_1,     /* All within the weapon's blast radius in squares is hit */
     WPN_SPCQLTY_BLAST_2,     /* All within the weapon's blast radius in squares is hit */
     WPN_SPCQLTY_BLAST_3,     /* All within the weapon's blast radius in squares is hit */
     WPN_SPCQLTY_BLAST_4,     /* All within the weapon's blast radius in squares is hit */
     WPN_SPCQLTY_CREATURE,    /* Non dropable creature weapon. */
-    WPN_SPCQLTY_DEFENSIVE,   /* +10 Parry, -10 WS to attack */
-    WPN_SPCQLTY_FAST,
-    WPN_SPCQLTY_FLAME,       /* No BS Test, All in arc take Agility Test or take damage, 2nd Ag. test to avoid catch fire. */
+    WPN_SPCQLTY_DEFENSIVE,   /* +5 Parry */
+    WPN_SPCQLTY_FAST,        /* Easier to circumvent parry*/
     WPN_SPCQLTY_FLEXIBLE,    /* Cannot be Parried. */
-    WPN_SPCQLTY_IMPACT,
-    WPN_SPCQLTY_INACCURATE,  /* No bonus with aim action */
     WPN_SPCQLTY_JAMS,        /* Can Jam on 95% */
     WPN_SPCQLTY_LIGHT,       /* This light weapon is easier to handle in your off-hand. */
-    WPN_SPCQLTY_OVERHEATS,   /* 90+ -> Overheat */
-    WPN_SPCQLTY_PRECISE,
     WPN_SPCQLTY_PRIMITIVE,   /* AP doubled, unless armour is also primitive */
-    WPN_SPCQLTY_PUMMELING,
     WPN_SPCQLTY_RELIABLE,    /* If jam, 10 on 1d10 to actually jam. <I> */
-    WPN_SPCQLTY_SCATTER,     /* Point Blank: 2 DoS score another hit, AP doubled at Long and Extreme ranges. */
-    WPN_SPCQLTY_SHIELD,      /* Shield */
-    WPN_SPCQLTY_SHOCKING,    /* If damage, test Toughness or be stunned. */
-    WPN_SPCQLTY_SLOW,
-    WPN_SPCQLTY_SMOKE,       /* Creates smoke screen 3d10 metres in diameters, lasts 2d10 Rounds. */
+    WPN_SPCQLTY_SHIELD,      /* harder to hit, attacker get an -10 penalty */
+    WPN_SPCQLTY_SLOW,        /* harder to crcumvent parry */
     WPN_SPCQLTY_TEARING,     /* Roll twice, take highest damage */
-    WPN_SPCQLTY_TOXIC,       /* if damage, test toughness -5 for every damage taken. if failed, take 1d10 extra impact damage. */
     WPN_SPCQLTY_UNARMED,     /* 1d5-3 +Str, Armour doubles */
-    WPN_SPCQLTY_UNBALANCED,  /* -10 when parry */
-    WPN_SPCQLTY_UNRELIABLE,  /* jams on 90+ */
+    WPN_SPCQLTY_UNBALANCED,  /* Cannot be parried with */
+    WPN_SPCQLTY_UNRELIABLE,  /* jams on 91+ */
+    WPN_SPCQLTY_UNWIELDY,    /* -5 parry */
+#if 0
+    WPN_SPCQLTY_ACCURATE,    /* Additional +10 to hit when used with the aim action */
+    WPN_SPCQLTY_FLAME,       /* No BS Test, All in arc take Agility Test or take damage, 2nd Ag. test to avoid catch fire. */
+    WPN_SPCQLTY_INACCURATE,  /* No bonus with aim action */
+    WPN_SPCQLTY_OVERHEATS,   /* 90+ -> Overheat */
+    WPN_SPCQLTY_SCATTER,     /* Point Blank: 2 DoS score another hit, AP doubled at Long and Extreme ranges. */
+    WPN_SPCQLTY_SHOCKING,    /* If damage, test Toughness or be stunned. */
+    WPN_SPCQLTY_SMOKE,       /* Creates smoke screen 3d10 metres in diameters, lasts 2d10 Rounds. */
+    WPN_SPCQLTY_TOXIC,       /* if damage, test toughness -5 for every damage taken. if failed, take 1d10 extra impact damage. */
     WPN_SPCQLTY_UNSTABLE,
-    WPN_SPCQLTY_UNWIELDY,
+#endif
     WPN_SPCQLTY_MAX,
 };
 
@@ -71,7 +69,7 @@ enum wearable_special_quality {
 };
 
 enum weapon_upgrades {
-    WPN_UPG_COMPACT,
+    /*WPN_UPG_COMPACT,
     WPN_UPG_EXTERMINATOR,
     WPN_UPG_EXTRA_GRIP,
     WPN_UPG_FIRE_SELECTOR,
@@ -80,15 +78,17 @@ enum weapon_upgrades {
     WPN_UPG_OVERCHARGE_PACK,
     WPN_UPG_RED_DOT,
     WPN_UPG_SILENCER,
-    WPN_UPG_TELESCOPE_SIGHT,
+    WPN_UPG_TELESCOPE_SIGHT,*/
     WPN_UPG_MAX,
 };
 
 enum ammo_upgrades {
+#if 0
     AMMO_UPG_DUMDUM,     /* +2 dmg, armour doubles */
     AMMO_UPG_HOTSHOT,    /* +1 dmg, tearing, +pen 4, clip_sz == 1, -reliable */
     AMMO_UPG_INFERNO,    /* Ag test or catch fire */
     AMMO_UPG_MANSTOPPER, /* +3 Penetration */
+#endif
     AMMO_UPG_MAX,
 };
 
@@ -114,10 +114,12 @@ enum msr_skills {
 };
 
 enum msr_creature_traits {
+    CTRTRT_DARK_SIGHT,
+#if 0
     CTRTRT_BESTIAL,
     CTRTRT_BLIND,
-    CTRTRT_DARK_SIGHT,
     CTRTRT_FEAR,
+#endif
     CTRTRT_MAX,
 };
 
@@ -170,10 +172,10 @@ enum msr_talents {
     TLT_1_WEAPON_TRAINING_SHOCK    = MSR_TALENT(0, 29),
     TLT_1_WEAPON_TRAINING_SP       = MSR_TALENT(0, 30),
 
-    TLT_2_ARMOUR_MONGER            = MSR_TALENT(1, 0),
+    /*TLT_2_ARMOUR_MONGER            = MSR_TALENT(1, 0),*/
     TLT_2_TWO_WEAPON_FIGHTING      = MSR_TALENT(1, 1),
 
-    TLT_3_ASSASSINS_STRIKE         = MSR_TALENT(2, 0),
+    /*TLT_3_ASSASSINS_STRIKE         = MSR_TALENT(2, 0),*/
 
     TLT_MAX,        /*TLT_MAX is also used as an eof marker*/
 };
