@@ -347,6 +347,7 @@ bool char_creation_window(void) {
         i++;
     }
 
+    plr->loan = 500;
     plr->career.xp_current = 500;
     levelup_selection_window();
 
