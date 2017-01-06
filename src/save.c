@@ -96,10 +96,21 @@ static bool sv_save_player(FILE *file, int indent, struct pl_player *plr) {
     if (file == NULL) return false;
 
     svprintf_open(file, "player=");
+        svprintf(file,"loan= %d,", plr->loan);
         svprintf_open(file, "career=");
-            //svprintf(file,"career_id= %d,", plr->career->tid);
             svprintf(file,"xp_current= %d,", plr->career.xp_current);
             svprintf(file,"xp_spend= %d,", plr->career.xp_spend);
+            svprintf(file,"h_tid= %d,", plr->career.h_tid);
+            svprintf(file,"b_tid= %d,", plr->career.b_tid);
+            svprintf(file,"r_tid= %d,", plr->career.r_tid);
+            svprintf(file,"aptitudes= %" PRIu32 ",", plr->career.aptitudes);
+            if (!options.test_mode) svprintf(file,"play_seconds= %" PRIu64 ",", plr->career.play_seconds);
+            svprintf_open(file, "achievements=");
+                for (int i = 0; i < ACHIEVEMENTS_MAX; i++) {
+                    svprintf(file,"turn= %d,", plr->career.achievements[i].turn);
+                    svprintf(file,"achievement=\"%s\",", plr->career.achievements[i].achievement);
+                }
+            svprintf_close(file);
         svprintf_close(file);
         svprintf_open(file,"quest=");
             svprintf(file,"tid=%d,", plr->quest->tid);
@@ -335,7 +346,12 @@ static bool sv_save_items(FILE *file, int indent) {
                                 svprintf(file, "energy=%d,", tool->energy);
                             svprintf_close(file);
                         } break;
-                    case ITEM_TYPE_AMMO: { } break;
+                    case ITEM_TYPE_AMMO: { 
+                            struct item_ammo_specific *ammo = &item->specific.ammo;
+                            svprintf_open(file, "ammo=");
+                                svprintf(file, "energy=%d,", ammo->energy);
+                            svprintf_close(file);
+                        } break;
                     default: break;
                 }
             svprintf_close(file);

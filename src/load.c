@@ -342,9 +342,17 @@ static bool load_player(lua_State *L, struct pl_player *plr) {
     uint64_t t;
     if (L == NULL) return false;
 
+    lua_intexpr(L, &t, "game.player.loan");                plr->loan = t;
+    lua_intexpr(L, &t, "game.player.career.h_tid");        plr->career.h_tid = t;
+    lua_intexpr(L, &t, "game.player.career.b_tid");        plr->career.b_tid = t;
+    lua_intexpr(L, &t, "game.player.career.r_tid");        plr->career.r_tid = t;
+    cr_init_career(plr, plr->career.h_tid, plr->career.b_tid, plr->career.r_tid);
+    lua_intexpr(L, &t, "game.player.career.aptitudes");    plr->career.aptitudes = t;
+    if (lua_intexpr(L, &t, "game.player.career.play_seconds") == 0)    plr->career.play_seconds = t;
+    else plr->career.play_seconds = 0;
+
     lua_intexpr(L, &t, "game.player.career.xp_spend");     plr->career.xp_spend = t;
     lua_intexpr(L, &t, "game.player.career.xp_current");   plr->career.xp_current = t;
-    //lua_intexpr(L, &t, "game.player.career_id");    plr->career = cr_get_career_by_id(t);
 
     lua_intexpr(L, &t, "game.player.quest.tid");    plr->quest = qst_by_tid(t);
     lua_intexpr(L, &t, "game.player.quest.state");  plr->quest->state = t;
@@ -400,6 +408,8 @@ static bool load_items_list(lua_State *L) {
                     lua_intexpr(L, &t, "game.items[%d].tool.energy", i+1); tool->energy = t;
                 } break;
             case ITEM_TYPE_AMMO: {
+                    struct item_ammo_specific *ammo = &item->specific.ammo;
+                    lua_intexpr(L, &t, "game.items[%d].ammo.energy", i+1); ammo->energy = t;
                 } break;
             default: break;
         }
