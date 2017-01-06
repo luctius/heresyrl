@@ -47,9 +47,6 @@ enum msr_gender {
 };
 
 enum msr_race {
-    MSR_RACE_DWARF,
-    MSR_RACE_ELF,
-    MSR_RACE_HALFLING,
     MSR_RACE_HUMAN,
     MSR_RACE_GREENSKIN,
     MSR_RACE_BEAST,

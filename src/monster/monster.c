@@ -178,9 +178,6 @@ struct msr_monster *msr_create(enum msr_ids tid) {
     m->monster.monster_post = MONSTER_POST_CHECK;
 
     switch (m->monster.race) {
-        case MSR_RACE_DWARF:
-        case MSR_RACE_ELF:
-        case MSR_RACE_HALFLING:
         case MSR_RACE_HUMAN:
         case MSR_RACE_GREENSKIN:
             m->monster.inventory = inv_init(inv_loc_human);
@@ -571,9 +568,6 @@ enum msr_hit_location msr_get_hit_location(struct msr_monster *monster, int hit_
     const int *hitloc_tbl = NULL;
 
     switch (monster->race) {
-        case MSR_RACE_DWARF:
-        case MSR_RACE_ELF:
-        case MSR_RACE_HALFLING:
         case MSR_RACE_GREENSKIN:
         case MSR_RACE_HUMAN:
             hitloc_tbl = human_hitloc_lotable;
@@ -757,7 +751,6 @@ int msr_calculate_carrying_capacity(struct msr_monster *monster) {
 
     int str = msr_calculate_characteristic(monster, MSR_CHAR_STRENGTH);
     int modifier = 10;
-    if (monster->race == MSR_RACE_DWARF) modifier = 20;
     return (str * modifier);
 }
 

@@ -246,9 +246,6 @@ static void init_bestial_ai(struct msr_monster *monster) {
 
 void ai_monster_init(struct msr_monster *monster, uint32_t leader_uid) {
     switch(monster->race) {
-        case MSR_RACE_DWARF:
-        case MSR_RACE_ELF:
-        case MSR_RACE_HALFLING:
         case MSR_RACE_GREENSKIN:
         case MSR_RACE_HUMAN: init_human_ai(monster); break;
 
