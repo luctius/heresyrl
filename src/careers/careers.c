@@ -91,6 +91,13 @@ void cr_init_career(struct pl_player *plr, enum homeworld_ids htid, enum backgro
     plr->career.xp_current = 0;
     plr->career.xp_spend   = 0;
 
+    plr->player->characteristic[MSR_CHAR_COMBAT].base_value         += random_xd10(gbl_game->random, 1);
+    plr->player->characteristic[MSR_CHAR_STRENGTH].base_value       += random_xd10(gbl_game->random, 1);
+    plr->player->characteristic[MSR_CHAR_TOUGHNESS].base_value      += random_xd10(gbl_game->random, 1);
+    plr->player->characteristic[MSR_CHAR_AGILITY].base_value        += random_xd10(gbl_game->random, 1);
+    plr->player->characteristic[MSR_CHAR_INTELLIGENCE].base_value   += random_xd10(gbl_game->random, 1);
+    plr->player->characteristic[MSR_CHAR_WILLPOWER].base_value      += random_xd10(gbl_game->random, 1);
+    plr->player->characteristic[MSR_CHAR_PERCEPTION].base_value     += random_xd10(gbl_game->random, 1);
     plr->player->wounds.max  = cr_get_homeworld_by_id(htid)->wounds + random_xd5(gbl_game->random, 1);
     plr->player->wounds.curr = plr->player->wounds.max;
 

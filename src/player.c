@@ -41,44 +41,6 @@
 
 static bool plr_action_loop(struct msr_monster *player);
 
-void plr_create(struct pl_player *plr, char *name, uint32_t template_id, enum msr_gender gender) {
-    if (plr->player != NULL) {
-        msr_destroy(plr->player, NULL);
-        plr->player = NULL;
-    }
-
-    plr->player = msr_create(template_id);
-    struct msr_monster *player = plr->player;
-    assert(player != NULL);
-    assert(player->race < MSR_RACE_MAX);
-
-    player->unique_name = name;
-    player->gender      = gender;
-    player->is_player   = true;
-
-    player->characteristic[MSR_CHAR_COMBAT].base_value         += random_xd10(gbl_game->random, 1);
-    player->characteristic[MSR_CHAR_STRENGTH].base_value       += random_xd10(gbl_game->random, 1);
-    player->characteristic[MSR_CHAR_TOUGHNESS].base_value      += random_xd10(gbl_game->random, 1);
-    player->characteristic[MSR_CHAR_AGILITY].base_value        += random_xd10(gbl_game->random, 1);
-    player->characteristic[MSR_CHAR_INTELLIGENCE].base_value   += random_xd10(gbl_game->random, 1);
-    player->characteristic[MSR_CHAR_WILLPOWER].base_value      += random_xd10(gbl_game->random, 1);
-    player->characteristic[MSR_CHAR_PERCEPTION].base_value     += random_xd10(gbl_game->random, 1);
-    player->wounds.max    += random_xd5(gbl_game->random, 1);
-    player->wounds.curr   = player->wounds.max;
-    player->fate_points   = 1;
-
-    /*
-    plr->career = cr_get_career_by_id(cr_spawn(random_int32(gbl_game->random), player->race) );
-    lg_debug("player %s becomes an %s", name, plr->career->title);
-    cr_give_trappings_to_player(plr->career, player);
-    */
-
-    plr->player_map_pos = cd_create(0,0);
-    plr->quest = NULL;
-    plr->level = 1;
-    plr->loan = 500;
-}
-
 bool plr_init(struct pl_player *plr) {
     struct monster_controller mc = {
         .ai = {
