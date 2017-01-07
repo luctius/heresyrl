@@ -84,6 +84,9 @@ void cr_init_career(struct pl_player *plr, enum homeworld_ids htid, enum backgro
     session_time_start = time(NULL);
     plr->career.play_seconds = 0;
 
+    plr->player->gender      = MSR_GENDER_MALE;
+    plr->player->is_player   = true;
+
     plr->career.h_tid = htid;
     plr->career.b_tid = btid;
     plr->career.r_tid = btid;
