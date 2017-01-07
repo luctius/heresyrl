@@ -23,12 +23,12 @@
 #include "status_effects/status_effects_static.h"
 #include "monster/monster.h"
 
-#define STATUS_EFFECT_MAX_NR_EFFECTS    5
+#define STATUS_EFFECT_MAX_ATOMS    5
 #define STATUS_EFFECT_CRITICAL_MAX      10
 #define STATUS_EFFECT_CRITICAL_RATIO    0.5f
-hrl_static_assert((STATUS_EFFECT_CRITICAL_MAX * STATUS_EFFECT_CRITICAL_RATIO) == STATUS_EFFECT_MAX_NR_EFFECTS, "Status Effect Maximums do not make sense.");
+hrl_static_assert((STATUS_EFFECT_CRITICAL_MAX * STATUS_EFFECT_CRITICAL_RATIO) == STATUS_EFFECT_MAX_ATOMS, "Status Effect Maximums do not make sense.");
 
-enum status_effect_flags {
+enum status_effect_setting_flags {
     /* The status_effect is active and should be processed. */
     SEF_ACTIVE,
 
@@ -45,7 +45,7 @@ enum status_effect_flags {
     SEF_MAX,
 };
 
-enum status_effect_effect_flags {
+enum status_effect_flags {
     EF_NONE,
 
     EF_SET_CHAR,            /* param == enum msr_characteristic */
@@ -99,7 +99,7 @@ enum status_effect_effect_flags {
     EF_MAX,
 };
 
-enum status_effect_setting_flags {
+enum status_effect_atom_setting_flags {
     /* if set, this effect is used. */
     EF_SETT_ACTIVE,
 
@@ -110,16 +110,10 @@ enum status_effect_setting_flags {
        set the effect to inactive.  */
     EF_SETT_BENEFICIAL,
 
-    /* Mutual Exclusive Damage types */
-    EF_SETT_DMG_TYPE_ARROW,
-    EF_SETT_DMG_TYPE_BLUNT,
-    EF_SETT_DMG_TYPE_BULLET,
-    EF_SETT_DMG_TYPE_CLAW,
-    EF_SETT_DMG_TYPE_CUTTING,
     EF_SETT_DMG_TYPE_ENERGY,
-    EF_SETT_DMG_TYPE_PIERCING,
-    EF_SETT_DMG_TYPE_SHRAPNEL,
-    EF_SETT_DMG_TYPE_UNARMED,
+    EF_SETT_DMG_TYPE_EXPLOSIVE,
+    EF_SETT_DMG_TYPE_IMPACT,
+    EF_SETT_DMG_TYPE_RENDING,
 
     EF_SETT_HITLOC_RANDOM,
 
@@ -134,12 +128,13 @@ enum se_strength {
     EF_STRENGTH_4D10 = 104,
 };
 
-enum se_check_flags {
+enum status_effect_atom_check_flags {
     EF_CHECK_ACTIVE,
 
     /* Mutual exclusive check type. */
     EF_CHECK_CHARACTERISTIC,
     EF_CHECK_SKILL,
+    /* ---------------------------- */
 
     EF_CHECK_EACH_INTERVAL,
     EF_CHECK_BENEFICIAL, /* Effect is active on success instead of failure. */
@@ -152,8 +147,8 @@ enum se_heal_flags {
     EF_HEAL_MAGIC_ONLY,
 };
 
-struct se_type_struct {
-    enum status_effect_effect_flags effect;
+struct status_effect_atom_struct {
+    enum status_effect_flags effect;
     bitfield32_t effect_setting_flags;
 
     int8_t strength;
@@ -195,7 +190,7 @@ struct status_effect {
     int8_t heal_difficulty;
     enum se_ids heal_evolve_tid;
 
-    struct se_type_struct effects[STATUS_EFFECT_MAX_NR_EFFECTS];
+    struct status_effect_atom_struct effects[STATUS_EFFECT_MAX_ATOMS];
 
     /* operational variables */
     int duration_energy_min;
@@ -222,47 +217,42 @@ void se_remove_all_non_permanent(struct msr_monster *monster);
 
 bool se_verify_status_effect(struct status_effect *se);
 
-struct status_effect *se_get_status_effect_tid(struct msr_monster *monster, enum se_ids tid);
-struct status_effect *se_get_effect(struct msr_monster *monster, enum status_effect_effect_flags effect);
-bool se_has_non_healable_permanent_effect(struct msr_monster *monster, enum status_effect_effect_flags effect);
-bool se_has_flag(struct status_effect *se, enum status_effect_flags flag);
-bool se_has_effect(struct msr_monster *monster, enum status_effect_effect_flags effect);
-bool se_has_tid(struct status_effect_list *se_list, enum se_ids tid);
-int se_status_effect_strength(struct msr_monster *monster, enum status_effect_effect_flags effect, int param); /* set param to -1 for any. */
+struct status_effect *se_get_effect(struct msr_monster *monster, enum status_effect_flags effect);
+bool se_has_non_healable_permanent_effect(struct msr_monster *monster, enum status_effect_flags effect);
+bool se_has_flag(struct status_effect *se, enum status_effect_setting_flags flag);
+bool se_has_effect(struct msr_monster *monster, enum status_effect_flags effect);
+int se_status_effect_strength(struct msr_monster *monster, enum status_effect_flags effect, int param); /* set param to -1 for any. */
 bool se_add_energy(struct status_effect *se, int32_t energy);
-
-struct status_effect *se_create(enum se_ids tid); /* Do NOT use directly unless you know what you are doing. */
-bool se_add_to_list(struct msr_monster *monster, struct status_effect *con);
 
 bool se_add_status_effect(struct msr_monster *monster, uint32_t tid, const char *origin);
 bool se_remove_status_effect(struct msr_monster *monster, struct status_effect *con);
 bool se_remove_effects_by_tid(struct msr_monster *monster, uint32_t tid);
-void se_remove_status_effects_by_effect(struct msr_monster *monster, enum status_effect_effect_flags effect);
+void se_remove_status_effects_by_effect(struct msr_monster *monster, enum status_effect_flags effect);
 
 bool se_heal_status_effect(struct msr_monster *monster, struct msr_monster *healer, struct status_effect *con, bool magic);
 bool se_add_critical_hit(struct msr_monster *monster, const char *origin, int dmg, enum msr_hit_location mhl, enum dmg_type type);
 
 void se_dbg_check_all(void);
 
-const char *se_effect_names(enum status_effect_effect_flags f);
+const char *se_effect_names(enum status_effect_flags f);
 
-static inline bool effect_set_flag(struct se_type_struct *ces, enum status_effect_setting_flags flag) {
+static inline bool effect_set_flag(struct status_effect_atom_struct *ces, enum status_effect_atom_setting_flags flag) {
     return set_bf(ces->effect_setting_flags, flag);
 }
-static inline bool effect_clr_flag(struct se_type_struct *ces, enum status_effect_setting_flags flag) {
+static inline bool effect_clr_flag(struct status_effect_atom_struct *ces, enum status_effect_atom_setting_flags flag) {
     return clr_bf(ces->effect_setting_flags, flag);
 }
-static inline bool effect_has_flag(struct se_type_struct *ces, enum status_effect_setting_flags flag) {
+static inline bool effect_has_flag(struct status_effect_atom_struct *ces, enum status_effect_atom_setting_flags flag) {
     return test_bf(ces->effect_setting_flags, flag);
 }
 
-static inline bool check_effect_set_flag(struct status_effect *c, enum se_check_flags flag) {
+static inline bool check_effect_set_flag(struct status_effect *c, enum status_effect_atom_check_flags flag) {
     return set_bf(c->check_flags, flag);
 }
-static inline bool check_effect_clr_flag(struct status_effect *c, enum se_check_flags flag) {
+static inline bool check_effect_clr_flag(struct status_effect *c, enum status_effect_atom_check_flags flag) {
     return clr_bf(c->check_flags, flag);
 }
-static inline bool check_effect_has_flag(struct status_effect *c, enum se_check_flags flag) {
+static inline bool check_effect_has_flag(struct status_effect *c, enum status_effect_atom_check_flags flag) {
     return test_bf(c->check_flags, flag);
 }
 static inline bool effect_heal_set_flag(struct status_effect *c, enum se_heal_flags flag) {
@@ -276,14 +266,18 @@ static inline bool effect_heal_has_flag(struct status_effect *c, enum se_heal_fl
 }
 
 
-static inline bool status_effect_set_flag(struct status_effect *c, enum status_effect_flags flag) {
+static inline bool status_effect_set_flag(struct status_effect *c, enum status_effect_setting_flags flag) {
     return set_bf(c->setting_flags, flag);
 }
-static inline bool status_effect_clr_flag(struct status_effect *c, enum status_effect_flags flag) {
+static inline bool status_effect_clr_flag(struct status_effect *c, enum status_effect_setting_flags flag) {
     return clr_bf(c->setting_flags, flag);
 }
-static inline bool status_effect_has_flag(struct status_effect *c, enum status_effect_flags flag) {
+static inline bool status_effect_has_flag(struct status_effect *c, enum status_effect_setting_flags flag) {
     return test_bf(c->setting_flags, flag);
 }
+
+/* used by load game */
+struct status_effect *se_create(enum se_ids tid); /* Do NOT use directly unless you know what you are doing. */
+bool se_add_to_list(struct msr_monster *monster, struct status_effect *con);
 
 #endif /* STATUS_EFFECTS_H */

@@ -248,7 +248,7 @@ static bool sv_save_status_effects(FILE *file, int indent) {
 
                 int e_sz = 0;
                 svprintf_open(file, "effects=");
-                    for (int i = 0; i < STATUS_EFFECT_MAX_NR_EFFECTS; i++) {
+                    for (int i = 0; i < STATUS_EFFECT_MAX_ATOMS; i++) {
                         if (se->effects[i].effect == EF_NONE) break;
                         if (status_effect_has_flag(se, SEF_ACTIVE) == false) break;
                         svprintf_open(file, "");

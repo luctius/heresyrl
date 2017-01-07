@@ -32,6 +32,9 @@
 #include "items/items_static.h"
 #include "dungeon/dungeon_map.h"
 
+static bool se_has_tid(struct status_effect_list *se_list, enum se_ids tid);
+static struct status_effect *se_get_status_effect_by_tid(struct msr_monster *monster, enum se_ids tid);
+
 struct se_entry {
     struct status_effect status_effect;
     LIST_ENTRY(se_entry) entries;
@@ -175,7 +178,7 @@ int se_list_size(struct status_effect_list *se_list) {
     return i;
 }
 
-static int se_calc_strength(struct se_type_struct *ces) {
+static int se_calc_strength(struct status_effect_atom_struct *ces) {
     int dmg = 0;
     switch(ces->strength) {
         default: dmg = ces->strength; break;
@@ -228,7 +231,7 @@ struct status_effect *se_create(enum se_ids tid) {
     lg_debug("Creating se: %p(%s) duration: %d, max: %d", cc, cc->name, cc->duration_energy, cc->duration_energy_max);
 
     for (unsigned int i = 0; i < ARRAY_SZ(cc->effects); i++ ) {
-        struct se_type_struct *ces = &cc->effects[i];
+        struct status_effect_atom_struct *ces = &cc->effects[i];
         if (effect_has_flag(ces, EF_SETT_ACTIVE) ) {
             ces->strength = se_calc_strength(ces);
         }
@@ -268,7 +271,7 @@ bool se_add_status_effect(struct msr_monster *monster, uint32_t tid, const char 
 
     /* Check if the status effect does allready exist in this list. */
     if (se_has_tid(se_list, tid) ) {
-        c = se_get_status_effect_tid(monster, tid);
+        c = se_get_status_effect_by_tid(monster, tid);
         if (c != NULL) {
             lg_debug("Monster already has an instance of status_effect: %s", c->name);
 
@@ -296,7 +299,7 @@ bool se_add_status_effect(struct msr_monster *monster, uint32_t tid, const char 
     return se_add_to_list(monster, c);
 }
 
-void se_process_effects_last(struct se_type_struct *ces, struct msr_monster *monster, struct status_effect *c);
+void se_process_atom_last(struct status_effect_atom_struct *ces, struct msr_monster *monster, struct status_effect *c);
 
 bool se_heal_status_effect(struct msr_monster *monster, struct msr_monster *healer, struct status_effect *con, bool magic) {
     if (monster == NULL) return false;
@@ -337,10 +340,10 @@ bool se_remove_status_effect(struct msr_monster *monster, struct status_effect *
             struct status_effect_list_entry *sele = container_of(ce, struct status_effect_list_entry, se);
 
             for (unsigned int i = 0; i < (ARRAY_SZ(con->effects) ); i++) {
-                struct se_type_struct *ces = &con->effects[i];
+                struct status_effect_atom_struct *ces = &con->effects[i];
                 if (effect_has_flag(ces, EF_SETT_ACTIVE) == false) continue;
 
-                se_process_effects_last(ces, monster, con);
+                se_process_atom_last(ces, monster, con);
             }
 
             LIST_REMOVE(ce, entries);
@@ -371,7 +374,7 @@ bool se_remove_effects_by_tid(struct msr_monster *monster, uint32_t tid) {
     return found;
 }
 
-void se_remove_status_effects_by_effect(struct msr_monster *monster, enum status_effect_effect_flags effect) {
+void se_remove_status_effects_by_effect(struct msr_monster *monster, enum status_effect_flags effect) {
     struct status_effect_list *se_list = monster->status_effects;
     if (se_verify_list(se_list) == false) return;
 
@@ -395,12 +398,12 @@ bool se_verify_status_effect(struct status_effect *se) {
     return true;
 }
 
-bool se_has_flag(struct status_effect *se, enum status_effect_flags flag) {
+bool se_has_flag(struct status_effect *se, enum status_effect_setting_flags flag) {
     if (se_verify_status_effect(se) == false) return false;
     return status_effect_has_flag(se, flag);
 }
 
-bool se_has_tid(struct status_effect_list *se_list, enum se_ids tid) {
+static bool se_has_tid(struct status_effect_list *se_list, enum se_ids tid) {
     if (se_verify_list(se_list) == false) return false;
 
     struct status_effect *c = NULL;
@@ -412,7 +415,7 @@ bool se_has_tid(struct status_effect_list *se_list, enum se_ids tid) {
     return false;
 }
 
-bool se_has_non_healable_permanent_effect(struct msr_monster *monster, enum status_effect_effect_flags effect) {
+bool se_has_non_healable_permanent_effect(struct msr_monster *monster, enum status_effect_flags effect) {
     struct status_effect_list *se_list = monster->status_effects;
     if (se_verify_list(se_list) == false) return false;
 
@@ -438,7 +441,7 @@ bool se_add_energy(struct status_effect *se, int32_t energy) {
     return true;
 }
 
-struct status_effect *se_get_status_effect_tid(struct msr_monster *monster, enum se_ids tid) {
+static struct status_effect *se_get_status_effect_by_tid(struct msr_monster *monster, enum se_ids tid) {
     struct status_effect_list *se_list = monster->status_effects;
     if (se_verify_list(se_list) == false) return NULL;
 
@@ -452,7 +455,7 @@ struct status_effect *se_get_status_effect_tid(struct msr_monster *monster, enum
 }
 
 /* Check if there is another status_effect with the same effect besides the one given */
-bool se_has_effect_skip(struct msr_monster *monster, enum status_effect_effect_flags effect, struct status_effect *status_effect) {
+bool se_has_effect_skip(struct msr_monster *monster, enum status_effect_flags effect, struct status_effect *status_effect) {
     struct status_effect_list *se_list = monster->status_effects;
     if (se_verify_list(se_list) == false) return false;
 
@@ -470,11 +473,11 @@ bool se_has_effect_skip(struct msr_monster *monster, enum status_effect_effect_f
     return false;
 }
 
-bool se_has_effect(struct msr_monster *monster, enum status_effect_effect_flags effect) {
+bool se_has_effect(struct msr_monster *monster, enum status_effect_flags effect) {
     return se_has_effect_skip(monster, effect, NULL);
 }
 
-struct status_effect *se_get_effect(struct msr_monster *monster, enum status_effect_effect_flags effect) {
+struct status_effect *se_get_effect(struct msr_monster *monster, enum status_effect_flags effect) {
     struct status_effect_list *se_list = monster->status_effects;
     if (se_verify_list(se_list) == false) return false;
 
@@ -490,7 +493,7 @@ struct status_effect *se_get_effect(struct msr_monster *monster, enum status_eff
     return NULL;
 }
 
-int se_status_effect_strength(struct msr_monster *monster, enum status_effect_effect_flags effect, int param) {
+int se_status_effect_strength(struct msr_monster *monster, enum status_effect_flags effect, int param) {
     struct status_effect_list *se_list = monster->status_effects;
     if (se_verify_list(se_list) == false) return -1;
     struct status_effect *c = NULL;
@@ -542,7 +545,7 @@ bool se_add_critical_hit(struct msr_monster *monster, const char *origin, int dm
     return se_add_status_effect(monster, crit_effect, origin);
 }
 
-void se_process_effects_first(struct se_type_struct *ces, struct msr_monster *monster, struct status_effect *c) {
+void se_process_atom_first(struct status_effect_atom_struct *ces, struct msr_monster *monster, struct status_effect *c) {
     if (msr_verify_monster(monster) == false) return;
     if (se_verify_status_effect(c) == false) return;
 
@@ -664,7 +667,7 @@ void se_process_effects_first(struct se_type_struct *ces, struct msr_monster *mo
     }
 }
 
-void se_process_effects_last(struct se_type_struct *ces, struct msr_monster *monster, struct status_effect *c) {
+void se_process_atom_last(struct status_effect_atom_struct *ces, struct msr_monster *monster, struct status_effect *c) {
     if (msr_verify_monster(monster) == false) return;
     if (se_verify_status_effect(c) == false) return;
 
@@ -751,7 +754,7 @@ void se_process_effects_last(struct se_type_struct *ces, struct msr_monster *mon
     effect_clr_flag(ces, EF_SETT_ACTIVE);
 }
 
-void se_process_effects_during(struct se_type_struct *ces, struct msr_monster *monster, struct status_effect *c) {
+void se_process_atom_during(struct status_effect_atom_struct *ces, struct msr_monster *monster, struct status_effect *c) {
     if (msr_verify_monster(monster) == false) return;
     if (se_verify_status_effect(c) == false) return;
 
@@ -839,7 +842,7 @@ void se_process_effects_during(struct se_type_struct *ces, struct msr_monster *m
     ces->tick_energy = ces->tick_interval_energy;
     ces->ticks_applied++;
     if ( (ces->ticks_applied >= ces->ticks_max) && (ces->ticks_max > 0) ) {
-        se_process_effects_last(ces, monster, c);
+        se_process_atom_last(ces, monster, c);
     }
 }
 
@@ -861,7 +864,7 @@ static bool se_process_effect(struct msr_monster *monster, struct status_effect 
 
     int inactive = 0;
     for (unsigned int i = 0; i < (ARRAY_SZ(c->effects) ); i++) {
-        struct se_type_struct *ces = &c->effects[i];
+        struct status_effect_atom_struct *ces = &c->effects[i];
         if (effect_has_flag(ces, EF_SETT_ACTIVE) == false) {
             inactive++;
         }
@@ -921,7 +924,7 @@ static bool se_process_effect(struct msr_monster *monster, struct status_effect 
         }
 
         for (unsigned int i = 0; i < (ARRAY_SZ(c->effects) ); i++) {
-            struct se_type_struct *ces = &c->effects[i];
+            struct status_effect_atom_struct *ces = &c->effects[i];
             if (effect_has_flag(ces, EF_SETT_ACTIVE) == false) continue;
 
             if (effect_has_flag(ces, EF_SETT_TICK) && (ces->tick_energy > 0) ) {
@@ -930,8 +933,8 @@ static bool se_process_effect(struct msr_monster *monster, struct status_effect 
             }
 
             if (first_time) {
-                se_process_effects_first(ces, monster, c);
-                se_process_effects_during(ces, monster, c);
+                se_process_atom_first(ces, monster, c);
+                se_process_atom_during(ces, monster, c);
             }
             else if (effect_has_flag(ces, EF_SETT_TICK) && (ces->tick_energy <= 0) ) {
 
@@ -956,7 +959,7 @@ static bool se_process_effect(struct msr_monster *monster, struct status_effect 
                     else if (made_check == true) status_effect_clr_flag(c, SEF_ACTIVE);
                 }
 
-                if (status_effect_has_flag(c, SEF_ACTIVE) ) se_process_effects_during(ces, monster, c);
+                if (status_effect_has_flag(c, SEF_ACTIVE) ) se_process_atom_during(ces, monster, c);
             }
         }
     }
@@ -1015,9 +1018,9 @@ void se_remove_all_non_permanent(struct msr_monster *monster) {
             if ( (status_effect_has_flag(c, SEF_ACTIVE) ) ) {
                 /* Cleanup effects */
                 for (int i = 0; i < ( (int) ARRAY_SZ(c->effects) ); i++) {
-                    struct se_type_struct *ces = &c->effects[i];
+                    struct status_effect_atom_struct *ces = &c->effects[i];
 
-                    se_process_effects_last(ces, monster, c);
+                    se_process_atom_last(ces, monster, c);
                 }
             }
 
@@ -1026,7 +1029,7 @@ void se_remove_all_non_permanent(struct msr_monster *monster) {
     }
 }
 
-const char *se_effect_names(enum status_effect_effect_flags f) {
+const char *se_effect_names(enum status_effect_flags f) {
     if (f < 0) return NULL;
     if (f >= EF_MAX ) return NULL;
     return se_names[f];

@@ -926,7 +926,7 @@ void charwin_refresh() {
     ui_printf(char_win, "\n");
 
     if (options.refresh) wrefresh(char_win->win);
-    enum status_effect_effect_flags seef[] = { EF_BLEEDING, EF_BLINDED,
+    enum status_effect_flags seef[] = { EF_BLEEDING, EF_BLINDED,
             EF_DEAFENED, EF_DISABLED_LLEG, EF_DISABLED_RLEG,
             EF_DISABLED_LARM, EF_DISABLED_RARM, EF_DISABLED_EYE, EF_ENCUMBERED,
             EF_EXHAUSTED, EF_GRAPPLED, EF_HELPLESS, EF_INVISIBLE,
