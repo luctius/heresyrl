@@ -29,6 +29,7 @@
 #include "items/items.h"
 #include "dungeon/tiles.h"
 #include "dungeon/dungeon_map.h"
+#include "status_effects/status_effects.h"
 
 
 /*
@@ -45,7 +46,7 @@ struct beast_ai_struct {
 };
 
 static bool ai_beast_loop(struct msr_monster *monster) {
-    if (monster->dead == true) {
+    if (se_has_effect(monster, EF_DEAD) ) {
         msr_clear_controller(monster);
     }
     struct dm_map *map = gbl_game->current_map;
@@ -114,7 +115,7 @@ struct human_ai_struct {
     struct pf_context *pf_ctx; /* TODO: free this correctly. */
 };
 static bool ai_human_loop(struct msr_monster *monster) {
-    if (monster->dead == true) {
+    if (se_has_effect(monster, EF_DEAD) ) {
         msr_clear_controller(monster);
     }
     struct dm_map *map = gbl_game->current_map;

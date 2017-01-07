@@ -57,17 +57,17 @@ static const struct status_effect static_status_effect_list[] = {
     STATUS_EFFECT_END,
 
     /* Draughts */
-    STATUS_EFFECT(SEID_MINOR_HEALING, "healing draught", "", 0),
+    STATUS_EFFECT(SEID_MINOR_HEALING, "Healing Stimm", "", 0),
         MESSAGES(cs_PLAYER "Your" cs_CLOSE " wounds begin to heal.", "%s's wounds begin to heal.", cs_PLAYER "You" cs_CLOSE " feel the healing wearing off.", NULL),
         EFFECTS_START
             /* Type         Effect      Flags   Strength    Param   Interval    Max Msgs */
             TICK_EFFECT(EF_HEALTH,      0,      1,          0,      2,          0,  NULL, NULL),
         EFFECTS_END,
             /*Settings      Flags   Minimum  -  Maximum Turns*/
-            SETTINGS(       0,      2,          10),
+            SETTINGS(       0,      5,          15),
     STATUS_EFFECT_END,
 
-    STATUS_EFFECT(SEID_MAD_CAP_AFTER, "mad cap mushroom after effect", "", 0),
+    STATUS_EFFECT(SEID_MAD_CAP_AFTER, "Mad Cap Mushroom After Effect", "", 0),
         MESSAGES(cs_PLAYER "You" cs_CLOSE " are exhausted from the mushrooms trip.", "%s looks exhausted.", cs_PLAYER "You" cs_CLOSE " feel the after effects slipping away.", NULL),
         EFFECTS_START
             /* Type     Effect      Flags   Strength    Param*/
@@ -79,7 +79,7 @@ static const struct status_effect static_status_effect_list[] = {
             SETTINGS(       0,      2,          5),
     STATUS_EFFECT_END,
 
-    STATUS_EFFECT(SEID_MAD_CAP, "mad cap mushroom rage", "", 0),
+    STATUS_EFFECT(SEID_MAD_CAP, "Mad Cap Mushroom Rage", "", 0),
         MESSAGES(cs_PLAYER "You" cs_CLOSE " slip into a mad and destructive rage.", "%s slips into a mad and destructive rage.", "The rage starts to wear off.", NULL),
         EFFECTS_START
             /* Type     Effect      Flags   Strength    Param*/
@@ -94,7 +94,7 @@ static const struct status_effect static_status_effect_list[] = {
     STATUS_EFFECT_END,
 
     /* Weapon Effects */
-    STATUS_EFFECT(SEID_WEAPON_FLAME, "flames", "flames are engulving you", 0),
+    STATUS_EFFECT(SEID_WEAPON_FLAME, "Flames", "Flames are engulving you", 0),
         MESSAGES(cs_PLAYER "You" cs_CLOSE " catch fire.", "%s has catched fire.", cs_PLAYER "You" cs_CLOSE " manage to put out the flames.", "%s stomps out the flames."),
         EFFECTS_START
             /* Type         Effect           Flags      Strength    param. */
@@ -129,28 +129,16 @@ static const struct status_effect static_status_effect_list[] = {
         EFFECTS_START
             /* Type     Effect      Flags   Strength   Param */
             EFFECT(EF_SWIMMING,     0,      0,         0),
-            EFFECT(EF_MODIFY_CHAR,  0,      -20,       MSR_CHAR_COMBAT),
-            EFFECT(EF_MODIFY_CHAR,  0,      -10,       MSR_CHAR_AGILITY),
-            EFFECT(EF_MODIFY_SKILL, 0,      -30,       MSR_SKILLS_DODGE),
-            EFFECT(EF_MODIFY_SKILL, 0,      -30,       MSR_SKILLS_STEALTH),
+            EFFECT(EF_MODIFY_CHAR,  0,      -15,       MSR_CHAR_COMBAT),
+            EFFECT(EF_MODIFY_CHAR,  0,      -15,       MSR_CHAR_AGILITY),
+            EFFECT(EF_MODIFY_SKILL, 0,      -15,       MSR_SKILLS_DODGE),
+            EFFECT(EF_MODIFY_SKILL, 0,      -15,       MSR_SKILLS_STEALTH),
         EFFECTS_END,
             /*Settings      Flags */
-            SETTINGS(bf(SEF_UNIQUE) | bf(SEF_PERMANENT),      0,          0),
+            SETTINGS(bf(SEF_PERMANENT),      0,          0),
     STATUS_EFFECT_END,
 
     STATUS_EFFECT(SEID_WADE, "Wading", "", 0),
-        EFFECTS_START
-            /* Type    Effect       Flags    Strength    Param */
-            EFFECT(EF_MODIFY_CHAR,  0,        -20,       MSR_CHAR_COMBAT),
-            EFFECT(EF_MODIFY_CHAR,  0,        -10,       MSR_CHAR_AGILITY),
-            EFFECT(EF_MODIFY_SKILL, 0,        -20,       MSR_SKILLS_DODGE),
-            EFFECT(EF_MODIFY_SKILL, 0,        -20,       MSR_SKILLS_STEALTH),
-        EFFECTS_END,
-            /*Settings      Flags */
-            SETTINGS(bf(SEF_UNIQUE) | bf(SEF_PERMANENT),      0,          0),
-    STATUS_EFFECT_END,
-
-    STATUS_EFFECT(SEID_MUD, "Mud", "", 0),
         EFFECTS_START
             /* Type    Effect       Flags    Strength    Param */
             EFFECT(EF_MODIFY_CHAR,  0,        -10,       MSR_CHAR_COMBAT),
@@ -159,10 +147,22 @@ static const struct status_effect static_status_effect_list[] = {
             EFFECT(EF_MODIFY_SKILL, 0,        -10,       MSR_SKILLS_STEALTH),
         EFFECTS_END,
             /*Settings      Flags */
-            SETTINGS(bf(SEF_UNIQUE) | bf(SEF_PERMANENT),      0,          0),
+            SETTINGS(bf(SEF_PERMANENT),      0,          0),
     STATUS_EFFECT_END,
 
-    STATUS_EFFECT(SEID_MAD_CAP_CLOUD, "mad cap cloud", "", 0),
+    STATUS_EFFECT(SEID_MUD, "Mud", "", 0),
+        EFFECTS_START
+            /* Type    Effect       Flags    Strength    Param */
+            EFFECT(EF_MODIFY_CHAR,  0,        -5,       MSR_CHAR_COMBAT),
+            EFFECT(EF_MODIFY_CHAR,  0,        -5,       MSR_CHAR_AGILITY),
+            EFFECT(EF_MODIFY_SKILL, 0,        -5,       MSR_SKILLS_DODGE),
+            EFFECT(EF_MODIFY_SKILL, 0,        -5,       MSR_SKILLS_STEALTH),
+        EFFECTS_END,
+            /*Settings      Flags */
+            SETTINGS(bf(SEF_PERMANENT),      0,          0),
+    STATUS_EFFECT_END,
+
+    STATUS_EFFECT(SEID_MAD_CAP_CLOUD, "Mad Cap Cloud", "", 0),
         MESSAGES(cs_PLAYER "You" cs_CLOSE " slip into a mad and destructive rage.", "%s slips into a mad and destructive rage.", "The rage starts to wear off.", NULL),
         EFFECTS_START
             /* Type     Effect      Flags   Strength    Param*/
@@ -173,23 +173,23 @@ static const struct status_effect static_status_effect_list[] = {
             EFFECT(EF_EVOLVES,      0,          0,      SEID_MAD_CAP_AFTER),
         EFFECTS_END,
             /*Settings      Flags       Minimum  -  Maximum Turns*/
-            SETTINGS(bf(SEF_UNIQUE),      3,          3),
+            SETTINGS(        0,            3,          3),
     STATUS_EFFECT_END,
 
     /*-------------------------------------------------------------------------*/
 
-    STATUS_EFFECT(SEID_ENCUMBERED, "Encumbered", "", 0),
+    STATUS_EFFECT(SEID_ENCUMBERED, "Encumbered", "", -1),
         MESSAGES(cs_PLAYER "You" cs_CLOSE " are encumbered.", NULL, cs_PLAYER "Your" cs_CLOSE " load seems manageble now.", NULL),
         EFFECTS_START
             /* Type    Effect           Flags   Strength     Param  Interval,   Max, Msgs */
             TICK_EFFECT(EF_ENCUMBERED,  0,      0,           0,     0.01,       0,   NULL, NULL),
         EFFECTS_END,
-        /*Settings      Flags                           Minimum  -  Maximum Turns*/
-        SETTINGS(bf(SEF_PERMANENT) | bf(SEF_UNIQUE),        1,          1),
+        /*Settings      Flags          Minimum  -  Maximum Turns*/
+        SETTINGS(bf(SEF_PERMANENT),        1,          1),
     STATUS_EFFECT_END,
 
     /* Healing after a fatepoint */
-    STATUS_EFFECT(SEID_FATEHEALTH, "fatepoint_health", "", 0),
+    STATUS_EFFECT(SEID_FATEHEALTH, "Fatepoint Health", "", -1),
         EFFECTS_START
             /* Type         Effect      Flags   Strength            Param   Interval   Max, Msgs*/
             TICK_EFFECT(EF_HEALTH,      0,      EF_STRENGTH_4D10,   0,      1,         0,   NULL, NULL),
@@ -199,14 +199,24 @@ static const struct status_effect static_status_effect_list[] = {
     STATUS_EFFECT_END,
 
     /* Stealth penalty after attacking */
-    STATUS_EFFECT(SEID_COMBAT_EXCITEMENT, "Combat Excitement", "", 0),
+    STATUS_EFFECT(SEID_COMBAT_EXCITEMENT, "Combat Excitement", "", -1),
         MESSAGES(NULL, NULL, cs_PLAYER "Your" cs_CLOSE " combat excitement wears down.", NULL),
         EFFECTS_START
             /* Type     Effect      Flags   Strength    Param*/
             EFFECT(EF_MODIFY_SKILL,  0,        -50,      MSR_SKILLS_STEALTH),
         EFFECTS_END,
-        /*Settings      Flags                       Minimum  -  Maximum Turns*/
-        SETTINGS(bf(SEF_PERMANENT) | bf(SEF_UNIQUE),        5,          5),
+        /*Settings      Flags      Minimum  -  Maximum Turns*/
+        SETTINGS(bf(SEF_PERMANENT),  5,          5),
+    STATUS_EFFECT_END,
+
+    /* Death */
+    STATUS_EFFECT(SEID_DEATH, "Death", "", -1),
+        EFFECTS_START
+            /* Type         Effect     Flags   Strength Param */
+            EFFECT(EF_DEAD,    0,      0,       0),
+        EFFECTS_END,
+        /*Settings   Flags       Minimum  -  Maximum Turns*/
+        SETTINGS(bf(SEF_PERMANENT),  0,          0),
     STATUS_EFFECT_END,
 
     /* Debug */
@@ -284,11 +294,7 @@ static const char *se_names[] = {
     [EF_ENEMY]              = "error",               /* param  =            = ally_faction */
     [EF_BLEEDING]           = "Bleeding",
     [EF_BLINDED]            = "Blinded",
-    [EF_BROKEN]             = "Broken",
     [EF_CONFUSED]           = "Confused",
-    [EF_COWERING]           = "Cowering",
-    [EF_DAZED]              = "Dazed",
-    [EF_DAZZLED]            = "Dazzled",
     [EF_DEAFENED]           = "Deaf",
     [EF_DISABLED_LLEG]      = "L Leg",
     [EF_DISABLED_RLEG]      = "R Leg",
@@ -296,23 +302,14 @@ static const char *se_names[] = {
     [EF_DISABLED_RARM]      = "R Arm",
     [EF_DISABLED_EYE]       = "Eye",
     [EF_ENCUMBERED]         = "Encumbered",
-    [EF_ENTANGLED]          = "Entangled",
     [EF_EXHAUSTED]          = "Exhausted",
-    [EF_FRIGHTENED]         = "Frightened",
     [EF_GRAPPLED]           = "Grappled",
     [EF_HELPLESS]           = "Helpless",
     [EF_INHIBIT_FATE_POINT] = "No Fate",
     [EF_INVISIBLE]          = "Invisible",
-    [EF_NAUSEATED]          = "Nauseated",
-    [EF_ON_FIRE]            = "Fire",
-    [EF_PANICKED]           = "Panic",
     [EF_PARALYZED]          = "Paralyzed",
-    [EF_PETRIFIED]          = "Petrified",
-    [EF_POISON]             = "Poison",
+    [EF_ON_FIRE]            = "Fire",
     [EF_PINNED]             = "Pinned",
-    [EF_PRONE]              = "Prone",
-    [EF_SHAKEN]             = "Shaken",
-    [EF_SICKENED]           = "Sickened",
     [EF_SWIMMING]           = "Swimming",
     [EF_STAGGERED]          = "Staggered",
     [EF_STUNNED]            = "Stunned",

@@ -208,8 +208,13 @@ void cr_print_morgue_file(struct pl_player *plr) {
     const int buf_max = 200;
     char buf[buf_max];
 
-    printf("%s played for %lu seconds and %" PRIu64 ".%" PRIu64 " turns\n", mon->unique_name, (unsigned long int) plr->career.play_seconds, gbl_game->turn / TT_ENERGY_TURN, gbl_game->turn % TT_ENERGY_TURN      );
+    printf("%s played for %lu seconds and %" PRIu64 ".%" PRIu64 " turns\n", mon->unique_name, (unsigned long int) plr->career.play_seconds, gbl_game->turn / TT_ENERGY_TURN, gbl_game->turn % TT_ENERGY_TURN);
     printf("%s still owed the loan-shark %d throne guilders\n", mon->unique_name, plr->loan);
+    if (se_has_effect(plr->player, EF_DEAD) ) {
+        struct status_effect *se = se_get_effect(plr->player, EF_DEAD);
+        lg_strip_colour(buf, se->origin, buf_max);
+        printf("%s was killed by %s\n", mon->unique_name, buf);
+    }
 
     printf("\n");
     printf("\n");

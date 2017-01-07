@@ -361,10 +361,10 @@ int fght_calc_dmg(struct random *r, struct msr_monster *monster, struct msr_mons
 
         Info("Doing %d%s+%d damage => %d, %d wnds left.", wpn->nr_dmg_die, random_die_name(dmg_die_sz), dmg_add, dmg, target->wounds.curr);
         msr_do_dmg(target, msr_ldname(monster), rnd_dmg, wpn->dmg_type, mhl);
-        if (target->dead) h = hits;
+        if (se_has_effect(target, EF_DEAD) ) h = hits;
     }
 
-    if ( (target->dead == false) && (total_damage > 0) ) {
+    if ( (se_has_effect(target, EF_DEAD) == false) && (total_damage > 0) ) {
         if (wpn->convey_status_effect != SEID_NONE) {
             const char *origin  = witem->ld_name;
             if (monster != NULL) origin = msr_ldname(monster);

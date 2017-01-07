@@ -44,7 +44,7 @@ void tt_process_monsters(struct dm_map *map) {
 
     monster = NULL;
     while ( (monster = msrlst_get_next_monster(monster) ) != NULL) {
-        if (monster->dead) {
+        if (se_has_effect(monster, EF_DEAD) ) {
             /* Clean-up monsters which can be cleaned up. */
             if (monster->controller.controller_cb == NULL) {
                 struct msr_monster *dead_monster = monster;
@@ -70,7 +70,7 @@ void tt_process_monsters(struct dm_map *map) {
             if (monster->is_player) update_screen();
         }
 
-        if (do_action || monster->dead) {
+        if (do_action || (se_has_effect(monster, EF_DEAD) ) ) {
             if (monster->controller.controller_cb != NULL) {
                 monster->controller.controller_cb(monster);
             }
@@ -113,7 +113,7 @@ void tt_process_status_effects(void) {
     if (gbl_game->running == false) return;
 
     while ( (monster = msrlst_get_next_monster(monster) ) != NULL) {
-        if (monster->dead == false) {
+        if (se_has_effect(monster, EF_DEAD) == false) {
             if (se_list_size(monster->status_effects) > 0 ) {
                 se_process(monster);
             }

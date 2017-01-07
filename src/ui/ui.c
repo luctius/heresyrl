@@ -142,7 +142,7 @@ static void mapwin_display_map_noref(struct dm_map *map, coord_t *player) {
     if (dm_verify_map(map) == false) return;
     if (player == NULL) return;
     if (map_win->type != HRL_WINDOW_TYPE_MAP) return;
-    if (gbl_game->player_data.player->dead) return;
+    if (se_has_effect(gbl_game->player_data.player, EF_DEAD) ) return;
     if (options.refresh == false) return;
 
     struct msr_monster *plr = dm_get_map_me(player, map)->monster;
@@ -587,6 +587,7 @@ bool mapwin_overlay_throw_item_cursor(struct gm_game *g, struct dm_map *map, coo
 
     int item_idx = 0;
     struct itm_item *item = aiu_next_unused_item(plr->player, item_idx);
+    if (item == NULL) return false;
     item->energy = TT_ENERGY_TURN;
 
     do {
@@ -925,12 +926,12 @@ void charwin_refresh() {
     ui_printf(char_win, "\n");
 
     if (options.refresh) wrefresh(char_win->win);
-    enum status_effect_effect_flags seef[] = { EF_BLEEDING, EF_BLINDED, EF_BROKEN, EF_CONFUSED,
-            EF_COWERING, EF_DAZED, EF_DAZZLED, EF_DEAFENED, EF_DISABLED_LLEG, EF_DISABLED_RLEG,
-            EF_DISABLED_LARM, EF_DISABLED_RARM, EF_DISABLED_EYE, EF_ENCUMBERED, EF_ENTANGLED,
-            EF_EXHAUSTED, EF_FRIGHTENED, EF_GRAPPLED, EF_HELPLESS, EF_INVISIBLE, EF_NAUSEATED,
-            EF_ON_FIRE, EF_PANICKED, EF_PARALYZED, EF_PETRIFIED, EF_POISON, EF_PINNED, EF_PRONE,
-            EF_SHAKEN, EF_SICKENED, EF_SWIMMING, EF_STAGGERED, EF_STUNNED, EF_UNCONSCIOUS, };
+    enum status_effect_effect_flags seef[] = { EF_BLEEDING, EF_BLINDED,
+            EF_DEAFENED, EF_DISABLED_LLEG, EF_DISABLED_RLEG,
+            EF_DISABLED_LARM, EF_DISABLED_RARM, EF_DISABLED_EYE, EF_ENCUMBERED,
+            EF_EXHAUSTED, EF_GRAPPLED, EF_HELPLESS, EF_INVISIBLE,
+            EF_ON_FIRE, EF_PARALYZED, EF_PINNED, EF_PRONE,
+            EF_SWIMMING, EF_STAGGERED, EF_STUNNED, EF_UNCONSCIOUS, };
     for (int i = 0; i < ARRAY_SZ(seef); i++) {
         if (se_has_effect(player, seef[i]) ) {
             ui_printf(char_win, "[%s]", se_effect_names(seef[i]) );

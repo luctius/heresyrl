@@ -151,10 +151,10 @@ static bool plr_action_loop(struct msr_monster *player) {
     coord_t change_pos = zero;
     coord_t *player_pos = &player->pos;
 
-    if (player->dead) {
+    if (se_has_effect(player, EF_DEAD) ) {
         if (player->fate_points > 0) {
             player->fate_points -= 1;
-            player->dead = false;
+            se_remove_status_effects_by_effect(player, EF_DEAD);
 
             msr_remove_monster(player, map);
             if (dm_tile_instance(map, TILE_TYPE_STAIRS_UP, 0, &pos) == false) exit(1);
@@ -171,12 +171,11 @@ static bool plr_action_loop(struct msr_monster *player) {
 
             return true;
         }
-    }
-
-    if (player->dead) {
-        gbl_game->running = false;
-        usleep(40000);
-        return true;
+        else {
+            gbl_game->running = false;
+            usleep(40000);
+            return true;
+        }
     }
 
     if ( ( (player->wounds.curr * 100) / player->wounds.max) < 10) {

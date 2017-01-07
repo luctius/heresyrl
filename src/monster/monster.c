@@ -228,7 +228,7 @@ bool msr_verify_monster(struct msr_monster *monster) {
         assert(msr_get_tier(monster->talents[tier]) == tier);
     }
 
-    if (monster->dead == true) return false;
+    if (se_has_effect(monster, EF_DEAD) ) return false;
 
     return true;
 }
@@ -601,13 +601,13 @@ bool msr_die(struct msr_monster *monster, const char *origin, struct dm_map *map
         gbl_game->player_data.career.killer = origin;
     }
 
-    monster->dead = true;
+    se_add_status_effect(monster, SEID_DEATH, origin);
     return true;
 }
 
 bool msr_do_dmg(struct msr_monster *monster, const char *origin, int dmg, enum dmg_type dmg_type, enum msr_hit_location mhl) {
     if (msr_verify_monster(monster) == false) return false;
-    if (monster->dead) return false;
+    if (se_has_effect(monster, EF_DEAD) ) return false;
     assert(origin != NULL);
     bool was_critical = false;
 
@@ -630,7 +630,7 @@ bool msr_do_dmg(struct msr_monster *monster, const char *origin, int dmg, enum d
                 se_add_critical_hit(monster, origin, monster->wounds.curr, mhl, dmg_type);
             }
 
-            if (monster->wounds.curr < -STATUS_EFFECT_CRITICAL_MAX && monster->dead == false) {
+            if (monster->wounds.curr < -STATUS_EFFECT_CRITICAL_MAX && (se_has_effect(monster, EF_DEAD) == false) ) {
                 lg_ai_debug(monster, "Paranoia Death (%d, max %d).", monster->wounds.curr, -STATUS_EFFECT_CRITICAL_MAX);
                 return msr_die(monster, origin, gbl_game->current_map);
             }

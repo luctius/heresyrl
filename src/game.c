@@ -146,7 +146,7 @@ void game_save(void) {
         struct pl_player *plr = &gbl_game->player_data;
         if (plr != NULL) {
             if (plr->player != NULL) {
-                if (plr->player->dead == false) {
+                if (se_has_effect(plr->player, EF_DEAD) ) {
                     if (sv_save_game(options.save_file_name, gbl_game) == true) {
                     }
                 }
@@ -187,7 +187,7 @@ bool game_exit() {
 
     struct pl_player *plr = &gbl_game->player_data;
     if (plr != NULL && plr->player != NULL) {
-        if (plr->player->dead || plr->retire) {
+        if (se_has_effect(plr->player, EF_DEAD) || plr->retire) {
             cr_print_morgue_file(plr);
         }
         free(plr->player->unique_name);

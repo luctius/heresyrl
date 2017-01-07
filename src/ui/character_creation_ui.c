@@ -57,16 +57,6 @@ bool char_creation_window(void) {
     enum background_ids b_tid;
     enum role_ids r_tid;
 
-    if (options.rnd_auto_play) {
-        int max = 100 - inp_log_key_count(gbl_game->input);
-        for (int i = max; i > 0; i--) {
-            enum inp_keys k = random_int32(gbl_game->random) % INP_KEY_MAX;
-
-            if (k == INP_KEY_QUIT) continue;
-            inp_add_to_log(gbl_game->input, k);
-        }
-    }
-
     struct pl_player *plr = &gbl_game->player_data;
     plr->player = msr_create(MID_PLAYER);
     cr_init_career(plr, CR_HWID_NONE, CR_BCKGRNDID_NONE, CR_BCKGRNDID_NONE);
@@ -87,7 +77,11 @@ bool char_creation_window(void) {
     char name_buffer[name_buffer_sz];
     memset(name_buffer, 0x0, name_buffer_sz * sizeof(char) );
     enum inp_keys k;
+
     bool name_done = false;
+    bool homeworld_done = false;
+    bool background_done = false;
+    bool role_done = false;
 
     if (options.char_name != NULL) {
         strcpy(name_buffer, options.char_name);
@@ -96,7 +90,39 @@ bool char_creation_window(void) {
         for (char *c = name_buffer; *c != 0; c++) {
             inp_add_to_log(gbl_game->input, *c);
         }
+        inp_add_to_log(gbl_game->input, '\n');
     }
+    if ( (options.char_hw != CR_HWID_NONE) ) {
+        homeworld_done = true;
+        h_tid = options.char_hw;
+
+        inp_add_to_log(gbl_game->input, INP_KEY_APPLY);
+        inp_add_to_log(gbl_game->input, (h_tid -1) );
+    }
+    if ( (options.char_bg != CR_BCKGRNDID_NONE) ) {
+        background_done = true;
+        b_tid = options.char_bg;
+
+        inp_add_to_log(gbl_game->input, INP_KEY_APPLY);
+        inp_add_to_log(gbl_game->input, (b_tid -1) );
+    }
+    if ( (options.char_role != CR_ROLEID_NONE) ) {
+        role_done = true;
+        r_tid = options.char_role;
+
+        inp_add_to_log(gbl_game->input, INP_KEY_APPLY);
+        inp_add_to_log(gbl_game->input, (r_tid -1) );
+    }
+    if (options.rnd_auto_play) {
+        int max = 100 - inp_log_key_count(gbl_game->input);
+        for (int i = max; i > 0; i--) {
+            enum inp_keys k = random_int32(gbl_game->random) % INP_KEY_MAX;
+
+            if (k == INP_KEY_QUIT) continue;
+            inp_add_to_log(gbl_game->input, k);
+        }
+    }
+
 
     while (name_done == false) {
         wrefresh(map_win->win);
@@ -129,15 +155,6 @@ bool char_creation_window(void) {
 
     ui_print_reset(map_win);
     werase(map_win->win);
-
-    bool homeworld_done = false;
-    if ( (options.char_hw != CR_HWID_NONE) ) {
-        homeworld_done = true;
-        h_tid = options.char_hw;
-
-        inp_add_to_log(gbl_game->input, INP_KEY_APPLY);
-        inp_add_to_log(gbl_game->input, 'a' + (h_tid -1) );
-    }
 
     System_msg("Please select a race by first pressing 'a' and then the letter before the race you want.");
     System_msg("This mechanism is used througout the game; first the action than the noun.");
@@ -205,15 +222,6 @@ bool char_creation_window(void) {
         }
     }
 
-    bool background_done = false;
-    if ( (options.char_bg != CR_BCKGRNDID_NONE) ) {
-        background_done = true;
-        b_tid = options.char_bg;
-
-        inp_add_to_log(gbl_game->input, INP_KEY_APPLY);
-        inp_add_to_log(gbl_game->input, 'a' + (b_tid -1) );
-    }
-
     while (!background_done) {
         ui_print_reset(map_win);
 
@@ -273,15 +281,6 @@ bool char_creation_window(void) {
             b_tid = sel_idx;
             background_done = true;
         }
-    }
-
-    bool role_done = false;
-    if ( (options.char_role != CR_ROLEID_NONE) ) {
-        role_done = true;
-        r_tid = options.char_role;
-
-        inp_add_to_log(gbl_game->input, INP_KEY_APPLY);
-        inp_add_to_log(gbl_game->input, 'a' + (r_tid -1) );
     }
 
     while (!role_done) {

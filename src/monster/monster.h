@@ -171,9 +171,6 @@ struct msr_monster {
     /* current number of corruption points, not used. */
     uint8_t corruption_points;
 
-    /* true if the monster is dead and to be cleaned up. */
-    bool dead;
-
     /* current energy of this monster */
     int energy;
 

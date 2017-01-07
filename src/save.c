@@ -138,7 +138,7 @@ static bool sv_save_monsters(FILE *file, int indent) {
     svprintf_open(file, "monsters=");
         struct msr_monster *m = NULL;
         while ( (m = msrlst_get_next_monster(m) ) != NULL) {
-            if (m->dead) continue;
+            if (se_has_effect(m, EF_DEAD) ) continue;
 
             svprintf_open(file, "");
                 svprintf(file,"uid=%d,", m->uid);

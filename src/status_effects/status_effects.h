@@ -36,7 +36,7 @@ enum status_effect_flags {
     SEF_PERMANENT,
 
     /* Only one  instance of this status_effect id will be permitted inside a list */
-    SEF_UNIQUE,
+    SEF_NON_UNIQUE,
 
     /* If true, there will be no textual updates not will
        this be visible in a character sheet */
@@ -60,14 +60,13 @@ enum status_effect_effect_flags {
 
     EF_ALLY,                /* param == ally_faction */
     EF_ENEMY,               /* param == ally_faction */
+    EF_DEAD,
+    EF_INHIBIT_FATE_POINT,
+    EF_SUMMONED,
+
     EF_BLEEDING,
     EF_BLINDED,
-    EF_BROKEN,
     EF_CONFUSED,
-    EF_COWERING,
-    EF_DAZED,
-    EF_DAZZLED,
-    EF_DEAD,
     EF_DEAFENED,
     EF_DISABLED_LLEG,
     EF_DISABLED_RLEG,
@@ -75,27 +74,17 @@ enum status_effect_effect_flags {
     EF_DISABLED_RARM,
     EF_DISABLED_EYE,
     EF_ENCUMBERED,
-    EF_ENTANGLED,
     EF_EXHAUSTED,
-    EF_FRIGHTENED,
     EF_GRAPPLED,
     EF_HELPLESS,
-    EF_INHIBIT_FATE_POINT,
     EF_INVISIBLE,
-    EF_NAUSEATED,
     EF_ON_FIRE,
-    EF_PANICKED,
     EF_PARALYZED,
-    EF_PETRIFIED,
-    EF_POISON,
     EF_PINNED,
     EF_PRONE,
-    EF_SHAKEN,
-    EF_SICKENED,
     EF_SWIMMING,
     EF_STAGGERED,
     EF_STUNNED,
-    EF_SUMMONED,
     EF_UNCONSCIOUS,
 
     EF_INSTANT_DEATH,
@@ -234,6 +223,7 @@ void se_remove_all_non_permanent(struct msr_monster *monster);
 bool se_verify_status_effect(struct status_effect *se);
 
 struct status_effect *se_get_status_effect_tid(struct msr_monster *monster, enum se_ids tid);
+struct status_effect *se_get_effect(struct msr_monster *monster, enum status_effect_effect_flags effect);
 bool se_has_non_healable_permanent_effect(struct msr_monster *monster, enum status_effect_effect_flags effect);
 bool se_has_flag(struct status_effect *se, enum status_effect_flags flag);
 bool se_has_effect(struct msr_monster *monster, enum status_effect_effect_flags effect);
@@ -247,6 +237,7 @@ bool se_add_to_list(struct msr_monster *monster, struct status_effect *con);
 bool se_add_status_effect(struct msr_monster *monster, uint32_t tid, const char *origin);
 bool se_remove_status_effect(struct msr_monster *monster, struct status_effect *con);
 bool se_remove_effects_by_tid(struct msr_monster *monster, uint32_t tid);
+void se_remove_status_effects_by_effect(struct msr_monster *monster, enum status_effect_effect_flags effect);
 
 bool se_heal_status_effect(struct msr_monster *monster, struct msr_monster *healer, struct status_effect *con, bool magic);
 bool se_add_critical_hit(struct msr_monster *monster, const char *origin, int dmg, enum msr_hit_location mhl, enum dmg_type type);

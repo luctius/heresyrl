@@ -273,7 +273,7 @@ bool se_add_status_effect(struct msr_monster *monster, uint32_t tid, const char 
             lg_debug("Monster already has an instance of status_effect: %s", c->name);
 
             /* If the condition is unique */
-            if (status_effect_has_flag(c, SEF_UNIQUE) == true) {
+            if (status_effect_has_flag(c, SEF_NON_UNIQUE) == false) {
                 /* and permanent, we do nothing */
                 if (status_effect_has_flag(c, SEF_PERMANENT) ) {
                     return true;
@@ -371,6 +371,22 @@ bool se_remove_effects_by_tid(struct msr_monster *monster, uint32_t tid) {
     return found;
 }
 
+void se_remove_status_effects_by_effect(struct msr_monster *monster, enum status_effect_effect_flags effect) {
+    struct status_effect_list *se_list = monster->status_effects;
+    if (se_verify_list(se_list) == false) return;
+
+    struct status_effect *c = NULL;
+    while ( (c = se_list_get_next_status_effect(se_list, c) ) != NULL) {
+        for (unsigned int  i = 0; i < ARRAY_SZ(c->effects); i++) {
+            if (c->effects[i].effect == effect) {
+                se_remove_status_effect(monster, c);
+                c = NULL;
+                break;
+            }
+        }
+    }
+}
+
 bool se_verify_status_effect(struct status_effect *se) {
     assert(se != NULL);
     assert(se->status_effect_pre == STATUS_EFFECT_PRE_CHECK);
@@ -458,6 +474,22 @@ bool se_has_effect(struct msr_monster *monster, enum status_effect_effect_flags 
     return se_has_effect_skip(monster, effect, NULL);
 }
 
+struct status_effect *se_get_effect(struct msr_monster *monster, enum status_effect_effect_flags effect) {
+    struct status_effect_list *se_list = monster->status_effects;
+    if (se_verify_list(se_list) == false) return false;
+
+    struct status_effect *c = NULL;
+    while ( (c = se_list_get_next_status_effect(se_list, c) ) != NULL) {
+        for (unsigned int  i = 0; i < ARRAY_SZ(c->effects); i++) {
+            if (c->effects[i].effect == effect) {
+                return c;
+            }
+        }
+    }
+
+    return NULL;
+}
+
 int se_status_effect_strength(struct msr_monster *monster, enum status_effect_effect_flags effect, int param) {
     struct status_effect_list *se_list = monster->status_effects;
     if (se_verify_list(se_list) == false) return -1;
@@ -523,36 +555,24 @@ void se_process_effects_first(struct se_type_struct *ces, struct msr_monster *mo
         case EF_ALLY: break;
         case EF_BLEEDING: break;
         case EF_BLINDED: break;
-        case EF_BROKEN: break;
         case EF_CONFUSED: break;
-        case EF_COWERING: break;
         case EF_DAMAGE: break;
-        case EF_DAZED: break;
-        case EF_DAZZLED: break;
         case EF_DEAD: break;
         case EF_DEAFENED: break;
         case EF_DISABLED_LLEG: break;
         case EF_DISABLED_RLEG: break;
         case EF_DISABLED_EYE: break;
         case EF_ENCUMBERED: break;
-        case EF_ENTANGLED: break;
         case EF_EXHAUSTED: break;
-        case EF_FRIGHTENED: break;
         case EF_GRAPPLED: break;
         case EF_HEALTH: break;
         case EF_HELPLESS: break;
         case EF_INHIBIT_FATE_POINT: break;
         case EF_INVISIBLE: break;
-        case EF_NAUSEATED: break;
         case EF_ON_FIRE: break;
-        case EF_PANICKED: break;
         case EF_PARALYZED: break;
-        case EF_PETRIFIED: break;
-        case EF_POISON: break;
         case EF_PINNED: break;
         case EF_PRONE: break;
-        case EF_SHAKEN: break;
-        case EF_SICKENED: break;
         case EF_SWIMMING: break;
         case EF_STAGGERED: break;
         case EF_STUNNED: break;
@@ -657,34 +677,22 @@ void se_process_effects_last(struct se_type_struct *ces, struct msr_monster *mon
         case EF_ALLY: break;
         case EF_BLEEDING: break;
         case EF_BLINDED: break;
-        case EF_BROKEN: break;
         case EF_CONFUSED: break;
-        case EF_COWERING: break;
-        case EF_DAZED: break;
-        case EF_DAZZLED: break;
         case EF_DEAD: break;
         case EF_DEAFENED: break;
         case EF_DISABLED_LLEG: break;
         case EF_DISABLED_RLEG: break;
         case EF_DISABLED_EYE: break;
         case EF_ENCUMBERED: break;
-        case EF_ENTANGLED: break;
         case EF_EXHAUSTED: break;
-        case EF_FRIGHTENED: break;
         case EF_GRAPPLED: break;
         case EF_HELPLESS: break;
         case EF_INHIBIT_FATE_POINT: break;
         case EF_INVISIBLE: break;
-        case EF_NAUSEATED: break;
         case EF_ON_FIRE: break;
-        case EF_PANICKED: break;
         case EF_PARALYZED: break;
-        case EF_PETRIFIED: break;
-        case EF_POISON: break;
         case EF_PINNED: break;
         case EF_PRONE: break;
-        case EF_SHAKEN: break;
-        case EF_SICKENED: break;
         case EF_SWIMMING: break;
         case EF_STAGGERED: break;
         case EF_STUNNED: break;
@@ -761,11 +769,7 @@ void se_process_effects_during(struct se_type_struct *ces, struct msr_monster *m
         case EF_ALLY: break;
         case EF_BLEEDING: break;
         case EF_BLINDED: break;
-        case EF_BROKEN: break;
         case EF_CONFUSED: break;
-        case EF_COWERING: break;
-        case EF_DAZED: break;
-        case EF_DAZZLED: break;
         case EF_DEAD: break;
         case EF_DEAFENED: break;
         case EF_DISABLED_LLEG: break;
@@ -780,23 +784,15 @@ void se_process_effects_during(struct se_type_struct *ces, struct msr_monster *m
                 lg_debug("encumbered strength: %d", ces->strength);
             } break;
 
-        case EF_ENTANGLED: break;
         case EF_EXHAUSTED: break;
-        case EF_FRIGHTENED: break;
         case EF_GRAPPLED: break;
         case EF_HELPLESS: break;
         case EF_INHIBIT_FATE_POINT: break;
         case EF_INVISIBLE: break;
-        case EF_NAUSEATED: break;
         case EF_ON_FIRE: break;
-        case EF_PANICKED: break;
         case EF_PARALYZED: break;
-        case EF_PETRIFIED: break;
-        case EF_POISON: break;
         case EF_PINNED: break;
         case EF_PRONE: break;
-        case EF_SHAKEN: break;
-        case EF_SICKENED: break;
         case EF_SWIMMING: break;
         case EF_STAGGERED: break;
         case EF_STUNNED: break;
@@ -858,7 +854,7 @@ static bool se_process_effect(struct msr_monster *monster, struct status_effect 
        if the monster is dead, do nothing.
        we do this here because an effect can cause death.
      */
-    if (monster->dead) return removed;
+    if (se_has_effect(monster, EF_DEAD) ) return removed;
 
     bool first_time = false;
     struct status_effect *c_prev = NULL;

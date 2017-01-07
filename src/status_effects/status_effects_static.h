@@ -63,6 +63,7 @@ enum se_ids {
     /*Death*/
     SEID_FATEHEALTH,
     SEID_DEATH_STIMM,
+    SEID_DEATH,
 
     SEID_MAX,
 };
