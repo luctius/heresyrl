@@ -80,17 +80,17 @@ $ is for money
             .spawn_weight=wght, .spawn_level=lvl
 
 #define FIXED_LIGHT(_tool_type,_energy,_light_luminem) \
-            .icon='/', .stacked_quantity=1, .max_quantity=100, .item_type=ITEM_TYPE_TOOL, \
+            .icon='0', .stacked_quantity=1, .max_quantity=100, .item_type=ITEM_TYPE_TOOL, \
             .specific.tool={ .tool_type=_tool_type, .energy=_energy, \
             .light_luminem=_light_luminem, .lit=false,}, .permanent_energy=true, .dropable=false
 
 #define LIGHT(_tool_type,_energy,_light_luminem) \
-            .icon='/', .stacked_quantity=1, .max_quantity=100, .item_type=ITEM_TYPE_TOOL, \
+            .icon='0', .stacked_quantity=1, .max_quantity=100, .item_type=ITEM_TYPE_TOOL, \
             .specific.tool={ .tool_type=_tool_type, .energy=_energy, \
             .light_luminem=_light_luminem, .lit=false,}, .dropable=true
 
 #define MONEY() \
-            .icon='$', .stacked_quantity=1, .max_quantity=UINT32_MAX, .item_type=ITEM_TYPE_TOOL, \
+            .icon='$', .stacked_quantity=1, .max_quantity=UINT32_MAX -2, .item_type=ITEM_TYPE_TOOL, \
             .specific.tool={ .tool_type=TOOL_TYPE_MONEY, .energy=0, \
             .light_luminem=0, .lit=false,}, .dropable=true
 
@@ -261,7 +261,7 @@ static struct itm_item static_item_list[] = {
     /* Lights */
     /*    ID              short name        long name    weight,cost,delay              tool type         energy  luminem*/
     ITEM_AVG(IID_FIXED_LIGHT, "glow-globe","a glow-globe",  1,     1,   1), FIXED_LIGHT(TOOL_TYPE_LIGHT,      1,    8),  ITEM_END,
-    ITEM_AVG(IID_GLOW_GLOBE,  "glow-globe","a glow-globe",  1,     1,   1),       LIGHT(TOOL_TYPE_LIGHT,   1000,    6), CREATION(1,1), ITEM_END,
+    ITEM_AVG(IID_GLOW_GLOBE,  "glow-globe","a glow-globe",  1,     1,   1),       LIGHT(TOOL_TYPE_LIGHT,    100,    6), CREATION(1,1), ITEM_END,
 
     /* Wearables */
     /*    ID                        short name           long name              (wgt,cst,dly)      dr   locations                                                 special qualities*/

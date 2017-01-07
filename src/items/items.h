@@ -333,6 +333,7 @@ uint32_t itm_spawn(int32_t roll, int level, enum item_group ig, struct msr_monst
 
 /* create an item instance of this template id*/
 struct itm_item *itm_create(int tid);
+struct itm_item *itm_copy(struct itm_item *item);
 
 /* destroy the item and remove it from the global item list */
 void itm_destroy(struct itm_item *item);

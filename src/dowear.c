@@ -229,7 +229,7 @@ bool dw_use_item(struct msr_monster *monster, struct itm_item *item) {
             }
 
             item->specific.tool.lit = true;
-            item->energy = item->specific.tool.energy * TT_ENERGY_TURN;
+            item->energy = item->specific.tool.energy;
             item->energy_action = true;
 
             You(monster,     "light %s.", item->ld_name);
@@ -241,7 +241,7 @@ bool dw_use_item(struct msr_monster *monster, struct itm_item *item) {
             item->specific.tool.energy = 0;
 
             if (item->energy > 0) {
-                item->specific.tool.energy = item->energy / TT_ENERGY_TURN;
+                item->specific.tool.energy = item->energy;
 
                 You(monster,     "douse %s.", item->ld_name);
                 Monster(monster, "douses %s.", item->ld_name);

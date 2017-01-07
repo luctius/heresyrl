@@ -1,14 +1,10 @@
 Version 0.1:
-    Retire: Complete game, show 'score'
-    Implementing difficulty levels.
-
     Move towards Dark Heresy 2e combined with zeihander improvements.
-        Characteristics
-            (Influence)
+        characteristic advances
+        wound advances
+        Characteristics (Influence) ??
         Skills (4 ranks: Known, Trained, Experience and Veteran)
-            Acrobatics (Agility, General)
             Medicae (Intelligence, Fieldcraft)
-            Survival (Perception, Fieldcraft)
         Talents
             Blind Fighting (Perception, Fieldcraft)
             Die Hard (Willpower, Defence)
@@ -21,40 +17,44 @@ Version 0.1:
             Rapid Reload (Agility, Fieldcraft)
             Resistance* (Toughness, Defence)
             Takedown (Melee, Offence)
-        Traits
-        Aptitudes
-        Backgrounds
-            Imperial Guard
-            Outcast
-        Roles
-            Seeker
-            Warrior
-    Talent based Actions
+    Talent based Actions, +aim
     Add stealth mode / normal mode / run mode.
-    
+    Add more critical hits to have a full system again.
+    Add to charwin: show negative and positive modifications of characteristics
+
+    BUGS:
+    ? -- Explosion touches twice? (FOV bug?)
+    X -- Create general arrays for the item use_desc, which should also be used for tools, food and wearables and for improvised weapons.
+    X -- Create Player notice response in monsters and monster notice messages for player.
+    X -- Throwing weapons tohit calculations are off.
+    X -- Archers do not shoot anymore? -- fixed?
+    X -- Switching weapons sometimes sets weapon select to unarmed. -- fixed?
+    X -- Unarmed and offhand weapons do not offer a targetting window.
+    X -- Could not wield a shortbow after dropping it (low ammo?)?
+    X -- Could not wield a knife?
+    X -- Announce seen monsters (and only once or so)
+    V -- Apply penalty for stealth on both attack and being attacked.
+    X -- Check file permissions on save_file location
+    X -- playback/test_auto do not play well with name and race set on the commandline
+    X -- stealth enemies can sometimes not been seen after attacking
+    X -- add examine to character window for skills talents and status effects
+
 
 Major Ideas:
-Critical damage should be tracked seperatly, and only normal damage can be 
-    healed through non magical means.
-Add status effect symbols to charwin, show negative and positive modifications of characteristics
 Add leader follow ai code, and improve ai in general.
-Add more critical hits to have a full system again.
-Use non-melee items in melee.
+Use non-melee items in melee and throw them.
 Dungeon generation with doors and better loops.
 Provide TERM_COLOUR <-> colour msg attr translation.
-Title Screen and Death screen. <-- New Title
+Title Screen. <-- New Title
 [C]ombine as an inventory command OR [A]lternate Use.
 Write a layer between the dungeon_map and the display map.,
     for hallucination effects etc.
-
-Later:
 Blood spatter and blood trail when a wounded monster moves.
-Charms, minor items which take the charm slot and provide minor benefit
 Create dungeon objects (like barrels) and treat them as cover
 Have campfires and monsters around them.
 Foretell the players doom.
 Overhaul replay code to add pause, rewind, slowdowns etc.
-Magic system and winds of magic
+Magic system
 Insanity system
 Corruption system
 Improve Vision and lighting code, add stealth gameplay. -- More testing and balancing is required.
@@ -63,34 +63,9 @@ Minor
 Chests with locks
 Oil and fire which spreads
 Markdown readme ingame?
-Beastmen who charge ahead for 4 tiles or so and can't stop.
+Monsters who charge ahead for 4 tiles or so and can't stop.
 '? - something should be identified with enough DoS.'
 What to do with fortune points?
-
-Reminder
-Rolling 1 on magic die causes will check or 1 insanity.
-
-BUGS:
-V -- The four cardinal directions of the FOV are touched twice.
-X -- Encumbrance reports every turn or so.
-? -- Explosion touches twice? (FOV bug?)
-X -- Torches should be held when activated, and their fuel use is bugged.
-X -- Create general arrays for the item use_desc, which should also be used for tools, food and wearables and for improvised weapons.
-X -- Create Player notice response in monsters.
-X -- Throwing weapons tohit calculations are off.
-X -- Archers do not shoot anymore? -- fixed?
-X -- Switching weapons sometimes sets weapon select to unarmed. -- fixed?
-X -- Unarmed and offhand weapons do not offer a targetting window.
-X -- Could not wield a shortbow after dropping it (low ammo?)?
-X -- Could not wield a knife?
-X -- Announce seen monsters (and only once or so)
-V -- Apply penalty for stealth on both attack and being attacked.
-X -- Check file permissions on save_file location
-X -- playback/test_auto do not play well with name and race set on the commandline
-X -- stealth enemies can sometimes not been seen after attacking
-
-Combat:
-A melee attacker attacking someone in the light should get a bonus?
 
 Links:
 
@@ -99,23 +74,3 @@ http://www.roguebasin.com/index.php?title=A_Better_Monster_AI
 
 Dungeon creation:
 http://angband.oook.cz/forum/showthread.php?t=927
-
-wfrpv2 stuff
-http://tinstargames.weebly.com/stuff-for-warhammer-fantasy-roleplay-2nd-edition.html
-http://web.archive.org/web/20080116203240/www.blackindustries.com/?template=WH&content=fanmaterial
-http://www.anothercaffeinatedday.com/wiki/fire/WFRP_2e_Resources
-http://www.windsofchaos.com/wp-content/uploads/encroachment/hugelsteins-curiosities.pdf
-http://www.windsofchaos.com/wp-content/uploads/encroachment/lesser-spell-names.pdf
-http://www.madalfred.com/Links.html
-https://cjoint.net/?sbeiklun1p
-https://dl.dropboxusercontent.com/u/34934670/ZappsHouseRules2009.zip
-
-Zweihander:
-http://grimandperilous.com/
-
-Adventures in the Old World
-Liber Adventura
-Rat-Catcher
-Because losing is as likely as seeing Ratmen.
-
-Masserschloss

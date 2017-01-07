@@ -687,10 +687,8 @@ bool fght_throw_item(struct random *r, struct msr_monster *monster, struct dm_ma
     }
 
     /* create a copy of the item to place it on the map. */
-    struct itm_item *witem_copy = itm_create(witem->tid);
+    struct itm_item *witem_copy = itm_copy(witem);
     if (witem_copy != NULL) {
-        /* copy any changes from the item to its copy */
-        witem_copy->energy = witem->energy;
         /* set the number of items in the stack to 1*/
         witem_copy->stacked_quantity = 1;
 
@@ -707,7 +705,7 @@ bool fght_throw_item(struct random *r, struct msr_monster *monster, struct dm_ma
             /* set the fuse. the item processing loop will then handle
                the explosion.  This does mean that the throwing code has
                has to set the energy. If that is not done, we set it here
-               to a defualt value. This does mean that you cannot just throw
+               to a default value. This does mean that you cannot just throw
                a grenade and expect it not to explode, but that is a use
                case I doubt many will use.  */
             if (witem_copy->energy <= 0)  witem_copy->energy = TT_ENERGY_TURN;

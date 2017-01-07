@@ -24,6 +24,7 @@
 #include "random.h"
 #include "inventory.h"
 #include "fight.h"
+#include "turn_tick.h"
 #include "random_generator.h"
 #include "dungeon/tiles.h"
 #include "dungeon/dungeon_map.h"
@@ -205,6 +206,10 @@ struct itm_item *itm_create(int tid) {
     assert(i->item.description != NULL);
 
     switch(i->item.item_type) {
+        case ITEM_TYPE_TOOL:
+            i->item.specific.tool.energy *= i->item.quality * TT_ENERGY_TURN;
+            i->item.energy = i->item.specific.tool.energy;
+            break;
         case ITEM_TYPE_FOOD:
             i->item.specific.food.nutrition_left = i->item.specific.food.nutrition * i->item.quality;
             i->item.specific.food.side_effect_chance = item_food_quality_side_effect_chance[i->item.quality];
@@ -214,6 +219,13 @@ struct itm_item *itm_create(int tid) {
     }
 
     return &i->item;
+}
+
+struct itm_item *itm_copy(struct itm_item *item) {
+    struct itm_item *copy = itm_create(item->tid);
+    uint32_t uid = copy->uid;
+    memcpy(copy, item, sizeof(*item) );
+    copy->uid = uid;
 }
 
 void itm_destroy(struct itm_item *item) {
