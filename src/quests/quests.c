@@ -238,6 +238,6 @@ void qst_get_description(struct quest *quest, char *str, int max_length) {
                 snprintf(str, max_length, "none.");
             break;
     }
-    str[max_length-1] = 0;
+    str[max_length-1] = '\0';
 }
 

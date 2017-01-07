@@ -94,6 +94,7 @@ bool plr_init(struct pl_player *plr) {
         plr->player->icon_attr = TERM_COLOUR_WHITE;
         plr->player->faction = MSR_FACTION_PLAYER;
         plr->exit_map = false;
+        plr->retire = false;
         return true;
     }
     return false;

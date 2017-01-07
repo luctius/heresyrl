@@ -187,7 +187,7 @@ bool game_exit() {
 
     struct pl_player *plr = &gbl_game->player_data;
     if (plr != NULL && plr->player != NULL) {
-        if (plr->player->dead) {
+        if (plr->player->dead || plr->retire) {
             cr_print_morgue_file(plr);
         }
         free(plr->player->unique_name);

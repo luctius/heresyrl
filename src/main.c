@@ -54,8 +54,6 @@ static void sigfunc_quit(int s) {
 
 void hr_exit() {
     ui_destroy();
-    lg_exit(gbl_log);
-    opt_exit();
 
     clear();
     refresh();          //  Print it on to the real screen
@@ -112,6 +110,8 @@ int main(int argc, char *argv[]) {
         System_msg("Loading game failed.");
         game_exit();
         hr_exit();
+        lg_exit(gbl_log);
+        opt_exit();
         exit(EXIT_FAILURE);
     }
 
@@ -153,22 +153,27 @@ int main(int argc, char *argv[]) {
 
         while(gbl_game->running == true) {
             tt_process(gbl_game->current_map);
-            if (gbl_game->running) game_new_tick();
+            if (gbl_game->running) {
+                game_new_tick();
 
-            getmaxyx(stdscr, lines, cols);
-            ui_create(cols, lines);
+                getmaxyx(stdscr, lines, cols);
+                ui_create(cols, lines);
 
-            if (gbl_game->player_data.exit_map) {
-                game_cleanup();
-                game_init_map();
+                if (gbl_game->player_data.exit_map) {
+                    game_cleanup();
+                    game_init_map();
+                }
             }
         }
     }
     else lg_error("Player invalid.");
     System_msg("Goodbye.");
 
-    game_exit();
     hr_exit();
+    game_exit();
+
+    lg_exit(gbl_log);
+    opt_exit();
     usleep(500000);
 
     printf("Done.\n");

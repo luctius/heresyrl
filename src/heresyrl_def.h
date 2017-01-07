@@ -109,6 +109,7 @@ struct pl_player {
     struct msr_monster *player;
     struct cr_career career;
     bool exit_map;
+    bool retire;
     int level;
     int loan;
 

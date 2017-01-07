@@ -925,11 +925,11 @@ void charwin_refresh() {
     ui_printf(char_win, "\n");
 
     if (options.refresh) wrefresh(char_win->win);
-    enum status_effect_effect_flags seef[] = { EF_BLEEDING, EF_BLINDED, EF_BROKEN, EF_CONFUSED, 
-            EF_COWERING, EF_DAZED, EF_DAZZLED, EF_DEAFENED, EF_DISABLED_LLEG, EF_DISABLED_RLEG, 
-            EF_DISABLED_LARM, EF_DISABLED_RARM, EF_DISABLED_EYE, EF_ENCUMBERED, EF_ENTANGLED, 
-            EF_EXHAUSTED, EF_FRIGHTENED, EF_GRAPPLED, EF_HELPLESS, EF_INVISIBLE, EF_NAUSEATED, 
-            EF_ON_FIRE, EF_PANICKED, EF_PARALYZED, EF_PETRIFIED, EF_POISON, EF_PINNED, EF_PRONE, 
+    enum status_effect_effect_flags seef[] = { EF_BLEEDING, EF_BLINDED, EF_BROKEN, EF_CONFUSED,
+            EF_COWERING, EF_DAZED, EF_DAZZLED, EF_DEAFENED, EF_DISABLED_LLEG, EF_DISABLED_RLEG,
+            EF_DISABLED_LARM, EF_DISABLED_RARM, EF_DISABLED_EYE, EF_ENCUMBERED, EF_ENTANGLED,
+            EF_EXHAUSTED, EF_FRIGHTENED, EF_GRAPPLED, EF_HELPLESS, EF_INVISIBLE, EF_NAUSEATED,
+            EF_ON_FIRE, EF_PANICKED, EF_PARALYZED, EF_PETRIFIED, EF_POISON, EF_PINNED, EF_PRONE,
             EF_SHAKEN, EF_SICKENED, EF_SWIMMING, EF_STAGGERED, EF_STUNNED, EF_UNCONSCIOUS, };
     for (int i = 0; i < ARRAY_SZ(seef); i++) {
         if (se_has_effect(player, seef[i]) ) {
@@ -2416,7 +2416,21 @@ void village_screen() {
                     case 'e': pay_loan(); break;
                     case 'f': levelup_selection_window(); break;
                     case 'g': quest_selection(r_qst); break;
-                    case 'h': ui_printf_ext(map_win, map_win->lines-5, 1, "Not Implemented yet."); break;
+                    case 'h': {
+                            System_msg("Are you sure you want to retire? (o)k/(c)ancel");
+                            switch (inp_get_input(gbl_game->input) ) {
+                                default:
+                                case INP_KEY_ESCAPE:
+                                case INP_KEY_QUIT:
+                                case INP_KEY_NO: break;
+                                case INP_KEY_YES:
+                                    watch = false;
+                                    gbl_game->player_data.exit_map = true;
+                                    gbl_game->player_data.retire = true;
+                                    gbl_game->running = false;
+                                break;
+                            }
+                        } break;
                     default: break;
                 }
                 break;
