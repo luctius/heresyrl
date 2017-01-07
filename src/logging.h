@@ -93,6 +93,7 @@ int clrstr_len(const char *txt);
 bool clrstr_is_colour(const char *txt);
 bool clrstr_is_close(const char *txt);
 int clrstr_to_attr(const char *txt);
+void lg_strip_colour(char *new_str, const char *str, size_t n);
 
 typedef void (*callback_event)(struct logging *log, struct log_entry *entry, void *priv);
 

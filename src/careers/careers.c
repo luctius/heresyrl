@@ -205,6 +205,9 @@ void cr_print_morgue_file(struct pl_player *plr) {
     plr->career.play_seconds += time(NULL) - session_time_start;
     struct msr_monster *mon = plr->player;
 
+    const int buf_max = 200;
+    char buf[buf_max];
+
     printf("%s played for %lu seconds and %" PRIu64 ".%" PRIu64 " turns\n", mon->unique_name, (unsigned long int) plr->career.play_seconds, gbl_game->turn / TT_ENERGY_TURN, gbl_game->turn % TT_ENERGY_TURN      );
     printf("%s still owed the loan-shark %d throne guilders\n", mon->unique_name, plr->loan);
 
@@ -213,25 +216,27 @@ void cr_print_morgue_file(struct pl_player *plr) {
 
     printf("Character Sheet\n");
 
-    printf("Name:       %20s\n", mon->unique_name);
+    lg_strip_colour(buf, mon->unique_name, buf_max);
+    printf("Name:       %20s\n", buf);
     printf("Gender:     %20s\n", msr_gender_string(mon) );
     printf("Homeworld:  %20s\n", cr_get_homeworld_by_id(plr->career.h_tid)->name );
     printf("Background: %20s\n", cr_get_background_by_id(plr->career.b_tid)->name);
     printf("Role:       %20s\n", cr_get_role_by_id(plr->career.r_tid)->name);
 
-    printf("Wounds: %15d/%4d\n", mon->wounds.curr, mon->wounds.max);
+    printf("Wounds:  %20d/%2d\n", mon->wounds.curr, mon->wounds.max);
     printf("XP:         %20d\n", plr->career.xp_current);
     printf("XP Spend:   %20d\n", plr->career.xp_spend);
 
-    int quest_desc_len = 100;
+    const int quest_desc_len = 100;
     char quest_desc[quest_desc_len];
     qst_get_description(plr->quest, quest_desc, quest_desc_len);
-    printf( "Quest:     %20s\n", quest_desc);
+    lg_strip_colour(buf, quest_desc, buf_max);
+    printf( "Quest:     %20s\n", buf);
     //printf( "Corruption:"  "    %d\n", mon->corruption_points);
 
     printf("\n");
     printf("\n");
-    printf("Cmb:          %-2d\n",    msr_calculate_characteristic(mon, MSR_CHAR_COMBAT) );
+    printf("Cmb:          %-2d\n", msr_calculate_characteristic(mon, MSR_CHAR_COMBAT) );
     printf("Str:          %-2d  ", msr_calculate_characteristic(mon, MSR_CHAR_STRENGTH) );   printf("Tgh:          %-2d\n", msr_calculate_characteristic(mon, MSR_CHAR_TOUGHNESS) );
     printf("Agi:          %-2d  ", msr_calculate_characteristic(mon, MSR_CHAR_AGILITY) );    printf("Int:          %-2d\n", msr_calculate_characteristic(mon, MSR_CHAR_INTELLIGENCE) );
     printf("Per:          %-2d  ", msr_calculate_characteristic(mon, MSR_CHAR_PERCEPTION) ); printf("Wil:          %-2d\n", msr_calculate_characteristic(mon, MSR_CHAR_WILLPOWER) );

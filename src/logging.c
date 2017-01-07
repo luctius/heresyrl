@@ -172,7 +172,11 @@ static void lg_print_to_file(struct logging *log_ctx, struct log_entry *entry) {
     }
 
     fprintf(fd, "[%s:%d][%s][%d] ", entry->module, entry->line, pre_format, entry->turn);
-    fprintf(fd, "%s", entry->string);
+
+    const int buf_n = 200;
+    char buf[buf_n];
+    lg_strip_colour(buf, entry->string, buf_n);
+    fprintf(fd, "%s", buf);
 
     if (entry->repeat > 1) fprintf(fd, " x%d", entry->repeat);
     fprintf(fd, "\n");
@@ -349,3 +353,18 @@ int clrstr_to_attr(const char *s) {
     return get_colour(TERM_COLOUR_L_WHITE);
 }
 
+void lg_strip_colour(char *new_str, const char *str, size_t n) {
+    memset(new_str, 0x0, n);
+
+    size_t str_n = strlen(str);
+    int nstr_i = 0;
+    for (int i = 0; i < n; i++) {
+        int skip_len = 0;
+        if (i >= str_n) break;
+
+        if ( (skip_len = clrstr_len(&str[i]) ) > 0) {
+            i += skip_len-1;
+        }
+        else new_str[nstr_i++] = str[i];
+    }
+}
