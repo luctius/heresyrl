@@ -248,6 +248,7 @@ static enum inp_keys inp_translate_key(int ch) {
         case '<':       k = INP_KEY_STAIRS_UP; break;
         case 24:        k = INP_KEY_QUIT; break;
         case 9:         k = INP_KEY_TAB; break;
+        case '\f':      k = INP_KEY_REDRAW; break;
 
         default:
             /* lg_debug("key pressed: %d.", ch); */

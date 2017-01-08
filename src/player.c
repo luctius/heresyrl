@@ -237,7 +237,7 @@ static bool plr_action_loop(struct msr_monster *player) {
                 }
                 break;
             case INP_KEY_INVENTORY:
-                has_action = invwin_inventory(gbl_game->current_map, &gbl_game->player_data); 
+                has_action = invwin_inventory(gbl_game->current_map, &gbl_game->player_data);
                 update_screen();
                 break;
             case INP_KEY_CHARACTER:
@@ -331,6 +331,7 @@ static bool plr_action_loop(struct msr_monster *player) {
                     }
                 } break;
 
+            case INP_KEY_REDRAW: update_screen(); lg_debug("redraw"); break;
             default:
                 break;
         }
