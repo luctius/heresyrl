@@ -44,6 +44,7 @@
 #include "dungeon/dungeon_map.h"
 #include "quests/quests.h"
 #include "random.h"
+#include "wizard/wizard_mode.h"
 
 void show_msg(struct hrl_window *window);
 
@@ -75,6 +76,7 @@ bool ui_create(int cols, int lines) {
         int msg_cols = cols;
         if ( (msg_cols > MSG_MAX_COLS) && (MSG_MAX_COLS != 0) ) msg_cols = MSG_MAX_COLS;
         int msg_lines = (lines) - map_lines;
+        if (options.wz_mode) msg_lines -= 1;
         if (msg_lines < MSG_MIN_LINES) msg_lines = MSG_MIN_LINES;
         if ( (msg_lines > MSG_MAX_LINES) && (MSG_MAX_LINES != 0) ) msg_lines = MSG_MAX_LINES;
 
@@ -84,7 +86,10 @@ bool ui_create(int cols, int lines) {
         int char_lines = map_lines -1;
         if ( (char_lines > CHAR_MAX_LINES) && (CHAR_MAX_LINES != 0) ) char_lines = CHAR_MAX_LINES;
 
-        int total_lines = map_lines + msg_lines;
+        int wz_lines = 0;
+        if (options.wz_mode) wz_lines = 1;
+
+        int total_lines = map_lines + msg_lines +wz_lines;
         if (total_lines < char_lines) total_lines = char_lines;
         int total_cols = map_cols + char_cols;
         if (total_cols < msg_cols) total_cols = msg_cols;
@@ -102,6 +107,7 @@ bool ui_create(int cols, int lines) {
             map_win = win_create(map_lines - l_margin, map_cols - l_margin, l_margin, c_margin, HRL_WINDOW_TYPE_MAP);
             char_win = win_create(char_lines - l_margin, char_cols - c_margin, l_margin, map_cols+1, HRL_WINDOW_TYPE_CHARACTER);
             msg_win = win_create(msg_lines - l_margin, msg_cols - c_margin, map_lines, c_margin, HRL_WINDOW_TYPE_MESSAGE);
+            if (options.wz_mode) wz_win = win_create(wz_lines, msg_cols - c_margin, map_lines + (msg_lines - l_margin), c_margin, HRL_WINDOW_TYPE_WIZARD);
             lg_set_callback(gbl_log, NULL, msgwin_log_callback);
             show_msg(msg_win);
             return true;
@@ -226,11 +232,8 @@ static void mapwin_display_map_noref(struct dm_map *map, coord_t *player) {
 
                 /* test colours */
                 {
-                    if (me->test_var == 2) {
-                        attr_mod = TERM_COLOUR_BLUE;
-                    }
-                    if (me->test_var == 1) {
-                        attr_mod = TERM_COLOUR_RED;
+                    if (me->test_var > 0) {
+                        attr_mod = me->test_var;
                     }
                 }
 

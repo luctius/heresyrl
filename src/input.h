@@ -66,6 +66,7 @@ enum inp_keys {
     INP_KEY_QUIT,
     INP_KEY_HELP,
     INP_KEY_REDRAW,
+    INP_KEY_WIZARD,
 
     INP_KEY_MAX,
     INP_KEY_BACKSPACE = KEY_BACKSPACE,

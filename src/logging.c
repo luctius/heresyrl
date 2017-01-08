@@ -163,6 +163,9 @@ static void lg_print_to_file(struct logging *log_ctx, struct log_entry *entry) {
         case LG_DEBUG_LEVEL_WARNING:
             pre_format = "Warning";
             break;
+        case LG_DEBUG_LEVEL_WIZARD:
+            pre_format = "WZ";
+            break;
         case LG_DEBUG_LEVEL_ERROR:
             pre_format = "Error";
             break;
@@ -319,6 +322,7 @@ int clrstr_len(const char *txt) {
     else if (strncmp(cs_ITEM  ,   txt, strlen(cs_ITEM) )     == 0) return strlen(cs_ITEM);
     else if (strncmp(cs_DAMAGE,   txt, strlen(cs_DAMAGE) )   == 0) return strlen(cs_DAMAGE);
     else if (strncmp(cs_WARNING,  txt, strlen(cs_WARNING) )  == 0) return strlen(cs_WARNING);
+    else if (strncmp(cs_WIZARD,   txt, strlen(cs_WIZARD) )   == 0) return strlen(cs_WIZARD);
     else if (strncmp(cs_CRITICAL, txt, strlen(cs_CRITICAL) ) == 0) return strlen(cs_CRITICAL);
     else if (strncmp(cs_GM,       txt, strlen(cs_GM) )       == 0) return strlen(cs_GM);
     else if (strncmp(cs_SYSTEM,   txt, strlen(cs_SYSTEM) )   == 0) return strlen(cs_SYSTEM);
@@ -344,6 +348,7 @@ int clrstr_to_attr(const char *s) {
     else if (strncmp(cs_ITEM  ,   s, strlen(cs_ITEM) )     == 0) return get_colour(TERM_COLOUR_VIOLET);
     else if (strncmp(cs_DAMAGE,   s, strlen(cs_DAMAGE) )   == 0) return get_colour(TERM_COLOUR_L_VIOLET);
     else if (strncmp(cs_WARNING,  s, strlen(cs_WARNING) )  == 0) return get_colour(TERM_COLOUR_L_YELLOW);
+    else if (strncmp(cs_WIZARD,  s, strlen(cs_WIZARD) )    == 0) return get_colour(TERM_COLOUR_L_PINK);
     else if (strncmp(cs_CRITICAL, s, strlen(cs_CRITICAL) ) == 0) return get_colour(TERM_COLOUR_RED);
     else if (strncmp(cs_GM,       s, strlen(cs_GM) )       == 0) return get_colour(TERM_COLOUR_L_UMBER);
     else if (strncmp(cs_SYSTEM,   s, strlen(cs_SYSTEM) )   == 0) return get_colour(TERM_COLOUR_WHITE);

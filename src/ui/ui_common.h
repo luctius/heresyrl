@@ -55,6 +55,7 @@ enum window_type {
     HRL_WINDOW_TYPE_MAP,
     HRL_WINDOW_TYPE_CHARACTER,
     HRL_WINDOW_TYPE_MESSAGE,
+    HRL_WINDOW_TYPE_WIZARD,
     HRL_WINDOW_TYPE_MAX,
 };
 
@@ -74,6 +75,7 @@ extern struct hrl_window *main_win;
 extern struct hrl_window *map_win;
 extern struct hrl_window *char_win;
 extern struct hrl_window *msg_win;
+extern struct hrl_window *wz_win;
 
 extern coord_t last_ppos;
 int get_viewport(int p, int vps, int mps);

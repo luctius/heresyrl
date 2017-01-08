@@ -37,6 +37,7 @@ struct opt_options options = {
     .print_map_only  = false,
     .test_auto       = false,
     .rnd_auto_play   = false,
+    .wz_mode         = false,
 
     .play_recording  = false,
     .play_delay      = 100,
@@ -70,6 +71,7 @@ void opt_parse_options(struct gengetopt_args_info *args_info) {
     options.test_auto       = args_info->test_auto_flag;
     options.test_mode       = args_info->test_mode_flag;
     options.rnd_auto_play   = args_info->rnd_auto_play_flag;
+    options.wz_mode         = args_info->wizard_flag;
 
     options.play_recording  = args_info->playback_flag;
     options.play_delay      = args_info->pb_delay_arg;

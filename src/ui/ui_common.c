@@ -27,6 +27,7 @@ struct hrl_window *main_win = NULL;
 struct hrl_window *map_win = NULL;
 struct hrl_window *char_win = NULL;
 struct hrl_window *msg_win = NULL;
+struct hrl_window *wz_win = NULL;
 
 coord_t last_ppos = {0,0};
 int get_viewport(int p, int vps, int mps) {

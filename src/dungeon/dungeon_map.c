@@ -384,7 +384,7 @@ bool dm_clear_map_visibility(struct dm_map *map, coord_t *start, coord_t *end) {
             dm_get_map_me(&c,map)->in_sight = false;
             dm_get_map_me(&c,map)->visible = false;
             dm_get_map_me(&c,map)->light_level = 0;
-            //dm_get_map_me(&c,map)->test_var = 0;
+            dm_get_map_me(&c,map)->test_var = 0;
             dm_get_map_me(&c,map)->icon_override = -1;
             dm_get_map_me(&c,map)->icon_attr_override = -1;
         }

@@ -54,6 +54,7 @@ extern struct logging *gbl_log;
 enum lg_debug_levels {
     LG_DEBUG_LEVEL_ERROR,
     LG_DEBUG_LEVEL_WARNING,
+    LG_DEBUG_LEVEL_WIZARD,
     LG_DEBUG_LEVEL_GAME,
     LG_DEBUG_LEVEL_GAME_INFO,
     LG_DEBUG_LEVEL_INFORMATIONAL,
@@ -83,6 +84,7 @@ Warning: Stacking multiple of the same cs_XXX is not supported yet
 #define cs_ITEM     CS_COLOUR_PRE "item" CS_COLOUR_POST
 #define cs_DAMAGE   CS_COLOUR_PRE "dmg" CS_COLOUR_POST
 #define cs_WARNING  CS_COLOUR_PRE "warning" CS_COLOUR_POST
+#define cs_WIZARD   CS_COLOUR_PRE "wizard" CS_COLOUR_POST
 #define cs_CRITICAL CS_COLOUR_PRE "critical" CS_COLOUR_POST
 #define cs_GM       CS_COLOUR_PRE "gm" CS_COLOUR_POST
 #define cs_SYSTEM   CS_COLOUR_PRE "system" CS_COLOUR_POST
@@ -111,6 +113,7 @@ void lg_add_entry(struct logging *log_ctx, struct log_entry *le_given);
 #define lg_print(f, a...)   lg_printf_l(LG_DEBUG_LEVEL_INFORMATIONAL, __FILE__, __LINE__, f, ##a)
 #define lg_debug(f, a...)   lg_printf_l(LG_DEBUG_LEVEL_DEBUG,         __FILE__, __LINE__, f, ##a)
 #define lg_warning(f, a...) lg_printf_l(LG_DEBUG_LEVEL_WARNING,       __FILE__, __LINE__, cs_WARNING f cs_CLOSE, ##a)
+#define lg_wizard(f, a...)  lg_printf_l(LG_DEBUG_LEVEL_WIZARD,        __FILE__, __LINE__, cs_WIZARD f cs_CLOSE, ##a)
 #define lg_error(f, a...)   lg_printf_l(LG_DEBUG_LEVEL_ERROR,         __FILE__, __LINE__, cs_CRITICAL f cs_CLOSE, ##a)
 #define lg_ai_debug(msr, f, a...)lg_printf_l(LG_DEBUG_LEVEL_DEBUG,    __FILE__, __LINE__, "[uid %d, tid %d (%s)] " f,  monster->uid, monster->tid, msr_ldname(monster), ##a)
 #define Info(f, a...)       lg_printf_l(LG_DEBUG_LEVEL_GAME_INFO,     __FILE__, __LINE__, f, ##a)

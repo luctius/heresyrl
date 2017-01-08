@@ -38,6 +38,7 @@
 #include "items/items.h"
 #include "careers/careers.h"
 #include "quests/quests.h"
+#include "wizard/wizard_mode.h"
 
 static bool plr_action_loop(struct msr_monster *player);
 
@@ -332,6 +333,7 @@ static bool plr_action_loop(struct msr_monster *player) {
                 } break;
 
             case INP_KEY_REDRAW: update_screen(); lg_debug("redraw"); break;
+            case INP_KEY_WIZARD: wz_mode(); break;
             default:
                 break;
         }

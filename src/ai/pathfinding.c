@@ -221,7 +221,7 @@ static bool pf_astar_loop(struct pf_context *ctx, coord_t *start, coord_t *end) 
             /* If the new cost is better, OR it was in the free state, update it */
             if ( ( (me->cost +cost) < me_new->cost) || (me_new->state == PF_ENTITY_STATE_FREE) ) {
                 me_new->cost = cost + me->cost;
-                me_new->score = me_new->cost + (pyth(pos.x - end->x, pos.y - end->y) * 2);
+                me_new->score = me_new->cost + (pyth(pos.x - end->x, pos.y - end->y) * 10);
                 me_new->distance = me->distance +1;
                 me_new->state = PF_ENTITY_STATE_OPEN;
                 pf_list_add_sort(&pos, me_new);

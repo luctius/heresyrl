@@ -38,6 +38,7 @@
 #include "items/items.h"
 #include "monster/monster.h"
 #include "dungeon/dungeon_map.h"
+#include "wizard/wizard_mode.h"
 
 static void sigfunc(int s) {
     FIX_UNUSED(s);
@@ -53,6 +54,7 @@ static void sigfunc_quit(int s) {
 }
 
 void hr_exit() {
+    if (options.wz_mode) wz_exit();
     ui_destroy();
 
     clear();
@@ -74,7 +76,6 @@ int main(int argc, char *argv[]) {
         log_size = 10000;
     }
     gbl_log = lg_init(options.log_file_name, debug_lvl, log_size);
-
     srand(time(NULL));
     game_init(NULL, rand());
 
@@ -115,10 +116,13 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
+    if (options.wz_mode) wz_init();
+
         /* char creation */
     if (valid_player == false) {
         if (char_creation_window() ) valid_player = true;
     }
+
 
     if (options.print_map_only) {
         ui_destroy();
