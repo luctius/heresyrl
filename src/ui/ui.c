@@ -1604,20 +1604,13 @@ void show_log(struct hrl_window *window, bool input) {
 
 #define SHOW_MAX_MSGS (20)
 void show_msg(struct hrl_window *window) {
-    int y = 0;
     int log_sz = lg_size(gbl_log);
     struct log_entry *tmp_entry = NULL;
     if (options.refresh == false) return;
 
-    struct hrl_window pad;
-    memmove(&pad, window, sizeof(struct hrl_window) );
-    pad.win = newpad(window->lines, window->cols);
-    assert(pad.win != NULL);
-
-    touchwin(pad.win);
-    werase(pad.win);
-
-    ui_print_reset(&pad);
+    werase(window->win);
+    scrollok(window->win, TRUE);
+    ui_print_reset(window);
 
     int ctr = 0;
     if (log_sz > 0) {
@@ -1625,10 +1618,9 @@ void show_msg(struct hrl_window *window) {
         for (int i = log_sz -1; i >= 0; i--) {
             tmp_entry = lg_peek(gbl_log, i);
             if (tmp_entry != NULL) {
-                bool print = false;
-                if (tmp_entry->level <= LG_DEBUG_LEVEL_GAME) print = true;
-
-                if (print) ctr++;
+                if (tmp_entry->level <= LG_DEBUG_LEVEL_GAME) {
+                    ctr++;
+                }
             }
             if (ctr >= window->lines) {
                 min = i;
@@ -1639,38 +1631,27 @@ void show_msg(struct hrl_window *window) {
         if (ctr > 0) {
             for (int i = min; i < log_sz; i++) {
                 bool old = false;
-                bool print = false;
 
                 tmp_entry = lg_peek(gbl_log, i);
                 if (tmp_entry != NULL) {
                     if (tmp_entry->level <= LG_DEBUG_LEVEL_GAME) {
-                        print = true;
+
                         if (tmp_entry->turn < gbl_game->plr_last_turn) {
                             old = true;
                         }
-                    }
 
-                    if (print) {
-                        char *old_str = "";
-                        char *old_str_end = "";
-                        if (old) {
-                            old_str = cs_OLD;
-                            old_str_end = cs_CLOSE;
-                        }
-
+                        if (old) ui_printf(window, "%s", cs_OLD);
+                        ui_printf(window, "%s", tmp_entry->string);
                         if (tmp_entry->repeat > 1) {
-                            y = ui_printf(&pad, "%s%s (x%d)%s\n", old_str, tmp_entry->string, tmp_entry->repeat, old_str_end);
+                            ui_printf(window, " (x%d)", tmp_entry->repeat);
                         }
-                        else y = ui_printf(&pad, "%s%s%s\n", old_str, tmp_entry->string, old_str_end);
-                        prefresh(pad.win, y - pad.lines + 1,0, pad.y, pad.x, pad.y + pad.lines, pad.x + pad.cols);
+                        if (old) ui_printf(window, "%s", cs_CLOSE);
+                        ui_printf(window, "\n");
                     }
                 }
             }
         }
     }
-
-    prefresh(pad.win, y - pad.lines + 1,0, pad.y, pad.x, pad.y + pad.lines, pad.x + pad.cols);
-    delwin(pad.win);
 }
 
 void log_window(void) {
