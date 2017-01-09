@@ -101,15 +101,13 @@ static bool plr_action_loop(struct msr_monster *player) {
             itm_verify_item(item);
         }
     }
-    game_save();
 
     gbl_game->plr_last_turn = gbl_game->turn;
-
-    coord_t zero = cd_create(0,0);
-    dm_clear_map_visibility(map, &zero, &map->sett.size);
     sgt_calculate_player_sight(map, player);
+    game_save();
 
     coord_t pos = player->pos;
+    coord_t zero = cd_create(0,0);
     coord_t change_pos = zero;
     coord_t *player_pos = &player->pos;
 

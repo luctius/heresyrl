@@ -25,6 +25,7 @@
 #include "dungeon/dungeon_map.h"
 #include "random.h"
 #include "fov/sight.h"
+#include "coord.h"
 
 #include "ui/ui.h"
 
@@ -73,6 +74,8 @@ void tt_process_monsters(struct dm_map *map) {
 
         if (do_action || (se_has_effect(monster, EF_DEAD) ) ) {
             if (monster->controller.controller_cb != NULL) {
+                coord_t zero = cd_create(0,0);
+                dm_clear_map_visibility(map, &zero, &map->sett.size);
                 sgt_calculate_all_light_sources(map);
                 monster->controller.controller_cb(monster);
             }
