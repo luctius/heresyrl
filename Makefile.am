@@ -8,62 +8,64 @@ AM_CFLAGS= -Wall -O0 -ggdb -Wextra -Wformat=2 -Wswitch-default -Wcast-align -Wpo
 #-Wpadded -Waggregate-return #this is not something you want during general development
 
 heresyrl_SOURCES =  \
-				src/save.h	\
-				src/player.h	\
-				src/heresyrl_def.h	\
-				src/input.h	\
-				src/ui/ui_common.h	\
-				src/ui/ui.h	\
-				src/ui/animate.h	\
-				src/dowear.h	\
-				src/random.h	\
-				src/cqc.h	\
-				src/coord.h	\
-				src/enums.h	\
-				src/load.h	\
-				src/game.h	\
-				src/items/items_static.h	\
+				src/save.h \
+				src/player.h \
+				src/heresyrl_def.h \
+				src/input.h \
+				src/ui/ui_common.h \
+				src/ui/ui.h \
+				src/ui/animate.h \
+				src/dowear.h \
+				src/random.h \
+				src/cqc.h \
+				src/coord.h \
+				src/enums.h \
+				src/load.h \
+				src/game.h \
+				src/items/items_static.h \
 				src/items/items_static_def.h \
-				src/items/items.h	\
-				src/logging.h	\
-				src/inventory.h	\
-				src/turn_tick.h	\
-				src/random_generator.h	\
+				src/items/items.h \
+				src/logging.h \
+				src/inventory.h \
+				src/turn_tick.h \
+				src/random_generator.h \
 				src/status_effects/ground_effects.h \
 				src/status_effects/ground_effects_static.h \
 				src/status_effects/ground_effects_static_def.h \
-				src/status_effects/status_effects.h	\
-				src/status_effects/ground_effects.h	\
-				src/status_effects/status_effects_critical_blunt.h	\
-				src/status_effects/status_effects_static.h	\
+				src/status_effects/status_effects.h \
+				src/status_effects/ground_effects.h \
+				src/status_effects/status_effects_critical_blunt.h \
+				src/status_effects/status_effects_static.h \
 				src/status_effects/status_effects_static_def.h  \
-				src/monster/monster_static.h	\
+				src/monster/monster_static.h \
 				src/monster/monster_static_def.h    \
-				src/monster/monster_action.h	\
-				src/monster/monster.h	\
-				src/dungeon/dungeon_dla.h	\
-				src/dungeon/dungeon_map.h	\
-				src/dungeon/cellular_automata.h	\
-				src/dungeon/diffusion_limited_aggregation.h	\
-				src/dungeon/spawn.h	\
-				src/dungeon/dungeon_plain.h	\
-				src/dungeon/tiles.h	\
-				src/dungeon/dungeon_cave.h	\
-				src/dungeon/dungeon_room.h	\
+				src/monster/monster_action.h \
+				src/monster/monster.h \
+				src/dungeon/dungeon_dla.h \
+				src/dungeon/dungeon_map.h \
+				src/dungeon/cellular_automata.h \
+				src/dungeon/diffusion_limited_aggregation.h \
+				src/dungeon/spawn.h \
+				src/dungeon/dungeon_plain.h \
+				src/dungeon/tiles.h \
+				src/dungeon/dungeon_cave.h \
+				src/dungeon/dungeon_room.h \
 				src/quests/quests.h \
 				src/quests/quests_static_def.h \
 				src/quests/quests_static.h \
-				src/careers/careers.h	\
-				src/careers/careers_static.h	\
+				src/careers/careers.h \
+				src/careers/careers_static.h \
 				src/careers/careers_static_def.h    \
-				src/fov/sight.h	\
-				src/fov/rpsc_fov.h	\
-				src/ai/pathfinding.h	\
-				src/ai/ai.h	\
-				src/ai/ai_utils.h	\
-				src/cmdline.h	\
-				src/fight.h	\
+				src/fov/sight.h \
+				src/fov/rpsc_fov.h \
+				src/ai/pathfinding.h \
+				src/ai/ai.h \
+				src/ai/ai_utils.h \
+				src/cmdline.h \
+				src/fight.h \
 				src/options.h \
+				src/wizard/wizard_mode.h \
+				src/wizard/wizard_commands.h \
 				src/cmdline.c \
 				src/main.c \
 				src/logging.c \
@@ -105,10 +107,12 @@ heresyrl_SOURCES =  \
 				src/ui/ui.c \
 				src/ui/ui_common.c \
 				src/ui/character_creation_ui.c \
-				src/ui/animate.c 
+				src/ui/animate.c \
+				src/wizard/wizard_commands.c \
+				src/wizard/wizard_mode.c
 
 heresyrl_CFLAGS = $(lua_CFLAGS)  -DGIT_VERSION=\"$(GIT_VERSION)\"
-heresyrl_LDADD = $(INTI_LIBS) -lm $(lua_LIBS)
+heresyrl_LDADD = $(INTI_LIBS) -lm $(lua_LIBS) $(LIBS)
 
 if GENGETOPT
 src/cmdline.c src/cmdline.h: heresyrl.ggo

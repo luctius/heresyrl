@@ -21,6 +21,7 @@ option "map"            m "show the complete map" flag off
 option "test_auto"      - "same as playback, but quite when done and show nothing" flag off
 option "test_mode"      - "turn features off to facilitate testing" flag off
 option "rnd_auto_play"  - "put random values into the input log to simulate player" flag off
+option "wizard"         - "enable wizard mode to input debug related commands" flag off
 
 option "no_load"        l "do not load a previous made character" flag off
 option "no_save"        s "do not save a made character" flag off

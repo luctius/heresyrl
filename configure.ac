@@ -24,8 +24,6 @@ AC_PROG_MKDIR_P
 
 AC_DEFINE([_GNU_SOURCE], 1, [Use GNU extensions])
 
-AC_DEFINE([CMDLINE_PARSER_VERSION], VERSION " (" GIT_VERSION ") ", [extended version])
-
 # Checks for libraries.
 # FIXME: Replace `main' with a function in `-lm':
 AC_CHECK_LIB([m], [main])
@@ -43,6 +41,17 @@ AC_SEARCH_LIBS(initscr, ncurses, [], [AC_MSG_ERROR([Unable to find ncurses])], [
 #AC_SEARCH_LIBS(new_panel, panel, [], [AC_MSG_ERROR([Unable to find ncurses panel])], [])
 #AC_SEARCH_LIBS(new_menu, menu,   [], [AC_MSG_ERROR([Unable to find ncurses menu])], [])
 #AC_SEARCH_LIBS(new_form, form,   [], [AC_MSG_ERROR([Unable to find ncurses form])], [])
+
+dnl Example of default-disabled feature
+AC_ARG_ENABLE([wizard_mode],
+    AS_HELP_STRING([--enable-wizard_mode], [Enable feature wizard mode]))
+
+AS_IF([test "x$enable_wizard_mode" = "xyes"], [
+    dnl Do the stuff needed for enabling the feature
+    AX_LIB_READLINE
+    AC_DEFINE([CMDLINE_PARSER_VERSION], VERSION " (" GIT_VERSION "-wizard) ", [extended version])
+], [AC_DEFINE([CMDLINE_PARSER_VERSION], VERSION " (" GIT_VERSION") ", [extended version])])
+
 
 AC_PATH_PROGS([GENGETOPT], [gengetopt])
 AM_CONDITIONAL([GENGETOPT], [test x$GENGETOPT != x])
