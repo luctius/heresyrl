@@ -117,7 +117,7 @@ struct msr_char {
 struct monster_controller {
     bool interruptable;  /* this monster should be interrupted if anythin interresting happens near it. */
     bool interrupted;    /* this monster *is* interrupted. */
-    struct ai ai; /* private struct for this monster */
+    struct ai ai;        /* private struct for this monster */
     bool (*controller_cb)(struct msr_monster *monster); /* ai/player callback. */
 };
 

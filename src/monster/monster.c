@@ -211,6 +211,7 @@ void msr_destroy(struct msr_monster *monster, struct dm_map *map) {
     inv_exit(monster->inventory);
     se_list_exit(monster->status_effects);
 
+    msr_clear_controller(monster);
     if (monster->unique_name != NULL) free(monster->unique_name);
 
     TAILQ_REMOVE(&monster_list_head, target_mle, entries);
