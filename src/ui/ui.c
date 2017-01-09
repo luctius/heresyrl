@@ -736,7 +736,6 @@ bool mapwin_overlay_throw_cursor(struct gm_game *g, struct dm_map *map, coord_t 
                     item->energy = TT_ENERGY_TURN;
                 }
                 break;
-            /*
             case INP_KEY_MINUS:
                     item->energy -= TT_ENERGY_TURN;
                     if (item->energy <= 0) item->energy = TT_ENERGY_TICK;
@@ -746,7 +745,6 @@ bool mapwin_overlay_throw_cursor(struct gm_game *g, struct dm_map *map, coord_t 
                     if (item->energy >= (TT_ENERGY_TURN * 10) ) item->energy = TT_ENERGY_TURN * 10;
                     if ((item->energy % TT_ENERGY_TURN) > 0) item->energy = (item->energy / TT_ENERGY_TURN) * TT_ENERGY_TURN;
                 break;
-            */
             case INP_KEY_YES:
             case INP_KEY_THROW_ITEM:
             case INP_KEY_THROW: {
@@ -912,15 +910,17 @@ void charwin_refresh() {
                 ui_printf(char_win, cs_ATTR "Unarmed." cs_CLOSE "\n");
             default: break;
         }
+        ui_printf(char_win, "\n");
     }
-    ui_printf(char_win, "\n");
 
     int cnt = 0;
     struct msr_monster *target = NULL;
     while ( (target = aiu_get_nearest_enemy(player, cnt, gbl_game->current_map) ) != NULL) {
-        int y = ui_printf(char_win, "    %s\n", msr_ldname(target));
+        int y = ui_printf(char_win, "    %s", msr_ldname(target));
+        if (target->controller.ai.emo_state != NULL) ui_printf(char_win, " (%s)", target->controller.ai.emo_state);
+        ui_printf(char_win, "\n");
         wattron(char_win->win, get_colour(target->icon_attr) );
-        mvwaddch(char_win->win, y-1, 0, target->icon);
+        mvwaddch(char_win->win, y, 0, target->icon);
         wattroff(char_win->win, get_colour(target->icon_attr) );
 
         int tgt_status = get_colour(TERM_COLOUR_BG_GREEN);
@@ -928,13 +928,12 @@ void charwin_refresh() {
         else if ( ( (target->wounds.curr * 100) / target->wounds.max) < 50) tgt_status = get_colour(TERM_COLOUR_BG_YELLOW);
 
         wattron(char_win->win, tgt_status);
-        mvwaddch(char_win->win, y-1, 2, ' ');
+        mvwaddch(char_win->win, y, 2, ' ');
         wattroff(char_win->win, tgt_status);
 
         cnt++;
     }
-
-    ui_printf(char_win, "\n");
+    if (cnt > 0) ui_printf(char_win, "\n");
 
     if (options.refresh) wrefresh(char_win->win);
     enum status_effect_flags seef[] = { EF_BLEEDING, EF_BLINDED,
@@ -946,9 +945,9 @@ void charwin_refresh() {
     for (int i = 0; i < ARRAY_SZ(seef); i++) {
         if (se_has_effect(player, seef[i]) ) {
             ui_printf(char_win, "[%s]", se_effect_names(seef[i]) );
+            lg_debug("[%s:  %d]", se_effect_names(seef[i]), seef[i]);
         }
     }
-    ui_printf(char_win, "\n");
 }
 
 /* Beware of dragons here..... */
