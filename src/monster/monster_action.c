@@ -107,12 +107,13 @@ bool ma_do_remove(struct msr_monster *monster, struct itm_item *item) {
 }
 
 bool ma_do_use(struct msr_monster *monster, struct itm_item *item) {
+    int use_delay = item->use_delay;
     if (msr_verify_monster(monster) == false) return false;
     if (itm_verify_item(item) == false) return false;
     if (inv_has_item(monster->inventory, item) == false) return false;
     if (dw_use_item(monster, item) == false) return false;
 
-    msr_change_energy(monster, -(MSR_ACTION_USE * item->use_delay) );
+    msr_change_energy(monster, -(MSR_ACTION_USE * use_delay) );
     monster->controller.interruptable = false;
     return true;
 }
