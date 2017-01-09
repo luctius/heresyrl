@@ -161,8 +161,9 @@ static void got_command(char *line) {
         }
     }
     
-    if (success == false) lg_wizard("unkown command '%s'", line);
+    if (line != NULL && success == false) lg_wizard("unkown command '%s'", line);
     free(line);
+    should_exit = true;
 }
 
 static void cmd_win_redisplay(bool for_resize) {
@@ -318,6 +319,11 @@ void wz_mode() {
         }
         else
             forward_to_readline(c);
+
+        werase(wz_win->win);
+        /* print full line, to help with tab completion */
+        wprintw(wz_win->win, rl_line_buffer);
+        wrefresh(wz_win->win);
     }
     curs_set(0);
 
