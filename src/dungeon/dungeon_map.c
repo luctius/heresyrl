@@ -373,21 +373,22 @@ bool dm_clear_map(struct dm_map *map) {
 bool dm_clear_map_visibility(struct dm_map *map, coord_t *start, coord_t *end) {
     if (dm_verify_map(map) == false) return false;
 
-    if (cd_within_bound(start, &map->sett.size) == false) return false;
     if (end->x > map->sett.size.x) return false;
     if (end->y > map->sett.size.y) return false;
     if (end->x+start->x > map->sett.size.x) return false;
     if (end->y+start->y > map->sett.size.y) return false;
+    if (cd_within_bound(start, &map->sett.size) == false) return false;
 
     coord_t c = cd_add(start, end);
     for (c.x = start->x; c.x < end->x; c.x++) {
         for (c.y = start->y; c.y < end->y; c.y++) {
-            dm_get_map_me(&c,map)->in_sight = false;
-            dm_get_map_me(&c,map)->visible = false;
-            dm_get_map_me(&c,map)->light_level = 0;
-            dm_get_map_me(&c,map)->test_var = 0;
-            dm_get_map_me(&c,map)->icon_override = -1;
-            dm_get_map_me(&c,map)->icon_attr_override = -1;
+            struct dm_map_entity *me = dm_get_map_me(&c,map);
+            me->in_sight = false;
+            me->visible = false;
+            me->light_level = 0;
+            me->test_var = 0;
+            me->icon_override = -1;
+            me->icon_attr_override = -1;
         }
     }
     return true;
