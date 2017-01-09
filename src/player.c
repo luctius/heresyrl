@@ -107,7 +107,6 @@ static bool plr_action_loop(struct msr_monster *player) {
 
     coord_t zero = cd_create(0,0);
     dm_clear_map_visibility(map, &zero, &map->sett.size);
-    sgt_calculate_all_light_sources(map);
     sgt_calculate_player_sight(map, player);
 
     coord_t pos = player->pos;
@@ -172,16 +171,6 @@ static bool plr_action_loop(struct msr_monster *player) {
 
     lg_debug("plr_action_loop");
     while (gbl_game->running && (has_action == false) ) {
-        if (options.rnd_auto_play) {
-            int max = 100 - inp_log_key_count(gbl_game->input);
-            for (int i = max; i > 0; i--) {
-                enum inp_keys k = random_int32(gbl_game->random) % INP_KEY_MAX;
-
-                if (k == INP_KEY_QUIT) continue;
-                inp_add_to_log(gbl_game->input, k);
-            }
-        }
-
         /* Update screen dimensions if needed*/
         int lines, cols;
         getmaxyx(stdscr, lines, cols);
@@ -355,7 +344,6 @@ static bool plr_action_loop(struct msr_monster *player) {
     }
 
     dm_clear_map_visibility(map, &zero, &map->sett.size);
-    sgt_calculate_all_light_sources(map);
     sgt_calculate_player_sight(map, player);
 
     return has_action;

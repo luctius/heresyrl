@@ -24,6 +24,7 @@
 #include "options.h"
 #include "logging.h"
 #include "ui/ui.h"
+#include "random.h"
 
 #define INP_KEYLOG_INCREASE 100
 
@@ -48,6 +49,18 @@ static bool inp_resize_log(struct inp_input *i) {
     lg_debug("input increase: %d => %d", old, i->keylog_sz);
     if (i->keylog == NULL) return false;
     return true;
+}
+
+static void inp_rnd_ai_fill_log(struct inp_input *i) {
+    if (options.rnd_auto_play) {
+        int max = 100 - inp_log_key_count(gbl_game->input);
+        for (int i = max; i > 0; i--) {
+            enum inp_keys k = random_int32(gbl_game->random) % INP_KEY_MAX;
+
+            if (k == INP_KEY_QUIT) continue;
+            inp_add_to_log(gbl_game->input, k);
+        }
+    }
 }
 
 void inp_add_to_log(struct inp_input *i, enum inp_keys key) {
@@ -135,6 +148,8 @@ enum inp_keys inp_get_input_idx(struct inp_input *i) {
     if (inp_verify(i) == false) return -1;
     enum inp_keys k = INP_KEY_ESCAPE;
 
+    inp_rnd_ai_fill_log(i);
+
     if (inp_log_has_keys(i) == false) {
         int ch = getch();
 
@@ -154,6 +169,8 @@ enum inp_keys inp_get_input_text(struct inp_input *i) {
     if (inp_verify(i) == false) return -1;
     enum inp_keys k = INP_KEY_ESCAPE;
 
+    inp_rnd_ai_fill_log(i);
+
     if (inp_log_has_keys(i) == false) {
         while ( (isalnum(k = getch() ) == false) && (k != ' ') && (k != '\n') && (k != KEY_BACKSPACE) ) {
             /*lg_debug("key %d", k);*/
@@ -171,6 +188,8 @@ enum inp_keys inp_get_input_digit(struct inp_input *i) {
     if (i == NULL) return -1;
     if (inp_verify(i) == false) return -1;
     enum inp_keys k = INP_KEY_ESCAPE;
+
+    inp_rnd_ai_fill_log(i);
 
     if (inp_log_has_keys(i) == false) {
         while ( (isdigit(k = getch() ) == false) && (k != ' ') && (k != '\n') && (k != KEY_BACKSPACE) ) {
@@ -263,6 +282,8 @@ enum inp_keys inp_get_input(struct inp_input *i) {
     if (i == NULL) return -1;
     if (inp_verify(i) == false) return -1;
     enum inp_keys k = INP_KEY_NONE;
+
+    inp_rnd_ai_fill_log(i);
 
     if (inp_log_has_keys(i) == false) {
         if (options.test_auto) {

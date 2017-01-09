@@ -113,16 +113,6 @@ bool char_creation_window(void) {
         inp_add_to_log(gbl_game->input, INP_KEY_APPLY);
         inp_add_to_log(gbl_game->input, (r_tid -1) );
     }
-    if (options.rnd_auto_play) {
-        int max = 100 - inp_log_key_count(gbl_game->input);
-        for (int i = max; i > 0; i--) {
-            enum inp_keys k = random_int32(gbl_game->random) % INP_KEY_MAX;
-
-            if (k == INP_KEY_QUIT) continue;
-            inp_add_to_log(gbl_game->input, k);
-        }
-    }
-
 
     while (name_done == false) {
         wrefresh(map_win->win);
