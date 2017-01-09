@@ -294,13 +294,13 @@ void cr_print_morgue_file(struct pl_player *plr) {
     printf("\n");
 
     /* Skills */
-    printf( "Skills                   Rate\n");
-    printf( "------                   ----\n");
+    printf( "Skills\t\tRate\n");
+    printf( "------\t\t----\n");
 
     for (unsigned int i = 0; i < MSR_SKILLS_MAX; i++) {
         if (msr_has_skill(mon, i) ) {
             enum msr_skill_rate skillrate = msr_has_skill(mon,  i);
-            printf("%20s\t(%s)\n", msr_skill_names(i),  msr_skillrate_names(skillrate));
+            printf("%s\t\t(%s)\n", msr_skill_names(i),  msr_skillrate_names(skillrate));
         }
     }
     printf("\n");
