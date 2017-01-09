@@ -24,7 +24,9 @@
 struct ai {
     uint32_t target_uid;
     uint32_t leader_uid;
+    char *emo_state;
     void *ai_ctx;
+    void (*free_func)(void *ai_ctx);
 };
 
 void ai_monster_init(struct msr_monster *monster, uint32_t leader_uid);

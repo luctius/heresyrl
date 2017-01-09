@@ -38,6 +38,7 @@
    We can later modify it by given out on other parameters.
  */
 
+
 /* state context of the beast ai */
 struct beast_ai_struct {
     coord_t last_pos;
@@ -46,9 +47,6 @@ struct beast_ai_struct {
 };
 
 static bool ai_beast_loop(struct msr_monster *monster) {
-    if (se_has_effect(monster, EF_DEAD) ) {
-        msr_clear_controller(monster);
-    }
     struct dm_map *map = gbl_game->current_map;
     struct ai *ai_s = msr_get_ai_ctx(monster);
     assert(ai_s != NULL);
@@ -109,15 +107,24 @@ static bool ai_beast_loop(struct msr_monster *monster) {
     return false;
 }
 
+void ai_beast_free(void *ai_ctx) {
+    struct dm_map *map = gbl_game->current_map;
+    assert(ai_ctx != NULL);
+
+    struct beast_ai_struct *ai = ai_ctx;
+    assert(ai != NULL);
+
+    free(ai->pf_ctx);
+    ai->pf_ctx = NULL;
+}
+
 struct human_ai_struct {
     coord_t last_pos;
     int time_last_pos;
     struct pf_context *pf_ctx; /* TODO: free this correctly. */
 };
+
 static bool ai_human_loop(struct msr_monster *monster) {
-    if (se_has_effect(monster, EF_DEAD) ) {
-        msr_clear_controller(monster);
-    }
     struct dm_map *map = gbl_game->current_map;
     struct ai *ai_s = msr_get_ai_ctx(monster);
     assert (ai_s != NULL);
@@ -217,12 +224,25 @@ static bool ai_human_loop(struct msr_monster *monster) {
     return false;
 }
 
+void ai_human_free(void *ai_ctx) {
+    struct dm_map *map = gbl_game->current_map;
+    assert(ai_ctx != NULL);
+
+    struct human_ai_struct *ai = ai_ctx;
+    assert(ai != NULL);
+
+    free(ai->pf_ctx);
+    ai->pf_ctx = NULL;
+}
+
+
 static void init_human_ai(struct msr_monster *monster) {
-    struct human_ai_struct *ai = calloc(1, sizeof(struct human_ai_struct) );
-    if (ai != NULL) {
+    struct human_ai_struct *has = calloc(1, sizeof(struct human_ai_struct) );
+    if (has != NULL) {
         struct monster_controller mc = {
             .ai = {
-                .ai_ctx = ai,
+                .ai_ctx = has,
+                .free_func = ai_human_free,
             },
             .controller_cb = ai_human_loop,
         };
@@ -232,11 +252,12 @@ static void init_human_ai(struct msr_monster *monster) {
 }
 
 static void init_bestial_ai(struct msr_monster *monster) {
-    struct beast_ai_struct *ai = calloc(1, sizeof(struct beast_ai_struct) );
-    if (ai != NULL) {
+    struct beast_ai_struct *bas = calloc(1, sizeof(struct beast_ai_struct) );
+    if (bas != NULL) {
         struct monster_controller mc = {
             .ai = {
-                .ai_ctx = ai,
+                .ai_ctx = bas,
+                .free_func = ai_beast_free,
             },
             .controller_cb = ai_beast_loop,
         };
@@ -262,6 +283,11 @@ void ai_monster_init(struct msr_monster *monster, uint32_t leader_uid) {
 
 void ai_monster_free(struct msr_monster *monster) {
     if (monster->is_player) return;
-    if (monster->controller.ai.ai_ctx != NULL) free(monster->controller.ai.ai_ctx);
+    if (monster->controller.ai.ai_ctx != NULL)  {
+        if (monster->controller.ai.free_func != NULL)  {
+            monster->controller.ai.free_func(monster->controller.ai.ai_ctx);
+        }
+        free(monster->controller.ai.ai_ctx);
+    }
 }
 
