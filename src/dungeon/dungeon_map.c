@@ -293,6 +293,7 @@ bool dm_populate_map(struct dm_map *map) {
         }
     }
 
+    free(r);
     return true;
 }
 
