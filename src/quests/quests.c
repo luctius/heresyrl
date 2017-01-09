@@ -53,12 +53,10 @@ static int32_t qst_enemies_spawn_weight(void *ctx, int idx) {
     assert (ctx != NULL);
     struct quest *quest = ctx;
 
-    if (quest->enemies[idx].weight != 0) quest->enemies[idx].weight;
+    if (quest->enemies[idx].weight != 0) return quest->enemies[idx].weight;
 
     return RANDOM_GEN_WEIGHT_IGNORE;
 }
-
-
 
 struct quest *qst_by_tid(enum qst_ids tid) {
     struct quest *quest = &static_quest_list[tid];

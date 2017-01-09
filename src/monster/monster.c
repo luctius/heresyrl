@@ -291,9 +291,9 @@ bool msr_move_monster(struct msr_monster *monster, struct dm_map *map, coord_t *
     assert(dm_tile_exit(map, &monster->pos, monster, pos) );
     if (msr_insert_monster(monster, map, pos) == false) return false;
 
-    if (dm_tile_enter(map, pos, monster, &prev_pos) == false) {
-        /* Roll back */
-    }
+    assert (dm_tile_enter(map, pos, monster, &prev_pos) );
+
+    monster->idle_counter = 0;
 
     return true;
 }
@@ -404,7 +404,7 @@ bool msr_change_energy(struct msr_monster *monster, int energy) {
         se_add_status_effect(monster, SEID_ENCUMBERED, NULL);
     }
 
-    monster->idle_counter += (-1 * energy) / TT_ENERGY_TICK;
+    monster->idle_counter += energy;
     //lg_ai_debug(monster, "idle counter: %d", monster->idle_counter);
 
     monster->energy += energy;

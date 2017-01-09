@@ -369,11 +369,13 @@ void mapwin_overlay_examine_cursor(struct dm_map *map, coord_t *p_pos) {
         if (e_pos.x < 0) e_pos.x = 0;
         if (e_pos.x >= map->sett.size.x) e_pos.x = map->sett.size.x -1;
 
-        lg_debug("examining pos: (%d,%d), plr (%d,%d)", e_pos.x, e_pos.y, p_pos->x, p_pos->y);
-        chtype oldch = mvwinch(map_win->win, e_pos.y - scr_y, e_pos.x - scr_x);
-        mvwaddch(map_win->win, e_pos.y - scr_y, e_pos.x - scr_x, (oldch & 0xFF) | get_colour(TERM_COLOUR_BG_RED) );
-        if (options.refresh) wrefresh(map_win->win);
-        mvwaddch(map_win->win, e_pos.y - scr_y, e_pos.x - scr_x, oldch);
+        if (options.refresh) {
+            lg_debug("examining pos: (%d,%d), plr (%d,%d)", e_pos.x, e_pos.y, p_pos->x, p_pos->y);
+            chtype oldch = mvwinch(map_win->win, e_pos.y - scr_y, e_pos.x - scr_x);
+            mvwaddch(map_win->win, e_pos.y - scr_y, e_pos.x - scr_x, (oldch & 0xFF) | get_colour(TERM_COLOUR_BG_RED) );
+            if (options.refresh) wrefresh(map_win->win);
+            mvwaddch(map_win->win, e_pos.y - scr_y, e_pos.x - scr_x, oldch);
+        }
 
         mapwin_examine(dm_get_map_me(&e_pos, map) );
     }
@@ -545,15 +547,17 @@ bool mapwin_overlay_fire_cursor(struct gm_game *g, struct dm_map *map, coord_t *
 
         lg_debug("entering fire_mode (%d,%d) -> (%d,%d)", p_pos->x, p_pos->y, e_pos.x, e_pos.y);
 
-        path_len = sgt_los_path(gbl_game->current_map, p_pos, &e_pos, &path, false);
-        for (int i = 1; i < path_len; i++) {
-            lg_debug("point[%d] in projectile path: (%d,%d)", i, path[i].x, path[i].y);
-            mvwaddch(map_win->win, path[i].y - scr_y, path[i].x - scr_x, '*' | get_colour(TERM_COLOUR_RED) );
-        }
-        if (path_len > 0) free(path);
+        if (options.refresh) {
+            path_len = sgt_los_path(gbl_game->current_map, p_pos, &e_pos, &path, false);
+            for (int i = 1; i < path_len; i++) {
+                lg_debug("point[%d] in projectile path: (%d,%d)", i, path[i].x, path[i].y);
+                mvwaddch(map_win->win, path[i].y - scr_y, path[i].x - scr_x, '*' | get_colour(TERM_COLOUR_RED) );
+            }
+            if (path_len > 0) free(path);
 
-        mvwaddch(map_win->win, e_pos.y - scr_y, e_pos.x - scr_x, '*' | get_colour(TERM_COLOUR_RED) );
-        if (options.refresh) wrefresh(map_win->win);
+            mvwaddch(map_win->win, e_pos.y - scr_y, e_pos.x - scr_x, '*' | get_colour(TERM_COLOUR_RED) );
+            wrefresh(map_win->win);
+        }
 
         struct itm_item *witem = fght_get_working_weapon(plr->player, WEAPON_TYPE_RANGED, FGHT_MAIN_HAND);
         if (witem == NULL) witem = fght_get_working_weapon(plr->player, WEAPON_TYPE_RANGED, FGHT_OFF_HAND);
@@ -637,14 +641,16 @@ bool mapwin_overlay_throw_item_cursor(struct gm_game *g, struct dm_map *map, coo
         if (e_pos.x < 0) e_pos.x = 0;
         if (e_pos.x >= map->sett.size.x) e_pos.x = map->sett.size.x -1;
 
-        path_len = sgt_los_path(gbl_game->current_map, p_pos, &e_pos, &path, false);
-        for (int i = 1; i < path_len; i++) {
-            mvwaddch(map_win->win, path[i].y - scr_y, path[i].x - scr_x, '*' | get_colour(TERM_COLOUR_RED) );
-        }
-        if (path_len > 0) free(path);
+        if (options.refresh) {
+            path_len = sgt_los_path(gbl_game->current_map, p_pos, &e_pos, &path, false);
+            for (int i = 1; i < path_len; i++) {
+                mvwaddch(map_win->win, path[i].y - scr_y, path[i].x - scr_x, '*' | get_colour(TERM_COLOUR_RED) );
+            }
+            if (path_len > 0) free(path);
 
-        mvwaddch(map_win->win, e_pos.y - scr_y, e_pos.x - scr_x, '*' | get_colour(TERM_COLOUR_RED) );
-        if (options.refresh) wrefresh(map_win->win);
+            mvwaddch(map_win->win, e_pos.y - scr_y, e_pos.x - scr_x, '*' | get_colour(TERM_COLOUR_RED) );
+            wrefresh(map_win->win);
+        }
 
         targetwin_examine(char_win, gbl_game->current_map, plr->player, &e_pos, item, WEAPON_TYPE_THROWN);
     }
@@ -761,14 +767,16 @@ bool mapwin_overlay_throw_cursor(struct gm_game *g, struct dm_map *map, coord_t 
         if (e_pos.x < 0) e_pos.x = 0;
         if (e_pos.x >= map->sett.size.x) e_pos.x = map->sett.size.x -1;
 
-        path_len = sgt_los_path(gbl_game->current_map, p_pos, &e_pos, &path, false);
-        for (int i = 1; i < path_len; i++) {
-            mvwaddch(map_win->win, path[i].y - scr_y, path[i].x - scr_x, '*' | get_colour(TERM_COLOUR_RED) );
-        }
-        if (path_len > 0) free(path);
+        if (options.refresh) {
+            path_len = sgt_los_path(gbl_game->current_map, p_pos, &e_pos, &path, false);
+            for (int i = 1; i < path_len; i++) {
+                mvwaddch(map_win->win, path[i].y - scr_y, path[i].x - scr_x, '*' | get_colour(TERM_COLOUR_RED) );
+            }
+            if (path_len > 0) free(path);
 
-        mvwaddch(map_win->win, e_pos.y - scr_y, e_pos.x - scr_x, '*' | get_colour(TERM_COLOUR_RED) );
-        if (options.refresh) wrefresh(map_win->win);
+            mvwaddch(map_win->win, e_pos.y - scr_y, e_pos.x - scr_x, '*' | get_colour(TERM_COLOUR_RED) );
+            wrefresh(map_win->win);
+        }
 
         targetwin_examine(char_win, gbl_game->current_map, plr->player, &e_pos, item, WEAPON_TYPE_THROWN);
     }
@@ -1732,7 +1740,6 @@ void levelup_aquire_window(struct lvl_struct *list, int start, int sz, const cha
                 }
                 break;
             case INP_KEY_APPLY: {
-                    bool upgrade = false;
                     charwin_refresh();
 
                     ui_printf_ext(map_win, map_win->lines - 4, 1, "Upgrade which selection?");
@@ -1847,7 +1854,6 @@ void levelup_selection_window(void) {
         ch = inp_get_input(gbl_game->input);
         switch (ch) {
             case INP_KEY_APPLY: {
-                    bool upgrade = false;
                     charwin_refresh();
 
                     ui_printf_ext(map_win, map_win->lines - 4, 1, "Upgrade what?");
@@ -2345,7 +2351,6 @@ void village_screen() {
     int32_t r_ap = random_int32(gbl_game->random);
     int32_t r_qst = random_int32(gbl_game->random);
 
-    int line = 0;
     bool watch = true;
     while(watch == true) {
         werase(map_win->win);

@@ -280,12 +280,13 @@ void msg_internal(coord_t *origin, coord_t *target, const char* module, int line
     struct log_entry log_entry;
     struct log_entry *le = &log_entry;
     le->repeat  = 1;
-    le->module  = strdup(module);
     le->line    = line;
     le->level   = LG_DEBUG_LEVEL_GAME;
     le->turn    = gbl_game->turn;
 
-    le->string = buf; /* temp copy */
+    /* temp copy */
+    le->module  = (char *) module;
+    le->string = buf;
     if (le_is_equal(le, gbl_log->log_last) ) {
         gbl_log->log_last->repeat++;
         gbl_log->log_last->turn = gbl_game->turn;
@@ -296,6 +297,7 @@ void msg_internal(coord_t *origin, coord_t *target, const char* module, int line
     }
 
     /* We really need a real copy now. */
+    le->module = strdup(module);
     le->string = strdup(buf);
 
     if (cqc_space(gbl_log->log_cqc) == 0) {

@@ -221,7 +221,7 @@ static bool init_readline(void) {
 static void deinit_readline(void) {
     rl_callback_handler_remove();
 }
-
+/*
 static void init_ncurses(void) {
     cbreak();
     noecho();
@@ -237,6 +237,7 @@ static void init_ncurses(void) {
     // for terminals that do not support cursor visibility adjustments.
     curs_set(2);
 }
+*/
 
 char **wz_cmd_completion(const char *text, int start, int end) {
     rl_attempted_completion_over = 1;
@@ -256,7 +257,6 @@ static void resize(void) {
 
 char *wz_cmd_generator(const char *text, int state) {
     static int list_index, len;
-    char *name;
 
     if (!state) {
         list_index = 0;

@@ -28,7 +28,7 @@ static void cmd_fov_test(char *input) {
 
     int ch;
     bool examine_mode = true;
-    do {
+    while( ( (ch = inp_get_input(gbl_game->input)) != INP_KEY_ESCAPE) && (examine_mode == true) ) {
         switch (ch) {
             case INP_KEY_UP_LEFT:    e_pos.y--; e_pos.x--; break;
             case INP_KEY_UP:         e_pos.y--; break;
@@ -59,7 +59,6 @@ static void cmd_fov_test(char *input) {
         wrefresh(map_win->win);
         mvwaddch(map_win->win, e_pos.y - scr_y, e_pos.x - scr_x, oldch);
     }
-    while( ( (ch = inp_get_input(gbl_game->input)) != INP_KEY_ESCAPE) && (examine_mode == true) );
 
     coord_t *list;
     int len = sgt_explosion(map, &e_pos, 5, &list);
@@ -136,7 +135,7 @@ static void cmd_test_a_star(char *input) {
 
     int ch;
     bool examine_mode = true;
-    do {
+    while( ( (ch = inp_get_input(gbl_game->input)) != INP_KEY_ESCAPE) && (examine_mode == true) ) {
         switch (ch) {
             case INP_KEY_UP_LEFT:    e_pos.y--; e_pos.x--; break;
             case INP_KEY_UP:         e_pos.y--; break;
@@ -167,7 +166,6 @@ static void cmd_test_a_star(char *input) {
         wrefresh(map_win->win);
         mvwaddch(map_win->win, e_pos.y - scr_y, e_pos.x - scr_x, oldch);
     }
-    while( ( (ch = inp_get_input(gbl_game->input)) != INP_KEY_ESCAPE) && (examine_mode == true) );
 
     struct pf_settings pf_set = {
         .map_start = {

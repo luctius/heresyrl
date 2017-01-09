@@ -91,8 +91,6 @@ bool game_load(void) {
 bool game_init_map(void) {
     if (gbl_game == NULL) return false;
 
-    bool new_map = false;
-
     if (plr_init(&gbl_game->player_data) == false) {
         return false;
     }
@@ -102,7 +100,6 @@ bool game_init_map(void) {
     }
 
     if (gbl_game->current_map == NULL) {
-        new_map = true;
         struct qst_dungeon *dun = qst_select_dungeon(gbl_game->player_data.quest, random_int32(gbl_game->random));
 
         struct quest *q = gbl_game->player_data.quest;
@@ -213,7 +210,6 @@ bool game_exit() {
 
 void game_cleanup(void) {
     struct msr_monster *player = gbl_game->player_data.player;
-    struct inv_inventory *inv =  player->inventory;
 
     gbl_game->player_data.quest = NULL;
 

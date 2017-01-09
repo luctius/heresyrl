@@ -226,6 +226,7 @@ struct itm_item *itm_copy(struct itm_item *item) {
     uint32_t uid = copy->uid;
     memcpy(copy, item, sizeof(*item) );
     copy->uid = uid;
+	return copy;
 }
 
 void itm_destroy(struct itm_item *item) {
