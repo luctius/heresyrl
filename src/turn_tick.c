@@ -24,6 +24,7 @@
 #include "game.h"
 #include "dungeon/dungeon_map.h"
 #include "random.h"
+#include "fov/sight.h"
 
 #include "ui/ui.h"
 
@@ -72,6 +73,7 @@ void tt_process_monsters(struct dm_map *map) {
 
         if (do_action || (se_has_effect(monster, EF_DEAD) ) ) {
             if (monster->controller.controller_cb != NULL) {
+                sgt_calculate_all_light_sources(map);
                 monster->controller.controller_cb(monster);
             }
             monster->controller.interrupted = false;
