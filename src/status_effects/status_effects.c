@@ -1025,6 +1025,7 @@ void se_remove_all_non_permanent(struct msr_monster *monster) {
             }
 
             se_remove_status_effect(monster, c);
+            c = NULL;
         }
     }
 }
