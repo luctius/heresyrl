@@ -133,6 +133,7 @@ static bool ai_human_loop(struct msr_monster *monster) {
     assert (ai != NULL);
 
     /* struct msr_monster *leader = msr_get_monster_by_uid(ai_s->leader_uid); */
+    ai_s->emo_state = "Stupid";
 
     bool has_action = false;
     monster->wpn_sel = MSR_WEAPON_SELECT_CREATURE1;
@@ -237,11 +238,11 @@ void ai_human_free(void *ai_ctx) {
 
 
 static void init_human_ai(struct msr_monster *monster) {
-    struct human_ai_struct *has = calloc(1, sizeof(struct human_ai_struct) );
-    if (has != NULL) {
+    struct human_ai_struct *ai = calloc(1, sizeof(struct human_ai_struct) );
+    if (ai != NULL) {
         struct monster_controller mc = {
             .ai = {
-                .ai_ctx = has,
+                .ai_ctx = ai,
                 .free_func = ai_human_free,
             },
             .controller_cb = ai_human_loop,
@@ -252,11 +253,11 @@ static void init_human_ai(struct msr_monster *monster) {
 }
 
 static void init_bestial_ai(struct msr_monster *monster) {
-    struct beast_ai_struct *bas = calloc(1, sizeof(struct beast_ai_struct) );
-    if (bas != NULL) {
+    struct beast_ai_struct *ai = calloc(1, sizeof(struct beast_ai_struct) );
+    if (ai != NULL) {
         struct monster_controller mc = {
             .ai = {
-                .ai_ctx = bas,
+                .ai_ctx = ai,
                 .free_func = ai_beast_free,
             },
             .controller_cb = ai_beast_loop,
