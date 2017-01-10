@@ -43,6 +43,7 @@ main(int argc, char **argv)
 
     /* Test color pairs */
     start_color();
+    use_default_colors();
     init_pair(1, 10, 4);
 
     uncursed_enable_mouse(1);
@@ -52,6 +53,7 @@ main(int argc, char **argv)
     mvprintw(0, 0, "Press a key ('q' to exit)");
     refresh();
 
+    int q = 0;
     while (1) {
         wint_t k;
         int r = get_wch(&k);
@@ -69,7 +71,7 @@ main(int argc, char **argv)
             if (k == KEY_HANGUP)
                 break;
         } else {
-            cchar_t ct = { A_UNDERLINE | COLOR_PAIR(1), {k, 0} };
+            cchar_t ct = { A_UNDERLINE | COLOR_PAIR(q++), {k, 0} };
 
             set_mouse_event(uncursed_mbutton_hover, '+', OK);
             mvprintw(0, 0, "%d '", k);

@@ -31,6 +31,8 @@
 #define FIX_UNUSED(X) (void) (X) /* avoid warnings for unused params */
 #endif
 
+#define STRINGYFY(a) #a
+
 #define container_of(ptr, type, member) ({ \
         typeof( ((type *)0)->member ) *__mptr = (ptr); \
         (type *)( (char *)__mptr - offsetof(type,member) );})
@@ -133,28 +135,28 @@ extern struct gm_game *gbl_game;
 
 extern int get_colour(int cc);
 enum term_colours {
-    TERM_COLOUR_DARK,
-    TERM_COLOUR_WHITE,
-    TERM_COLOUR_SLATE,
-    TERM_COLOUR_ORANGE,
-    TERM_COLOUR_RED,
-    TERM_COLOUR_GREEN,
-    TERM_COLOUR_BLUE,
-    TERM_COLOUR_UMBER,
-    TERM_COLOUR_L_DARK,
-    TERM_COLOUR_L_WHITE,
-    TERM_COLOUR_L_PURPLE,
-    TERM_COLOUR_YELLOW,
-    TERM_COLOUR_L_RED,
-    TERM_COLOUR_L_GREEN,
-    TERM_COLOUR_L_BLUE,
-    TERM_COLOUR_L_UMBER,
+    TERM_COLOUR_DARK        = 0,
+    TERM_COLOUR_WHITE       = 1,
+    TERM_COLOUR_SLATE       = 2,
+    TERM_COLOUR_ORANGE      = 3,
+    TERM_COLOUR_RED         = 4,
+    TERM_COLOUR_GREEN       = 5,
+    TERM_COLOUR_BLUE        = 6,
+    TERM_COLOUR_UMBER       = 7,
+    TERM_COLOUR_L_DARK      = 8,
+    TERM_COLOUR_L_WHITE     = 9,
+    TERM_COLOUR_L_PURPLE    = 10,
+    TERM_COLOUR_YELLOW      = 11,
+    TERM_COLOUR_L_RED       = 12,
+    TERM_COLOUR_L_GREEN     = 13,
+    TERM_COLOUR_L_BLUE      = 14,
+    TERM_COLOUR_L_UMBER     = 15,
 
-    TERM_COLOUR_PURPLE,
-    TERM_COLOUR_VIOLET,
-    TERM_COLOUR_TEAL,
-    TERM_COLOUR_MUD,
-    TERM_COLOUR_L_YELLOW,
+    TERM_COLOUR_PURPLE      = 16,
+    TERM_COLOUR_VIOLET      = 17,
+    TERM_COLOUR_TEAL        = 18,
+    TERM_COLOUR_MUD         = 19,
+    TERM_COLOUR_L_YELLOW    = 20,
     TERM_COLOUR_MAGENTA,
     TERM_COLOUR_L_TEAL,
     TERM_COLOUR_L_VIOLET,

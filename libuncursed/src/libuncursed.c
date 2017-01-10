@@ -643,11 +643,11 @@ init_pair(uncursed_color pairnum,
         }
 
         while (pair_content_alloc_count < pairnum) {
+            pair_content_alloc_count++;
             if (pair_content_alloc_count >= 0) {
                 pair_content_list[pair_content_alloc_count][0] = default_f;
                 pair_content_list[pair_content_alloc_count][1] = default_b;
             }
-            pair_content_alloc_count++;
         }
     }
 

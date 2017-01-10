@@ -63,6 +63,7 @@ bool ui_create(int cols, int lines) {
         }
 
         curs_set(0);
+        uncursed_enable_mouse(1);
 
         /* Calculate 3 windows sizes */
         int map_cols = cols - CHAR_MIN_COLS;
@@ -233,9 +234,9 @@ static void mapwin_display_map_noref(struct dm_map *map, coord_t *player) {
                     }
                 }
 
-                if (has_colors() == OK) wattron(map_win->win, get_colour(attr_mod) );
+                wattron(map_win->win, get_colour(attr_mod) );
                 mvwaddch(map_win->win, yi, xi, icon);
-                if (has_colors() == OK) wattroff(map_win->win, get_colour(attr_mod) );
+                wattroff(map_win->win, get_colour(attr_mod) );
             }
         }
     }
@@ -902,9 +903,9 @@ void charwin_refresh() {
     struct msr_monster *target = NULL;
     while ( (target = aiu_get_nearest_enemy(player, cnt, gbl_game->current_map) ) != NULL) {
         int y = ui_printf(char_win, " : %s\n", msr_ldname(target));
-        if (has_colors() == OK) wattron(char_win->win, get_colour(target->icon_attr) );
+        wattron(char_win->win, get_colour(target->icon_attr) );
         mvwaddch(char_win->win, y-1, 0, target->icon);
-        if (has_colors() == OK) wattroff(char_win->win, get_colour(target->icon_attr) );
+        wattroff(char_win->win, get_colour(target->icon_attr) );
 
         cnt++;
     }
@@ -1538,8 +1539,8 @@ void show_log(struct hrl_window *window, bool input) {
             prefresh(pad.win, line,0,pad.y,pad.x, pad.y + pad.lines -5, pad.x + pad.cols -1);
 
             switch (inp_get_input(gbl_game->input) ) {
-                case INP_KEY_UP_RIGHT:   line += 20; break;
-                case INP_KEY_DOWN_RIGHT: line -= 20; break;
+                case INP_KEY_UP_RIGHT:   line -= 20; break;
+                case INP_KEY_DOWN_RIGHT: line += 20; break;
                 case INP_KEY_UP:         line--; break;
                 case INP_KEY_DOWN:       line++; break;
 
