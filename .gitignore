@@ -16,6 +16,7 @@
 *.so
 *.so.*
 *.dylib
+.libs
 
 # Executables
 *.exe
@@ -52,6 +53,8 @@ libtool
 ltmain.sh
 .deps
 perf.data.old
+m4
+ar-lib
 
 INSTALL
 
@@ -77,5 +80,6 @@ tests/testsuite
 tests/atconfig
 tests/atlocal
 tests/testsuite.dir/
+test_uncursed
 
 build
