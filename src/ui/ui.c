@@ -171,6 +171,7 @@ static void mapwin_display_map_noref(struct dm_map *map, coord_t *player) {
     scr_c.y = get_viewport(ppos.y, map_win->lines, map->sett.size.y);
 
     bool map_see = options.debug_show_map;
+    bool monster_see = options.debug_show_map;
 
     for (int xi = 0; xi < x_max; xi++) {
         for (int yi = 0; yi < y_max; yi++) {
@@ -183,10 +184,8 @@ static void mapwin_display_map_noref(struct dm_map *map, coord_t *player) {
                 icon_t icon = tile->icon;
 
                 /* Otherwise visible traversable tiles */
-                if (me->visible == true) {
+                if (map_see || me->visible == true) {
                     attr_mod = tile->icon_attr;
-                }
-                if (me->visible == true) {
                     if (tile->type == TILE_TYPE_FLOOR) {
                         if (me->light_level >= 5) {
                             attr_mod = TERM_COLOUR_YELLOW;
@@ -216,7 +215,7 @@ static void mapwin_display_map_noref(struct dm_map *map, coord_t *player) {
                 /* First see monster */
                 if ( (me->in_sight == true) || (map_see) ) {
                     if (me->monster != NULL) {
-                        if (fght_can_see(map, plr, me->monster) ) {
+                        if (monster_see || fght_can_see(map, plr, me->monster) ) {
                             icon = me->monster->icon;
                             attr_mod = me->monster->icon_attr;
                         }

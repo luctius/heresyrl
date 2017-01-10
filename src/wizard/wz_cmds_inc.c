@@ -86,13 +86,19 @@ static void cmd_refresh(char *input) {
 
 static void cmd_show_map(char *input) {
     if (options.debug_show_map) {
-        coord_t start = { .x = 0, .y = 0, };
         options.debug_show_map = false;
-        dm_clear_map_visibility(gbl_game->current_map, &start, &gbl_game->current_map->sett.size);
-        sgt_calculate_all_light_sources(gbl_game->current_map);
-        sgt_calculate_player_sight(gbl_game->current_map, gbl_game->player_data.player);
+        options.debug_show_monsters = false;
     }
-    else options.debug_show_map = true;
+    else {
+        options.debug_show_map = true;
+        options.debug_show_monsters = true;
+    }
+
+    coord_t start = { .x = 0, .y = 0, };
+    dm_clear_map_visibility(gbl_game->current_map, &start, &gbl_game->current_map->sett.size);
+    sgt_calculate_all_light_sources(gbl_game->current_map);
+    sgt_calculate_player_sight(gbl_game->current_map, gbl_game->player_data.player);
+
     update_screen();
 }
 
