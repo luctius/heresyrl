@@ -1763,6 +1763,9 @@ clearok(WINDOW *win, uncursed_bool clear_on_refresh)
 int
 scrollok(WINDOW *win, uncursed_bool scrollok)
 {
+    if (win->ispad)
+        return ERR;
+
     win->scrollok = scrollok;
     return OK;
 }
@@ -2084,6 +2087,15 @@ delch)
     return OK;
 }
 
+/* manual page 3ncurses inch */
+UNCURSED_ANDMVWINDOWVDEF(chtype,
+inch)
+{
+    cchar_t *c = win->chararray + win->x + win->y * win->stride;
+    return c->chars[0] | c->attr;
+}
+
+
 /* manual page 3ncurses deleteln */
 UNCURSED_ANDWINDOWVDEF(int,
 deleteln)
@@ -2256,6 +2268,7 @@ newwin(int h, int w, int t, int l)
     win->timeout = -1;  /* input in this WINDOW is initially blocking */
     win->clear_on_refresh = 0;
     win->scrollok = 0;
+    win->ispad = 0;
 
     werase(win);
 
@@ -2409,6 +2422,8 @@ wcursyncup(WINDOW *win)
 UNCURSED_ANDWINDOWVDEF(int,
 refresh)
 {
+    if (win->ispad)
+        return ERR;
     if (wnoutrefresh(win) == ERR)
         return ERR;
     return doupdate();
@@ -3070,6 +3085,63 @@ wresize(WINDOW *win, int newh, int neww)
     return OK;
 }
 
+WINDOW *
+newpad(int l, int c)
+{
+    WINDOW *win;
+    if (l <= 0 || c <= 0)
+        return 0;
+
+    win = newwin(l,c,0,0);
+    if (win == 0)
+        return 0;
+
+    win->ispad = true;
+    return win;
+}
+
+int
+pnoutrefresh(WINDOW *pad, int pminrow, int pmincol, int sminrow, 
+             int smincol, int smaxrow, int smaxcol)
+{
+    if (!pad) {
+        return ERR;
+    }
+
+    /* Don't redraw a window that's offscreen. */
+    if (pminrow < 0) pminrow = 0;
+    if (pmincol < 0) pmincol = 0;
+    if (sminrow < 0) sminrow = 0;
+    if (smincol < 0) smincol = 0;
+    if (sminrow > smaxrow) return ERR;
+    if (smincol > smaxcol) return ERR;
+    if (smaxrow > nout_win->maxy) return ERR;
+    if (smaxcol > nout_win->maxx) return ERR;
+    if (pminrow + (smaxrow - sminrow) > pad->maxy) return ERR;
+    if (pmincol + (smaxcol - smincol) > pad->maxx) return ERR;
+
+    if (pad->clear_on_refresh)
+        nout_win->clear_on_refresh = 1;
+
+    pad->clear_on_refresh = 0;
+    copywin(pad, nout_win, pminrow, pmincol, 
+            sminrow, smincol, smaxrow,
+            smaxcol, 0);
+
+    return wmove(nout_win, smaxrow, smaxcol);
+}
+
+int
+prefresh(WINDOW *pad, int pminrow, int pmincol, int sminrow, 
+         int smincol, int smaxrow, int smaxcol)
+{
+    if (pnoutrefresh(pad, pminrow, pmincol, sminrow, smincol, 
+             smaxrow, smaxcol) != ERR) {
+        if (doupdate() != ERR) 
+            return OK;
+    }
+    return ERR;
+}
 
 void uncursed_reset_palette16 (void)
 {

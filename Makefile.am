@@ -15,7 +15,7 @@ GIT_VERSION=$(shell cd $(top_srcdir) && git describe --abbrev=10 --dirty --alway
 libuncursed_tty_la_SOURCES=libuncursed/src/plugins/tty.c libuncursed/src/plugins/tty_cxx.cxx
 libuncursed_tty_la_CFLAGS=-DAIMAKE_BUILDOS_linux
 libuncursed_tty_la_LDFLAGS=-avoid-version
-libuncursed_la_includedir=$(top_srcdir)/libuncursed/include
+libuncursed_tty_la_includedir=$(top_srcdir)/libuncursed/include
 
 libuncursed_la_DEPENDENCIES=libuncursed_tty.la
 libuncursed_la_SOURCES=libuncursed/src/libuncursed.c libuncursed/src/plugins.c

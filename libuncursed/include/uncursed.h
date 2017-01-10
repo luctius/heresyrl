@@ -122,6 +122,7 @@ typedef struct WINDOW {
     int timeout;
     uncursed_bool clear_on_refresh;
     uncursed_bool scrollok;
+    uncursed_bool ispad;
 } WINDOW, *uncursed_WINDOW_p;
 
 typedef char *uncursed_char_p;
@@ -504,6 +505,10 @@ extern uncursed_char_p EI(friendly_keyname) (int);
 /* manual page 3ncurses delch */
 UNCURSED_ANDMVWINDOWV(int, delch);
 
+
+/* manual page 3ncurses inch */
+UNCURSED_ANDMVWINDOWV(chtype, inch);
+
 /* manual page 3ncurses deleteln */
 UNCURSED_ANDWINDOWV(int, deleteln);
 UNCURSED_ANDWINDOWV(int, insertln);
@@ -608,6 +613,12 @@ UNCURSED_ANDWINDOW(int, scrl, int);
 
 /* manual page 3ncurses wresize */
 extern int EI(wresize) (WINDOW *, int, int);
+
+/* manual page 3ncurses pad */
+/* TODO: not implemented subpad, pechochar, pecho_wchar */
+extern WINDOW *EI(newpad) (int, int);
+extern int EI(pnoutrefresh) (WINDOW *, int, int, int, int, int, int);
+extern int EI(prefresh) (WINDOW *, int, int, int, int, int, int);
 
 #undef EI
 

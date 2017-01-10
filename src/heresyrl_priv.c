@@ -46,14 +46,14 @@ static int term_colour_table[TERM_COLOUR_MAX];
 void generate_colours(void) {
         /* Prepare the color pairs */
 
-        init_pair(CLR_PAIR_WHITE   , COLOR_WHITE   , COLOR_BLACK);
+        /*init_pair(CLR_PAIR_WHITE   , COLOR_WHITE   , COLOR_BLACK);
         init_pair(CLR_PAIR_GREEN   , COLOR_GREEN   , COLOR_BLACK);
         init_pair(CLR_PAIR_YELLOW  , COLOR_YELLOW  , COLOR_BLACK);
-        init_pair(CLR_PAIR_BLUE    , COLOR_BLUE    , COLOR_BLACK);
-        init_pair(CLR_PAIR_MAGENTA , COLOR_MAGENTA , COLOR_BLACK);
+        init_pair(CLR_PAIR_BLUE    , COLOR_BLUE    , COLOR_BLACK);*/
+        /*init_pair(CLR_PAIR_MAGENTA , COLOR_MAGENTA , COLOR_BLACK);
         init_pair(CLR_PAIR_CYAN    , COLOR_CYAN    , COLOR_BLACK);
         init_pair(CLR_PAIR_BLACK   , COLOR_BLACK   , COLOR_BLACK);
-        init_pair(CLR_PAIR_RED     , COLOR_RED     , COLOR_BLACK);
+        init_pair(CLR_PAIR_RED     , COLOR_RED     , COLOR_BLACK);*/
 
         /*
         init_pair(CLR_PAIR_BG_WHITE   , COLOR_BLACK   , COLOR_WHITE);
