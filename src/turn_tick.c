@@ -44,6 +44,8 @@ bool tt_interrupt_event(uint32_t monster_uid) {
 void tt_process_monsters(struct dm_map *map) {
     struct msr_monster *monster = NULL;
 
+    if ( (gbl_game->turn % TT_ENERGY_TURN_MINI) != 0) return;
+
     monster = NULL;
     while ( (monster = msrlst_get_next_monster(monster) ) != NULL) {
         if (se_has_effect(monster, EF_DEAD) ) {
@@ -55,6 +57,10 @@ void tt_process_monsters(struct dm_map *map) {
                 msr_destroy(dead_monster, map);
                 continue;
             }
+        }
+
+        if (se_list_size(monster->status_effects) > 0 ) {
+            se_process(monster);
         }
 
         bool do_action = false;
@@ -77,6 +83,7 @@ void tt_process_monsters(struct dm_map *map) {
                 coord_t zero = cd_create(0,0);
                 dm_clear_map_visibility(map, &zero, &map->sett.size);
                 sgt_calculate_all_light_sources(map);
+                sgt_calculate_player_sight(map, gbl_game->player_data.player);
                 monster->controller.controller_cb(monster);
             }
             monster->controller.interrupted = false;
@@ -97,6 +104,7 @@ void tt_process_items(struct dm_map *map) {
     struct itm_item *item_prev = NULL;
     if (gbl_game->running == false) return;
 
+    if ( (gbl_game->turn % TT_ENERGY_TURN_MINI) != 0) return;
 
     while ( (item = itmlst_get_next_item(item_prev) ) != NULL) {
         if (item->energy_action == true) {
@@ -114,8 +122,12 @@ void tt_process_items(struct dm_map *map) {
 }
 
 void tt_process_status_effects(void) {
+    return;
+
     struct msr_monster *monster = NULL;
     if (gbl_game->running == false) return;
+
+    if ( (gbl_game->turn % TT_ENERGY_TURN_MINI) != 0) return;
 
     while ( (monster = msrlst_get_next_monster(monster) ) != NULL) {
         if (se_has_effect(monster, EF_DEAD) == false) {
