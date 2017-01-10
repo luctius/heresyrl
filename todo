@@ -23,7 +23,7 @@ Version 0.1:
     Add to charwin: show negative and positive modifications of characteristics
 
     BUGS:
-    ? -- Explosion touches twice? (FOV bug?)
+    X -- monster don't attack anymore...
     X -- Create general arrays for the item use_desc, which should also be used for tools, food and wearables and for improvised weapons.
     X -- Create Player notice response in monsters and monster notice messages for player.
     X -- Throwing weapons tohit calculations are off.
