@@ -297,6 +297,8 @@ void wz_exit() {
 void wz_mode() {
     should_exit = false;
     if (wz_exists == false) return;
+
+#ifdef HAVE_LIBREADLINE
     curs_set(2);
 
     werase(wz_win->win);
@@ -329,6 +331,7 @@ void wz_mode() {
 
     werase(wz_win->win);
     wrefresh(wz_win->win);
+#endif
 }
 
 void wz_mode_exit() {
