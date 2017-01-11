@@ -30,6 +30,7 @@
 #include "dungeon/dungeon_map.h"
 
 struct logging *gbl_log = NULL;
+bool lg_silent_mode = false;
 
 struct logging {
     FILE *log_file;
@@ -137,6 +138,63 @@ static bool le_is_equal(struct log_entry *a, struct log_entry *b) {
     return true;
 }
 
+static void lg_print_to_stdout(struct logging *log_ctx, struct log_entry *entry) {
+    FILE *fd = stderr;
+    const char *pre_format = "";
+
+    if (lg_silent_mode) return;
+
+    if (log_ctx != NULL)
+    {
+        if (entry->level > log_ctx->level) return;
+        fd = stdout;
+    }
+
+    if (fd == NULL && (entry->level == LG_DEBUG_LEVEL_ERROR || entry->level == LG_DEBUG_LEVEL_WARNING || entry->level == LG_DEBUG_LEVEL_GAME) ) fd = stderr;
+    else if (fd == NULL) return;
+
+    if (entry->level >= LG_DEBUG_LEVEL_MAX) entry->level = LG_DEBUG_LEVEL_DEBUG;
+
+    switch (entry->level)
+    {
+        case LG_DEBUG_LEVEL_GAME:
+            pre_format = "Game";
+            break;
+        case LG_DEBUG_LEVEL_GAME_INFO:
+            pre_format = "Game Info";
+            break;
+        case LG_DEBUG_LEVEL_DEBUG:
+            pre_format = "Debug";
+            break;
+        case LG_DEBUG_LEVEL_INFORMATIONAL:
+            pre_format = "Info";
+            break;
+        case LG_DEBUG_LEVEL_WARNING:
+            pre_format = "Warning";
+            break;
+        case LG_DEBUG_LEVEL_WIZARD:
+            pre_format = "WZ";
+            break;
+        case LG_DEBUG_LEVEL_ERROR:
+            pre_format = "Error";
+            break;
+        default:
+            pre_format = "Unknown";
+            break;
+    }
+
+    fprintf(fd, "[%s:%d][%s][%d] ", entry->module, entry->line, pre_format, entry->turn);
+
+    const int buf_n = 200;
+    char buf[buf_n];
+    lg_strip_colour(buf, entry->string, buf_n);
+    fprintf(fd, "%s", buf);
+
+    if (entry->repeat > 1) fprintf(fd, " x%d", entry->repeat);
+    fprintf(fd, "\n");
+    fflush(fd);
+}
+
 static void lg_print_to_file(struct logging *log_ctx, struct log_entry *entry) {
     FILE *fd = stderr;
     const char *pre_format = "";
@@ -224,6 +282,7 @@ void lg_printf_basic(struct logging *log_ctx, enum lg_debug_levels dbg_lvl, cons
     le->string = realloc(le->string, strlen(le->string) +1);
 
     lg_print_to_file(log_ctx, le);
+    lg_print_to_stdout(log_ctx, le);
     lg_print_to_queue(log_ctx, le);
 }
 

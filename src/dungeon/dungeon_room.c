@@ -35,10 +35,24 @@ static coord_t room_size[] = {
     {7, 8},
     {6, 8},
     {8, 8},
+    {9, 9},
+    {10, 10},
+    {11, 11},
+    {12, 12},
+    {12, 11},
+    {12, 10},
+    {12, 9},
+    {12, 8},
+    {8, 9},
+    {8, 10},
+    {8, 11},
+    {8, 12},
 };
 
 bool dm_generate_map_room(struct dm_map *map, struct random *r, enum dm_dungeon_type type, coord_t *ul, coord_t *dr) {
     if (dm_verify_map(map) == false) return false;
+    if (ul->x >= dr->x) return false;
+    if (ul->y >= dr->y) return false;
     FIX_UNUSED(r);
     FIX_UNUSED(type);
 
@@ -52,18 +66,40 @@ bool dm_generate_map_room(struct dm_map *map, struct random *r, enum dm_dungeon_
     int r_szx = room_size[rand].x;
     int r_szy = room_size[rand].y;
 
-    if ( (r_ul.x + r_szx) >= sz_x-1) r_szx = sz_x - r_ul.x - 4;
-    if ( (r_ul.y + r_szy) >= sz_y-1) r_szy = sz_y - r_ul.y - 4;
+    if ( (r_ul.x + r_szx) > sz_x) r_szx = sz_x - r_ul.x;
+    if ( (r_ul.y + r_szy) > sz_y) r_szy = sz_y - r_ul.y;
+
+    assert(sz_x > 0);
+    assert(sz_y > 0);
 
     r_dr.x = r_ul.x + r_szx;
     r_dr.y = r_ul.y + r_szy;
 
     coord_t c;
-    for (c.x = r_ul.x; c.x < r_dr.x; c.x++) {
-        for (c.y = r_ul.y; c.y < r_dr.y; c.y++) {
+    coord_t d;
+    for (c.x = r_ul.x+1; c.x < r_dr.x-1; c.x++) {
+        for (c.y = r_ul.y+1; c.y < r_dr.y-1; c.y++) {
             dm_get_map_me(&c,map)->tile = ts_get_tile_specific(TILE_ID_CONCRETE_FLOOR);
         }
     }
+
+    /* Create an non-destructable border wall around the 4 sides of the map */
+    c.y = r_ul.y;
+    d.y = r_dr.y;
+    for (c.x = r_ul.x; c.x < r_dr.x; c.x++) {
+        d.x = c.x;
+        dm_get_map_me(&c,map)->tile = ts_get_tile_specific(TILE_ID_CONCRETE_WALL);
+        dm_get_map_me(&d,map)->tile = ts_get_tile_specific(TILE_ID_CONCRETE_WALL);
+    }
+
+    c.x = r_ul.x;
+    d.x = r_dr.x;
+    for (c.y = r_ul.y; c.y < r_dr.y; c.y++) {
+        d.y = c.y;
+        dm_get_map_me(&c,map)->tile = ts_get_tile_specific(TILE_ID_CONCRETE_WALL);
+        dm_get_map_me(&d,map)->tile = ts_get_tile_specific(TILE_ID_CONCRETE_WALL);
+    }
+
     return true;
 }
 

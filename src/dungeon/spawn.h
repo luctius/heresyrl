@@ -30,7 +30,6 @@ struct spwn_monster_item {
     bool wear;
 };
 
-bool spwn_populate_map(struct dm_map *map, struct random *r, uint32_t monster_chance, uint32_t item_chance);
 bool spwn_add_item_to_monster(struct msr_monster *monster, struct spwn_monster_item *sitem, struct random *r);
 
 #endif /* SPAWN_H */

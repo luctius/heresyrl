@@ -50,6 +50,7 @@ struct itm_item;
 
 struct logging;
 extern struct logging *gbl_log;
+extern bool lg_silent_mode;
 
 enum lg_debug_levels {
     LG_DEBUG_LEVEL_ERROR,

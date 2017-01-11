@@ -672,6 +672,10 @@ struct dm_map *dm_generate_map(struct dm_spawn_settings *sett) {
     /* init random*/
     struct random *r = random_init_genrand(map->sett.seed);
 
+    if (map->sett.type == DUNGEON_TYPE_ALL) {
+        map->sett.type = random_int32(r) % DUNGEON_TYPE_ALL;
+    }
+
     /* fill the map with room accoring to the specified algorithm */
     switch(map->sett.type) {
         case DUNGEON_TYPE_CAVE:

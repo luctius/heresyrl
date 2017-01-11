@@ -52,6 +52,7 @@ static int hdr_lines = 0;
 static int hdr_cols = 0;
 bool ui_create(int cols, int lines) {
     win_generate_colours();
+    lg_silent_mode = true;
 
     if ( (hdr_lines != lines) || (hdr_cols != cols) ) {
         hdr_lines = lines;
