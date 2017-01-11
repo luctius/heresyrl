@@ -83,8 +83,9 @@ struct inp_input {
     uint32_t post;
 };
 
-struct inp_input *inp_init(void);
-void inp_exit(struct inp_input *i);
+void inp_init(void);
+void inp_exit(void);
+
 void inp_add_to_log(struct inp_input *i, enum inp_keys key);
 enum inp_keys inp_get_from_log(struct inp_input *i);
 bool inp_log_has_keys(struct inp_input *i);

@@ -63,7 +63,7 @@ void cr_init() {
 }
 
 void cr_exit(struct pl_player *plr) {
-    plr->career.play_seconds += time(NULL) - session_time_start;
+    gbl_game->player_data.career.play_seconds += time(NULL) - session_time_start;
 }
 
 static bool cr_give_trappings_to_player(struct cr_background *car, struct msr_monster *player) {

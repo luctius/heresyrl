@@ -49,15 +49,6 @@ void game_init(struct pl_player *plr, unsigned long initial_seed) {
             gbl_game->initial_seed = initial_seed;
             gbl_game->turn = 0;
             gbl_game->plr_last_turn = 0;
-
-            msrlst_monster_list_init();
-            itmlst_items_list_init();
-            tt_init();
-            se_init();
-            ge_init();
-            cr_init();
-
-            gbl_game->input = inp_init();
         }
     }
 }
@@ -177,8 +168,8 @@ bool game_new_tick(void) {
     return true;
 }
 
-bool game_exit() {
-    if (gbl_game == NULL) return false;
+void game_exit(void) {
+    assert (gbl_game != NULL);
 
     game_save();
 
@@ -190,22 +181,11 @@ bool game_exit() {
         free(plr->player->unique_name);
     }
 
-    if (gbl_game->current_map != NULL) dm_free_map(gbl_game->current_map);
-
-    /* order is important due to freeing of items*/
-    msrlst_monster_list_exit();
-    itmlst_items_list_exit();
-    ge_exit();
-    se_exit();
-    tt_exit();
-    cr_exit(plr);
-
-    inp_exit(gbl_game->input);
+    game_cleanup();
 
     random_exit(gbl_game->random);
 
     free(gbl_game);
-    return true;
 }
 
 void game_cleanup(void) {
@@ -220,15 +200,9 @@ void game_cleanup(void) {
         m = NULL;
     }
 
-    struct ground_effect *g = NULL;
-    while ( (g = gelst_get_next(g) ) != NULL ) {
-        ge_destroy(g->me);
-        g = NULL;
-    }
-
     se_remove_all_non_permanent(player);
 
-    dm_free_map(gbl_game->current_map);
+    if (gbl_game->current_map != NULL) dm_free_map(gbl_game->current_map);
     gbl_game->current_map = NULL;
     player->pos = cd_create(0,0);
 }

@@ -343,7 +343,7 @@ enum inp_keys inp_get_input(struct inp_input *i) {
     return k;
 }
 
-struct inp_input *inp_init(void) {
+void inp_init(void) {
     struct inp_input *i = calloc(1, sizeof(struct inp_input) );
     if (i != NULL) {
         i->pre = INPUT_PRE_CHECK;
@@ -357,10 +357,11 @@ struct inp_input *inp_init(void) {
         assert(inp_resize_log(i) == true);
     }
 
-    return i;
+    gbl_game->input = i;
 }
 
-void inp_exit(struct inp_input *i) {
+void inp_exit(void) {
+    struct inp_input *i = gbl_game->input;
     if (inp_verify(i) == false) return;
 
     if (i != NULL) {

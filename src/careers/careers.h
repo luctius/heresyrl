@@ -63,7 +63,7 @@ struct cr_role {
 };
 
 void cr_init(void);
-void cr_exit(struct pl_player *plr);
+void cr_exit();
 
 void cr_init_career(struct pl_player *plr, enum homeworld_ids hid, enum background_ids btid, enum role_ids rtid);
 struct cr_homeworld *cr_get_homeworld_by_id(enum homeworld_ids tid);

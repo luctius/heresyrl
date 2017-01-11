@@ -282,6 +282,10 @@ char *wz_cmd_generator(const char *text, int state) {
     return NULL;
 }
 
+void wz_exit() {
+    deinit_readline();
+    wz_exists = false;
+}
 
 void wz_init() {
     // Set locale attributes (including encoding) from the environment
@@ -294,11 +298,6 @@ void wz_init() {
     curs_set(0);
     werase(wz_win->win);
     wrefresh(wz_win->win);
-}
-
-void wz_exit() {
-    deinit_readline();
-    wz_exists = false;
 }
 
 void wz_mode() {

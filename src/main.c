@@ -19,11 +19,11 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include <uncursed.h>
 #include <time.h>
 #include <signal.h>
 #include <unistd.h>
 
+#include "uncursed.h"
 
 #include "heresyrl_def.h"
 #include "cmdline.h"
@@ -39,6 +39,8 @@
 #include "monster/monster.h"
 #include "dungeon/dungeon_map.h"
 #include "wizard/wizard_mode.h"
+#include "status_effects/status_effects.h"
+#include "careers/careers.h"
 
 static void sigfunc(int s) {
     FIX_UNUSED(s);
@@ -53,93 +55,95 @@ static void sigfunc_quit(int s) {
     else System_msg("Please press Ctrl-X to quit");
 }
 
-void hr_exit(void) {
-    if (options.wz_mode) wz_exit();
-    ui_destroy();
-
-    clear();
-    refresh();          //  Print it on to the real screen
-    endwin();           //  End curses mode
-}
-
 int main(int argc, char *argv[]) {
     struct gengetopt_args_info args_info;
+    int debug_lvl = LG_DEBUG_LEVEL_GAME_INFO;
+    int log_size = 100;
+
+    srand(time(NULL));
 
     initialize_uncursed(&argc, argv);
     if (cmdline_parser (argc, argv, &args_info) != 0) exit(EXIT_FAILURE);
     opt_parse_options(&args_info);
     cmdline_parser_free(&args_info);
+    assert(atexit(opt_exit) == 0);
 
-    int debug_lvl = LG_DEBUG_LEVEL_GAME_INFO;
-    int log_size = 100;
     if (options.debug) {
         debug_lvl = LG_DEBUG_LEVEL_DEBUG;
         log_size = 10000;
     }
-    gbl_log = lg_init(options.log_file_name, debug_lvl, log_size);
-    srand(time(NULL));
+
+    lg_init(options.log_file_name, debug_lvl, log_size);
+    assert(atexit(lg_exit) == 0);
+
     game_init(NULL, rand());
 
-    initscr(); //  Start curses mode
-    start_color();
+    itmlst_items_list_init();
+    assert(atexit(itmlst_items_list_exit) == 0);
 
-    //ESCDELAY = 1;
+    se_init();
+    assert(atexit(se_exit) == 0);
+
+    msrlst_monster_list_init();
+    assert(atexit(msrlst_monster_list_exit) == 0);
+
+    tt_init();
+    assert(atexit(tt_exit) == 0);
+
+    ge_init();
+    assert(atexit(ge_exit) == 0);
+
+    cr_init();
+    assert(atexit(cr_exit) == 0);
+
+    inp_init();
+    assert(atexit(inp_exit) == 0);
+
+    assert(atexit(game_exit) == 0);
 
     int cols, lines;
+    initscr(); //  Start curses mode
+    start_color();
     getmaxyx(stdscr, lines, cols);
     ui_create(cols, lines);
+    assert(atexit(ui_destroy) == 0);
 
-    //cbreak();
-    //noecho();
-    //keypad(stdscr, OK);
+    if (options.wz_mode) {
+        wz_init();
+        assert(atexit(wz_exit) == 0);
+    }
 
     bool valid_player = false;
-    if (game_load() ) {
-        if (options.play_recording == false) {
-            if (gbl_game->player_data.player != NULL) valid_player = true;
-            else {
-                game_exit();
-                lg_exit(gbl_log);
-                gbl_log = lg_init(options.log_file_name, debug_lvl, log_size);
-                game_init(NULL, rand());
+    if (options.play_recording == false) {
+        if (game_load() == false) {
+            if (options.test_auto) {
                 System_msg("Loading game failed.");
+                exit(EXIT_FAILURE);
             }
+
+            lg_init(options.log_file_name, debug_lvl, log_size);
+            game_init(NULL, rand());
+            System_msg("Loading game failed.");
+        }
+        else if (gbl_game->player_data.player != NULL) {
+            valid_player = true;
         }
     }
-    else if (options.test_auto) {
-        System_msg("Loading game failed.");
-        game_exit();
-        hr_exit();
-        lg_exit(gbl_log);
-        opt_exit();
-        exit(EXIT_FAILURE);
-    }
 
-    if (options.wz_mode) wz_init();
-
-        /* char creation */
+    /* char creation */
     if (valid_player == false) {
         if (char_creation_window() ) valid_player = true;
-    }
-
-
-    if (options.print_map_only) {
-        ui_destroy();
-        clear();
-        refresh();          //  Print it on to the real screen
-        endwin();           //  End curses mode
-
-        game_init_map();
-        dm_print_map(gbl_game->current_map);
-
-        game_exit();
-        lg_exit(gbl_log);
-        opt_exit();
-        exit(EXIT_SUCCESS);
+        else exit(EXIT_FAILURE);
     }
 
     if (valid_player) {
         game_init_map();
+
+        if (options.print_map_only) {
+            endwin();
+            dm_print_map(gbl_game->current_map);
+            exit(EXIT_SUCCESS);
+        }
 
         update_screen();
         charwin_refresh();
@@ -172,11 +176,6 @@ int main(int argc, char *argv[]) {
     else lg_error("Player invalid.");
     System_msg("Goodbye.");
 
-    hr_exit();
-    game_exit();
-
-    lg_exit(gbl_log);
-    opt_exit();
     usleep(500000);
 
     printf("Done.\n");

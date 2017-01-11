@@ -203,14 +203,16 @@ void msr_destroy(struct msr_monster *monster, struct dm_map *map) {
     if (msr_verify_monster(monster) == false) return;
     struct msr_monster_list_entry *target_mle = container_of(monster, struct msr_monster_list_entry, monster);
 
+    msr_clear_controller(monster);
+
     if (map != NULL) {
         if (dm_verify_map(map) == false) return;
         msr_remove_monster(monster, map);
     }
+
     inv_exit(monster->inventory);
     se_list_exit(monster->status_effects);
 
-    msr_clear_controller(monster);
     if (monster->unique_name != NULL) free(monster->unique_name);
 
     TAILQ_REMOVE(&monster_list_head, target_mle, entries);

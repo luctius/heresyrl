@@ -57,6 +57,13 @@ struct opt_options options = {
 
 static const int path_max = PATH_MAX -1;
 
+void opt_exit(void) {
+    free(options.log_file_name);
+    free(options.save_file_name);
+    free(options.load_file_name);
+    free(options.char_name);
+}
+
 void opt_parse_options(struct gengetopt_args_info *args_info) {
     const char *homedir = getenv("HOME");
     if (homedir == NULL) {
@@ -150,11 +157,4 @@ void opt_parse_options(struct gengetopt_args_info *args_info) {
 
     if (options.play_delay == 0) options.refresh = false;
     if (options.print_map_only)  options.refresh = false;
-}
-
-void opt_exit(void) {
-    free(options.log_file_name);
-    free(options.save_file_name);
-    free(options.load_file_name);
-    free(options.char_name);
 }

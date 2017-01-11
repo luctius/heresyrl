@@ -77,6 +77,12 @@ static struct dm_map *dm_alloc_map(int x_sz, int y_sz) {
 bool dm_free_map(struct dm_map *map) {
     if (dm_verify_map(map) == false) return false;
 
+    struct ground_effect *g = NULL;
+    while ( (g = gelst_get_next(g) ) != NULL ) {
+        ge_destroy(g->me);
+        g = NULL;
+    }
+
     coord_t c = cd_create(0,0);
     for (c.x = 0; c.x < map->sett.size.x; c.x++) {
         for (c.y = 0; c.y < map->sett.size.y; c.y++) {

@@ -133,6 +133,11 @@ void ui_destroy() {
     if (map_win != NULL) win_destroy(map_win);
     if (char_win != NULL) win_destroy(char_win);
     if (msg_win != NULL) win_destroy(msg_win);
+
+    if (isendwin() ) return;
+    clear();
+    refresh();          //  Print it on to the real screen
+    endwin();           //  End curses mode
 }
 
 void update_screen(void) {
