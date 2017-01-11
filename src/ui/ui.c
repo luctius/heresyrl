@@ -1616,7 +1616,7 @@ void show_msg(struct hrl_window *window) {
     if (options.refresh == false) return;
 
     werase(window->win);
-    scrollok(window->win, TRUE);
+    scrollok(window->win, OK);
     ui_print_reset(window);
 
     int ctr = 0;

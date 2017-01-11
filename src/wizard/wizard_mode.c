@@ -1,6 +1,5 @@
 #define _XOPEN_SOURCE 700 // For strnlen()
 #include <locale.h>
-#include <ncurses.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -11,6 +10,8 @@
 #include <wchar.h>
 #include <wctype.h>
 #include <assert.h>
+
+#include "uncursed.h"
 
 #include "config.h"
 #include "input.h"
