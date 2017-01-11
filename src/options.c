@@ -156,5 +156,4 @@ void opt_parse_options(struct gengetopt_args_info *args_info) {
     }
 
     if (options.play_delay == 0) options.refresh = false;
-    if (options.print_map_only)  options.refresh = false;
 }

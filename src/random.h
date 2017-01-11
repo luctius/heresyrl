@@ -33,6 +33,7 @@ int random_d100(struct random *r);
 
 /* TODO: implement http://stackoverflow.com/questions/288739/generate-random-numbers-uniformly-over-an-entire-range/288869#288869 */
 unsigned long random_int32(struct random *r);
+double random_float(struct random *r);
 
 unsigned long random_get_seed(struct random *r);
 int random_get_nr_called(struct random *r);

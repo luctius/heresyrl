@@ -30,6 +30,7 @@
 #include "options.h"
 #include "logging.h"
 #include "game.h"
+#include "random.h"
 #include "coord.h"
 #include "inventory.h"
 #include "input.h"
@@ -76,7 +77,10 @@ int main(int argc, char *argv[]) {
     lg_init(options.log_file_name, debug_lvl, log_size);
     assert(atexit(lg_exit) == 0);
 
+    /* TODO: Leaks memory when one of the init functions fails
+     *       before game_exit is added. Not very bad but still. */
     game_init(NULL, rand());
+    assert(atexit(game_exit) == 0);
 
     itmlst_items_list_init();
     assert(atexit(itmlst_items_list_exit) == 0);
@@ -99,7 +103,21 @@ int main(int argc, char *argv[]) {
     inp_init();
     assert(atexit(inp_exit) == 0);
 
-    assert(atexit(game_exit) == 0);
+    if (options.print_map_only) {
+        struct dm_spawn_settings spwn_sett = {
+            .size = cd_create(100,100),
+            .threat_lvl_min  = 0,
+            .threat_lvl_max = 0,
+            .item_chance = 0,
+            .monster_chance = 0,
+            .seed = random_int32(gbl_game->random),
+            .type = DUNGEON_TYPE_ALL,
+        };
+
+        gbl_game->current_map = dm_generate_map(&spwn_sett);
+        dm_print_map(gbl_game->current_map);
+        exit(EXIT_SUCCESS);
+    }
 
     int cols, lines;
     initscr(); //  Start curses mode
@@ -138,12 +156,7 @@ int main(int argc, char *argv[]) {
 
     if (valid_player) {
         game_init_map();
-
-        if (options.print_map_only) {
-            endwin();
-            dm_print_map(gbl_game->current_map);
-            exit(EXIT_SUCCESS);
-        }
+        assert(atexit(game_preexit) == 0);
 
         update_screen();
         charwin_refresh();

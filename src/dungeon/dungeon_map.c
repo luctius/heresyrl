@@ -753,9 +753,6 @@ struct dm_map *dm_generate_map(struct dm_spawn_settings *sett) {
     /* cleanup pathfinding */
     pf_exit(pf_ctx);
 
-    /* fill the map with items and monsters */
-    //if (map->sett.populate) dm_populate_map(map, r);
-
     /*cleanup random*/
     random_exit(r);
 

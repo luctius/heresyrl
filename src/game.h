@@ -36,6 +36,7 @@ bool game_load(void);
 bool game_init_map(void);
 bool game_new_tick(void);
 void game_exit(void);
+void game_preexit(void);
 
 void game_save(void);
 

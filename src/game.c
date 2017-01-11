@@ -50,6 +50,8 @@ void game_init(struct pl_player *plr, unsigned long initial_seed) {
             gbl_game->turn = 0;
             gbl_game->plr_last_turn = 0;
         }
+
+        gbl_game->random = random_init_genrand(gbl_game->initial_seed);
     }
 }
 
@@ -170,7 +172,12 @@ bool game_new_tick(void) {
 
 void game_exit(void) {
     assert (gbl_game != NULL);
+    random_exit(gbl_game->random);
+    free(gbl_game);
+}
 
+void game_preexit(void) {
+    assert (gbl_game != NULL);
     game_save();
 
     struct pl_player *plr = &gbl_game->player_data;
@@ -182,10 +189,6 @@ void game_exit(void) {
     }
 
     game_cleanup();
-
-    random_exit(gbl_game->random);
-
-    free(gbl_game);
 }
 
 void game_cleanup(void) {

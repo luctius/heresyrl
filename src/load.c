@@ -271,7 +271,7 @@ static bool load_game(lua_State *L, struct gm_game *g) {
     if (strcmp(version_ptr, version_ptr_game) != 0) lg_warning("Warning: save game version and game version do not match!");
 
     if (lua_intexpr(L, &t, "game.random.seed") == 0) return false;
-    g->random = random_init_genrand(t);
+    g->initial_seed = t;
 
     if (options.play_recording == false) {
         if (lua_intexpr(L, &t, "game.turn") == 0) return false;
