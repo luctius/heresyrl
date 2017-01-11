@@ -23,7 +23,7 @@
 #define MONSTER_END }
 
 #define CREATION(wght, lvl, l, grp_ch) \
-    .spwn.weight=wght, .spwn.level=lvl, .spwn.dungeon_locale=l, .spwn.group_chance = grp_ch
+    .spwn = { .weight=wght, .level=lvl, .dungeon_locale=l, .group_chance = grp_ch, }
 
 #define DESCRIPTION(desc) .description=desc
 
@@ -147,8 +147,8 @@ static const char *msr_skill_description[] = {
 
 struct talent_descriptions_struct {
     enum msr_talents talent;
-    char *name;
-    char *description;
+    const char *name;
+    const char *description;
 };
 
 struct talent_descriptions_struct talent_descriptions[] = {

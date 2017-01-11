@@ -103,7 +103,6 @@ static bool plr_action_loop(struct msr_monster *player) {
     }
 
     gbl_game->plr_last_turn = gbl_game->turn;
-    sgt_calculate_player_sight(map, player);
     game_save();
 
     coord_t pos = player->pos;
@@ -340,9 +339,6 @@ static bool plr_action_loop(struct msr_monster *player) {
 
         pos = player->pos;
     }
-
-    dm_clear_map_visibility(map, &zero, &map->sett.size);
-    sgt_calculate_player_sight(map, player);
 
     return has_action;
 }

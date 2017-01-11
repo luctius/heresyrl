@@ -26,6 +26,8 @@
 struct opt_options {
     bool debug;
     bool debug_show_map;
+    bool debug_show_monsters;
+
     bool debug_no_load;
     bool debug_no_save;
     bool print_map_only;

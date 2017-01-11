@@ -38,8 +38,7 @@
         .weight = wgt, \
         .item_chance = i_c, \
         .monster_chance = m_c, \
-        .size.x = sx, \
-        .size.y = sy, \
+        .size = { .x = sx, .y = sy }, \
     }
 
 #define ENEMIES(nr, tp, wgt) \

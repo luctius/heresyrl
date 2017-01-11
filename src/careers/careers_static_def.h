@@ -44,6 +44,7 @@ static struct cr_homeworld static_homeworld_list[] = {
     },
 
     [CR_HWID_MAX] = {
+        .name = NULL,
     },
 };
 
@@ -85,6 +86,7 @@ static struct cr_background static_background_list[] = {
     },
 
     [CR_BCKGRNDID_MAX] = {
+        .name = NULL,
     },
 };
 
@@ -116,6 +118,7 @@ static struct cr_role static_role_list[] = {
     },
 
     [CR_ROLEID_MAX] = {
+        .name = NULL,
     },
 };
 

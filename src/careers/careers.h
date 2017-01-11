@@ -62,7 +62,7 @@ struct cr_role {
     enum msr_talents role_talent;
 };
 
-void cr_init();
+void cr_init(void);
 void cr_exit(struct pl_player *plr);
 
 void cr_init_career(struct pl_player *plr, enum homeworld_ids hid, enum background_ids btid, enum role_ids rtid);

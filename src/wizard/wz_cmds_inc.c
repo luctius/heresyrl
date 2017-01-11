@@ -15,7 +15,7 @@ static void cmd_fov_test(char *input) {
     struct msr_monster *player = gbl_game->player_data.player;
     struct dm_map *map = gbl_game->current_map;
 
-    int radius = 5;
+    long int radius = 5;
     if (input != NULL) {
         radius = strtol(input, NULL, 10);
         if (radius == 0 || radius == LONG_MIN || radius ==  LONG_MAX) radius = 5;
@@ -76,6 +76,7 @@ static void cmd_fov_test(char *input) {
 }
 
 static void cmd_refresh(char *input) {
+    FIX_UNUSED(input);
     coord_t start = { .x = 0, .y = 0, };
     dm_clear_map_visibility(gbl_game->current_map, &start, &gbl_game->current_map->sett.size);
 
@@ -85,14 +86,21 @@ static void cmd_refresh(char *input) {
 }
 
 static void cmd_show_map(char *input) {
+    FIX_UNUSED(input);
     if (options.debug_show_map) {
-        coord_t start = { .x = 0, .y = 0, };
         options.debug_show_map = false;
-        dm_clear_map_visibility(gbl_game->current_map, &start, &gbl_game->current_map->sett.size);
-        sgt_calculate_all_light_sources(gbl_game->current_map);
-        sgt_calculate_player_sight(gbl_game->current_map, gbl_game->player_data.player);
+        options.debug_show_monsters = false;
     }
-    else options.debug_show_map = true;
+    else {
+        options.debug_show_map = true;
+        options.debug_show_monsters = true;
+    }
+
+    coord_t start = { .x = 0, .y = 0, };
+    dm_clear_map_visibility(gbl_game->current_map, &start, &gbl_game->current_map->sett.size);
+    sgt_calculate_all_light_sources(gbl_game->current_map);
+    sgt_calculate_player_sight(gbl_game->current_map, gbl_game->player_data.player);
+
     update_screen();
 }
 
@@ -125,6 +133,7 @@ static unsigned int test_astar_callback(void *vmap, coord_t *coord) {
 }
 
 static void cmd_test_a_star(char *input) {
+    FIX_UNUSED(input);
     struct msr_monster *player = gbl_game->player_data.player;
     struct dm_map *map = gbl_game->current_map;
 
@@ -196,6 +205,7 @@ static void cmd_test_a_star(char *input) {
 }
 
 static void cmd_list_items(char *input) {
+    FIX_UNUSED(input);
     struct itm_item *item = NULL;
     while ( (item = itmlst_get_next_item(item) ) != NULL) {
         if (item->owner_type == ITEM_OWNER_NONE) {
@@ -211,6 +221,7 @@ static void cmd_list_items(char *input) {
 }
 
 static void cmd_list_monsters(char *input) {
+    FIX_UNUSED(input);
     struct msr_monster *monster = NULL;
     while ( (monster = msrlst_get_next_monster(monster) ) != NULL) {
         lg_wizard("%10s %6u %6" PRIu32" (pos %d,%d)", monster->sd_name, monster->uid, monster->tid, monster->pos.x, monster->pos.y);
@@ -218,6 +229,7 @@ static void cmd_list_monsters(char *input) {
 }
 
 static void cmd_list_status_effects(char *input) {
+    FIX_UNUSED(input);
     lg_wizard("not implemented");
 }
 
@@ -406,5 +418,6 @@ static void cmd_inspect_monster(char *input) {
 }
 
 static void cmd_inspect_se(char *input) {
+    FIX_UNUSED(input);
     lg_wizard("not implemented");
 }

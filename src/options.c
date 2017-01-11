@@ -32,6 +32,7 @@
 struct opt_options options = {
     .debug           = false,
     .debug_show_map  = false,
+    .debug_show_monsters  = false,
     .debug_no_load   = false,
     .debug_no_save   = false,
     .print_map_only  = false,

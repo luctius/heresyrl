@@ -42,19 +42,19 @@
 static time_t session_time_start = 0;
 
 void cr_init() {
-    for (int i = 0; i < ARRAY_SZ(static_homeworld_list); i++) {
+    for (unsigned int i = 0; i < ARRAY_SZ(static_homeworld_list); i++) {
         if (static_homeworld_list[i].homeworld_talent != 0)
             assert(msr_get_tier(static_homeworld_list[i].homeworld_talent) == MSR_TALENT_TIER_MISC);
     }
 
-    for (int i = 0; i < ARRAY_SZ(static_background_list); i++) {
+    for (unsigned int i = 0; i < ARRAY_SZ(static_background_list); i++) {
         if (static_background_list[i].talents != 0)
             assert(msr_get_tier(static_background_list[i].talents) == MSR_TALENT_TIER_T1);
         if (static_background_list[i].background_talent != 0)
             assert(msr_get_tier(static_background_list[i].background_talent) == MSR_TALENT_TIER_MISC);
     }
 
-    for (int i = 0; i < ARRAY_SZ(static_role_list); i++) {
+    for (unsigned int i = 0; i < ARRAY_SZ(static_role_list); i++) {
         if (static_role_list[i].talents != 0)
             assert(msr_get_tier(static_role_list[i].talents) == MSR_TALENT_TIER_T1);
         if (static_role_list[i].role_talent != 0)
@@ -169,7 +169,7 @@ int cr_talent_cost(struct pl_player *plr, enum msr_talents talent) {
     if (msr_has_talent(plr->player, talent) ) return -1;
 
     int tier = talent >> MSR_TALENT_HEADER_SHIFT;
-    for (int i = 0; i < ARRAY_SZ(aptitude_talent_list); i++) {
+    for (unsigned int i = 0; i < ARRAY_SZ(aptitude_talent_list); i++) {
         if (aptitude_talent_list[i].talent != talent) continue;
         int has = 0;
         if (test_bf(plr->career.aptitudes, aptitude_talent_list[i].apt1) ) has += 1;

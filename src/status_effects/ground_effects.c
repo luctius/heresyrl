@@ -151,6 +151,8 @@ bool ge_destroy(struct dm_map_entity *me) {
 }
 
 void ge_process(struct dm_map *map) {
+    FIX_UNUSED(map);
+
     if (ground_effects_list_initialised == false) return;
     struct ground_effect_list_entry *sele = ground_effects_list_head.tqh_first;
 

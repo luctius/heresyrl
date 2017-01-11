@@ -53,12 +53,12 @@ static bool inp_resize_log(struct inp_input *i) {
 
 static void inp_rnd_ai_fill_log(struct inp_input *i) {
     if (options.rnd_auto_play) {
-        int max = 100 - inp_log_key_count(gbl_game->input);
-        for (int i = max; i > 0; i--) {
+        int max = 100 - inp_log_key_count(i);
+        for (int c = max; c > 0; c--) {
             enum inp_keys k = random_int32(gbl_game->random) % INP_KEY_MAX;
 
             if (k == INP_KEY_QUIT) continue;
-            inp_add_to_log(gbl_game->input, k);
+            inp_add_to_log(i, k);
         }
     }
 }

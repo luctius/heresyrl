@@ -8,6 +8,7 @@
 #include "wizard/wz_cmds_inc.c"
 
 static void cmd_exit(char *input) {
+    FIX_UNUSED(input);
     wz_mode_exit();
 }
 
@@ -82,7 +83,7 @@ static const struct wz_cmd wz_cmd_list[] = {
 };
 
 static void cmd_help(char *input) {
-    for (int i = 0; i < ARRAY_SZ(wz_cmd_list); i++) {
+    for (unsigned int i = 0; i < ARRAY_SZ(wz_cmd_list); i++) {
         const struct wz_cmd *cmd = &wz_cmd_list[i];
 
         if (input != NULL) {
@@ -96,8 +97,7 @@ static void cmd_help(char *input) {
 }
 
 /* ----------------------------------------------- */
-const struct wz_cmd *wz_command_get(int i) {
-    if (i < 0) return NULL;
+const struct wz_cmd *wz_command_get(unsigned int i) {
     if (i >= ARRAY_SZ(wz_cmd_list) ) return NULL;
     return &wz_cmd_list[i];
 }
