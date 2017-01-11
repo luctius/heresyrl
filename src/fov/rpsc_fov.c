@@ -118,13 +118,8 @@ struct rpsc_octant_quad octant_lo_table[OCTANT_MAX] = {
 };
 
 /*  instead of using floating point, we use a 16bit integer (and more when available) */
-typedef uint_fast16_t angle_t;
-
-#ifdef RPSC_DEBUG
+typedef uint16_t angle_t;
 #define FP_MAX UINT16_MAX /* use this when debugging to avoid becoming number crazy */
-#else
-#define FP_MAX UINT_FAST16_MAX
-#endif
 
 /* We ignore rounding error in the last nibble */
 #define PERIOD_MASK (~0xF)
