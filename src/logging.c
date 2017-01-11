@@ -365,7 +365,7 @@ void lg_strip_colour(char *new_str, const char *str, size_t n) {
 
     size_t str_n = strlen(str);
     int nstr_i = 0;
-    for (int i = 0; i < n; i++) {
+    for (size_t i = 0; i < n; i++) {
         int skip_len = 0;
         if (i >= str_n) break;
 

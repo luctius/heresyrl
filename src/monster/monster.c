@@ -224,7 +224,7 @@ bool msr_verify_monster(struct msr_monster *monster) {
     assert(inv_verify_inventory(monster->inventory) == true );
     assert(se_verify_list(monster->status_effects) == true);
 
-    for (int tier = 0; tier < MSR_TALENT_TIER_MAX; tier++) {
+    for (unsigned int tier = 0; tier < MSR_TALENT_TIER_MAX; tier++) {
         assert(msr_get_tier(monster->talents[tier]) == tier);
     }
 
@@ -976,7 +976,7 @@ bool msr_has_talent(struct msr_monster *monster, enum msr_talents talent) {
     if (talent == TLT_NONE) return true;
     if (talent >= TLT_MAX) return false;
 
-    int tier = msr_get_tier(talent);
+    unsigned int tier = msr_get_tier(talent);
     assert(tier < MSR_TALENT_TIER_MAX);
     assert(msr_get_tier(monster->talents[tier]) == tier);
     assert(__builtin_popcountll(talent >> MSR_TALENT_HEADER_SHIFT) == 1);
@@ -993,7 +993,7 @@ bool msr_set_talent(struct msr_monster *monster, enum msr_talents talent) {
     if (msr_has_talent(monster, talent) == true) return false;
     if (talent >= TLT_MAX) return false;
 
-    int tier = msr_get_tier(talent);
+    unsigned int tier = msr_get_tier(talent);
     assert(tier < MSR_TALENT_TIER_MAX);
     assert(__builtin_popcountll(talent >> MSR_TALENT_HEADER_SHIFT) == 1);
 
@@ -1103,7 +1103,7 @@ const char *msr_skillrate_names(enum msr_skill_rate sr) {
 
 const char *msr_talent_names(enum msr_talents t) {
     if (t >= TLT_MAX) return NULL;
-    for (int i = 0; i < ARRAY_SZ(talent_descriptions); i++) {
+    for (unsigned int i = 0; i < ARRAY_SZ(talent_descriptions); i++) {
         if (talent_descriptions[i].talent != t) continue;
 
         return talent_descriptions[i].name;
@@ -1113,7 +1113,7 @@ const char *msr_talent_names(enum msr_talents t) {
 
 const char *msr_talent_descriptions(enum msr_talents t) {
     if (t >= TLT_MAX) return NULL;
-    for (int i = 0; i < ARRAY_SZ(talent_descriptions); i++) {
+    for (unsigned int i = 0; i < ARRAY_SZ(talent_descriptions); i++) {
         if (talent_descriptions[i].talent != t) continue;
 
         return talent_descriptions[i].description;

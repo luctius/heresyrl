@@ -230,13 +230,6 @@ static const char *itm_descs[] = {
     [IID_BASIC_AMMO_SP]    = "Hard rounds are common for many weapons within the Imperium and vary greatly in calibre and design",
     [IID_BASIC_AMMO_LAS]   = "Charge packs are powerful batteries used almost exclusively by las weapons",
 
-    [IID_PISTOL_AMMO_SP]    = "Hard rounds are common for many weapons within the Imperium and vary greatly in calibre and design",
-    [IID_PISTOL_AMMO_LAS]   = "Charge packs are powerful batteries used almost exclusively by las weapons",
-
-    [IID_BASIC_AMMO_SP]    = "Hard rounds are common for many weapons within the Imperium and vary greatly in calibre and design",
-    [IID_BASIC_AMMO_LAS]   = "Charge packs are powerful batteries used almost exclusively by las weapons",
-
-
     /* Stimms */
     [IID_STIMM_HEALTH_MINOR]  = "Health stimm injector",
 

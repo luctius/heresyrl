@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <wchar.h>
 #include <wctype.h>
+#include <assert.h>
 
 #include "config.h"
 #include "input.h"
@@ -75,16 +76,17 @@ static size_t strnwidth(const char *s, size_t n, size_t offset) {
         // Extract the next multibyte character
         wc_len = mbrtowc(&wc, s + i, MB_CUR_MAX, &shift_state);
         switch (wc_len) {
-        case 0:
-            // Reached the end of the string
-            goto done;
+            case 0:
+                // Reached the end of the string
+                goto done;
 
-        case (size_t)-1: case (size_t)-2:
-            // Failed to extract character. Guess that the remaining characters
-            // are one byte/column wide each.
-            width += strnlen(s, n - i);
+            case (size_t)-1: case (size_t)-2:
+                // Failed to extract character. Guess that the remaining characters
+                // are one byte/column wide each.
+                width += strnlen(s, n - i);
 
-            goto done;
+                goto done;
+            default: assert(false); break;
         }
 
         if (wc == '\t')
@@ -111,6 +113,7 @@ static int readline_input_avail(void) {
 }
 
 static int readline_getc(FILE *dummy) {
+    FIX_UNUSED(dummy);
     input_avail = false;
 
     return input;
@@ -138,8 +141,8 @@ static void got_command(char *line) {
             if (strncmp(cmd->name, line, cmd_len) == 0) {
                 add_history(line);
 
-                for (int i = 0; i < line_len; i++ ) {
-                    inp_add_to_log(gbl_game->input, line[i]);
+                for (int j = 0; j < line_len; j++ ) {
+                    inp_add_to_log(gbl_game->input, line[j]);
                     inp_get_from_log(gbl_game->input);
                 }
                 inp_add_to_log(gbl_game->input, '\n');
@@ -148,10 +151,10 @@ static void got_command(char *line) {
 
                 char *param = NULL;
                 if (cmd_len < line_len ) {
-                    int i;
+                    int j;
                     /* strip leading spaces */
-                    for (i = cmd_len; i < line_len && isblank(line[i]); i++);
-                    if (i < line_len) param = &line[i];
+                    for (j = cmd_len; j < line_len && isblank(line[j]); j++);
+                    if (j < line_len) param = &line[j];
                 }
 
                 cmd->func(param);
@@ -167,8 +170,9 @@ static void got_command(char *line) {
 }
 
 static void cmd_win_redisplay(bool for_resize) {
+    FIX_UNUSED(for_resize);
     size_t prompt_width = strwidth(rl_display_prompt, 0);
-    size_t cursor_col = prompt_width +
+    ssize_t cursor_col = prompt_width +
                         strnwidth(rl_line_buffer, rl_point, prompt_width);
 
     werase(wz_win->win);
@@ -240,11 +244,13 @@ static void init_ncurses(void) {
 */
 
 char **wz_cmd_completion(const char *text, int start, int end) {
+    FIX_UNUSED(start);
+    FIX_UNUSED(end);
     rl_attempted_completion_over = 1;
     return rl_completion_matches(text, wz_cmd_generator);
 }
 
-void wz_init_rl() {
+void wz_init_rl(void) {
     rl_attempted_completion_function = wz_cmd_completion;
 }
 #endif

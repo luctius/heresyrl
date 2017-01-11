@@ -53,7 +53,7 @@ static void sigfunc_quit(int s) {
     else System_msg("Please press Ctrl-X to quit");
 }
 
-void hr_exit() {
+void hr_exit(void) {
     if (options.wz_mode) wz_exit();
     ui_destroy();
 

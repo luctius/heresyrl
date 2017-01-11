@@ -133,10 +133,10 @@ enum msr_talent_tiers {
 
 
 #define MSR_TALENT_HEADER_SHIFT 60
-#define MSR_TALENT_HEADER_MASK  (0x0FL<<MSR_TALENT_HEADER_SHIFT)
+#define MSR_TALENT_HEADER_MASK  (0x0FUL<<MSR_TALENT_HEADER_SHIFT)
 #define MSR_TALENT_ID_MASK      (~MSR_TALENT_HEADER_MASK)
-#define MSR_TALENT_HEADER(a)    ( (1L<<a) <<MSR_TALENT_HEADER_SHIFT)
-#define MSR_TALENT(h,id)        ( MSR_TALENT_HEADER(h) | (1L<<id) )
+#define MSR_TALENT_HEADER(a)    ( (1UL<<a) <<MSR_TALENT_HEADER_SHIFT)
+#define MSR_TALENT(h,id)        ( MSR_TALENT_HEADER(h) | (1UL<<id) )
 #define MSR_TALENTS_PER_TIER    MSR_TALENT_HEADER_SHIFT
 enum msr_talents {
     TLT_NONE                       = MSR_TALENT(0, 0),   /* TLT_NONE is a talent every one has, used to denote talentless weapons */

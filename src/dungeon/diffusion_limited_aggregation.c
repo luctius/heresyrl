@@ -37,7 +37,7 @@ const coord_t dla_coord_lo_table[] = {
     {-1, -1}, {1, -1}, {-1, 1}, {1, 1}, /* DIAGONAL   */
 };
 
-static inline coord_t next_coord(coord_t *last, uint32_t dir, enum dla_directions dir_allowed) {
+static coord_t next_coord(coord_t *last, uint32_t dir, enum dla_directions dir_allowed) {
     int num_dirs = 0;
     if ( (dir_allowed & DLA_ORTHOGONAL) > 0) num_dirs += 4;
     if ( (dir_allowed & DLA_DIAGONAL)   > 0) num_dirs += 4;

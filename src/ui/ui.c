@@ -942,7 +942,7 @@ void charwin_refresh() {
             EF_EXHAUSTED, EF_GRAPPLED, EF_HELPLESS, EF_INVISIBLE,
             EF_ON_FIRE, EF_PARALYZED, EF_PINNED, EF_PRONE,
             EF_SWIMMING, EF_STAGGERED, EF_STUNNED, EF_UNCONSCIOUS, };
-    for (int i = 0; i < ARRAY_SZ(seef); i++) {
+    for (unsigned int i = 0; i < ARRAY_SZ(seef); i++) {
         if (se_has_effect(player, seef[i]) ) {
             ui_printf(char_win, "[%s]", se_effect_names(seef[i]) );
         }
@@ -1171,6 +1171,8 @@ void status_effect_examine(struct hrl_window *window, struct status_effect *se) 
 
 
 bool invwin_inventory(struct dm_map *map, struct pl_player *plr) {
+    FIX_UNUSED(map);
+
     if (map_win == NULL) return false;
     if (plr == NULL) return false;
     if (map_win->type != HRL_WINDOW_TYPE_MAP) return false;
@@ -1383,7 +1385,7 @@ Basic weapon traning SP     ...                  |
                 armour = item->specific.wearable.damage_reduction;
             }
 
-            int y = ui_printf(&pad, "%s", item->ld_name);
+            y = ui_printf(&pad, "%s", item->ld_name);
             ui_printf_ext(&pad,y, 20, "%-2d  ", armour);
             ui_printf_ext(&pad,y, 24, "");
 
@@ -1554,17 +1556,13 @@ void show_log(struct hrl_window *window, bool input) {
                 }
 
                 if (print) {
-                    char *old_str = "";
-                    char *old_str_end = "";
-                    if (old) {
-                        old_str = cs_OLD;
-                        old_str_end = cs_CLOSE;
-                    }
-
+                    if (old) ui_printf(&pad, cs_OLD);
+                    y = ui_printf(&pad, "%s%s", pre_format_buf, tmp_entry->string);
                     if (tmp_entry->repeat > 1) {
-                        y = ui_printf(&pad, "%s%s%s (x%d)%s\n", old_str, pre_format_buf, tmp_entry->string, tmp_entry->repeat, old_str_end);
+                        ui_printf(&pad, " (x%d)", tmp_entry->repeat);
                     }
-                    else y = ui_printf(&pad, "%s%s%s%s\n", old_str, pre_format_buf, tmp_entry->string, old_str_end);
+                    ui_printf(&pad, "\n");
+                    if (old) ui_printf(&pad, cs_CLOSE);
                 }
             }
         }
@@ -1768,6 +1766,7 @@ void levelup_aquire_window(struct lvl_struct *list, int start, int sz, const cha
                             gbl_game->player_data.career.xp_current -= list[tidx].cost;
                             gbl_game->player_data.career.xp_spend   += list[tidx].cost;
                         } break;
+                        default: assert(false); break;
                     }
                     lvl_up_done = true;
                 }
@@ -1863,6 +1862,7 @@ void levelup_selection_window(void) {
                         case 0: break;
                         case 1: levelup_aquire_window(lvl_list, skill_start, lvl_list_sz, "Skills"); break;
                         case 2: levelup_aquire_window(lvl_list, talent_start[0], lvl_list_sz, "Talents"); break;
+                        default: assert(false); break;
                     }
                 }
                 break;
@@ -1994,14 +1994,14 @@ void help_window(void) {
     show_help(main_win, true);
 }
 
-void vs_shop(int32_t randint, char *shop_name, enum item_group *grplst, int grplst_sz){
+void vs_shop(int32_t randint, const char *shop_name, enum item_group *grplst, int grplst_sz){
     struct random *r = random_init_genrand(randint);
     bool buying = true;
 
     lg_debug("shop: %s", shop_name);
 
     int32_t sz = (random_int32(r) % 16) + 10;
-    uint32_t list[sz];
+    int32_t list[sz];
 
     for (int i = 0; i < sz; i++) {
         bool unique = false;
@@ -2027,7 +2027,7 @@ void vs_shop(int32_t randint, char *shop_name, enum item_group *grplst, int grpl
         ui_print_reset(map_win);
 
         struct itm_item *money_item = inv_get_item_by_tid(monster->inventory, IID_MONEY);
-        int money = 0;
+        unsigned int money = 0;
         if (money_item != NULL) money = money_item->stacked_quantity;
 
         int y = ui_printf(map_win, "%s", shop_name);
@@ -2134,7 +2134,7 @@ void vs_shop(int32_t randint, char *shop_name, enum item_group *grplst, int grpl
 }
 
 
-void vs_healer() {
+void vs_healer(void) {
     bool healing = true;
 
     while(healing) {
@@ -2209,7 +2209,7 @@ void vs_healer() {
     charwin_refresh();
 }
 
-void pay_loan() {
+void pay_loan(void) {
     bool payment = true;
 
     while (payment) {
@@ -2233,7 +2233,7 @@ void pay_loan() {
 
         switch (inp_get_input(gbl_game->input) ) {
             case INP_KEY_APPLY: {
-                int payment = 0;
+                int pay = 0;
                 ui_printf_ext(map_win, map_win->lines -5, 1, "Pay how much?");
                 if (options.refresh) wrefresh(map_win->win);
 
@@ -2251,19 +2251,19 @@ void pay_loan() {
                             amount = inp_input_to_digit(key);
                             if (amount >= 0) {
                                 ui_printf(map_win, "%d",  amount);
-                                payment *= 10;
-                                payment += amount;
+                                pay *= 10;
+                                pay += amount;
                             }
                         }
                     }
                 }
 
-                if (payment <= money && payment > 0) {
-                    money_item->stacked_quantity -= payment;
-                    You(monster, "payed the loanshark %d gp.", payment);
+                if (pay <= money && pay > 0) {
+                    money_item->stacked_quantity -= pay;
+                    You(monster, "payed the loanshark %d gp.", pay);
                 }
                 else {
-                    You(monster, "do not have enough money to pay  %d", payment);
+                    You(monster, "do not have enough money to pay  %d", pay);
                 }
             } break;
 
@@ -2288,9 +2288,9 @@ void quest_selection(int32_t randint) {
         bool unique = false;
 
         for (int j = 0; unique == false && j < 20; j++) {
-            struct quest *quest = qst_spawn(gbl_game->player_data.level, random_int32(r) );
-            if (quest == NULL) continue;
-            list[i] = quest->tid;
+            struct quest *q = qst_spawn(gbl_game->player_data.level, random_int32(r) );
+            if (q == NULL) continue;
+            list[i] = q->tid;
 
             unique = true;
             if (list[i] == QSTID_NONE) unique = false;
@@ -2397,15 +2397,16 @@ void village_screen() {
                     ITEM_GROUP_POTION,
                 };
 
-                switch (inp_get_input_text(gbl_game->input) ) {
-                    case 'a': vs_shop(r_ws, "Weapon Smith", ws_grplst, ARRAY_SZ(ws_grplst) ); break;
-                    case 'b': vs_shop(r_as, "Armour Smith", as_grplst, ARRAY_SZ(as_grplst) ); break;
-                    case 'c': vs_shop(r_ap, "Apothecary",   ap_grplst, ARRAY_SZ(ap_grplst) ); break;
-                    case 'd': vs_healer(); break;
-                    case 'e': pay_loan(); break;
-                    case 'f': levelup_selection_window(); break;
-                    case 'g': quest_selection(r_qst); break;
-                    case 'h': {
+                int idx = inp_get_input_idx(gbl_game->input);
+                switch (idx) {
+                    case 0: vs_shop(r_ws, "Weapon Smith", ws_grplst, ARRAY_SZ(ws_grplst) ); break;
+                    case 1: vs_shop(r_as, "Armour Smith", as_grplst, ARRAY_SZ(as_grplst) ); break;
+                    case 2: vs_shop(r_ap, "Apothecary",   ap_grplst, ARRAY_SZ(ap_grplst) ); break;
+                    case 3: vs_healer(); break;
+                    case 4: pay_loan(); break;
+                    case 5: levelup_selection_window(); break;
+                    case 6: quest_selection(r_qst); break;
+                    case 7: {
                             System_msg("Are you sure you want to retire? (o)k/(c)ancel");
                             switch (inp_get_input(gbl_game->input) ) {
                                 default:

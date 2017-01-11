@@ -222,6 +222,7 @@ void ts_exit(struct tl_tile *tile, struct msr_monster *monster) {
 }
 
 void ts_turn_tick_monster(struct tl_tile *tile, struct msr_monster *monster) {
+    FIX_UNUSED(monster);
     switch (tile->id) {
         default: break;
     }

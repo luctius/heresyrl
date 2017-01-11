@@ -30,6 +30,10 @@
 #define lg_debug(a, ...) do { } while (0);
 #endif
 
+#ifndef FIX_UNUSED
+#define FIX_UNUSED(X) (void) (X) /* avoid warnings for unused params */
+#endif
+
 /*
    This is an implementation of:
     http://www.roguebasin.com/index.php?title=Restrictive_Precise_Angle_Shadowcasting
@@ -153,7 +157,7 @@ enum rpsc_octant get_octant(coord_t *src, coord_t *dst) {
 }
 
 /* calculate the angles for this cell */
-static inline struct angle_set offset_to_angle_set(int row, int cell) {
+static struct angle_set offset_to_angle_set(int row, int cell) {
     struct angle_set set;
     angle_t max_range = ANGLE_RANGE;
 
@@ -196,6 +200,7 @@ static inline int angle_set_to_cell(struct angle_set *set, int row_new) {
 
 /* check if a given angle set falls within the blocked set, given certain parameters */
 inline static bool angle_is_blocked(struct rpsc_fov_set *set, struct angle_set *test_set, struct angle_set *blocked_set, bool transparent) {
+    FIX_UNUSED(set);
 
     /* if it falls completely outside the blocked set, our job is done */
     if (test_set->far < blocked_set->near) return false;

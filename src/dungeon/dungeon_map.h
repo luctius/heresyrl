@@ -56,8 +56,8 @@ struct dm_spawn_settings {
     coord_t size;
     int threat_lvl_min;
     int threat_lvl_max;
-    int item_chance;
-    int monster_chance;
+    unsigned int item_chance;
+    unsigned int monster_chance;
     uint32_t seed;
     enum dm_dungeon_type type;
 };

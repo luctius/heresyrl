@@ -166,6 +166,7 @@ void qst_process_quest_end(struct quest *quest, struct dm_map *map) {
 }
 
 void qst_process_quest_during(struct quest *quest, struct dm_map *map) {
+    FIX_UNUSED(map);
     switch (quest->type) {
         case QST_TYPE_FETCH:
             switch (quest->state) {
@@ -204,6 +205,7 @@ void qst_process_quest_during(struct quest *quest, struct dm_map *map) {
                         quest->state = QST_FTCH_FETCHING;
                     }
                 } break;
+                default: assert(false); break;
             }
             break;
         default: break;
@@ -211,6 +213,7 @@ void qst_process_quest_during(struct quest *quest, struct dm_map *map) {
 }
 
 bool qst_is_quest_done(struct quest *quest, struct dm_map *map) {
+    FIX_UNUSED(map);
     switch (quest->type) {
         case QST_TYPE_FETCH:
             switch (quest->state) {
