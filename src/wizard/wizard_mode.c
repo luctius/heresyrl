@@ -39,10 +39,10 @@ static bool input_avail = false;
 
 #ifndef HAVE_LIBREADLINE
 static void forward_to_readline(char c) {}
-bool init_readline() { lg_error("Wizard mode not compiled in"); return false; }
-void deinit_readline() {}
+bool init_readline(void) { lg_error("Wizard mode not compiled in"); return false; }
+void deinit_readline(void) {}
 static void cmd_win_redisplay(bool for_resize) {}
-void wz_init_rl() {}
+void wz_init_rl(void) {}
 #endif
 
 char **wz_cmd_completion(const char *, int, int);
