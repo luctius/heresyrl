@@ -1862,7 +1862,7 @@ void levelup_selection_window(void) {
                         case 0: break;
                         case 1: levelup_aquire_window(lvl_list, skill_start, lvl_list_sz, "Skills"); break;
                         case 2: levelup_aquire_window(lvl_list, talent_start[0], lvl_list_sz, "Talents"); break;
-                        default: assert(false); break;
+                        default: break;
                     }
                 }
                 break;
