@@ -80,6 +80,10 @@ tests/testsuite
 tests/atconfig
 tests/atlocal
 tests/testsuite.dir/
+tests/save_*
+tests/log_*
+tests/massif*
 test_uncursed
+
 
 build
