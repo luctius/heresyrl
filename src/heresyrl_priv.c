@@ -122,15 +122,6 @@ void generate_colours(void) {
     term_colour_table[TERM_COLOUR_BG_MUSTARD]     = (COLOR_PAIR(CLR_PAIR_BG_YELLOW));
     term_colour_table[TERM_COLOUR_BG_BLUE_SLATE]  = (COLOR_PAIR(CLR_PAIR_BG_BLUE));
     term_colour_table[TERM_COLOUR_BG_DEEP_L_BLUE] = (COLOR_PAIR(CLR_PAIR_BG_BLUE));
-
-    clear();
-    for (int i = 0; i < TERM_COLOUR_MAX; i++) {
-        attron(get_colour(i) );
-        mvprintw(i / 6, (i % 6) * 5, "%d ", i);
-        attroff(get_colour(i) );
-    }
-    refresh();
-    getch();
 }
 
  int get_colour(int cc) {
