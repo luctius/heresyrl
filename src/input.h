@@ -19,7 +19,7 @@
 #define INPUT_H
 
 #include <stdint.h>
-#include <ncurses.h>
+#include <stdbool.h>
 
 #define INP_KEY_MAX_IDX (36)
 
@@ -69,7 +69,7 @@ enum inp_keys {
     INP_KEY_WIZARD,
 
     INP_KEY_MAX,
-    INP_KEY_BACKSPACE = KEY_BACKSPACE,
+    INP_KEY_BACKSPACE,
 };
 
 struct inp_input {

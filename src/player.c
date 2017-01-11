@@ -16,8 +16,9 @@
 */
 
 #include <unistd.h>
-#include <ncurses.h>
 #include <assert.h>
+
+#include <uncursed.h>
 
 #include "enums.h"
 #include "player.h"

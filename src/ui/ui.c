@@ -18,10 +18,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <assert.h>
-#include <ncurses.h>
 #include <sys/param.h>
 #include <string.h>
 
+#include "uncursed.h"
 #include "ui.h"
 #include "ui_common.h"
 
@@ -64,6 +64,7 @@ bool ui_create(int cols, int lines) {
         }
 
         curs_set(0);
+        uncursed_enable_mouse(1);
 
         /* Calculate 3 windows sizes */
         int map_cols = cols - CHAR_MIN_COLS;
@@ -236,9 +237,9 @@ static void mapwin_display_map_noref(struct dm_map *map, coord_t *player) {
                     }
                 }
 
-                if (has_colors() == TRUE) wattron(map_win->win, get_colour(attr_mod) );
+                wattron(map_win->win, get_colour(attr_mod) );
                 mvwaddch(map_win->win, yi, xi, icon);
-                if (has_colors() == TRUE) wattroff(map_win->win, get_colour(attr_mod) );
+                wattroff(map_win->win, get_colour(attr_mod) );
             }
         }
     }
@@ -371,8 +372,8 @@ void mapwin_overlay_examine_cursor(struct dm_map *map, coord_t *p_pos) {
         if (options.refresh) {
             lg_debug("examining pos: (%d,%d), plr (%d,%d)", e_pos.x, e_pos.y, p_pos->x, p_pos->y);
             chtype oldch = mvwinch(map_win->win, e_pos.y - scr_y, e_pos.x - scr_x);
-            mvwaddch(map_win->win, e_pos.y - scr_y, e_pos.x - scr_x, (oldch & 0xFF) | get_colour(TERM_COLOUR_BG_RED) );
-            if (options.refresh) wrefresh(map_win->win);
+            mvwaddch(map_win->win, e_pos.y - scr_y, e_pos.x - scr_x, (oldch & (A_CHARTEXT) ) | get_colour(TERM_COLOUR_BG_RED) | A_BOLD);
+            wrefresh(map_win->win);
             mvwaddch(map_win->win, e_pos.y - scr_y, e_pos.x - scr_x, oldch);
         }
 
@@ -1500,7 +1501,6 @@ void show_log(struct hrl_window *window, bool input) {
     touchwin(pad.win);
     werase(pad.win);
 
-
     char pre_format_buf[100];
     ui_print_reset(&pad);
     if (log_sz > 0) {
@@ -1576,11 +1576,11 @@ void show_log(struct hrl_window *window, bool input) {
             ui_printf_ext(window, window->lines -3, 1, cs_ATTR "[up]" cs_CLOSE " newer,  " cs_ATTR "[down]" cs_CLOSE " older.");
             ui_printf_ext(window, window->lines -2, 1, cs_ATTR " [q]" cs_CLOSE " exit.");
             if (options.refresh) wrefresh(window->win);
-            prefresh(pad.win, line,0,pad.y,pad.x, pad.y + pad.lines -5, pad.x + pad.cols);
+            prefresh(pad.win, line,0,pad.y,pad.x, pad.y + pad.lines -5, pad.x + pad.cols -1);
 
             switch (inp_get_input(gbl_game->input) ) {
-                case INP_KEY_UP_RIGHT:   line += 20; break;
-                case INP_KEY_DOWN_RIGHT: line -= 20; break;
+                case INP_KEY_UP_RIGHT:   line -= 20; break;
+                case INP_KEY_DOWN_RIGHT: line += 20; break;
                 case INP_KEY_UP:         line--; break;
                 case INP_KEY_DOWN:       line++; break;
 
@@ -1596,7 +1596,7 @@ void show_log(struct hrl_window *window, bool input) {
             if (line > (y - pad.lines) ) line = y - pad.lines;
         }
     }
-    else prefresh(pad.win, 0,0, pad.y, pad.x, pad.y + pad.lines -1, pad.x + pad.cols);
+    else prefresh(pad.win, 0,0, pad.y, pad.x, pad.y + pad.lines -1, pad.x + pad.cols -1);
 
     delwin(pad.win);
 

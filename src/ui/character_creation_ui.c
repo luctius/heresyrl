@@ -18,9 +18,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <assert.h>
-#include <ncurses.h>
 #include <sys/param.h>
 #include <string.h>
+#include <uncursed.h>
 
 #include "ui.h"
 #include "ui_common.h"
@@ -119,8 +119,8 @@ bool char_creation_window(void) {
 
         k = inp_get_input_text(gbl_game->input);
         switch (k) {
-            case '\n': if (strlen(name_buffer) > 0 ) { name_done = true; } break;
-            case 24: return false;
+            case INP_KEY_YES: if (strlen(name_buffer) > 0 ) { name_done = true; } break;
+            //case INP_KEY_YES: return false;
             case INP_KEY_BACKSPACE:
                 if (name_buffer_idx > 0) {
                     name_buffer[name_buffer_idx--] = '\0';

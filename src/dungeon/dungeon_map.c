@@ -23,7 +23,6 @@
 #include <assert.h>
 #include <string.h>
 #include <inttypes.h>
-#include <ncurses.h>
 
 #include "heresyrl_def.h"
 #include "dungeon_map.h"

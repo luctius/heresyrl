@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include <ncurses.h>
+#include <uncursed.h>
 #include <time.h>
 #include <signal.h>
 #include <unistd.h>
@@ -65,6 +65,7 @@ void hr_exit(void) {
 int main(int argc, char *argv[]) {
     struct gengetopt_args_info args_info;
 
+    initialize_uncursed(&argc, argv);
     if (cmdline_parser (argc, argv, &args_info) != 0) exit(EXIT_FAILURE);
     opt_parse_options(&args_info);
     cmdline_parser_free(&args_info);
@@ -80,19 +81,17 @@ int main(int argc, char *argv[]) {
     game_init(NULL, rand());
 
     initscr(); //  Start curses mode
-    if (has_colors() == FALSE) exit(EXIT_FAILURE);
-    if (start_color() == ERR) exit(EXIT_FAILURE);
-    refresh(); //  Print it on to the real screen
+    start_color();
 
-    ESCDELAY = 1;
+    //ESCDELAY = 1;
 
     int cols, lines;
     getmaxyx(stdscr, lines, cols);
     ui_create(cols, lines);
 
-    cbreak();
-    noecho();
-    keypad(stdscr, TRUE);
+    //cbreak();
+    //noecho();
+    //keypad(stdscr, OK);
 
     bool valid_player = false;
     if (game_load() ) {

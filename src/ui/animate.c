@@ -36,7 +36,7 @@ void ui_animate_explosion(struct dm_map *map, coord_t path[], int path_len) {
     for (int i = 0; i < path_len; i++) {
         if (dm_get_map_me(&path[i],map)->visible == true) {
             chlist[i] = mvwinch(map_win->win, path[i].y - scr_y, path[i].x - scr_x);
-            mvwaddch(map_win->win, path[i].y - scr_y, path[i].x - scr_x, chlist[i] | get_colour(TERM_COLOUR_BG_YELLOW) );
+            mvwaddch(map_win->win, path[i].y - scr_y, path[i].x - scr_x, (chlist[i] & (A_CHARTEXT) ) | get_colour(TERM_COLOUR_BG_YELLOW) );
         }
     }
 
