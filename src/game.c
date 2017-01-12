@@ -127,16 +127,16 @@ bool game_init_map(void) {
 
 void game_save(void) {
     if (options.debug_no_save == false) {
-        if (options.debug == false) {
-            /* delete save game */
-            FILE *f = fopen(options.save_file_name, "w");
-            fclose(f);
-        }
-
         struct pl_player *plr = &gbl_game->player_data;
         if (plr != NULL) {
             if (plr->player != NULL) {
-                if (se_has_effect(plr->player, EF_DEAD) ) {
+                if (se_has_effect(plr->player, EF_DEAD) == false) {
+                    if (options.debug == false) {
+                        /* delete save game */
+                        FILE *f = fopen(options.save_file_name, "w");
+                        fclose(f);
+                    }
+
                     if (sv_save_game(options.save_file_name, gbl_game) == true) {
                     }
                 }
