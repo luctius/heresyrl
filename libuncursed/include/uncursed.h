@@ -133,6 +133,8 @@ extern uncursed_WINDOW_p EI(stdscr);
 
 /* uncursed-specific */
 extern void EI(initialize_uncursed) (int *, char **);
+extern void EI(exit_uncursed)(void);
+
 extern void EI(uncursed_set_title) (const char *);
 
 extern void EI(set_faketerm_font_file) (const char *);

@@ -64,6 +64,8 @@ int main(int argc, char *argv[]) {
     srand(time(NULL));
 
     initialize_uncursed(&argc, argv);
+    assert(atexit(exit_uncursed) == 0);
+
     if (cmdline_parser (argc, argv, &args_info) != 0) exit(EXIT_FAILURE);
     opt_parse_options(&args_info);
     cmdline_parser_free(&args_info);

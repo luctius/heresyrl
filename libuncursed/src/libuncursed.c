@@ -3162,3 +3162,19 @@ void uncursed_set_palette16 (const uncursed_palette16 *p)
             if ( h->setpalette16!=NULL )
                 h->setpalette16(p);
 }
+
+void
+exit_uncursed(void)
+{
+    if (!uncursed_hooks_inited)
+        return;
+
+    free(pair_content_list);
+    delwin(disp_win);
+    delwin(nout_win);
+    delwin(save_stdscr);
+    delwin(stdscr);
+
+    uncursed_hook_exit();
+}
+
