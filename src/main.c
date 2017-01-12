@@ -50,10 +50,7 @@ static void sigfunc(int s) {
 static void sigfunc_quit(int s) {
     FIX_UNUSED(s);
 
-    if (options.play_recording == true) {
-        gbl_game->running = false;
-    }
-    else System_msg("Please press Ctrl-X to quit");
+    gbl_game->running = false;
 }
 
 int main(int argc, char *argv[]) {
@@ -79,8 +76,6 @@ int main(int argc, char *argv[]) {
     lg_init(options.log_file_name, debug_lvl, log_size);
     assert(atexit(lg_exit) == 0);
 
-    /* TODO: Leaks memory when one of the init functions fails
-     *       before game_exit is added. Not very bad but still. */
     game_init(NULL, rand());
     assert(atexit(game_exit) == 0);
 
