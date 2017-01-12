@@ -23,6 +23,6 @@
 
 #include "heresyrl_def.h"
 
-bool dm_generate_map_dla(struct dm_map *map, struct random *r, enum dm_dungeon_type type, coord_t *ul, coord_t *dr);
+bool dm_generate_map_dla(struct dm_map *map, struct random *r, coord_t *ul, coord_t *dr);
 
 #endif /* DUNGEON_DLA_H */

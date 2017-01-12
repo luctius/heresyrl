@@ -43,6 +43,7 @@
 #include "dungeon_plain.h"
 #include "cellular_automata.h"
 #include "dungeon_dla.h"
+#include "dungeon_bsp.h"
 
 extern inline struct dm_map_entity *dm_get_map_me(coord_t *c, struct dm_map *map);
 extern inline struct tl_tile *dm_get_map_tile(coord_t *c, struct dm_map *map);
@@ -675,21 +676,26 @@ struct dm_map *dm_generate_map(struct dm_spawn_settings *sett) {
     if (map->sett.type == DUNGEON_TYPE_ALL) {
         map->sett.type = random_int32(r) % DUNGEON_TYPE_ALL;
     }
+    if (options.print_map_only) map->sett.type = DUNGEON_TYPE_HIVE;
 
     /* fill the map with room accoring to the specified algorithm */
     switch(map->sett.type) {
         case DUNGEON_TYPE_CAVE:
-            lg_debug("map_type is cave");
-            cave_generate_map(map, r, map->sett.type, &ul, &dr);
+            lg_print("map_type is cave");
+            cave_generate_map(map, r, &ul, &dr);
             break;
         default:
         case DUNGEON_TYPE_PLAIN:
-            lg_debug("map_type is plain");
+            lg_print("map_type is plain");
             dm_generate_map_plain(map, r, map->sett.type, &ul, &dr);
             break;
-        case DUNGEON_TYPE_TUNNEL:
-            lg_debug("map_type is tunnel");
-            dm_generate_map_dla(map, r, map->sett.type, &ul, &dr);
+        case DUNGEON_TYPE_UNDERHIVE:
+            lg_print("map_type is underhive");
+            dm_generate_map_dla(map, r, &ul, &dr);
+            break;
+        case DUNGEON_TYPE_HIVE:
+            lg_print("map_type is hive");
+            dm_generate_map_bsp(map, r, &ul, &dr);
             break;
     }
     assert(dm_has_floors(map) );
@@ -697,11 +703,17 @@ struct dm_map *dm_generate_map(struct dm_spawn_settings *sett) {
     /* add the stairs to the map */
     dm_add_stairs(map, r);
 
-    /* Fill the map with lights */
-    dm_add_lights(map, r);
-
     /* set map cells to their defaults. */
     dm_clear_map(map);
+
+    /* print map if requested */
+    if (options.print_map_only) {
+        lg_debug("map before reachability");
+        dm_print_map(map);
+    }
+
+    /* Fill the map with lights */
+    dm_add_lights(map, r);
 
     /* From here we will make sure the map is completely accesible. */
 
@@ -743,6 +755,9 @@ struct dm_map *dm_generate_map(struct dm_spawn_settings *sett) {
 
     dm_add_loops(map, pf_ctx, r);
 
+    assert(map_is_good == true);
+    lg_debug("Map is completly reachable in %d tries", i);
+
     for (i = 0; i < 10; i++) {
         int x = random_int32(r) % map->sett.size.x;
         int y = random_int32(r) % map->sett.size.y;
@@ -751,8 +766,11 @@ struct dm_map *dm_generate_map(struct dm_spawn_settings *sett) {
         if (dm_generate_feature(map, r, &point, 15, 15, DM_FT_POOL) ) continue;
     }
 
-    assert(map_is_good == true);
-    lg_debug("Map is completly reachable in %d tries", i);
+    if (options.print_map_only) {
+        lg_debug("map after reachability");
+        dm_print_map(map);
+        exit(EXIT_SUCCESS);
+    }
 
     /* cleanup pathfinding */
     pf_exit(pf_ctx);

@@ -75,6 +75,7 @@ heresyrl_SOURCES =  \
 				src/dungeon/tiles.h \
 				src/dungeon/dungeon_cave.h \
 				src/dungeon/dungeon_room.h \
+				src/dungeon/dungeon_bsp.h \
 				src/quests/quests.h \
 				src/quests/quests_static_def.h \
 				src/quests/quests_static.h \
@@ -113,6 +114,7 @@ heresyrl_SOURCES =  \
 				src/dungeon/dungeon_cave.c \
 				src/dungeon/dungeon_room.c \
 				src/dungeon/dungeon_plain.c \
+				src/dungeon/dungeon_bsp.c \
 				src/dungeon/dungeon_dla.c \
 				src/dungeon/dungeon_map.c \
 				src/dungeon/spawn.c \

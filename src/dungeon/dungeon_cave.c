@@ -33,8 +33,7 @@ static enum cellular_automata randpick(struct random *r, int fillprob) {
     return CA_DEAD;
 }
 
-bool cave_generate_map(struct dm_map *map, struct random *r, enum dm_dungeon_type type, coord_t *ul, coord_t *dr) {
-    FIX_UNUSED(type);
+bool cave_generate_map(struct dm_map *map, struct random *r, coord_t *ul, coord_t *dr) {
 
     /* initialise cellular automata */
     coord_t size = { .x = dr->x - ul->x, .y = dr->y - ul->y, };

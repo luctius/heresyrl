@@ -61,7 +61,6 @@ int main(int argc, char *argv[]) {
     srand(time(NULL));
 
     initialize_uncursed(&argc, argv);
-    assert(atexit(exit_uncursed) == 0);
 
     if (cmdline_parser (argc, argv, &args_info) != 0) exit(EXIT_FAILURE);
     opt_parse_options(&args_info);
@@ -78,6 +77,21 @@ int main(int argc, char *argv[]) {
 
     game_init(NULL, rand());
     assert(atexit(game_exit) == 0);
+
+    if (options.print_map_only) {
+        struct dm_spawn_settings spwn_sett = {
+            .size = cd_create(100,100),
+            .threat_lvl_min  = 0,
+            .threat_lvl_max = 0,
+            .item_chance = 0,
+            .monster_chance = 0,
+            .seed = random_int32(gbl_game->random),
+            .type = DUNGEON_TYPE_ALL,
+        };
+
+        dm_generate_map(&spwn_sett);
+        exit(EXIT_SUCCESS);
+    }
 
     itmlst_items_list_init();
     assert(atexit(itmlst_items_list_exit) == 0);
@@ -100,27 +114,12 @@ int main(int argc, char *argv[]) {
     inp_init();
     assert(atexit(inp_exit) == 0);
 
-    if (options.print_map_only) {
-        struct dm_spawn_settings spwn_sett = {
-            .size = cd_create(100,100),
-            .threat_lvl_min  = 0,
-            .threat_lvl_max = 0,
-            .item_chance = 0,
-            .monster_chance = 0,
-            .seed = random_int32(gbl_game->random),
-            .type = DUNGEON_TYPE_ALL,
-        };
-
-        gbl_game->current_map = dm_generate_map(&spwn_sett);
-        dm_print_map(gbl_game->current_map);
-        exit(EXIT_SUCCESS);
-    }
-
     int cols, lines;
     initscr(); //  Start curses mode
     start_color();
     getmaxyx(stdscr, lines, cols);
     ui_create(cols, lines);
+    assert(atexit(exit_uncursed) == 0);
     assert(atexit(ui_destroy) == 0);
 
     if (options.wz_mode) {

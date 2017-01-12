@@ -15,14 +15,14 @@
     along with heresyRL.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DUNGEON_CAVE_H_
-#define DUNGEON_CAVE_H_
+#ifndef DUNGEON_BSP_H
+#define DUNGEON_BSP_H
 
 #include <stdint.h>
 #include <stdbool.h>
 
 #include "heresyrl_def.h"
 
-bool cave_generate_map(struct dm_map *map, struct random *r, coord_t *ul, coord_t *dr);
+bool dm_generate_map_bsp(struct dm_map *map, struct random *r, coord_t *ul, coord_t *dr);
 
-#endif /*DUNGEON_CAVE_H_*/
+#endif /* DUNGEON_BSP_H */
