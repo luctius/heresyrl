@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <assert.h>
 #include <sys/queue.h>
 
 #include "pathfinding.h"
@@ -57,19 +58,23 @@ static void pf_list_add_sort(coord_t *c, struct pf_map_entity *pfe) {
     e->pos = *c;
     e->pfme = pfe;
 
+
     struct pf_entry *np = pf_list_head.tqh_first;
     if (np == NULL || pfe->score < np->pfme->score) {
         TAILQ_INSERT_HEAD(&pf_list_head, e, entries);
+        lg_debug("adding to sort list head (%d,%d)", c->x, c->y);
         return;
     }
 
     for (np = pf_list_head.tqh_first; np != NULL; np = np->entries.tqe_next) {
         if (pfe->score < np->pfme->score) {
             TAILQ_INSERT_AFTER(&pf_list_head, np, e, entries);
+            lg_debug("adding to sort list after (%d,%d) => (%d,%d)", np->pos.x, np->pos.y, c->x, c->y);
             return;
         }
     }
 
+    lg_debug("adding to sort list tail (%d,%d)", c->x, c->y);
     TAILQ_INSERT_TAIL(&pf_list_head, e, entries);
 }
 
@@ -100,6 +105,10 @@ struct pf_context {
 
 static inline struct pf_map_entity *pf_get_index(coord_t *p, struct pf_map *map) {
     return &map->map[(p->x * map->size.y) + p->y];
+}
+
+static inline unsigned int pf_cost(unsigned int prev_cost, coord_t *a, coord_t *b) {
+        prev_cost + (pyth(a->x - b->x, a->y - b->y) * 5);
 }
 
 static const coord_t pf_coord_lo_table[] = {
@@ -157,7 +166,7 @@ static bool pf_flood_map(struct pf_context *ctx, coord_t *point) {
                     me_new->cost = me->cost + cost;
                     me_new->distance = me->distance +1;
                     me_new->state = PF_ENTITY_STATE_OPEN;
-                    me_new->score = me_new->cost + (pyth(pos.x - point->x, pos.y - point->y) * 2);
+                    me_new->score = pf_cost(me_new->cost, &pos, point);
                     has_open = true;
                     pf_list_add_tail(&pos, me_new);
                     //lg_debug("adding (%d,%d) -> [st: %d/ cst: %d/dst: %d/scr: %d]", pos.x, pos.y, me_new->state, me_new->cost, me_new->distance, me_new->score);
@@ -221,13 +230,13 @@ static bool pf_astar_loop(struct pf_context *ctx, coord_t *start, coord_t *end) 
             /* If the new cost is better, OR it was in the free state, update it */
             if ( ( (me->cost +cost) < me_new->cost) || (me_new->state == PF_ENTITY_STATE_FREE) ) {
                 me_new->cost = cost + me->cost;
-                me_new->score = me_new->cost + (pyth(pos.x - end->x, pos.y - end->y) * 10);
+                me_new->score = pf_cost(me_new->cost, &pos, end);
                 me_new->distance = me->distance +1;
                 me_new->state = PF_ENTITY_STATE_OPEN;
                 pf_list_add_sort(&pos, me_new);
             }
 
-            //lg_debug("tested (%d,%d) -> [st: %d/ cst: %d/dst: %d/scr: %d]", pos.x, pos.y, me_new->state, me_new->cost, me_new->distance, me_new->score);
+            lg_debug("tested (%u,%u) -> [st: %u/ cst: %u/dst: %d/scr: %u]", pos.x, pos.y, me_new->state, me_new->cost, me_new->distance, me_new->score);
         }
 
         pf_list_remove(entry);
@@ -356,7 +365,7 @@ int pf_astar_map(struct pf_context *ctx, coord_t *start, coord_t *end) {
 
     pf_get_index(start, map)->cost = 1;
     pf_get_index(start, map)->distance = 0;
-    pf_get_index(start, map)->score = pyth(start->x - end->x, start->y - end->y);
+    pf_get_index(start, map)->score = pf_cost(1, start, end);
     pf_get_index(start, map)->state = PF_ENTITY_STATE_OPEN;
 
     lg_debug("start at (%d,%d)", start->x,  start->y);
