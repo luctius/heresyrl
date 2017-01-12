@@ -114,7 +114,7 @@ void ai_beast_free(void *ai_ctx) {
     struct beast_ai_struct *ai = ai_ctx;
     assert(ai != NULL);
 
-    free(ai->pf_ctx);
+    pf_exit(ai->pf_ctx);
     ai->pf_ctx = NULL;
 }
 
@@ -232,7 +232,7 @@ void ai_human_free(void *ai_ctx) {
     struct human_ai_struct *ai = ai_ctx;
     assert(ai != NULL);
 
-    free(ai->pf_ctx);
+    pf_exit(ai->pf_ctx);
     ai->pf_ctx = NULL;
 }
 

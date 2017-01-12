@@ -300,6 +300,7 @@ struct pf_context *pf_init(struct pf_settings *pf_set) {
 
     struct pf_context *ctx = calloc(1, sizeof(struct pf_context) );
     if (ctx != NULL) {
+        lg_debug("pathfinding init [%p]", ctx);
         memcpy(&ctx->set, pf_set, sizeof(struct pf_settings) );
     }
 
@@ -307,7 +308,8 @@ struct pf_context *pf_init(struct pf_settings *pf_set) {
 }
 void pf_exit(struct pf_context *ctx) {
     if (ctx == NULL) return;
-    if (ctx->map.map != NULL) free(ctx->map.map);
+    lg_debug("cleaning up pathfinding [%p]", ctx);
+    free(ctx->map.map);
     free(ctx);
 }
 
@@ -327,12 +329,13 @@ bool pf_dijkstra_map(struct pf_context *ctx, coord_t *start) {
     map->size.y = ctx->set.map_end.y - ctx->set.map_start.y;
     map->map = calloc(map->size.x * map->size.y, sizeof(struct pf_map_entity) );
     if (map->map == NULL) return false;
+    lg_debug("pathfinding calloc map [%p]", ctx);
 
     pf_get_index(start, map)->cost = 1;
     pf_get_index(start, map)->distance = 0;
     pf_get_index(start, map)->state = PF_ENTITY_STATE_OPEN;
 
-    lg_debug("start at (%d,%d)", start->x,  start->y);
+    //lg_debug("start at (%d,%d)", start->x,  start->y);
     return pf_flood_map(ctx, start);
 }
 
@@ -349,6 +352,7 @@ int pf_astar_map(struct pf_context *ctx, coord_t *start, coord_t *end) {
     map->size.y = ctx->set.map_end.y - ctx->set.map_start.y;
     map->map = calloc(map->size.x * map->size.y, sizeof(struct pf_map_entity) );
     if (map->map == NULL) return false;
+    lg_debug("pathfinding calloc map [%p]", ctx);
 
     pf_get_index(start, map)->cost = 1;
     pf_get_index(start, map)->distance = 0;
