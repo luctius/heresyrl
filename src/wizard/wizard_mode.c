@@ -16,10 +16,8 @@
 #include "config.h"
 #include "input.h"
 
-#ifdef HAVE_LIBREADLINE
 #include <readline/history.h>
 #include <readline/readline.h>
-#endif
 
 #include <sys/param.h>
 
@@ -37,14 +35,6 @@ static unsigned char input;
 
 // Used to signal "no more input" after feeding a character to readline
 static bool input_avail = false;
-
-#ifndef HAVE_LIBREADLINE
-static void forward_to_readline(char c) {}
-bool init_readline(void) { lg_error("Wizard mode not compiled in"); return false; }
-void deinit_readline(void) {}
-static void cmd_win_redisplay(bool for_resize) {}
-void wz_init_rl(void) {}
-#endif
 
 char **wz_cmd_completion(const char *, int, int);
 char *wz_cmd_generator(const char *, int);
@@ -120,7 +110,6 @@ static int readline_getc(FILE *dummy) {
     return input;
 }
 
-#ifdef HAVE_LIBREADLINE
 static void forward_to_readline(char c) {
     input = c;
     input_avail = true;
@@ -254,7 +243,6 @@ char **wz_cmd_completion(const char *text, int start, int end) {
 void wz_init_rl(void) {
     rl_attempted_completion_function = wz_cmd_completion;
 }
-#endif
 
 static void resize(void) {
     update_screen();
@@ -304,7 +292,6 @@ void wz_mode() {
     should_exit = false;
     if (wz_exists == false) return;
 
-#ifdef HAVE_LIBREADLINE
     curs_set(2);
 
     werase(wz_win->win);
@@ -337,7 +324,6 @@ void wz_mode() {
 
     werase(wz_win->win);
     wrefresh(wz_win->win);
-#endif
 }
 
 void wz_mode_exit() {

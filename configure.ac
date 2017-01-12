@@ -49,12 +49,12 @@ dnl Example of default-disabled feature
 AC_ARG_ENABLE([wizard_mode],
     AS_HELP_STRING([--enable-wizard_mode], [Enable feature wizard mode]))
 
-AS_IF([test "x$enable_wizard_mode" = "xyes"], [
+AM_CONDITIONAL([READLINE], [test "x$enable_wizard_mode" = "xyes"])
+AM_COND_IF([READLINE], [
     dnl Do the stuff needed for enabling the feature
     AX_LIB_READLINE
     AC_DEFINE([CMDLINE_PARSER_VERSION], VERSION " (" GIT_VERSION "-wizard) ", [extended version])
 ], [AC_DEFINE([CMDLINE_PARSER_VERSION], VERSION " (" GIT_VERSION") ", [extended version])])
-
 
 AC_PATH_PROGS([GENGETOPT], [gengetopt])
 AM_CONDITIONAL([GENGETOPT], [test x$GENGETOPT != x])
