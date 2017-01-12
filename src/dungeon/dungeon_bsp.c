@@ -58,7 +58,7 @@ bool dm_generate_map_bsp(struct dm_map *map, struct random *r, coord_t *ul, coor
     area_list[0].level = 0;
 
     for (int l = 0; l < max_div_levels +1; l++) {
-        int a =  a = (l*2) +1;
+        int a =  a = ( (l-1) * 2) +1;
         int incr = 0;
 
         if (l == 0) a = 0;
@@ -101,7 +101,7 @@ bool dm_generate_map_bsp(struct dm_map *map, struct random *r, coord_t *ul, coor
         struct bsp_area *ba = &area_list[a];
 
         coord_t c = cd_create(0,0);
-        for (c.x = 0; c.x < ba->size.x; c.x++) {
+        for (c.x = ba->ul.x; c.x < ba->size.x + ba->ul.x; c.x++) {
             c.y = ba->ul.y;
             dm_get_map_me(&c,map)->tile = ts_get_tile_specific(TILE_ID_CONCRETE_FLOOR);
             c.y = ba->ul.y + ba->size.y;
@@ -109,7 +109,7 @@ bool dm_generate_map_bsp(struct dm_map *map, struct random *r, coord_t *ul, coor
         }
 
         c = cd_create(0,0);
-        for (c.y = 0; c.y < ba->size.y; c.y++) {
+        for (c.y = ba->ul.y; c.y < ba->size.y + ba->ul.y; c.y++) {
             c.x = ba->ul.x;
             dm_get_map_me(&c,map)->tile = ts_get_tile_specific(TILE_ID_CONCRETE_FLOOR);
             c.x = ba->ul.x + ba->size.x;

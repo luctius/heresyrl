@@ -698,6 +698,13 @@ struct dm_map *dm_generate_map(struct dm_spawn_settings *sett) {
             dm_generate_map_bsp(map, r, &ul, &dr);
             break;
     }
+
+    /* print map if requested */
+    if (options.debug && options.print_map_only) {
+        lg_debug("map before reachability");
+        dm_print_map(map);
+    }
+
     assert(dm_has_floors(map) );
 
     /* add the stairs to the map */
@@ -705,12 +712,6 @@ struct dm_map *dm_generate_map(struct dm_spawn_settings *sett) {
 
     /* set map cells to their defaults. */
     dm_clear_map(map);
-
-    /* print map if requested */
-    if (options.print_map_only) {
-        lg_debug("map before reachability");
-        dm_print_map(map);
-    }
 
     /* Fill the map with lights */
     dm_add_lights(map, r);
