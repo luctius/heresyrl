@@ -143,7 +143,7 @@ heresyrl_DEPENDENCIES=libuncursed.la
 
 if GENGETOPT
 src/cmdline.c src/cmdline.h: heresyrl.ggo
-	$(AM_V_GEN)$(SED) -i"" "s:usr_prefix:${prefix}:g" $<
+	$(AM_V_GEN)$(SED) -i".$<.bkp" "s:usr_prefix:${prefix}:g" $<
 	$(AM_V_GEN)$(GENGETOPT) --output-dir=src/ < $<
 	$(AM_V_GEN)distcleancheck_listfiles="src/cmdline.c src/cmdline.h"
 endif
