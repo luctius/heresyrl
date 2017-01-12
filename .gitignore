@@ -73,6 +73,7 @@ perf.data
 config.h
 config.h.in~
 heresyrl.debug
+heresyrl.ggo.bkp
 
 #test files
 tests/package.m4
