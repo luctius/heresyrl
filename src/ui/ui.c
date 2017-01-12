@@ -134,6 +134,7 @@ void ui_destroy() {
     if (map_win != NULL) win_destroy(map_win);
     if (char_win != NULL) win_destroy(char_win);
     if (msg_win != NULL) win_destroy(msg_win);
+    if (wz_win != NULL) win_destroy(wz_win);
 
     if (isendwin() ) return;
     clear();
