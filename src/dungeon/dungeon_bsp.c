@@ -33,6 +33,7 @@ struct bsp_area {
     coord_t size;
     coord_t ul;
     int level;
+    bool split;
     struct bsp_area *neighbours[NEIGHBOUR_MAX];
 };
 
@@ -56,20 +57,26 @@ bool dm_generate_map_bsp(struct dm_map *map, struct random *r, coord_t *ul, coor
     area_list[0].size = size;
     area_list[0].ul = *ul;
     area_list[0].level = 0;
+    area_list[0].split = false;
 
     for (int l = 0; l < max_div_levels +1; l++) {
-        int a =  a = ( (l-1) * 2) +1;
+        //int a =  a = ( (l-1) * 2) +1;
         int incr = 0;
 
-        if (l == 0) a = 0;
-        for (; a < alist_sz; a++) {
+        //if (l == 0) a = 0;
+        for (int a = 0; a < alist_sz; a++) {
             struct bsp_area *ba = &area_list[a];
-            lg_debug("splitting area[%d]: (sz %d,%d) (ul %d,%d) lvl: %d", a, ba->size.x, ba->size.y, ba->ul.x, ba->ul.y, ba->level);
+	    if (ba->level < l) continue;
+            lg_debug("splitting area[%d: l %d]: (sz %d,%d) (ul %d,%d) lvl: %d", a, l, ba->size.x, ba->size.y, ba->ul.x, ba->ul.y, ba->level);
 
             /* Choose division axis */
             int axis_r = random_int32(r) % 2;
             int *axis = (axis_r == X) ? &ba->size.x : &ba->size.y;
-            if (*axis < NEIGHBOUR_LEN_MIN) continue;
+            if (*axis < NEIGHBOUR_LEN_MIN) {
+		    axis_r = abs(axis_r -1);
+		    axis = (axis_r == X) ? &ba->size.x : &ba->size.y;
+	    }
+	    if (*axis < (2 * NEIGHBOUR_LEN_MIN) ) continue;
 
             int range = *axis - (2 * NEIGHBOUR_LEN_MIN);
             int div_range = (random_int32(r) % range) + NEIGHBOUR_LEN_MIN;
@@ -86,8 +93,8 @@ bool dm_generate_map_bsp(struct dm_map *map, struct random *r, coord_t *ul, coor
             struct bsp_area *ba2 = &area_list[a+2];
             ba2->size = cd_create( (axis_r == X) ? ba->size.x - div_range : ba->size.x,
                                    (axis_r == Y) ? ba->size.y - div_range : ba->size.y);
-            ba2->ul   = cd_create( (axis_r == X) ? ba->ul.x + (ba->size.x - div_range) : ba->ul.x,
-                                   (axis_r == Y) ? ba->ul.y + (ba->size.y - div_range) : ba->ul.y);
+            ba2->ul   = cd_create( (axis_r == X) ? (ba->ul.x + div_range) : ba->ul.x,
+                                   (axis_r == Y) ? (ba->ul.y + div_range) : ba->ul.y );
             ba2->level = l +1;
             lg_debug("area[%d]: (sz %d,%d) (ul %d,%d) lvl: %d", a + 1, ba2->size.x, ba2->size.y, ba2->ul.x, ba2->ul.y, ba2->level);
 
@@ -116,4 +123,6 @@ bool dm_generate_map_bsp(struct dm_map *map, struct random *r, coord_t *ul, coor
             dm_get_map_me(&c,map)->tile = ts_get_tile_specific(TILE_ID_CONCRETE_FLOOR);
         }
     }
+
+    return true;
 }
