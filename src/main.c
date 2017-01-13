@@ -61,6 +61,7 @@ int main(int argc, char *argv[]) {
     srand(time(NULL));
 
     initialize_uncursed(&argc, argv);
+    assert(atexit(exit_uncursed) == 0);
 
     if (cmdline_parser (argc, argv, &args_info) != 0) exit(EXIT_FAILURE);
     opt_parse_options(&args_info);
@@ -119,7 +120,6 @@ int main(int argc, char *argv[]) {
     start_color();
     getmaxyx(stdscr, lines, cols);
     ui_create(cols, lines);
-    assert(atexit(exit_uncursed) == 0);
     assert(atexit(ui_destroy) == 0);
 
     if (options.wz_mode) {

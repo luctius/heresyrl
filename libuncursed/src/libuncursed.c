@@ -3170,11 +3170,9 @@ exit_uncursed(void)
         return;
 
     free(pair_content_list);
-    delwin(disp_win);
-    delwin(nout_win);
-    delwin(save_stdscr);
-    delwin(stdscr);
-
-    uncursed_hook_exit();
+    if (disp_win != 0) delwin(disp_win);
+    if (nout_win != 0) delwin(nout_win);
+    if (save_stdscr != 0) delwin(save_stdscr);
+    if (stdscr != 0) delwin(stdscr);
 }
 
