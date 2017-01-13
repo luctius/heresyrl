@@ -40,6 +40,7 @@ struct bsp_area {
 enum AXIS {
     X,
     Y,
+    AXIS_MAX,
 };
 
 static int area(coord_t *a) {
@@ -51,6 +52,7 @@ bool dm_generate_map_bsp(struct dm_map *map, struct random *r, coord_t *ul, coor
     int max_div_levels = 4;
     int alist_sz = 1;
     struct bsp_area area_list[ (max_div_levels * max_div_levels) +1];
+    memset(area_list, 0x0, sizeof(area_list));
 
     coord_t size = { .x = dr->x - ul->x, .y = dr->y - ul->y, };
 
@@ -60,27 +62,28 @@ bool dm_generate_map_bsp(struct dm_map *map, struct random *r, coord_t *ul, coor
     area_list[0].split = false;
 
     for (int l = 0; l < max_div_levels +1; l++) {
-        //int a =  a = ( (l-1) * 2) +1;
-        int incr = 0;
-
-        //if (l == 0) a = 0;
         for (int a = 0; a < alist_sz; a++) {
             struct bsp_area *ba = &area_list[a];
-	    if (ba->level < l) continue;
+	    if (ba->split == true) continue;
+	    if (ba->size.x == 0) continue;
             lg_debug("splitting area[%d: l %d]: (sz %d,%d) (ul %d,%d) lvl: %d", a, l, ba->size.x, ba->size.y, ba->ul.x, ba->ul.y, ba->level);
 
             /* Choose division axis */
-            int axis_r = random_int32(r) % 2;
+            int axis_r = random_int32(r) % AXIS_MAX;
             int *axis = (axis_r == X) ? &ba->size.x : &ba->size.y;
-            if (*axis < NEIGHBOUR_LEN_MIN) {
-		    axis_r = abs(axis_r -1);
+            lg_debug("\taxis check area[%d, a %d]: (sz %d)", a, axis_r, *axis);
+	    if (*axis < (2 * NEIGHBOUR_LEN_MIN) ) {
+		    axis_r = (axis_r == X) ? Y : X;
 		    axis = (axis_r == X) ? &ba->size.x : &ba->size.y;
+		    lg_debug("\taxis check area[%d, a %d]: (sz %d)", a, axis_r, *axis);
 	    }
-	    if (*axis < (2 * NEIGHBOUR_LEN_MIN) ) continue;
-
+	    if (*axis < (2 * NEIGHBOUR_LEN_MIN) ) {
+	    	lg_debug("\t--> error: too small");
+                continue;
+	    }
             int range = *axis - (2 * NEIGHBOUR_LEN_MIN);
             int div_range = (random_int32(r) % range) + NEIGHBOUR_LEN_MIN;
-            lg_debug("axis[%d -> %d] div_range %d", axis_r, *axis, div_range);
+            lg_debug("\t\taxis[%d -> %d] div_range %d", axis_r, *axis, div_range);
 
             /* Add both areas to area list */
             struct bsp_area *ba1 = &area_list[a+1];
@@ -88,7 +91,8 @@ bool dm_generate_map_bsp(struct dm_map *map, struct random *r, coord_t *ul, coor
                                    (axis_r == Y) ? div_range : ba->size.y);
             ba1->ul   = cd_create(ba->ul.x, ba->ul.y);
             ba1->level = l +1;
-            lg_debug("area[%d]: (sz %d,%d) (ul %d,%d) lvl: %d", a + 1, ba1->size.x, ba1->size.y, ba1->ul.x, ba1->ul.y, ba1->level);
+	    ba1->split = false;
+            lg_debug("\t\tarea[%d]: (sz %d,%d) (ul %d,%d) lvl: %d", a + 1, ba1->size.x, ba1->size.y, ba1->ul.x, ba1->ul.y, ba1->level);
 
             struct bsp_area *ba2 = &area_list[a+2];
             ba2->size = cd_create( (axis_r == X) ? ba->size.x - div_range : ba->size.x,
@@ -96,12 +100,13 @@ bool dm_generate_map_bsp(struct dm_map *map, struct random *r, coord_t *ul, coor
             ba2->ul   = cd_create( (axis_r == X) ? (ba->ul.x + div_range) : ba->ul.x,
                                    (axis_r == Y) ? (ba->ul.y + div_range) : ba->ul.y );
             ba2->level = l +1;
-            lg_debug("area[%d]: (sz %d,%d) (ul %d,%d) lvl: %d", a + 1, ba2->size.x, ba2->size.y, ba2->ul.x, ba2->ul.y, ba2->level);
+	    ba2->split = false;
+            lg_debug("\t\tarea[%d]: (sz %d,%d) (ul %d,%d) lvl: %d", a + 1, ba2->size.x, ba2->size.y, ba2->ul.x, ba2->ul.y, ba2->level);
 
             /* Increase list */
-            incr += 2;
+	    ba->split = true;
+            alist_sz += 2;
         }
-        alist_sz += incr;
     }
 
     for (int a = 1; a < alist_sz; a++) {
