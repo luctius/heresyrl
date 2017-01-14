@@ -43,6 +43,9 @@ struct pf_settings {
     coord_t map_start;
     coord_t map_end;
 
+    coord_t *nhlo_tbl;
+    int nhlo_tbl_sz;
+
     /* Pointer of local map structure */
     void *map;
 
@@ -96,6 +99,12 @@ by dijkstra and it closest to the given tile.
 return true on succes, false otherwise.
 */
 bool pf_get_closest_flooded_tile(struct pf_context *ctx, coord_t *target, coord_t *out);
+
+/*
+Prereq: pf_dijkstra_map
+Returns true if 'c' is touched by pf_dijkstra_map.
+*/
+bool pf_is_flooded(struct pf_context *ctx, coord_t *c);
 
 /*
 Prepares a A* map of the area, calculating the distance to start from the squares it needs to reach end.
