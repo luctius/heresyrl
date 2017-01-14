@@ -122,6 +122,7 @@ static bool dm_clear_map_unsafe(struct dm_map *map) {
                 HACK: This is a hack to give map squares items based on their attributes.
                 I should find a better place for this.
              */
+            /*
             if (dm_get_map_tile(&c,map) != NULL) {
                 if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(&c,map), TILE_ATTR_LIGHT_SOURCE) ) {
                     struct itm_item *i = itm_create(IID_FIXED_LIGHT);
@@ -134,7 +135,7 @@ static bool dm_clear_map_unsafe(struct dm_map *map) {
                         lg_debug("light at (%d,%d)", c.x,c.y);
                     }
                 }
-            }
+            }*/
         }
     }
     return true;
@@ -174,7 +175,14 @@ bool dm_print_map(struct dm_map *map) {
         for (c.x = 0; c.x < map->sett.size.x; c.x++) {
             putchar(dm_get_map_tile(&c,map)->icon);
         }
-        putchar('\n');
+        if (c.y % 5 == 0) printf("\t -- %d\n", c.y);
+        else putchar('\n');
+    }
+    putchar('\n');
+
+    for (c.x = 0; c.x < map->sett.size.x; c.x++) {
+        if (c.x % 10 == 0) putchar('|');
+        else putchar(' ');
     }
     putchar('\n');
 
@@ -255,6 +263,7 @@ bool dm_populate_map(struct dm_map *map) {
                     int msr_cnt = (random_int32(r) % 5) +1;
                     for (int i = 0; i < msr_cnt; i++) {
                         idx = msr_spawn(random_int32(r), map->sett.threat_lvl_min, map->sett.threat_lvl_max, map->sett.type);
+                        assert(idx >= 0);
                         coord_t cp = sgt_scatter(map, r, &c, 10);
 
                         if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(&cp,map), TILE_ATTR_TRAVERSABLE) == true) {
@@ -275,6 +284,7 @@ bool dm_populate_map(struct dm_map *map) {
                 }
                 else if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(&c,map), TILE_ATTR_TRAVERSABLE) == true) {
                     idx = msr_spawn(random_int32(r), map->sett.threat_lvl_min, map->sett.threat_lvl_max, map->sett.type);
+                    assert(idx >= 0);
                     struct msr_monster *monster = msr_create(idx);
                     msr_insert_monster(monster, map, &c);
                     msr_populate_inventory(monster, map->sett.threat_lvl_min, map->sett.threat_lvl_max, r);
@@ -290,6 +300,7 @@ bool dm_populate_map(struct dm_map *map) {
                     if ( (random_int32(r) % 100) > 95) item_level += 1;
                     if ( (random_int32(r) % 100) > 99) item_level += 1;
                     idx = itm_spawn(random_int32(r), item_level, ITEM_GROUP_ANY, NULL);
+                    assert(idx >= 0);
                     struct itm_item *item = itm_create(idx);
 
                     itm_insert_item(item, map, &c);
@@ -314,6 +325,10 @@ bool dm_populate_map(struct dm_map *map) {
  */
 static void dm_add_stairs(struct dm_map *map, struct random *r) {
     if (dm_verify_map(map) == false) return;
+
+    coord_t zero = cd_create(0,0);
+    if (cd_equal(&map->stair_up,   &zero) == false) return;
+    if (cd_equal(&map->stair_down, &zero) == false) return;
 
     struct tl_tile **tile_up = NULL;
     struct tl_tile **tile_down = NULL;
@@ -668,7 +683,10 @@ struct dm_map *dm_generate_map(struct dm_spawn_settings *sett) {
 
     /* save upper left and down right. */
     coord_t ul = { .x = 2, .y = 2,};
-    coord_t dr = { .x = map->sett.size.x-2, .y = map->sett.size.y-2, };
+    coord_t dr = { .x = map->sett.size.x-3, .y = map->sett.size.y-3, };
+
+    map->stair_up   = cd_create(0,0);
+    map->stair_down = cd_create(0,0);
 
     /* init random*/
     struct random *r = random_init_genrand(map->sett.seed);
@@ -676,7 +694,7 @@ struct dm_map *dm_generate_map(struct dm_spawn_settings *sett) {
     if (map->sett.type == DUNGEON_TYPE_ALL) {
         map->sett.type = random_int32(r) % DUNGEON_TYPE_ALL;
     }
-    if (options.print_map_only) map->sett.type = DUNGEON_TYPE_HIVE;
+    map->sett.type = DUNGEON_TYPE_HIVE;
 
     /* fill the map with room accoring to the specified algorithm */
     switch(map->sett.type) {
@@ -744,7 +762,7 @@ struct dm_map *dm_generate_map(struct dm_spawn_settings *sett) {
                 map_is_good = true;
 
                 /* Paranoia: check if there is a path from start to end */
-                assert(pf_calculate_path(pf_ctx, &start, &end, NULL) > 1);
+                //assert(pf_calculate_path(pf_ctx, &start, &end, NULL) > 1);
             }
             else {
                 /* if we do have regions which have not been recued, create a tunnel to them */

@@ -80,7 +80,7 @@ struct msr_monster static_monster_list[] = {
         DEF_ITEM(0, ITEM_GROUP_1H_MELEE),
         SKILLS(bf(MSR_SKILLS_AWARENESS) | bf(MSR_SKILLS_RANGED) | bf(MSR_SKILLS_MELEE) ,0,0),
         DESCRIPTION("description of an scavenger"),
-        CREATION(30,1,bf(DUNGEON_TYPE_CAVE) | bf(DUNGEON_TYPE_PLAIN), 70),
+        CREATION(30,1,bf(DUNGEON_TYPE_CAVE) | bf(DUNGEON_TYPE_PLAIN) | bf(DUNGEON_TYPE_HIVE), 70),
     MONSTER_END,
 };
 
