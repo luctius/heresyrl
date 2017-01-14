@@ -44,7 +44,18 @@ bool ma_do_move(struct msr_monster *monster, coord_t *pos) {
         return false;
     }
 
-    if (msr_move_monster(monster, gbl_game->current_map, pos) == true) {
+    if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(pos,gbl_game->current_map), TILE_ATTR_DOOR_CLOSED) == true) {
+        struct dm_map_entity *me = dm_get_map_me(pos, gbl_game->current_map);
+
+        /* Replace tile with open door variant... */
+        me->tile = ts_get_tile_specific(me->tile->replacement);
+
+        msr_change_energy(monster, -( ( (me->tile->movement_cost * MSR_ACTION_MOVE) / TILE_COST_DIV) / speed) );
+        monster->controller.interruptable = false;
+        monster->controller.interrupted = false;
+        return true;
+    }
+    else if (msr_move_monster(monster, gbl_game->current_map, pos) == true) {
         struct dm_map_entity *me = dm_get_map_me(&monster->pos, gbl_game->current_map);
         struct itm_item *item = NULL;
 
@@ -293,7 +304,7 @@ static bool ma_has_ammo(struct msr_monster *monster, struct itm_item *item) {
                 int sz = MIN(to_fill, a_item->stacked_quantity);
                 wpn->magazine_left += sz;
                 a_item->stacked_quantity -= sz;
-            }            
+            }
 
             /* TODO: destroy all items in inventory of stack_qnty == 0 */
             if (a_item->stacked_quantity == 0) {
@@ -405,7 +416,7 @@ static bool unload(struct msr_monster *monster, struct itm_item *weapon_item) {
     } else {
         /* We count individual bullets */
         ammo_item->stacked_quantity = wpn->magazine_left;
-    }    
+    }
 
     wpn->magazine_left = 0;
 

@@ -32,9 +32,10 @@ static struct tl_tile tile_array[] = {
         .movement_cost = 0,
         .sd_name = "",
         .ld_name = "",
+        .replacement = TILE_ID_NONE,
     },
-    [TILE_ID_TUNNEL_DUMMY] = {
-        .id = TILE_ID_TUNNEL_DUMMY,
+    [TILE_ID_DUMMY] = {
+        .id = TILE_ID_DUMMY,
         .attributes = TILE_ATTR_TRAVERSABLE | TILE_ATTR_TRANSPARENT,
         .type = TILE_TYPE_FLOOR,
         .icon = 'X',
@@ -42,6 +43,18 @@ static struct tl_tile tile_array[] = {
         .movement_cost = 10,
         .sd_name = "concrete dummy",
         .ld_name = "a concrete dummy",
+        .replacement = TILE_ID_NONE,
+    },
+    [TILE_ID_DUMMY_2] = {
+        .id = TILE_ID_DUMMY_2,
+        .attributes = TILE_ATTR_TRAVERSABLE | TILE_ATTR_TRANSPARENT,
+        .type = TILE_TYPE_FLOOR,
+        .icon = '+',
+        .icon_attr = TERM_COLOUR_WHITE,
+        .movement_cost = 10,
+        .sd_name = "concrete dummy",
+        .ld_name = "a concrete dummy",
+        .replacement = TILE_ID_NONE,
     },
     [TILE_ID_BORDER_WALL] = {
         .id = TILE_ID_BORDER_WALL,
@@ -52,6 +65,7 @@ static struct tl_tile tile_array[] = {
         .movement_cost = TILE_MOVEMENT_MAX,
         .sd_name = "concrete wall",
         .ld_name = "a concrete wall",
+        .replacement = TILE_ID_NONE,
     },
     [TILE_ID_CONCRETE_WALL] = {
         .id = TILE_ID_CONCRETE_WALL,
@@ -62,6 +76,7 @@ static struct tl_tile tile_array[] = {
         .movement_cost = 30,
         .sd_name = "concrete wall",
         .ld_name = "a concrete wall",
+        .replacement = TILE_ID_NONE,
     },
     [TILE_ID_BRASSIER] = {
         .id = TILE_ID_BRASSIER,
@@ -72,6 +87,7 @@ static struct tl_tile tile_array[] = {
         .movement_cost = 30,
         .sd_name = "brassier",
         .ld_name = "a lit brassier",
+        .replacement = TILE_ID_NONE,
     },
     [TILE_ID_CONCRETE_FLOOR] = {
         .id = TILE_ID_CONCRETE_FLOOR,
@@ -82,6 +98,7 @@ static struct tl_tile tile_array[] = {
         .movement_cost = 10,
         .sd_name = "concrete floor",
         .ld_name = "a concrete floor",
+        .replacement = TILE_ID_NONE,
     },
     [TILE_ID_WOODEN_CLOSED_DOOR] = {
         .id = TILE_ID_WOODEN_CLOSED_DOOR,
@@ -92,16 +109,18 @@ static struct tl_tile tile_array[] = {
         .movement_cost = 20,
         .sd_name = "wooden door",
         .ld_name = "a wooden door",
+        .replacement = TILE_ID_WOODEN_OPEN_DOOR,
     },
     [TILE_ID_WOODEN_OPEN_DOOR] = {
         .id = TILE_ID_WOODEN_OPEN_DOOR,
         .attributes = TILE_ATTR_TRAVERSABLE | TILE_ATTR_TRANSPARENT | TILE_ATTR_DOOR_OPEN,
         .type = TILE_TYPE_DOOR_OPEN,
-        .icon = '.',
+        .icon = '\'',
         .icon_attr = TERM_COLOUR_UMBER,
         .movement_cost = 10,
         .sd_name = "wooden door",
         .ld_name = "a wooden door",
+        .replacement = TILE_ID_WOODEN_CLOSED_DOOR,
     },
     [TILE_ID_STAIRS_UP] = {
         .id = TILE_ID_STAIRS_UP,
@@ -112,6 +131,7 @@ static struct tl_tile tile_array[] = {
         .movement_cost = 10,
         .sd_name = "concrete stairs",
         .ld_name = "concrete stairs, going up",
+        .replacement = TILE_ID_NONE,
     },
     [TILE_ID_STAIRS_DOWN] = {
         .id = TILE_ID_STAIRS_DOWN,
@@ -122,6 +142,7 @@ static struct tl_tile tile_array[] = {
         .movement_cost = 10,
         .sd_name = "concrete stairs",
         .ld_name = "concrete stairs, going down",
+        .replacement = TILE_ID_NONE,
     },
     [TILE_ID_UNDEEP_WATER] = {
         .id = TILE_ID_UNDEEP_WATER,
@@ -136,6 +157,7 @@ static struct tl_tile tile_array[] = {
         .msr_enter_str = "starts to wade into undeep water.",
         .plr_exit_str = "step out of the water.",
         .msr_exit_str = "steps out of the water.",
+        .replacement = TILE_ID_NONE,
     },
     [TILE_ID_DEEP_WATER] = {
         .id = TILE_ID_DEEP_WATER,
@@ -150,6 +172,7 @@ static struct tl_tile tile_array[] = {
         .msr_enter_str = "starts swimming.",
         .plr_exit_str = "stop swimming.",
         .msr_exit_str = "stops swimming.",
+        .replacement = TILE_ID_NONE,
     },
     [TILE_ID_MUD] = {
         .id = TILE_ID_MUD,
@@ -164,6 +187,7 @@ static struct tl_tile tile_array[] = {
         .msr_enter_str = "steps into the mud.",
         .plr_exit_str = "step out of the mud.",
         .msr_exit_str = "steps out of the mud.",
+        .replacement = TILE_ID_NONE,
     },
 
     [TILE_ID_MAD_CAP_FUNGUS] = {
@@ -175,6 +199,7 @@ static struct tl_tile tile_array[] = {
         .movement_cost = 10,
         .sd_name = "mushrooms",
         .ld_name = "a growth of mushroom",
+        .replacement = TILE_ID_NONE,
     },
 };
 

@@ -43,7 +43,8 @@ enum tile_attributes {
 
 enum tile_ids {
     TILE_ID_NONE,
-    TILE_ID_TUNNEL_DUMMY,
+    TILE_ID_DUMMY,
+    TILE_ID_DUMMY_2,
     TILE_ID_BORDER_WALL,
     TILE_ID_CONCRETE_WALL,
     TILE_ID_BRASSIER,
@@ -76,6 +77,7 @@ struct tl_tile {
     uint16_t attributes;
     enum tile_types type;
     bitfield32_t dungeon_locale;
+    enum tile_ids replacement;
 
     icon_t icon;
     int icon_attr;

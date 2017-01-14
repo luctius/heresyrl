@@ -116,6 +116,10 @@ static unsigned int aiu_traversable_callback(void *vmap, coord_t *coord) {
         cost = te->movement_cost;
     }
 
+    if (TILE_HAS_ATTRIBUTE(te,TILE_ATTR_DOOR_CLOSED) == true) {
+        cost = te->movement_cost;
+    }
+
     if (me->monster != NULL) {
         cost += me->monster->idle_counter;
     }
