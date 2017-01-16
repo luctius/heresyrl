@@ -229,7 +229,7 @@ bool ma_do_throw(struct msr_monster *monster, coord_t *pos, struct itm_item *ite
     }
 
     /* do the action*/
-    thrown = fght_throw_item(gbl_game->random, monster, gbl_game->current_map, pos, item, INV_LOC_MAINHAND_WIELD);
+    thrown = fght_throw_item(gbl_game->random, monster, gbl_game->current_map, pos, item, FGHT_MAIN_HAND);
 
     /* if the action failed, return failure */
     if (thrown == false) return false;

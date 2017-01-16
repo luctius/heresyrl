@@ -59,7 +59,7 @@ bool char_creation_window(void) {
 
     struct pl_player *plr = &gbl_game->player_data;
     plr->player = msr_create(MID_PLAYER);
-    cr_init_career(plr, CR_HWID_NONE, CR_BCKGRNDID_NONE, CR_BCKGRNDID_NONE);
+    cr_init_career(plr, CR_HWID_NONE, CR_BCKGRNDID_NONE, CR_ROLEID_NONE);
 
     struct msr_monster *player = plr->player;
     player->unique_name = "";

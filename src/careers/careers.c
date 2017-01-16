@@ -89,7 +89,7 @@ void cr_init_career(struct pl_player *plr, enum homeworld_ids htid, enum backgro
 
     plr->career.h_tid = htid;
     plr->career.b_tid = btid;
-    plr->career.r_tid = btid;
+    plr->career.r_tid = rtid;
 
     plr->career.xp_current = 0;
     plr->career.xp_spend   = 0;
@@ -119,7 +119,7 @@ void cr_init_career(struct pl_player *plr, enum homeworld_ids htid, enum backgro
 
     //if (cr_get_homeworld_by_id(htid)->talents != 0)     plr->player->talents[MSR_TALENT_TIER_T1] |= cr_get_homeworld_by_id(htid)->talents;
     if (cr_get_background_by_id(btid)->talents != 0)    plr->player->talents[MSR_TALENT_TIER_T1] |= cr_get_background_by_id(btid)->talents;
-    if (cr_get_role_by_id(htid)->talents != 0)          plr->player->talents[MSR_TALENT_TIER_T1] |= cr_get_role_by_id(rtid)->talents;
+    if (cr_get_role_by_id(rtid)->talents != 0)          plr->player->talents[MSR_TALENT_TIER_T1] |= cr_get_role_by_id(rtid)->talents;
 
     if (cr_get_homeworld_by_id(htid)->homeworld_talent != 0)    msr_set_talent(plr->player, cr_get_homeworld_by_id(htid)->homeworld_talent);
     if (cr_get_background_by_id(btid)->background_talent != 0)  msr_set_talent(plr->player, cr_get_background_by_id(btid)->background_talent);
