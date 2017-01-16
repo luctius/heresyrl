@@ -891,6 +891,7 @@ getkeyorcodepoint_inner(int timeout_ms, int *redraw)
             if (e.window.event == SDL_WINDOWEVENT_RESIZED ||
                 e.window.event == SDL_WINDOWEVENT_SIZE_CHANGED ||
                 e.window.event == SDL_WINDOWEVENT_MAXIMIZED ||
+                e.window.event == SDL_WINDOWEVENT_FOCUS_GAINED ||
                 e.window.event == SDL_WINDOWEVENT_RESTORED)
                 resized_recently = 1;
 
