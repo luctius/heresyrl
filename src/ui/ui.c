@@ -923,7 +923,6 @@ void charwin_refresh() {
     while ( (target = aiu_get_nearest_enemy(player, cnt, gbl_game->current_map) ) != NULL) {
         int y = ui_printf(char_win, "    %s", msr_ldname(target));
         if (target->controller.ai.emo_state != NULL) ui_printf(char_win, " (%s)", target->controller.ai.emo_state);
-        ui_printf(char_win, "\n");
         wattron(char_win->win, get_colour(target->icon_attr) );
         mvwaddch(char_win->win, y, 0, target->icon);
         wattroff(char_win->win, get_colour(target->icon_attr) );
@@ -936,6 +935,7 @@ void charwin_refresh() {
         mvwaddch(char_win->win, y, 2, ' ');
         wattroff(char_win->win, tgt_status);
 
+        ui_printf(char_win, "\n");
         cnt++;
     }
     if (cnt > 0) ui_printf(char_win, "\n");
