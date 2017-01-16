@@ -500,7 +500,6 @@ static bool load_monsters(lua_State *L, struct dm_map *map, struct gm_game *g) {
 
         monster->tid = t;
         lua_intexpr(L, &t, "game.monsters[%d].uid", i+1); monster->uid = t;
-        lua_intexpr(L, &t, "game.monsters[%d].race", i+1); monster->race = t;
         lua_intexpr(L, &t, "game.monsters[%d].size", i+1); monster->size = t;
         lua_intexpr(L, &t, "game.monsters[%d].gender", i+1); monster->gender = t;
         lua_intexpr(L, &t, "game.monsters[%d].fate_points", i+1); monster->fate_points = t;

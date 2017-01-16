@@ -44,7 +44,7 @@ static bool items_list_initialised = false;
 #define ITEM_POST_CHECK (8708)
 
 void itmlst_items_list_init(void) {
-    for (unsigned int i = 0; i < IID_MAX; i++) {
+    for (unsigned int i = 0; i < ARRAY_SZ(static_item_list); i++) {
         struct itm_item *item = &static_item_list[i];
         if (item->tid != i) {
             fprintf(stderr, "Item list integrity check failed! [%d]\n", i);
@@ -55,7 +55,7 @@ void itmlst_items_list_init(void) {
         item->item_post = ITEM_POST_CHECK;
     }
 
-    for (int i = 0; i < IID_MAX; i++) {
+    for (unsigned int i = 0; i < ARRAY_SZ(static_item_list); i++) {
         const char *string = itm_descs[i];
         if (string == NULL) {
             fprintf(stderr, "Item description list integrity check failed! (%s [%d])\n", static_item_list[i].sd_name, i);

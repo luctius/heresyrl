@@ -90,7 +90,7 @@ int main(int argc, char *argv[]) {
             .type = DUNGEON_TYPE_ALL,
         };
 
-        dm_generate_map(&spwn_sett);
+        dm_free_map(dm_generate_map(&spwn_sett) );
         exit(EXIT_SUCCESS);
     }
 
@@ -117,6 +117,7 @@ int main(int argc, char *argv[]) {
 
     int cols, lines;
     initscr(); //  Start curses mode
+    set_faketerm_font_file("./data/fonts/font14.png");
     start_color();
     getmaxyx(stdscr, lines, cols);
     ui_create(cols, lines);

@@ -41,7 +41,7 @@ static bool ground_effects_list_initialised = false;
 #define GROUND_EFFECT_LIST_POST_CHECK   (7892)
 
 void ge_init(void) {
-    for (unsigned int i = 0; i < GEID_MAX; i++) {
+    for (unsigned int i = 0; i < ARRAY_SZ(static_ground_effect_list); i++) {
         const struct ground_effect *ground_effect = &static_ground_effect_list[i];
         if (ground_effect->tid != i) {
             fprintf(stderr, "Ground Effects list integrity check failed! [%d]\n", i);

@@ -63,6 +63,11 @@ void msrlst_monster_list_init(void) {
         }
     }
 
+    if (TLT_1_AMBIDEXTRIOUS != MSR_TALENT(0, 1) ) {
+        fprintf(stderr, "Talent enum does compile correctly!\n");
+        exit(EXIT_FAILURE);
+    }
+
     if (monster_list_initialised == false) {
         monster_list_initialised = true;
         TAILQ_INIT(&monster_list_head);
@@ -160,7 +165,6 @@ struct msr_monster *msr_create(enum msr_ids tid) {
     m->monster.uid = msrlst_next_id();
     m->monster.tid = tid;
     m->monster.energy = TT_ENERGY_FULL;
-    m->monster.faction = MSR_FACTION_MONSTERS;
     m->monster.inventory = NULL;
     m->monster.status_effects = se_list_init();
     if (m->monster.description == NULL) {
@@ -176,21 +180,11 @@ struct msr_monster *msr_create(enum msr_ids tid) {
     m->monster.monster_pre = MONSTER_PRE_CHECK;
     m->monster.monster_post = MONSTER_POST_CHECK;
 
-    switch (m->monster.race) {
-        case MSR_RACE_HUMAN:
-        case MSR_RACE_GREENSKIN:
-            m->monster.inventory = inv_init(inv_loc_human);
-            break;
-        case MSR_RACE_BEAST:
-        case MSR_RACE_DOMESTIC:
-            m->monster.inventory = inv_init(inv_loc_animal);
-            break;
-        default:
-            free(m);
-            assert(false && "Unkown Race");
-            return NULL;
+    m->monster.inventory = inv_init(inv_loc_human);
+    if (msr_has_creature_trait(&m->monster, CTRTRT_BESTIAL) ) {
+        inv_exit(m->monster.inventory);
+        m->monster.inventory = inv_init(inv_loc_animal);
     }
-
     creature_weapon(&m->monster);
 
     lg_debug("creating monster[%d, %s, %c]", m->monster.uid, m->monster.ld_name, m->monster.icon);
@@ -558,18 +552,13 @@ enum msr_hit_location msr_get_hit_location(struct msr_monster *monster, int hit_
     int hitloc_tbl_sz = 0;
     const int *hitloc_tbl = NULL;
 
-    switch (monster->race) {
-        case MSR_RACE_GREENSKIN:
-        case MSR_RACE_HUMAN:
-            hitloc_tbl = human_hitloc_lotable;
-            hitloc_tbl_sz = ARRAY_SZ(human_hitloc_lotable);
-            break;
-        case MSR_RACE_DOMESTIC:
-        case MSR_RACE_BEAST:
-            hitloc_tbl = beast_hitloc_lotable;
-            hitloc_tbl_sz = ARRAY_SZ(beast_hitloc_lotable);
-            break;
-        default: assert(false && "Unkown Race"); break;
+    if (msr_has_creature_trait(monster, CTRTRT_BESTIAL) ) {
+        hitloc_tbl = beast_hitloc_lotable;
+        hitloc_tbl_sz = ARRAY_SZ(beast_hitloc_lotable);
+    }
+    else {
+        hitloc_tbl = human_hitloc_lotable;
+        hitloc_tbl_sz = ARRAY_SZ(human_hitloc_lotable);
     }
 
     if (hitloc_tbl != NULL) {

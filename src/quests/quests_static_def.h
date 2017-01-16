@@ -43,7 +43,7 @@
 
 #define ENEMIES(nr, tp, wgt) \
     .enemies[nr] = { \
-        .race = tp, \
+        .faction = tp, \
         .weight = wgt, \
     }
 
@@ -59,8 +59,7 @@ static struct quest static_quest_list[] = {
         WEIGHTS(10, 1, 10),
         DUNGEON(0, DUNGEON_TYPE_CAVE,  1, 10, 50, 150, 100, 100),
         DUNGEON(1, DUNGEON_TYPE_PLAIN, 1, 1,  50, 150, 100, 100),
-        ENEMIES(0, MSR_RACE_GREENSKIN, 8),
-        ENEMIES(1, MSR_RACE_BEAST, 2),
+        ENEMIES(0, FCT_SCAVENGERS, 8),
         FETCH_PARAMS(0, IID_MUSHROOM_MAD_CAP, 5),
         FETCH_PARAMS(1, IID_NONE, 0),
     QUEST_END,

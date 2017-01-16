@@ -25,6 +25,9 @@
 #define CREATION(wght, lvl, l, grp_ch) \
     .spwn = { .weight=wght, .level=lvl, .dungeon_locale=l, .group_chance = grp_ch, }
 
+#define FACTION(f) \
+    .faction = f
+
 #define DESCRIPTION(desc) .description=desc
 
 #define CHARACTERISTICS(chr, value) \
@@ -38,8 +41,7 @@
 
 #define DEF_ITEM(idx, item_id) .def_items[idx]=item_id
 
-#define HUMAN() .race=MSR_RACE_HUMAN, .size=MSR_SIZE_AVERAGE, \
-    .icon_attr = TERM_COLOUR_YELLOW, \
+#define HUMAN() .size=MSR_SIZE_AVERAGE, .icon_attr = TERM_COLOUR_YELLOW, \
     .creature_traits = 0, .crtr_wpn=IID_HUMAN_UNARMED
 
 
@@ -65,6 +67,7 @@ struct msr_monster static_monster_list[] = {
         CHARACTERISTICS(MSR_CHAR_PERCEPTION,    25),
         SKILLS(0,0,0), .fate_points=0,  .is_player=true,
         DESCRIPTION("description of player"),
+        FACTION(FCT_PLAYER),
     MONSTER_END,
     /*----------------------------------------------------------*/
 
@@ -81,6 +84,7 @@ struct msr_monster static_monster_list[] = {
         SKILLS(bf(MSR_SKILLS_AWARENESS) | bf(MSR_SKILLS_RANGED) | bf(MSR_SKILLS_MELEE) ,0,0),
         DESCRIPTION("description of an scavenger"),
         CREATION(30,1,bf(DUNGEON_TYPE_CAVE) | bf(DUNGEON_TYPE_PLAIN) | bf(DUNGEON_TYPE_HIVE), 70),
+        FACTION(FCT_SCAVENGERS),
     MONSTER_END,
 };
 

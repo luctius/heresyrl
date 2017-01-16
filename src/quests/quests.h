@@ -48,7 +48,7 @@ struct qst_dungeon {
 };
 
 struct qst_enemies {
-    enum msr_race race;
+    int faction;
     int weight;
 };
 

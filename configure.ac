@@ -60,6 +60,24 @@ AC_PATH_PROGS([GENGETOPT], [gengetopt])
 AM_CONDITIONAL([GENGETOPT], [test x$GENGETOPT != x])
 AC_ARG_VAR([GENGETOPT], [application to generate the commandline arguments code])
 
+AC_ARG_ENABLE([sdl2],
+    AS_HELP_STRING([--enable-sdl2], [Enable sdl2 compatibility]))
+AM_CONDITIONAL([HAVE_SDL2], [test "x$enable_sdl2" = "xyes"])
+AM_COND_IF([HAVE_SDL2], [
+    PKG_CHECK_MODULES([sdl2], [sdl2],  [], [])
+    if test "x$sdl2_LIBS" = "x"; then
+        AC_MSG_ERROR([SDL2 not found!])
+        fi
+    PKG_CHECK_MODULES([libpng], [libpng],  [], [])
+    if test "x$libpng_LIBS" = "x"; then
+        AC_MSG_ERROR([libpng not found!])
+        fi
+], [])
+
+AC_ARG_ENABLE([test_uncursed],
+    AS_HELP_STRING([--enable-test_uncursed], [Enable the test_uncursed test application for libuncursed]))
+AM_CONDITIONAL([HAVE_TEST_UNCURSED], [test "x$enable-test_uncursed" = "xyes"])
+
 # Checks for header files.
 AC_CHECK_HEADERS([inttypes.h limits.h stddef.h stdint.h stdlib.h string.h sys/param.h unistd.h])
 
