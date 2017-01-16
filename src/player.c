@@ -176,7 +176,7 @@ static bool plr_action_loop(struct msr_monster *player) {
 
         update_screen();
         //mapwin_display_map(map, player_pos);
-        //charwin_refresh();
+        charwin_refresh();
 
         switch (ch = inp_get_input(gbl_game->input) ) {
             case INP_KEY_PICKUP: {

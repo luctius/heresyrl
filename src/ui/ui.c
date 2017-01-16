@@ -271,7 +271,6 @@ static void mapwin_examine(struct dm_map_entity *me) {
     if (char_win->type != HRL_WINDOW_TYPE_CHARACTER) return;
     if (options.refresh == false) return;
 
-    wclear(char_win->win);
     werase(char_win->win);
     ui_print_reset(char_win);
 
@@ -406,7 +405,6 @@ void targetwin_examine(struct hrl_window *window, struct dm_map *map, struct msr
         return;
     }
 
-    wclear(window->win);
     werase(window->win);
     ui_print_reset(window);
 
@@ -1018,7 +1016,6 @@ void invwin_examine(struct hrl_window *window, struct itm_item *item) {
     if (itm_verify_item(item) == false) return;
     if (window->type != HRL_WINDOW_TYPE_CHARACTER) return;
 
-    wclear(window->win);
     werase(window->win);
     ui_print_reset(window);
 
@@ -1156,7 +1153,6 @@ void status_effect_examine(struct hrl_window *window, struct status_effect *se) 
     if (window->type != HRL_WINDOW_TYPE_CHARACTER) return;
     if (options.refresh == false) return;
 
-    wclear(window->win);
     werase(window->win);
     ui_print_reset(window);
 
@@ -1308,7 +1304,6 @@ void character_window(void) {
     assert(pad.win != NULL);
 
     if (options.refresh) {
-        wclear(window->win);
         werase(window->win);
     }
 
@@ -1462,7 +1457,7 @@ Basic weapon traning SP     ...                  |
         ui_printf_ext(window, window->lines -3, 1, cs_ATTR " [q]" cs_CLOSE " exit. " );
         ui_printf_ext(window, window->lines -2, 1, cs_ATTR "[up]" cs_CLOSE " up,  "  cs_ATTR "  [down]" cs_CLOSE " down.");
         if (options.refresh) wrefresh(window->win);
-        prefresh(pad.win, line,0,pad.y,pad.x, pad.y + pad.lines -5, pad.x + pad.cols);
+        prefresh(pad.win, line,0,pad.y,pad.x, pad.y + pad.lines -5, pad.x + pad.cols -2);
 
         switch (inp_get_input(gbl_game->input) ) {
             case INP_KEY_UP_RIGHT:   line += 20; break;
@@ -1483,7 +1478,6 @@ Basic weapon traning SP     ...                  |
     }
 
     delwin(pad.win);
-    wclear(window->win);
     werase(window->win);
     if (options.refresh) {
         wrefresh(window->win);
@@ -1502,7 +1496,6 @@ void show_log(struct hrl_window *window, bool input) {
     pad.win = newpad(MAX(log_sz, window->lines) , window->cols);
     assert(pad.win != NULL);
 
-    wclear(window->win);
     werase(window->win);
 
     touchwin(pad.win);
@@ -1607,7 +1600,6 @@ void show_log(struct hrl_window *window, bool input) {
 
     delwin(pad.win);
 
-    wclear(window->win);
     werase(window->win);
     if (options.refresh) {
         wrefresh(window->win);
@@ -1623,8 +1615,8 @@ void show_msg(struct hrl_window *window) {
     if (options.refresh == false) return;
 
     werase(window->win);
-    scrollok(window->win, OK);
     ui_print_reset(window);
+    scrollok(window->win, OK);
 
     int ctr = 0;
     if (log_sz > 0) {
@@ -1666,6 +1658,7 @@ void show_msg(struct hrl_window *window) {
             }
         }
     }
+    wrefresh(window->win);
 }
 
 void log_window(void) {
@@ -1714,7 +1707,6 @@ void levelup_aquire_window(struct lvl_struct *list, int start, int sz, const cha
 
     bool lvl_up_done = false;
     while(lvl_up_done == false) {
-        wclear(window->win);
         werase(window->win);
         ui_print_reset(window);
 
@@ -1806,7 +1798,6 @@ void levelup_selection_window(void) {
     bool lvl_up_done = false;
     int ch = INP_KEY_NONE;
     do {
-        wclear(window->win);
         werase(window->win);
         ui_print_reset(window);
 
@@ -1896,7 +1887,6 @@ void show_help(struct hrl_window *window, bool input) {
     pad.win = newpad(MAX(help_sz, window->lines) , window->cols);
     assert(pad.win != NULL);
 
-    wclear(window->win);
     werase(window->win);
 
     touchwin(pad.win);
@@ -1963,7 +1953,7 @@ void show_help(struct hrl_window *window, bool input) {
             ui_printf_ext(window, window->lines -3, 1, cs_ATTR "[up]" cs_CLOSE " up,  " cs_ATTR "[down]" cs_CLOSE " down.");
             ui_printf_ext(window, window->lines -2, 1, cs_ATTR " [q]" cs_CLOSE " exit.");
             if (options.refresh) wrefresh(window->win);
-            prefresh(pad.win, line,0,pad.y,pad.x, pad.y + pad.lines -5, pad.x + pad.cols);
+            prefresh(pad.win, line,0,pad.y,pad.x, pad.y + pad.lines -5, pad.x + pad.cols -2);
 
             switch (inp_get_input(gbl_game->input) ) {
                 case INP_KEY_UP_RIGHT:   line += 20; break;
@@ -1987,7 +1977,6 @@ void show_help(struct hrl_window *window, bool input) {
 
     delwin(pad.win);
 
-    wclear(window->win);
     werase(window->win);
     if (options.refresh) {
         wrefresh(window->win);

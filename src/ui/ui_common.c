@@ -180,7 +180,7 @@ int ui_printf_ext(struct hrl_window *win, int y_start, int x_start, const char *
     }
 
     wattrset(win->win, attr_mod[attr_mod_ctr]);
-    if (options.refresh) wrefresh(win->win);
+    //if (options.refresh) wrefresh(win->win);
 
     return win->text_y;
 }
