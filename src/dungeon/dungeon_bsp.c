@@ -316,27 +316,32 @@ bool dm_generate_map_bsp(struct dm_map *map, struct random *random, coord_t *ul,
     coord_t ip_list[nr_influence_points];
     for (int i = 0; i < nr_influence_points; i++) {
         /* place influence points */
-        coord_t ip = cd_create( (random_int32(random) % (size.x - 6) ) + 3,
-                                (random_int32(random) % (size.y - 6) ) + 3);
-        int strength = (random_int32(random) % 3) +2;
-        if (i == 0) {
-            coord_t ip = cd_create( (random_int32(random) % (size.x / 5) ) + ( (size.x / 2) - size.x / 5 ),
-                                    (random_int32(random) % (size.y / 5) ) + ( (size.y / 2) - size.y / 5 ) );
-            strength = 4;
-        }
+        bool placed = false;
+        for (int j = 0; j < alist_sz && placed == false; j++) {
+            coord_t ip = cd_create( (random_int32(random) % (size.x - 6) ) + 3,
+                                    (random_int32(random) % (size.y - 6) ) + 3);
+            int strength = (random_int32(random) % 3) +2;
+            if (i == 0) {
+                coord_t ip = cd_create( (random_int32(random) % (size.x / 5) ) + ( (size.x / 2) - size.x / 5 ),
+                                        (random_int32(random) % (size.y / 5) ) + ( (size.y / 2) - size.y / 5 ) );
+                strength = 4;
+            }
 
-        /*
-        * find area which contains the influence,
-        *  for every neighbour, add cost
-        *    for ever neighbour neighbour add cost -1
-        *      ...
-        */
-        struct bsp_area *bs = &area_list[point_to_area_idx(area_list, alist_sz, &ip, 0)];
-        if (bs == NULL) continue;
-        if (bs->split == true) continue;
-        lg_debug("neighbour ip: %d (%d,%d,%d,%d)", strength, bs->ul.x, bs->ul.y, bs->ul.x + bs->size.x, bs->ul.y + bs->size.y);
-        spread_ip_strength(bs, strength);
-        ip_list[i] = ip;
+            /*
+            * find area which contains the influence,
+            *  for every neighbour, add cost
+            *    for ever neighbour neighbour add cost -1
+            *      ...
+            */
+            struct bsp_area *bs = &area_list[point_to_area_idx(area_list, alist_sz, &ip, j)];
+            if (bs == NULL) continue;
+            if (bs->split == true) continue;
+            lg_debug("neighbour ip: %d (%d,%d,%d,%d)", strength, bs->ul.x, bs->ul.y, bs->ul.x + bs->size.x, bs->ul.y + bs->size.y);
+            spread_ip_strength(bs, strength);
+            ip_list[i] = ip;
+            placed = true;
+        }
+        assert(placed);
     }
 
     /* pathfinder */
