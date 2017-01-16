@@ -320,7 +320,7 @@ int sgt_los_path(struct dm_map *map, coord_t *s, coord_t *e, coord_t *path_lst[]
      */
     int psz = cd_pyth(s,e) * 2;
     if (continue_path) {
-        psz = MAX(map->sett.size.x, map->sett.size.y);
+        psz = pyth(map->sett.size.x, map->sett.size.y);
     }
 
     *path_lst = calloc(psz, sizeof(coord_t) );
@@ -401,9 +401,9 @@ int sgt_los_path(struct dm_map *map, coord_t *s, coord_t *e, coord_t *path_lst[]
        we should save the old pointer, but we do not because we
        are lazy. assert for now that it is succesfull.
      */
-    *path_lst = realloc(*path_lst, psz * sizeof(coord_t) );
+    *path_lst = realloc(*path_lst, pp.list_idx * sizeof(coord_t) );
     assert(*path_lst != NULL);
-    return psz;
+    return pp.list_idx;
 }
 
 coord_t sgt_scatter(struct dm_map *map, struct random *r, coord_t *p, int radius) {
