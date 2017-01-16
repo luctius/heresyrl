@@ -266,7 +266,7 @@ struct itm_item {
     const char *description;
     icon_t icon;
     int icon_attr;
-    int use_delay;
+    float use_delay;
     uint32_t stacked_quantity;
     uint32_t max_quantity;
     bool identified;
