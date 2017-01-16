@@ -115,8 +115,8 @@ enum msr_skills {
 
 enum msr_creature_traits {
     CTRTRT_DARK_SIGHT,
-#if 0
     CTRTRT_BESTIAL,
+#if 0
     CTRTRT_BLIND,
     CTRTRT_FEAR,
 #endif
@@ -197,6 +197,11 @@ enum aptitude_enum {
 
     APTITUDE_MAX,
     APTITUDE_NONE,
+};
+
+enum factions {
+    FCT_PLAYER,
+    FCT_SCAVENGERS,
 };
 
 #endif /* SPECIALQUALITIES_H */

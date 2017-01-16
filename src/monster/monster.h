@@ -46,14 +46,6 @@ enum msr_gender {
     MSR_GENDER_MAX,
 };
 
-enum msr_race {
-    MSR_RACE_HUMAN,
-    MSR_RACE_GREENSKIN,
-    MSR_RACE_BEAST,
-    MSR_RACE_DOMESTIC,
-    MSR_RACE_MAX,
-};
-
 enum msr_characteristic {
     MSR_CHAR_COMBAT,
     MSR_CHAR_STRENGTH,
@@ -100,12 +92,6 @@ enum msr_hit_location {
     MSR_HITLOC_HEAD,
     MSR_HITLOC_MAX,
     MSR_HITLOC_NONE,
-};
-
-enum msr_factions {
-    MSR_FACTION_PLAYER,
-    MSR_FACTION_MONSTERS,
-    MSR_FACTION_MAX,
 };
 
 struct msr_char {
@@ -159,7 +145,6 @@ struct msr_monster {
         int8_t added;
     } wounds;
 
-    enum msr_race race;
     enum msr_size size;
 
     /* current number of fate points, not used. */
@@ -204,7 +189,7 @@ struct msr_monster {
     /* status_effects effecting this monster. */
     struct status_effect_list *status_effects;
 
-    bitfield8_t faction;
+    int faction;
 
     /* Monster creation. */
     struct {

@@ -268,14 +268,10 @@ static void init_bestial_ai(struct msr_monster *monster) {
 }
 
 void ai_monster_init(struct msr_monster *monster, uint32_t leader_uid) {
-    switch(monster->race) {
-        case MSR_RACE_GREENSKIN:
-        case MSR_RACE_HUMAN: init_human_ai(monster); break;
-
-        default:
-        case MSR_RACE_DOMESTIC:
-        case MSR_RACE_BEAST: init_bestial_ai(monster); break;
+    if (msr_has_creature_trait(monster, CTRTRT_BESTIAL) ) {
+        init_bestial_ai(monster);
     }
+    else init_human_ai(monster);
 
     struct ai *ai_s = msr_get_ai_ctx(monster);
     assert(ai_s != NULL);

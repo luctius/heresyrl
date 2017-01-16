@@ -143,7 +143,6 @@ static bool sv_save_monsters(FILE *file, int indent) {
             svprintf_open(file, "");
                 svprintf(file,"uid=%d,", m->uid);
                 svprintf(file,"tid=%d,", m->tid);
-                svprintf(file,"race=%d,", m->race);
                 svprintf(file,"size=%d,", m->size);
                 svprintf(file,"gender=%d,", m->gender);
                 svprintf(file,"fate_points=%d,", m->fate_points);
