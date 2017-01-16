@@ -136,7 +136,6 @@ int main(int argc, char *argv[]) {
                 exit(EXIT_FAILURE);
             }
 
-            lg_init(options.log_file_name, debug_lvl, log_size);
             game_init(NULL, rand());
             System_msg("Loading game failed.");
         }

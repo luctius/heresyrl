@@ -51,18 +51,12 @@ struct logging {
 void lg_exit(void) {
     if (gbl_log == NULL) return;
 
-    while (cqc_cnt(gbl_log->log_cqc) > 0) {
-        int idx = cqc_get(gbl_log->log_cqc);
-        free(gbl_log->log_q[idx].module);
-        free(gbl_log->log_q[idx].string);
-    }
+    lg_clear(gbl_log);
     free(gbl_log->log_q);
-
     fclose(gbl_log->log_file);
     free(gbl_log);
     gbl_log = NULL;
 }
-
 
 void lg_init(char *logfile, enum lg_debug_levels lvl, uint32_t max_size) {
     struct logging *log_ctx = calloc(1, sizeof(struct logging) );
@@ -84,6 +78,14 @@ void lg_init(char *logfile, enum lg_debug_levels lvl, uint32_t max_size) {
     }
 
     gbl_log = log_ctx;
+}
+
+void lg_clear(struct logging *log) {
+    while (cqc_cnt(log->log_cqc) > 0) {
+        int idx = cqc_get(log->log_cqc);
+        free(log->log_q[idx].module);
+        free(log->log_q[idx].string);
+    }
 }
 
 void lg_set_callback(struct logging *log_ctx, void *priv, callback_event ce) {
