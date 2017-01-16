@@ -2996,9 +2996,11 @@ vw_printw(WINDOW *win, const char *fmt, va_list vl)
             return ERR; /* sanity */
         }
 
-        bf = realloc(bf, ccount + 1);
-        if (!bf)
+        char *n_bf = realloc(bf, ccount + 1);
+        if (!n_bf) {
             return ERR;
+        }
+        bf = n_bf;
     }
 
     char *r = bf;
