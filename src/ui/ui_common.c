@@ -189,8 +189,8 @@ struct hrl_window *win_create(int height, int width, int starty, int startx, enu
     struct hrl_window *retval = calloc(1, sizeof(struct hrl_window) );
 
     if (retval != NULL) {
-        clear();
-        if (options.refresh) refresh();
+        //clear();
+        //if (options.refresh) refresh();
 
         retval->text_x = 0;
         retval->text_y = 0;
