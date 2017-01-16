@@ -89,10 +89,6 @@ void tt_process_monsters(struct dm_map *map) {
             monster->controller.interrupted = false;
 
             if (gbl_game->player_data.exit_map == true) return;
-
-            if (dm_get_map_me(&monster->pos, map)->visible) {
-                update_screen();
-            }
         }
 
         if (gbl_game->running == false) return;
