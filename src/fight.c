@@ -501,10 +501,8 @@ int fght_melee_roll(struct random *r, struct msr_monster *monster, struct msr_mo
     witem = fght_get_working_weapon(monster, WEAPON_TYPE_MELEE, hand);
     if (witem == NULL) return -1;
 
-    /*
     You(monster,                 "%s at %s.", itm_you_use_desc(witem), msr_ldname(target));
     Monster_tgt(monster, target, "%s at %s.", itm_msr_use_desc(witem), msr_ldname(target) );
-    */
 
     /* TODO add Melee attack options */
 
