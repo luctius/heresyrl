@@ -2,9 +2,9 @@ ACLOCAL_AMFLAGS=-I m4
 AUTOMAKE_OPTIONS = subdir-objects
 AM_CPPFLAGS=-I$(top_srcdir)/src/ -I$(top_srcdir)/libuncursed/include
 noinst_LTLIBRARIES = libuncursed_tty.la
-lib_LTLIBRARIES = libuncursed.la
 bin_PROGRAMS = heresyrl 
-noinst_PROGRAMS = test_uncursed
+lib_LTLIBRARIES = libuncursed.la
+noinst_PROGRAMS =
 
 GIT_VERSION=$(shell cd $(top_srcdir) && git describe --abbrev=10 --dirty --always)
 #AM_CFLAGS= -Wall -O0 -ggdb -Wextra -Wformat=2 -Wswitch-default -Wcast-align -Wpointer-arith -Wbad-function-cast -Wstrict-prototypes -Winline -Wundef -Wnested-externs -Wcast-qual -Wshadow -Wwrite-strings  -Wunreachable-code -Wstrict-aliasing=2 -Wwrite-strings -Wno-aggressive-loop-optimizations -Wlogical-op -Wno-uninitialized -fsanitize=address -fno-omit-frame-pointer -Wshadow -fsanitize=undefined -fsanitize=shift -fsanitize=integer-divide-by-zero -fsanitize=unreachable -fsanitize=vla-bound -fsanitize=null -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=alignment -fsanitize=object-size -fsanitize=enum -fsanitize=bool 
@@ -23,12 +23,24 @@ libuncursed_la_CFLAGS=-DAIMAKE_BUILDOS_linux
 libuncursed_la_LIBADD=-ldl -luncursed_tty
 libuncursed_la_includedir=$(top_srcdir)/libuncursed/include
 
+if HAVE_TEST_UNCURSED
+noinst_PROGRAMS += test_uncursed
 test_uncursed_DEPENDENCIES=libuncursed.la
 test_uncursed_SOURCES=libuncursed/src/test_uncursed.c
 test_uncursed_CFLAGS=-DUNCURSED_MAIN_PROGRAM -DAIMAKE_BUILDOS_linux
 test_uncursed_LDADD=-ldl -luncursed
 test_uncursed_LDFLAGS=-no-install
 test_uncursed_includedir=$(top_srcdir)/libuncursed/include
+endif
+
+if HAVE_SDL2
+lib_LTLIBRARIES += libuncursed_sdl.la
+libuncursed_sdl_la_SOURCES=libuncursed/src/plugins/sdl.c libuncursed/src/plugins/sdl_cxx.cxx
+libuncursed_sdl_la_CFLAGS=-DAIMAKE_BUILDOS_linux $(sdl_CFLAGS) $(libpng_CFLAGS)
+libuncursed_sdl_la_LDFLAGS=-avoid-version
+libuncursed_sdl_la_LIBADD=$(sdl2_LIBS) $(libpng_LIBS)
+libuncursed_sdl_la_includedir=$(top_srcdir)/libuncursed/include
+endif
 
 ###
 
