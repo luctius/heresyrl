@@ -90,7 +90,7 @@ int main(int argc, char *argv[]) {
             .type = DUNGEON_TYPE_ALL,
         };
 
-        dm_generate_map(&spwn_sett);
+        dm_free_map(dm_generate_map(&spwn_sett) );
         exit(EXIT_SUCCESS);
     }
 
