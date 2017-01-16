@@ -63,6 +63,11 @@ void msrlst_monster_list_init(void) {
         }
     }
 
+    if (TLT_1_AMBIDEXTRIOUS != MSR_TALENT(0, 1) ) {
+        fprintf(stderr, "Talent enum does compile correctly!\n");
+        exit(EXIT_FAILURE);
+    }
+
     if (monster_list_initialised == false) {
         monster_list_initialised = true;
         TAILQ_INIT(&monster_list_head);
@@ -175,10 +180,11 @@ struct msr_monster *msr_create(enum msr_ids tid) {
     m->monster.monster_pre = MONSTER_PRE_CHECK;
     m->monster.monster_post = MONSTER_POST_CHECK;
 
+    m->monster.inventory = inv_init(inv_loc_human);
     if (msr_has_creature_trait(&m->monster, CTRTRT_BESTIAL) ) {
+        inv_exit(m->monster.inventory);
         m->monster.inventory = inv_init(inv_loc_animal);
     }
-    else m->monster.inventory = inv_init(inv_loc_human);
     creature_weapon(&m->monster);
 
     lg_debug("creating monster[%d, %s, %c]", m->monster.uid, m->monster.ld_name, m->monster.icon);
