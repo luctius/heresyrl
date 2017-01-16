@@ -141,6 +141,7 @@ int main(int argc, char *argv[]) {
         }
         else if (gbl_game->player_data.player != NULL) {
             valid_player = true;
+            show_msg(msg_win);
         }
     }
 
