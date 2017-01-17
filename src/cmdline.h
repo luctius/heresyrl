@@ -74,8 +74,8 @@ struct gengetopt_args_info
   const char *test_mode_help; /**< @brief turn features off to facilitate testing help description.  */
   int rnd_auto_play_flag;	/**< @brief put random values into the input log to simulate player (default=off).  */
   const char *rnd_auto_play_help; /**< @brief put random values into the input log to simulate player help description.  */
-  int wizard_flag;	/**< @brief enable wizard mode to input debug related commands (default=off).  */
-  const char *wizard_help; /**< @brief enable wizard mode to input debug related commands help description.  */
+  int wizard_flag;	/**< @brief enable wizard mode to input debug related commands, must enabled in the build to work (default=off).  */
+  const char *wizard_help; /**< @brief enable wizard mode to input debug related commands, must enabled in the build to work help description.  */
   int no_load_flag;	/**< @brief do not load a previous made character (default=off).  */
   const char *no_load_help; /**< @brief do not load a previous made character help description.  */
   int no_save_flag;	/**< @brief do not save a made character (default=off).  */

@@ -51,7 +51,7 @@ const char *gengetopt_args_info_full_help[] = {
   "      --test_auto         same as playback, but quite when done and show\n                            nothing  (default=off)",
   "      --test_mode         turn features off to facilitate testing\n                            (default=off)",
   "      --rnd_auto_play     put random values into the input log to simulate\n                            player  (default=off)",
-  "      --wizard            enable wizard mode to input debug related commands\n                            (default=off)",
+  "      --wizard            enable wizard mode to input debug related commands,\n                            must enabled in the build to work  (default=off)",
   "  -l, --no_load           do not load a previous made character  (default=off)",
   "  -s, --no_save           do not save a made character  (default=off)",
   "      --print_map_only    only print the map and close  (default=off)",
@@ -907,7 +907,7 @@ cmdline_parser_internal (
               goto failure;
           
           }
-          /* enable wizard mode to input debug related commands.  */
+          /* enable wizard mode to input debug related commands, must enabled in the build to work.  */
           else if (strcmp (long_options[option_index].name, "wizard") == 0)
           {
           

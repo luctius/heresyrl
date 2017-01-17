@@ -21,9 +21,7 @@ option "map"            m "show the complete map" flag off hidden
 option "test_auto"      - "same as playback, but quite when done and show nothing" flag off hidden
 option "test_mode"      - "turn features off to facilitate testing" flag off hidden
 option "rnd_auto_play"  - "put random values into the input log to simulate player" flag off hidden
-if READLINE
-option "wizard"         - "enable wizard mode to input debug related commands" flag off hidden
-endif
+option "wizard"         - "enable wizard mode to input debug related commands, must enabled in the build to work" flag off hidden
 
 option "no_load"        l "do not load a previous made character" flag off hidden
 option "no_save"        s "do not save a made character" flag off hidden
