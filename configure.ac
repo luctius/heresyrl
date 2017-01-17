@@ -107,6 +107,10 @@ AC_FUNC_MBRTOWC
 AC_FUNC_REALLOC
 AC_CHECK_FUNCS([atexit memmove memset mkdir select setlocale strchr strdup strrchr strtol wcwidth strnlen])
 
+CC_CHECK_CFLAG_APPEND([-Wall -Wextra -Wformat=2 -Wswitch-default -Wcast-align -Wpointer-arith -Wbad-function-cast -Wstrict-prototypes -Winline -Wundef -Wnested-externs -Wcast-qual -Wshadow -Wwrite-strings  -Wunreachable-code -Wstrict-aliasing=2 -Wwrite-strings -Wno-aggressive-loop-optimizations -Wlogical-op -Wno-uninitialized -Wshadow])
+CC_CHECK_CFLAG_APPEND([-fsanitize=address -fno-omit-frame-pointer])
+CC_CHECK_CFLAG_APPEND([-fsanitize=undefined -fsanitize=shift -fsanitize=integer-divide-by-zero -fsanitize=unreachable -fsanitize=vla-bound -fsanitize=null -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=alignment -fsanitize=object-size -fsanitize=enum -fsanitize=bool])
+
 
 AC_CONFIG_TESTDIR(tests)
 AC_CONFIG_FILES(tests/atlocal)

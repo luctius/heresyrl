@@ -7,8 +7,6 @@ lib_LTLIBRARIES = libuncursed.la
 noinst_PROGRAMS =
 
 GIT_VERSION=$(shell cd $(top_srcdir) && git describe --abbrev=10 --dirty --always)
-#AM_CFLAGS= -Wall -O0 -ggdb -Wextra -Wformat=2 -Wswitch-default -Wcast-align -Wpointer-arith -Wbad-function-cast -Wstrict-prototypes -Winline -Wundef -Wnested-externs -Wcast-qual -Wshadow -Wwrite-strings  -Wunreachable-code -Wstrict-aliasing=2 -Wwrite-strings -Wno-aggressive-loop-optimizations -Wlogical-op -Wno-uninitialized -fsanitize=address -fno-omit-frame-pointer -Wshadow -fsanitize=undefined -fsanitize=shift -fsanitize=integer-divide-by-zero -fsanitize=unreachable -fsanitize=vla-bound -fsanitize=null -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=alignment -fsanitize=object-size -fsanitize=enum -fsanitize=bool 
-#-Wpadded -Waggregate-return #this is not something you want during general development
 
 ###
 
@@ -153,7 +151,7 @@ heresyrl_SOURCES += src/wizard/wizard_commands.c \
 				src/wizard/wizard_mode.c
 endif
 
-heresyrl_CFLAGS = $(lua_CFLAGS)  -DGIT_VERSION=\"$(GIT_VERSION)\"
+heresyrl_CFLAGS = $(lua_CFLAGS)  -DGIT_VERSION=\"$(GIT_VERSION)\" $(AM_CFLAGS)
 heresyrl_LDFLAGS = -no-install
 heresyrl_LDADD = $(INTI_LIBS) -lm $(lua_LIBS) $(LIBS) -luncursed
 heresyrl_DEPENDENCIES=libuncursed.la
