@@ -37,6 +37,8 @@ libuncursed_sdl_la_SOURCES=libuncursed/src/plugins/sdl.c libuncursed/src/plugins
 libuncursed_sdl_la_CFLAGS=-DAIMAKE_BUILDOS_linux $(sdl_CFLAGS) $(libpng_CFLAGS)
 libuncursed_sdl_la_LDFLAGS=-avoid-version
 libuncursed_sdl_la_LIBADD=$(sdl2_LIBS) $(libpng_LIBS)
+libuncursed_sdl_la_DATA=$(top_srcdir)/data/fonts/font14.png
+libuncursed_sdl_ladir=$(prefix)/@PACKAGE@/data/fonts
 libuncursed_sdl_la_includedir=$(top_srcdir)/libuncursed/include
 endif
 
