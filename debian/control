@@ -2,14 +2,14 @@ Source: heresyrl
 Section: games
 Priority: optional
 Maintainer: Luctius Invictus <Luctius Invictus <luctius@gmail.com>>
-Build-Depends: debhelper (>= 8.0.0), autotools-dev, autoconf, dh-autoreconf, liblua5.1-0-dev | liblua5.2-dev, libncursesw5-dev
+Build-Depends: debhelper (>= 8.0.0), autotools-dev, autoconf, dh-autoreconf, liblua5.1-0-dev | liblua5.2-dev, libreadline-dev, libsdl2-dev
 Standards-Version: 3.9.4
 Homepage: https://github.com/luctius/heresyrl
 Vcs-Git: git@github.com:luctius/heresyrl.git
 
 Package: heresyrl
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, liblua5.1-0 | liblua5.2-0, libncursesw5
+Depends: ${shlibs:Depends}, ${misc:Depends}, liblua5.1-0 | liblua5.2-0, libsdl2
 Description: HeresyRL is a roguelike.
     HeresyRL is a roguelike in the vain of rogue, nethack, angband and crawl.
     It is based on the Warhammer Roleplay version 2 ruleset.
