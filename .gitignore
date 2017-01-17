@@ -87,5 +87,13 @@ tests/log_*
 tests/massif*
 test_uncursed
 
+#debian build files
+debian/autoreconf.after
+debian/autoreconf.before
+debian/files
+debian/heresyrl.postinst.debhelper
+debian/heresyrl.postrm.debhelper
+debian/heresyrl.substvars
+
 
 build
