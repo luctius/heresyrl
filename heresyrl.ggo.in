@@ -16,19 +16,19 @@ option "background" - "background of the character" values="iguard","outcast" en
 option "role"       - "role of the character" values="seeker","warrior" enum optional
 
 section "Testing Options"
-option "debug"          d "show debug output" flag off
-option "map"            m "show the complete map" flag off
-option "test_auto"      - "same as playback, but quite when done and show nothing" flag off
-option "test_mode"      - "turn features off to facilitate testing" flag off
-option "rnd_auto_play"  - "put random values into the input log to simulate player" flag off
-option "wizard"         - "enable wizard mode to input debug related commands" flag off
+option "debug"          d "show debug output" flag off hidden
+option "map"            m "show the complete map" flag off hidden
+option "test_auto"      - "same as playback, but quite when done and show nothing" flag off hidden
+option "test_mode"      - "turn features off to facilitate testing" flag off hidden
+option "rnd_auto_play"  - "put random values into the input log to simulate player" flag off hidden
+option "wizard"         - "enable wizard mode to input debug related commands, must enabled in the build to work" flag off hidden
 
-option "no_load"        l "do not load a previous made character" flag off
-option "no_save"        s "do not save a made character" flag off
+option "no_load"        l "do not load a previous made character" flag off hidden
+option "no_save"        s "do not save a made character" flag off hidden
 
-option "print_map_only" - "only print the map and close" flag off
+option "print_map_only" - "only print the map and close" flag off hidden
 
-option "log_file"   - "log file name" default="/tmp/heresyrl.log" string optional
-option "save_file"  - "save file name" default="/tmp/heresyrl.save" string optional
-option "load_file"  - "load file name" default="/tmp/heresyrl.save" string optional
+option "log_file"   - "log file name, the default is in the home directory if it can be detected, /tmp if it cannot"  default="/tmp/heresyrl.log" string optional
+option "save_file"  - "save file name, the default is in the home directory if it can be detected, /tmp if it cannot" default="/tmp/heresyrl.save" string optional
+option "load_file"  - "load file name, the default is in the home directory if it can be detected, /tmp if it cannot" default="/tmp/heresyrl.save" string optional
 

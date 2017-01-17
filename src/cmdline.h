@@ -42,6 +42,7 @@ enum enum_role { role__NULL = -1, role_arg_seeker = 0, role_arg_warrior };
 struct gengetopt_args_info
 {
   const char *help_help; /**< @brief Print help and exit help description.  */
+  const char *full_help_help; /**< @brief Print help, including hidden options, and exit help description.  */
   const char *version_help; /**< @brief Print version and exit help description.  */
   int playback_flag;	/**< @brief play a savegame from start until current turn (default=off).  */
   const char *playback_help; /**< @brief play a savegame from start until current turn help description.  */
@@ -81,17 +82,18 @@ struct gengetopt_args_info
   const char *no_save_help; /**< @brief do not save a made character help description.  */
   int print_map_only_flag;	/**< @brief only print the map and close (default=off).  */
   const char *print_map_only_help; /**< @brief only print the map and close help description.  */
-  char * log_file_arg;	/**< @brief log file name (default='/tmp/heresyrl.log').  */
-  char * log_file_orig;	/**< @brief log file name original value given at command line.  */
-  const char *log_file_help; /**< @brief log file name help description.  */
-  char * save_file_arg;	/**< @brief save file name (default='/tmp/heresyrl.save').  */
-  char * save_file_orig;	/**< @brief save file name original value given at command line.  */
-  const char *save_file_help; /**< @brief save file name help description.  */
-  char * load_file_arg;	/**< @brief load file name (default='/tmp/heresyrl.save').  */
-  char * load_file_orig;	/**< @brief load file name original value given at command line.  */
-  const char *load_file_help; /**< @brief load file name help description.  */
+  char * log_file_arg;	/**< @brief log file name, the default is in the home directory if it can be detected, /tmp if it cannot (default='/tmp/heresyrl.log').  */
+  char * log_file_orig;	/**< @brief log file name, the default is in the home directory if it can be detected, /tmp if it cannot original value given at command line.  */
+  const char *log_file_help; /**< @brief log file name, the default is in the home directory if it can be detected, /tmp if it cannot help description.  */
+  char * save_file_arg;	/**< @brief save file name, the default is in the home directory if it can be detected, /tmp if it cannot (default='/tmp/heresyrl.save').  */
+  char * save_file_orig;	/**< @brief save file name, the default is in the home directory if it can be detected, /tmp if it cannot original value given at command line.  */
+  const char *save_file_help; /**< @brief save file name, the default is in the home directory if it can be detected, /tmp if it cannot help description.  */
+  char * load_file_arg;	/**< @brief load file name, the default is in the home directory if it can be detected, /tmp if it cannot (default='/tmp/heresyrl.save').  */
+  char * load_file_orig;	/**< @brief load file name, the default is in the home directory if it can be detected, /tmp if it cannot original value given at command line.  */
+  const char *load_file_help; /**< @brief load file name, the default is in the home directory if it can be detected, /tmp if it cannot help description.  */
   
   unsigned int help_given ;	/**< @brief Whether help was given.  */
+  unsigned int full_help_given ;	/**< @brief Whether full-help was given.  */
   unsigned int version_given ;	/**< @brief Whether version was given.  */
   unsigned int playback_given ;	/**< @brief Whether playback was given.  */
   unsigned int pb_delay_given ;	/**< @brief Whether pb_delay was given.  */
@@ -133,6 +135,8 @@ extern const char *gengetopt_args_info_usage;
 extern const char *gengetopt_args_info_description;
 /** @brief all the lines making the help output */
 extern const char *gengetopt_args_info_help[];
+/** @brief all the lines making the full help output (including hidden options) */
+extern const char *gengetopt_args_info_full_help[];
 
 /**
  * The command line parser
@@ -194,6 +198,10 @@ int cmdline_parser_file_save(const char *filename,
  * Print the help
  */
 void cmdline_parser_print_help(void);
+/**
+ * Print the full help (including hidden options)
+ */
+void cmdline_parser_print_full_help(void);
 /**
  * Print the version
  */
