@@ -31,8 +31,8 @@ LT_INIT([dlopen])
 AC_DEFINE([_GNU_SOURCE], 1, [Use GNU extensions])
 
 # Checks for libraries.
-# FIXME: Replace `main' with a function in `-lm':
-AC_CHECK_LIB([m], [main])
+AC_CHECK_LIB([m], [abs])
+AC_CHECK_LIB([dl], [dlopen])
 
 PKG_CHECK_MODULES([lua], [lua],  [], [
     PKG_CHECK_MODULES([lua], [lua5.1], [],  [
@@ -79,10 +79,11 @@ AC_ARG_ENABLE([test_uncursed],
 AM_CONDITIONAL([HAVE_TEST_UNCURSED], [test "x$enable-test_uncursed" = "xyes"])
 
 # Checks for header files.
-AC_CHECK_HEADERS([inttypes.h limits.h stddef.h stdint.h stdlib.h string.h sys/param.h unistd.h])
+AC_CHECK_HEADERS([fcntl.h inttypes.h limits.h locale.h stddef.h stdint.h stdlib.h string.h sys/ioctl.h sys/param.h termios.h unistd.h wchar.h wctype.h])
 
 # Checks for library functions.
 # Checks for typedefs, structures, and compiler characteristics.
+AC_CHECK_HEADER_STDBOOL
 AC_HEADER_STDBOOL
 AC_HEADER_ASSERT
 AC_LANG_C
@@ -99,13 +100,12 @@ AC_TYPE_UINT8_T
 AC_TYPE_UINT16_T
 AC_TYPE_UINT32_T
 AC_TYPE_UINT64_T
-AC_FUNC_STRFTIME
-AC_FUNC_STRTOD
-AC_FUNC_ERROR_AT_LINE
-AC_FUNC_MALLOC
-AC_FUNC_REALLOC
 AC_CHECK_TYPES([ptrdiff_t])
-AC_CHECK_FUNCS([memmove memset mkdir strdup strtol])
+
+AC_FUNC_MALLOC
+AC_FUNC_MBRTOWC
+AC_FUNC_REALLOC
+AC_CHECK_FUNCS([atexit memmove memset mkdir select setlocale strchr strdup strrchr strtol wcwidth strnlen])
 
 
 AC_CONFIG_TESTDIR(tests)
