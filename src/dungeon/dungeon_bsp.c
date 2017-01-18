@@ -56,10 +56,11 @@ struct bsp_area {
     int extra_cost;
     coord_t entry;
 };
-
+/*
 static int area(coord_t *a) {
     return a->x * a->y;
 }
+*/
 // at least 2 cells shared by both areas
 static bool test_lines(int p1, int p2, int s1, int s2) {
     if ( ((s1 >= p1) && (p2-s1>2)) || ((s1 <= p1) && (s2-p1>2))) {
@@ -179,7 +180,7 @@ static unsigned int pf_callback(void *vmap, coord_t *coord) {
 
 bool dm_generate_map_bsp(struct dm_map *map, struct random *random, coord_t *ul, coord_t *dr) {
     int max_div_levels = 7 + (random_int32(random) %5);
-    int alist_sz = 1;
+    unsigned int alist_sz = 1;
     struct bsp_area area_list[ (max_div_levels * max_div_levels) +1];
     memset(area_list, 0x0, sizeof(area_list));
 
@@ -200,7 +201,7 @@ bool dm_generate_map_bsp(struct dm_map *map, struct random *random, coord_t *ul,
 
     for (int l = 0; l < max_div_levels; l++) {
         int incr = 0;
-        for (int a = 0; a < alist_sz && a < ARRAY_SZ(area_list); a++) {
+        for (unsigned int a = 0; a < alist_sz && a < ARRAY_SZ(area_list); a++) {
             if (alist_sz +incr +2 >= ARRAY_SZ(area_list) ) break;
 
             struct bsp_area *ba = &area_list[a];
@@ -241,7 +242,7 @@ bool dm_generate_map_bsp(struct dm_map *map, struct random *random, coord_t *ul,
             ba1->wall.a = cd_create(0,0);
             ba1->wall.b = cd_create(0,0);
             ba1->entry = cd_create(0,0);
-            lg_debug("\t\tarea[%d]: (sz %d,%d) (ul %d,%d) lvl: %d", alist_sz +incr, ba1->size.x, ba1->size.y, ba1->ul.x, ba1->ul.y, ba1->level);
+            lg_debug("\t\tarea[%u]: (sz %d,%d) (ul %d,%d) lvl: %d", alist_sz +incr, ba1->size.x, ba1->size.y, ba1->ul.x, ba1->ul.y, ba1->level);
 
             struct bsp_area *ba2 = &area_list[alist_sz +incr +1];
             ba2->size = cd_create( (axis_r == X) ? ba->size.x - div_range : ba->size.x,
@@ -258,7 +259,7 @@ bool dm_generate_map_bsp(struct dm_map *map, struct random *random, coord_t *ul,
             ba2->wall.a = cd_create(0,0);
             ba2->wall.b = cd_create(0,0);
             ba2->entry = cd_create(0,0);
-            lg_debug("\t\tarea[%d]: (sz %d,%d) (ul %d,%d) lvl: %d", alist_sz +incr +1, ba2->size.x, ba2->size.y, ba2->ul.x, ba2->ul.y, ba2->level);
+            lg_debug("\t\tarea[%u]: (sz %d,%d) (ul %d,%d) lvl: %d", alist_sz +incr +1, ba2->size.x, ba2->size.y, ba2->ul.x, ba2->ul.y, ba2->level);
 
             ba1->partner = ba2;
             ba2->partner = ba1;
@@ -270,8 +271,8 @@ bool dm_generate_map_bsp(struct dm_map *map, struct random *random, coord_t *ul,
         alist_sz += incr;
 
         /* create neighbour lists */
-        for (int a = 1; a < alist_sz; a++) {
-            for (int b = 1; b < alist_sz; b++) {
+        for (unsigned int a = 1; a < alist_sz; a++) {
+            for (unsigned int b = 1; b < alist_sz; b++) {
                 if (a == b) continue;
                 struct bsp_area *bs_a = &area_list[a];
                 struct bsp_area *bs_b = &area_list[b];
@@ -317,12 +318,12 @@ bool dm_generate_map_bsp(struct dm_map *map, struct random *random, coord_t *ul,
     for (int i = 0; i < nr_influence_points; i++) {
         /* place influence points */
         bool placed = false;
-        for (int j = 0; j < alist_sz && placed == false; j++) {
+        for (unsigned int j = 0; j < alist_sz && placed == false; j++) {
             coord_t ip = cd_create( (random_int32(random) % (size.x - 6) ) + 3,
                                     (random_int32(random) % (size.y - 6) ) + 3);
             int strength = (random_int32(random) % 3) +2;
             if (i == 0) {
-                coord_t ip = cd_create( (random_int32(random) % (size.x / 5) ) + ( (size.x / 2) - size.x / 5 ),
+                ip = cd_create( (random_int32(random) % (size.x / 5) ) + ( (size.x / 2) - size.x / 5 ),
                                         (random_int32(random) % (size.y / 5) ) + ( (size.y / 2) - size.y / 5 ) );
                 strength = 4;
             }
@@ -417,7 +418,7 @@ bool dm_generate_map_bsp(struct dm_map *map, struct random *random, coord_t *ul,
             }
         }
     }
-    for (int a = 1; a < alist_sz; a++) {
+    for (unsigned int a = 1; a < alist_sz; a++) {
         struct bsp_area *b = &area_list[a];
         if (b->connected == true) continue;
 
@@ -428,7 +429,7 @@ bool dm_generate_map_bsp(struct dm_map *map, struct random *random, coord_t *ul,
     }
 
     /* paint areas */
-    for (int a = 1; a < alist_sz; a++) {
+    for (unsigned int a = 1; a < alist_sz; a++) {
         struct bsp_area *ba = &area_list[a];
         if (ba->split == true) continue;
         if (ba->route == false) continue;
@@ -444,7 +445,7 @@ bool dm_generate_map_bsp(struct dm_map *map, struct random *random, coord_t *ul,
         }
     }
 
-    for (int a = 1; a < alist_sz; a++) {
+    for (unsigned int a = 1; a < alist_sz; a++) {
         struct bsp_area *ba = &area_list[a];
         if (ba->split == true) continue;
         if (ba->route == true) continue;
@@ -485,7 +486,7 @@ bool dm_generate_map_bsp(struct dm_map *map, struct random *random, coord_t *ul,
         */
     }
 
-    for (int a = 1; a < alist_sz; a++) {
+    for (unsigned int a = 1; a < alist_sz; a++) {
         struct bsp_area *ba = &area_list[a];
         coord_t zero = cd_create(0,0);
         if (cd_equal(&ba->entry, &zero) ) continue;
