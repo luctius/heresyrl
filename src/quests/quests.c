@@ -186,7 +186,7 @@ void qst_process_quest_during(struct quest *quest, struct dm_map *map) {
 
                     while ( (item = inv_get_next_item(inv, item) ) != NULL) {
                         for (int i = 0; i < QUEST_SZ && quest->qst_params[i] != IID_NONE; i+= 2) {
-                            if (item->tid == quest->qst_params[i]) {
+                            if (item->tid == (uint32_t) quest->qst_params[i]) {
                                 if (quest->qst_params[i+1] <= item->stacked_quantity ) {
                                     nrdone++;
                                 }
