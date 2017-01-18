@@ -62,7 +62,7 @@ void cr_init() {
     }
 }
 
-void cr_exit(struct pl_player *plr) {
+void cr_exit(void) {
     gbl_game->player_data.career.play_seconds += time(NULL) - session_time_start;
 }
 
