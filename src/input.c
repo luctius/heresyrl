@@ -40,6 +40,8 @@ static bool inp_verify(struct inp_input *i) {
     return true;
 }
 
+static enum inp_keys inp_translate_key(wchar_t ch);
+
 static bool inp_resize_log(struct inp_input *i) {
     if (inp_verify(i) == false) return false;
 
@@ -168,7 +170,7 @@ enum inp_keys inp_get_input_idx(struct inp_input *i) {
     return k;
 }
 
-enum inp_keys inp_get_input_text(struct inp_input *i) {
+wchar_t inp_get_input_text(struct inp_input *i) {
     if (i == NULL) return -1;
     if (inp_verify(i) == false) return -1;
     enum inp_keys k = INP_KEY_ESCAPE;
@@ -176,13 +178,24 @@ enum inp_keys inp_get_input_text(struct inp_input *i) {
     inp_rnd_ai_fill_log(i);
 
     if (inp_log_has_keys(i) == false) {
-        wint_t k;
         int ret;
 
+        bool get_input = true;
         do {
             ret = get_wch(&k);
+            if (ret == KEY_CODE_YES) {
+                if (k == KEY_BACKSPACE) get_input = false;
+                k = inp_translate_key(k);
+            }
+            if (ret == OK) {
+                if ( (k == KEY_ENTER) || (k == '\n') || (k == '\r') ) {
+                    k = inp_translate_key(k);
+                    get_input = false;
+                }
+                else if (isalnum(k) && k != ' ') get_input = false;
+            }
             /*lg_debug("key %d", k);*/
-        } while ( ( (ret == KEY_CODE_YES) && (isalnum(k) && (k != ' ') ) ) || ( (ret == OK) && (k == KEY_ENTER) || (k == KEY_BACKSPACE) ) );
+        } while (get_input);
         inp_add_to_log(i, k);
     }
 
@@ -192,7 +205,8 @@ enum inp_keys inp_get_input_text(struct inp_input *i) {
     return k;
 }
 
-enum inp_keys inp_get_input_digit(struct inp_input *i) {
+/* TODO: make a different enum for normal text input with control characters, or do as libncurses does and treat special characters completely differently */
+int inp_get_input_digit(struct inp_input *i) {
     if (i == NULL) return -1;
     if (inp_verify(i) == false) return -1;
     enum inp_keys k = INP_KEY_ESCAPE;
@@ -200,13 +214,24 @@ enum inp_keys inp_get_input_digit(struct inp_input *i) {
     inp_rnd_ai_fill_log(i);
 
     if (inp_log_has_keys(i) == false) {
-        wint_t k;
         int ret;
 
+        bool get_input = true;
         do {
             ret = get_wch(&k);
+            if (ret == KEY_CODE_YES) {
+                if (k == KEY_BACKSPACE) get_input = false;
+                k = inp_translate_key(k);
+            }
+            if (ret == OK) {
+                if ( (k == KEY_ENTER) || (k == '\n') || (k == '\r') ) {
+                    k = inp_translate_key(k);
+                    get_input = false;
+                }
+                else if (isdigit(k) && k != ' ') get_input = false;
+            }
             /*lg_debug("key %d", k);*/
-        } while ( ( (ret == KEY_CODE_YES) && (isdigit(k) && (k != ' ') ) ) || ( (ret == OK) && (k == KEY_ENTER) || (k == KEY_BACKSPACE) ) );
+        } while (get_input);
         inp_add_to_log(i, k);
     }
 
@@ -217,10 +242,9 @@ enum inp_keys inp_get_input_digit(struct inp_input *i) {
 }
 
 
-static enum inp_keys inp_translate_key(int ch) {
+static enum inp_keys inp_translate_key(wchar_t ch) {
     enum inp_keys k = INP_KEY_NONE;
     switch (ch) {
-        case KEY_BACKSPACE: k = INP_KEY_BACKSPACE; break;
         case 'y': case KEY_A1: case KEY_HOME:   k = INP_KEY_UP_LEFT; break;
         case 'k': case KEY_A2: case KEY_UP:     k = INP_KEY_UP; break;
         case 'u': case KEY_A3: case KEY_PPAGE:  k = INP_KEY_UP_RIGHT; break;
@@ -229,14 +253,9 @@ static enum inp_keys inp_translate_key(int ch) {
         case 'n': case KEY_C3: case KEY_NPAGE:  k = INP_KEY_DOWN_RIGHT; break;
         case 'j': case KEY_C2: case KEY_DOWN:   k = INP_KEY_DOWN; break;
         case 'b': case KEY_C1: case KEY_END:    k = INP_KEY_DOWN_LEFT; break;
-        case 124: k = INP_KEY_DIR_COMB; break; /* TODO find differnt key for this */
         case '.': case KEY_B2: case 53:                  k = INP_KEY_WAIT; break;
 
         case '/':       k = INP_KEY_RUN; break;
-
-        case 'q':
-        case 'Q':
-        case KEY_ESCAPE: k = INP_KEY_ESCAPE; break;
 
         case '@':       k = INP_KEY_CHARACTER; break;
         case 'L':       k = INP_KEY_LOG; break;
@@ -263,11 +282,6 @@ static enum inp_keys inp_translate_key(int ch) {
         case '_':
         case '-':       k = INP_KEY_MINUS; break;
 
-        case ' ':
-        case '\n':
-        case KEY_ENTER:
-        case 'O':
-        case 'o':       k = INP_KEY_YES; break;
         case 'C':
         case 'c':       k = INP_KEY_NO; break;
         case 'A':       k = INP_KEY_ALL; break;
@@ -282,8 +296,19 @@ static enum inp_keys inp_translate_key(int ch) {
         case 24:        k = INP_KEY_QUIT; break;
         case 9:         k = INP_KEY_TAB; break;
 
-        case '\f':      k = INP_KEY_REDRAW; break;
-        case ':':      k = INP_KEY_WIZARD; break;
+        case ':':       k = INP_KEY_WIZARD; break;
+
+        case 124:           k = INP_KEY_DIR_COMB; break; /* TODO find differnt key for this */
+        case 'q': case 'Q': case KEY_ESCAPE:    k = INP_KEY_ESCAPE; break;
+        case '\f':          k = INP_KEY_REDRAW; break;
+        case KEY_BACKSPACE: k = INP_KEY_BACKSPACE; break;
+
+        case ' ':
+        case '\n':
+        case '\r':
+        case 'O':
+        case 'o':
+        case KEY_ENTER:     k = INP_KEY_YES; break;
 
         default:
             /* lg_debug("key pressed: %d.", ch); */
@@ -303,10 +328,8 @@ enum inp_keys inp_get_input(struct inp_input *i) {
         if (options.test_auto) {
             return INP_KEY_QUIT;
         }
-
-        int ret;
         wint_t w;
-        ret = get_wch(&w);
+        int ret = get_wch(&w);
         k = inp_translate_key(w);
 
         if (k == INP_KEY_DIR_COMB) {

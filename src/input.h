@@ -24,7 +24,7 @@
 #define INP_KEY_MAX_IDX (36)
 
 enum inp_keys {
-    INP_KEY_NONE,
+    INP_KEY_NONE        = 0x100,
     INP_KEY_UP_LEFT,
     INP_KEY_UP,
     INP_KEY_UP_RIGHT,
@@ -66,10 +66,10 @@ enum inp_keys {
     INP_KEY_QUIT,
     INP_KEY_HELP,
     INP_KEY_REDRAW,
+    INP_KEY_BACKSPACE,
     INP_KEY_WIZARD,
 
     INP_KEY_MAX,
-    INP_KEY_BACKSPACE,
 };
 
 struct inp_input {
@@ -96,8 +96,9 @@ enum inp_keys inp_get_input(struct inp_input *i);
 enum inp_keys inp_get_input_idx(struct inp_input *i);
 char inp_key_translate_idx(int idx);
 int inp_input_to_idx(enum inp_keys k);
-enum inp_keys inp_get_input_text(struct inp_input *i);
-enum inp_keys inp_get_input_digit(struct inp_input *i);
 int inp_input_to_digit(enum inp_keys k);
+
+wchar_t inp_get_input_text(struct inp_input *i);
+int inp_get_input_digit(struct inp_input *i);
 
 #endif /* INPUT_H */
