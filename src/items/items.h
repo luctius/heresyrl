@@ -267,8 +267,8 @@ struct itm_item {
     icon_t icon;
     int icon_attr;
     float use_delay;
-    uint32_t stacked_quantity;
-    uint32_t max_quantity;
+    int stacked_quantity;
+    int max_quantity;
     bool identified;
     int identify_last_try;
 
