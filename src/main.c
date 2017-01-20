@@ -158,6 +158,7 @@ int main(int argc, char *argv[]) {
         update_screen();
         charwin_refresh();
 
+#ifndef AIMAKE_BUILDOS_MSWin32
         /*initialise signal handler*/
         struct sigaction setmask;
         sigemptyset( &setmask.sa_mask );
@@ -167,6 +168,7 @@ int main(int argc, char *argv[]) {
         sigaction( SIGINT,  &setmask, (struct sigaction *) NULL );      /* Interrupt (Ctrl-C) */
         setmask.sa_handler = sigfunc;
         sigaction( SIGQUIT, &setmask, (struct sigaction *) NULL );      /* Quit (Ctrl-\) */
+#endif
 
         while(gbl_game->running == true) {
             tt_process(gbl_game->current_map);

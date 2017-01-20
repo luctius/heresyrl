@@ -34,7 +34,7 @@ AC_CANONICAL_HOST
 
 build_linux=no
 build_windows=no
-build_mac=no
+build_darwin=no
 
 # Detect the target system
 case "${host_os}" in
@@ -47,7 +47,7 @@ case "${host_os}" in
         LT_INIT([win32-dll])
         ;;
     darwin*)
-        build_mac=yes
+        build_darwin=yes
         LT_INIT([dlopen])
         ;;
     *)
@@ -58,7 +58,7 @@ esac
 # Pass the conditionals to automake
 AM_CONDITIONAL([LINUX], [test "$build_linux" = "yes"])
 AM_CONDITIONAL([WINDOWS], [test "$build_windows" = "yes"])
-AM_CONDITIONAL([OSX], [test "$build_mac" = "yes"])
+AM_CONDITIONAL([DARWIN], [test "$build_darwin" = "yes"])
 
 # Checks for libraries.
 AC_CHECK_LIB([m], [abs])
@@ -109,7 +109,7 @@ AC_ARG_ENABLE([test_uncursed],
 AM_CONDITIONAL([HAVE_TEST_UNCURSED], [test "x$enable-test_uncursed" = "xyes"])
 
 # Checks for header files.
-AC_CHECK_HEADERS([fcntl.h inttypes.h limits.h locale.h stddef.h stdint.h stdlib.h string.h sys/ioctl.h sys/param.h termios.h unistd.h wchar.h wctype.h])
+AC_CHECK_HEADERS([fcntl.h inttypes.h limits.h locale.h stddef.h stdint.h stdlib.h string.h sys/ioctl.h sys/param.h termios.h unistd.h wchar.h wctype.h pwd.h])
 
 # Checks for library functions.
 # Checks for typedefs, structures, and compiler characteristics.
@@ -138,9 +138,9 @@ AC_FUNC_REALLOC
 AC_CHECK_FUNCS([atexit memmove memset mkdir select setlocale strchr strdup strrchr strtol wcwidth strnlen])
 
 CC_CHECK_CFLAG_APPEND([-Wall -Wextra -Wformat=2 -Wswitch-default])
-CC_CHECK_CFLAG_APPEND([-Wcast-align -Wpointer-arith -Wbad-function-cast -Wstrict-prototypes -Winline -Wundef -Wnested-externs -Wcast-qual -Wshadow -Wwrite-strings  -Wunreachable-code -Wstrict-aliasing=2 -Wwrite-strings -Wno-aggressive-loop-optimizations -Wlogical-op -Wno-uninitialized -Wshadow])
-CC_CHECK_CFLAG_APPEND([-fsanitize=undefined -fsanitize=address -fno-omit-frame-pointer])
-CC_CHECK_CFLAG_APPEND([-fsanitize=shift -fsanitize=integer-divide-by-zero -fsanitize=unreachable -fsanitize=vla-bound -fsanitize=null -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=alignment -fsanitize=object-size -fsanitize=enum -fsanitize=bool])
+#CC_CHECK_CFLAG_APPEND([-Wcast-align -Wpointer-arith -Wbad-function-cast -Wstrict-prototypes -Winline -Wundef -Wnested-externs -Wcast-qual -Wshadow -Wwrite-strings  -Wunreachable-code -Wstrict-aliasing=2 -Wwrite-strings -Wno-aggressive-loop-optimizations -Wlogical-op -Wno-uninitialized -Wshadow])
+#CC_CHECK_CFLAG_APPEND([-fsanitize=undefined -fsanitize=address -fno-omit-frame-pointer])
+#CC_CHECK_CFLAG_APPEND([-fsanitize=shift -fsanitize=integer-divide-by-zero -fsanitize=unreachable -fsanitize=vla-bound -fsanitize=null -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=alignment -fsanitize=object-size -fsanitize=enum -fsanitize=bool])
 
 
 AC_CONFIG_TESTDIR(tests)

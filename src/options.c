@@ -21,13 +21,22 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <errno.h>
-#include <pwd.h>
 #include <string.h>
+
+#ifdef HAVE_PWD_H
+#include <pwd.h>
+#endif /*HAVE_PWD_H*/
 
 #include <limits.h>
 
 #include "config.h"
 #include "options.h"
+
+#ifdef AIMAKE_BUILDOS_MSWin32
+#define hrl_mkdir(a,b) mkdir(a)
+#else
+#define hrl_mkdir(a,b) mkdir(a,b)
+#endif
 
 struct opt_options options = {
     .debug           = false,
@@ -65,11 +74,14 @@ void opt_exit(void) {
 }
 
 void opt_parse_options(struct gengetopt_args_info *args_info) {
+    const char *homedir = NULL;
+#ifdef HAVE_PWD_H
     const char *homedir = getenv("HOME");
     if (homedir == NULL) {
         struct passwd *pw = getpwuid(getuid());
         homedir = pw->pw_dir;
     }
+#endif
 
     options.debug           = args_info->debug_flag;
     options.debug_show_map  = args_info->map_flag;
@@ -87,24 +99,37 @@ void opt_parse_options(struct gengetopt_args_info *args_info) {
 
     if (args_info->log_file_given == false) {
         char *log_file = calloc(PATH_MAX, sizeof(char) );
-        snprintf(log_file, path_max, "%s/.%s", homedir, PACKAGE_NAME);
-
-        struct stat st;
-        if ( (stat(log_file,&st) == 0) || (mkdir(log_file, 0777) >= 0) ) {
-            snprintf(log_file, path_max, "%s/.%s/%s.log", homedir, PACKAGE_NAME, PACKAGE_NAME);
-            options.log_file_name = log_file;
+        bool wlogf = false;
+        
+        if (homedir != NULL) {
+            snprintf(log_file, path_max, "%s/.%s", homedir, PACKAGE_NAME);
+            struct stat st;
+            if ( (stat(log_file,&st) == 0) || (hrl_mkdir(log_file, 0777) >= 0) ) {
+                snprintf(log_file, path_max, "%s/.%s/%s.log", homedir, PACKAGE_NAME, PACKAGE_NAME);
+                wlogf = true;
+            }
         }
+
+        if (!wlogf) snprintf(log_file, path_max, "%s.log", PACKAGE_NAME);
+        options.log_file_name = log_file;
     }
 
     if (args_info->save_file_given == false) {
         char *save_file = calloc(PATH_MAX, sizeof(char) );
-        snprintf(save_file, path_max, "%s/.%s", homedir, PACKAGE_NAME);
+        bool wsavef = false;
 
-        struct stat st;
-        if ( (stat(save_file,&st) == 0) || (mkdir(save_file, 0777) >= 0) ) {
-            snprintf(save_file, path_max, "%s/.%s/%s.save", homedir, PACKAGE_NAME, PACKAGE_NAME);
-            options.save_file_name = save_file;
+        if (homedir != NULL) {
+            snprintf(save_file, path_max, "%s/.%s", homedir, PACKAGE_NAME);
+
+            struct stat st;
+            if ( (stat(save_file,&st) == 0) || (hrl_mkdir(save_file, 0777) >= 0) ) {
+                snprintf(save_file, path_max, "%s/.%s/%s.save", homedir, PACKAGE_NAME, PACKAGE_NAME);
+		wsavef = true;
+            }
         }
+        
+        if (!wsavef) snprintf(save_file, path_max, "%s.save", PACKAGE_NAME);
+        options.save_file_name = save_file;
     }
     if (args_info->load_file_given == true) {
         options.load_file_name = strdup(args_info->load_file_arg);

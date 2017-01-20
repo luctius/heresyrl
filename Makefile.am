@@ -1,9 +1,9 @@
 ACLOCAL_AMFLAGS=-I m4
 AUTOMAKE_OPTIONS = subdir-objects
 AM_CPPFLAGS=-I$(top_srcdir)/src/ -I$(top_srcdir)/libuncursed/include
-noinst_LTLIBRARIES = libuncursed_tty.la
 bin_PROGRAMS = heresyrl 
 lib_LTLIBRARIES = libuncursed.la
+noinst_LTLIBRARIES =
 noinst_PROGRAMS =
 
 GIT_VERSION=$(shell cd $(top_srcdir) && git describe --abbrev=10 --dirty --always)
@@ -12,27 +12,52 @@ GIT_VERSION=$(shell cd $(top_srcdir) && git describe --abbrev=10 --dirty --alway
 
 libuncursed_CFLAGS_ADD=
 if WINDOWS
+AM_CPPFLAGS += -I$(top_srcdir)/compat
 libuncursed_CFLAGS_ADD += -D'AIMAKE_IMPORT(x)=__declspec(dllimport) x'
 libuncursed_CFLAGS_ADD += -D'AIMAKE_EXPORT(x)=__declspec(dllexport) x'
+libuncursed_CFLAGS_ADD += -DAIMAKE_BUILDOS_MSWin32
 else
 libuncursed_CFLAGS_ADD += -DAIMAKE_IMPORT(x)=
 libuncursed_CFLAGS_ADD += -DAIMAKE_EXPORT(x)=
+
+if LINUX
+libuncursed_CFLAGS_ADD += -DAIMAKE_BUILDOS_linux
 endif
 
-libuncursed_CFLAGS_ADD += -DAIMAKE_BUILDOS_linux
+if DARWIN
+libuncursed_CFLAGS_ADD += -DAIMAKE_BUILDOS_darwin
+endif
 
+endif
+
+libuncursed_la_SOURCES=libuncursed/src/libuncursed.c libuncursed/src/plugins.c
+libuncursed_la_CFLAGS= $(libuncursed_CFLAGS_ADD)
+libuncursed_la_LDFLAGS=-no-undefined
+libuncursed_la_includedir=$(top_srcdir)/libuncursed/include
+libuncursed_la_DEPENDENCIES=
+libuncursed_la_LIBADD=
+
+if WINDOWS
+libuncursed_la_DEPENDENCIES += libuncursed_wincon.la
+libuncursed_la_LIBADD += -luncursed_wincon
+
+noinst_LTLIBRARIES += libuncursed_wincon.la
+libuncursed_wincon_la_SOURCES=libuncursed/src/plugins/wincon.c libuncursed/src/plugins/wincon_cxx.cxx
+libuncursed_wincon_la_CFLAGS= $(libuncursed_CFLAGS_ADD)
+libuncursed_wincon_la_CXXFLAGS= $(libuncursed_CFLAGS_ADD)
+libuncursed_wincon_la_LDFLAGS=-avoid-version -no-undefined
+libuncursed_wincon_la_includedir=$(top_srcdir)/libuncursed/include
+else
+libuncursed_la_DEPENDENCIES += libuncursed_tty.la
+libuncursed_la_LIBADD += -ldl -luncursed_tty
+
+noinst_LTLIBRARIES += libuncursed_tty.la
 libuncursed_tty_la_SOURCES=libuncursed/src/plugins/tty.c libuncursed/src/plugins/tty_cxx.cxx
 libuncursed_tty_la_CFLAGS= $(libuncursed_CFLAGS_ADD)
 libuncursed_tty_la_CXXFLAGS= $(libuncursed_CFLAGS_ADD)
 libuncursed_tty_la_LDFLAGS=-avoid-version -no-undefined
 libuncursed_tty_la_includedir=$(top_srcdir)/libuncursed/include
-
-libuncursed_la_DEPENDENCIES=libuncursed_tty.la
-libuncursed_la_SOURCES=libuncursed/src/libuncursed.c libuncursed/src/plugins.c
-libuncursed_la_CFLAGS= $(libuncursed_CFLAGS_ADD)
-libuncursed_la_LIBADD=-ldl -luncursed_tty
-libuncursed_la_LDFLAGS=-no-undefined
-libuncursed_la_includedir=$(top_srcdir)/libuncursed/include
+endif
 
 if HAVE_TEST_UNCURSED
 noinst_PROGRAMS += test_uncursed
