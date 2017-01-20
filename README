@@ -39,6 +39,11 @@ For OSX the following should work:
 * 'make'
 * './heresyrl'
 
+for Windows the following should work:
+* install msys2, including the pacman tutorial
+* install gcc, automake, lua, sdl2, pkgconfig, libpng
+* ./autogen.sh && lt_cv_deplibs_check_method='pass_all' ./configure --enable-sdl2 && make clean && make
+
 
 Debug
 -----

@@ -73,13 +73,16 @@ if HAVE_SDL2
 lib_LTLIBRARIES += libuncursed_sdl.la
 libuncursed_sdl_la_DEPENDENCIES=libuncursed.la
 libuncursed_sdl_la_SOURCES=libuncursed/src/plugins/sdl.c libuncursed/src/plugins/sdl_cxx.cxx
-libuncursed_sdl_la_CFLAGS=$(sdl_CFLAGS) $(libpng_CFLAGS) $(libuncursed_CFLAGS_ADD)
-libuncursed_sdl_la_CXXFLAGS=$(sdl_CFLAGS) $(libpng_CFLAGS) $(libuncursed_CFLAGS_ADD)
+libuncursed_sdl_la_CFLAGS=$(sdl2_CFLAGS) $(libpng_CFLAGS) $(libuncursed_CFLAGS_ADD)
+libuncursed_sdl_la_CXXFLAGS=$(sdl2_CFLAGS) $(libpng_CFLAGS) $(libuncursed_CFLAGS_ADD)
 libuncursed_sdl_la_LDFLAGS=-avoid-version -no-undefined
 libuncursed_sdl_la_LIBADD=$(sdl2_LIBS) $(libpng_LIBS) -luncursed
 libuncursed_sdl_la_DATA=$(top_srcdir)/data/fonts/font14.png
 libuncursed_sdl_ladir=$(prefix)/@PACKAGE@/data/fonts
 libuncursed_sdl_la_includedir=$(top_srcdir)/libuncursed/include
+if WINDOWS
+libuncursed_sdl_la_LIBADD += -lWs2_32
+endif
 endif
 
 ###

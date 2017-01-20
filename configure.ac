@@ -132,10 +132,10 @@ AC_TYPE_UINT32_T
 AC_TYPE_UINT64_T
 AC_CHECK_TYPES([ptrdiff_t])
 
-AC_FUNC_MALLOC
+#AC_FUNC_MALLOC
 AC_FUNC_MBRTOWC
 AC_FUNC_REALLOC
-AC_CHECK_FUNCS([atexit memmove memset mkdir select setlocale strchr strdup strrchr strtol wcwidth strnlen])
+AC_CHECK_FUNCS([atexit memmove memset mkdir select setlocale strchr strdup strrchr strtol wcwidth strnlen malloc])
 
 CC_CHECK_CFLAG_APPEND([-Wall -Wextra -Wformat=2 -Wswitch-default])
 #CC_CHECK_CFLAG_APPEND([-Wcast-align -Wpointer-arith -Wbad-function-cast -Wstrict-prototypes -Winline -Wundef -Wnested-externs -Wcast-qual -Wshadow -Wwrite-strings  -Wunreachable-code -Wstrict-aliasing=2 -Wwrite-strings -Wno-aggressive-loop-optimizations -Wlogical-op -Wno-uninitialized -Wshadow])
