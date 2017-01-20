@@ -6,7 +6,7 @@ bin_PROGRAMS = heresyrl
 lib_LTLIBRARIES = libuncursed.la
 noinst_PROGRAMS =
 
-GIT_VERSION=$(shell cd $(top_srcdir) && git describe --abbrev=10 --dirty --always)
+GIT_VERSION=`cd $(top_srcdir) && git describe --abbrev=10 --dirty --always`
 
 ###
 
@@ -170,7 +170,7 @@ endif
 #-rm -f src/cmdline.h
 
 heresyrl_tmpdir=/tmp/heresyrl-dist/
-heresyrl_release=$(PACKAGE)-$(VERSION)-$(shell gcc -dumpmachine)
+heresyrl_release=$(PACKAGE)-$(VERSION)-`gcc -dumpmachine`
 dist-binary:
 	$(AM_V_GEN)rm heresyrl_release.tar.gz || :
 	$(AM_V_GEN)mkdir -p $(heresyrl_tmpdir)/$(heresyrl_release)
