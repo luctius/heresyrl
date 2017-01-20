@@ -16,14 +16,6 @@
 extern "C" {
 #endif
 
-#ifndef AIMAKE_EXPORT
-# define AIMAKE_EXPORT(x)   x
-#endif
-
-#ifndef AIMAKE_IMPORT
-# define AIMAKE_IMPORT(x)   x
-#endif
-
 enum uncursed_hook_type {
     uncursed_hook_type_input,       /* sends input, receives output */
     uncursed_hook_type_broadcast,   /* receives output and input */

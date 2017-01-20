@@ -24,11 +24,41 @@ AC_PROG_MKDIR_P
 AC_PROG_CXX
 AM_PROG_AR
 AC_PROG_LIBTOOL
-LT_INIT([dlopen])
 #LT_CONFIG_LTDL_DIR([libltdl])
 #LTDL_INIT([nonrecursive])
 
 AC_DEFINE([_GNU_SOURCE], 1, [Use GNU extensions])
+
+# AC_CANONICAL_HOST is needed to access the 'host_os' variable
+AC_CANONICAL_HOST
+
+build_linux=no
+build_windows=no
+build_mac=no
+
+# Detect the target system
+case "${host_os}" in
+    linux*)
+        build_linux=yes
+        LT_INIT([dlopen])
+        ;;
+    cygwin*|mingw*)
+        build_windows=yes
+        LT_INIT([win32-dll])
+        ;;
+    darwin*)
+        build_mac=yes
+        LT_INIT([dlopen])
+        ;;
+    *)
+        AC_MSG_ERROR(["OS $host_os is not supported"])
+        ;;
+esac
+
+# Pass the conditionals to automake
+AM_CONDITIONAL([LINUX], [test "$build_linux" = "yes"])
+AM_CONDITIONAL([WINDOWS], [test "$build_windows" = "yes"])
+AM_CONDITIONAL([OSX], [test "$build_mac" = "yes"])
 
 # Checks for libraries.
 AC_CHECK_LIB([m], [abs])
@@ -107,9 +137,10 @@ AC_FUNC_MBRTOWC
 AC_FUNC_REALLOC
 AC_CHECK_FUNCS([atexit memmove memset mkdir select setlocale strchr strdup strrchr strtol wcwidth strnlen])
 
-CC_CHECK_CFLAG_APPEND([-Wall -Wextra -Wformat=2 -Wswitch-default -Wcast-align -Wpointer-arith -Wbad-function-cast -Wstrict-prototypes -Winline -Wundef -Wnested-externs -Wcast-qual -Wshadow -Wwrite-strings  -Wunreachable-code -Wstrict-aliasing=2 -Wwrite-strings -Wno-aggressive-loop-optimizations -Wlogical-op -Wno-uninitialized -Wshadow])
-CC_CHECK_CFLAG_APPEND([-fsanitize=address -fno-omit-frame-pointer])
-CC_CHECK_CFLAG_APPEND([-fsanitize=undefined -fsanitize=shift -fsanitize=integer-divide-by-zero -fsanitize=unreachable -fsanitize=vla-bound -fsanitize=null -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=alignment -fsanitize=object-size -fsanitize=enum -fsanitize=bool])
+CC_CHECK_CFLAG_APPEND([-Wall -Wextra -Wformat=2 -Wswitch-default])
+CC_CHECK_CFLAG_APPEND([-Wcast-align -Wpointer-arith -Wbad-function-cast -Wstrict-prototypes -Winline -Wundef -Wnested-externs -Wcast-qual -Wshadow -Wwrite-strings  -Wunreachable-code -Wstrict-aliasing=2 -Wwrite-strings -Wno-aggressive-loop-optimizations -Wlogical-op -Wno-uninitialized -Wshadow])
+CC_CHECK_CFLAG_APPEND([-fsanitize=undefined -fsanitize=address -fno-omit-frame-pointer])
+CC_CHECK_CFLAG_APPEND([-fsanitize=shift -fsanitize=integer-divide-by-zero -fsanitize=unreachable -fsanitize=vla-bound -fsanitize=null -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=alignment -fsanitize=object-size -fsanitize=enum -fsanitize=bool])
 
 
 AC_CONFIG_TESTDIR(tests)

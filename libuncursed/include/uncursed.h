@@ -16,9 +16,6 @@
 #include <stdarg.h>
 #include <wchar.h>
 
-# define AIMAKE_EXPORT(x)   x
-# define AIMAKE_IMPORT(x)   x
-
 #ifdef UNCURSED_MAIN_PROGRAM
 # define EI(x) AIMAKE_EXPORT(x)
 #else
