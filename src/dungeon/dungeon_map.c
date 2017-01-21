@@ -65,7 +65,6 @@ static struct dm_map *dm_alloc_map(int x_sz, int y_sz) {
     int sz = sizeof(struct dm_map) + ( (x_sz) * y_sz * sizeof(*(((struct dm_map*)0)->map)) ) ;
     struct dm_map *map = calloc(sz, 1);
     if (map == NULL) return NULL;
-    memset(map, 0x0, sz);
 
     map->map_pre = MAP_PRE_CHECK;
     map->map_post = MAP_POST_CHECK;
@@ -111,7 +110,7 @@ static bool dm_clear_map_unsafe(struct dm_map *map) {
             dm_get_map_me(&c,map)->discovered = false;
             dm_get_map_me(&c,map)->light_level = 0;
             dm_get_map_me(&c,map)->monster = NULL;
-            dm_get_map_me(&c,map)->icon_override = -1;
+            dm_get_map_me(&c,map)->icon_override = 0;
             dm_get_map_me(&c,map)->icon_attr_override = -1;
             dm_get_map_me(&c,map)->test_var = 0;
 
@@ -408,7 +407,7 @@ bool dm_clear_map_visibility(struct dm_map *map, coord_t *start, coord_t *end) {
             me->visible = false;
             me->light_level = 0;
             me->test_var = 0;
-            me->icon_override = -1;
+            me->icon_override = 0;
             me->icon_attr_override = -1;
         }
     }

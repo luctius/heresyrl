@@ -187,7 +187,7 @@ static void mapwin_display_map_noref(struct dm_map *map, coord_t *player) {
             struct dm_map_entity *me = dm_get_map_me(&map_c, map);
             struct tl_tile *tile = me->tile;
 
-            if ( (me->visible == true) || (me->discovered == true) || (map_see == true) || me->icon_override != -1) {
+            if ( (me->visible == true) || (me->discovered == true) || (map_see == true) || me->icon_override != 0) {
                 int attr_mod = TERM_COLOUR_L_DARK;
                 icon_t icon = tile->icon;
 
@@ -230,7 +230,7 @@ static void mapwin_display_map_noref(struct dm_map *map, coord_t *player) {
                     }
                 }
 
-                if (me->icon_override != -1) {
+                if (me->icon_override != 0) {
                     icon = me->icon_override;
                     if (me->icon_attr_override != -1) {
                         attr_mod = me->icon_attr_override;
@@ -244,7 +244,7 @@ static void mapwin_display_map_noref(struct dm_map *map, coord_t *player) {
                     }
                 }
 
-                wchar_t wb[2] = { icon, 0 };
+                wchar_t wb[] = { icon, 0 };
                 wattron(map_win->win, get_colour(attr_mod) );
                 mvwaddwstr(map_win->win, yi, xi, wb);
                 wattroff(map_win->win, get_colour(attr_mod) );
