@@ -10,11 +10,8 @@ AC_CONFIG_MACRO_DIR([m4])
 
 # Checks for programs.
 AC_PROG_MAKE_SET
-#AC_PROG_CC
 AC_PROG_CC_C99
 AM_PROG_CC_C_O
-#AC_PROG_CXX
-#AC_PROG_AWK
 AC_PROG_SED
 AC_PROG_CPP
 AC_PROG_INSTALL
@@ -25,8 +22,6 @@ AC_PATH_PROGS([PKGCONFIG], [pkgconfig], [], [AC_MSG_ERROR([pkgconfig not found!]
 AC_PROG_CXX
 AM_PROG_AR
 AC_PROG_LIBTOOL
-#LT_CONFIG_LTDL_DIR([libltdl])
-#LTDL_INIT([nonrecursive])
 
 # AC_CANONICAL_HOST is needed to access the 'host_os' variable
 AC_CANONICAL_HOST
@@ -143,10 +138,9 @@ AC_FUNC_REALLOC
 AC_CHECK_FUNCS([atexit memmove memset mkdir select setlocale strchr strdup strrchr strtol wcwidth strnlen malloc])
 
 CC_CHECK_CFLAG_APPEND([-Wall -Wextra -Wformat=2 -Wswitch-default])
-#CC_CHECK_CFLAG_APPEND([-Wcast-align -Wpointer-arith -Wbad-function-cast -Wstrict-prototypes -Winline -Wundef -Wnested-externs -Wcast-qual -Wshadow -Wwrite-strings  -Wunreachable-code -Wstrict-aliasing=2 -Wwrite-strings -Wno-aggressive-loop-optimizations -Wlogical-op -Wno-uninitialized -Wshadow])
+CC_CHECK_CFLAG_APPEND([-Wcast-align -Wpointer-arith -Wbad-function-cast -Wstrict-prototypes -Winline -Wundef -Wnested-externs -Wcast-qual -Wshadow -Wwrite-strings  -Wunreachable-code -Wstrict-aliasing=2 -Wwrite-strings -Wno-aggressive-loop-optimizations -Wlogical-op -Wno-uninitialized -Wshadow])
 #CC_CHECK_CFLAG_APPEND([-fsanitize=undefined -fsanitize=address -fno-omit-frame-pointer])
 #CC_CHECK_CFLAG_APPEND([-fsanitize=shift -fsanitize=integer-divide-by-zero -fsanitize=unreachable -fsanitize=vla-bound -fsanitize=null -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=alignment -fsanitize=object-size -fsanitize=enum -fsanitize=bool])
-
 
 AC_CONFIG_TESTDIR(tests)
 AC_CONFIG_FILES(tests/atlocal)
