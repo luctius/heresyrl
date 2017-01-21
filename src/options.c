@@ -195,6 +195,6 @@ void opt_parse_options(struct gengetopt_args_info *args_info) {
     if(file_exist(DATA_PATH "/fonts/font14.png") ) {
         options.data_path = DATA_PATH;
     } else {
-        options.data_path = ".";
+        options.data_path = "./data";
     }
 }
