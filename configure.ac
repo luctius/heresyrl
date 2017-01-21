@@ -8,7 +8,18 @@ AM_SILENT_RULES([yes])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 
+# AC_CANONICAL_HOST is needed to access the 'host_os' variable
+AC_CANONICAL_HOST
+case "${host_os}" in
+    *cygwin*|*mingw*)
+	#libtool refuses to link sdl correctly, probably because of dynamic/static libraries together.
+	# lets try it anyway.
+	export lt_cv_deplibs_check_method=pass_all
+	;;
+esac
+
 # Checks for programs.
+AM_PROG_AR
 AC_PROG_MAKE_SET
 AC_PROG_CC_C99
 AM_PROG_CC_C_O
@@ -20,11 +31,7 @@ AC_PROG_MKDIR_P
 PKG_PROG_PKG_CONFIG
 
 AC_PROG_CXX
-AM_PROG_AR
 AC_PROG_LIBTOOL
-
-# AC_CANONICAL_HOST is needed to access the 'host_os' variable
-AC_CANONICAL_HOST
 
 build_linux=no
 build_windows=no
@@ -38,8 +45,9 @@ case "${host_os}" in
         LT_INIT([dlopen])
         AC_MSG_RESULT([linux])
         ;;
-    cygwin*|mingw*)
+    *cygwin*|*mingw*)
         build_windows=yes
+
         LT_INIT([win32-dll])
         AC_MSG_RESULT([win32])
         ;;
