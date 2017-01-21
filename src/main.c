@@ -120,7 +120,14 @@ int main(int argc, char *argv[]) {
 
     int cols, lines;
     initscr(); //  Start curses mode
-    set_faketerm_font_file("./data/fonts/font14.png");
+
+    if (options.data_path != NULL) {
+        char buf[options.path_max];
+        const char *font_file = "/fonts/font14.png";
+        sprintf(buf, "%s%s", options.data_path, font_file);
+        buf[options.path_max-1] = 0;
+        set_faketerm_font_file(buf);
+    }
     start_color();
     getmaxyx(stdscr, lines, cols);
     ui_create(cols, lines);

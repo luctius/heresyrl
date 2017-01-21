@@ -52,6 +52,9 @@ struct opt_options {
     enum homeworld_ids char_hw;
     enum background_ids char_bg;
     enum role_ids char_role;
+
+    const char *data_path;
+    const int path_max;
 };
 
 extern struct opt_options options;

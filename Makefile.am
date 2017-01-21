@@ -198,7 +198,7 @@ else
 heresyrl_SOURCES += src/wizard/wizard_mode_empty.c
 endif
 
-heresyrl_CFLAGS = $(lua_CFLAGS)  -DGIT_VERSION=\"$(GIT_VERSION)\" $(AM_CFLAGS) $(libuncursed_CFLAGS_ADD)
+heresyrl_CFLAGS = $(lua_CFLAGS)  -DGIT_VERSION=\"$(GIT_VERSION)\" $(AM_CFLAGS) $(libuncursed_CFLAGS_ADD) -DDATA_PATH=\"$(prefix)/@PACKAGE@\/data\"
 heresyrl_LDFLAGS = -no-install
 heresyrl_LDADD = $(INTI_LIBS) -lm $(lua_LIBS) $(LIBS) -luncursed
 heresyrl_DEPENDENCIES=libuncursed.la

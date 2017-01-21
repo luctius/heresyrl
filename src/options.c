@@ -63,9 +63,14 @@ struct opt_options options = {
     .char_hw        = CR_HWID_NONE,
     .char_bg        = CR_BCKGRNDID_NONE,
     .char_role      = CR_ROLEID_NONE,
+
+    .path_max       = PATH_MAX-1,
 };
 
-static const int path_max = PATH_MAX -1;
+static bool file_exist(const char *filename) {
+    struct stat   buffer;
+    return (stat (filename, &buffer) == 0);
+}
 
 void opt_exit(void) {
     free(options.log_file_name);
@@ -99,37 +104,37 @@ void opt_parse_options(struct gengetopt_args_info *args_info) {
     options.play_stop       = args_info->pb_stop_arg;
 
     if (args_info->log_file_given == false) {
-        char *log_file = calloc(PATH_MAX, sizeof(char) );
+        char *log_file = calloc(options.path_max, sizeof(char) );
         bool wlogf = false;
-        
+
         if (homedir != NULL) {
-            snprintf(log_file, path_max, "%s/.%s", homedir, PACKAGE_NAME);
+            snprintf(log_file, options.path_max, "%s/.%s", homedir, PACKAGE_NAME);
             struct stat st;
-            if ( (stat(log_file,&st) == 0) || (hrl_mkdir(log_file, 0777) >= 0) ) {
-                snprintf(log_file, path_max, "%s/.%s/%s.log", homedir, PACKAGE_NAME, PACKAGE_NAME);
+            if ( (stat(log_file,&st) == 0) || (hrl_mkdir(log_file, 0700) >= 0) ) {
+                snprintf(log_file, options.path_max, "%s/.%s/%s.log", homedir, PACKAGE_NAME, PACKAGE_NAME);
                 wlogf = true;
             }
         }
 
-        if (!wlogf) snprintf(log_file, path_max, "%s.log", PACKAGE_NAME);
+        if (!wlogf) snprintf(log_file, options.path_max, "%s.log", PACKAGE_NAME);
         options.log_file_name = log_file;
     }
 
     if (args_info->save_file_given == false) {
-        char *save_file = calloc(PATH_MAX, sizeof(char) );
+        char *save_file = calloc(options.path_max, sizeof(char) );
         bool wsavef = false;
 
         if (homedir != NULL) {
-            snprintf(save_file, path_max, "%s/.%s", homedir, PACKAGE_NAME);
+            snprintf(save_file, options.path_max, "%s/.%s", homedir, PACKAGE_NAME);
 
             struct stat st;
-            if ( (stat(save_file,&st) == 0) || (hrl_mkdir(save_file, 0777) >= 0) ) {
-                snprintf(save_file, path_max, "%s/.%s/%s.save", homedir, PACKAGE_NAME, PACKAGE_NAME);
+            if ( (stat(save_file,&st) == 0) || (hrl_mkdir(save_file, 0700) >= 0) ) {
+                snprintf(save_file, options.path_max, "%s/.%s/%s.save", homedir, PACKAGE_NAME, PACKAGE_NAME);
                 wsavef = true;
             }
         }
-        
-        if (!wsavef) snprintf(save_file, path_max, "%s.save", PACKAGE_NAME);
+
+        if (!wsavef) snprintf(save_file, options.path_max, "%s.save", PACKAGE_NAME);
         options.save_file_name = save_file;
     }
     if (args_info->load_file_given == true) {
@@ -185,4 +190,11 @@ void opt_parse_options(struct gengetopt_args_info *args_info) {
     }
 
     if (options.play_delay == 0) options.refresh = false;
+
+
+    if(file_exist(DATA_PATH "/fonts/font14.png") ) {
+        options.data_path = DATA_PATH;
+    } else {
+        options.data_path = ".";
+    }
 }
