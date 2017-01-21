@@ -910,7 +910,7 @@ add_wch_core(WINDOW * win, const cchar_t *ch)
 
     } else if (ch->chars[0] < 32 ||     /* nonprintable characters */
                (ch->chars[0] >= 127 && ch->chars[0] < 160)) {
-        switch (add_wch_core(win, &(cchar_t){ch->attr, {'^'}})) {
+        switch (add_wch_core(win, &(cchar_t){ch->attr, {'^'}, 0, {0} })) {
         case ERR:
             return ERR;
         case SCREND:
@@ -919,7 +919,7 @@ add_wch_core(WINDOW * win, const cchar_t *ch)
             break;
         }
 
-        return add_wch_core(win, &(cchar_t){ch->attr, {ch->chars[0] + 64}});
+        return add_wch_core(win, &(cchar_t){ch->attr, {ch->chars[0] + 64}, 0, {0} });
     } else {
         /* TODO: Detect whether ch contains only combining and zero-width
            characters, and combine them into the current character rather than
@@ -966,14 +966,14 @@ echo_wchar, (const cchar_t *ch), (ch))
 }
 
 static const cchar_t WACS[] = {
-    {0, {0x25ae, 0}}, {0, {0x2592, 0}}, {0, {0x2534, 0}}, {0, {0x00b7, 0}},
-    {0, {0x2592, 0}}, {0, {0x2193, 0}}, {0, {0x00b0, 0}}, {0, {0x25c6, 0}},
-    {0, {0x2265, 0}}, {0, {0x2500, 0}}, {0, {0x2603, 0}}, {0, {0x2190, 0}},
-    {0, {0x2264, 0}}, {0, {0x2514, 0}}, {0, {0x2518, 0}}, {0, {0x251c, 0}},
-    {0, {0x2260, 0}}, {0, {0x03c0, 0}}, {0, {0x00b1, 0}}, {0, {0x253c, 0}},
-    {0, {0x2192, 0}}, {0, {0x2524, 0}}, {0, {0x23ba, 0}}, {0, {0x23bb, 0}},
-    {0, {0x23bc, 0}}, {0, {0x23bd, 0}}, {0, {0x00a3, 0}}, {0, {0x252c, 0}},
-    {0, {0x2191, 0}}, {0, {0x250c, 0}}, {0, {0x2510, 0}}, {0, {0x2502, 0}}
+    {0, {0x25ae, 0}, 0, {0} }, {0, {0x2592, 0}, 0, {0} }, {0, {0x2534, 0}, 0, {0} }, {0, {0x00b7, 0}, 0, {0} },
+    {0, {0x2592, 0}, 0, {0} }, {0, {0x2193, 0}, 0, {0} }, {0, {0x00b0, 0}, 0, {0} }, {0, {0x25c6, 0}, 0, {0} },
+    {0, {0x2265, 0}, 0, {0} }, {0, {0x2500, 0}, 0, {0} }, {0, {0x2603, 0}, 0, {0} }, {0, {0x2190, 0}, 0, {0} },
+    {0, {0x2264, 0}, 0, {0} }, {0, {0x2514, 0}, 0, {0} }, {0, {0x2518, 0}, 0, {0} }, {0, {0x251c, 0}, 0, {0} },
+    {0, {0x2260, 0}, 0, {0} }, {0, {0x03c0, 0}, 0, {0} }, {0, {0x00b1, 0}, 0, {0} }, {0, {0x253c, 0}, 0, {0} },
+    {0, {0x2192, 0}, 0, {0} }, {0, {0x2524, 0}, 0, {0} }, {0, {0x23ba, 0}, 0, {0} }, {0, {0x23bb, 0}, 0, {0} },
+    {0, {0x23bc, 0}, 0, {0} }, {0, {0x23bd, 0}, 0, {0} }, {0, {0x00a3, 0}, 0, {0} }, {0, {0x252c, 0}, 0, {0} },
+    {0, {0x2191, 0}, 0, {0} }, {0, {0x250c, 0}, 0, {0} }, {0, {0x2510, 0}, 0, {0} }, {0, {0x2502, 0}, 0, {0} }
 };
 
 const uncursed_cchar_tp WACS_BLOCK = WACS + 0;        /* ▮ */
@@ -1010,9 +1010,9 @@ const uncursed_cchar_tp WACS_URCORNER = WACS + 30;    /* ┐ */
 const uncursed_cchar_tp WACS_VLINE = WACS + 31;       /* │ */
 
 static const cchar_t WACS_T[] = {
-    {0, {0x250f, 0}}, {0, {0x2517, 0}}, {0, {0x2513, 0}}, {0, {0x251b, 0}},
-    {0, {0x2523, 0}}, {0, {0x252b, 0}}, {0, {0x253b, 0}}, {0, {0x2533, 0}},
-    {0, {0x2501, 0}}, {0, {0x2503, 0}}, {0, {0x254b, 0}}
+    {0, {0x250f, 0}, 0, {0} }, {0, {0x2517, 0}, 0, {0} }, {0, {0x2513, 0}, 0, {0} }, {0, {0x251b, 0}, 0, {0} },
+    {0, {0x2523, 0}, 0, {0} }, {0, {0x252b, 0}, 0, {0} }, {0, {0x253b, 0}, 0, {0} }, {0, {0x2533, 0}, 0, {0} },
+    {0, {0x2501, 0}, 0, {0} }, {0, {0x2503, 0}, 0, {0} }, {0, {0x254b, 0}, 0, {0} }
 };
 
 const uncursed_cchar_tp WACS_T_ULCORNER = WACS_T + 0; /* ┏ */
@@ -1028,9 +1028,9 @@ const uncursed_cchar_tp WACS_T_VLINE = WACS_T + 9;    /* ┃ */
 const uncursed_cchar_tp WACS_T_PLUS = WACS_T + 10;    /* ╋ */
 
 static const cchar_t WACS_D[] = {
-    {0, {0x2554, 0}}, {0, {0x255a, 0}}, {0, {0x2557, 0}}, {0, {0x255d, 0}},
-    {0, {0x2560, 0}}, {0, {0x2563, 0}}, {0, {0x2569, 0}}, {0, {0x2566, 0}},
-    {0, {0x2550, 0}}, {0, {0x2551, 0}}, {0, {0x256c, 0}}
+    {0, {0x2554, 0}, 0, {0} }, {0, {0x255a, 0}, 0, {0} }, {0, {0x2557, 0}, 0, {0} }, {0, {0x255d, 0}, 0, {0} },
+    {0, {0x2560, 0}, 0, {0} }, {0, {0x2563, 0}, 0, {0} }, {0, {0x2569, 0}, 0, {0} }, {0, {0x2566, 0}, 0, {0} },
+    {0, {0x2550, 0}, 0, {0} }, {0, {0x2551, 0}, 0, {0} }, {0, {0x256c, 0}, 0, {0} }
 };
 
 const uncursed_cchar_tp WACS_D_ULCORNER = WACS_D + 0; /* ╔ */
@@ -1109,7 +1109,7 @@ addch, (const chtype ch), (ch))
 {
     cchar_t cchar = {
         win->current_attr | (ch & ~(A_CHARTEXT)),
-        {cp437[ch & A_CHARTEXT], 0}
+        {cp437[ch & A_CHARTEXT], 0}, 0, {0}
     };
 
     return wadd_wch(win, &cchar);
@@ -1120,7 +1120,7 @@ echochar, (const chtype ch), (ch))
 {
     cchar_t cchar = {
         win->current_attr | (ch & ~(A_CHARTEXT)),
-        {cp437[ch & A_CHARTEXT], 0}
+        {cp437[ch & A_CHARTEXT], 0}, 0, {0}
     };
 
     return wecho_wchar(win, &cchar);
@@ -1163,7 +1163,7 @@ UNCURSED_ANDMVWINDOWDEF(int,
 addstr, (const char *s), (s))
 {
     while (*s)
-        switch (add_wch_core(win, &(cchar_t){0, {*s++}})) {
+        switch (add_wch_core(win, &(cchar_t){0, {*s++}, 0, {0} })) {
         case ERR:
             return ERR;
         case SCREND:
@@ -1179,7 +1179,7 @@ UNCURSED_ANDMVWINDOWDEF(int,
 addnstr, (const char *s, int n), (s, n))
 {
     while (*s && n-- != 0) {
-        switch (add_wch_core(win, &(cchar_t){0, {*s++}})) {
+        switch (add_wch_core(win, &(cchar_t){0, {*s++}, 0, {0} })) {
         case ERR:
             return ERR;
         case SCREND:
@@ -1202,7 +1202,7 @@ UNCURSED_ANDMVWINDOWDEF(int,
 addwstr, (const wchar_t * s), (s))
 {
     while (*s) {
-        cchar_t c = { 0, {*s++, 0} };
+        cchar_t c = { 0, {*s++, 0}, 0, {0} };
 
         if (wadd_wch(win, &c) == ERR)
             return ERR;
@@ -1214,7 +1214,7 @@ UNCURSED_ANDMVWINDOWDEF(int,
 addwnstr, (const wchar_t * s, int n), (s, n))
 {
     while (*s && n-- != 0) {
-        cchar_t c = { 0, {*s++, 0} };
+        cchar_t c = { 0, {*s++, 0}, 0, {0} };
 
         if (wadd_wch(win, &c) == ERR)
             return ERR;
