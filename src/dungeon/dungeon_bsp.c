@@ -78,6 +78,7 @@ static bool is_point_in_area(struct bsp_area *a, coord_t *b) {
 static void spread_ip_strength(struct bsp_area *a, int str) {
     if (str <= 0) return;
 
+    lg_debug("\tspreaing influence: %d (%d,%d,%d,%d)", str, a->ul.x, a->ul.y, a->ul.x + a->size.x, a->ul.y + a->size.y);
     if (a->extra_cost == 0) {
         a->extra_cost += str;
         lg_debug("\t\tneighbour extra cost: %d (%d,%d,%d,%d)", a->extra_cost, a->ul.x, a->ul.y, a->ul.x + a->size.x, a->ul.y + a->size.y);
@@ -88,13 +89,15 @@ static void spread_ip_strength(struct bsp_area *a, int str) {
 }
 
 static void add_nghbr(struct bsp_area *a, struct bsp_area *b) {
-    lg_debug("\t\tneighbours: (%d,%d,%d,%d) & (%d,%d,%d,%d)", a->ul.x, a->ul.y, a->ul.x + a->size.x, a->ul.y + a->size.y, b->ul.x, b->ul.y, b->ul.x + b->size.x, b->ul.y + b->size.y);
     if (a->nr_nghbrs < NEIGHBOUR_MAX) {
-        a->neighbours[a->nr_nghbrs++] = b;
+        a->neighbours[a->nr_nghbrs] = b;
+        a->nr_nghbrs++;
     }
     if (b->nr_nghbrs < NEIGHBOUR_MAX) {
-        b->neighbours[b->nr_nghbrs++] = a;
+        b->neighbours[b->nr_nghbrs] = a;
+        b->nr_nghbrs++;
     }
+    lg_debug("\tnew neighbour: (%d,%d,%d,%d)", b->ul.x, b->ul.y, b->ul.x + b->size.x, b->ul.y + b->size.y);
 }
 
 static int point_to_area_idx(struct bsp_area *list, int list_len, coord_t *c, int skip) {
@@ -104,6 +107,7 @@ static int point_to_area_idx(struct bsp_area *list, int list_len, coord_t *c, in
         //if (bs->split == true) continue;
         if (is_point_in_area(bs, c) == true) return i;
     }
+    lg_debug("could not find (%d,%d) in area list with offset %d(/%d)", c->x, c->y, skip, list_len);
     return -1;
 }
 
@@ -122,27 +126,27 @@ static coord_t nghbr_entry(struct bsp_area *a, struct bsp_area *b, struct random
     coord_t entry = cd_create(0,0);
 
     if (a->ul.x == b->ul.x + b->size.x) {
-        int range = a->size.y -1;
-        int mod = (random_int32(r) % range) +1;
+        int range = a->size.y -3;
+        int mod = (random_int32(r) % range) +2;
         entry = a->ul;
         entry.y += mod;
     }
     else if (a->ul.y == b->ul.y + b->size.y) {
-        int range = a->size.x -1;
-        int mod = (random_int32(r) % range) +1;
+        int range = a->size.x -3;
+        int mod = (random_int32(r) % range) +2;
         entry = a->ul;
         entry.x += mod;
     }
     else if (a->ul.x + a->size.x == b->ul.x) {
-        int range = a->size.y -1;
-        int mod = (random_int32(r) % range) +1;
+        int range = a->size.y -3;
+        int mod = (random_int32(r) % range) +2;
         entry = a->ul;
         entry.x += a->size.x;
         entry.y += mod;
     }
     else if (a->ul.y + a->size.y == b->ul.y) {
-        int range = a->size.x -1;
-        int mod = (random_int32(r) % range) +1;
+        int range = a->size.x -3;
+        int mod = (random_int32(r) % range) +2;
         entry.y += a->size.y;
         entry.x += mod;
     }
@@ -272,35 +276,33 @@ bool dm_generate_map_bsp(struct dm_map *map, struct random *random, coord_t *ul,
 
         /* create neighbour lists */
         for (unsigned int a = 1; a < alist_sz; a++) {
+            struct bsp_area *bs_a = &area_list[a];
+            if (bs_a->level != l + 1) continue;
+
+            lg_debug("adding neighbours to: (%d,%d,%d,%d)", bs_a->ul.x, bs_a->ul.y, bs_a->ul.x + bs_a->size.x, bs_a->ul.y + bs_a->size.y);
             for (unsigned int b = 1; b < alist_sz; b++) {
                 if (a == b) continue;
-                struct bsp_area *bs_a = &area_list[a];
                 struct bsp_area *bs_b = &area_list[b];
-                if (bs_a->level != l + 1) continue;
-                if (bs_b->split != l + 1) continue;
+                if (bs_b->level != l + 1) continue;
 
                 bool found = false;
                 if (bs_a->ul.x == bs_b->ul.x + bs_b->size.x) {
-                    lg_debug("\ttest_lines 1: (%d,%d,%d,%d) & (%d,%d,%d,%d)",
-                            bs_a->ul.x, bs_a->ul.y, bs_a->ul.x + bs_a->size.x, bs_a->ul.y + bs_a->size.y,
+                    lg_debug("\ttest_lines 1: vs (%d,%d,%d,%d)",
                             bs_b->ul.x, bs_b->ul.y, bs_b->ul.x + bs_b->size.x, bs_b->ul.y + bs_b->size.y);
                     found |= test_lines(bs_a->ul.y, bs_a->ul.y + bs_a->size.y, bs_b->ul.y, bs_b->ul.y + bs_b->size.y);
                 }
                 else if (bs_a->ul.x + bs_a->size.x == bs_b->ul.x) {
-                    lg_debug("\ttest_lines 2: (%d,%d,%d,%d) & (%d,%d,%d,%d)",
-                            bs_a->ul.x, bs_a->ul.y, bs_a->ul.x + bs_a->size.x, bs_a->ul.y + bs_a->size.y,
+                    lg_debug("\ttest_lines 2: vs (%d,%d,%d,%d)",
                             bs_b->ul.x, bs_b->ul.y, bs_b->ul.x + bs_b->size.x, bs_b->ul.y + bs_b->size.y);
                     found |= test_lines(bs_a->ul.y, bs_a->ul.y + bs_a->size.y, bs_b->ul.y, bs_b->ul.y + bs_b->size.y);
                 }
                 else if (bs_a->ul.y == bs_b->ul.y +bs_b->size.y) {
-                    lg_debug("\ttest_lines 3: (%d,%d,%d,%d) & (%d,%d,%d,%d)",
-                            bs_a->ul.x, bs_a->ul.y, bs_a->ul.x + bs_a->size.x, bs_a->ul.y + bs_a->size.y,
+                    lg_debug("\ttest_lines 3: vs (%d,%d,%d,%d)",
                             bs_b->ul.x, bs_b->ul.y, bs_b->ul.x + bs_b->size.x, bs_b->ul.y + bs_b->size.y);
                     found |= test_lines(bs_a->ul.x, bs_a->ul.x + bs_a->size.x, bs_b->ul.x, bs_b->ul.x + bs_b->size.y);
                 }
                 else if (bs_a->ul.y +bs_a->size.y == bs_b->ul.y) {
-                    lg_debug("\ttest_lines 4: (%d,%d,%d,%d) & (%d,%d,%d,%d)",
-                            bs_a->ul.x, bs_a->ul.y, bs_a->ul.x + bs_a->size.x, bs_a->ul.y + bs_a->size.y,
+                    lg_debug("\ttest_lines 4: vs (%d,%d,%d,%d)",
                             bs_b->ul.x, bs_b->ul.y, bs_b->ul.x + bs_b->size.x, bs_b->ul.y + bs_b->size.y);
                     found |= test_lines(bs_a->ul.x, bs_a->ul.x + bs_a->size.x, bs_b->ul.x, bs_b->ul.x + bs_b->size.x);
                 }
@@ -325,7 +327,7 @@ bool dm_generate_map_bsp(struct dm_map *map, struct random *random, coord_t *ul,
             if (i == 0) {
                 ip = cd_create( (random_int32(random) % (size.x / 5) ) + ( (size.x / 2) - size.x / 5 ),
                                         (random_int32(random) % (size.y / 5) ) + ( (size.y / 2) - size.y / 5 ) );
-                strength = 4;
+                strength = 3;
             }
 
             /*
@@ -334,7 +336,9 @@ bool dm_generate_map_bsp(struct dm_map *map, struct random *random, coord_t *ul,
             *    for ever neighbour neighbour add cost -1
             *      ...
             */
-            struct bsp_area *bs = &area_list[point_to_area_idx(area_list, alist_sz, &ip, j)];
+            int aidx = point_to_area_idx(area_list, alist_sz, &ip, j);
+            if (aidx < 0) continue;
+            struct bsp_area *bs = &area_list[aidx];
             if (bs == NULL) continue;
             if (bs->split == true) continue;
             lg_debug("neighbour ip: %d (%d,%d,%d,%d)", strength, bs->ul.x, bs->ul.y, bs->ul.x + bs->size.x, bs->ul.y + bs->size.y);
@@ -503,7 +507,7 @@ bool dm_generate_map_bsp(struct dm_map *map, struct random *random, coord_t *ul,
     map->stair_up = start;
     map->stair_up = end;
 
-    free(pf_ctx);
+    pf_exit(pf_ctx);
     free(coord_lst);
     return true;
 }
