@@ -60,7 +60,7 @@ bool ma_do_move(struct msr_monster *monster, coord_t *pos) {
         struct itm_item *item = NULL;
 
         while ( (item = inv_get_next_item(me->inventory, item) ) != NULL) {
-            You(monster, "see %s. ", item->ld_name);
+            You(monster, "see %ls. ", item->ld_name);
         }
 
         msr_change_energy(monster, -( ( (me->tile->movement_cost * MSR_ACTION_MOVE) / TILE_COST_DIV) / speed) );
@@ -142,8 +142,8 @@ bool ma_do_pickup(struct msr_monster *monster, struct itm_item *items[], int nr_
                     if (msr_give_item(monster, items[i]) == true) {
                         msr_change_energy(monster, -(MSR_ACTION_PICKUP) );
 
-                        You(monster, "picked up %s.", items[i]->ld_name);
-                        Monster(monster, "picked up %s.", items[i]->ld_name);
+                        You(monster, "picked up %ls.", items[i]->ld_name);
+                        Monster(monster, "picked up %ls.", items[i]->ld_name);
                     }
                     else itm_destroy(items[i]);
                 }
@@ -173,8 +173,8 @@ bool ma_do_drop(struct msr_monster *monster, struct itm_item *items[], int nr_it
                     if (monster->wpn_sel == MSR_WEAPON_SELECT_BOTH_HAND) {
                         hand_string = "hands";
                     }
-                    You(monster, "let %s fall from your %s.", items[i]->ld_name, hand_string);
-                    Monster(monster, "dropped %s from %s %s.", items[i]->ld_name, msr_gender_name(monster, true), hand_string);
+                    You(monster, "let %ls fall from your %s.", items[i]->ld_name, hand_string);
+                    Monster(monster, "dropped %ls from %ls %s.", items[i]->ld_name, msr_gender_name(monster, true), hand_string);
                 }
             }
 
@@ -183,8 +183,8 @@ bool ma_do_drop(struct msr_monster *monster, struct itm_item *items[], int nr_it
                     if (itm_insert_item(items[i], gbl_game->current_map, &monster->pos) == true) {
                         msr_change_energy(monster, -(MSR_ACTION_DROP) );
 
-                        You(monster,"dropped %s.", items[i]->ld_name);
-                        Monster(monster, "dropped %s.", items[i]->ld_name);
+                        You(monster,"dropped %ls.", items[i]->ld_name);
+                        Monster(monster, "dropped %ls.", items[i]->ld_name);
                     }
                 }
             }
@@ -364,17 +364,17 @@ bool ma_do_reload_carried(struct msr_monster *monster, struct itm_item *ammo_ite
                         }
                     }
 
-                    You(monster, "reload %s.", item->ld_name);
-                    Monster(monster, "reloads %s.", item->ld_name);
+                    You(monster, "reload %ls.", item->ld_name);
+                    Monster(monster, "reloads %ls.", item->ld_name);
                 } else {
-                    You(monster, "do not have any ammo left for %s.", item->ld_name);
+                    You(monster, "do not have any ammo left for %ls.", item->ld_name);
                 }
 
                 /* Do skill check here.. */
                 if (wpn->jammed == true) {
                     wpn->jammed = false;
-                    You(monster, "unjam %s.", item->ld_name);
-                    Monster(monster, "unjams %s.", item->ld_name);
+                    You(monster, "unjam %ls.", item->ld_name);
+                    Monster(monster, "unjams %ls.", item->ld_name);
 
                     if (cost == 0) {
                         cost += MSR_ACTION_RELOAD * item->use_delay;
@@ -420,7 +420,7 @@ static bool unload(struct msr_monster *monster, struct itm_item *weapon_item) {
 
     wpn->magazine_left = 0;
 
-    You(monster, "have unloaded %s.", weapon_item->ld_name);
+    You(monster, "have unloaded %ls.", weapon_item->ld_name);
     return msr_give_item(monster, ammo_item);
 }
 

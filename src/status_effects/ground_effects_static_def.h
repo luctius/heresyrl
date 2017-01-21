@@ -23,11 +23,11 @@ const struct ground_effect static_ground_effect_list[] = {
         .tid = GEID_FLAME_AREA,
         .flags = 0,
 
-        .sd_name = "flames",
-        .ld_name = "flames",
-        .description = "",
+        .sd_name = L"flames",
+        .ld_name = L"flames",
+        .description = L"",
 
-        .icon = '~',
+        .icon = L'~',
         .icon_attr = TERM_COLOUR_RED,
 
         .min_energy = TT_ENERGY_TURN * 1,
@@ -39,11 +39,11 @@ const struct ground_effect static_ground_effect_list[] = {
         .tid = GEID_MAD_CAP_CLOUD,
         .flags = 0,
 
-        .sd_name = "mad cap poison cloud",
-        .ld_name = "a cloud of mad cap poison",
-        .description = "",
+        .sd_name = L"mad cap poison cloud",
+        .ld_name = L"a cloud of mad cap poison",
+        .description = L"",
 
-        .icon = '~',
+        .icon = L'~',
         .icon_attr = TERM_COLOUR_GREEN,
 
         .min_energy = TT_ENERGY_TURN * 3,

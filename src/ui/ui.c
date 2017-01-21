@@ -97,7 +97,7 @@ bool ui_create(int cols, int lines) {
         if (total_cols < msg_cols) total_cols = msg_cols;
 
         if (total_lines > lines) { fprintf(stderr, "Too many lines used!\n"); exit(1); }
-        if (total_cols > cols) { fprintf(stderr, "Too many cols used!\n"); exit(1); }
+        if (total_cols > cols)   { fprintf(stderr, "Too many cols used!\n"); exit(1); }
 
         int l_margin = lines / LINES_MIN;
         int c_margin = cols / COLS_MIN;
@@ -244,8 +244,9 @@ static void mapwin_display_map_noref(struct dm_map *map, coord_t *player) {
                     }
                 }
 
+                wchar_t wb[2] = { icon, 0 };
                 wattron(map_win->win, get_colour(attr_mod) );
-                mvwaddch(map_win->win, yi, xi, icon);
+                mvwaddwstr(map_win->win, yi, xi, wb);
                 wattroff(map_win->win, get_colour(attr_mod) );
             }
         }
@@ -275,7 +276,7 @@ static void mapwin_examine(struct dm_map_entity *me) {
     ui_print_reset(char_win);
 
     if (me->visible || me->in_sight) {
-        ui_printf(char_win, "%s.\n", me->tile->ld_name);
+        ui_printf(char_win, "%ls.\n", me->tile->ld_name);
         ui_printf(char_win, "\n");
 
         if (me->visible) {
@@ -290,19 +291,19 @@ static void mapwin_examine(struct dm_map_entity *me) {
 
                     sees = true;
                 } else if (fght_can_see(gbl_game->current_map, gbl_game->player_data.player, me->monster) ) {
-                    ui_printf(char_win, cs_PLAYER "You" cs_CLOSE " see %s.\n", me->monster->ld_name);
+                    ui_printf(char_win, cs_PLAYER "You" cs_CLOSE " see %ls.\n", me->monster->ld_name);
 
-                    if (me->monster->wounds.curr < 0) ui_printf(char_win, "%s is criticly wounded.\n", msr_gender_name(me->monster, false) );
-                    else if (me->monster->wounds.curr != me->monster->wounds.max) ui_printf(char_win, "%s is wounded.\n", msr_gender_name(me->monster, false) );
+                    if (me->monster->wounds.curr < 0) ui_printf(char_win, "%ls is criticly wounded.\n", msr_gender_name(me->monster, false) );
+                    else if (me->monster->wounds.curr != me->monster->wounds.max) ui_printf(char_win, "%ls is wounded.\n", msr_gender_name(me->monster, false) );
 
 
                     if (inv_loc_empty(me->monster->inventory, INV_LOC_MAINHAND_WIELD) == false) {
                         struct itm_item *witem = inv_get_item_from_location(me->monster->inventory, INV_LOC_MAINHAND_WIELD);
-                        if (witem != NULL) ui_printf(char_win, "%s wields %s.\n", msr_gender_name(me->monster, false), witem->ld_name);
+                        if (witem != NULL) ui_printf(char_win, "%ls wields %ls.\n", msr_gender_name(me->monster, false), witem->ld_name);
                     }
                     if (inv_loc_empty(me->monster->inventory, INV_LOC_OFFHAND_WIELD) == false) {
                         struct itm_item *witem = inv_get_item_from_location(me->monster->inventory, INV_LOC_OFFHAND_WIELD);
-                        if (witem != NULL) ui_printf(char_win, "%s wields %s in his off-hand.\n", msr_gender_name(me->monster, false), witem->ld_name);
+                        if (witem != NULL) ui_printf(char_win, "%ls wields %ls in his off-hand.\n", msr_gender_name(me->monster, false), witem->ld_name);
                     }
 
                     sees = true;
@@ -313,7 +314,7 @@ static void mapwin_examine(struct dm_map_entity *me) {
 
                     struct status_effect *c = NULL;
                     while ( (c = se_list_get_next_status_effect(me->monster->status_effects, c) ) != NULL) {
-                        ui_printf(char_win, "- %s\n", c->name);
+                        ui_printf(char_win, "- %ls\n", c->name);
                     }
                 }
             }
@@ -321,10 +322,10 @@ static void mapwin_examine(struct dm_map_entity *me) {
             ui_printf(char_win, "\n");
 
             if ( (inv_inventory_size(me->inventory) > 0) && (TILE_HAS_ATTRIBUTE(me->tile, TILE_ATTR_TRAVERSABLE) ) ) {
-                ui_printf(char_win, "The %s contains:\n", me->tile->sd_name);
+                ui_printf(char_win, "The %ls contains:\n", me->tile->sd_name);
                 struct itm_item *i = NULL;
                 while ( (i = inv_get_next_item(me->inventory, i) ) != NULL) {
-                    ui_printf(char_win, " - %s\n", i->ld_name);
+                    ui_printf(char_win, " - %ls\n", i->ld_name);
                 }
             }
         }
@@ -415,49 +416,49 @@ void targetwin_examine(struct hrl_window *window, struct dm_map *map, struct msr
             if (me->monster->wounds.curr < 0) ui_printf(window, "You are criticly wounded.\n");
             else if (me->monster->wounds.curr != me->monster->wounds.max) ui_printf(window, "You are wounded.\n");
         } else if (fght_can_see(map, player, me->monster) ) {
-            ui_printf(window, "Target %s.\n", msr_ldname(me->monster) );
+            ui_printf(window, "Target %ls.\n", msr_ldname(me->monster) );
 
-            if (me->monster->wounds.curr < 0) ui_printf(window, "\n%s is criticly wounded.\n", msr_gender_name(me->monster, false) );
-            else if (me->monster->wounds.curr != me->monster->wounds.max) ui_printf(window, "\n%s is wounded.\n", msr_gender_name(me->monster, false) );
+            if (me->monster->wounds.curr < 0) ui_printf(window, "\n%ls is criticly wounded.\n", msr_gender_name(me->monster, false) );
+            else if (me->monster->wounds.curr != me->monster->wounds.max) ui_printf(window, "\n%ls is wounded.\n", msr_gender_name(me->monster, false) );
         }
 
     }
-    else ui_printf(window,"No Target.\n");
-    ui_printf(window,"\n");
+    else ui_printf(window, "No Target.\n");
+    ui_printf(window, "\n");
 
     int tohit = 0;
     if (wtype == WEAPON_TYPE_MELEE && (cd_pyth(&player->pos, pos) == 1) ) {
         tohit = fght_melee_calc_tohit(player, pos, witem, FGHT_MAIN_HAND);
-        ui_printf(window,"Melee Skill: %d\n\n", msr_calculate_skill(player, MSR_SKILLS_MELEE) );
+        ui_printf(window, "Melee Skill: %d\n\n", msr_calculate_skill(player, MSR_SKILLS_MELEE) );
         item_is_weapon = true;
     }
     else if (wtype == WEAPON_TYPE_RANGED) {
         tohit = fght_ranged_calc_tohit(player, pos, witem, FGHT_MAIN_HAND, false);
-        ui_printf(window,"Ranged Skill: %d\n\n", msr_calculate_skill(player, MSR_SKILLS_RANGED) );
+        ui_printf(window, "Ranged Skill: %d\n\n", msr_calculate_skill(player, MSR_SKILLS_RANGED) );
         item_is_weapon = true;
     }
     else if (wtype == WEAPON_TYPE_THROWN) {
         tohit = fght_ranged_calc_tohit(player, pos, witem, FGHT_MAIN_HAND, true);
-        ui_printf(window,"Ranged Skill: %d\n\n", msr_calculate_skill(player, MSR_SKILLS_RANGED) );
+        ui_printf(window, "Ranged Skill: %d\n\n", msr_calculate_skill(player, MSR_SKILLS_RANGED) );
         item_is_weapon = true;
     }
     else item_is_weapon = false;
 
     if (item_is_weapon) {
-        ui_printf(window,"Total change of hitting: " cs_DAMAGE "%d" cs_CLOSE ".\n", tohit);
+        ui_printf(window, "Total change of hitting: " cs_DAMAGE "%d" cs_CLOSE ".\n", tohit);
 
         int idx = 0;
         struct tohit_desc *thd = NULL;
         while ( (thd = fght_get_tohit_mod_description(idx++) ) != NULL) {
-            ui_printf(window,"%c %s (%d).\n", (thd->modifier > 0) ? '+' : '-', thd->description, thd->modifier);
+            ui_printf(window, "%lc %ls (%d).\n", (thd->modifier > 0) ? L'+' : L'-', thd->description, thd->modifier);
         }
 
-        ui_printf(window,"\n");
+        ui_printf(window, "\n");
     }
 
-    ui_printf(window, "Calculated: %s.\n", witem->ld_name);
+    ui_printf(window, "Calculated: %ls.\n", witem->ld_name);
     if (wpn_is_catergory(witem, WEAPON_CATEGORY_THROWN_GRENADE) ) {
-        ui_printf(window,"Timer: %d.%d.\n", witem->energy / TT_ENERGY_TURN, witem->energy % TT_ENERGY_TURN);
+        ui_printf(window, "Timer: %d.%d.\n", witem->energy / TT_ENERGY_TURN, witem->energy % TT_ENERGY_TURN);
     }
 
     if (options.refresh) wrefresh(window->win);
@@ -823,9 +824,9 @@ void charwin_refresh() {
 
     struct msr_monster *player = plr->player;
 
-    ui_printf(char_win, cs_ATTR "Name      " cs_CLOSE " %-14s\n", player->unique_name);
-    ui_printf(char_win, cs_ATTR "Background" cs_CLOSE " %-14s\n", cr_get_background_by_id(plr->career.b_tid)->name);
-    ui_printf(char_win, cs_ATTR "Role      " cs_CLOSE " %-14s\n", cr_get_role_by_id(plr->career.r_tid)->name);
+    ui_printf(char_win, cs_ATTR "Name      " cs_CLOSE " %-14ls\n", player->unique_name);
+    ui_printf(char_win, cs_ATTR "Background" cs_CLOSE " %-14ls\n", cr_get_background_by_id(plr->career.b_tid)->name);
+    ui_printf(char_win, cs_ATTR "Role      " cs_CLOSE " %-14ls\n", cr_get_role_by_id(plr->career.r_tid)->name);
 
     ui_printf(char_win, cs_ATTR "Turn      " cs_CLOSE " %d.%d\n", gbl_game->turn / TT_ENERGY_TURN, gbl_game->turn % TT_ENERGY_TURN);
     ui_printf(char_win, "\n");
@@ -863,13 +864,13 @@ void charwin_refresh() {
 
             if (item->item_type == ITEM_TYPE_WEAPON) {
                 struct item_weapon_specific *wpn = &item->specific.weapon;
-                ui_printf(char_win, cs_ATTR "%s Wpn:" cs_CLOSE " %s\n", (i==0) ? "Main" : "Sec.", item->sd_name);
+                ui_printf(char_win, cs_ATTR "%s Wpn:" cs_CLOSE " %ls\n", (i==0) ? "Main" : "Sec.", item->sd_name);
                 if (wpn->nr_dmg_die == 0) ui_printf(char_win, " Dmg 1D5");
                 else ui_printf(char_win, cs_ATTR " Dmg" cs_CLOSE " %dD10", wpn->nr_dmg_die);
                 int add = wpn->dmg_addition;
                 if (wpn_is_type(item, WEAPON_TYPE_MELEE) ) add += msr_calculate_characteristic_bonus(player, MSR_CHAR_STRENGTH);
-                char sign = ' ';
-                if (add > 0) sign = '+';
+                wchar_t sign = L' ';
+                if (add > 0) sign = L'+';
                 ui_printf(char_win, "%c%d", sign, add);
                 if (wpn->penetration > 0) ui_printf(char_win, ", pen %d", wpn->penetration);
 
@@ -921,8 +922,8 @@ void charwin_refresh() {
     int cnt = 0;
     struct msr_monster *target = NULL;
     while ( (target = aiu_get_nearest_enemy(player, cnt, gbl_game->current_map) ) != NULL) {
-        int y = ui_printf(char_win, "    %s", msr_ldname(target));
-        if (target->controller.ai.emo_state != NULL) ui_printf(char_win, " (%s)", target->controller.ai.emo_state);
+        int y = ui_printf(char_win, "    %ls", msr_ldname(target));
+        if (target->controller.ai.emo_state != NULL) ui_printf(char_win, " (%ls)", target->controller.ai.emo_state);
         wattron(char_win->win, get_colour(target->icon_attr) );
         mvwaddch(char_win->win, y, 0, target->icon);
         wattroff(char_win->win, get_colour(target->icon_attr) );
@@ -949,8 +950,8 @@ void charwin_refresh() {
             EF_SWIMMING, EF_STAGGERED, EF_STUNNED, EF_UNCONSCIOUS, };
     for (unsigned int i = 0; i < ARRAY_SZ(seef); i++) {
         if (se_has_effect(player, seef[i]) ) {
-            ui_printf(char_win, "[%s]", se_effect_names(seef[i]) );
-            lg_debug("[%s:  %d]", se_effect_names(seef[i]), seef[i]);
+            ui_printf(char_win, "[%ls]", se_effect_names(seef[i]) );
+            lg_debug("[%ls:  %d]", se_effect_names(seef[i]), seef[i]);
         }
     }
 }
@@ -958,7 +959,7 @@ void charwin_refresh() {
 /* Beware of dragons here..... */
 
 struct inv_show_item {
-    const char *location;
+    const wchar_t *location;
     struct itm_item *item;
 };
 
@@ -980,8 +981,8 @@ static int invwin_printlist(struct hrl_window *window, struct inv_show_item list
 
     for (int i = 0; i < max; i++) {
         struct itm_item *item = list[i+start].item;
-        int y = ui_printf(window, "%c)  %c%s", inp_key_translate_idx(i), list[i+start].location[0], item->sd_name);
-        if (item->quality != ITEM_QLTY_AVERAGE) ui_printf(window, "(%s)", itm_quality_string(item) );
+        int y = ui_printf(window, "%lc)  %lc%ls", inp_key_translate_idx(i), list[i+start].location[0], item->sd_name);
+        if (item->quality != ITEM_QLTY_AVERAGE) ui_printf(window, "(%ls)", itm_quality_string(item) );
 
         int weight = item->weight;
         if (item->stacked_quantity > 1) {
@@ -1003,9 +1004,9 @@ static void inv_create_list(struct inv_inventory *inventory, struct inv_show_ite
          item = inv_get_next_item(inventory, item);
          if (item != NULL) {
             invlist[i].item = item;
-            invlist[i].location = " ";
+            invlist[i].location = L" ";
             if (inv_item_worn(inventory, item) == true) {
-                invlist[i].location = "*";
+                invlist[i].location = L"*";
             }
          }
     }
@@ -1022,8 +1023,8 @@ void invwin_examine(struct hrl_window *window, struct itm_item *item) {
     struct msr_monster *player = gbl_game->player_data.player;
     if (msr_verify_monster(player) == false) return;
 
-    if (strlen(item->description) > 0) {
-        ui_printf(window, "%s.\n", item->description);
+    if (wcslen(item->description) > 0) {
+        ui_printf(window, "%ls.\n", item->description);
     }
     else ui_printf(window, "No description available.\n");
 
@@ -1037,11 +1038,11 @@ void invwin_examine(struct hrl_window *window, struct itm_item *item) {
             if (wpn->nr_dmg_die == 0) ui_printf(char_win, "1D5");
             else ui_printf(char_win, "%dD10", wpn->nr_dmg_die);
 
-            char mod = '+';
+            wchar_t mod = L'+';
             int add = wpn->dmg_addition;
             if (wpn_is_type(item, WEAPON_TYPE_MELEE) ) add += msr_calculate_characteristic_bonus(player, MSR_CHAR_STRENGTH);
-            if (add < 0) mod = '-';
-            ui_printf(char_win, "%c%d\n", mod, abs(add) );
+            if (add < 0) mod = L'-';
+            ui_printf(char_win, "%lc%d\n", mod, abs(add) );
 
             if (wpn_is_type(item, WEAPON_TYPE_RANGED) || wpn_is_type(item, WEAPON_TYPE_THROWN) ) {
                 ui_printf(char_win, "- Range %d\n", wpn->range);
@@ -1049,7 +1050,7 @@ void invwin_examine(struct hrl_window *window, struct itm_item *item) {
 
             if (wpn_is_type(item, WEAPON_TYPE_RANGED) ) {
                 ui_printf(char_win, "- Magazine size %d\n", wpn->magazine_sz);
-                if (wpn_uses_ammo(item) ) ui_printf(char_win, "- Uses %s\n", wpn_ammo_string(wpn->ammo_type) );
+                if (wpn_uses_ammo(item) ) ui_printf(char_win, "- Uses %ls\n", wpn_ammo_string(wpn->ammo_type) );
 
                 int single = wpn->rof[WEAPON_ROF_SETTING_SINGLE];
                 int semi = wpn->rof[WEAPON_ROF_SETTING_SEMI];
@@ -1068,7 +1069,7 @@ void invwin_examine(struct hrl_window *window, struct itm_item *item) {
                 }
                 else {
                     struct itm_item *ammo = itm_create(wpn->ammo_used_tid);
-                    ui_printf(char_win, "It is currently loaded with %s.\n\n", ammo->ld_name);
+                    ui_printf(char_win, "It is currently loaded with %ls.\n\n", ammo->ld_name);
                     itm_destroy(ammo);
                 }
 
@@ -1078,7 +1079,7 @@ void invwin_examine(struct hrl_window *window, struct itm_item *item) {
             }
 
             if (wpn->wpn_talent != TLT_NONE) {
-                ui_printf(char_win, "This weapon requires the %s talent.\n", msr_talent_names(wpn->wpn_talent) );
+                ui_printf(char_win, "This weapon requires the %ls talent.\n", msr_talent_names(wpn->wpn_talent) );
             }
 
             if (wpn->special_quality != 0) {
@@ -1091,7 +1092,7 @@ void invwin_examine(struct hrl_window *window, struct itm_item *item) {
 
                 for (int i = 0; i < WPN_SPCQLTY_MAX; i++) {
                     if (wpn_has_spc_quality(item, i) )  {
-                        ui_printf(char_win, "- %s.\n", wpn_spec_quality_name(i) );
+                        ui_printf(char_win, "- %ls.\n", wpn_spec_quality_name(i) );
                     }
                 }
             }
@@ -1107,7 +1108,7 @@ void invwin_examine(struct hrl_window *window, struct itm_item *item) {
             for (enum inv_locations i = 1; i < INV_LOC_MAX; i <<= 1) {
                 if ( (wrbl->locations & i) > 0) {
                     if (first == false) ui_printf(char_win, "/");
-                    ui_printf(char_win, "%s", inv_location_name(wrbl->locations & i) );
+                    ui_printf(char_win, "%ls", inv_location_name(wrbl->locations & i) );
                     first = false;
                 }
             }
@@ -1118,7 +1119,7 @@ void invwin_examine(struct hrl_window *window, struct itm_item *item) {
 
                 for (int i = 0; i < WBL_SPCQLTY_MAX; i++) {
                     if (wbl_has_spc_quality(item, i) )  {
-                        ui_printf(char_win, "- %s.\n", wbl_spec_quality_name(i) );
+                        ui_printf(char_win, "- %ls.\n", wbl_spec_quality_name(i) );
                     }
                 }
             }
@@ -1139,7 +1140,7 @@ void invwin_examine(struct hrl_window *window, struct itm_item *item) {
                 int energy_pc = (ammo->energy_left * 100) / ammo->energy;
                 ui_printf(char_win, "Energy left %d\%\n", energy_pc);
             }
-            ui_printf(char_win, "Provides %s\n", wpn_ammo_string(ammo->ammo_type) );
+            ui_printf(char_win, "Provides %ls\n", wpn_ammo_string(ammo->ammo_type) );
         } break;
         case ITEM_TYPE_FOOD: break;
         default: break;
@@ -1157,14 +1158,14 @@ void status_effect_examine(struct hrl_window *window, struct status_effect *se) 
     ui_print_reset(window);
 
     if (se->name != NULL) {
-        ui_printf(window, "%s.\n",se->name);
+        ui_printf(window, "%ls.\n",se->name);
     }
     else ui_printf(window, "Unknown.\n");
 
     ui_printf(window, "\n");
 
     if (se->description != NULL) {
-        ui_printf(window, "%s.\n",se->description);
+        ui_printf(window, "%ls.\n",se->description);
     }
     else ui_printf(window, "No description available.\n");
 
@@ -1341,18 +1342,18 @@ Basic weapon traning SP     ...                  |
     /* General Stats */
 
     ui_print_reset(&pad);
-    ui_printf(&pad, cs_ATTR "Name:      " cs_CLOSE " %-20s\n", mon->unique_name);
-    ui_printf(&pad, cs_ATTR "Gender:    " cs_CLOSE " %-20s\n", msr_gender_string(mon) );
-    ui_printf(&pad, cs_ATTR "Homeworld: " cs_CLOSE " %-20s\n", cr_get_homeworld_by_id(plr->career.h_tid)->name );
-    ui_printf(&pad, cs_ATTR "Background " cs_CLOSE " %-20s\n", cr_get_background_by_id(plr->career.b_tid)->name);
-    ui_printf(&pad, cs_ATTR "Role       " cs_CLOSE " %-20s\n", cr_get_role_by_id(plr->career.r_tid)->name);
+    ui_printf(&pad, cs_ATTR "Name:      " cs_CLOSE " %-20ls\n", mon->unique_name);
+    ui_printf(&pad, cs_ATTR "Gender:    " cs_CLOSE " %-20ls\n", msr_gender_string(mon) );
+    ui_printf(&pad, cs_ATTR "Homeworld: " cs_CLOSE " %-20ls\n", cr_get_homeworld_by_id(plr->career.h_tid)->name );
+    ui_printf(&pad, cs_ATTR "Background " cs_CLOSE " %-20ls\n", cr_get_background_by_id(plr->career.b_tid)->name);
+    ui_printf(&pad, cs_ATTR "Role       " cs_CLOSE " %-20ls\n", cr_get_role_by_id(plr->career.r_tid)->name);
 
     ui_printf(&pad, cs_ATTR "Wounds:    " cs_CLOSE " %d/%d\n", mon->wounds.curr, mon->wounds.max);
     ui_printf(&pad, cs_ATTR "XP:        " cs_CLOSE " %d\n", plr->career.xp_current);
     ui_printf(&pad, cs_ATTR "XP Spend:  " cs_CLOSE " %d\n", plr->career.xp_spend);
 
     int quest_desc_len = 100;
-    char quest_desc[quest_desc_len];
+    wchar_t quest_desc[quest_desc_len];
     qst_get_description(plr->quest, quest_desc, quest_desc_len);
     ui_printf(&pad, cs_ATTR "Quest:" cs_CLOSE " %-20s\n", quest_desc);
     //ui_printf(&pad, cs_ATTR "Corruption:" cs_CLOSE "    %d\n", mon->corruption_points);
@@ -1387,7 +1388,7 @@ Basic weapon traning SP     ...                  |
                 armour = item->specific.wearable.damage_reduction;
             }
 
-            y = ui_printf(&pad, "%s", item->ld_name);
+            y = ui_printf(&pad, "%ls", item->ld_name);
             ui_printf_ext(&pad,y, 20, "%-2d  ", armour);
             ui_printf_ext(&pad,y, 24, "");
 
@@ -1395,7 +1396,7 @@ Basic weapon traning SP     ...                  |
             for (enum inv_locations i = 1; i < INV_LOC_MAX; i <<= 1) {
                 if ( (locs & i) > 0) {
                     if (first == false) ui_printf(&pad, "/");
-                    ui_printf(&pad,"%s", inv_location_name(locs & i) );
+                    ui_printf(&pad, "%ls", inv_location_name(locs & i) );
                     first = false;
                 }
             }
@@ -1413,7 +1414,7 @@ Basic weapon traning SP     ...                  |
         if (msr_has_skill(mon, i) ) {
             enum msr_skill_rate skillrate = msr_has_skill(mon,  i);
             lg_debug("skill rate: %d", skillrate);
-            ui_printf(&pad, "%-20s %s\n", msr_skill_names(i),  msr_skillrate_names(skillrate));
+            ui_printf(&pad, "%-20s %ls\n", msr_skill_names(i),  msr_skillrate_names(skillrate));
         }
     }
     ui_printf(&pad, "\n");
@@ -1428,7 +1429,7 @@ Basic weapon traning SP     ...                  |
             if (t == TLT_NONE) continue;
 
             if (msr_has_talent(mon, t) ) {
-                ui_printf(&pad, "%s\n", msr_talent_names(t) );
+                ui_printf(&pad, "%ls\n", msr_talent_names(t) );
             }
         }
     }
@@ -1442,7 +1443,7 @@ Basic weapon traning SP     ...                  |
 
     struct status_effect *c = NULL;
     while ( (c = se_list_get_next_status_effect(mon->status_effects, c) ) != NULL) {
-        ui_printf(&pad, "%s\n", c->name);
+        ui_printf(&pad, "%ls\n", c->name);
     }
     ui_printf(&pad, "\n");
 
@@ -1486,6 +1487,7 @@ Basic weapon traning SP     ...                  |
     show_msg(msg_win);
 }
 
+#define PREFORMAT_BUF_LEN 200
 void show_log(struct hrl_window *window, bool input) {
     int y = 0;
     int log_sz = lg_size(gbl_log);
@@ -1501,7 +1503,7 @@ void show_log(struct hrl_window *window, bool input) {
     touchwin(pad.win);
     werase(pad.win);
 
-    char pre_format_buf[100];
+    char pre_format_buf[PREFORMAT_BUF_LEN];
     ui_print_reset(&pad);
     if (log_sz > 0) {
         for (int i = log_sz; i > 0; i--) {
@@ -1513,34 +1515,31 @@ void show_log(struct hrl_window *window, bool input) {
                 pre_format_buf[0] = '\0';
 
                 if (options.debug) {
-                    const char *pre_format;
                     print = true;
 
                     switch (tmp_entry->level) {
                         case LG_DEBUG_LEVEL_GAME:
-                            pre_format = "[%s:%d]" "[Game][%d] ";
+                            snprintf(pre_format_buf, PREFORMAT_BUF_LEN-1, "[%s:%d]" "[Game][%d] ", tmp_entry->module, tmp_entry->line, tmp_entry->turn);
                             break;
                         case LG_DEBUG_LEVEL_GAME_INFO:
-                            pre_format = "[%s:%d]" "[Game Info][%d] ";
+                            snprintf(pre_format_buf, PREFORMAT_BUF_LEN-1, "[%s:%d]" "[Game Info][%d] ", tmp_entry->module, tmp_entry->line, tmp_entry->turn);
                             break;
                         case LG_DEBUG_LEVEL_DEBUG:
-                            pre_format = "[%s:%d]" "[Debug][%d] ";
+                            snprintf(pre_format_buf, PREFORMAT_BUF_LEN-1, "[%s:%d]" "[Debug][%d] ", tmp_entry->module, tmp_entry->line, tmp_entry->turn);
                             break;
                         case LG_DEBUG_LEVEL_INFORMATIONAL:
-                            pre_format = "[%s:%d]" "[Info][%d] ";
+                            snprintf(pre_format_buf, PREFORMAT_BUF_LEN-1, "[%s:%d]" "[Info][%d] ", tmp_entry->module, tmp_entry->line, tmp_entry->turn);
                             break;
                         case LG_DEBUG_LEVEL_WARNING:
-                            pre_format = "[%s:%d]" "[Warning][%d] ";
+                            snprintf(pre_format_buf, PREFORMAT_BUF_LEN-1, "[%s:%d]" "[Warning][%d] ", tmp_entry->module, tmp_entry->line, tmp_entry->turn);
                             break;
                         case LG_DEBUG_LEVEL_ERROR:
-                            pre_format = "[%s:%d]" "[Error][%d] ";
+                            snprintf(pre_format_buf, PREFORMAT_BUF_LEN-1, "[%s:%d]" "[Error][%d] ", tmp_entry->module, tmp_entry->line, tmp_entry->turn);
                             break;
                         default:
-                            pre_format ="[%s:%d]" "[Unknown][%d] ";
+                            snprintf(pre_format_buf, PREFORMAT_BUF_LEN-1, "[%s:%d]" "[Unknown][%d] ", tmp_entry->module, tmp_entry->line, tmp_entry->turn);
                             break;
                     }
-
-                    sprintf(pre_format_buf, pre_format, tmp_entry->module, tmp_entry->line, tmp_entry->turn);
                 }
                 else if (tmp_entry->level == LG_DEBUG_LEVEL_GAME) {
                     print = true;
@@ -1661,22 +1660,26 @@ void show_msg(struct hrl_window *window) {
     wrefresh(window->win);
 }
 
+void show_message(void) {
+    show_msg(msg_win);
+}
+
 void log_window(void) {
     show_log(main_win, true);
 }
 
-void charwin_examine(const char *type, const char *name, const char *description) {
+void charwin_examine(const char *type, const wchar_t *name, const wchar_t *description) {
     //if (options.refresh == false) return;
 
     werase(char_win->win);
     ui_print_reset(char_win);
 
-    ui_printf(char_win, cs_ATTR "%s:" cs_CLOSE, type);
-    if (name) ui_printf(char_win, " %s\n", name);
+    ui_printf(char_win, cs_ATTR "%ls:" cs_CLOSE, type);
+    if (name) ui_printf(char_win, " %ls\n", name);
     else ui_printf(char_win, "\n");
     ui_printf(char_win, "\n");
 
-    ui_printf(char_win, "%s", description);
+    ui_printf(char_win, "%ls", description);
     wrefresh(char_win->win);
 }
 
@@ -1694,8 +1697,8 @@ struct lvl_struct {
     bitfield64_t id;
     int cost;
 
-    const char *name;
-    const char *description;
+    const wchar_t *name;
+    const wchar_t *description;
 };
 
 void levelup_aquire_window(struct lvl_struct *list, int start, int sz, const char *type_str) {
@@ -1710,13 +1713,13 @@ void levelup_aquire_window(struct lvl_struct *list, int start, int sz, const cha
         werase(window->win);
         ui_print_reset(window);
 
-        ui_printf(window,"%s\n", type_str);
+        ui_printf(window, "%s\n", type_str);
         ui_printf(window, cs_ATTR "XP left:" cs_CLOSE " %d\n", gbl_game->player_data.career.xp_current);
-        ui_printf(window,"\n");
+        ui_printf(window, "\n");
 
         enum lvlup_type type = list[start].type;
         for (int i = start; i < sz && list[i+1].type == type; i++) {
-            int y = ui_printf(window, cs_ATTR " %c) " cs_CLOSE "%s", inp_key_translate_idx(i-start), list[i].name);
+            int y = ui_printf(window, cs_ATTR " %lc) " cs_CLOSE "%ls", inp_key_translate_idx(i-start), list[i].name);
             ui_printf_ext(window, y, 30, "%dxp\n", list[i].cost);
         }
 
@@ -1752,7 +1755,7 @@ void levelup_aquire_window(struct lvl_struct *list, int start, int sz, const cha
                         case LVLUP_SKILL: {
                             enum msr_skill_rate sr = msr_has_skill(player, list[tidx].id) +1;
                             assert(msr_set_skill(player, list[tidx].id, sr) );
-                            GM_msg(cs_PLAYER "You" cs_CLOSE " trained the %s skill to %s level.", msr_skill_names(list[tidx].id), msr_skillrate_names(sr) );
+                            GM_msg(cs_PLAYER "You" cs_CLOSE " trained the %ls skill to %ls level.", msr_skill_names(list[tidx].id), msr_skillrate_names(sr) );
                             gbl_game->player_data.career.xp_current -= list[tidx].cost;
                             gbl_game->player_data.career.xp_spend   += list[tidx].cost;
                         } break;
@@ -1760,7 +1763,7 @@ void levelup_aquire_window(struct lvl_struct *list, int start, int sz, const cha
                         case LVLUP_TLT_T2:
                         case LVLUP_TLT_T3: {
                             assert(msr_set_talent(player, list[tidx].id) );
-                            GM_msg(cs_PLAYER "You" cs_CLOSE " acquired the %s talent.", msr_talent_names(list[tidx].id));
+                            GM_msg(cs_PLAYER "You" cs_CLOSE " acquired the %ls talent.", msr_talent_names(list[tidx].id));
                             gbl_game->player_data.career.xp_current -= list[tidx].cost;
                             gbl_game->player_data.career.xp_spend   += list[tidx].cost;
                         } break;
@@ -1834,9 +1837,9 @@ void levelup_selection_window(void) {
             }
         //}
 
-        ui_printf(window,"Spending experience points\n");
+        ui_printf(window, "Spending experience points\n");
         ui_printf(window, cs_ATTR "XP left:" cs_CLOSE " %d\n", gbl_game->player_data.career.xp_current);
-        ui_printf(window,"\n");
+        ui_printf(window, "\n");
 
         ui_printf(window, cs_ATTR " a)" cs_CLOSE " Level Characteristics\n");
         ui_printf(window, cs_ATTR " b)" cs_CLOSE " Train Skills\n");
@@ -1893,7 +1896,7 @@ void show_help(struct hrl_window *window, bool input) {
     werase(pad.win);
     ui_print_reset(&pad);
 
-    ui_printf(&pad, "   " cs_ATTR "HeresyRL" cs_CLOSE " help.\n");
+    ui_printf(&pad, "   " cs_ATTR "HeresyR" cs_CLOSE " help.\n");
     ui_printf(&pad, "\n");
     ui_printf(&pad, "\n");
     ui_printf(&pad, "      VI movement:\n");
@@ -1906,11 +1909,11 @@ void show_help(struct hrl_window *window, bool input) {
     ui_printf(&pad, "\n");
 
     /* <Do not touch this evil magic....> */
-    ui_printf(&pad, cs_ATTR                "         7  8  9           y  k  u" cs_CLOSE "\n");
+    ui_printf(&pad, cs_ATTR               "         7  8  9           y  k  u" cs_CLOSE "\n");
     ui_printf(&pad,                      "          \\ | /             \\ | /    \n");
     ui_printf(&pad, "        " cs_ATTR "4" cs_CLOSE " - " cs_ATTR "5" cs_CLOSE " - " cs_ATTR "6" cs_CLOSE "         " cs_ATTR "h" cs_CLOSE " - " cs_ATTR "." cs_CLOSE " - " cs_ATTR "l" cs_CLOSE "\n");
     ui_printf(&pad,                       "          / | \\             / | \\   \n");
-    ui_printf(&pad, cs_ATTR                "         1  2  3           b  j  n" cs_CLOSE "\n");
+    ui_printf(&pad, cs_ATTR               "         1  2  3           b  j  n" cs_CLOSE "\n");
     ui_printf(&pad, "\n");
     /* </Do not touch this evil magic....> */
 
@@ -2025,15 +2028,15 @@ void vs_shop(int32_t randint, const char *shop_name, enum item_group *grplst, in
         unsigned int money = 0;
         if (money_item != NULL) money = money_item->stacked_quantity;
 
-        int y = ui_printf(map_win, "%s", shop_name);
+        int y = ui_printf(map_win, "%ls", shop_name);
         ui_printf_ext(map_win, y, 30, "(You have %lld gold)\n", money);
 
         for (int i = 0; i < sz; i++) {
             if (list[i] == -1) continue;
 
             struct itm_item *itm = itm_create(list[i]);
-            y = ui_printf(map_win, cs_ATTR " %c) " cs_CLOSE "%s", inp_key_translate_idx(i), itm->ld_name);
-            if (itm->quality != ITEM_QLTY_AVERAGE) ui_printf_ext(map_win, y, 30, " (%s)", itm_quality_string(itm) );
+            y = ui_printf(map_win, cs_ATTR " %lc) " cs_CLOSE "%ls", inp_key_translate_idx(i), itm->ld_name);
+            if (itm->quality != ITEM_QLTY_AVERAGE) ui_printf_ext(map_win, y, 30, " (%ls)", itm_quality_string(itm) );
             ui_printf_ext(map_win, y, 40, " (%d gold)\n", itm->cost);
             itm_destroy(itm);
         }
@@ -2056,10 +2059,10 @@ void vs_shop(int32_t randint, const char *shop_name, enum item_group *grplst, in
                 if (itm->cost <= money) {
                     money_item->stacked_quantity -= itm->cost;
                     msr_give_item(monster, itm);
-                    You(monster, "acquired %s", itm->ld_name);
+                    You(monster, "acquired %ls", itm->ld_name);
                 }
                 else {
-                    You(monster, "do not have enough money for %s", itm->ld_name);
+                    You(monster, "do not have enough money for %ls", itm->ld_name);
                     itm_destroy(itm);
                 }
             } break;
@@ -2151,7 +2154,7 @@ void vs_healer(void) {
         int i = 0;
         struct status_effect *c = NULL;
         while ( (c = se_list_get_next_status_effect(monster->status_effects, c) ) != NULL) {
-            ui_printf(map_win, cs_ATTR " %c) " cs_CLOSE "%s", inp_key_translate_idx(i), c->name);
+            ui_printf(map_win, cs_ATTR " %lc) " cs_CLOSE "%ls", inp_key_translate_idx(i), c->name);
             ui_printf(map_win, "(cost %d)\n", c->heal_cost);
             se_lst[i++] = c;
         }
@@ -2174,11 +2177,11 @@ void vs_healer(void) {
                 if (c->heal_cost <= money) {
                     if (se_heal_status_effect(monster, NULL, c, false) ) {
                         money_item->stacked_quantity -= c->heal_cost;
-                        You(monster, "healed %s", c->name);
+                        You(monster, "healed %ls", c->name);
                     }
                 }
                 else {
-                    You(monster, "do not have enough money to heal %s", c->name);
+                    You(monster, "do not have enough money to heal %ls", c->name);
                 }
             } break;
 
@@ -2205,30 +2208,29 @@ void vs_healer(void) {
 }
 
 void pay_loan(void) {
+    struct msr_monster *monster = gbl_game->player_data.player;
+    struct itm_item *money_item = inv_get_item_by_tid(monster->inventory, IID_MONEY);
     bool payment = true;
+    int pay = 0;
 
     while (payment) {
-        struct msr_monster *monster = gbl_game->player_data.player;
         werase(map_win->win);
         ui_print_reset(map_win);
 
-        struct itm_item *money_item = inv_get_item_by_tid(monster->inventory, IID_MONEY);
         int money = 0;
         if (money_item != NULL) money = money_item->stacked_quantity;
 
+        ui_printf(map_win, "Loanshark:      (You have %d gold)\n", money);
+        ui_printf(map_win, "Credit:  %6d\n",  gbl_game->player_data.loan);
+        int y = ui_printf(map_win, "Payment: %6d",  pay);
+
         ui_printf_ext(map_win, map_win->lines -4, 1, cs_ATTR " [a]" cs_CLOSE " pay loan.");
         ui_printf_ext(map_win, map_win->lines -3, 1, cs_ATTR " [q]" cs_CLOSE " exit.");
-        ui_printf_ext(map_win, 1, 1, "");
-
-        ui_printf(map_win, "Loanshark:      (You have %lld gold)\n", money);
-        ui_printf(map_win, "Credit: %d\n",  gbl_game->player_data.loan);
-        ui_printf(map_win, "Payment: ");
 
         if (options.refresh) wrefresh(map_win->win);
 
         switch (inp_get_input(gbl_game->input) ) {
             case INP_KEY_APPLY: {
-                int pay = 0;
                 ui_printf_ext(map_win, map_win->lines -5, 1, "Pay how much?");
                 if (options.refresh) wrefresh(map_win->win);
 
@@ -2237,20 +2239,28 @@ void pay_loan(void) {
                 int amount = 0;
                 while ( b && (key = inp_get_input_digit(gbl_game->input) ) ) {
                     switch (key) {
-                        case '\n':
-                        case 24: b = false; break;
+                        case INP_KEY_YES: b = false; break;
                         case INP_KEY_BACKSPACE:
-                            amount /= 10;
+                            pay /= 10;
                             break;
                         default: {
                             amount = inp_input_to_digit(key);
                             if (amount >= 0) {
-                                ui_printf(map_win, "%d",  amount);
                                 pay *= 10;
                                 pay += amount;
                             }
                         }
                     }
+
+                    ui_print_reset(map_win);
+                    if (pay < 0) pay = 0;
+                    int yy, xx;            // to store where you are
+                    getyx(stdscr, yy, xx); // save current pos
+                    move(y, 0);          // move to begining of line
+                    clrtoeol();          // clear line
+                    move(yy, xx);          // move back to where you were
+                    ui_printf_ext(map_win, y, 0, "Payment: %6d",  pay);
+                    if (options.refresh) wrefresh(map_win->win);
                 }
 
                 if (pay <= money && pay > 0) {
@@ -2258,7 +2268,7 @@ void pay_loan(void) {
                     You(monster, "payed the loanshark %d gp.", pay);
                 }
                 else {
-                    You(monster, "do not have enough money to pay  %d", pay);
+                    You(monster, "do not have enough money to pay %d", pay);
                 }
             } break;
 
@@ -2304,7 +2314,7 @@ void quest_selection(int32_t randint) {
         for (int i = 0; i < sz; i++) {
             struct quest *q = qst_by_tid(list[i]);
             assert(q != NULL);
-            int y = ui_printf(map_win, cs_ATTR " %c) " cs_CLOSE "%s", inp_key_translate_idx(i), q->description);
+            int y = ui_printf(map_win, cs_ATTR " %lc) " cs_CLOSE "%ls", inp_key_translate_idx(i), q->description);
             ui_printf_ext(map_win, y, 40, "%dgp", q->gp_reward);
             ui_printf_ext(map_win, y, 45, "%dxp\n", q->xp_reward);
         }
@@ -2325,7 +2335,7 @@ void quest_selection(int32_t randint) {
                 if (quest_idx >= sz) break;
 
                 gbl_game->player_data.quest = qst_by_tid(list[quest_idx]);
-                You(monster, "selected '%s' as your next quest.\n", gbl_game->player_data.quest->description);
+                You(monster, "selected '%ls' as your next quest.\n", gbl_game->player_data.quest->description);
             } break;
 
             case INP_KEY_HELP:
@@ -2352,7 +2362,6 @@ void village_screen() {
         ui_print_reset(map_win);
 
         ui_printf(map_win, "Village:\n");
-        ui_printf(map_win, "\n");
         ui_printf(map_win, cs_ATTR " a)" cs_CLOSE " Weapon Smith\n");
         ui_printf(map_win, cs_ATTR " b)" cs_CLOSE " Armour Smith\n");
         ui_printf(map_win, cs_ATTR " c)" cs_CLOSE " Apothecary\n");

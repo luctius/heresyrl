@@ -228,7 +228,7 @@ struct status_effect *se_create(enum se_ids tid) {
         cc->duration_energy_max = cc->duration_energy;
     }
 
-    lg_debug("Creating se: %p(%s) duration: %d, max: %d", cc, cc->name, cc->duration_energy, cc->duration_energy_max);
+    lg_debug("Creating se: %p(%ls) duration: %d, max: %d", cc, cc->name, cc->duration_energy, cc->duration_energy_max);
 
     for (unsigned int i = 0; i < ARRAY_SZ(cc->effects); i++ ) {
         struct status_effect_atom_struct *ces = &cc->effects[i];
@@ -250,7 +250,7 @@ bool se_add_to_list(struct msr_monster *monster, struct status_effect *con) {
     if (se_verify_list(se_list) == false) return false;
     if (se_verify_status_effect(con) == false) return false;
 
-    lg_debug("Adding status_effect: %p(%s)", con, con->name);
+    lg_debug("Adding status_effect: %p(%ls)", con, con->name);
 
     struct se_entry *ce = container_of(con, struct se_entry, status_effect);
     LIST_INSERT_HEAD(&se_list->head, ce, entries);
@@ -260,7 +260,7 @@ bool se_add_to_list(struct msr_monster *monster, struct status_effect *con) {
     return true;
 }
 
-bool se_add_status_effect(struct msr_monster *monster, uint32_t tid, const char *origin) {
+bool se_add_status_effect(struct msr_monster *monster, uint32_t tid, const wchar_t *origin) {
     if (msr_verify_monster(monster) == false) return false;
 
     struct status_effect_list *se_list = monster->status_effects;
@@ -273,7 +273,7 @@ bool se_add_status_effect(struct msr_monster *monster, uint32_t tid, const char 
     if (se_has_tid(se_list, tid) ) {
         c = se_get_status_effect_by_tid(monster, tid);
         if (c != NULL) {
-            lg_debug("Monster already has an instance of status_effect: %s", c->name);
+            lg_debug("Monster already has an instance of status_effect: %ls", c->name);
 
             /* If the condition is unique */
             if (status_effect_has_flag(c, SEF_NON_UNIQUE) == false) {
@@ -283,7 +283,7 @@ bool se_add_status_effect(struct msr_monster *monster, uint32_t tid, const char 
                 }
 
                 /* if not permanent but is unique, then we restart the duration. */
-                lg_debug("Restarting status_effect: %p(%s)", c, c->name);
+                lg_debug("Restarting status_effect: %p(%ls)", c, c->name);
                 /* restart status_effect */
                 c->duration_energy = c->duration_energy_max -1;
                 return true;
@@ -312,17 +312,17 @@ bool se_heal_status_effect(struct msr_monster *monster, struct msr_monster *heal
         if (msr_verify_monster(healer) == false) return false;
 
         if (msr_skill_check(healer, MSR_SKILLS_MEDICAE, con->heal_difficulty) <= 0) {
-            You(monster, "failed to heal %s.", con->name);
-            Monster(healer, "failed to heal %s of %s", monster->sd_name, con->name);
+            You(monster, "failed to heal %ls.", con->name);
+            Monster(healer, "failed to heal %ls of %ls", monster->sd_name, con->name);
             return false;
         }
     }
 
     if (magic != effect_heal_has_flag(con, EF_HEAL_MAGIC_ONLY) ) {
-        You(monster, "can only heal %s by magic.", con->name);
+        You(monster, "can only heal %ls by magic.", con->name);
         return false;
     }
-    const char *origin = con->name;
+    const wchar_t *origin = con->name;
     enum se_ids tid = con->heal_evolve_tid;
     if (se_remove_status_effect(monster, con) == false) return false;
 
@@ -512,7 +512,7 @@ int se_status_effect_strength(struct msr_monster *monster, enum status_effect_fl
     return strength;
 }
 
-bool se_add_critical_hit(struct msr_monster *monster, const char *origin, int dmg, enum msr_hit_location mhl, enum dmg_type type) {
+bool se_add_critical_hit(struct msr_monster *monster, const wchar_t *origin, int dmg, enum msr_hit_location mhl, enum dmg_type type) {
     if (msr_verify_monster(monster) == false) return false;
     assert(origin != NULL);
 
@@ -539,7 +539,7 @@ bool se_add_critical_hit(struct msr_monster *monster, const char *origin, int dm
         default: break;
     }
 
-    lg_ai_debug(monster, "Adding Critical Hit: %s (tid:%d)", static_status_effect_list[crit_effect].name, crit_effect);
+    lg_ai_debug(monster, "Adding Critical Hit: %ls (tid:%d)", static_status_effect_list[crit_effect].name, crit_effect);
 
     /* TODO: update this when more critical hits become available */
     return se_add_status_effect(monster, crit_effect, origin);
@@ -624,8 +624,8 @@ void se_process_atom_first(struct status_effect_atom_struct *ces, struct msr_mon
                     if (item == inv_get_item_from_location(monster->inventory, o_location) ) {
                         /* 2 handed item */
                         if (inv_move_item_to_location(monster->inventory, item, INV_LOC_NONE) ) {
-                            You(monster, "are unable to wield %s.", item->ld_name);
-                            Monster(monster, "is unable to wield %s.", item->ld_name, msr_gender_name(monster, true));
+                            You(monster, "are unable to wield %ls.", item->ld_name);
+                            Monster(monster, "is unable to wield %ls.", item->ld_name, msr_gender_name(monster, true));
                         }
                     }
                     else {
@@ -633,8 +633,8 @@ void se_process_atom_first(struct status_effect_atom_struct *ces, struct msr_mon
                         if (msr_remove_item(monster, item) == true) {
                             itm_insert_item(item, gbl_game->current_map, &monster->pos);
 
-                            You(monster, "let go of %s.", item->ld_name);
-                            Monster(monster, "droppes %s from %s hand.", item->ld_name, msr_gender_name(monster, true));
+                            You(monster, "let go of %ls.", item->ld_name);
+                            Monster(monster, "droppes %ls from %ls hand.", item->ld_name, msr_gender_name(monster, true));
                         }
                     }
                 }
@@ -649,7 +649,7 @@ void se_process_atom_first(struct status_effect_atom_struct *ces, struct msr_mon
             struct itm_item *item = itm_create(IID_BODYPART_GRENADE);
 
             /* TODO: change name of bodypart */
-            item->ld_name = "something";
+            item->ld_name = L"something";
 
             /* light fuse */
             item->energy = TT_ENERGY_TICK;
@@ -877,7 +877,7 @@ static bool se_process_effect(struct msr_monster *monster, struct status_effect 
 
         {   /* Pre checks */
             if (first_time) {
-                lg_debug("Condition %p(%s) is processed for the first time.", c, c->name);
+                lg_debug("Condition %p(%ls) is processed for the first time.", c, c->name);
 
                 if (c->tid == SEID_NONE) status_effect_clr_flag(c, SEF_ACTIVE);
 
@@ -912,7 +912,7 @@ static bool se_process_effect(struct msr_monster *monster, struct status_effect 
 
                 if (status_effect_has_flag(c, SEF_ACTIVE) ) {
                     if (status_effect_has_flag(c, SEF_INVISIBLE) == false) {
-                        lg_debug("Condition %p(%s) is to be applyed.", c, c->name);
+                        lg_debug("Condition %p(%ls) is to be applyed.", c, c->name);
                         if (c->on_first_plr != NULL) You_msg(monster, c->on_first_plr);
                         if (c->on_first_msr != NULL) Monster_msg(monster, c->on_first_msr, msr_ldname(monster) );
                     }
@@ -975,7 +975,7 @@ static bool se_process_effect(struct msr_monster *monster, struct status_effect 
     else c->duration_energy += c->duration_energy_max;
 
     if (status_effect_has_flag(c, SEF_ACTIVE) == false) {
-        lg_debug("Condition %p(%s) is to be destroyed.", c, c->name);
+        lg_debug("Condition %p(%ls) is to be destroyed.", c, c->name);
 
         if (status_effect_has_flag(c, SEF_INVISIBLE) == false) {
             if (c->on_exit_plr != NULL) You_msg(monster, c->on_exit_plr);
@@ -1030,7 +1030,7 @@ void se_remove_all_non_permanent(struct msr_monster *monster) {
     }
 }
 
-const char *se_effect_names(enum status_effect_flags f) {
+const wchar_t *se_effect_names(enum status_effect_flags f) {
     if (f < 0) return NULL;
     if (f >= EF_MAX ) return NULL;
     return se_names[f];

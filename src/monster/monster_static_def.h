@@ -22,8 +22,8 @@
         .gender=_gender, .wounds = { .curr=maxwounds, .max=maxwounds, },
 #define MONSTER_END }
 
-#define CREATION(wght, lvl, l, grp_ch) \
-    .spwn = { .weight=wght, .level=lvl, .dungeon_locale=l, .group_chance = grp_ch, }
+#define CREATION(wght, lvl, cst, l, grp_ch) \
+    .spwn = { .weight=wght, .level=lvl, .cost=cst, .dungeon_locale=l, .group_chance = grp_ch, }
 
 #define FACTION(f) \
     .faction = f
@@ -52,11 +52,11 @@ struct msr_monster static_monster_list[] = {
        Remember to modify the starting wounds table and the fatepoint table
        in player.c when adding new player selectable races.
      */
-    [MID_DUMMY]=MONSTER('h',"dummy","a dummy",MSR_GENDER_MALE,1)
+    [MID_DUMMY]=MONSTER(L'h',L"dummy",L"a dummy",MSR_GENDER_MALE,1)
         HUMAN(),
     MONSTER_END,
 
-    [MID_PLAYER]=MONSTER('@',"Player","player",MSR_GENDER_MALE,7)
+    [MID_PLAYER]=MONSTER(L'@',L"Player",L"player",MSR_GENDER_MALE,7)
         HUMAN(),
         CHARACTERISTICS(MSR_CHAR_COMBAT,        25),
         CHARACTERISTICS(MSR_CHAR_STRENGTH,      25),
@@ -66,12 +66,12 @@ struct msr_monster static_monster_list[] = {
         CHARACTERISTICS(MSR_CHAR_WILLPOWER,     25),
         CHARACTERISTICS(MSR_CHAR_PERCEPTION,    25),
         SKILLS(0,0,0), .fate_points=0,  .is_player=true,
-        DESCRIPTION("description of player"),
+        DESCRIPTION(L"description of player"),
         FACTION(FCT_PLAYER),
     MONSTER_END,
     /*----------------------------------------------------------*/
 
-    MONSTER('s',"scavvie","a scavenger",MSR_GENDER_MALE,1)
+    MONSTER(L's',L"scavvie",L"a scavenger",MSR_GENDER_MALE,1)
         HUMAN(),
         CHARACTERISTICS(MSR_CHAR_COMBAT,        25),
         CHARACTERISTICS(MSR_CHAR_STRENGTH,      25),
@@ -82,38 +82,38 @@ struct msr_monster static_monster_list[] = {
         CHARACTERISTICS(MSR_CHAR_PERCEPTION,    30),
         DEF_ITEM(0, ITEM_GROUP_1H_MELEE),
         SKILLS(bf(MSR_SKILLS_AWARENESS) | bf(MSR_SKILLS_RANGED) | bf(MSR_SKILLS_MELEE) ,0,0),
-        DESCRIPTION("description of an scavenger"),
-        CREATION(30,1,bf(DUNGEON_TYPE_CAVE) | bf(DUNGEON_TYPE_PLAIN) | bf(DUNGEON_TYPE_HIVE), 70),
+        DESCRIPTION(L"description of an scavenger"),
+        CREATION(30,1,50,bf(DUNGEON_TYPE_CAVE) | bf(DUNGEON_TYPE_PLAIN) | bf(DUNGEON_TYPE_HIVE), 70),
         FACTION(FCT_SCAVENGERS),
     MONSTER_END,
 };
 
-static const char *msr_char_name[] = {
-    [MSR_CHAR_COMBAT]         = "Combat Skill",
-    [MSR_CHAR_STRENGTH]       = "Strength",
-    [MSR_CHAR_TOUGHNESS]      = "Toughness",
-    [MSR_CHAR_AGILITY]        = "Agility",
-    [MSR_CHAR_INTELLIGENCE]   = "Intelligence",
-    [MSR_CHAR_WILLPOWER]      = "Willpower",
-    [MSR_CHAR_PERCEPTION]     = "Perception",
+static const wchar_t *msr_char_name[] = {
+    [MSR_CHAR_COMBAT]         = L"Combat Skill",
+    [MSR_CHAR_STRENGTH]       = L"Strength",
+    [MSR_CHAR_TOUGHNESS]      = L"Toughness",
+    [MSR_CHAR_AGILITY]        = L"Agility",
+    [MSR_CHAR_INTELLIGENCE]   = L"Intelligence",
+    [MSR_CHAR_WILLPOWER]      = L"Willpower",
+    [MSR_CHAR_PERCEPTION]     = L"Perception",
 };
 
-static const char *msr_char_description[] = {
-    [MSR_CHAR_COMBAT]         = "Combat Skill",
-    [MSR_CHAR_STRENGTH]       = "Strength",
-    [MSR_CHAR_TOUGHNESS]      = "Toughness",
-    [MSR_CHAR_AGILITY]        = "Agility",
-    [MSR_CHAR_INTELLIGENCE]   = "Intelligence",
-    [MSR_CHAR_WILLPOWER]      = "Willpower",
-    [MSR_CHAR_PERCEPTION]     = "Perception",
+static const wchar_t *msr_char_description[] = {
+    [MSR_CHAR_COMBAT]         = L"Combat Skill",
+    [MSR_CHAR_STRENGTH]       = L"Strength",
+    [MSR_CHAR_TOUGHNESS]      = L"Toughness",
+    [MSR_CHAR_AGILITY]        = L"Agility",
+    [MSR_CHAR_INTELLIGENCE]   = L"Intelligence",
+    [MSR_CHAR_WILLPOWER]      = L"Willpower",
+    [MSR_CHAR_PERCEPTION]     = L"Perception",
 };
 
-static const char *msr_skillrate_name[] = {
-    [MSR_SKILL_RATE_UNKNOWN]        = "unkown",
-    [MSR_SKILL_RATE_KNOWN]          = "known",
-    [MSR_SKILL_RATE_TRAINED]        = "trained",
-    [MSR_SKILL_RATE_EXPERIENCED]    = "experienced",
-    [MSR_SKILL_RATE_VETERAN]        = "veteran",
+static const wchar_t *msr_skillrate_name[] = {
+    [MSR_SKILL_RATE_UNKNOWN]        = L"unkown",
+    [MSR_SKILL_RATE_KNOWN]          = L"known",
+    [MSR_SKILL_RATE_TRAINED]        = L"trained",
+    [MSR_SKILL_RATE_EXPERIENCED]    = L"experienced",
+    [MSR_SKILL_RATE_VETERAN]        = L"veteran",
 };
 
 static enum msr_characteristic msr_skill_charac[] = {
@@ -127,74 +127,74 @@ static enum msr_characteristic msr_skill_charac[] = {
     [MSR_SKILLS_MAX]                = MSR_CHAR_MAX,
 };
 
-static const char *msr_skill_name[] = {
-    [MSR_SKILLS_AWARENESS]          = "Awareness",
-    [MSR_SKILLS_DODGE]              = "Dodge",
-    [MSR_SKILLS_MEDICAE]            = "Medicae",
-    [MSR_SKILLS_MELEE]              = "Melee",
-    [MSR_SKILLS_PARRY]              = "Parry",
-    [MSR_SKILLS_RANGED]             = "Ranged",
-    [MSR_SKILLS_STEALTH]            = "Stealth",
-    [MSR_SKILLS_MAX]                = "Max,"
+static const wchar_t *msr_skill_name[] = {
+    [MSR_SKILLS_AWARENESS]          = L"Awareness",
+    [MSR_SKILLS_DODGE]              = L"Dodge",
+    [MSR_SKILLS_MEDICAE]            = L"Medicae",
+    [MSR_SKILLS_MELEE]              = L"Melee",
+    [MSR_SKILLS_PARRY]              = L"Parry",
+    [MSR_SKILLS_RANGED]             = L"Ranged",
+    [MSR_SKILLS_STEALTH]            = L"Stealth",
+    [MSR_SKILLS_MAX]                = L"Max,"
 };
 
-static const char *msr_skill_description[] = {
-    [MSR_SKILLS_AWARENESS]          = "Awareness",
-    [MSR_SKILLS_DODGE]              = "Dodge",
-    [MSR_SKILLS_MEDICAE]            = "Medicae",
-    [MSR_SKILLS_MELEE]              = "Melee",
-    [MSR_SKILLS_PARRY]              = "Parry",
-    [MSR_SKILLS_RANGED]             = "Ranged",
-    [MSR_SKILLS_STEALTH]            = "Stealth",
-    [MSR_SKILLS_MAX]                = "Max,"
+static const wchar_t *msr_skill_description[] = {
+    [MSR_SKILLS_AWARENESS]          = L"Awareness",
+    [MSR_SKILLS_DODGE]              = L"Dodge",
+    [MSR_SKILLS_MEDICAE]            = L"Medicae",
+    [MSR_SKILLS_MELEE]              = L"Melee",
+    [MSR_SKILLS_PARRY]              = L"Parry",
+    [MSR_SKILLS_RANGED]             = L"Ranged",
+    [MSR_SKILLS_STEALTH]            = L"Stealth",
+    [MSR_SKILLS_MAX]                = L"Max,"
 };
 
 struct talent_descriptions_struct {
     enum msr_talents talent;
-    const char *name;
-    const char *description;
+    const wchar_t *name;
+    const wchar_t *description;
 };
 
 struct talent_descriptions_struct talent_descriptions[] = {
-    { .talent = TLT_NONE,                       .name = "None",                       .description = "None",           } ,
+    { .talent = TLT_NONE,                       .name = L"None",                       .description = L"None",           } ,
 
-    { .talent = TLT_1_AMBIDEXTRIOUS,            .name = "Ambidextrious",              .description = "Ambidextrious",  } ,
-    { .talent = TLT_1_BLIND_FIGHTING,           .name = "Blind Fighting",             .description = "",               } ,
-    { .talent = TLT_1_DIE_HARD,                 .name = "Die Hard",                   .description = "",               } ,
-    { .talent = TLT_1_DISARM,                   .name = "Disarm",                     .description = "",               } ,
-    { .talent = TLT_1_FRENZY,                   .name = "Frenzy",                     .description = "",               } ,
-    { .talent = TLT_1_IRON_JAW,                 .name = "Iron Jaw",                   .description = "",               } ,
-    { .talent = TLT_1_JADED,                    .name = "Jaded",                      .description = "",               } ,
-    { .talent = TLT_1_LEAP_UP,                  .name = "Leap Up",                    .description = "",               } ,
-    { .talent = TLT_1_QUICK_DRAW,               .name = "Quick Draw",                 .description = "",               } ,
-    { .talent = TLT_1_RAPID_RELOAD,             .name = "Rapid Reload",               .description = "",               } ,
-    { .talent = TLT_1_RESISTANCE_COLD,          .name = "Resistance (Cold)",          .description = "",               } ,
-    { .talent = TLT_1_RESISTANCE_HEAT,          .name = "Resistance (Heat)",          .description = "",               } ,
-    { .talent = TLT_1_RESISTANCE_FEAR,          .name = "Resistance (Fear)",          .description = "",               } ,
-    { .talent = TLT_1_RESISTANCE_POISON,        .name = "Resistance (Poison)",        .description = "",               } ,
-    { .talent = TLT_1_RESISTANCE_PSYCHIC,       .name = "Resistance (Psychic)",       .description = "",               } ,
-    { .talent = TLT_1_RESISTANCE_RADIATION,     .name = "Resistance (Radiation)",     .description = "",               } ,
-    { .talent = TLT_1_RESISTANCE_VACUUM,        .name = "Resistance (Vacuum)",        .description = "",               } ,
-    { .talent = TLT_1_TAKEDOWN,                 .name = "Takedown",                   .description = "",               } ,
-    { .talent = TLT_1_WEAPON_TRAINING_BOLT,     .name = "Weapon Training (Bolt)",     .description = "",               } ,
-    { .talent = TLT_1_WEAPON_TRAINING_CHAIN,    .name = "Weapon Training (Chain)",    .description = "",               } ,
-    { .talent = TLT_1_WEAPON_TRAINING_FLAME,    .name = "Weapon Training (Flame)",    .description = "",               } ,
-    { .talent = TLT_1_WEAPON_TRAINING_HEAVY,    .name = "Weapon Training (Heavy)",    .description = "",               } ,
-    { .talent = TLT_1_WEAPON_TRAINING_LOW_TECH, .name = "Weapon Training (Low-Tech)", .description = "",               } ,
-    { .talent = TLT_1_WEAPON_TRAINING_LAUNCHER, .name = "Weapon Training (Launcher)", .description = "",               } ,
-    { .talent = TLT_1_WEAPON_TRAINING_LAS,      .name = "Weapon Training (Las)",      .description = "",               } ,
-    { .talent = TLT_1_WEAPON_TRAINING_MELTA,    .name = "Weapon Training (Melta)",    .description = "",               } ,
-    { .talent = TLT_1_WEAPON_TRAINING_PLASMA,   .name = "Weapon Training (Plasma)",   .description = "",               } ,
-    { .talent = TLT_1_WEAPON_TRAINING_POWER,    .name = "Weapon Training (Power)",    .description = "",               } ,
-    { .talent = TLT_1_WEAPON_TRAINING_SHOCK,    .name = "Weapon Training (Shock)",    .description = "",               } ,
-    { .talent = TLT_1_WEAPON_TRAINING_SP,       .name = "Weapon Training (SP)",       .description = "",               } ,
+    { .talent = TLT_1_AMBIDEXTRIOUS,            .name = L"Ambidextrious",              .description = L"Ambidextrious",  } ,
+    { .talent = TLT_1_BLIND_FIGHTING,           .name = L"Blind Fighting",             .description = L"",               } ,
+    { .talent = TLT_1_DIE_HARD,                 .name = L"Die Hard",                   .description = L"",               } ,
+    { .talent = TLT_1_DISARM,                   .name = L"Disarm",                     .description = L"",               } ,
+    { .talent = TLT_1_FRENZY,                   .name = L"Frenzy",                     .description = L"",               } ,
+    { .talent = TLT_1_IRON_JAW,                 .name = L"Iron Jaw",                   .description = L"",               } ,
+    { .talent = TLT_1_JADED,                    .name = L"Jaded",                      .description = L"",               } ,
+    { .talent = TLT_1_LEAP_UP,                  .name = L"Leap Up",                    .description = L"",               } ,
+    { .talent = TLT_1_QUICK_DRAW,               .name = L"Quick Draw",                 .description = L"",               } ,
+    { .talent = TLT_1_RAPID_RELOAD,             .name = L"Rapid Reload",               .description = L"",               } ,
+    { .talent = TLT_1_RESISTANCE_COLD,          .name = L"Resistance (Cold)",          .description = L"",               } ,
+    { .talent = TLT_1_RESISTANCE_HEAT,          .name = L"Resistance (Heat)",          .description = L"",               } ,
+    { .talent = TLT_1_RESISTANCE_FEAR,          .name = L"Resistance (Fear)",          .description = L"",               } ,
+    { .talent = TLT_1_RESISTANCE_POISON,        .name = L"Resistance (Poison)",        .description = L"",               } ,
+    { .talent = TLT_1_RESISTANCE_PSYCHIC,       .name = L"Resistance (Psychic)",       .description = L"",               } ,
+    { .talent = TLT_1_RESISTANCE_RADIATION,     .name = L"Resistance (Radiation)",     .description = L"",               } ,
+    { .talent = TLT_1_RESISTANCE_VACUUM,        .name = L"Resistance (Vacuum)",        .description = L"",               } ,
+    { .talent = TLT_1_TAKEDOWN,                 .name = L"Takedown",                   .description = L"",               } ,
+    { .talent = TLT_1_WEAPON_TRAINING_BOLT,     .name = L"Weapon Training (Bolt)",     .description = L"",               } ,
+    { .talent = TLT_1_WEAPON_TRAINING_CHAIN,    .name = L"Weapon Training (Chain)",    .description = L"",               } ,
+    { .talent = TLT_1_WEAPON_TRAINING_FLAME,    .name = L"Weapon Training (Flame)",    .description = L"",               } ,
+    { .talent = TLT_1_WEAPON_TRAINING_HEAVY,    .name = L"Weapon Training (Heavy)",    .description = L"",               } ,
+    { .talent = TLT_1_WEAPON_TRAINING_LOW_TECH, .name = L"Weapon Training (Low-Tech)", .description = L"",               } ,
+    { .talent = TLT_1_WEAPON_TRAINING_LAUNCHER, .name = L"Weapon Training (Launcher)", .description = L"",               } ,
+    { .talent = TLT_1_WEAPON_TRAINING_LAS,      .name = L"Weapon Training (Las)",      .description = L"",               } ,
+    { .talent = TLT_1_WEAPON_TRAINING_MELTA,    .name = L"Weapon Training (Melta)",    .description = L"",               } ,
+    { .talent = TLT_1_WEAPON_TRAINING_PLASMA,   .name = L"Weapon Training (Plasma)",   .description = L"",               } ,
+    { .talent = TLT_1_WEAPON_TRAINING_POWER,    .name = L"Weapon Training (Power)",    .description = L"",               } ,
+    { .talent = TLT_1_WEAPON_TRAINING_SHOCK,    .name = L"Weapon Training (Shock)",    .description = L"",               } ,
+    { .talent = TLT_1_WEAPON_TRAINING_SP,       .name = L"Weapon Training (SP)",       .description = L"",               } ,
 
-    /*{ .talent = TLT_2_ARMOUR_MONGER,            .name = "Armour Monger",              .description = "",               } ,*/
-    { .talent = TLT_2_TWO_WEAPON_FIGHTING,      .name = "Two-weapon Fighting",        .description = "",               } ,
+    /*{ .talent = TLT_2_ARMOUR_MONGER,            .name = L"Armour Monger",              .description = L"",               } ,*/
+    { .talent = TLT_2_TWO_WEAPON_FIGHTING,      .name = L"Two-weapon Fighting",        .description = L"",               } ,
 
-    /*{ .talent = TLT_3_ASSASSINS_STRIKE,         .name = "Assassins Strike",           .description = "",               } ,*/
+    /*{ .talent = TLT_3_ASSASSINS_STRIKE,         .name = L"Assassins Strike",           .description = L"",               } ,*/
 
-    { .talent = TLT_MAX,                        .name = "Max",                        .description = "Max",            } 
+    { .talent = TLT_MAX,                        .name = L"Max",                        .description = L"Max",            }
 };
 
 static const int human_hitloc_lotable[] = {
@@ -213,18 +213,18 @@ static const int beast_hitloc_lotable[] = {
     [MSR_HITLOC_LEFT_LEG]   = 75,
 };
 
-static const char *hitloc_names[] = {
-    [MSR_HITLOC_HEAD]       = "head",
-    [MSR_HITLOC_RIGHT_ARM]  = "right arm",
-    [MSR_HITLOC_LEFT_ARM]   = "left arm",
-    [MSR_HITLOC_BODY]       = "thorax",
-    [MSR_HITLOC_RIGHT_LEG]  = "right leg",
-    [MSR_HITLOC_LEFT_LEG]   = "left leg",
+static const wchar_t *hitloc_names[] = {
+    [MSR_HITLOC_HEAD]       = L"head",
+    [MSR_HITLOC_RIGHT_ARM]  = L"right arm",
+    [MSR_HITLOC_LEFT_ARM]   = L"left arm",
+    [MSR_HITLOC_BODY]       = L"thorax",
+    [MSR_HITLOC_RIGHT_LEG]  = L"right leg",
+    [MSR_HITLOC_LEFT_LEG]   = L"left leg",
 };
 
-static const char *gender_names[][2] = {
-    [MSR_GENDER_MALE]   = {cs_MONSTER "his" cs_CLOSE, cs_MONSTER "he"  cs_CLOSE},
-    [MSR_GENDER_FEMALE] = {cs_MONSTER "her" cs_CLOSE, cs_MONSTER "she" cs_CLOSE},
-    [MSR_GENDER_IT]     = {cs_MONSTER "its" cs_CLOSE, cs_MONSTER "it"  cs_CLOSE},
+static const wchar_t *gender_names[][2] = {
+    [MSR_GENDER_MALE]   = {cs_MONSTER L"his" cs_CLOSE, cs_MONSTER L"he"  cs_CLOSE},
+    [MSR_GENDER_FEMALE] = {cs_MONSTER L"her" cs_CLOSE, cs_MONSTER L"she" cs_CLOSE},
+    [MSR_GENDER_IT]     = {cs_MONSTER L"its" cs_CLOSE, cs_MONSTER L"it"  cs_CLOSE},
 };
 

@@ -17,13 +17,13 @@
 
 static struct cr_homeworld static_homeworld_list[] = {
     [CR_HWID_NONE] = {
-        .name = "None",
-        .description = "nothing",
+        .name = L"None",
+        .description = L"nothing",
     },
 
     [CR_HWID_HIVE] = {
-        .name = "Hive World",
-        .description = "description of a hive world",
+        .name = L"Hive World",
+        .description = L"description of a hive world",
 
         .fate_points = 2,
         .fate_threshold = 6,
@@ -50,13 +50,13 @@ static struct cr_homeworld static_homeworld_list[] = {
 
 static struct cr_background static_background_list[] = {
     [CR_BCKGRNDID_NONE] = {
-        .name = "None",
-        .description = "nothing",
+        .name = L"None",
+        .description = L"nothing",
     },
 
     [CR_BCKGRNDID_IMPERIAL_GUARD] = {
-        .name = "Imperial Guard",
-        .description = "description of imperial guard",
+        .name = L"Imperial Guard",
+        .description = L"description of imperial guard",
 
         .skills = bf(MSR_SKILLS_MEDICAE),
         .talents = TLT_1_WEAPON_TRAINING_LAS | TLT_1_WEAPON_TRAINING_LOW_TECH,
@@ -70,8 +70,8 @@ static struct cr_background static_background_list[] = {
         },
     },
     [CR_BCKGRNDID_OUTCAST] = {
-        .name = "Outcast",
-        .description = "description of outcast",
+        .name = L"Outcast",
+        .description = L"description of outcast",
 
         .skills = bf(MSR_SKILLS_DODGE) | bf(MSR_SKILLS_STEALTH),
         .talents = TLT_1_WEAPON_TRAINING_SP | TLT_1_WEAPON_TRAINING_CHAIN,
@@ -92,8 +92,8 @@ static struct cr_background static_background_list[] = {
 
 static struct cr_role static_role_list[] = {
     [CR_ROLEID_NONE] = {
-        .name = "None",
-        .description = "nothing",
+        .name = L"None",
+        .description = L"nothing",
 
         .aptitudes = 0,
         .talents = 0,
@@ -101,16 +101,16 @@ static struct cr_role static_role_list[] = {
     },
 
     [CR_ROLEID_SEEKER] = {
-        .name = "Seeker",
-        .description = "description of seeker",
+        .name = L"Seeker",
+        .description = L"description of seeker",
 
         .aptitudes = bf(APTITUDE_INTELLIGENCE) | bf(APTITUDE_PERCEPTION),
         .talents = TLT_1_DISARM,
         .role_talent = 0,
     },
     [CR_ROLEID_WARRIOR] = {
-        .name = "Warrior",
-        .description = "description of warrior",
+        .name = L"Warrior",
+        .description = L"description of warrior",
 
         .aptitudes = bf(APTITUDE_RANGED) | bf(APTITUDE_DEFENCE) | bf(APTITUDE_OFFENCE) | bf(APTITUDE_STRENGTH) | bf(APTITUDE_MELEE),
         .talents = TLT_1_IRON_JAW,
@@ -192,21 +192,21 @@ static const int talent_cost_list[][MSR_TALENT_TIER_MAX] = {
     [2] = { 100, 200, 300, -1},
 };
 
-static const char *aptitude_names[] = {
-    [APTITUDE_GENERAL]      = "General",
-    [APTITUDE_MELEE]        = "Melee",
-    [APTITUDE_RANGED]       = "Ranged",
-    [APTITUDE_STRENGTH]     = "Strength",
-    [APTITUDE_TOUGHNESS]    = "Toughness",
-    [APTITUDE_AGILITY]      = "Agility",
-    [APTITUDE_WILLPOWER]    = "Willpower",
-    [APTITUDE_INTELLIGENCE] = "Intelligence",
-    [APTITUDE_PERCEPTION]   = "Perception",
-    [APTITUDE_OFFENCE]      = "Offence",
-    [APTITUDE_FINESS]       = "Finess",
-    [APTITUDE_DEFENCE]      = "Defence",
-    [APTITUDE_FIELDCRAFT]   = "Fieldcraft",
+static const wchar_t *aptitude_names[] = {
+    [APTITUDE_GENERAL]      = L"General",
+    [APTITUDE_MELEE]        = L"Melee",
+    [APTITUDE_RANGED]       = L"Ranged",
+    [APTITUDE_STRENGTH]     = L"Strength",
+    [APTITUDE_TOUGHNESS]    = L"Toughness",
+    [APTITUDE_AGILITY]      = L"Agility",
+    [APTITUDE_WILLPOWER]    = L"Willpower",
+    [APTITUDE_INTELLIGENCE] = L"Intelligence",
+    [APTITUDE_PERCEPTION]   = L"Perception",
+    [APTITUDE_OFFENCE]      = L"Offence",
+    [APTITUDE_FINESS]       = L"Finess",
+    [APTITUDE_DEFENCE]      = L"Defence",
+    [APTITUDE_FIELDCRAFT]   = L"Fieldcraft",
 
-    [APTITUDE_MAX]          = "ERROR",
+    [APTITUDE_MAX]          = L"ERROR",
 };
 

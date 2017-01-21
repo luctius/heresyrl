@@ -122,7 +122,7 @@ struct ground_effect *ge_create(uint32_t tid, struct dm_map_entity *me) {
     ge->current_energy = ge->min_energy;
     if (range > 0) ge->current_energy += (random_int32(gbl_game->random) % range);
     if (ge->current_energy == 0) ge->current_energy = 1;
-    lg_debug("Creating ge: %p(%s) duration: %d, max: %d", ge, ge->sd_name, ge->current_energy, ge->max_energy);
+    lg_debug("Creating ge: %p(%ls) duration: %d, max: %d", ge, ge->sd_name, ge->current_energy, ge->max_energy);
     ge->max_energy = ge->current_energy;
 
     me->effect = ge;
@@ -138,7 +138,7 @@ bool ge_destroy(struct dm_map_entity *me) {
     while (gele != NULL) {
         struct ground_effect *ge = &gele->ground_effect;
         if (me->effect == ge) {
-            lg_debug("Destroying ge: %p(%s) duration: %d, max: %d", ge, ge->sd_name, ge->current_energy, ge->max_energy);
+            lg_debug("Destroying ge: %p(%ls) duration: %d, max: %d", ge, ge->sd_name, ge->current_energy, ge->max_energy);
             TAILQ_REMOVE(&ground_effects_list_head, gele, entries);
             me->effect = NULL;
             free(gele);

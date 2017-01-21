@@ -313,7 +313,6 @@ static bool load_log(lua_State *L, struct logging *lctx) {
             lg_add_entry(lctx, &le);
         }
     }
-
     return true;
 }
 
@@ -518,8 +517,10 @@ static bool load_monsters(lua_State *L, struct dm_map *map, struct gm_game *g) {
 
         const char *name_ptr = lua_stringexpr(L, "game.monsters[%d].unique_name", i+1);
         if (name_ptr != NULL) {
-            monster->unique_name = strdup(name_ptr);
-            lg_debug("monster[%d] name is %s", monster->uid, monster->unique_name);
+            wchar_t wname[strlen(name_ptr)];
+            mbstowcs (wname, name_ptr, strlen(name_ptr) );
+            monster->unique_name = wcsdup(wname);
+            lg_debug("monster[%d] name is %ls", monster->uid, monster->unique_name);
         }
 
         if (lua_intexpr(L, &t, "game.monsters[%d].skills.sz", i+1) == 1) {

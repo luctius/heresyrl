@@ -129,10 +129,10 @@ struct msr_monster {
     enum msr_gender gender;
 
     /* unique name for this unique monster, default is NULL, contains also the players name. */
-    char *unique_name;
-    const char *sd_name;
-    const char *ld_name;
-    const char *description;
+    wchar_t *unique_name;
+    const wchar_t *sd_name;
+    const wchar_t *ld_name;
+    const wchar_t *description;
 
     struct {
         /* current number of wounds, more is better */
@@ -194,6 +194,7 @@ struct msr_monster {
     /* Monster creation. */
     struct {
         int weight;
+        int cost;
         int level;
         int group_chance;
 
@@ -285,8 +286,8 @@ bool msr_can_use_evasion(struct msr_monster *monster, enum msr_evasions evasion)
 bool msr_use_evasion(struct msr_monster *monster, struct msr_monster *attacker, struct itm_item *atk_wpn, enum msr_evasions evasion, int to_hit_DoS, int mod);
 
 /* do damage to that hit location, including critical hits, and handle the first part of monster death. */
-bool msr_do_dmg(struct msr_monster *monster, const char *origin, int dmg, enum dmg_type dmg_type, enum msr_hit_location mhl);
-bool msr_die(struct msr_monster *monster, const char *origin, struct dm_map *map);
+bool msr_do_dmg(struct msr_monster *monster, const wchar_t *origin, int dmg, enum dmg_type dmg_type, enum msr_hit_location mhl);
+bool msr_die(struct msr_monster *monster, const wchar_t *origin, struct dm_map *map);
 
 /* given a number between 0 and 99, return the monsters hit location*/
 enum msr_hit_location msr_get_hit_location(struct msr_monster *monster, int hit_roll);
@@ -327,22 +328,22 @@ bool msr_weapon_type_check(struct msr_monster *monster, enum item_weapon_type ty
 /* cycle weapon selection towards the next correct setting, if possible. */
 bool msr_weapon_next_selection(struct msr_monster *monster);
 
-const char *msr_ldname(struct msr_monster *monster);
+const wchar_t *msr_ldname(struct msr_monster *monster);
 
 /* Male / Female / It */
-const char *msr_gender_string(struct msr_monster *monster);
+const wchar_t *msr_gender_string(struct msr_monster *monster);
 
 /* he / his -- her / hers, etc.*/
-const char *msr_gender_name(struct msr_monster *monster, bool possesive);
+const wchar_t *msr_gender_name(struct msr_monster *monster, bool possesive);
 
-const char *msr_char_names(enum msr_characteristic c);
-const char *msr_char_descriptions(enum msr_characteristic c);
-const char *msr_skill_names(enum msr_skills s);
-const char *msr_skill_descriptions(enum msr_skills s);
-const char *msr_skillrate_names(enum msr_skill_rate sr);
-const char *msr_talent_names(enum msr_talents t);
-const char *msr_talent_descriptions(enum msr_talents t);
-const char *msr_hitloc_name(struct msr_monster *monster, enum msr_hit_location mhl);
+const wchar_t *msr_char_names(enum msr_characteristic c);
+const wchar_t *msr_char_descriptions(enum msr_characteristic c);
+const wchar_t *msr_skill_names(enum msr_skills s);
+const wchar_t *msr_skill_descriptions(enum msr_skills s);
+const wchar_t *msr_skillrate_names(enum msr_skill_rate sr);
+const wchar_t *msr_talent_names(enum msr_talents t);
+const wchar_t *msr_talent_descriptions(enum msr_talents t);
+const wchar_t *msr_hitloc_name(struct msr_monster *monster, enum msr_hit_location mhl);
 
 void msr_dbg_check_all(void);
 

@@ -49,7 +49,7 @@ struct msr_monster_list_entry {
 void msrlst_monster_list_init(void) {
     for (unsigned int i = 1; i < ARRAY_SZ(static_monster_list); i++) {
         struct msr_monster *template_monster = &static_monster_list[i];
-        if ( (template_monster->icon == '\0') || (template_monster->sd_name == NULL) || (template_monster->ld_name == NULL) ){
+        if ( (template_monster->icon == L'\0') || (template_monster->sd_name == NULL) || (template_monster->ld_name == NULL) ){
             fprintf(stderr, "Monster list integrity check failed! [%d]\n", i);
             exit(EXIT_FAILURE);
         }
@@ -168,7 +168,7 @@ struct msr_monster *msr_create(enum msr_ids tid) {
     m->monster.inventory = NULL;
     m->monster.status_effects = se_list_init();
     if (m->monster.description == NULL) {
-        m->monster.description = "none";
+        m->monster.description = L"none";
     }
     assert(m->monster.description != NULL);
 
@@ -187,7 +187,7 @@ struct msr_monster *msr_create(enum msr_ids tid) {
     }
     creature_weapon(&m->monster);
 
-    lg_debug("creating monster[%d, %s, %c]", m->monster.uid, m->monster.ld_name, m->monster.icon);
+    lg_debug("creating monster[%d, %ls, %lc]", m->monster.uid, m->monster.ld_name, m->monster.icon);
 
     TAILQ_INSERT_TAIL(&monster_list_head, m, entries);
     return &m->monster;
@@ -261,7 +261,7 @@ bool msr_insert_monster(struct msr_monster *monster, struct dm_map *map, coord_t
 
     me_future->monster = monster;
     monster->pos = *pos;
-    lg_ai_debug(monster, "inserting \'%s\'(%c) to (%d,%d)",
+    lg_ai_debug(monster, "inserting \'%ls\'(%lc) to (%d,%d)",
                 monster->sd_name, monster->icon, monster->pos.x, monster->pos.y);
 
     monster->idle_counter = 0;
@@ -570,7 +570,7 @@ enum msr_hit_location msr_get_hit_location(struct msr_monster *monster, int hit_
     return mhl;
 }
 
-bool msr_die(struct msr_monster *monster, const char *origin, struct dm_map *map) {
+bool msr_die(struct msr_monster *monster, const wchar_t *origin, struct dm_map *map) {
     if (msr_verify_monster(monster) == false) return false;
     if (dm_verify_map(map) == false) return false;
 
@@ -579,8 +579,8 @@ bool msr_die(struct msr_monster *monster, const char *origin, struct dm_map *map
         Monster(monster, "falls unconsious.");
     }
     else {
-        You(monster, "are killed by %s", origin);
-        Monster(monster, "is killed by %s", origin);
+        You(monster, "are killed by %ls", origin);
+        Monster(monster, "is killed by %ls", origin);
 
         msr_drop_inventory(monster, map);
         msr_remove_monster(monster, map);
@@ -594,7 +594,7 @@ bool msr_die(struct msr_monster *monster, const char *origin, struct dm_map *map
     return true;
 }
 
-bool msr_do_dmg(struct msr_monster *monster, const char *origin, int dmg, enum dmg_type dmg_type, enum msr_hit_location mhl) {
+bool msr_do_dmg(struct msr_monster *monster, const wchar_t *origin, int dmg, enum dmg_type dmg_type, enum msr_hit_location mhl) {
     if (msr_verify_monster(monster) == false) return false;
     if (se_has_effect(monster, EF_DEAD) ) return false;
     assert(origin != NULL);
@@ -756,15 +756,15 @@ bool msr_set_skill(struct msr_monster *monster, enum msr_skills skill, enum msr_
     return true;
 }
 
-const char *msr_gender_string(struct msr_monster *monster) {
-    if (msr_verify_monster(monster) == false) return "nil";
+const wchar_t *msr_gender_string(struct msr_monster *monster) {
+    if (msr_verify_monster(monster) == false) return L"nil";
     switch (monster->gender) {
-        case MSR_GENDER_MALE: return "Male";
-        case MSR_GENDER_FEMALE: return "Female";
-        case MSR_GENDER_IT: return "None";
+        case MSR_GENDER_MALE:   return L"Male";
+        case MSR_GENDER_FEMALE: return L"Female";
+        case MSR_GENDER_IT:     return L"None";
         default: break;
     }
-    return "";
+    return L"";
 }
 
 bool msr_weapons_check(struct msr_monster *monster) {
@@ -1047,16 +1047,16 @@ struct ai *msr_get_ai_ctx(struct msr_monster *monster) {
     return &monster->controller.ai;
 }
 
-const char *msr_ldname(struct msr_monster *monster) {
-    if (msr_verify_monster(monster) == false) return cs_MONSTER "unknown" cs_CLOSE;
+const wchar_t *msr_ldname(struct msr_monster *monster) {
+    if (msr_verify_monster(monster) == false) return cs_MONSTER L"unknown" cs_CLOSE;
 
-    if (monster->is_player) return cs_PLAYER "you" cs_CLOSE;
-    if (!dm_get_map_me(&monster->pos, gbl_game->current_map)->visible) return cs_MONSTER "something" cs_CLOSE;
+    if (monster->is_player) return cs_PLAYER L"you" cs_CLOSE;
+    if (!dm_get_map_me(&monster->pos, gbl_game->current_map)->visible) return cs_MONSTER L"something" cs_CLOSE;
     return monster->ld_name;
 }
 
-const char *msr_gender_name(struct msr_monster *monster, bool possesive) {
-    if (msr_verify_monster(monster) == false) return cs_MONSTER "unknown" cs_CLOSE;
+const wchar_t *msr_gender_name(struct msr_monster *monster, bool possesive) {
+    if (msr_verify_monster(monster) == false) return cs_MONSTER L"unknown" cs_CLOSE;
 
     enum msr_gender gender = monster->gender;
     if (monster->gender >= MSR_GENDER_MAX) gender = MSR_GENDER_IT;
@@ -1066,33 +1066,33 @@ const char *msr_gender_name(struct msr_monster *monster, bool possesive) {
     return gender_names[gender][pos];
 }
 
-const char *msr_char_names(enum msr_characteristic c) {
+const wchar_t *msr_char_names(enum msr_characteristic c) {
     if (c >= MSR_CHAR_MAX) return NULL;
     return msr_char_name[c];
 }
 
-const char *msr_char_descriptions(enum msr_characteristic c) {
+const wchar_t *msr_char_descriptions(enum msr_characteristic c) {
     if (c >= MSR_CHAR_MAX) return NULL;
     return msr_char_description[c];
 }
 
-const char *msr_skill_names(enum msr_skills s) {
+const wchar_t *msr_skill_names(enum msr_skills s) {
     if (s >= MSR_SKILLS_MAX) return NULL;
     return msr_skill_name[s];
 }
 
-const char *msr_skill_descriptions(enum msr_skills s) {
+const wchar_t *msr_skill_descriptions(enum msr_skills s) {
     if (s >= MSR_SKILLS_MAX) return NULL;
     return msr_skill_description[s];
 }
 
-const char *msr_skillrate_names(enum msr_skill_rate sr) {
+const wchar_t *msr_skillrate_names(enum msr_skill_rate sr) {
     if (sr < 0) return NULL;
     if (sr >= MSR_SKILL_RATE_MAX) return NULL;
     return msr_skillrate_name[sr];
 }
 
-const char *msr_talent_names(enum msr_talents t) {
+const wchar_t *msr_talent_names(enum msr_talents t) {
     if (t >= TLT_MAX) return NULL;
     for (unsigned int i = 0; i < ARRAY_SZ(talent_descriptions); i++) {
         if (talent_descriptions[i].talent != t) continue;
@@ -1102,7 +1102,7 @@ const char *msr_talent_names(enum msr_talents t) {
     return NULL;
 }
 
-const char *msr_talent_descriptions(enum msr_talents t) {
+const wchar_t *msr_talent_descriptions(enum msr_talents t) {
     if (t >= TLT_MAX) return NULL;
     for (unsigned int i = 0; i < ARRAY_SZ(talent_descriptions); i++) {
         if (talent_descriptions[i].talent != t) continue;
@@ -1112,7 +1112,7 @@ const char *msr_talent_descriptions(enum msr_talents t) {
     return NULL;
 }
 
-const char *msr_hitloc_name(struct msr_monster *monster, enum msr_hit_location mhl) {
+const wchar_t *msr_hitloc_name(struct msr_monster *monster, enum msr_hit_location mhl) {
     if (msr_verify_monster(monster) == false) return NULL;
     if (mhl >= MSR_HITLOC_MAX) return NULL;
 

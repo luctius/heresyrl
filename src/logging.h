@@ -78,8 +78,8 @@ struct log_entry {
 /*
 Warning: Stacking multiple of the same cs_XXX is not supported yet
 */
-#define CS_COLOUR_PRE "<<<"
-#define CS_COLOUR_POST ">>>"
+#define CS_COLOUR_PRE   "<<<"
+#define CS_COLOUR_POST  ">>>"
 #define cs_MONSTER  CS_COLOUR_PRE "monster" CS_COLOUR_POST
 #define cs_PLAYER   CS_COLOUR_PRE "player" CS_COLOUR_POST
 #define cs_ITEM     CS_COLOUR_PRE "item" CS_COLOUR_POST
@@ -117,7 +117,7 @@ void lg_add_entry(struct logging *log_ctx, struct log_entry *le_given);
 #define lg_warning(f, a...) lg_printf_l(LG_DEBUG_LEVEL_WARNING,       __FILE__, __LINE__, cs_WARNING f cs_CLOSE, ##a)
 #define lg_wizard(f, a...)  lg_printf_l(LG_DEBUG_LEVEL_WIZARD,        __FILE__, __LINE__, cs_WIZARD f cs_CLOSE, ##a)
 #define lg_error(f, a...)   lg_printf_l(LG_DEBUG_LEVEL_ERROR,         __FILE__, __LINE__, cs_CRITICAL f cs_CLOSE, ##a)
-#define lg_ai_debug(msr, f, a...)lg_printf_l(LG_DEBUG_LEVEL_DEBUG,    __FILE__, __LINE__, "[uid %d, tid %d (%s)] " f,  monster->uid, monster->tid, msr_ldname(monster), ##a)
+#define lg_ai_debug(msr, f, a...)lg_printf_l(LG_DEBUG_LEVEL_DEBUG,    __FILE__, __LINE__, "[uid %d, tid %d (%ls)] " f,  monster->uid, monster->tid, msr_ldname(monster), ##a)
 #define Info(f, a...)       lg_printf_l(LG_DEBUG_LEVEL_GAME_INFO,     __FILE__, __LINE__, f, ##a)
 
 #define GM_msg(f, a...)                 do                     { msg_internal(NULL,NULL,        __FILE__, __LINE__, cs_GM f cs_CLOSE, ##a); } while (0)
@@ -125,22 +125,22 @@ void lg_add_entry(struct logging *log_ctx, struct log_entry *le_given);
 #define Warning(f, a...)                do                     { msg_internal(NULL,NULL,        __FILE__, __LINE__, cs_CRITICAL "**" "Warning, " f "**" cs_CLOSE, ##a); } while (0)
 #define Event_msg(p1, f, a...)          do                     { msg_internal(p1,NULL,          __FILE__, __LINE__, f, ##a); } while (0)
 #define Event_tgt_msg(p1,p2, f, a...)   do                     { msg_internal(p1,p2,            __FILE__, __LINE__, f, ##a); } while (0)
-#define You(m, f, a...)                 do {if (m->is_player)  { msg_internal(&m->pos,NULL,     __FILE__, __LINE__, cs_PLAYER "You" cs_CLOSE " " f, ##a); } } while (0)
+#define You(m, f, a...)                 do {if (m->is_player)  { msg_internal(&m->pos,NULL,     __FILE__, __LINE__, cs_PLAYER "You"  cs_CLOSE " " f, ##a); } } while (0)
 #define Your(m, f, a...)                do {if (m->is_player)  { msg_internal(&m->pos,NULL,     __FILE__, __LINE__, cs_PLAYER "Your" cs_CLOSE " " f, ##a); } } while (0)
 #define You_msg(m, f, a...)             do {if (m->is_player)  { msg_internal(&m->pos,NULL,     __FILE__, __LINE__, f, ##a); } } while (0)
-#define Monster(m, f, a...)             do {if (!m->is_player) { msg_internal(&m->pos,NULL,     __FILE__, __LINE__, "%s " f, msr_ldname(m), ##a); } } while (0)
-#define Monster_he(m, f, a...)          do {if (!m->is_player) { msg_internal(&m->pos,NULL,     __FILE__, __LINE__, "%s " f, msr_gender_name(m, false), ##a); } } while (0)
-#define Monster_his(m, f, a...)         do {if (!m->is_player) { msg_internal(&m->pos,NULL,     __FILE__, __LINE__, "%s " f, msr_gender_name(m, true), ##a); } } while (0)
+#define Monster(m, f, a...)             do {if (!m->is_player) { msg_internal(&m->pos,NULL,     __FILE__, __LINE__, "%ls " f, msr_ldname(m), ##a); } } while (0)
+#define Monster_he(m, f, a...)          do {if (!m->is_player) { msg_internal(&m->pos,NULL,     __FILE__, __LINE__, "%ls " f, msr_gender_name(m, false), ##a); } } while (0)
+#define Monster_his(m, f, a...)         do {if (!m->is_player) { msg_internal(&m->pos,NULL,     __FILE__, __LINE__, "%ls " f, msr_gender_name(m, true), ##a); } } while (0)
 #define Monster_msg(m, f, a...)         do {if (!m->is_player) { msg_internal(&m->pos,NULL,     __FILE__, __LINE__, f, ##a); } } while (0)
 
-#define Monster_tgt(m, m2, f, a...)     do {if (!m->is_player) { msg_internal(&m->pos,&m2->pos, __FILE__, __LINE__, "%s " f, msr_ldname(m), ##a); } } while (0)
-#define Monster_tgt_he(m, m2, f, a...)  do {if (!m->is_player) { msg_internal(&m->pos,&m2->pos, __FILE__, __LINE__, "%s " f, msr_gender_name(m, false), ##a); } } while (0)
-#define Monster_tgt_his(m, m2, f, a...) do {if (!m->is_player) { msg_internal(&m->pos,&m2->pos, __FILE__, __LINE__, "%s " f, msr_gender_name(m, true), ##a); } } while (0)
+#define Monster_tgt(m, m2, f, a...)     do {if (!m->is_player) { msg_internal(&m->pos,&m2->pos, __FILE__, __LINE__, "%ls " f, msr_ldname(m), ##a); } } while (0)
+#define Monster_tgt_he(m, m2, f, a...)  do {if (!m->is_player) { msg_internal(&m->pos,&m2->pos, __FILE__, __LINE__, "%ls " f, msr_gender_name(m, false), ##a); } } while (0)
+#define Monster_tgt_his(m, m2, f, a...) do {if (!m->is_player) { msg_internal(&m->pos,&m2->pos, __FILE__, __LINE__, "%ls " f, msr_gender_name(m, true), ##a); } } while (0)
 #define Monster_tgt_msg(m, m2, f, a...) do {if (!m->is_player) { msg_internal(&m->pos,&m2->pos, __FILE__, __LINE__, f, ##a); } } while (0)
 
 /*Do not use directly*/
-void lg_printf_l(int lvl, const char *module, int line, const char* format, ... );
+void lg_printf_l(int lvl, const char *module, int line, const char *format, ... );
 void lg_printf_basic(struct logging *log, enum lg_debug_levels dbg_lvl, const char *module, int line, const char *format, va_list args);
-void msg_internal(coord_t *origin, coord_t *target, const char* module, int line, const char *format, ...);
+void msg_internal(coord_t *origin, coord_t *target, const char *module, int line, const char *format, ...);
 
 #endif /*LOGGING_H_*/

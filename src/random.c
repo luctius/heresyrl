@@ -59,12 +59,12 @@ struct random {
     int mti; //=N+1; /* r->mti==N+1 means r->mt[N] is not initialized */
 };
 
-const char *random_die_name(int die_sz) {
+const wchar_t *random_die_name(int die_sz) {
     switch (die_sz) {
-        case 5: return "D5";
-        case 10: return "D10";
-        case 100: return "D100";
-        default: assert(false); return "";
+        case 5: return L"D5";
+        case 10: return L"D10";
+        case 100: return L"D100";
+        default: assert(false); return L"";
     }
 }
 

@@ -356,17 +356,17 @@ int fght_calc_dmg(struct random *r, struct msr_monster *monster, struct msr_mons
             Monster_tgt_he(monster, target, "hits and does " cs_DAMAGE "%d" cs_CLOSE " damage.", MAX((dmg + dmg_add) - (armour  + toughness), 0));
         }
         else {
-            Event_msg(&target->pos, "It does %d to %s.", total_damage, msr_ldname(target) );
+            Event_msg(&target->pos, "It does %d to %ls.", total_damage, msr_ldname(target) );
         }
 
-        Info("Doing %d%s+%d damage => %d, %d wnds left.", wpn->nr_dmg_die, random_die_name(dmg_die_sz), dmg_add, dmg, target->wounds.curr);
+        Info("Doing %d%ls+%d damage => %d, %d wnds left.", wpn->nr_dmg_die, random_die_name(dmg_die_sz), dmg_add, dmg, target->wounds.curr);
         msr_do_dmg(target, msr_ldname(monster), rnd_dmg, wpn->dmg_type, mhl);
         if (se_has_effect(target, EF_DEAD) ) h = hits;
     }
 
     if ( (se_has_effect(target, EF_DEAD) == false) && (total_damage > 0) ) {
         if (wpn->convey_status_effect != SEID_NONE) {
-            const char *origin  = witem->ld_name;
+            const wchar_t *origin  = witem->ld_name;
             if (monster != NULL) origin = msr_ldname(monster);
             assert(se_add_status_effect(target, wpn->convey_status_effect, origin) );
         }
@@ -398,10 +398,10 @@ bool fght_do_weapon_dmg(struct random *r, struct msr_monster *monster, struct ms
 
     enum msr_hit_location mhl = msr_get_hit_location(target, random_d100(r));
 
-    You(monster,                 "%s at %s's %s.", itm_you_use_desc(witem), msr_ldname(target), msr_hitloc_name(target, mhl) );
+    You(monster,                 "%ls at %ls's %ls.", itm_you_use_desc(witem), msr_ldname(target), msr_hitloc_name(target, mhl) );
 
-    if (target->is_player) Monster_tgt(monster, target, "%s at " cs_PLAYER "your" cs_CLOSE " %s.", itm_msr_use_desc(witem), msr_hitloc_name(target, mhl) );
-    else Monster_tgt(monster, target, "%s at %s %s.", itm_msr_use_desc(witem), msr_ldname(target), msr_hitloc_name(target, mhl) );
+    if (target->is_player) Monster_tgt(monster, target, "%ls at " cs_PLAYER "your" cs_CLOSE " %ls.", itm_msr_use_desc(witem), msr_hitloc_name(target, mhl) );
+    else Monster_tgt(monster, target, "%ls at %ls %ls.", itm_msr_use_desc(witem), msr_ldname(target), msr_hitloc_name(target, mhl) );
 
     fght_calc_dmg(r, monster, target, hits, witem, mhl);
 
@@ -443,8 +443,8 @@ int fght_ranged_roll(struct random *r, struct msr_monster *monster, struct msr_m
     lg_debug("roll %d vs to hit %d, jamm_threshold %d", roll, to_hit, jammed_threshold);
 
     /*
-    You(monster,                 "%s at %s.",  itm_you_use_desc(witem), msr_ldname(target) );
-    Monster_tgt(monster, target, "%s at %s.", itm_msr_use_desc(witem), msr_ldname(target) );
+    You(monster,                 "%ls at %ls.",  itm_you_use_desc(witem), msr_ldname(target) );
+    Monster_tgt(monster, target, "%ls at %ls.", itm_msr_use_desc(witem), msr_ldname(target) );
     */
 
     /* Do jamming test */
@@ -453,7 +453,7 @@ int fght_ranged_roll(struct random *r, struct msr_monster *monster, struct msr_m
         wpn->jammed = true;
 
         if (wpn->jammed) {
-            Your(monster,                    "%s weapon jams.",  fght_weapon_hand_name(hand) );
+            Your(monster,                    "%ls weapon jams.",  fght_weapon_hand_name(hand) );
             Monster_tgt_his(monster, target, "weapon jams.");
             lg_debug("Weapon jamm with roll %d, theshold %d, 2nd roll %d", roll, jammed_threshold, reltest);
             return -1;
@@ -501,8 +501,8 @@ int fght_melee_roll(struct random *r, struct msr_monster *monster, struct msr_mo
     witem = fght_get_working_weapon(monster, WEAPON_TYPE_MELEE, hand);
     if (witem == NULL) return -1;
 
-    You(monster,                 "%s at %s.", itm_you_use_desc(witem), msr_ldname(target));
-    Monster_tgt(monster, target, "%s at %s.", itm_msr_use_desc(witem), msr_ldname(target) );
+    You(monster,                 "%ls at %ls.", itm_you_use_desc(witem), msr_ldname(target));
+    Monster_tgt(monster, target, "%ls at %ls.", itm_msr_use_desc(witem), msr_ldname(target) );
 
     /* TODO add Melee attack options */
 
@@ -598,7 +598,7 @@ bool fght_explosion(struct random *r, struct itm_item *bomb, struct dm_map *map)
 
     lg_debug("Exploding bomb on %d,%d() with radius %d.", c.x, c.y, radius);
 
-    Event_msg(&c, "%s explodes.", bomb->ld_name);
+    Event_msg(&c, "%ls explodes.", bomb->ld_name);
 
     coord_t *gridlist = NULL;
     int gridlist_sz = sgt_explosion(map, &c, radius, &gridlist);
@@ -672,7 +672,7 @@ bool fght_throw_item(struct random *r, struct msr_monster *monster, struct dm_ma
         if (dis > cd_pyth(&monster->pos, e) ) dis = cd_pyth(&monster->pos, e);
 
         end = sgt_scatter(map, r, e, dis);
-        lg_debug("%s is scattered towards (%d,%d)", witem->ld_name, end.x, end.y);
+        lg_debug("%ls is scattered towards (%d,%d)", witem->ld_name, end.x, end.y);
 
         /* I first wanted to do the animation in one go, scatter them animate the whole path
            But it is very possible that the scattered target is out of LoS of the origin.  */
@@ -801,11 +801,11 @@ bool fght_shoot(struct random *r, struct msr_monster *monster, struct dm_map *ma
     return false;
 }
 
-const char *fght_weapon_hand_name(enum fght_hand hand) {
+const wchar_t *fght_weapon_hand_name(enum fght_hand hand) {
     switch (hand) {
-        case FGHT_MAIN_HAND: return "main";
-        case FGHT_OFF_HAND: return "off";
-        default: return "unknown";
+        case FGHT_MAIN_HAND: return L"main";
+        case FGHT_OFF_HAND: return L"off";
+        default: return L"unknown";
     }
 }
 
@@ -818,7 +818,7 @@ bool fght_can_see(struct dm_map *map, struct msr_monster *monster, struct msr_mo
     /* Same faction can always see each other */
     if (monster->faction == tgt->faction) return true;
 
-    lg_ai_debug(monster, "testing visual to %s", msr_ldname(tgt));
+    lg_ai_debug(monster, "testing visual to %ls", msr_ldname(tgt));
 
     struct dm_map_entity *me = dm_get_map_me(&tgt->pos, map);
     int near    = msr_get_near_sight_range(monster);
@@ -869,15 +869,15 @@ bool fght_can_see(struct dm_map *map, struct msr_monster *monster, struct msr_mo
     int awareness_DoS = (awareness + awareness_mod) / 10;
     int stealth_DoS   = (stealth + stealth_mod)  / 10;
 
-    lg_ai_debug(monster, "test see: (%d(+%d) vs %s %d(+%d) )", awareness, awareness_mod, msr_ldname(tgt), stealth, stealth_mod);
+    lg_ai_debug(monster, "test see: (%d(+%d) vs %ls %d(+%d) )", awareness, awareness_mod, msr_ldname(tgt), stealth, stealth_mod);
     if (awareness_DoS > stealth_DoS) {
-        /* You(monster, "notice %s", msr_ldname(tgt) );*/
-        /* Monster(monster, "notices %s", msr_ldname(tgt) );*/
-        lg_ai_debug(monster, "sees %s", msr_ldname(tgt));
+        /* You(monster, "notice %ls", msr_ldname(tgt) );*/
+        /* Monster(monster, "notices %ls", msr_ldname(tgt) );*/
+        lg_ai_debug(monster, "sees %ls", msr_ldname(tgt));
         return true;
     }
 
-    lg_ai_debug(monster, "does not see %s", msr_ldname(tgt));
+    lg_ai_debug(monster, "does not see %ls", msr_ldname(tgt));
     return false;
 }
 
@@ -933,11 +933,11 @@ struct itm_item *fght_get_working_weapon(struct msr_monster *monster, enum item_
 
     if (type == WEAPON_TYPE_RANGED) {
         if (item->specific.weapon.jammed == true) {
-            Your(monster, "%s-hand weapon is jammed.", fght_weapon_hand_name(hand) );
+            Your(monster, "%ls-hand weapon is jammed.", fght_weapon_hand_name(hand) );
             return NULL;
         }
         if (item->specific.weapon.magazine_left == 0) {
-            Your(monster, "%s-hand weapon is empty.", fght_weapon_hand_name(hand) );
+            Your(monster, "%ls-hand weapon is empty.", fght_weapon_hand_name(hand) );
             return NULL;
         }
     }

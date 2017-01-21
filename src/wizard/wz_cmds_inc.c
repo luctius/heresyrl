@@ -16,6 +16,7 @@
 */
 
 #include <inttypes.h>
+#include <wchar.h>
 
 #include "items/items.h"
 #include "monster/monster.h"
@@ -264,21 +265,21 @@ static void cmd_inspect_item(char *input) {
 
     itm_verify_item(item);
     if (item->owner_type == ITEM_OWNER_NONE) {
-        lg_wizard("%10s %6" PRIu32 " %6" PRIu32 "  (no owner)", item->sd_name, item->uid, item->tid);
+        lg_wizard("%10ls %6" PRIu32 " %6" PRIu32 "  (no owner)", item->sd_name, item->uid, item->tid);
     }
     else if (item->owner_type == ITEM_OWNER_MAP) {
-        lg_wizard("%10s %6" PRIu32 " %6" PRIu32"  (pos %d,%d)", item->sd_name, item->uid, item->tid, item->owner.owner_map_entity->pos.x, item->owner.owner_map_entity->pos.y);
+        lg_wizard("%10ls %6" PRIu32 " %6" PRIu32 "  (pos %d,%d)", item->sd_name, item->uid, item->tid, item->owner.owner_map_entity->pos.x, item->owner.owner_map_entity->pos.y);
     }
     else if (item->owner_type == ITEM_OWNER_MONSTER) {
-        lg_wizard("%10s %6" PRIu32 " %6" PRIu32 "  (uid %" PRIu32 ")", item->sd_name, item->uid, item->tid, item->owner.owner_monster->uid);
+        lg_wizard("%10ls %6" PRIu32 " %6" PRIu32 "  (uid %" PRIu32 ")", item->sd_name, item->uid, item->tid, item->owner.owner_monster->uid);
     }
     lg_wizard("spawn weight: %d, level: %d", item->spawn_weight, item->spawn_level);
     lg_wizard("quality: %d", item->quality);
     lg_wizard("weight: %d", item->weight);
     lg_wizard("cost: %d", item->cost);
-    lg_wizard("long name: %s", item->ld_name);
-    lg_wizard("description: %s", item->description);
-    lg_wizard("icon: '%c'", item->icon);
+    lg_wizard("long name: %ls", item->ld_name);
+    lg_wizard("description: %ls", item->description);
+    lg_wizard("icon: '%lc'", item->icon);
     lg_wizard("use delay: %d", item->use_delay);
     lg_wizard("stack quantity: %d/%d", item->stacked_quantity, item->max_quantity);
     lg_wizard("identified : %d (last try: %d)", item->identified, item->identify_last_try);
@@ -292,7 +293,7 @@ static void cmd_inspect_item(char *input) {
             char mod = '+';
             int add = wpn->dmg_addition;
             if (add < 0) mod = '-';
-            lg_wizard("%c%d\n", mod, abs(add) );
+            lg_wizard("%lc%d\n", mod, abs(add) );
             if (wpn->nr_dmg_die == 0) lg_wizard("1D5");
             else lg_wizard("damage %dD10 %c %d", wpn->nr_dmg_die, mod, abs(add) );
 
@@ -302,15 +303,15 @@ static void cmd_inspect_item(char *input) {
 
             if (wpn_is_type(item, WEAPON_TYPE_RANGED) ) {
                 lg_wizard("- Magazine size %d\n", wpn->magazine_sz);
-                if (wpn_uses_ammo(item) ) lg_wizard("- Uses %s\n", wpn_ammo_string(wpn->ammo_type) );
+                if (wpn_uses_ammo(item) ) lg_wizard("- Uses %ls\n", wpn_ammo_string(wpn->ammo_type) );
 
                 int single = wpn->rof[WEAPON_ROF_SETTING_SINGLE];
                 int semi = wpn->rof[WEAPON_ROF_SETTING_SEMI];
                 int aut = wpn->rof[WEAPON_ROF_SETTING_AUTO];
 
                 if (semi > 0 || aut > 0) {
-                    char semi_str[4]; snprintf(semi_str, 3, "%d", semi);
-                    char auto_str[4]; snprintf(auto_str, 3, "%d", aut);
+                    char semi_str[4]; swprintf(semi_str, 3, "%d", semi);
+                    char auto_str[4]; swprintf(auto_str, 3, "%d", aut);
                     lg_wizard("- Rate of Fire (%s/%s/%s)\n",
                             (single > 0) ? "S" : "-", (semi > 0) ? semi_str : "-", (aut > 0) ? auto_str : "-");
                 }
@@ -321,7 +322,7 @@ static void cmd_inspect_item(char *input) {
                 }
                 else {
                     struct itm_item *ammo = itm_create(wpn->ammo_used_tid);
-                    lg_wizard("It is currently loaded with %s.\n\n", ammo->ld_name);
+                    lg_wizard("It is currently loaded with %ls.\n\n", ammo->ld_name);
                     itm_destroy(ammo);
                 }
 
@@ -331,7 +332,7 @@ static void cmd_inspect_item(char *input) {
             }
 
             if (wpn->wpn_talent != TLT_NONE) {
-                lg_wizard("This weapon requires the %s talent.\n", msr_talent_names(wpn->wpn_talent) );
+                lg_wizard("This weapon requires the %ls talent.\n", msr_talent_names(wpn->wpn_talent) );
             }
 
             if (wpn->special_quality != 0) {
@@ -344,7 +345,7 @@ static void cmd_inspect_item(char *input) {
 
                 for (int i = 0; i < WPN_SPCQLTY_MAX; i++) {
                     if (wpn_has_spc_quality(item, i) )  {
-                        lg_wizard("- %s.\n", wpn_spec_quality_name(i) );
+                        lg_wizard("- %ls.\n", wpn_spec_quality_name(i) );
                     }
                 }
             }
@@ -356,7 +357,7 @@ static void cmd_inspect_item(char *input) {
             lg_wizard("locations: ");
             for (enum inv_locations i = 1; i < INV_LOC_MAX; i <<= 1) {
                 if ( (wrbl->locations & i) > 0) {
-                    lg_wizard("- %s", inv_location_name(wrbl->locations & i) );
+                    lg_wizard("- %ls", inv_location_name(wrbl->locations & i) );
                 }
             }
 
@@ -365,7 +366,7 @@ static void cmd_inspect_item(char *input) {
 
                 for (int i = 0; i < WBL_SPCQLTY_MAX; i++) {
                     if (wbl_has_spc_quality(item, i) )  {
-                        lg_wizard("- %s.\n", wbl_spec_quality_name(i) );
+                        lg_wizard("- %ls.\n", wbl_spec_quality_name(i) );
                     }
                 }
             }
@@ -384,7 +385,7 @@ static void cmd_inspect_item(char *input) {
                 int energy_pc = (ammo->energy_left * 100) / ammo->energy;
                 lg_wizard("energy left %d\%\n", energy_pc);
             }
-            lg_wizard("provides %s\n", wpn_ammo_string(ammo->ammo_type) );
+            lg_wizard("provides %ls\n", wpn_ammo_string(ammo->ammo_type) );
         } break;
         case ITEM_TYPE_FOOD: break;
         default: break;
@@ -405,10 +406,10 @@ static void cmd_inspect_monster(char *input) {
     }
 
     msr_verify_monster(monster);
-    lg_wizard("%10s %6u %6" PRIu32" (pos %d,%d)", monster->sd_name, monster->uid, monster->tid, monster->pos.x, monster->pos.y);
-    lg_wizard("long name: %s", monster->ld_name);
-    lg_wizard("description: %s", monster->description);
-    lg_wizard("icon: '%c'", monster->icon);
+    lg_wizard("%10ls %6u %6" PRIu32 " (pos %d,%d)", monster->sd_name, monster->uid, monster->tid, monster->pos.x, monster->pos.y);
+    lg_wizard("long name: %ls", monster->ld_name);
+    lg_wizard("description: %ls", monster->description);
+    lg_wizard("icon: '%lc'", monster->icon);
     lg_wizard("fate points: %d", monster->fate_points);
     lg_wizard("insanity points: %d", monster->insanity_points);
     lg_wizard("corruption points: %d", monster->corruption_points);
@@ -422,14 +423,14 @@ static void cmd_inspect_monster(char *input) {
             if (t == TLT_NONE) continue;
 
             if (msr_has_talent(monster, t) ) {
-                lg_wizard("talent %s", msr_talent_names(t) );
+                lg_wizard("talent %ls", msr_talent_names(t) );
             }
         }
     }
     for (unsigned int i = 0; i < MSR_SKILLS_MAX; i++) {
         if (msr_has_skill(monster, i) ) {
             enum msr_skill_rate skillrate = msr_has_skill(monster,  i);
-            lg_wizard("%-20s %s", msr_skill_names(i),  msr_skillrate_names(skillrate));
+            lg_wizard("%-20s %ls", msr_skill_names(i),  msr_skillrate_names(skillrate));
         }
     }
 }

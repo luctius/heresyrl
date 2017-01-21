@@ -133,7 +133,7 @@ static bool ai_human_loop(struct msr_monster *monster) {
     assert (ai != NULL);
 
     /* struct msr_monster *leader = msr_get_monster_by_uid(ai_s->leader_uid); */
-    ai_s->emo_state = "Stupid";
+    ai_s->emo_state = L"Stupid";
 
     bool has_action = false;
     monster->wpn_sel = MSR_WEAPON_SELECT_CREATURE1;

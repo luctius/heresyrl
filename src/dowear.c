@@ -142,12 +142,12 @@ bool dw_wear_item(struct msr_monster *monster, struct itm_item *item) {
 
     if (retval == true) {
         if (item->item_type == ITEM_TYPE_WEAPON) {
-            You(monster,     "wield %s.", item->ld_name);
-            Monster(monster, "wields %s.", item->ld_name);
+            You(monster,     "wield %ls.", item->ld_name);
+            Monster(monster, "wields %ls.", item->ld_name);
         }
         else {
-            You(monster,     "wear %s.", item->ld_name);
-            Monster(monster, "wears %s.", item->ld_name);
+            You(monster,     "wear %ls.", item->ld_name);
+            Monster(monster, "wears %ls.", item->ld_name);
         }
 
         /* Do check here */
@@ -168,8 +168,8 @@ static bool remove_weapon(struct msr_monster *monster, struct itm_item *item) {
 
     assert(inv_move_item_to_location(inv, item, INV_LOC_INVENTORY) == true);
 
-    You(monster,     "remove %s.", item->ld_name);
-    Monster(monster, "removes %s.", item->ld_name);
+    You(monster,     "remove %ls.", item->ld_name);
+    Monster(monster, "removes %ls.", item->ld_name);
 
     return true;
 }
@@ -183,8 +183,8 @@ static bool remove_wearable(struct msr_monster *monster, struct itm_item *item) 
 
     assert(inv_move_item_to_location(inv, item, INV_LOC_INVENTORY) == true);
 
-    You(monster,     "remove %s.", item->ld_name);
-    Monster(monster, "removes %s.", item->ld_name);
+    You(monster,     "remove %ls.", item->ld_name);
+    Monster(monster, "removes %ls.", item->ld_name);
 
     return true;
 }
@@ -224,7 +224,7 @@ bool dw_use_item(struct msr_monster *monster, struct itm_item *item) {
     if (item->item_type == ITEM_TYPE_TOOL && item->specific.tool.tool_type == TOOL_TYPE_LIGHT) {
         if (item->specific.tool.lit == false) {
             if (item->specific.tool.energy == 0) {
-                msg("The %s is out of juice.", item->sd_name);
+                msg("The %ls is out of juice.", item->sd_name);
                 return false;
             }
 
@@ -232,8 +232,8 @@ bool dw_use_item(struct msr_monster *monster, struct itm_item *item) {
             item->energy = item->specific.tool.energy;
             item->energy_action = true;
 
-            You(monster,     "light %s.", item->ld_name);
-            Monster(monster, "lights %s.", item->ld_name);
+            You(monster,     "light %ls.", item->ld_name);
+            Monster(monster, "lights %ls.", item->ld_name);
         }
         else {
             item->specific.tool.lit = false;
@@ -243,8 +243,8 @@ bool dw_use_item(struct msr_monster *monster, struct itm_item *item) {
             if (item->energy > 0) {
                 item->specific.tool.energy = item->energy;
 
-                You(monster,     "douse %s.", item->ld_name);
-                Monster(monster, "douses %s.", item->ld_name);
+                You(monster,     "douse %ls.", item->ld_name);
+                Monster(monster, "douses %ls.", item->ld_name);
             }
         }
     }
@@ -255,8 +255,8 @@ bool dw_use_item(struct msr_monster *monster, struct itm_item *item) {
         struct item_food_specific *food = &item->specific.food;
 
         if (food->food_type == FOOD_TYPE_LIQUID) {
-            You(monster,     "quaff %s.", item->ld_name);
-            Monster(monster, "quaffs %s.", item->ld_name);
+            You(monster,     "quaff %ls.", item->ld_name);
+            Monster(monster, "quaffs %ls.", item->ld_name);
 
             food->nutrition_left -= 1;
             if (food->nutrition_left <= 0) {
@@ -265,8 +265,8 @@ bool dw_use_item(struct msr_monster *monster, struct itm_item *item) {
             }
         }
         else if (food->food_type == FOOD_TYPE_SOLID) {
-            You(monster,     "eat from %s.", item->ld_name);
-            Monster(monster, "eats from %s.", item->ld_name);
+            You(monster,     "eat from %ls.", item->ld_name);
+            Monster(monster, "eats from %ls.", item->ld_name);
 
             food->nutrition_left -= 1;
             if (food->nutrition_left <= 0) {
@@ -275,8 +275,8 @@ bool dw_use_item(struct msr_monster *monster, struct itm_item *item) {
             }
         }
         else if (food->food_type == FOOD_TYPE_INJECTION) {
-            You(monster,     "inject a %s.", item->ld_name);
-            Monster(monster, "injects a %s.", item->ld_name);
+            You(monster,     "inject a %ls.", item->ld_name);
+            Monster(monster, "injects a %ls.", item->ld_name);
 
             food->nutrition_left -= 1;
             if (food->nutrition_left <= 0) {
@@ -296,7 +296,7 @@ bool dw_use_item(struct msr_monster *monster, struct itm_item *item) {
             se_add_status_effect(monster, food->side_effect, item->ld_name);
 
             if (item->identified && !identified) {
-                You(monster, "identified the side effects of %s.\n", item->ld_name);
+                You(monster, "identified the side effects of %ls.\n", item->ld_name);
             }
         }
 

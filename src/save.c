@@ -110,7 +110,7 @@ static bool sv_save_player(FILE *file, int indent, struct pl_player *plr) {
                 for (int i = 0; i < ACHIEVEMENTS_MAX; i++) {
                     if (plr->career.achievements[i].turn >= 0) {
                         svprintf(file,"turn= %d,", plr->career.achievements[i].turn);
-                        svprintf(file,"achievement=\"%s\",", plr->career.achievements[i].achievement);
+                        svprintf(file,"achievement=\"%ls\",", plr->career.achievements[i].achievement);
                     }
                 }
                 svprintf(file,"sz= %d,", a_max);
@@ -153,7 +153,7 @@ static bool sv_save_monsters(FILE *file, int indent) {
                 svprintf(file,"ai_leader=%u,", msr_get_ai_ctx(m)->leader_uid );
                 svprintf(file,"pos={x=%d,y=%d,},", m->pos.x,m->pos.y);
                 svprintf(file,"creature_traits=%"PRIu64",",m->creature_traits);
-                if (m->unique_name != NULL) svprintf(file, "unique_name=\"%s\",",m->unique_name);
+                if (m->unique_name != NULL) svprintf(file, "unique_name=\"%ls\",",m->unique_name);
 
                 svprintf_open(file,"wounds=");
                     svprintf(file,"curr=%d,", m->wounds.curr);

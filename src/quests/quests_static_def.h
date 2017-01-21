@@ -52,9 +52,9 @@
 
 static struct quest static_quest_list[] = {
     QUEST(QSTID_WISE_WOMAN, QST_TYPE_FETCH),
-        DESCRIPTION("fetch mushrooms"),
-        DESCR_ENTRANCE(cs_PLAYER "You" cs_CLOSE " arrived at the place where the wise woman asked " cs_PLAYER "you" cs_CLOSE " to search for her mushrooms."),
-        DESCR_EXIT("The wise woman was extremely gratefull when " cs_PLAYER "you" cs_CLOSE " returned with the mushrooms."),
+        DESCRIPTION(L"fetch mushrooms"),
+        DESCR_ENTRANCE(cs_PLAYER L"You" cs_CLOSE L" arrived at the place where the wise woman asked " cs_PLAYER L"you" cs_CLOSE L" to search for her mushrooms."),
+        DESCR_EXIT(L"The wise woman was extremely gratefull when " cs_PLAYER L"you" cs_CLOSE L" returned with the mushrooms."),
         REWARDS(200, 5),
         WEIGHTS(10, 1, 10),
         DUNGEON(0, DUNGEON_TYPE_CAVE,  1, 10, 50, 150, 100, 100),
@@ -68,9 +68,9 @@ static struct quest static_quest_list[] = {
     QUEST_END,
 };
 
-const char *quest_description_templates[] = {
-    [QST_TYPE_NONE] = "",
-    [QST_TYPE_KILL_ALL] = cs_PLAYER "You" cs_CLOSE " must kill all %s's.",
-    [QST_TYPE_KILL_LEADER] = cs_PLAYER "You" cs_CLOSE " must kill the leader, %s.",
-    [QST_TYPE_FETCH] = cs_PLAYER "You" cs_CLOSE " must retrieve " cs_ATTR "%d" cs_CLOSE " %s.",
+const wchar_t *quest_description_templates[] = {
+    [QST_TYPE_NONE] = L"",
+    [QST_TYPE_KILL_ALL] = cs_PLAYER L"You" cs_CLOSE L" must kill all %ls's.",
+    [QST_TYPE_KILL_LEADER] = cs_PLAYER L"You" cs_CLOSE L" must kill the leader, %ls.",
+    [QST_TYPE_FETCH] = cs_PLAYER L"You" cs_CLOSE L" must retrieve " cs_ATTR L"%d" cs_CLOSE L" %ls.",
 };

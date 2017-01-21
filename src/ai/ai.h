@@ -24,7 +24,7 @@
 struct ai {
     uint32_t target_uid;
     uint32_t leader_uid;
-    char *emo_state;
+    const wchar_t *emo_state;
     void *ai_ctx;
     void (*free_func)(void *ai_ctx);
 };

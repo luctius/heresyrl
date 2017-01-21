@@ -108,7 +108,7 @@ enum inp_keys inp_get_from_log(struct inp_input *i) {
     return i->keylog[i->keylog_ridx++];
 }
 
-char inp_key_translate_idx(int idx) {
+wchar_t inp_key_translate_idx(int idx) {
     if (idx <= 25) return idx+0x61;
     else if (idx <= 35) return idx+0x30;
     return -1;

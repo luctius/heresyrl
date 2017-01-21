@@ -321,7 +321,7 @@ static void rpsc_fov_octant(struct rpsc_fov_set *set, coord_t *src, int radius, 
     /* descriptor of this octant */
     struct rpsc_octant_quad *oct_mod = &octant_lo_table[octant];
 
-    lg_debug("-------------start in octand %s----------", oct_mod->desc);
+    lg_debug("-------------start in octand %ls----------", oct_mod->desc);
 
     /* set boundries */
     if (min_angle > 0) {
@@ -501,7 +501,7 @@ bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst) {
     struct angle_set blocked_list[obstacles_max];
 
     if (set->apply != NULL) {
-        lg_debug("-------------with apply start in octand %s----------", oct_mod->desc);
+        lg_debug("-------------with apply start in octand %ls----------", oct_mod->desc);
         set->apply(set, src, src);
     }
 
@@ -645,7 +645,7 @@ bool rpsc_los(struct rpsc_fov_set *set, coord_t *src, coord_t *dst) {
         }
     }
 
-    if (set->apply != NULL) lg_debug("-------------with apply end, visibility is %s----------", (visible) ? "true": "false");
+    if (set->apply != NULL) lg_debug("-------------with apply end, visibility is %ls----------", (visible) ? "true": "false");
     return visible;
 }
 

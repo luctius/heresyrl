@@ -111,7 +111,10 @@ void opt_parse_options(struct gengetopt_args_info *args_info) {
     }
 
     if (args_info->name_given == true) {
-        options.char_name = strdup(args_info->name_arg);
+        int name_len = strlen(args_info->name_arg);
+        wchar_t wname[name_len+2];
+        mbstowcs(wname, args_info->name_arg, name_len);
+        options.char_name = wcsdup(wname);
         options.debug_no_load = true;
     }
     if (args_info->homeworld_given == true) {

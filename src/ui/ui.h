@@ -35,8 +35,11 @@ bool mapwin_overlay_throw_item_cursor(struct gm_game *g, struct dm_map *map, coo
 void msgwin_log_callback(struct logging *log, struct log_entry *entry, void *priv);
 void msgwin_log_refresh(struct logging *log, struct log_entry *le);
 
+void show_message(void);
+
 void charwin_refresh(void);
-void charwin_examine(const char *type, const char *name, const char *description);
+void charwin_examine(const char *type, const wchar_t *name, const wchar_t *description);
+
 bool invwin_inventory(struct dm_map *map, struct pl_player *plr);
 
 void character_window(void);

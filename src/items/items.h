@@ -261,9 +261,9 @@ struct itm_item {
     enum item_quality quality;
     int weight;
     uint32_t cost;
-    const char *sd_name;
-    const char *ld_name;
-    const char *description;
+    const wchar_t *sd_name;
+    const wchar_t *ld_name;
+    const wchar_t *description;
     icon_t icon;
     int icon_attr;
     float use_delay;
@@ -311,8 +311,8 @@ struct itm_item {
         struct item_wearable_specific wearable;
     } specific;
 
-    const char *you_use_desc[5];
-    const char *msr_use_desc[5];
+    const wchar_t *you_use_desc[5];
+    const wchar_t *msr_use_desc[5];
 
     int item_post;
 };
@@ -412,17 +412,17 @@ bool tool_is_type(struct itm_item *item, enum item_tool_type type);
 /* true if both items can be stacked. */
 bool itm_stack_compatible(struct itm_item *item1, struct itm_item *item2);
 
-const char *itm_you_use_desc(struct itm_item *item);
-const char *itm_msr_use_desc(struct itm_item *item);
+const wchar_t *itm_you_use_desc(struct itm_item *item);
+const wchar_t *itm_msr_use_desc(struct itm_item *item);
 
-const char *itm_quality_string(struct itm_item *item);
-const char *wpn_ammo_string(enum item_ammo_type iat);
+const wchar_t *itm_quality_string(struct itm_item *item);
+const wchar_t *wpn_ammo_string(enum item_ammo_type iat);
 
-const char *wpn_spec_quality_name(enum weapon_special_quality spq);
-const char *wpn_spec_quality_description(enum weapon_special_quality spq);
+const wchar_t *wpn_spec_quality_name(enum weapon_special_quality spq);
+const wchar_t *wpn_spec_quality_description(enum weapon_special_quality spq);
 
-const char *wbl_spec_quality_name(enum wearable_special_quality spq);
-const char *wbl_spec_quality_description(enum wearable_special_quality spq);
+const wchar_t *wbl_spec_quality_name(enum wearable_special_quality spq);
+const wchar_t *wbl_spec_quality_description(enum wearable_special_quality spq);
 
 void itm_dbg_check_all(void);
 

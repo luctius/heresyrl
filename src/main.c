@@ -22,6 +22,7 @@
 #include <time.h>
 #include <signal.h>
 #include <unistd.h>
+#include <locale.h>
 
 #include "uncursed.h"
 
@@ -75,6 +76,8 @@ int main(int argc, char *argv[]) {
 
     lg_init(options.log_file_name, debug_lvl, log_size);
     assert(atexit(lg_exit) == 0);
+
+    lg_debug("Starting.");
 
     game_init(NULL, rand());
     assert(atexit(game_exit) == 0);
@@ -132,16 +135,16 @@ int main(int argc, char *argv[]) {
     if (options.play_recording == false) {
         if (game_load() == false) {
             if (options.test_auto) {
-                System_msg("Loading game failed.");
+                Warning("Loading game failed.");
                 exit(EXIT_FAILURE);
             }
 
             game_init(NULL, rand());
-            System_msg("Loading game failed.");
+            Warning("Loading game failed.");
         }
         else if (gbl_game->player_data.player != NULL) {
             valid_player = true;
-            show_msg(msg_win);
+            show_message();
         }
     }
 

@@ -28,8 +28,8 @@
 
 #define CR_TRAPPINGS_MAX 10
 struct cr_homeworld {
-    const char *name;
-    const char *description;
+    const wchar_t *name;
+    const wchar_t *description;
 
     int characteristics[MSR_CHAR_MAX];
 
@@ -42,8 +42,8 @@ struct cr_homeworld {
 };
 
 struct cr_background {
-    const char *name;
-    const char *description;
+    const wchar_t *name;
+    const wchar_t *description;
 
     bitfield32_t skills;
     bitfield64_t talents;
@@ -54,8 +54,8 @@ struct cr_background {
 };
 
 struct cr_role {
-    const char *name;
-    const char *description;
+    const wchar_t *name;
+    const wchar_t *description;
 
     bitfield32_t aptitudes;
     bitfield64_t talents;
@@ -75,9 +75,9 @@ int cr_talent_cost(struct pl_player *plr, enum msr_talents talent);
 
 bool cr_has_aptitude(struct pl_player *plr, enum aptitude_enum aptitude);
 void cr_set_aptitude(struct pl_player *plr, enum aptitude_enum aptitude);
-const char *cr_aptitude_name(enum aptitude_enum aptitude);
+const wchar_t *cr_aptitude_name(enum aptitude_enum aptitude);
 
-void cr_add_achievement(struct pl_player *plr, int turn, const char *achievement);
+void cr_add_achievement(struct pl_player *plr, int turn, const wchar_t *achievement);
 void cr_print_morgue_file(struct pl_player *plr);
 
 #endif /* CAREER_H */

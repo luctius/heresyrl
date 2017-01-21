@@ -193,7 +193,7 @@ static bool plr_action_loop(struct msr_monster *player) {
                                 bool pickup = false;
 
                                 if (pickup_all == false) {
-                                    System_msg("Pickup %s? (o)k/(c)ancel/(a)ll/(q)uit", item->ld_name);
+                                    System_msg("Pickup %ls? (o)k/(c)ancel/(a)ll/(q)uit", item->ld_name);
                                     switch (inp_get_input(gbl_game->input) ) {
                                         case INP_KEY_ESCAPE: stop = true; break;
                                         case INP_KEY_APPLY:

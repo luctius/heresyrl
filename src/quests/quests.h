@@ -57,9 +57,9 @@ struct quest {
     enum quest_types type;
     int qst_params[QUEST_SZ];
 
-    const char *description;
-    const char *start;
-    const char *end;
+    const wchar_t *description;
+    const wchar_t *start;
+    const wchar_t *end;
     int xp_reward;
     int gp_reward;
     int weight;
@@ -85,5 +85,5 @@ void qst_process_quest_during(struct quest *quest, struct dm_map *map);
 
 bool qst_is_quest_done(struct quest *quest, struct dm_map *map);
 
-void qst_get_description(struct quest *quest, char *str, int max_length);
+void qst_get_description(struct quest *quest, wchar_t *str, int max_length);
 #endif /* QUESTS_H */

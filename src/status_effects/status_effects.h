@@ -172,9 +172,9 @@ struct status_effect {
     uint32_t uid;
     enum se_ids tid;
 
-    const char *name;
-    const char *description;
-    const char *origin;
+    const wchar_t *name;
+    const wchar_t *description;
+    const wchar_t *origin;
     const char *on_first_plr;
     const char *on_first_msr;
     const char *on_exit_plr;
@@ -224,17 +224,17 @@ bool se_has_effect(struct msr_monster *monster, enum status_effect_flags effect)
 int se_status_effect_strength(struct msr_monster *monster, enum status_effect_flags effect, int param); /* set param to -1 for any. */
 bool se_add_energy(struct status_effect *se, int32_t energy);
 
-bool se_add_status_effect(struct msr_monster *monster, uint32_t tid, const char *origin);
+bool se_add_status_effect(struct msr_monster *monster, uint32_t tid, const wchar_t *origin);
 bool se_remove_status_effect(struct msr_monster *monster, struct status_effect *con);
 bool se_remove_effects_by_tid(struct msr_monster *monster, uint32_t tid);
 void se_remove_status_effects_by_effect(struct msr_monster *monster, enum status_effect_flags effect);
 
 bool se_heal_status_effect(struct msr_monster *monster, struct msr_monster *healer, struct status_effect *con, bool magic);
-bool se_add_critical_hit(struct msr_monster *monster, const char *origin, int dmg, enum msr_hit_location mhl, enum dmg_type type);
+bool se_add_critical_hit(struct msr_monster *monster, const wchar_t *origin, int dmg, enum msr_hit_location mhl, enum dmg_type type);
 
 void se_dbg_check_all(void);
 
-const char *se_effect_names(enum status_effect_flags f);
+const wchar_t *se_effect_names(enum status_effect_flags f);
 
 static inline bool effect_set_flag(struct status_effect_atom_struct *ces, enum status_effect_atom_setting_flags flag) {
     return set_bf(ces->effect_setting_flags, flag);

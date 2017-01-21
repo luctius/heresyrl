@@ -189,13 +189,13 @@ void cr_set_aptitude(struct pl_player *plr, enum aptitude_enum aptitude) {
     assert (plr != NULL);
     set_bf(plr->career.aptitudes, aptitude);
 }
-const char *cr_aptitude_name(enum aptitude_enum aptitude) {
+const wchar_t *cr_aptitude_name(enum aptitude_enum aptitude) {
     if (aptitude <= 0) return NULL;
     if (aptitude >= APTITUDE_MAX) return NULL;
     return aptitude_names[aptitude];
 }
 
-void cr_add_achievement(struct pl_player *plr, int turn, const char *achievement) {
+void cr_add_achievement(struct pl_player *plr, int turn, const wchar_t *achievement) {
     if (plr == NULL) return;
     if (turn == -1) return;
     if (achievement == NULL) return;
@@ -218,12 +218,11 @@ void cr_print_morgue_file(struct pl_player *plr) {
     const int buf_max = 200;
     char buf[buf_max];
 
-    printf("%s played for %lu seconds and %" PRIu64 ".%" PRIu64 " turns\n", mon->unique_name, (unsigned long int) plr->career.play_seconds, gbl_game->turn / TT_ENERGY_TURN, gbl_game->turn % TT_ENERGY_TURN);
-    printf("%s still owed the loan-shark %d throne guilders\n", mon->unique_name, plr->loan);
+    printf("%ls played for %lu seconds and %" PRIu64 ".%" PRIu64 " turns\n", mon->unique_name, (unsigned long int) plr->career.play_seconds, gbl_game->turn / TT_ENERGY_TURN, gbl_game->turn % TT_ENERGY_TURN);
+    printf("%ls still owed the loan-shark %d throne guilders\n", mon->unique_name, plr->loan);
     if (se_has_effect(plr->player, EF_DEAD) ) {
         struct status_effect *se = se_get_effect(plr->player, EF_DEAD);
-        lg_strip_colour(buf, se->origin, buf_max);
-        printf("%s was killed by %s\n", mon->unique_name, buf);
+        printf("%ls was killed by %ls\n", mon->unique_name, se->origin);
     }
 
     printf("\n");
@@ -231,23 +230,21 @@ void cr_print_morgue_file(struct pl_player *plr) {
 
     printf("Character Sheet\n");
 
-    lg_strip_colour(buf, mon->unique_name, buf_max);
-    printf("Name:       %20s\n", buf);
-    printf("Gender:     %20s\n", msr_gender_string(mon) );
-    printf("Homeworld:  %20s\n", cr_get_homeworld_by_id(plr->career.h_tid)->name );
-    printf("Background: %20s\n", cr_get_background_by_id(plr->career.b_tid)->name);
-    printf("Role:       %20s\n", cr_get_role_by_id(plr->career.r_tid)->name);
+    printf("Name:       %20ls\n", mon->unique_name);
+    printf("Gender:     %20ls\n", msr_gender_string(mon) );
+    printf("Homeworld:  %20ls\n", cr_get_homeworld_by_id(plr->career.h_tid)->name );
+    printf("Background: %20ls\n", cr_get_background_by_id(plr->career.b_tid)->name);
+    printf("Role:       %20ls\n", cr_get_role_by_id(plr->career.r_tid)->name);
 
     printf("Wounds:  %20d/%2d\n", mon->wounds.curr, mon->wounds.max);
     printf("XP:         %20d\n", plr->career.xp_current);
     printf("XP Spend:   %20d\n", plr->career.xp_spend);
 
     const int quest_desc_len = 100;
-    char quest_desc[quest_desc_len];
+    wchar_t quest_desc[quest_desc_len];
     qst_get_description(plr->quest, quest_desc, quest_desc_len);
-    lg_strip_colour(buf, quest_desc, buf_max);
-    printf( "Quest:     %20s\n", buf);
-    //printf( "Corruption:"  "    %d\n", mon->corruption_points);
+    printf("Quest:     %20ls\n", quest_desc);
+    //printf("Corruption:"  "    %d\n", mon->corruption_points);
 
     printf("\n");
     printf("\n");
@@ -261,8 +258,8 @@ void cr_print_morgue_file(struct pl_player *plr) {
 
 
     /* Armour  */
-    printf( "Armour\t\tProtection\tLocations\n");
-    printf( "------\t\t----------\t---------\n");
+    printf("Armour\t\tProtection\tLocations\n");
+    printf("------\t\t----------\t---------\n");
 
     /* Armour */
     struct itm_item *item = NULL;
@@ -276,14 +273,14 @@ void cr_print_morgue_file(struct pl_player *plr) {
                 armour = item->specific.wearable.damage_reduction;
             }
 
-            printf("%-30s", item->ld_name);
+            printf("%-30ls", item->ld_name);
             printf("%5d  ", armour);
 
             bool first = true;
             for (enum inv_locations i = 1; i < INV_LOC_MAX; i <<= 1) {
                 if ( (locs & i) > 0) {
                     if (first == false) printf("/");
-                    printf("%s", inv_location_name(locs & i) );
+                    printf("%ls", inv_location_name(locs & i) );
                     first = false;
                 }
             }
@@ -294,20 +291,20 @@ void cr_print_morgue_file(struct pl_player *plr) {
     printf("\n");
 
     /* Skills */
-    printf( "Skills\t\tRate\n");
-    printf( "------\t\t----\n");
+    printf("Skills\t\tRate\n");
+    printf("------\t\t----\n");
 
     for (unsigned int i = 0; i < MSR_SKILLS_MAX; i++) {
         if (msr_has_skill(mon, i) ) {
             enum msr_skill_rate skillrate = msr_has_skill(mon,  i);
-            printf("%s\t\t(%s)\n", msr_skill_names(i),  msr_skillrate_names(skillrate));
+            printf("%ls\t\t(%ls)\n", msr_skill_names(i),  msr_skillrate_names(skillrate));
         }
     }
     printf("\n");
     printf("\n");
     /* Talents */
-    printf( "Talents"  "\n");
-    printf( "-------"  "\n");
+    printf("Talents"  "\n");
+    printf("-------"  "\n");
 
     for (int i = MSR_TALENT_TIER_T1; i < MSR_TALENT_TIER_MAX; i++) {
         for (int x = 0; x < MSR_TALENTS_PER_TIER; x++) {
@@ -315,7 +312,7 @@ void cr_print_morgue_file(struct pl_player *plr) {
             if (t == TLT_NONE) continue;
 
             if (msr_has_talent(mon, t) ) {
-                printf("%s\n", msr_talent_names(t) );
+                printf("%ls\n", msr_talent_names(t) );
             }
         }
     }
@@ -324,12 +321,12 @@ void cr_print_morgue_file(struct pl_player *plr) {
 
 
     /* Status Effects */
-    printf( "Status Effects"  "\n");
-    printf( "--------------"  "\n");
+    printf("Status Effects"  "\n");
+    printf("--------------"  "\n");
 
     struct status_effect *c = NULL;
     while ( (c = se_list_get_next_status_effect(mon->status_effects, c) ) != NULL) {
-        printf("%s\n", c->name);
+        printf("%ls\n", c->name);
     }
     printf("\n");
 }

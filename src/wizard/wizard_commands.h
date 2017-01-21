@@ -18,6 +18,8 @@
 #ifndef WIZARD_COMMANDS_H
 #define WIZARD_COMMANDS_H
 
+#include <wchar.h>
+
 struct wz_cmd {
     const char *name;
     const char *descr;

@@ -62,7 +62,7 @@ bool char_creation_window(void) {
     cr_init_career(plr, CR_HWID_NONE, CR_BCKGRNDID_NONE, CR_ROLEID_NONE);
 
     struct msr_monster *player = plr->player;
-    player->unique_name = "";
+    player->unique_name = L"";
     charwin_refresh();
 
     const char *enter_name_string = "Please enter your name:";
@@ -74,8 +74,8 @@ bool char_creation_window(void) {
 
     int name_buffer_sz = 200;
     int name_buffer_idx = 0;
-    char name_buffer[name_buffer_sz];
-    memset(name_buffer, 0x0, name_buffer_sz * sizeof(char) );
+    wchar_t name_buffer[name_buffer_sz];
+    memset(name_buffer, 0x0, name_buffer_sz * sizeof(wchar_t) );
     enum inp_keys k;
 
     bool name_done = false;
@@ -84,10 +84,10 @@ bool char_creation_window(void) {
     bool role_done = false;
 
     if (options.char_name != NULL) {
-        strcpy(name_buffer, options.char_name);
+        wcscpy(name_buffer, options.char_name);
         name_done = true;
 
-        for (char *c = name_buffer; *c != 0; c++) {
+        for (wchar_t *c = name_buffer; *c != 0; c++) {
             inp_add_to_log(gbl_game->input, *c);
         }
         inp_add_to_log(gbl_game->input, '\n');
@@ -119,12 +119,11 @@ bool char_creation_window(void) {
 
         k = inp_get_input_text(gbl_game->input);
         switch (k) {
-            case INP_KEY_YES: if (strlen(name_buffer) > 0 ) { name_done = true; } break;
-            //case INP_KEY_YES: return false;
+            case INP_KEY_YES: if (wcslen(name_buffer) > 0 ) { name_done = true; } break;
             case INP_KEY_BACKSPACE:
                 if (name_buffer_idx > 0) {
-                    name_buffer[name_buffer_idx--] = '\0';
-                    name_buffer[name_buffer_idx] = '\0';
+                    name_buffer[name_buffer_idx -1] = name_buffer[name_buffer_idx] = L'\0';
+                    name_buffer_idx -= 1;
                 }
                 werase(map_win->win);
                 ui_print_reset(map_win);
@@ -132,24 +131,24 @@ bool char_creation_window(void) {
                 break;
             default:
                 if (name_buffer_idx < (name_buffer_sz-2) ) {
-                    name_buffer[name_buffer_idx++] = (char) k;
+                    name_buffer[name_buffer_idx++] = (wchar_t) k;
                 }
         }
 
         ui_print_reset(map_win);
-        ui_printf(map_win, "%s %s", enter_name_string, name_buffer);
+        ui_printf(map_win, "%s %ls", enter_name_string, name_buffer);
     }
 
-    player->unique_name = strdup(name_buffer);
+    player->unique_name = wcsdup(name_buffer);
     charwin_refresh();
 
     ui_print_reset(map_win);
     werase(map_win->win);
 
-    System_msg("Please select a race by first pressing 'a' and then the letter before the race you want.");
-    System_msg("This mechanism is used througout the game; first the action than the noun.");
-    System_msg("With 'x' you can examine more about the races.");
-    System_msg("Press '?' to view the help screen.");
+    GM_msg("Please select a race by first pressing 'a' and then the letter before the race you want.");
+    GM_msg("This mechanism is used througout the game; first the action than the noun.");
+    GM_msg("With 'x' you can examine more about the races.");
+    GM_msg("Press '?' to view the help screen.");
 
     while (!homeworld_done) {
         ui_print_reset(map_win);
@@ -157,7 +156,7 @@ bool char_creation_window(void) {
         int valid_choice = 0;
         ui_printf(map_win, "    Choose your Home World\n");
         for (unsigned int i = CR_HWID_NONE+1; i < CR_HWID_MAX; i++) {
-            ui_printf(map_win, "%c) %s\n", inp_key_translate_idx(valid_choice++), cr_get_homeworld_by_id(i)->name);
+            ui_printf(map_win, "%lc) %ls\n", inp_key_translate_idx(valid_choice++), cr_get_homeworld_by_id(i)->name);
         }
         ui_printf_ext(map_win, map_win->lines -2, 1, cs_ATTR "[a]" cs_CLOSE " acquire,  " cs_ATTR "[x]" cs_CLOSE " examine");
         ui_printf_ext(map_win, map_win->lines -1, 1, cs_ATTR "[q]" cs_CLOSE " continue  " cs_ATTR "[?]" cs_CLOSE " help");
@@ -180,7 +179,7 @@ bool char_creation_window(void) {
                 sel_idx = inp_get_input_idx(gbl_game->input) +1;
                 if (sel_idx < (int) CR_HWID_MAX) {
                     if (sel_idx > CR_HWID_NONE) {
-                        GM_msg(cs_PLAYER "You" cs_CLOSE " come from an %s.", cr_get_homeworld_by_id(sel_idx)->name);
+                        GM_msg(cs_PLAYER "You" cs_CLOSE " come from an %ls.", cr_get_homeworld_by_id(sel_idx)->name);
                     }
                 }
                 break;
@@ -218,7 +217,7 @@ bool char_creation_window(void) {
         int valid_choice = 0;
         ui_printf(map_win, "    Choose your Background\n");
         for (unsigned int i = CR_BCKGRNDID_NONE+1; i < CR_BCKGRNDID_MAX; i++) {
-            ui_printf(map_win, "%c) %s\n", inp_key_translate_idx(valid_choice++), cr_get_background_by_id(i)->name);
+            ui_printf(map_win, "%lc) %ls\n", inp_key_translate_idx(valid_choice++), cr_get_background_by_id(i)->name);
         }
         ui_printf_ext(map_win, map_win->lines -2, 1, cs_ATTR "[a]" cs_CLOSE " acquire,  " cs_ATTR "[x]" cs_CLOSE " examine");
         ui_printf_ext(map_win, map_win->lines -1, 1, cs_ATTR "[q]" cs_CLOSE " continue  " cs_ATTR "[?]" cs_CLOSE " help");
@@ -241,7 +240,7 @@ bool char_creation_window(void) {
                 sel_idx = inp_get_input_idx(gbl_game->input) +1;
                 if (sel_idx < (int) CR_BCKGRNDID_MAX) {
                     if (sel_idx > CR_BCKGRNDID_NONE) {
-                        GM_msg(cs_PLAYER "You" cs_CLOSE " were a %s.", cr_get_background_by_id(sel_idx)->name);
+                        GM_msg(cs_PLAYER "You" cs_CLOSE " were a %ls.", cr_get_background_by_id(sel_idx)->name);
                     }
                 }
                 break;
@@ -279,7 +278,7 @@ bool char_creation_window(void) {
         int valid_choice = 0;
         ui_printf(map_win, "    Choose your Role\n");
         for (unsigned int i = CR_ROLEID_NONE+1; i < CR_ROLEID_MAX; i++) {
-            ui_printf(map_win, "%c) %s\n", inp_key_translate_idx(valid_choice++), cr_get_role_by_id(i)->name);
+            ui_printf(map_win, "%lc) %ls\n", inp_key_translate_idx(valid_choice++), cr_get_role_by_id(i)->name);
         }
         ui_printf_ext(map_win, map_win->lines -2, 1, cs_ATTR "[a]" cs_CLOSE " acquire,  " cs_ATTR "[x]" cs_CLOSE " examine");
         ui_printf_ext(map_win, map_win->lines -1, 1, cs_ATTR "[q]" cs_CLOSE " continue  " cs_ATTR "[?]" cs_CLOSE " help");
@@ -302,7 +301,7 @@ bool char_creation_window(void) {
                 sel_idx = inp_get_input_idx(gbl_game->input)+1;
                 if (sel_idx < (int) CR_ROLEID_MAX) {
                     if (sel_idx > CR_ROLEID_NONE) {
-                        GM_msg(cs_PLAYER "Your" cs_CLOSE " role is a %s.", cr_get_role_by_id(sel_idx)->name);
+                        GM_msg(cs_PLAYER "Your" cs_CLOSE " role is a %ls.", cr_get_role_by_id(sel_idx)->name);
                     }
                 }
                 break;
@@ -347,7 +346,7 @@ bool char_creation_window(void) {
     plr->career.xp_current = 500;
     levelup_selection_window();
 
-    System_msg("Welcome %s.", player->unique_name);
+    System_msg("Welcome %ls.", player->unique_name);
     return true;
 }
 

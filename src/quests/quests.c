@@ -153,7 +153,7 @@ void qst_process_quest_start(struct quest *quest, struct dm_map *map, struct ran
 
 void qst_process_quest_end(struct quest *quest, struct dm_map *map) {
     if (qst_is_quest_done(quest, map) ) {
-        if (quest->end != NULL) GM_msg("%s", quest->end);
+        if (quest->end != NULL) GM_msg("%ls", quest->end);
         struct itm_item *money_item = inv_get_item_by_tid(gbl_game->player_data.player->inventory, IID_MONEY);
         if (money_item == NULL) {
             money_item = itm_create(IID_MONEY);
@@ -228,17 +228,17 @@ bool qst_is_quest_done(struct quest *quest, struct dm_map *map) {
     return false;
 }
 
-void qst_get_description(struct quest *quest, char *str, int max_length) {
+void qst_get_description(struct quest *quest, wchar_t *str, int max_length) {
     switch (quest->type) {
         case QST_TYPE_FETCH: {
                 struct itm_item *item = itm_create(quest->qst_params[0]);
-                snprintf(str, max_length, quest_description_templates[quest->type], quest->qst_params[1], item->sd_name);
+                swprintf(str, max_length, quest_description_templates[quest->type], quest->qst_params[1], item->sd_name);
                 itm_destroy(item);
             } break;
         default:
-                snprintf(str, max_length, "none.");
+                swprintf(str, max_length, L"none.");
             break;
     }
-    str[max_length-1] = '\0';
+    str[max_length-1] = L'\0';
 }
 

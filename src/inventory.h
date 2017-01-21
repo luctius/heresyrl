@@ -99,7 +99,7 @@ bool inv_wields_weapon_with_spcqlty(struct inv_inventory *inv, enum weapon_speci
 bool inv_wears_wearable_with_spcqlty(struct inv_inventory *inv, enum wearable_special_quality spcqlty);
 
 /* get a description of a location */
-const char *inv_location_name(bitfield32_t loc);
+const wchar_t *inv_location_name(bitfield32_t loc);
 
 #define inv_loc_human \
     ( INV_LOC_FEET            | INV_LOC_LEGS          | \

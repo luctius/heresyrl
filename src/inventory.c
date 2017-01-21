@@ -377,26 +377,26 @@ bool inv_wears_wearable_with_spcqlty(struct inv_inventory *inv, enum wearable_sp
     return false;
 }
 
-static const char *location_name_lst[] = {
-    [INV_LOC_NONE] = "",
-    [INV_LOC_INVENTORY] = "",
-    [INV_LOC_FEET] = "feet",
-    [INV_LOC_LEGS] = "legs",
-    [INV_LOC_BODY] = "body",
-    [INV_LOC_ARMS] = "arms",
-    [INV_LOC_HANDS] = "hands",
-    [INV_LOC_LEFT_RING] = "lring",
-    [INV_LOC_RIGHT_RING] = "rring",
-    [INV_LOC_OFFHAND_WIELD] = "lhand",
-    [INV_LOC_MAINHAND_WIELD] = "rhand",
-    [INV_LOC_HEAD] = "head",
-    [INV_LOC_FACE] = "face",
-    [INV_LOC_BACK] = "back",
-    [INV_LOC_CREATURE_WIELD1] = "",
-    [INV_LOC_MAX] = "",
+static const wchar_t *location_name_lst[] = {
+    [INV_LOC_NONE] = L"",
+    [INV_LOC_INVENTORY] = L"",
+    [INV_LOC_FEET] = L"feet",
+    [INV_LOC_LEGS] = L"legs",
+    [INV_LOC_BODY] = L"body",
+    [INV_LOC_ARMS] = L"arms",
+    [INV_LOC_HANDS] = L"hands",
+    [INV_LOC_LEFT_RING] = L"lring",
+    [INV_LOC_RIGHT_RING] = L"rring",
+    [INV_LOC_OFFHAND_WIELD] = L"lhand",
+    [INV_LOC_MAINHAND_WIELD] = L"rhand",
+    [INV_LOC_HEAD] = L"head",
+    [INV_LOC_FACE] = L"face",
+    [INV_LOC_BACK] = L"back",
+    [INV_LOC_CREATURE_WIELD1] = L"",
+    [INV_LOC_MAX] = L"",
 };
 
-const char *inv_location_name(bitfield32_t loc) {
+const wchar_t *inv_location_name(bitfield32_t loc) {
     if (loc >= INV_LOC_MAX) return NULL;
     for (int i = 0; inv_loc(i) < INV_LOC_MAX; i++) {
         if ( (loc & inv_loc(i) ) > 0) {

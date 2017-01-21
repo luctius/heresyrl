@@ -151,6 +151,8 @@ heresyrl_SOURCES =  \
 if READLINE
 heresyrl_SOURCES += src/wizard/wizard_commands.c \
 				src/wizard/wizard_mode.c
+else
+heresyrl_SOURCES += src/wizard/wizard_mode_empty.c
 endif
 
 heresyrl_CFLAGS = $(lua_CFLAGS)  -DGIT_VERSION=\"$(GIT_VERSION)\" $(AM_CFLAGS)

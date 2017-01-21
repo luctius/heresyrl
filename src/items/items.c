@@ -48,7 +48,7 @@ void itmlst_items_list_init(void) {
         struct itm_item *item = &static_item_list[i];
         if (item->tid != i) {
             fprintf(stderr, "Item list integrity check failed! [%d]\n", i);
-            fprintf(stderr, "Item: %s.\n", static_item_list[i].sd_name);
+            fprintf(stderr, "Item: %ls.\n", static_item_list[i].sd_name);
             exit(EXIT_FAILURE);
         }
         item->item_pre  = ITEM_PRE_CHECK;
@@ -56,9 +56,9 @@ void itmlst_items_list_init(void) {
     }
 
     for (unsigned int i = 0; i < ARRAY_SZ(static_item_list); i++) {
-        const char *string = itm_descs[i];
+        const wchar_t *string = itm_descs[i];
         if (string == NULL) {
-            fprintf(stderr, "Item description list integrity check failed! (%s [%d])\n", static_item_list[i].sd_name, i);
+            fprintf(stderr, "Item description list integrity check failed! (%ls [%d])\n", static_item_list[i].sd_name, i);
             exit(EXIT_FAILURE);
         }
     }
@@ -265,7 +265,7 @@ bool itm_insert_item(struct itm_item *item, struct dm_map *map, coord_t *pos) {
             item->owner.owner_map_entity = target;
             retval = true;
 
-            lg_debug("Inserting item %s (%c) [uid:%d, tid:%d] to (%d,%d)",
+            lg_debug("Inserting item %ls (%lc) [uid:%d, tid:%d] to (%d,%d)",
                     item->sd_name, item->icon, item->uid, item->tid, pos->x, pos->y);
         }
     }
@@ -325,7 +325,7 @@ bool itm_energy_action(struct itm_item *item, struct dm_map *map) {
             if (tool_is_type(item, TOOL_TYPE_LIGHT) ) {
                 item->specific.tool.energy = 0;
                 item->specific.tool.lit = false;
-                msg("A %s switches off as it runs out of juice.", item->sd_name);
+                msg("A %ls switches off as it runs out of juice.", item->sd_name);
                 break;
             }
         case ITEM_TYPE_WEAPON: {
@@ -557,7 +557,7 @@ bool tool_is_type(struct itm_item *item, enum item_tool_type type) {
     return false;
 }
 
-const char *itm_you_use_desc(struct itm_item *item) {
+const wchar_t *itm_you_use_desc(struct itm_item *item) {
     if (itm_verify_item(item) == false) return NULL;
     int cnt = 0;
     for (int i = 0; i < (int) ARRAY_SZ(item->you_use_desc); i++) {
@@ -567,7 +567,7 @@ const char *itm_you_use_desc(struct itm_item *item) {
     return item->you_use_desc[idx];
 }
 
-const char *itm_msr_use_desc(struct itm_item *item) {
+const wchar_t *itm_msr_use_desc(struct itm_item *item) {
     if (itm_verify_item(item) == false) return NULL;
     int cnt = 0;
     for (int i = 0; i < (int) ARRAY_SZ(item->msr_use_desc); i++) {
@@ -577,39 +577,39 @@ const char *itm_msr_use_desc(struct itm_item *item) {
     return item->msr_use_desc[idx];
 }
 
-const char *itm_quality_string(struct itm_item *item) {
+const wchar_t *itm_quality_string(struct itm_item *item) {
     if (itm_verify_item(item) == false) return NULL;
     if (item->quality >= ITEM_QLTY_MAX) return NULL;
     return item_quality_strings[item->quality];
 }
 
-const char *itm_upgrades_string(struct itm_item *item) {
+const wchar_t *itm_upgrades_string(struct itm_item *item) {
     if (itm_verify_item(item) == false) return NULL;
     if (item->quality >= ITEM_QLTY_MAX) return NULL;
     return item_quality_strings[item->quality];
 }
 
-const char *wpn_ammo_string(enum item_ammo_type iat) {
+const wchar_t *wpn_ammo_string(enum item_ammo_type iat) {
     if (iat >= AMMO_TYPE_MAX) return NULL;
     return ammo_type_strings[iat];
 }
 
-const char *wpn_spec_quality_name(enum weapon_special_quality spq) {
+const wchar_t *wpn_spec_quality_name(enum weapon_special_quality spq) {
     if (spq >= WPN_SPCQLTY_MAX) return NULL;
     return wpn_spcqlty_name[spq];
 }
 
-const char *wpn_spec_quality_description(enum weapon_special_quality spq) {
+const wchar_t *wpn_spec_quality_description(enum weapon_special_quality spq) {
     if (spq >= WPN_SPCQLTY_MAX) return NULL;
     return wpn_spcqlty_desc[spq];
 }
 
-const char *wbl_spec_quality_name(enum wearable_special_quality spq) {
+const wchar_t *wbl_spec_quality_name(enum wearable_special_quality spq) {
     if (spq >= WBL_SPCQLTY_MAX) return NULL;
     return wbl_spcqlty_name[spq];
 }
 
-const char *wbl_spec_quality_description(enum wearable_special_quality spq) {
+const wchar_t *wbl_spec_quality_description(enum wearable_special_quality spq) {
     if (spq >= WBL_SPCQLTY_MAX) return NULL;
     return wbl_spcqlty_desc[spq];
 }

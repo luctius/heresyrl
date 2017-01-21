@@ -95,13 +95,11 @@ int ui_printf_ext(struct hrl_window *win, int y_start, int x_start, const char *
     int max_line_sz = win->cols -1;
 
     int attr_mod[MAX_CLR_DEPTH];
-    attr_mod[0] = get_colour(TERM_COLOUR_L_WHITE);
+    attr_mod[0] = TERM_COLOUR_L_WHITE;
     int attr_mod_ctr = 0;
     wattrset(win->win, attr_mod[0]);
 
-    if (win->text_x != 0) {
-        cchar_t space = { attr_mod[0], {' ', 0} };
-        if (options.refresh) mvwadd_wch(win->win, win->text_y, win->text_x++, &space);
+    if ( (win->text_x != 0) && (options.refresh) ) {
     }
 
     int print_txt_idx = 0;
@@ -126,7 +124,7 @@ int ui_printf_ext(struct hrl_window *win, int y_start, int x_start, const char *
         }
 
         for (int i = 0; i < r_line_sz; i++) {
-            if (buf[real_txt_idx] == '\n') {
+            if (buf[real_txt_idx] == L'\n') {
                 real_txt_idx++;
                 print_txt_idx++;
 
@@ -159,10 +157,9 @@ int ui_printf_ext(struct hrl_window *win, int y_start, int x_start, const char *
                 i += (cstr_len-1);
             }
             else {
-                if (options.refresh) {
-                    cchar_t b = { attr_mod[attr_mod_ctr], {buf[real_txt_idx], 0} };
-                    mvwadd_wch(win->win, win->text_y, win->text_x++, &b);
-                }
+                /* TODO: should fail with real char strings, FIX THIS */
+                wchar_t wb[2] = {buf[real_txt_idx], 0};
+                mvwaddwstr(win->win, win->text_y, win->text_x++, wb);
 
                 real_txt_idx++;
                 print_txt_idx++;

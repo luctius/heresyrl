@@ -23,21 +23,21 @@ Version 0.1:
     Add to charwin: show negative and positive modifications of characteristics
 
     BUGS:
-    X -- monster don't attack anymore...
+    X -- bsp: floating doors
+    X -- organize dungeon creaters better.
     X -- Create general arrays for the item use_desc, which should also be used for tools, food and wearables and for improvised weapons.
     X -- Create Player notice response in monsters and monster notice messages for player.
     X -- Throwing weapons tohit calculations are off.
     X -- Archers do not shoot anymore? -- fixed?
-    X -- Switching weapons sometimes sets weapon select to unarmed. -- fixed?
     X -- Unarmed and offhand weapons do not offer a targetting window.
-    X -- Could not wield a shortbow after dropping it (low ammo?)?
-    X -- Could not wield a knife?
-    X -- Announce seen monsters (and only once or so)
-    V -- Apply penalty for stealth on both attack and being attacked.
     X -- Check file permissions on save_file location
-    X -- playback/test_auto do not play well with name and race set on the commandline
-    X -- stealth enemies can sometimes not been seen after attacking
     X -- add examine to character window for skills talents and status effects
+    X -- fix readme
+    ? -- Could not wield a shortbow after dropping it (low ammo?)?
+    ? -- Switching weapons sometimes sets weapon select to unarmed. -- fixed?
+    ? -- monster don't attack anymore...
+    ? -- Could not wield a knife?
+    ? -- stealth enemies can sometimes not been seen after attacking
 
 
 Major Ideas:

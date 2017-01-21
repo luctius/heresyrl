@@ -41,9 +41,9 @@ struct ground_effect {
     enum ge_ids tid;
     bitfield32_t flags;
 
-    const char *sd_name;
-    const char *ld_name;
-    const char *description;
+    const wchar_t *sd_name;
+    const wchar_t *ld_name;
+    const wchar_t *description;
 
     icon_t icon;
     int icon_attr;

@@ -84,12 +84,12 @@ struct tl_tile {
 
     uint8_t movement_cost;
 
-    const char *sd_name;
-    const char *ld_name;
-    const char *plr_enter_str;
-    const char *msr_enter_str;
-    const char *plr_exit_str;
-    const char *msr_exit_str;
+    const wchar_t *sd_name;
+    const wchar_t *ld_name;
+    const wchar_t *plr_enter_str;
+    const wchar_t *msr_enter_str;
+    const wchar_t *plr_exit_str;
+    const wchar_t *msr_exit_str;
 };
 
 struct tl_tile *ts_get_tile_specific(enum tile_ids ti);

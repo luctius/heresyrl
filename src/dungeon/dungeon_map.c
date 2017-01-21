@@ -173,7 +173,7 @@ bool dm_print_map(struct dm_map *map) {
     coord_t c;
     for (c.y = 0; c.y < map->sett.size.y; c.y++) {
         for (c.x = 0; c.x < map->sett.size.x; c.x++) {
-            putchar(dm_get_map_tile(&c,map)->icon);
+            printf("%lc", dm_get_map_tile(&c,map)->icon);
         }
         if (c.y % 5 == 0) printf("\t -- %d\n", c.y);
         else putchar('\n');
@@ -184,7 +184,7 @@ bool dm_print_map(struct dm_map *map) {
         if (c.x % 10 == 0) putchar('|');
         else putchar(' ');
     }
-    putchar('\n');
+    putwchar('\n');
 
     return true;
 }
@@ -249,7 +249,7 @@ bool dm_populate_map(struct dm_map *map) {
     struct random *r = random_init_genrand(map->sett.seed);
     if (r == NULL) return false;
 
-    int nogo_radius = 20;
+    int nogo_radius = 30;
 
     for (int xi = 0; xi < map->sett.size.x; xi++) {
         for (int yi = 0; yi < map->sett.size.y; yi++) {
@@ -694,7 +694,7 @@ struct dm_map *dm_generate_map(struct dm_spawn_settings *sett) {
     if (map->sett.type == DUNGEON_TYPE_ALL) {
         map->sett.type = random_int32(r) % DUNGEON_TYPE_ALL;
     }
-    map->sett.type = DUNGEON_TYPE_HIVE;
+    map->sett.type = DUNGEON_TYPE_CAVE;
 
     /* fill the map with room accoring to the specified algorithm */
     switch(map->sett.type) {
@@ -824,8 +824,8 @@ bool dm_tile_enter(struct dm_map *map, coord_t *point, struct msr_monster *monst
 
     struct tl_tile *prev_tile = dm_get_map_tile(prev, map);
     if (prev_tile != me->tile) {
-        if (me->tile->plr_enter_str != NULL) You(monster,     "%s", me->tile->plr_enter_str);
-        //if (me->tile->msr_enter_str != NULL) Monster(monster, "%s", me->tile->msr_enter_str);
+        if (me->tile->plr_enter_str != NULL) You(monster,     "%ls", me->tile->plr_enter_str);
+        //if (me->tile->msr_enter_str != NULL) Monster(monster, "%ls", me->tile->msr_enter_str);
     }
 
     if (me->effect != NULL) {
@@ -847,8 +847,8 @@ bool dm_tile_exit(struct dm_map *map, coord_t *point, struct msr_monster *monste
 
     struct tl_tile *next_tile = dm_get_map_tile(next, map);
     if (next_tile != me->tile) {
-        if (me->tile->plr_exit_str != NULL && next_tile->plr_enter_str == NULL) You(monster,     "%s", me->tile->plr_exit_str);
-        //if (me->tile->msr_exit_str != NULL) Monster(monster, "%s", me->tile->msr_exit_str);
+        if (me->tile->plr_exit_str != NULL && next_tile->plr_enter_str == NULL) You(monster,     "%ls", me->tile->plr_exit_str);
+        //if (me->tile->msr_exit_str != NULL) Monster(monster, "%ls", me->tile->msr_exit_str);
     }
 
     if (me->effect != NULL) {

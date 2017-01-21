@@ -67,10 +67,10 @@ bool game_load(void) {
     if (options.debug_no_load == false) {
         loaded = ld_read_save_file(options.load_file_name, gbl_game);
         if (loaded == true) {
-            lg_debug("Game loaded from %s.", options.load_file_name);
+            lg_debug("Game loaded from %ls.", options.load_file_name);
         }
         else {
-            lg_warning("Failed to load game from %s.", options.load_file_name);
+            lg_warning("Failed to load game from %ls.", options.load_file_name);
         }
     }
 

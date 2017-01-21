@@ -260,7 +260,7 @@ static void lg_print_to_queue(struct logging *log_ctx, struct log_entry *entry) 
 }
 
 #define STRING_MAX 500
-void lg_printf_basic(struct logging *log_ctx, enum lg_debug_levels dbg_lvl, const char* module, int line, const char* format, va_list args) {
+void lg_printf_basic(struct logging *log_ctx, enum lg_debug_levels dbg_lvl, const char *module, int line, const char *format, va_list args) {
     if ( (log_ctx != NULL) && (dbg_lvl > log_ctx->level) ) return;
 
     if (cqc_space(log_ctx->log_cqc) == 0) {
@@ -281,14 +281,14 @@ void lg_printf_basic(struct logging *log_ctx, enum lg_debug_levels dbg_lvl, cons
 
     le->string = calloc(STRING_MAX, sizeof(char) );
     vsnprintf(le->string, STRING_MAX, format, args);
-    le->string = realloc(le->string, strlen(le->string) +1);
+    le->string = realloc(le->string, (strlen(le->string) +1) * sizeof(char) );
 
     lg_print_to_file(log_ctx, le);
     lg_print_to_stdout(log_ctx, le);
     lg_print_to_queue(log_ctx, le);
 }
 
-void lg_printf_l(int lvl, const char *module, int line, const char* format, ... ) {
+void lg_printf_l(int lvl, const char *module, int line, const char *format, ... ) {
     //if ( (gbl_log != NULL) && (lvl > gbl_log->level) ) return;
 
     va_list args;
@@ -325,7 +325,7 @@ bool msg_valid(coord_t *origin, coord_t *target) {
     return false;
 }
 
-void msg_internal(coord_t *origin, coord_t *target, const char* module, int line, const char *format, ...) {
+void msg_internal(coord_t *origin, coord_t *target, const char *module, int line, const char *format, ...) {
     if (gbl_log == NULL) return;
 
 
@@ -417,7 +417,7 @@ int clrstr_to_attr(const char *s) {
     else if (strncmp(cs_ITEM  ,   s, strlen(cs_ITEM) )     == 0) return get_colour(TERM_COLOUR_VIOLET);
     else if (strncmp(cs_DAMAGE,   s, strlen(cs_DAMAGE) )   == 0) return get_colour(TERM_COLOUR_L_VIOLET);
     else if (strncmp(cs_WARNING,  s, strlen(cs_WARNING) )  == 0) return get_colour(TERM_COLOUR_L_YELLOW);
-    else if (strncmp(cs_WIZARD,  s, strlen(cs_WIZARD) )    == 0) return get_colour(TERM_COLOUR_L_PINK);
+    else if (strncmp(cs_WIZARD,   s, strlen(cs_WIZARD) )   == 0) return get_colour(TERM_COLOUR_L_PINK);
     else if (strncmp(cs_CRITICAL, s, strlen(cs_CRITICAL) ) == 0) return get_colour(TERM_COLOUR_RED);
     else if (strncmp(cs_GM,       s, strlen(cs_GM) )       == 0) return get_colour(TERM_COLOUR_L_UMBER);
     else if (strncmp(cs_SYSTEM,   s, strlen(cs_SYSTEM) )   == 0) return get_colour(TERM_COLOUR_WHITE);
@@ -427,8 +427,8 @@ int clrstr_to_attr(const char *s) {
     return get_colour(TERM_COLOUR_L_WHITE);
 }
 
-void lg_strip_colour(char *new_str, const char *str, size_t n) {
-    memset(new_str, 0x0, n);
+void lg_strip_colour(char new_str[], const char *str, size_t n) {
+    memset(new_str, 0x0, n * sizeof(char) );
 
     size_t str_n = strlen(str);
     int nstr_i = 0;
@@ -442,3 +442,4 @@ void lg_strip_colour(char *new_str, const char *str, size_t n) {
         else new_str[nstr_i++] = str[i];
     }
 }
+

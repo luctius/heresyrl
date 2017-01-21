@@ -30,6 +30,41 @@ LT_INIT([dlopen])
 
 AC_DEFINE([_GNU_SOURCE], 1, [Use GNU extensions])
 
+# Checks for header files.
+AC_CHECK_HEADERS([fcntl.h inttypes.h limits.h locale.h stddef.h stdint.h stdlib.h string.h sys/ioctl.h sys/param.h termios.h unistd.h wchar.h wctype.h])
+
+# Checks for library functions.
+# Checks for typedefs, structures, and compiler characteristics.
+AC_CHECK_HEADER_STDBOOL
+AC_HEADER_STDBOOL
+AC_HEADER_ASSERT
+AC_LANG_C
+AC_C_INLINE
+AC_C_CONST
+AC_STRUCT_TM
+AC_TYPE_SIZE_T
+AC_TYPE_SSIZE_T
+AC_TYPE_INT8_T
+AC_TYPE_INT16_T
+AC_TYPE_INT32_T
+AC_TYPE_INT64_T
+AC_TYPE_UINT8_T
+AC_TYPE_UINT16_T
+AC_TYPE_UINT32_T
+AC_TYPE_UINT64_T
+AC_CHECK_TYPES([ptrdiff_t])
+
+AC_FUNC_MALLOC
+AC_FUNC_MBRTOWC
+AC_FUNC_REALLOC
+AC_CHECK_FUNCS([atexit memmove memset mkdir select setlocale strchr strdup strrchr strtol wcwidth strnlen])
+
+CC_CHECK_CFLAG_APPEND([-Wall -Wextra -Wformat=2 -Wswitch-default -Wcast-align -Wpointer-arith -Wbad-function-cast -Wstrict-prototypes -Winline -Wundef -Wnested-externs -Wcast-qual -Wshadow -Wwrite-strings  -Wunreachable-code -Wstrict-aliasing=2 -Wwrite-strings -Wno-uninitialized -Wshadow])
+CC_CHECK_CFLAG_APPEND([-Wno-aggressive-loop-optimizations -Wlogical-op])
+CC_CHECK_CFLAG_APPEND([-Wno-unknown-warning-option])
+CC_CHECK_CFLAG_APPEND([-fsanitize=address -fno-omit-frame-pointer])
+CC_CHECK_CFLAG_APPEND([-fsanitize=undefined -fsanitize=shift -fsanitize=integer-divide-by-zero -fsanitize=unreachable -fsanitize=vla-bound -fsanitize=null -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=alignment -fsanitize=object-size -fsanitize=enum -fsanitize=bool])
+
 # Checks for libraries.
 AC_CHECK_LIB([m], [abs])
 AC_CHECK_LIB([dl], [dlopen])
@@ -77,40 +112,6 @@ AM_COND_IF([HAVE_SDL2], [
 AC_ARG_ENABLE([test_uncursed],
     AS_HELP_STRING([--enable-test_uncursed], [Enable the test_uncursed test application for libuncursed]))
 AM_CONDITIONAL([HAVE_TEST_UNCURSED], [test "x$enable-test_uncursed" = "xyes"])
-
-# Checks for header files.
-AC_CHECK_HEADERS([fcntl.h inttypes.h limits.h locale.h stddef.h stdint.h stdlib.h string.h sys/ioctl.h sys/param.h termios.h unistd.h wchar.h wctype.h])
-
-# Checks for library functions.
-# Checks for typedefs, structures, and compiler characteristics.
-AC_CHECK_HEADER_STDBOOL
-AC_HEADER_STDBOOL
-AC_HEADER_ASSERT
-AC_LANG_C
-AC_C_INLINE
-AC_C_CONST
-AC_STRUCT_TM
-AC_TYPE_SIZE_T
-AC_TYPE_SSIZE_T
-AC_TYPE_INT8_T
-AC_TYPE_INT16_T
-AC_TYPE_INT32_T
-AC_TYPE_INT64_T
-AC_TYPE_UINT8_T
-AC_TYPE_UINT16_T
-AC_TYPE_UINT32_T
-AC_TYPE_UINT64_T
-AC_CHECK_TYPES([ptrdiff_t])
-
-AC_FUNC_MALLOC
-AC_FUNC_MBRTOWC
-AC_FUNC_REALLOC
-AC_CHECK_FUNCS([atexit memmove memset mkdir select setlocale strchr strdup strrchr strtol wcwidth strnlen])
-
-CC_CHECK_CFLAG_APPEND([-Wall -Wextra -Wformat=2 -Wswitch-default -Wcast-align -Wpointer-arith -Wbad-function-cast -Wstrict-prototypes -Winline -Wundef -Wnested-externs -Wcast-qual -Wshadow -Wwrite-strings  -Wunreachable-code -Wstrict-aliasing=2 -Wwrite-strings -Wno-aggressive-loop-optimizations -Wlogical-op -Wno-uninitialized -Wshadow])
-CC_CHECK_CFLAG_APPEND([-fsanitize=address -fno-omit-frame-pointer])
-CC_CHECK_CFLAG_APPEND([-fsanitize=undefined -fsanitize=shift -fsanitize=integer-divide-by-zero -fsanitize=unreachable -fsanitize=vla-bound -fsanitize=null -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=alignment -fsanitize=object-size -fsanitize=enum -fsanitize=bool])
-
 
 AC_CONFIG_TESTDIR(tests)
 AC_CONFIG_FILES(tests/atlocal)

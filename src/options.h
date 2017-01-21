@@ -47,7 +47,7 @@ struct opt_options {
     char *save_file_name;
     char *load_file_name;
 
-    char *char_name;
+    wchar_t *char_name;
 
     enum homeworld_ids char_hw;
     enum background_ids char_bg;

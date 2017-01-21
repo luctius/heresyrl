@@ -218,7 +218,7 @@ static bool pf_astar_loop(struct pf_context *ctx, coord_t *start, coord_t *end) 
             struct pf_map_entity *me_new = pf_get_index(&pos, map);
             if (me_new->cost == PF_BLOCKED) continue;
 
-            coord_t pos_cbk = cd_add(&pos, &ctx->set.map_start);
+            pos_cbk = cd_add(&pos, &ctx->set.map_start);
             unsigned int cost = ctx->set.pf_traversable_callback(ctx->set.map, &pos_cbk);
             if (cost == PF_BLOCKED) {
                 me_new->cost = PF_BLOCKED;

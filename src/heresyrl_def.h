@@ -23,6 +23,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <limits.h>
+#include <wchar.h>
 
 #include "logging.h"
 #include "careers/careers_static.h"
@@ -99,12 +100,12 @@ struct cr_career {
 
     struct {
         int turn;
-        const char *achievement;
+        const wchar_t *achievement;
     } achievements[ACHIEVEMENTS_MAX];
 
     time_t play_seconds;
 
-    const char *killer;
+    const wchar_t *killer;
 };
 
 struct pl_player {
