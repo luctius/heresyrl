@@ -63,6 +63,7 @@ int main(int argc, char *argv[]) {
 
     srand(time(NULL));
 
+    uncursed_set_title(argv[0]);
     initialize_uncursed(&argc, argv);
     assert(atexit(exit_uncursed) == 0);
 
