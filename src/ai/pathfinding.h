@@ -43,7 +43,7 @@ struct pf_settings {
     coord_t map_start;
     coord_t map_end;
 
-    coord_t *nhlo_tbl;
+    coord_t const *nhlo_tbl;
     int nhlo_tbl_sz;
 
     /* Pointer of local map structure */
