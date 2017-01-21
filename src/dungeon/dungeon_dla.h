@@ -21,8 +21,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "heresyrl_def.h"
+#include "dungeon_helpers.h"
 
-bool dm_generate_map_dla(struct dm_map *map, struct random *r, coord_t *ul, coord_t *dr);
+struct dungeon_features_done *dm_generate_map_dla(struct dm_map *map, struct random *r, coord_t *ul, coord_t *dr);
 
 #endif /* DUNGEON_DLA_H */

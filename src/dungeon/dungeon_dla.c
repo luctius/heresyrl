@@ -19,13 +19,17 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#include "diffusion_limited_aggregation.h"
-#include "dungeon_map.h"
-#include "tiles.h"
-#include "random.h"
-#include "coord.h"
+#include "dungeon/diffusion_limited_aggregation.h"
+#include "dungeon/dungeon_helpers.h"
 
-bool dm_generate_map_dla(struct dm_map *map, struct random *r, coord_t *ul, coord_t *dr) {
+static struct dungeon_features_done features = {
+    .loops          = false,
+    .lights         = false,
+    .features       = false,
+    .reachability    = false,
+};
+
+struct dungeon_features_done *dm_generate_map_dla(struct dm_map *map, struct random *r, coord_t *ul, coord_t *dr) {
 
     /* initialise cellular automata */
     coord_t size = { .x = dr->x - ul->x, .y = dr->y - ul->y, };
@@ -52,6 +56,6 @@ bool dm_generate_map_dla(struct dm_map *map, struct random *r, coord_t *ul, coor
 
     /* cleanup and return */
     dla_free(dlamap);
-    return true;
+    return &features;
 }
 

@@ -19,12 +19,9 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#include "cellular_automata.h"
-#include "dungeon_cave.h"
-#include "dungeon_map.h"
-#include "tiles.h"
-#include "random.h"
-#include "coord.h"
+#include "dungeon/cellular_automata.h"
+#include "dungeon/dungeon_cave.h"
+#include "dungeon/dungeon_helpers.h"
 
 static enum cellular_automata randpick(struct random *r, int fillprob) {
     if(random_d100(r) < fillprob) {
@@ -33,7 +30,14 @@ static enum cellular_automata randpick(struct random *r, int fillprob) {
     return CA_DEAD;
 }
 
-bool cave_generate_map(struct dm_map *map, struct random *r, coord_t *ul, coord_t *dr) {
+static struct dungeon_features_done features = {
+    .loops          = false,
+    .lights         = false,
+    .features       = false,
+    .reachability   = false,
+};
+
+struct dungeon_features_done *dm_generate_map_cave(struct dm_map *map, struct random *r, coord_t *ul, coord_t *dr) {
 
     /* initialise cellular automata */
     coord_t size = { .x = dr->x - ul->x, .y = dr->y - ul->y, };
@@ -76,5 +80,5 @@ bool cave_generate_map(struct dm_map *map, struct random *r, coord_t *ul, coord_
 
     /* cleanup and return */
     ca_free(cmap);
-    return true;
+    return &features;
 }

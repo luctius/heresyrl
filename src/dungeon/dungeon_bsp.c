@@ -21,13 +21,8 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include "dungeon_bsp.h"
-#include "dungeon_map.h"
-#include "tiles.h"
-#include "logging.h"
-#include "coord.h"
-#include "random.h"
-#include "ai/pathfinding.h"
+#include "dungeon/dungeon_bsp.h"
+#include "dungeon/dungeon_helpers.h"
 
 enum AXIS {
     X,
@@ -182,8 +177,15 @@ static unsigned int pf_callback(void *vmap, coord_t *coord) {
     return cost;
 }
 
-bool dm_generate_map_bsp(struct dm_map *map, struct random *random, coord_t *ul, coord_t *dr) {
-    int max_div_levels = 7 + (random_int32(random) %5);
+static struct dungeon_features_done features = {
+    .loops          = false,
+    .lights         = false,
+    .features       = false,
+    .reachability    = false,
+};
+
+struct dungeon_features_done *dm_generate_map_bsp(struct dm_map *map, struct random *r, coord_t *ul, coord_t *dr) {
+    int max_div_levels = 7 + (random_int32(r) %5);
     unsigned int alist_sz = 1;
     struct bsp_area area_list[ (max_div_levels * max_div_levels) +1];
     memset(area_list, 0x0, sizeof(area_list));
@@ -214,7 +216,7 @@ bool dm_generate_map_bsp(struct dm_map *map, struct random *random, coord_t *ul,
             lg_debug("splitting area[%d: l %d]: (sz %d,%d) (ul %d,%d) lvl: %d", a, l, ba->size.x, ba->size.y, ba->ul.x, ba->ul.y, ba->level);
 
             /* Choose division axis */
-            int axis_r = random_int32(random) % AXIS_MAX;
+            int axis_r = random_int32(r) % AXIS_MAX;
             int *axis = (axis_r == X) ? &ba->size.x : &ba->size.y;
             lg_debug("\taxis check area[%d, a %d]: (sz %d)", a, axis_r, *axis);
             if (*axis <= (2 * NEIGHBOUR_LEN_MIN) ) {
@@ -228,7 +230,7 @@ bool dm_generate_map_bsp(struct dm_map *map, struct random *random, coord_t *ul,
                 }
             }
             int range = *axis - (2 * NEIGHBOUR_LEN_MIN);
-            int div_range = (random_int32(random) % range) + NEIGHBOUR_LEN_MIN;
+            int div_range = (random_int32(r) % range) + NEIGHBOUR_LEN_MIN;
             lg_debug("\t\taxis[%d -> %d] div_range %d", axis_r, *axis, div_range);
 
             /* Add both areas to area list */
@@ -315,18 +317,18 @@ bool dm_generate_map_bsp(struct dm_map *map, struct random *random, coord_t *ul,
     }
 
     /* calculate influence */
-    int nr_influence_points = random_int32(random) % 2 +3;
+    int nr_influence_points = random_int32(r) % 2 +3;
     coord_t ip_list[nr_influence_points];
     for (int i = 0; i < nr_influence_points; i++) {
         /* place influence points */
         bool placed = false;
         for (unsigned int j = 0; j < alist_sz && placed == false; j++) {
-            coord_t ip = cd_create( (random_int32(random) % (size.x - 6) ) + 3,
-                                    (random_int32(random) % (size.y - 6) ) + 3);
-            int strength = (random_int32(random) % 3) +2;
+            coord_t ip = cd_create( (random_int32(r) % (size.x - 6) ) + 3,
+                                    (random_int32(r) % (size.y - 6) ) + 3);
+            int strength = (random_int32(r) % 3) +2;
             if (i == 0) {
-                ip = cd_create( (random_int32(random) % (size.x / 5) ) + ( (size.x / 2) - size.x / 5 ),
-                                        (random_int32(random) % (size.y / 5) ) + ( (size.y / 2) - size.y / 5 ) );
+                ip = cd_create( (random_int32(r) % (size.x / 5) ) + ( (size.x / 2) - size.x / 5 ),
+                                        (random_int32(r) % (size.y / 5) ) + ( (size.y / 2) - size.y / 5 ) );
                 strength = 3;
             }
 
@@ -427,7 +429,7 @@ bool dm_generate_map_bsp(struct dm_map *map, struct random *random, coord_t *ul,
         if (b->connected == true) continue;
 
         struct bsp_area *p = b->partner;
-        coord_t entry = nghbr_entry(b,p, random);
+        coord_t entry = nghbr_entry(b,p, r);
         if (p->connected) b->connected = true;
         p->entry = b->entry = entry;
     }
@@ -509,5 +511,5 @@ bool dm_generate_map_bsp(struct dm_map *map, struct random *random, coord_t *ul,
 
     pf_exit(pf_ctx);
     free(coord_lst);
-    return true;
+    return &features;
 }

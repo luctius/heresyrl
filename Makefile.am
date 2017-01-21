@@ -131,6 +131,7 @@ heresyrl_SOURCES =  \
 				src/dungeon/dungeon_cave.h \
 				src/dungeon/dungeon_room.h \
 				src/dungeon/dungeon_bsp.h \
+				src/dungeon/dungeon_helpers.h \
 				src/quests/quests.h \
 				src/quests/quests_static_def.h \
 				src/quests/quests_static.h \
@@ -172,6 +173,7 @@ heresyrl_SOURCES =  \
 				src/dungeon/dungeon_bsp.c \
 				src/dungeon/dungeon_dla.c \
 				src/dungeon/dungeon_map.c \
+				src/dungeon/dungeon_helpers.c \
 				src/dungeon/spawn.c \
 				src/dungeon/cellular_automata.c \
 				src/dungeon/diffusion_limited_aggregation.c \

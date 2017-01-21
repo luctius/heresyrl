@@ -29,6 +29,13 @@
 #include "dungeon_cave.h"
 #include "dungeon_dla.h"
 
+static struct dungeon_features_done features = {
+    .loops          = false,
+    .lights         = false,
+    .features       = false,
+    .reachability   = false,
+};
+
 static inline int tiles_used(struct dm_map *map, coord_t *ul, coord_t *dr) {
     int total = 0;
 
@@ -45,7 +52,7 @@ static inline int tiles_used(struct dm_map *map, coord_t *ul, coord_t *dr) {
     return total;
 }
 
-bool dm_generate_map_plain(struct dm_map *map, struct random *r, enum dm_dungeon_type type, coord_t *ul, coord_t *dr) {
+struct dungeon_features_done *dm_generate_map_plain(struct dm_map *map, struct random *r, coord_t *ul, coord_t *dr) {
     int sz_x = dr->x - ul->x;
     int sz_y = dr->y - ul->y;
 
@@ -65,9 +72,9 @@ bool dm_generate_map_plain(struct dm_map *map, struct random *r, enum dm_dungeon
         if (r_ul.x >= r_dr.x) continue;
         if (r_ul.y >= r_dr.y) continue;
 
-        dm_generate_map_room(map, r, type, &r_ul, &r_dr);
+        dm_generate_map_room(map, r, &r_ul, &r_dr);
         dug = tiles_used(map, ul, dr);
     };
-    return true;
+    return &features;
 }
 

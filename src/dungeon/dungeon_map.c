@@ -25,7 +25,6 @@
 #include <inttypes.h>
 
 #include "heresyrl_def.h"
-#include "dungeon_map.h"
 
 #include "tiles.h"
 #include "random.h"
@@ -38,12 +37,15 @@
 #include "options.h"
 #include "turn_tick.h"
 
-#include "dungeon_cave.h"
-#include "dungeon_room.h"
-#include "dungeon_plain.h"
-#include "cellular_automata.h"
-#include "dungeon_dla.h"
-#include "dungeon_bsp.h"
+#include "dungeon/dungeon_map.h"
+#include "dungeon/dungeon_helpers.h"
+#include "dungeon/dungeon_cave.h"
+#include "dungeon/dungeon_room.h"
+#include "dungeon/dungeon_plain.h"
+#include "dungeon/cellular_automata.h"
+#include "dungeon/dungeon_dla.h"
+#include "dungeon/dungeon_bsp.h"
+#include "dungeon/dungeon_helpers.h"
 
 extern inline struct dm_map_entity *dm_get_map_me(coord_t *c, struct dm_map *map);
 extern inline struct tl_tile *dm_get_map_tile(coord_t *c, struct dm_map *map);
@@ -414,68 +416,6 @@ bool dm_clear_map_visibility(struct dm_map *map, coord_t *start, coord_t *end) {
     return true;
 }
 
-static bool dm_tunnel(struct dm_map *map, struct random *r, coord_t *start, coord_t *end, struct tl_tile *tl) {
-    if (dm_verify_map(map) == false) return false;
-    if (cd_within_bound(start, &map->sett.size) == false) return false;
-    if (cd_within_bound(end, &map->sett.size) == false) return false;
-    if (tl == NULL) return false;
-
-    bool first = true;
-    bool tunnel_done = false;
-    coord_t prev = { .x = start->x, .y = start->y, };
-
-    while (!tunnel_done) {
-        coord_t delta     = cd_delta(end, &prev);
-        coord_t delta_abs = cd_delta_abs(end, &prev);
-
-        int xd = 0;
-        int yd = 0;
-        int xmod = (delta.x >= 0) ? 1: -1;
-        int ymod = (delta.y >= 0) ? 1: -1;
-
-        bool last = false;
-        if (cd_equal(&prev, end) || cd_neighbour(&prev, end) ) last = true;
-
-        int roll = random_int32(r) % 100;
-        if (first || last || roll < 80) {
-            if (delta_abs.x >= delta_abs.y) {
-                xd = 1 * xmod;
-            }
-            else if (delta_abs.x <= delta_abs.y) {
-                yd = 1 * ymod;
-            }
-        }
-        else {
-            roll = random_int32(r) % 100;
-            if (roll < 30) {
-                xd = 1 * xmod;
-            }
-            else if (roll < 60) {
-                yd = 1 * ymod;
-            }
-            else if (roll < 80) {
-                xd = 1 * -xmod;
-            }
-            else if (roll < 100) {
-                yd = 1 * -ymod;
-            }
-        }
-
-        coord_t next = { .x = prev.x +xd, .y = prev.y +yd, };
-        if (cd_within_bound(&next, &map->sett.size) ) {
-            if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(&next, map), TILE_ATTR_TRAVERSABLE) == false) {
-                dm_get_map_me(&next, map)->tile = tl;
-            }
-            prev.x = next.x;
-            prev.y = next.y;
-
-            if (cd_equal(&prev, end) ) tunnel_done = true;
-        }
-        first = false;
-    }
-    return true;
-}
-
 static bool dm_has_floors(struct dm_map *map) {
     coord_t c;
 
@@ -486,174 +426,6 @@ static bool dm_has_floors(struct dm_map *map) {
     }
 
     return false;
-}
-
-static bool dm_get_tunnel_path(struct dm_map *map, struct pf_context *pf_ctx, struct random *r) {
-    if (dm_verify_map(map) == false) return false;
-
-    /* get a coords from a place we did not reach with our flooding, nearest to the stairs*/
-    coord_t nftl;
-    if (pf_get_non_flooded_tile(pf_ctx, &map->stair_up, &nftl) == true) {
-
-        /* get coords of a place we DID reach, so we can connect to that*/
-        coord_t ftl;
-        if (pf_get_closest_flooded_tile(pf_ctx, &nftl, &ftl) == true) {
-
-            /* get the closest non-flooded tile to the flooded tile we just found. */
-            coord_t nftl2;
-            if (pf_get_non_flooded_tile(pf_ctx, &ftl, &nftl2) == true) {
-                /* Tunnel our way to there.. */
-                struct tl_tile *tl = ts_get_tile_specific(TILE_ID_CONCRETE_FLOOR);
-                if (dm_tunnel(map, r, &ftl, &nftl2, tl) ) return true;
-            }
-        }
-    }
-
-    return false;
-}
-
-static void dm_add_loops(struct dm_map *map, struct pf_context *pf_ctx, struct random *r) {
-    if (dm_verify_map(map) == false) return;
-
-    bool tunneled = true;
-    for (int i = 0; i < 20 && tunneled == true; i++) {
-        tunneled = false;
-
-        if (aiu_generate_dijkstra(&pf_ctx, map, &map->stair_down, 0) ) {
-
-            for (int x = 1; x < map->sett.size.x && tunneled == false; x+=5) {
-                for (int y = 1; y < map->sett.size.y && tunneled == false; y+=5) {
-                    coord_t point;
-
-                    coord_t best;
-                    coord_t worst;
-                    int best_distance = INT_MAX;
-                    int worst_distance = 0;
-                    for (point.x = x - 5; point.x < x + 5; point.x++) {
-                        for (point.y = y - 5; point.y < y + 5; point.y++) {
-                            struct pf_map_entity *me = pf_get_me(pf_ctx, &point);
-                            if ( (me != NULL) && (me->cost < PF_BLOCKED)  && me->state != PF_ENTITY_STATE_FREE) {
-                                if (me->distance < best_distance)  {
-                                    best_distance = me->distance;
-                                    best = point;
-                                }
-                                if (me->distance > worst_distance) {
-                                    worst_distance = me->distance;
-                                    worst = point;
-                                }
-                            }
-                        }
-                    }
-
-                    if ( (worst_distance - best_distance) > 20) {
-                        struct tl_tile *tl = ts_get_tile_specific(TILE_ID_CONCRETE_FLOOR);
-                        dm_tunnel(map, r, &best, &worst, tl);
-                        tunneled = true;
-                    }
-                }
-            }
-        }
-    }
-}
-
-static void dm_add_lights(struct dm_map *map, struct random *r) {
-    for (int x = 1; x < map->sett.size.x; x++) {
-        for (int y = 1; y < map->sett.size.y; y++) {
-            coord_t point = { .x = x, .y = y, };
-
-            int num = 0;
-            coord_t test = { .x = point.x, .y = point.y, };
-            for (int i = 0; i < coord_nhlo_table_sz; i++) {
-                if (cd_within_bound(&test, &map->sett.size) == false) continue;
-
-                if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(&test, map), TILE_ATTR_TRANSPARENT) == false) {
-                    num++;
-                }
-            }
-
-
-            struct dm_map_entity *me = dm_get_map_me(&point, map);
-            if (me->tile->type == TILE_TYPE_FLOOR ) {
-                if(random_int32(r)%100 < 1) {
-                    me->tile = ts_get_tile_specific(TILE_ID_BRASSIER);
-                    lg_debug("light at (%d,%d)", x,y);
-                }
-            }
-        }
-    }
-
-}
-
-enum dm_feature_type {
-    DM_FT_POOL,
-};
-
-bool dm_generate_feature(struct dm_map *map, struct random *r, coord_t *point, int min_radius, int max_radius, enum dm_feature_type ft) {
-    coord_t ft_sz = { .x = max_radius, .y = max_radius, };
-    coord_t ul = { .x = point->x - max_radius, .y = point->y - max_radius, };
-    //coord_t dr = { .x = point->x + max_radius, .y = point->y + max_radius, };
-
-    struct ca_map *camap = ca_init(&ft_sz);
-
-    /* Insert Obstacles and Alive Members */
-    coord_t c;
-    for (c.x = 0; c.x < max_radius; c.x++) {
-        for (c.y = 0; c.y < max_radius; c.y++) {
-            coord_t p = cd_add(&c, &ul);
-
-            if (cd_within_bound(&p, &map->sett.size) == false) {
-                ca_set_coord(camap, &c, CA_OBSTACLE);
-            }
-            else if (dm_get_map_tile(&p, map)->type != TILE_TYPE_FLOOR) {
-                ca_set_coord(camap, &c, CA_OBSTACLE);
-            }
-            else if (random_d100(r) < 70) {
-                ca_set_coord(camap, &c, CA_ALIVE);
-            }
-        }
-    }
-
-    /* Generate the Feature */
-    for (int i = 0; i < 3; i++) {
-        ca_generation(camap, 4, 4, 1);
-    }
-
-    /* Check Size */
-    int max_sum = 0;
-    for (c.x = 0; c.x < max_radius; c.x++) {
-        for (c.y = 0; c.y < max_radius; c.y++) {
-            int tmp = 0;
-            tmp = ca_get_coord_sum(camap, &c, 3);
-            if (tmp > max_sum) max_sum = tmp;
-        }
-    }
-    if (max_sum < min_radius) {
-        ca_free(camap);
-        return false;
-    }
-
-    /* Insert into Map */
-    for (c.x = 0; c.x < max_radius; c.x++) {
-        for (c.y = 0; c.y < max_radius; c.y++) {
-            if (ca_get_coord(camap, &c) != CA_ALIVE) continue;
-
-            coord_t p = cd_add(&c, &ul);
-
-            if (cd_within_bound(&p, &map->sett.size) == false) continue;
-            struct dm_map_entity *me = dm_get_map_me(&p, map);
-
-            int sum = ca_get_coord_sum(camap, &c, 2);
-            if (ft == DM_FT_POOL) {
-                if (ca_get_coord_sum(camap, &c, 1) < 6) me->tile = ts_get_tile_specific(TILE_ID_MUD);
-                else if (sum <= 19) me->tile = ts_get_tile_specific(TILE_ID_UNDEEP_WATER);
-                else /*if (sum > 20)*/ me->tile = ts_get_tile_specific(TILE_ID_DEEP_WATER);
-            }
-        }
-    }
-
-
-    ca_free(camap);
-    return true;
 }
 
 struct dm_map *dm_generate_map(struct dm_spawn_settings *sett) {
@@ -694,26 +466,29 @@ struct dm_map *dm_generate_map(struct dm_spawn_settings *sett) {
         map->sett.type = random_int32(r) % DUNGEON_TYPE_ALL;
     }
 
+    struct dungeon_features_done *feat = NULL;
+
     /* fill the map with room accoring to the specified algorithm */
     switch(map->sett.type) {
         case DUNGEON_TYPE_CAVE:
             lg_print("map_type is cave");
-            cave_generate_map(map, r, &ul, &dr);
+            feat = dm_generate_map_cave(map, r, &ul, &dr);
             break;
         default:
         case DUNGEON_TYPE_PLAIN:
             lg_print("map_type is plain");
-            dm_generate_map_plain(map, r, map->sett.type, &ul, &dr);
+            feat = dm_generate_map_plain(map, r, &ul, &dr);
             break;
         case DUNGEON_TYPE_UNDERHIVE:
             lg_print("map_type is underhive");
-            dm_generate_map_dla(map, r, &ul, &dr);
+            feat = dm_generate_map_dla(map, r, &ul, &dr);
             break;
         case DUNGEON_TYPE_HIVE:
             lg_print("map_type is hive");
-            dm_generate_map_bsp(map, r, &ul, &dr);
+            feat = dm_generate_map_bsp(map, r, &ul, &dr);
             break;
     }
+    assert(feat != NULL);
 
     /* print map if requested */
     if (options.debug && options.print_map_only) {
@@ -730,7 +505,7 @@ struct dm_map *dm_generate_map(struct dm_spawn_settings *sett) {
     dm_clear_map(map);
 
     /* Fill the map with lights */
-    dm_add_lights(map, r);
+    if (!feat->lights) dm_add_lights(map, r);
 
     /* From here we will make sure the map is completely accesible. */
 
@@ -738,7 +513,7 @@ struct dm_map *dm_generate_map(struct dm_spawn_settings *sett) {
     coord_t start = { .x = map->stair_up.x, .y = map->stair_up.y};
     coord_t end = { .x = map->stair_down.x, .y = map->stair_down.y};
 
-    bool map_is_good = false;
+    bool map_is_good = feat->reachability ;
     struct pf_context *pf_ctx = NULL;
 
     int i = 0;
@@ -769,18 +544,19 @@ struct dm_map *dm_generate_map(struct dm_spawn_settings *sett) {
 
         }
     }
-
-    dm_add_loops(map, pf_ctx, r);
-
     assert(map_is_good == true);
     lg_debug("Map is completly reachable in %d tries", i);
 
-    for (i = 0; i < 10; i++) {
-        int x = random_int32(r) % map->sett.size.x;
-        int y = random_int32(r) % map->sett.size.y;
-        coord_t point = { .x = x, .y = y, };
+    if (!feat->loops) dm_add_loops(map, pf_ctx, r);
 
-        if (dm_generate_feature(map, r, &point, 15, 15, DM_FT_POOL) ) continue;
+    if (!feat->features) {
+        for (i = 0; i < 10; i++) {
+            int x = random_int32(r) % map->sett.size.x;
+            int y = random_int32(r) % map->sett.size.y;
+            coord_t point = { .x = x, .y = y, };
+
+            if (dm_generate_feature(map, r, &point, 15, 15, DM_FT_POOL) ) continue;
+        }
     }
 
     /* cleanup pathfinding */
@@ -861,3 +637,12 @@ bool dm_tile_exit(struct dm_map *map, coord_t *point, struct msr_monster *monste
     return true;
 }
 
+bool dm_add_generator(struct generator *g) {
+    return false;
+}
+
+void dm_init() {
+}
+
+void dm_exit() {
+}
