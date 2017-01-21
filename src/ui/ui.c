@@ -450,7 +450,7 @@ void targetwin_examine(struct hrl_window *window, struct dm_map *map, struct msr
         int idx = 0;
         struct tohit_desc *thd = NULL;
         while ( (thd = fght_get_tohit_mod_description(idx++) ) != NULL) {
-            ui_printf(window, "%lc %ls (%d).\n", (thd->modifier > 0) ? L'+' : L'-', thd->description, thd->modifier);
+            ui_printf(window, "%c %s (%d).\n", (thd->modifier > 0) ? L'+' : L'-', thd->description, thd->modifier);
         }
 
         ui_printf(window, "\n");
