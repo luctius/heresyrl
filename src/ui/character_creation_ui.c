@@ -53,13 +53,13 @@ bool char_creation_window(void) {
     wrefresh(map_win->win);
     wrefresh(char_win->win);
 
-    enum homeworld_ids h_tid;
-    enum background_ids b_tid;
-    enum role_ids r_tid;
+    enum homeworld_ids h_tid  = CR_HWID_NONE;
+    enum background_ids b_tid = CR_BCKGRNDID_NONE;
+    enum role_ids r_tid       = CR_ROLEID_NONE;
 
     struct pl_player *plr = &gbl_game->player_data;
     plr->player = msr_create(MID_PLAYER);
-    cr_init_career(plr, CR_HWID_NONE, CR_BCKGRNDID_NONE, CR_ROLEID_NONE);
+    cr_init_career(plr, h_tid, b_tid, r_tid);
 
     struct msr_monster *player = plr->player;
     player->unique_name = L"";
