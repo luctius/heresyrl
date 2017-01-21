@@ -694,7 +694,6 @@ struct dm_map *dm_generate_map(struct dm_spawn_settings *sett) {
     if (map->sett.type == DUNGEON_TYPE_ALL) {
         map->sett.type = random_int32(r) % DUNGEON_TYPE_ALL;
     }
-    map->sett.type = DUNGEON_TYPE_CAVE;
 
     /* fill the map with room accoring to the specified algorithm */
     switch(map->sett.type) {
@@ -785,17 +784,18 @@ struct dm_map *dm_generate_map(struct dm_spawn_settings *sett) {
         if (dm_generate_feature(map, r, &point, 15, 15, DM_FT_POOL) ) continue;
     }
 
-    if (options.print_map_only) {
-        lg_debug("map after reachability");
-        dm_print_map(map);
-        exit(EXIT_SUCCESS);
-    }
-
     /* cleanup pathfinding */
     pf_exit(pf_ctx);
 
     /*cleanup random*/
     random_exit(r);
+
+    if (options.print_map_only) {
+        lg_debug("map after reachability");
+        dm_print_map(map);
+        dm_free_map(map);
+        exit(EXIT_SUCCESS);
+    }
 
     return map;
 }
