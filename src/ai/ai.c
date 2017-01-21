@@ -108,7 +108,7 @@ static bool ai_beast_loop(struct msr_monster *monster) {
 }
 
 void ai_beast_free(void *ai_ctx) {
-    struct dm_map *map = gbl_game->current_map;
+    //struct dm_map *map = gbl_game->current_map;
     assert(ai_ctx != NULL);
 
     struct beast_ai_struct *ai = ai_ctx;
@@ -226,7 +226,7 @@ static bool ai_human_loop(struct msr_monster *monster) {
 }
 
 void ai_human_free(void *ai_ctx) {
-    struct dm_map *map = gbl_game->current_map;
+    //struct dm_map *map = gbl_game->current_map;
     assert(ai_ctx != NULL);
 
     struct human_ai_struct *ai = ai_ctx;
