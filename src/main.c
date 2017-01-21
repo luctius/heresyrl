@@ -59,6 +59,8 @@ int main(int argc, char *argv[]) {
     int debug_lvl = LG_DEBUG_LEVEL_GAME_INFO;
     int log_size = 100;
 
+    setlocale(LC_ALL, "");
+
     srand(time(NULL));
 
     initialize_uncursed(&argc, argv);
