@@ -178,10 +178,10 @@ static unsigned int pf_callback(void *vmap, coord_t *coord) {
 }
 
 static struct dungeon_features_done features = {
-    .loops          = false,
+    .loops          = true,
     .lights         = false,
-    .features       = false,
-    .reachability    = false,
+    .features       = true,
+    .reachability   = true,
 };
 
 struct dungeon_features_done *dm_generate_map_bsp(struct dm_map *map, struct random *r, coord_t *ul, coord_t *dr) {
