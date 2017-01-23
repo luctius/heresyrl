@@ -24,12 +24,12 @@
 
 #include "wizard/wz_cmds_inc.c"
 
-static void cmd_exit(wchar_t *input) {
+static void cmd_exit(char *input) {
     FIX_UNUSED(input);
     wz_mode_exit();
 }
 
-static void cmd_help(wchar_t *input);
+static void cmd_help(char *input);
 static const struct wz_cmd wz_cmd_list[] = {
     {
         .name = "help",
@@ -99,12 +99,12 @@ static const struct wz_cmd wz_cmd_list[] = {
 
 };
 
-static void cmd_help(wchar_t *input) {
+static void cmd_help(char *input) {
     for (unsigned int i = 0; i < ARRAY_SZ(wz_cmd_list); i++) {
         const struct wz_cmd *cmd = &wz_cmd_list[i];
 
         if (input != NULL) {
-            if (wcsncmp(cmd->name, input, wcslen(cmd->name) ) == 0) {
+            if (strncmp(cmd->name, input, strlen(cmd->name) ) == 0) {
                 lg_wizard("%10.10s \t %s", cmd->name, cmd->descr);
                 return;
             }

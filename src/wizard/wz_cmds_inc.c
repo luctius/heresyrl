@@ -310,8 +310,8 @@ static void cmd_inspect_item(char *input) {
                 int aut = wpn->rof[WEAPON_ROF_SETTING_AUTO];
 
                 if (semi > 0 || aut > 0) {
-                    char semi_str[4]; swprintf(semi_str, 3, "%d", semi);
-                    char auto_str[4]; swprintf(auto_str, 3, "%d", aut);
+                    char semi_str[4]; snprintf(semi_str, 3, "%d", semi);
+                    char auto_str[4]; snprintf(auto_str, 3, "%d", aut);
                     lg_wizard("- Rate of Fire (%s/%s/%s)\n",
                             (single > 0) ? "S" : "-", (semi > 0) ? semi_str : "-", (aut > 0) ? auto_str : "-");
                 }
