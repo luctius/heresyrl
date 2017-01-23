@@ -191,7 +191,11 @@ heresyrl_SOURCES =  \
 				src/ui/ui.c \
 				src/ui/ui_common.c \
 				src/ui/character_creation_ui.c \
-				src/ui/animate.c
+				src/ui/animate.c \
+				src/dungeon/heatmap.c \
+				src/dungeon/heatmap.h \
+				src/dungeon/lodepng.h \
+				src/dungeon/lodepng.c
 
 if READLINE
 heresyrl_SOURCES += src/wizard/wizard_commands.c \

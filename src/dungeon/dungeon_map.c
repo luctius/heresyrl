@@ -47,6 +47,12 @@
 #include "dungeon/dungeon_bsp.h"
 #include "dungeon/dungeon_helpers.h"
 
+#define LODEPNG_NO_COMPILE_DECODER
+#define LODEPNG_NO_COMPILE_ANCILLARY_CHUNKS
+#define LODEPNG_NO_COMPILE_CPP
+#include "lodepng.h"
+#include "heatmap.h"
+
 extern inline struct dm_map_entity *dm_get_map_me(coord_t *c, struct dm_map *map);
 extern inline struct tl_tile *dm_get_map_tile(coord_t *c, struct dm_map *map);
 static bool dm_clear_map_unsafe(struct dm_map *map);
@@ -172,9 +178,36 @@ bool dm_print_map(struct dm_map *map) {
 
     printf("map seed: %" PRIu32 "\n", map->sett.seed);
     coord_t c;
+
+    /* Heatmap test */
+    heatmap_t* hm = heatmap_new(map->sett.size.x, map->sett.size.y);
     for (c.y = 0; c.y < map->sett.size.y; c.y++) {
         for (c.x = 0; c.x < map->sett.size.x; c.x++) {
-            printf("%lc", dm_get_map_tile(&c,map)->icon);
+            if (TILE_HAS_ATTRIBUTE(dm_get_map_tile(&c,map), TILE_ATTR_TRAVERSABLE) ) {
+                heatmap_add_point(hm, c.x, c.y);
+            }
+        }
+    }
+
+    unsigned char image[map->sett.size.x * map->sett.size.y * 4];
+    heatmap_render_default_to(hm, image);
+    heatmap_free(hm);
+
+    unsigned error = lodepng_encode32_file("test.png", image, map->sett.size.x, map->sett.size.y);
+    if(error) printf("error %u: %s\n", error, lodepng_error_text(error));
+
+    for (c.y = 0; c.y < map->sett.size.y; c.y++) {
+        for (c.x = 0; c.x < map->sett.size.x; c.x++) {
+            uint8_t r = image[ ( (((c.y) * map->sett.size.y) + (c.x) ) * 4) +0];
+            uint8_t g = image[ ( (((c.y) * map->sett.size.y) + (c.x) ) * 4) +1];
+            uint8_t b = image[ ( (((c.y) * map->sett.size.y) + (c.x) ) * 4) +2];
+            uint8_t a = image[ ( (((c.y) * map->sett.size.y) + (c.x) ) * 4) +3];
+            if ( (r >= 150) && 
+                 (g >=   0  && 100 >= g) && 
+                 (b >=   0  && 100 >= b) ) {
+                printf("X");
+            }
+            else printf("%lc", dm_get_map_tile(&c,map)->icon);
         }
         if (c.y % 5 == 0) printf("\t -- %d\n", c.y);
         else putchar('\n');
@@ -186,6 +219,26 @@ bool dm_print_map(struct dm_map *map) {
         else putchar(' ');
     }
     putwchar('\n');
+
+/*
+    for (c.x = 0; c.x < map->sett.size.x; c.x++) {
+        for (c.y = 0; c.y < map->sett.size.y; c.y++) {
+            uint8_t r = image[ ( (((c.x) * map->sett.size.y) + (c.y) ) * 4) +0];
+            uint8_t g = image[ ( (((c.x) * map->sett.size.y) + (c.y) ) * 4) +1];
+            uint8_t b = image[ ( (((c.x) * map->sett.size.y) + (c.y) ) * 4) +2];
+            uint8_t a = image[ ( (((c.x) * map->sett.size.y) + (c.y) ) * 4) +3];
+            if ( (r >= 150) && 
+                 (g >=   0 &&  120 >= g) && 
+                 (b >=   0 &&  70 >= g) ) {
+                printf("XX");
+            }
+            else if (b >= 0xb0) printf("..");
+            else printf("  ");
+        }
+        putchar('\n');
+    }
+    putchar('\n');
+*/
 
     return true;
 }
@@ -548,7 +601,7 @@ struct dm_map *dm_generate_map(struct dm_spawn_settings *sett) {
     lg_debug("Map is completly reachable in %d tries", i);
 
     if (!feat->loops) dm_add_loops(map, pf_ctx, r);
-
+/*
     if (!feat->features) {
         for (i = 0; i < 10; i++) {
             int x = random_int32(r) % map->sett.size.x;
@@ -558,6 +611,7 @@ struct dm_map *dm_generate_map(struct dm_spawn_settings *sett) {
             if (dm_generate_feature(map, r, &point, 15, 15, DM_FT_POOL) ) continue;
         }
     }
+*/
 
     /* cleanup pathfinding */
     pf_exit(pf_ctx);
