@@ -30,68 +30,6 @@ struct pf_entry {
     TAILQ_ENTRY(pf_entry) entries;
 };
 
-static TAILQ_HEAD(pf_list, pf_entry) pf_list_head;
-
-static void pf_list_init(void) {
-    TAILQ_INIT(&pf_list_head);
-}
-
-static void pf_list_exit(void) {
-    struct pf_entry *e = NULL;
-    while (pf_list_head.tqh_first != NULL) {
-        e = pf_list_head.tqh_first;
-        TAILQ_REMOVE(&pf_list_head, pf_list_head.tqh_first, entries);
-        free(e);
-    }
-}
-
-static void pf_list_add_tail(coord_t *c, struct pf_map_entity *pfe) {
-    struct pf_entry *e = calloc(1,sizeof(struct pf_entry) );
-    e->pos = *c;
-    e->pfme = pfe;
-
-    TAILQ_INSERT_TAIL(&pf_list_head, e, entries);
-}
-
-static void pf_list_add_sort(coord_t *c, struct pf_map_entity *pfe) {
-    struct pf_entry *e = calloc(1,sizeof(struct pf_entry) );
-    e->pos = *c;
-    e->pfme = pfe;
-
-
-    struct pf_entry *np = pf_list_head.tqh_first;
-    if (np == NULL || pfe->score < np->pfme->score) {
-        TAILQ_INSERT_HEAD(&pf_list_head, e, entries);
-        //lg_debug("adding to sort list head (%d,%d)", c->x, c->y);
-        return;
-    }
-
-    for (np = pf_list_head.tqh_first; np != NULL; np = np->entries.tqe_next) {
-        if (pfe->score < np->pfme->score) {
-            TAILQ_INSERT_AFTER(&pf_list_head, np, e, entries);
-            //lg_debug("adding to sort list after (%d,%d) => (%d,%d)", np->pos.x, np->pos.y, c->x, c->y);
-            return;
-        }
-    }
-
-    //lg_debug("adding to sort list tail (%d,%d)", c->x, c->y);
-    TAILQ_INSERT_TAIL(&pf_list_head, e, entries);
-}
-
-static void pf_list_remove(struct pf_entry *e) {
-    TAILQ_REMOVE(&pf_list_head, e, entries);
-    free(e);
-}
-
-static struct pf_entry *pf_list_next(struct pf_entry *prev) {
-    if (prev == NULL) {
-        if (pf_list_head.tqh_first != NULL) return pf_list_head.tqh_first;
-        return NULL;
-    }
-
-    return prev->entries.tqe_next;
-}
-
 struct pf_map {
     coord_t size;
     struct pf_map_entity *map;
@@ -101,6 +39,8 @@ struct pf_context {
     struct pf_map map;
     struct pf_settings set;
     int maximum_distance;
+
+    TAILQ_HEAD(pf_list, pf_entry) pf_list_head;
 };
 
 static inline struct pf_map_entity *pf_get_index(coord_t *p, struct pf_map *map) {
@@ -111,11 +51,65 @@ static inline unsigned int pf_score(unsigned int prev_cost, coord_t *a, coord_t 
         return prev_cost + (pyth(a->x - b->x, a->y - b->y) * 5);
 }
 
-static const coord_t pf_coord_lo_table[] = {
-    {-1,-1}, {-1,0}, {-1,1},
-    { 0,-1},         { 0,1},
-    { 1,-1}, { 1,0}, { 1,1},
-};
+static void pf_list_init(struct pf_context *ctx) {
+    TAILQ_INIT(&ctx->pf_list_head);
+}
+
+static void pf_list_exit(struct pf_context *ctx) {
+    struct pf_entry *e = NULL;
+    while (ctx->pf_list_head.tqh_first != NULL) {
+        e = ctx->pf_list_head.tqh_first;
+        TAILQ_REMOVE(&ctx->pf_list_head, ctx->pf_list_head.tqh_first, entries);
+        free(e);
+    }
+}
+
+static void pf_list_add_tail(struct pf_context *ctx, coord_t *c, struct pf_map_entity *pfe) {
+    struct pf_entry *e = calloc(1,sizeof(struct pf_entry) );
+    e->pos = *c;
+    e->pfme = pfe;
+
+    TAILQ_INSERT_TAIL(&ctx->pf_list_head, e, entries);
+}
+
+static void pf_list_add_sort(struct pf_context *ctx, coord_t *c, struct pf_map_entity *pfe) {
+    struct pf_entry *e = calloc(1,sizeof(struct pf_entry) );
+    e->pos = *c;
+    e->pfme = pfe;
+
+
+    struct pf_entry *np = ctx->pf_list_head.tqh_first;
+    if (np == NULL || pfe->score < np->pfme->score) {
+        TAILQ_INSERT_HEAD(&ctx->pf_list_head, e, entries);
+        //lg_debug("adding to sort list head (%d,%d)", c->x, c->y);
+        return;
+    }
+
+    for (np = ctx->pf_list_head.tqh_first; np != NULL; np = np->entries.tqe_next) {
+        if (pfe->score < np->pfme->score) {
+            TAILQ_INSERT_AFTER(&ctx->pf_list_head, np, e, entries);
+            //lg_debug("adding to sort list after (%d,%d) => (%d,%d)", np->pos.x, np->pos.y, c->x, c->y);
+            return;
+        }
+    }
+
+    //lg_debug("adding to sort list tail (%d,%d)", c->x, c->y);
+    TAILQ_INSERT_TAIL(&ctx->pf_list_head, e, entries);
+}
+
+static void pf_list_remove(struct pf_context *ctx, struct pf_entry *e) {
+    TAILQ_REMOVE(&ctx->pf_list_head, e, entries);
+    free(e);
+}
+
+static struct pf_entry *pf_list_next(struct pf_context *ctx, struct pf_entry *prev) {
+    if (prev == NULL) {
+        if (ctx->pf_list_head.tqh_first != NULL) return ctx->pf_list_head.tqh_first;
+        return NULL;
+    }
+
+    return prev->entries.tqe_next;
+}
 
 static bool pf_flood_map(struct pf_context *ctx, coord_t *point) {
     if (ctx == NULL) return false;
@@ -124,8 +118,7 @@ static bool pf_flood_map(struct pf_context *ctx, coord_t *point) {
 
     struct pf_map *map = &ctx->map;
 
-    pf_list_init();
-    pf_list_add_tail(point, pf_get_index(point, map));
+    pf_list_add_tail(ctx, point, pf_get_index(point, map));
 
     /* We increase the map we process slightly each cycle to ease the burden not using a list. */
     bool has_open = true;
@@ -133,13 +126,13 @@ static bool pf_flood_map(struct pf_context *ctx, coord_t *point) {
         has_open = false;
 
         struct pf_entry *e = NULL;
-        while ( (e = pf_list_next(NULL) ) != NULL) {
+        while ( (e = pf_list_next(ctx, NULL) ) != NULL) {
             coord_t current = e->pos;
 
             struct pf_map_entity *me = pf_get_index(&current, map);
             me->state = PF_ENTITY_STATE_CLOSED;
 
-            //lg_debug("flooding (%d,%d) -> [st: %d/ cst: %d/dst: %d/scr: %d]", current.x, current.y, me->state, me->cost, me->distance, me->score);
+            lg_debug("flooding (%d,%d) -> [st: %d/ cst: %d/dst: %d/scr: %d]", current.x, current.y, me->state, me->cost, me->distance, me->score);
 
             for (int i = 0; i < (int) ctx->set.nhlo_tbl_sz; i++) {
                 coord_t pos = { .x = current.x + ctx->set.nhlo_tbl[i].x, .y = current.y + ctx->set.nhlo_tbl[i].y, };
@@ -168,16 +161,15 @@ static bool pf_flood_map(struct pf_context *ctx, coord_t *point) {
                     me_new->state = PF_ENTITY_STATE_OPEN;
                     me_new->score = pf_score(me_new->cost, &pos, point);
                     has_open = true;
-                    pf_list_add_tail(&pos, me_new);
-                    //lg_debug("adding (%d,%d) -> [st: %d/ cst: %d/dst: %d/scr: %d]", pos.x, pos.y, me_new->state, me_new->cost, me_new->distance, me_new->score);
+                    pf_list_add_tail(ctx, &pos, me_new);
+                    lg_debug("adding (%d,%d) -> [st: %d/ cst: %d/dst: %d/scr: %d]", pos.x, pos.y, me_new->state, me_new->cost, me_new->distance, me_new->score);
                 }
             }
 
-            pf_list_remove(e);
+            pf_list_remove(ctx, e);
         }
     }
 
-    pf_list_exit();
     return true;
 }
 
@@ -187,10 +179,10 @@ static bool pf_astar_loop(struct pf_context *ctx, coord_t *start, coord_t *end) 
 
     struct pf_map *map = &ctx->map;
 
-    pf_list_add_sort(start, pf_get_index(start, map));
+    pf_list_add_sort(ctx, start, pf_get_index(start, map));
 
     struct pf_entry *entry;
-    while ( (entry = pf_list_next(NULL) ) != NULL) {
+    while ( (entry = pf_list_next(ctx, NULL) ) != NULL) {
         /* get best node*/
         coord_t point = entry->pos;
         struct pf_map_entity *me = entry->pfme;
@@ -232,13 +224,13 @@ static bool pf_astar_loop(struct pf_context *ctx, coord_t *start, coord_t *end) 
                 me_new->score = pf_score(me_new->cost, &pos, end);
                 me_new->distance = me->distance +1;
                 me_new->state = PF_ENTITY_STATE_OPEN;
-                pf_list_add_sort(&pos, me_new);
+                pf_list_add_sort(ctx, &pos, me_new);
             }
 
             //lg_debug("tested (%u,%u) -> [st: %u/ cst: %u/dst: %d/scr: %u]", pos.x, pos.y, me_new->state, me_new->cost, me_new->distance, me_new->score);
         }
 
-        pf_list_remove(entry);
+        pf_list_remove(ctx, entry);
     }
 
     return false;
@@ -313,6 +305,8 @@ struct pf_context *pf_init(struct pf_settings *pf_set) {
         lg_debug("pathfinding init [%p]", ctx);
         memcpy(&ctx->set, pf_set, sizeof(struct pf_settings) );
 
+        pf_list_init(ctx);
+
         if (ctx->set.nhlo_tbl_sz == 0) {
             ctx->set.nhlo_tbl_sz = coord_nhlo_table_sz;
             ctx->set.nhlo_tbl    = coord_nhlo_table;
@@ -324,6 +318,7 @@ struct pf_context *pf_init(struct pf_settings *pf_set) {
 void pf_exit(struct pf_context *ctx) {
     if (ctx == NULL) return;
     lg_debug("cleaning up pathfinding [%p]", ctx);
+    pf_list_exit(ctx);
     free(ctx->map.map);
     free(ctx);
 }
@@ -339,19 +334,24 @@ bool pf_dijkstra_map(struct pf_context *ctx, coord_t *start) {
     if (ctx->set.nhlo_tbl_sz == 0)    return false;
     if (ctx->set.nhlo_tbl    == NULL) return false;
 
+    bool new = false;
     struct pf_map *map = &ctx->map;
-    if (map->map != NULL) free(map->map);
-
-    map->size.x = ctx->set.map_end.x - ctx->set.map_start.x;
-    map->size.y = ctx->set.map_end.y - ctx->set.map_start.y;
-    map->map = calloc(map->size.x * map->size.y, sizeof(struct pf_map_entity) );
-    if (map->map == NULL) return false;
-    lg_debug("pathfinding calloc map [%p]", ctx);
+    if (map->map == NULL) {
+        map->size.x = ctx->set.map_end.x - ctx->set.map_start.x;
+        map->size.y = ctx->set.map_end.y - ctx->set.map_start.y;
+        map->map = calloc(map->size.x * map->size.y, sizeof(struct pf_map_entity) );
+        if (map->map == NULL) return false;
+        lg_debug("pathfinding calloc map [%p]", ctx);
+        new = true;
+    }
 
     coord_t fm_start = cd_min(start, &ctx->set.map_start);
-    pf_get_index(&fm_start, map)->cost = 1;
-    pf_get_index(&fm_start, map)->distance = 0;
-    pf_get_index(&fm_start, map)->state = PF_ENTITY_STATE_OPEN;
+
+    if (new) {
+        pf_get_index(&fm_start, map)->cost = 1;
+        pf_get_index(&fm_start, map)->distance = 0;
+        pf_get_index(&fm_start, map)->state = PF_ENTITY_STATE_OPEN;
+    }
 
     lg_debug("start at (%d,%d)", start->x,  start->y);
     return pf_flood_map(ctx, &fm_start);
@@ -385,9 +385,7 @@ int pf_astar_map(struct pf_context *ctx, coord_t *start, coord_t *end) {
     lg_debug("end at (%d,%d)", end->x,  end->y);
 
     /* Do astar filling */
-    pf_list_init();
     bool retval = pf_astar_loop(ctx, &al_start, &al_end);
-    pf_list_exit();
 
     return retval;
 }
@@ -469,7 +467,7 @@ bool pf_calculate_reachability(struct pf_context *ctx) {
                 target.y += ctx->set.map_start.y;
 
                 if (ctx->set.pf_traversable_callback(ctx->set.map, &target) < PF_BLOCKED) {
-                    lg_debug("fail at (%d,%d)", target.x +ctx->set.map_start.x, target.y +ctx->set.map_start.y);
+                    lg_debug("reachability failed at (%d,%d)", target.x +ctx->set.map_start.x, target.y +ctx->set.map_start.y);
                     return false;
                 }
             }
@@ -560,6 +558,29 @@ bool pf_is_flooded(struct pf_context *ctx, coord_t *c) {
     coord_t fd_c = cd_min(c, &ctx->set.map_start);
     if (pf_get_index(&fd_c, &ctx->map)->state != PF_ENTITY_STATE_FREE) return true;
     return false;
+}
+
+bool pf_clear_region(struct pf_context *ctx, coord_t *ul, coord_t *dr) {
+    if (ctx == NULL) return false;
+    if (ctx->set.pf_traversable_callback == NULL) return false;
+    if ( (ctx->set.map_end.x == 0) && (ctx->set.map_end.y == 0) ) return false;
+    if (ul->x >= dr->x) return false;
+    if (ul->y >= dr->y) return false;
+    if ( (dr->x >= ctx->set.map_end.x) && (dr->y >= ctx->set.map_end.y) ) return false;
+
+    coord_t c = *ul;
+    for (; c.x <= dr->x; c.x++) {
+        for (; c.y <= dr->y; c.y++) {
+            struct pf_map_entity *me = pf_get_index(&c, &ctx->map);
+            if (me->state != PF_ENTITY_STATE_FREE) {
+                me->state    = PF_ENTITY_STATE_FREE;
+                me->cost     = 0;
+                me->distance = 0;
+                me->score    = 0;
+            }
+        }
+    }
+    return true;
 }
 
 struct pf_map_entity *pf_get_me(struct pf_context *ctx, coord_t *point) {

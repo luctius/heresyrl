@@ -50,7 +50,7 @@ struct generator {
 bool dm_add_generator(struct generator *g);
 
 bool dm_tunnel(struct dm_map *map, struct random *r, coord_t *start, coord_t *end, struct tl_tile *tl);
-bool dm_get_tunnel_path(struct dm_map *map, struct pf_context *pf_ctx, struct random *r);
+bool dm_get_tunnel_path(struct dm_map *map, struct pf_context *pf_ctx, struct random *r, coord_t *tnl_start, coord_t *tnl_end);
 void dm_add_loops(struct dm_map *map, struct pf_context *pf_ctx, struct random *r);
 void dm_add_lights(struct dm_map *map, struct random *r);
 bool dm_generate_feature(struct dm_map *map, struct random *r, coord_t *point, int min_radius, int max_radius, enum dm_feature_type ft);

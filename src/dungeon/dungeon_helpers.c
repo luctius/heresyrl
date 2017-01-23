@@ -80,7 +80,7 @@ bool dm_tunnel(struct dm_map *map, struct random *r, coord_t *start, coord_t *en
     return true;
 }
 
-bool dm_get_tunnel_path(struct dm_map *map, struct pf_context *pf_ctx, struct random *r) {
+bool dm_get_tunnel_path(struct dm_map *map, struct pf_context *pf_ctx, struct random *r, coord_t *tnl_start, coord_t *tnl_end) {
     if (dm_verify_map(map) == false) return false;
 
     /* get a coords from a place we did not reach with our flooding, nearest to the stairs*/
@@ -95,8 +95,14 @@ bool dm_get_tunnel_path(struct dm_map *map, struct pf_context *pf_ctx, struct ra
             coord_t nftl2;
             if (pf_get_non_flooded_tile(pf_ctx, &ftl, &nftl2) == true) {
                 /* Tunnel our way to there.. */
-                struct tl_tile *tl = ts_get_tile_specific(TILE_ID_CONCRETE_FLOOR);
-                if (dm_tunnel(map, r, &ftl, &nftl2, tl) ) return true;
+                //struct tl_tile *tl = ts_get_tile_specific(TILE_ID_CONCRETE_FLOOR);
+                struct tl_tile *tl = ts_get_tile_specific(TILE_ID_DUMMY);
+                if (dm_tunnel(map, r, &ftl, &nftl2, tl) ) {
+                    if (tnl_start != NULL) *tnl_start = ftl;
+                    if (tnl_end   != NULL) *tnl_end   = nftl2;
+                    lg_debug("tunneled from (%d,%d) to (%d,%d)", ftl.x, ftl.y, nftl2.x, nftl2.y);
+                    return true;
+                }
             }
         }
     }

@@ -130,6 +130,8 @@ returns the length of the path
 */
 int pf_calculate_path(struct pf_context *ctx, coord_t *start, coord_t *end, coord_t **coord_lst);
 
+bool pf_clear_region(struct pf_context *ctx, coord_t *ul, coord_t *dr);
+
 /*
 Prereq: pf_dijkstra_map OR pf_astar_map
 Retreive the information of a map grid.

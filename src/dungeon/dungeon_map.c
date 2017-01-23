@@ -188,16 +188,18 @@ bool dm_print_map(struct dm_map *map) {
             }
         }
     }
-
+/*
     unsigned char image[map->sett.size.x * map->sett.size.y * 4];
     heatmap_render_default_to(hm, image);
     heatmap_free(hm);
 
     unsigned error = lodepng_encode32_file("test.png", image, map->sett.size.x, map->sett.size.y);
     if(error) printf("error %u: %s\n", error, lodepng_error_text(error));
+*/
 
     for (c.y = 0; c.y < map->sett.size.y; c.y++) {
         for (c.x = 0; c.x < map->sett.size.x; c.x++) {
+/*
             uint8_t r = image[ ( (((c.y) * map->sett.size.y) + (c.x) ) * 4) +0];
             uint8_t g = image[ ( (((c.y) * map->sett.size.y) + (c.x) ) * 4) +1];
             uint8_t b = image[ ( (((c.y) * map->sett.size.y) + (c.x) ) * 4) +2];
@@ -207,7 +209,7 @@ bool dm_print_map(struct dm_map *map) {
                  (b >=   0  && 100 >= b) ) {
                 printf("X");
             }
-            else printf("%lc", dm_get_map_tile(&c,map)->icon);
+            else */ printf("%lc", dm_get_map_tile(&c,map)->icon);
         }
         if (c.y % 5 == 0) printf("\t -- %d\n", c.y);
         else putchar('\n');
@@ -218,27 +220,7 @@ bool dm_print_map(struct dm_map *map) {
         if (c.x % 10 == 0) putchar('|');
         else putchar(' ');
     }
-    putwchar('\n');
-
-/*
-    for (c.x = 0; c.x < map->sett.size.x; c.x++) {
-        for (c.y = 0; c.y < map->sett.size.y; c.y++) {
-            uint8_t r = image[ ( (((c.x) * map->sett.size.y) + (c.y) ) * 4) +0];
-            uint8_t g = image[ ( (((c.x) * map->sett.size.y) + (c.y) ) * 4) +1];
-            uint8_t b = image[ ( (((c.x) * map->sett.size.y) + (c.y) ) * 4) +2];
-            uint8_t a = image[ ( (((c.x) * map->sett.size.y) + (c.y) ) * 4) +3];
-            if ( (r >= 150) && 
-                 (g >=   0 &&  120 >= g) && 
-                 (b >=   0 &&  70 >= g) ) {
-                printf("XX");
-            }
-            else if (b >= 0xb0) printf("..");
-            else printf("  ");
-        }
-        putchar('\n');
-    }
     putchar('\n');
-*/
 
     return true;
 }
@@ -570,7 +552,9 @@ struct dm_map *dm_generate_map(struct dm_spawn_settings *sett) {
     struct pf_context *pf_ctx = NULL;
 
     int i = 0;
-    for (i = 0; i < ( (map->sett.size.x * map->sett.size.y) / 100) && (map_is_good == false); i++) {
+    coord_t dstart = start;
+    //for (i = 0; i < ( (map->sett.size.x * map->sett.size.y) / 100) && (map_is_good == false); i++) {
+    for (i = 0; i < 4 && (map_is_good == false); i++) {
         /*
            We flood the map and rescue nonflooded segments untill we can find
            no more non-flooded tiles. This takes a long time though,
@@ -581,20 +565,25 @@ struct dm_map *dm_generate_map(struct dm_spawn_settings *sett) {
          */
 
         /* We generate a new flood map */
-        if (aiu_generate_dijkstra(&pf_ctx, map, &start, 0) ) {
+        if (aiu_generate_dijkstra(&pf_ctx, map, &dstart, 0) ) {
 
             /* check if there is no non-obstacle which has not been used in the map */
             if (pf_calculate_reachability(pf_ctx) == true) {
                 map_is_good = true;
 
                 /* Paranoia: check if there is a path from start to end */
-                //assert(pf_calculate_path(pf_ctx, &start, &end, NULL) > 1);
+                assert(pf_calculate_path(pf_ctx, &start, &end, NULL) > 1);
             }
             else {
+                coord_t dend;
                 /* if we do have regions which have not been recued, create a tunnel to them */
-                dm_get_tunnel_path(map, pf_ctx, r);
-            }
+                dm_get_tunnel_path(map, pf_ctx, r, &dstart, &dend);
+                dm_print_map(map);
 
+                coord_t dul = cd_create(MIN(dstart.x,dend.x) -1, MIN(dstart.y, dend.y) -1 );
+                coord_t ddr = cd_create(MAX(dstart.x,dend.x) +1, MAX(dstart.y, dend.y) +1 );
+                pf_clear_region(pf_ctx, &dul, &ddr);
+            }
         }
     }
     assert(map_is_good == true);

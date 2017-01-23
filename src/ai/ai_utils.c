@@ -134,27 +134,27 @@ static unsigned int aiu_traversable_callback(void *vmap, coord_t *coord) {
 bool aiu_generate_dijkstra(struct pf_context **pf_ctx, struct dm_map *map, coord_t *start, int radius) {
     if (dm_verify_map(map) == false) return false;
 
-    struct pf_settings pf_set = {
-        .map_start = {
-            .x = 0,
-            .y = 0,
-        },
-        .map_end = {
-            .x = map->sett.size.x,
-            .y = map->sett.size.y,
-        },
-        .map = map,
-        .pf_traversable_callback = aiu_traversable_callback,
-    };
-
-    if (radius > 0) {
-        pf_set.map_start.x = MAX(start->x - radius, 0);
-        pf_set.map_start.y = MAX(start->y - radius, 0);
-        pf_set.map_end.x = MIN(start->x + radius, map->sett.size.x);
-        pf_set.map_end.y = MIN(start->y + radius, map->sett.size.y);
-    }
-
     if (*pf_ctx == NULL) {
+        struct pf_settings pf_set = {
+            .map_start = {
+                .x = 0,
+                .y = 0,
+            },
+            .map_end = {
+                .x = map->sett.size.x,
+                .y = map->sett.size.y,
+            },
+            .map = map,
+            .pf_traversable_callback = aiu_traversable_callback,
+        };
+
+        if (radius > 0) {
+            pf_set.map_start.x = MAX(start->x - radius, 0);
+            pf_set.map_start.y = MAX(start->y - radius, 0);
+            pf_set.map_end.x = MIN(start->x + radius, map->sett.size.x);
+            pf_set.map_end.y = MIN(start->y + radius, map->sett.size.y);
+        }
+
         *pf_ctx = pf_init(&pf_set);
     }
 
